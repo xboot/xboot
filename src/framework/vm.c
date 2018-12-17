@@ -144,7 +144,7 @@ static const char * __reader(lua_State * L, void * data, size_t * size)
 
 static int __loadfile(lua_State * L)
 {
-	struct xfs_context_t * ctx = luahelper_task(L)->__xfs_ctx;
+	struct xfs_context_t * ctx = ((struct vmctx_t *)luahelper_vmctx(L))->xfs;
 	const char * filename = luaL_checkstring(L, 1);
 	struct __reader_data_t * rd;
 
@@ -173,7 +173,7 @@ static int __loadfile(lua_State * L)
 
 static int l_search_package_lua(lua_State * L)
 {
-	struct xfs_context_t * ctx = luahelper_task(L)->__xfs_ctx;
+	struct xfs_context_t * ctx = ((struct vmctx_t *)luahelper_vmctx(L))->xfs;
 	const char * filename = lua_tostring(L, -1);
 	char * buf;
 	size_t len, i;
@@ -287,11 +287,47 @@ static lua_State * l_newstate(void * ud)
 	return L;
 }
 
+static struct vmctx_t * vmctx_alloc(const char * path, const char * fb)
+{
+	struct framebuffer_t * fbdev = fb ? search_framebuffer(fb) : search_first_framebuffer();
+	struct vmctx_t * ctx;
+
+	if(!fbdev)
+		return NULL;
+
+	if(!is_absolute_path(path))
+		return NULL;
+
+	ctx = malloc(sizeof(struct vmctx_t));
+	if(!ctx)
+		return NULL;
+
+	ctx->xfs = xfs_alloc(path);
+	ctx->fb = fbdev;
+	ctx->cs = cairo_xboot_surface_create(ctx->fb, NULL);
+	ctx->cr = cairo_create(ctx->cs);
+
+	return ctx;
+}
+
+static void vmctx_free(struct vmctx_t * ctx)
+{
+	if(!ctx)
+		return;
+
+	xfs_free(ctx->xfs);
+	cairo_destroy(ctx->cr);
+	cairo_surface_destroy(ctx->cs);
+
+	free(ctx);
+}
+
 static void vm_task(struct task_t * task, void * data)
 {
+	struct vmctx_t * ctx = (struct vmctx_t *)data;
 	lua_State * L;
 
-	L = l_newstate(task);
+	L = l_newstate(ctx);
 	if(L)
 	{
 		lua_pushcfunction(L, &pmain);
@@ -303,20 +339,28 @@ static void vm_task(struct task_t * task, void * data)
 		}
 		lua_close(L);
 	}
+	vmctx_free(ctx);
 }
 
 int vmexec(const char * path, const char * fb)
 {
 	struct task_t * task;
+	struct vmctx_t * ctx;
 
-	if(is_absolute_path(path))
+	if(!is_absolute_path(path))
+		return -1;
+
+	ctx = vmctx_alloc(path, fb);
+	if(!ctx)
+		return -1;
+
+	task = task_create(NULL, path, vm_task, ctx, 0, 0);
+	if(!task)
 	{
-		task = task_create(NULL, path, vm_task, NULL, 0, 0);
-		if(task)
-		{
-			task_resume(task);
-			return 0;
-		}
+		vmctx_free(ctx);
+		return -1;
 	}
-	return -1;
+
+	task_resume(task);
+	return 0;
 }

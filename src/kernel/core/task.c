@@ -269,7 +269,6 @@ struct task_t * task_create(struct scheduler_t * sched, const char * name, task_
 	task->func = func;
 	task->data = data;
 	task->__errno = 0;
-	task->__xfs_ctx = xfs_alloc(task->name);
 
 	return task;
 }
@@ -283,8 +282,6 @@ void task_destroy(struct task_t * task)
 		task->sched->weight -= nice_to_weight[task->nice + 20];
 		spin_unlock(&task->sched->lock);
 
-		if(task->__xfs_ctx)
-			xfs_free(task->__xfs_ctx);
 		if(task->name)
 			free(task->name);
 		free(task->stack);

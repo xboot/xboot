@@ -10,10 +10,11 @@ extern "C" {
 #include <lapi.h>
 #include <lauxlib.h>
 #include <lualib.h>
+#include <framework/vm.h>
 
-static inline struct task_t * luahelper_task(lua_State * L)
+static inline struct vmctx_t * luahelper_vmctx(lua_State * L)
 {
-	return (struct task_t *)(G(L)->ud);
+	return (struct vmctx_t *)(G(L)->ud);
 }
 
 void luahelper_dump_stack(lua_State * L);

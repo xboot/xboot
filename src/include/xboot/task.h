@@ -45,7 +45,6 @@ struct task_t {
 	task_func_t func;
 	void * data;
 	int __errno;
-	void * __xfs_ctx;
 };
 
 struct scheduler_t {

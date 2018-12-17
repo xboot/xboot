@@ -6,6 +6,7 @@ extern "C" {
 #endif
 
 #include <types.h>
+#include <malloc.h>
 
 #define RAND_MAX (0x7fffffff)
 

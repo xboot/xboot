@@ -76,7 +76,8 @@ cmd_link_o_target = $(if $(strip $(X_OBJS)), \
 
 __build : $(X_TARGET) $(PREPARE) ;
 
-$(sort $(subdir-objs)) : $(subdir-y)
+# update time
+$(sort $(subdir-objs)) : $(subdir-y) ;
 
 $(subdir-y) :
 	@$(MAKE) -f $(BUILD_SRC)/scripts/Makefile.build obj=$@

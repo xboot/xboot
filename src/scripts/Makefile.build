@@ -72,7 +72,7 @@ cmd_as_o_S = $(AS) $(X_ASFLAGS) -MD -MF $(@D)/.$(@F).d $(X_INCDIRS) -c $< -o $@
 quiet_cmd_link_o_target = [LD] $(obj)/built-in.o
 cmd_link_o_target = $(if $(strip $(X_OBJS)), \
 		      $(LD) -r -o $@ $(filter $(X_OBJS), $^), \
-		      $(RM) $@;$(AR) rcs -o $@)
+		      $(RM) $@;$(AR) rcs $@)
 
 __build : $(X_TARGET) $(PREPARE) ;
 

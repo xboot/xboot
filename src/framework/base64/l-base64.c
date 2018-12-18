@@ -32,12 +32,12 @@ static const char * mtrans = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwx
 
 static int base64_encode(lua_State * L)
 {
-	const u8_t *data;
+	const u8_t * data;
 	size_t size;
 	luaL_Buffer b;
 	u8_t A, B, C, D;
 
-	data = (u8_t *) luaL_checklstring(L, 1, &size);
+	data = (u8_t *)luaL_checklstring(L, 1, &size);
 	luaL_buffinit(L, &b);
 
 	while(1)
@@ -123,7 +123,7 @@ static int base64_decode(lua_State * L)
 				buf[i] = 0;
 			else
 			{
-				char *p = strchr(mtrans, data[i]);
+				char * p = strchr(mtrans, data[i]);
 				assert(p != NULL);
 				buf[i] = (p - mtrans);
 				assert(buf[i] < 64);

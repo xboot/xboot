@@ -1,9 +1,9 @@
+local Button = require "xboot.widget.Button"
 local TestCase = require("TestCase")
 
-local stage = Stage.new()
 local sw, sh= stage:getSize()
 
-local testcases = TestCase.new({
+local testcases = TestCase.new(sw, sh, {
 	require("games.2048"),
 	require("graphics.balls"),
 	require("graphics.cursor"),
@@ -11,14 +11,14 @@ local testcases = TestCase.new({
 	require("widgets.button"),
 	require("widgets.checkbox"),
 	require("widgets.radiobutton"),
-}, sw, sh)
+})
 stage:addChild(testcases)
 
-local prevbtn = Widget.Button.new({x = 50, y = sh - 100, width = 100, height = 50})
+local prevbtn = Button.new({x = 50, y = sh - 100, width = 100, height = 50})
 	:addEventListener("Click", function(d, e) testcases:prev() end)
 stage:addChild(prevbtn)
 
-local nextbtn = Widget.Button.new({x = sw - 150, y = sh - 100, width = 100, height = 50})
+local nextbtn = Button.new({x = sw - 150, y = sh - 100, width = 100, height = 50})
 	:addEventListener("Click", function(d, e) testcases:next() end)
 stage:addChild(nextbtn)
 
@@ -35,4 +35,4 @@ stage:addEventListener(Event.KEY_DOWN, function(d, e)
 end)
 
 stage:showfps(true)
-stage:loop()
+

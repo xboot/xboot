@@ -1,6 +1,3 @@
-local stage = Stage.new()
-local sw, sh = stage:getSize()
-
 local function onMouseDown(self, e)
 	if self:hitTestPoint(e.x, e.y) then
 		self.touchid = -1
@@ -57,6 +54,8 @@ local function onTouchEnd(self, e)
 	end
 end
 
+local sw, sh = stage:getSize()
+
 for i = 1, 5 do
 	local shape = DisplayShape.new(100, 50)
 		:setLineWidth(6)
@@ -77,4 +76,5 @@ for i = 1, 5 do
 	stage:addChild(shape)
 end
 
-stage:loop()
+stage:showfps(true)
+

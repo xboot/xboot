@@ -1,3 +1,6 @@
+local Pattern = require "graphic.pattern"
+local CheckBox = require "xboot.widget.CheckBox"
+
 local M = Class(DisplayObject)
 
 function M:init(w, h)
@@ -6,10 +9,10 @@ function M:init(w, h)
 	local assets = assets
 
 	self:addChild(DisplayShape.new(w, h)
-		:setSource(Pattern.texture(assets:loadTexture("widgets/checkbox/bg.png")):setExtend(Pattern.EXTEND_REPEAT))
+		:setSource(Pattern.image(assets:loadImage("widgets/checkbox/bg.png")):setExtend(Pattern.EXTEND_REPEAT))
 		:paint())
 
-	local checkbox = Widget.CheckBox.new({x = 100, y = 100})
+	local checkbox = CheckBox.new({x = 100, y = 100})
 		:addEventListener("Change", function(d, e) print("CheckBox changed:", e.checked) end)
 	self:addChild(checkbox)
 end

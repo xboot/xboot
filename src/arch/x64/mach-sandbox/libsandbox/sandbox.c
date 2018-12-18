@@ -20,7 +20,7 @@ static size_t read_file_to_memory(const char * filename, char ** buffer)
 		return 0;
 
 	fd = sandbox_file_open(filename, "r");
-	if(fd <= 0)
+	if(fd < 0)
 		return 0;
 
 	len = sandbox_file_length(fd);

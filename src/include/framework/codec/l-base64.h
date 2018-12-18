@@ -1,5 +1,5 @@
-#ifndef __FRAMEWORK_L_BASE64_H__
-#define __FRAMEWORK_L_BASE64_H__
+#ifndef __FRAMEWORK_CODEC_L_BASE64_H__
+#define __FRAMEWORK_CODEC_L_BASE64_H__
 
 #ifdef __cplusplus
 extern "C" {
@@ -13,4 +13,4 @@ int luaopen_base64(lua_State * L);
 }
 #endif
 
-#endif /* __FRAMEWORK_L_BASE64_H__ */
+#endif /* __FRAMEWORK_CODEC_L_BASE64_H__ */

@@ -1,5 +1,5 @@
-#ifndef __FRAMEWORK_L_JSON_H__
-#define __FRAMEWORK_L_JSON_H__
+#ifndef __FRAMEWORK_CODEC_L_JSON_H__
+#define __FRAMEWORK_CODEC_L_JSON_H__
 
 #ifdef __cplusplus
 extern "C" {
@@ -13,4 +13,4 @@ extern int luaopen_cjson_safe(lua_State * L);
 }
 #endif
 
-#endif /* __FRAMEWORK_L_JSON_H__ */
+#endif /* __FRAMEWORK_CODEC_L_JSON_H__ */

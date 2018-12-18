@@ -1,16 +1,19 @@
-local Game = require("games.2048.Game")
+local Dobject = require "graphic.dobject"
+local Image = require "graphic.image"
+local Pattern = require "graphic.pattern"
+local Game = require "games.2048.Game"
 
 local M = Class(DisplayObject)
 
 function M:init(w, h)
-	self.super:init()
-	
+	self.super:init(w, h)
+
 	local assets = assets
 	self:addChild(DisplayShape.new(w, h)
-		:setSource(Pattern.texture(assets:loadTexture("games/2048/images/bg.png")):setExtend(Pattern.EXTEND_REPEAT))
+		:setSource(Pattern.image(assets:loadImage("games/2048/images/bg.png")):setExtend(Pattern.EXTEND_REPEAT))
 		:paint())
 	self:setSize(w, h)
-	self:addChild(Game.new(w, h):setAlignment(Object.ALIGN_CENTER))
+	self:addChild(Game.new(w, h):setAlignment(Dobject.ALIGN_CENTER))
 	self:layout()
 end
 

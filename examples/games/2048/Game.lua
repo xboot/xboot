@@ -1,3 +1,4 @@
+local Button = require "xboot.widget.Button"
 local Tile = require("Tile")
 local Score = require("Score")
 local M = Class(DisplayObject)
@@ -10,14 +11,14 @@ function M:init()
 	self:setSize(width, height)
 	self:addChild(background)
 
-	local clearbutton = Widget.Button.new({x = 130, y = 90,
+	local clearbutton = Button.new({x = 130, y = 90,
 		imageNormal = "assets/images/clearNormal.png",
 		imagePressed = "assets/images/clearPressed.png",
 		imageDisabled = "assets/images/clearDisabled.png"})
 		:addEventListener("Release", function(d, e) self:clear() end, self)
 	self:addChild(clearbutton)
 
-	local restartbutton = Widget.Button.new({x = 225, y = 90,
+	local restartbutton = Button.new({x = 225, y = 90,
 		imageNormal = "assets/images/restartNormal.png",
 		imagePressed = "assets/images/restartPressed.png",
 		imageDisabled = "assets/images/restartDisabled.png"})

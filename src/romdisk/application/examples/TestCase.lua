@@ -1,7 +1,9 @@
+local Easing = require "graphic.easing"
+
 local M = Class(DisplayObject)
 
-function M:init(cases, width, height)
-	self.super:init()
+function M:init(width, height, cases)
+	self.super:init(width, height)
 
 	self.width = width or 640
 	self.height = height or 480

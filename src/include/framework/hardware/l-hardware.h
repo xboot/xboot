@@ -1,5 +1,5 @@
-#ifndef __FRAMEWORK_L_HARDWARE_H__
-#define __FRAMEWORK_L_HARDWARE_H__
+#ifndef __FRAMEWORK_HARDWARE_L_HARDWARE_H__
+#define __FRAMEWORK_HARDWARE_L_HARDWARE_H__
 
 #ifdef __cplusplus
 extern "C" {
@@ -7,32 +7,32 @@ extern "C" {
 
 #include <framework/luahelper.h>
 
-#define	MT_HARDWARE_ADC			"mt_hardware_adc"
-#define	MT_HARDWARE_BATTERY		"mt_hardware_battery"
-#define	MT_HARDWARE_BUZZER		"mt_hardware_buzzer"
-#define	MT_HARDWARE_COMPASS		"mt_hardware_compass"
-#define	MT_HARDWARE_DAC			"mt_hardware_dac"
-#define	MT_HARDWARE_GMETER		"mt_hardware_gmeter"
-#define	MT_HARDWARE_GPIO		"mt_hardware_gpio"
-#define	MT_HARDWARE_GYROSCOPE	"mt_hardware_gyroscope"
-#define	MT_HARDWARE_HYGROMETER	"mt_hardware_hygrometer"
-#define	MT_HARDWARE_I2C			"mt_hardware_i2c"
-#define	MT_HARDWARE_LED			"mt_hardware_led"
-#define	MT_HARDWARE_LEDSTRIP	"mt_hardware_ledstrip"
-#define	MT_HARDWARE_LEDTRIGGER	"mt_hardware_ledtrigger"
-#define	MT_HARDWARE_LIGHT		"mt_hardware_light"
-#define	MT_HARDWARE_MOTOR		"mt_hardware_motor"
-#define	MT_HARDWARE_NVMEM		"mt_hardware_nvmem"
-#define	MT_HARDWARE_PRESSURE	"mt_hardware_pressure"
-#define	MT_HARDWARE_PROXIMITY	"mt_hardware_proximity"
-#define	MT_HARDWARE_PWM			"mt_hardware_pwm"
-#define	MT_HARDWARE_SERVO		"mt_hardware_servo"
-#define	MT_HARDWARE_SPI			"mt_hardware_spi"
-#define	MT_HARDWARE_STEPPER		"mt_hardware_stepper"
-#define	MT_HARDWARE_THERMOMETER	"mt_hardware_thermometer"
-#define	MT_HARDWARE_UART		"mt_hardware_uart"
-#define	MT_HARDWARE_VIBRATOR	"mt_hardware_vibrator"
-#define	MT_HARDWARE_WATCHDOG	"mt_hardware_watchdog"
+#define	MT_HARDWARE_ADC			"__mt_hardware_adc__"
+#define	MT_HARDWARE_BATTERY		"__mt_hardware_battery__"
+#define	MT_HARDWARE_BUZZER		"__mt_hardware_buzzer__"
+#define	MT_HARDWARE_COMPASS		"__mt_hardware_compass__"
+#define	MT_HARDWARE_DAC			"__mt_hardware_dac__"
+#define	MT_HARDWARE_GMETER		"__mt_hardware_gmeter__"
+#define	MT_HARDWARE_GPIO		"__mt_hardware_gpio__"
+#define	MT_HARDWARE_GYROSCOPE	"__mt_hardware_gyroscope__"
+#define	MT_HARDWARE_HYGROMETER	"__mt_hardware_hygrometer__"
+#define	MT_HARDWARE_I2C			"__mt_hardware_i2c__"
+#define	MT_HARDWARE_LED			"__mt_hardware_led__"
+#define	MT_HARDWARE_LEDSTRIP	"__mt_hardware_ledstrip__"
+#define	MT_HARDWARE_LEDTRIGGER	"__mt_hardware_ledtrigger__"
+#define	MT_HARDWARE_LIGHT		"__mt_hardware_light__"
+#define	MT_HARDWARE_MOTOR		"__mt_hardware_motor__"
+#define	MT_HARDWARE_NVMEM		"__mt_hardware_nvmem__"
+#define	MT_HARDWARE_PRESSURE	"__mt_hardware_pressure__"
+#define	MT_HARDWARE_PROXIMITY	"__mt_hardware_proximity__"
+#define	MT_HARDWARE_PWM			"__mt_hardware_pwm__"
+#define	MT_HARDWARE_SERVO		"__mt_hardware_servo__"
+#define	MT_HARDWARE_SPI			"__mt_hardware_spi__"
+#define	MT_HARDWARE_STEPPER		"__mt_hardware_stepper__"
+#define	MT_HARDWARE_THERMOMETER	"__mt_hardware_thermometer__"
+#define	MT_HARDWARE_UART		"__mt_hardware_uart__"
+#define	MT_HARDWARE_VIBRATOR	"__mt_hardware_vibrator__"
+#define	MT_HARDWARE_WATCHDOG	"__mt_hardware_watchdog__"
 
 int luaopen_hardware_adc(lua_State * L);
 int luaopen_hardware_battery(lua_State * L);
@@ -65,4 +65,4 @@ int luaopen_hardware_watchdog(lua_State * L);
 }
 #endif
 
-#endif /* __FRAMEWORK_L_HARDWARE_H__ */
+#endif /* __FRAMEWORK_HARDWARE_L_HARDWARE_H__ */

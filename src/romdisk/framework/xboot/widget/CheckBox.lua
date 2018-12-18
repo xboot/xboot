@@ -1,3 +1,5 @@
+local Dobject = require "graphic.dobject"
+
 local M = Class(DisplayObject)
 
 M.STATE_NORMAL = "NORMAL"
@@ -35,12 +37,12 @@ function M:init(option, name)
 	self.frameOffPressed = assets:loadDisplay(self.opt.imageOffPressed)
 	self.frameOffDisabled = assets:loadDisplay(self.opt.imageOffDisabled)
 
-	self.frameOnNormal:setAlignment(Object.ALIGN_CENTER_FILL)
-	self.frameOnPressed:setAlignment(Object.ALIGN_CENTER_FILL)
-	self.frameOnDisabled:setAlignment(Object.ALIGN_CENTER_FILL)
-	self.frameOffNormal:setAlignment(Object.ALIGN_CENTER_FILL)
-	self.frameOffPressed:setAlignment(Object.ALIGN_CENTER_FILL)
-	self.frameOffDisabled:setAlignment(Object.ALIGN_CENTER_FILL)
+	self.frameOnNormal:setAlignment(Dobject.ALIGN_CENTER_FILL)
+	self.frameOnPressed:setAlignment(Dobject.ALIGN_CENTER_FILL)
+	self.frameOnDisabled:setAlignment(Dobject.ALIGN_CENTER_FILL)
+	self.frameOffNormal:setAlignment(Dobject.ALIGN_CENTER_FILL)
+	self.frameOffPressed:setAlignment(Dobject.ALIGN_CENTER_FILL)
+	self.frameOffDisabled:setAlignment(Dobject.ALIGN_CENTER_FILL)
 
 	local width, height = self.frameOnNormal:getSize()
 	self.opt.width = self.opt.width or width

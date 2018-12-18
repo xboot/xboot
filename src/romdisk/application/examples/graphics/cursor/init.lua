@@ -1,3 +1,5 @@
+local Pattern = require "graphic.pattern"
+
 local M = Class(DisplayObject)
 
 function M:init(w, h)
@@ -6,7 +8,7 @@ function M:init(w, h)
 	local assets = assets
 
 	self:addChild(DisplayShape.new(w, h)
-		:setSource(Pattern.texture(assets:loadTexture("graphics/cursor/bg.png")):setExtend(Pattern.EXTEND_REPEAT))
+		:setSource(Pattern.image(assets:loadImage("graphics/cursor/bg.png")):setExtend(Pattern.EXTEND_REPEAT))
 		:paint())
 
 	local cursor = assets:loadDisplay("graphics/cursor/cursor.png")

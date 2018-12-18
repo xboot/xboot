@@ -28,32 +28,22 @@
 
 #include <xfs/xfs.h>
 #include <framework/luahelper.h>
-#include <framework/lang/l-class.h>
-#include <framework/event/l-event.h>
-#include <framework/event/l-event-dispatcher.h>
+#include <framework/core/l-assets.h>
+#include <framework/core/l-class.h>
+#include <framework/core/l-display-image.h>
+#include <framework/core/l-display-ninepatch.h>
+#include <framework/core/l-display-object.h>
+#include <framework/core/l-display-shape.h>
+#include <framework/core/l-event.h>
+#include <framework/core/l-event-dispatcher.h>
+#include <framework/core/l-stage.h>
+#include <framework/core/l-stopwatch.h>
+#include <framework/core/l-timer.h>
 #include <framework/codec/l-base64.h>
 #include <framework/codec/l-json.h>
-#include <framework/stopwatch/l-stopwatch.h>
-#include <framework/display/l-display.h>
+#include <framework/graphic/l-graphic.h>
 #include <framework/hardware/l-hardware.h>
 #include <framework/vm.h>
-
-static void luaopen_glblibs(lua_State * L)
-{
-	const luaL_Reg glblibs[] = {
-		{ "Class",					luaopen_class },
-		{ "Event",					luaopen_event },
-		{ "EventDispatcher",		luaopen_event_dispatcher },
-		{ NULL,	NULL },
-	};
-	const luaL_Reg * lib;
-
-	for(lib = glblibs; lib->func; lib++)
-	{
-		luaL_requiref(L, lib->name, lib->func, 1);
-		lua_pop(L, 1);
-	}
-}
 
 static void luaopen_prelibs(lua_State * L)
 {
@@ -61,16 +51,15 @@ static void luaopen_prelibs(lua_State * L)
 		{ "codec.base64",			luaopen_base64 },
 		{ "codec.json",				luaopen_cjson_safe },
 
-		{ "builtin.stopwatch",		luaopen_stopwatch },
-		{ "builtin.matrix",			luaopen_matrix },
-		{ "builtin.easing",			luaopen_easing },
-		{ "builtin.object",			luaopen_object },
-		{ "builtin.pattern",		luaopen_pattern },
-		{ "builtin.texture",		luaopen_texture },
-		{ "builtin.ninepatch",		luaopen_ninepatch },
-		{ "builtin.shape",			luaopen_shape },
-		{ "builtin.font",			luaopen_font },
-		{ "builtin.display",		luaopen_display },
+		{ "graphic.display",		luaopen_display },
+		{ "graphic.dobject",		luaopen_dobject },
+		{ "graphic.easing",			luaopen_easing },
+		{ "graphic.font",			luaopen_font },
+		{ "graphic.image",			luaopen_image },
+		{ "graphic.matrix",			luaopen_matrix },
+		{ "graphic.ninepatch",		luaopen_ninepatch },
+		{ "graphic.pattern",		luaopen_pattern },
+		{ "graphic.shape",			luaopen_shape },
 
 		{ "hardware.adc",			luaopen_hardware_adc },
 		{ "hardware.battery",		luaopen_hardware_battery },
@@ -109,46 +98,37 @@ static void luaopen_prelibs(lua_State * L)
 	}
 }
 
-static const char boot_lua[] = X(
-	Base64 = require "codec.base64"
-	Json = require "codec.json"
+static void luaopen_glblibs(lua_State * L)
+{
+	const luaL_Reg glblibs[] = {
+		{ "Class",					luaopen_class },
+		{ "Stopwatch",				luaopen_stopwatch },
+		{ "Timer",					luaopen_timer },
+		{ "Event",					luaopen_event },
+		{ "EventDispatcher",		luaopen_event_dispatcher },
+		{ "DisplayObject",			luaopen_display_object },
+		{ "DisplayImage",			luaopen_display_image },
+		{ "DisplayNinepatch",		luaopen_display_ninepatch },
+		{ "DisplayShape",			luaopen_display_shape },
+		{ "Stage",					luaopen_stage },
+		{ "Assets",					luaopen_assets },
+		{ NULL,	NULL },
+	};
+	const luaL_Reg * lib;
 
-	Stopwatch = require "builtin.stopwatch"
-	Matrix = require "builtin.matrix"
-	Easing = require "builtin.easing"
-	Object = require "builtin.object"
-	Pattern = require "builtin.pattern"
-	Texture = require "builtin.texture"
-	Ninepatch = require "builtin.ninepatch"
-	Shape = require "builtin.shape"
-	Font = require "builtin.font"
-	Display = require "builtin.display"
-
-	DisplayObject = require "xboot.display.DisplayObject"
-	DisplayImage = require "xboot.display.DisplayImage"
-	DisplayImageMask = require "xboot.display.DisplayImageMask"
-	DisplayNinepatch = require "xboot.display.DisplayNinepatch"
-	DisplayShape = require "xboot.display.DisplayShape"
-	DisplayText = require "xboot.display.DisplayText"
-
-	Assets = require "xboot.core.Assets"
-	TexturePacker = require "xboot.core.TexturePacker"
-	Stage = require "xboot.core.Stage"
-
-	Timer = require "xboot.timer.Timer"
-	TimerManager = require "xboot.timer.TimerManager"
-
-	Widget = {
-		Button = require "xboot.widget.Button",
-		CheckBox = require "xboot.widget.CheckBox",
-		RadioButton = require "xboot.widget.RadioButton",
-		Stepper = require "xboot.widget.Stepper",
-		Slider = require "xboot.widget.Slider",
+	for(lib = glblibs; lib->func; lib++)
+	{
+		luaL_requiref(L, lib->name, lib->func, 1);
+		lua_pop(L, 1);
 	}
+}
 
+static const char boot_lua[] = X(
+	stage = Stage.new()
 	assets = Assets.new()
-	timermanager = TimerManager.new()
-	require("main")
+	if require("main") then
+		stage:loop()
+	end
 );
 
 static int luaopen_boot(lua_State * L)
@@ -264,8 +244,8 @@ static int l_xboot_uniqueid(lua_State * L)
 static int pmain(lua_State * L)
 {
 	luaL_openlibs(L);
-	luaopen_glblibs(L);
 	luaopen_prelibs(L);
+	luaopen_glblibs(L);
 
 	luahelper_package_searcher(L, l_search_package_lua, 2);
 	luahelper_package_path(L, "./?/init.lua;./?.lua");
@@ -317,11 +297,7 @@ static lua_State * l_newstate(void * ud)
 
 static struct vmctx_t * vmctx_alloc(const char * path, const char * fb)
 {
-	struct framebuffer_t * fbdev = fb ? search_framebuffer(fb) : search_first_framebuffer();
 	struct vmctx_t * ctx;
-
-	if(!fbdev)
-		return NULL;
 
 	if(!is_absolute_path(path))
 		return NULL;
@@ -331,10 +307,7 @@ static struct vmctx_t * vmctx_alloc(const char * path, const char * fb)
 		return NULL;
 
 	ctx->xfs = xfs_alloc(path);
-	ctx->fb = fbdev;
-	ctx->cs = cairo_xboot_surface_create(ctx->fb, NULL);
-	ctx->cr = cairo_create(ctx->cs);
-
+	ctx->d = display_alloc(fb);
 	return ctx;
 }
 
@@ -344,9 +317,7 @@ static void vmctx_free(struct vmctx_t * ctx)
 		return;
 
 	xfs_free(ctx->xfs);
-	cairo_destroy(ctx->cr);
-	cairo_surface_destroy(ctx->cs);
-
+	display_free(ctx->d);
 	free(ctx);
 }
 

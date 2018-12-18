@@ -1,3 +1,4 @@
+local Pattern = require "graphic.pattern"
 local M = Class(DisplayObject)
 
 function M:init(w, h)
@@ -6,7 +7,7 @@ function M:init(w, h)
 	local assets = assets
 
 	self:addChild(DisplayShape.new(w, h)
-		:setSource(Pattern.texture(assets:loadTexture("graphics/dragme/bg.png")):setExtend(Pattern.EXTEND_REPEAT))
+		:setSource(Pattern.image(assets:loadImage("graphics/dragme/bg.png")):setExtend(Pattern.EXTEND_REPEAT))
 		:paint())
 
 	for i = 1, 5 do

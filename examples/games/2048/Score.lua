@@ -1,7 +1,7 @@
 local M = Class(DisplayObject)
 
 function M:init(n)
-	self.super:init()
+	self.super:init(60, 16)
 	self:set(n or 0)
 end
 
@@ -10,7 +10,7 @@ function M:set(n)
 	local text = string.format("%5d", self.n)
 	local x = 0
 
-	self.children = {}
+	self:removeChildAll()
 	for c in string.gmatch(text, "[%z\1-\127\194-\244][\128-\191]*") do
 		if c ~= ' ' then
 			local char = assets:loadDisplay("assets/images/" .. c .. ".png"):setPosition(x, 0)

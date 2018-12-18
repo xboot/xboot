@@ -1,7 +1,7 @@
 local M = Class(DisplayObject)
 
 function M:init(x, y, n)
-	self.super:init()
+	self.super:init(60, 60)
 	self.gx = x
 	self.gy = y
 	self.n = n

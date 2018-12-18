@@ -15,7 +15,6 @@ int sandbox_file_open(const char * path, const char * mode)
 {
 	int flags = O_RDONLY;
 	int plus = 0;
-	int fd;
 
 	while(*mode)
 	{
@@ -38,8 +37,7 @@ int sandbox_file_open(const char * path, const char * mode)
 	if(plus)
 		flags = (flags & ~(O_RDONLY | O_WRONLY)) | O_RDWR;
 
-	fd = open(path, flags, (S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH));
-	return fd < 0 ? 0 : fd;
+	return open(path, flags, (S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH));
 }
 
 int sandbox_file_close(int fd)

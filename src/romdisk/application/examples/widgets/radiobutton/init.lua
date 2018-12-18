@@ -1,3 +1,6 @@
+local Pattern = require "graphic.pattern"
+local RadioButton = require "xboot.widget.RadioButton"
+
 local M = Class(DisplayObject)
 
 function M:init(w, h)
@@ -6,10 +9,10 @@ function M:init(w, h)
 	local assets = assets
 
 	self:addChild(DisplayShape.new(w, h)
-		:setSource(Pattern.texture(assets:loadTexture("widgets/radiobutton/bg.png")):setExtend(Pattern.EXTEND_REPEAT))
+		:setSource(Pattern.image(assets:loadImage("widgets/radiobutton/bg.png")):setExtend(Pattern.EXTEND_REPEAT))
 		:paint())
 
-	local radiobutton = Widget.RadioButton.new({x = 100, y = 100})
+	local radiobutton = RadioButton.new({x = 100, y = 100})
 		:addEventListener("Change", function(d, e) print("RadioButton changed:", e.checked) end)
 	self:addChild(radiobutton)
 end

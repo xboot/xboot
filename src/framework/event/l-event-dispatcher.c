@@ -113,7 +113,7 @@ return M
 
 int luaopen_event_dispatcher(lua_State * L)
 {
-	if(luaL_loadbuffer(L, event_dispatcher_lua, sizeof(event_dispatcher_lua)-1, "EventDispatcher.lua") == LUA_OK)
+	if(luaL_loadbuffer(L, event_dispatcher_lua, sizeof(event_dispatcher_lua) - 1, "EventDispatcher.lua") == LUA_OK)
 		lua_call(L, 0, 1);
 	return 1;
 }

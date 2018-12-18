@@ -26,10 +26,8 @@
  *
  */
 
-#include <shell/readline.h>
 #include <xfs/xfs.h>
 #include <framework/luahelper.h>
-#include <framework/lang/l-debugger.h>
 #include <framework/lang/l-class.h>
 #include <framework/event/l-event.h>
 #include <framework/event/l-event-dispatcher.h>
@@ -44,7 +42,6 @@ extern int luaopen_cjson_safe(lua_State *);
 static void luaopen_glblibs(lua_State * L)
 {
 	const luaL_Reg glblibs[] = {
-		{ "Debugger",				luaopen_debugger },
 		{ "Class",					luaopen_class },
 		{ "Event",					luaopen_event },
 		{ "EventDispatcher",		luaopen_event_dispatcher },
@@ -264,14 +261,6 @@ static int l_xboot_uniqueid(lua_State * L)
 	return 1;
 }
 
-static int l_xboot_readline(lua_State * L)
-{
-	char * p = readline(luaL_optstring(L, 1, NULL));
-	lua_pushstring(L, p);
-	free(p);
-	return 1;
-}
-
 static int pmain(lua_State * L)
 {
 	luaL_openlibs(L);
@@ -294,8 +283,6 @@ static int pmain(lua_State * L)
 	lua_setfield(L, -2, "version");
 	lua_pushcfunction(L, l_xboot_uniqueid);
 	lua_setfield(L, -2, "uniqueid");
-	lua_pushcfunction(L, l_xboot_readline);
-	lua_setfield(L, -2, "readline");
 
 	luaopen_boot(L);
 	return 0;

@@ -1,5 +1,5 @@
 /*
- * framework/base64/l-base64.c
+ * framework/codec/l-base64.c
  *
  * Copyright(c) 2007-2018 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -26,7 +26,7 @@
  *
  */
 
-#include <framework/base64/l-base64.h>
+#include <framework/codec/l-base64.h>
 
 static const char * mtrans = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 

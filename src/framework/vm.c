@@ -31,13 +31,12 @@
 #include <framework/lang/l-class.h>
 #include <framework/event/l-event.h>
 #include <framework/event/l-event-dispatcher.h>
+#include <framework/codec/l-base64.h>
+#include <framework/codec/l-json.h>
 #include <framework/stopwatch/l-stopwatch.h>
-#include <framework/base64/l-base64.h>
 #include <framework/display/l-display.h>
 #include <framework/hardware/l-hardware.h>
 #include <framework/vm.h>
-
-extern int luaopen_cjson_safe(lua_State *);
 
 static void luaopen_glblibs(lua_State * L)
 {
@@ -59,8 +58,8 @@ static void luaopen_glblibs(lua_State * L)
 static void luaopen_prelibs(lua_State * L)
 {
 	const luaL_Reg prelibs[] = {
-		{ "builtin.json",			luaopen_cjson_safe },
-		{ "builtin.base64",			luaopen_base64 },
+		{ "codec.base64",			luaopen_base64 },
+		{ "codec.json",				luaopen_cjson_safe },
 
 		{ "builtin.stopwatch",		luaopen_stopwatch },
 		{ "builtin.matrix",			luaopen_matrix },
@@ -111,9 +110,10 @@ static void luaopen_prelibs(lua_State * L)
 }
 
 static const char boot_lua[] = X(
-	Json = require "builtin.json"
+	Base64 = require "codec.base64"
+	Json = require "codec.json"
+
 	Stopwatch = require "builtin.stopwatch"
-	Base64 = require "builtin.base64"
 	Matrix = require "builtin.matrix"
 	Easing = require "builtin.easing"
 	Object = require "builtin.object"

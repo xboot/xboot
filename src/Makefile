@@ -155,7 +155,7 @@ SRCDIRS		+=	arch/$(ARCH)/lib/cpu						\
 				driver/vibrator								\
 				driver/watchdog								\
 				framework									\
-				framework/base64							\
+				framework/codec								\
 				framework/display							\
 				framework/event								\
 				framework/hardware							\

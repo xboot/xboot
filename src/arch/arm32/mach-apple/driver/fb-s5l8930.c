@@ -67,7 +67,7 @@ static int fb_getbl(struct framebuffer_t * fb)
 	return led_get_brightness(pdat->backlight);
 }
 
-struct render_t * fb_create(struct framebuffer_t * fb)
+static struct render_t * fb_create(struct framebuffer_t * fb)
 {
 	struct fb_s5l8930_pdata_t * pdat = (struct fb_s5l8930_pdata_t *)fb->priv;
 	struct render_t * render;
@@ -97,7 +97,7 @@ struct render_t * fb_create(struct framebuffer_t * fb)
 	return render;
 }
 
-void fb_destroy(struct framebuffer_t * fb, struct render_t * render)
+static void fb_destroy(struct framebuffer_t * fb, struct render_t * render)
 {
 	if(render)
 	{
@@ -106,7 +106,7 @@ void fb_destroy(struct framebuffer_t * fb, struct render_t * render)
 	}
 }
 
-void fb_present(struct framebuffer_t * fb, struct render_t * render, struct dirty_rect_t * rect, int nrect)
+static void fb_present(struct framebuffer_t * fb, struct render_t * render, struct dirty_rect_t * rect, int nrect)
 {
 	struct fb_s5l8930_pdata_t * pdat = (struct fb_s5l8930_pdata_t *)fb->priv;
 

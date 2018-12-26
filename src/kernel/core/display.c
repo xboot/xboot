@@ -92,7 +92,6 @@ static struct framebuffer_t fb_dummy = {
 	.create		= fb_dummy_create,
 	.destroy	= fb_dummy_destroy,
 	.present	= fb_dummy_present,
-	.alone		= NULL,
 	.priv		= NULL,
 };
 
@@ -114,7 +113,7 @@ struct display_t * display_alloc(const char * fb)
 		return NULL;
 
 	d->fb = dev;
-	d->cs = cairo_xboot_surface_create(d->fb, NULL);
+	d->cs = cairo_xboot_surface_create(d->fb);
 	d->cr = cairo_create(d->cs);
 	d->showfps = 0;
 	d->fps = 60;

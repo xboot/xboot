@@ -47,7 +47,7 @@ void do_showlogo(void)
 		{
 			if((fb = (struct framebuffer_t *)(pos->priv)))
 			{
-				cs = cairo_xboot_surface_create(fb, fb->alone);
+				cs = cairo_xboot_surface_create(fb);
 				cr = cairo_create(cs);
 
 				cairo_save(cr);

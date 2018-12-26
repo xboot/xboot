@@ -177,7 +177,7 @@ static int do_tscal(int argc, char ** argv)
 		return -1;
 	}
 
-	cs = cairo_xboot_surface_create(fb, fb->alone);
+	cs = cairo_xboot_surface_create(fb);
 	cr = cairo_create(cs);
 	width = cairo_image_surface_get_width(cs);
 	height = cairo_image_surface_get_height(cs);

@@ -74,9 +74,6 @@ struct framebuffer_t
 	/* Present a render */
 	void (*present)(struct framebuffer_t * fb, struct render_t * render, struct dirty_rect_t * rect, int nrect);
 
-	/* Alone render - create by register */
-	struct render_t * alone;
-
 	/* Private data */
 	void * priv;
 };

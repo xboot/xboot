@@ -199,13 +199,11 @@ static void dobject_draw_ninepatch(lua_State * L, struct ldobject_t * o)
 static void dobject_draw_shape(lua_State * L, struct ldobject_t * o)
 {
 	struct display_t * d = ((struct vmctx_t *)luahelper_vmctx(L))->d;
-	cairo_t ** shape = o->priv;
+	struct lshape_t * shape = o->priv;
 	cairo_t * cr = d->cr;
 	cairo_save(cr);
 	cairo_set_matrix(cr, dobject_global_matrix(o));
-	cairo_surface_t * surface = cairo_surface_reference(cairo_get_target(*shape));
-	cairo_set_source_surface(cr, surface, 0, 0);
-	cairo_surface_destroy(surface);
+	cairo_set_source_surface(cr, shape->cs, 0, 0);
 	cairo_pattern_set_filter(cairo_get_source(cr), CAIRO_FILTER_FAST);
 	cairo_paint_with_alpha(cr, o->alpha);
 	cairo_restore(cr);

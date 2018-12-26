@@ -31,16 +31,12 @@
 
 static int l_shape_new(lua_State * L)
 {
-	cairo_rectangle_t extents = {
-		.x		= 0,
-		.y		= 0,
-		.width  = luaL_optnumber(L, 1, 1),
-		.height = luaL_optnumber(L, 2, 1),
-	};
-	cairo_surface_t * surface = cairo_recording_surface_create(CAIRO_CONTENT_COLOR_ALPHA, &extents);
-	cairo_t ** cr = lua_newuserdata(L, sizeof(cairo_t *));
-	*cr = cairo_create(surface);
-	cairo_surface_destroy(surface);
+	struct display_t * d = ((struct vmctx_t *)luahelper_vmctx(L))->d;
+	int width = luaL_checkinteger(L, 1);
+	int height = luaL_checkinteger(L, 2);
+	struct lshape_t * shape = lua_newuserdata(L, sizeof(struct lshape_t));
+	shape->cs = cairo_surface_create_similar(d->cs, CAIRO_CONTENT_COLOR_ALPHA, width, height);
+	shape->cr = cairo_create(shape->cs);
 	luaL_setmetatable(L, MT_SHAPE);
 	return 1;
 }
@@ -52,153 +48,154 @@ static const luaL_Reg l_shape[] = {
 
 static int m_shape_gc(lua_State * L)
 {
-	cairo_t ** cr = luaL_checkudata(L, 1, MT_SHAPE);
-	cairo_destroy(*cr);
+	struct lshape_t * shape = luaL_checkudata(L, 1, MT_SHAPE);
+	cairo_destroy(shape->cr);
+	cairo_surface_destroy(shape->cs);
 	return 0;
 }
 
 static int m_shape_save(lua_State * L)
 {
-	cairo_t ** cr = luaL_checkudata(L, 1, MT_SHAPE);
-	cairo_save(*cr);
+	struct lshape_t * shape = luaL_checkudata(L, 1, MT_SHAPE);
+	cairo_save(shape->cr);
 	return 0;
 }
 
 static int m_shape_restore(lua_State * L)
 {
-	cairo_t ** cr = luaL_checkudata(L, 1, MT_SHAPE);
-	cairo_restore(*cr);
+	struct lshape_t * shape = luaL_checkudata(L, 1, MT_SHAPE);
+	cairo_restore(shape->cr);
 	return 0;
 }
 
 static int m_shape_push_group(lua_State * L)
 {
-	cairo_t ** cr = luaL_checkudata(L, 1, MT_SHAPE);
-	cairo_push_group(*cr);
+	struct lshape_t * shape = luaL_checkudata(L, 1, MT_SHAPE);
+	cairo_push_group(shape->cr);
 	return 0;
 }
 
 static int m_shape_pop_group(lua_State * L)
 {
-	cairo_t ** cr = luaL_checkudata(L, 1, MT_SHAPE);
-	cairo_pop_group(*cr);
+	struct lshape_t * shape = luaL_checkudata(L, 1, MT_SHAPE);
+	cairo_pop_group(shape->cr);
 	return 0;
 }
 
 static int m_shape_pop_group_to_source(lua_State * L)
 {
-	cairo_t ** cr = luaL_checkudata(L, 1, MT_SHAPE);
-	cairo_pop_group_to_source(*cr);
+	struct lshape_t * shape = luaL_checkudata(L, 1, MT_SHAPE);
+	cairo_pop_group_to_source(shape->cr);
 	return 0;
 }
 
 static int m_shape_new_path(lua_State * L)
 {
-	cairo_t ** cr = luaL_checkudata(L, 1, MT_SHAPE);
-	cairo_new_path(*cr);
+	struct lshape_t * shape = luaL_checkudata(L, 1, MT_SHAPE);
+	cairo_new_path(shape->cr);
 	return 0;
 }
 
 static int m_shape_new_sub_path(lua_State * L)
 {
-	cairo_t ** cr = luaL_checkudata(L, 1, MT_SHAPE);
-	cairo_new_sub_path(*cr);
+	struct lshape_t * shape = luaL_checkudata(L, 1, MT_SHAPE);
+	cairo_new_sub_path(shape->cr);
 	return 0;
 }
 
 static int m_shape_close_path(lua_State * L)
 {
-	cairo_t ** cr = luaL_checkudata(L, 1, MT_SHAPE);
-	cairo_close_path(*cr);
+	struct lshape_t * shape = luaL_checkudata(L, 1, MT_SHAPE);
+	cairo_close_path(shape->cr);
 	return 0;
 }
 
 static int m_shape_set_operator(lua_State * L)
 {
-	cairo_t ** cr = luaL_checkudata(L, 1, MT_SHAPE);
+	struct lshape_t * shape = luaL_checkudata(L, 1, MT_SHAPE);
 	cairo_operator_t op = (cairo_operator_t)luaL_checkinteger(L, 2);
-	cairo_set_operator(*cr, op);
+	cairo_set_operator(shape->cr, op);
 	return 0;
 }
 
 static int m_shape_set_source(lua_State * L)
 {
-	cairo_t ** cr = luaL_checkudata(L, 1, MT_SHAPE);
+	struct lshape_t * shape = luaL_checkudata(L, 1, MT_SHAPE);
 	struct lpattern_t * pattern = luaL_checkudata(L, 2, MT_PATTERN);
-	cairo_set_source(*cr, pattern->pattern);
+	cairo_set_source(shape->cr, pattern->pattern);
 	return 0;
 }
 
 static int m_shape_set_source_color(lua_State * L)
 {
-	cairo_t ** cr = luaL_checkudata(L, 1, MT_SHAPE);
+	struct lshape_t * shape = luaL_checkudata(L, 1, MT_SHAPE);
 	double red = luaL_checknumber(L, 2);
 	double green = luaL_checknumber(L, 3);
 	double blue = luaL_checknumber(L, 4);
 	double alpha = luaL_optnumber(L, 5, 1);
-	cairo_set_source_rgba(*cr, red, green, blue, alpha);
+	cairo_set_source_rgba(shape->cr, red, green, blue, alpha);
 	return 0;
 }
 
 static int m_shape_set_tolerance(lua_State * L)
 {
-	cairo_t ** cr = luaL_checkudata(L, 1, MT_SHAPE);
+	struct lshape_t * shape = luaL_checkudata(L, 1, MT_SHAPE);
 	double tolerance = luaL_checknumber(L, 2);
-	cairo_set_tolerance(*cr, tolerance);
+	cairo_set_tolerance(shape->cr, tolerance);
 	return 0;
 }
 
 static int m_shape_set_miter_limit(lua_State * L)
 {
-	cairo_t ** cr = luaL_checkudata(L, 1, MT_SHAPE);
+	struct lshape_t * shape = luaL_checkudata(L, 1, MT_SHAPE);
 	double limit = luaL_checknumber(L, 2);
-	cairo_set_miter_limit(*cr, limit);
+	cairo_set_miter_limit(shape->cr, limit);
 	return 0;
 }
 
 static int m_shape_set_antialias(lua_State * L)
 {
-	cairo_t ** cr = luaL_checkudata(L, 1, MT_SHAPE);
+	struct lshape_t * shape = luaL_checkudata(L, 1, MT_SHAPE);
 	cairo_antialias_t antialias = (cairo_antialias_t)luaL_checkinteger(L, 2);
-	cairo_set_antialias(*cr, antialias);
+	cairo_set_antialias(shape->cr, antialias);
 	return 0;
 }
 
 static int m_shape_set_fill_rule(lua_State * L)
 {
-	cairo_t ** cr = luaL_checkudata(L, 1, MT_SHAPE);
+	struct lshape_t * shape = luaL_checkudata(L, 1, MT_SHAPE);
 	cairo_fill_rule_t rule = (cairo_fill_rule_t)luaL_checkinteger(L, 2);
-	cairo_set_fill_rule(*cr, rule);
+	cairo_set_fill_rule(shape->cr, rule);
 	return 0;
 }
 
 static int m_shape_set_line_width(lua_State * L)
 {
-	cairo_t ** cr = luaL_checkudata(L, 1, MT_SHAPE);
+	struct lshape_t * shape = luaL_checkudata(L, 1, MT_SHAPE);
 	double width = luaL_checknumber(L, 2);
-	cairo_set_line_width(*cr, width);
+	cairo_set_line_width(shape->cr, width);
 	return 0;
 }
 
 static int m_shape_set_line_cap(lua_State * L)
 {
-	cairo_t ** cr = luaL_checkudata(L, 1, MT_SHAPE);
+	struct lshape_t * shape = luaL_checkudata(L, 1, MT_SHAPE);
 	cairo_line_cap_t cap = (cairo_line_cap_t)luaL_checkinteger(L, 2);
-	cairo_set_line_cap(*cr, cap);
+	cairo_set_line_cap(shape->cr, cap);
 	return 0;
 }
 
 static int m_shape_set_line_join(lua_State * L)
 {
-	cairo_t ** cr = luaL_checkudata(L, 1, MT_SHAPE);
+	struct lshape_t * shape = luaL_checkudata(L, 1, MT_SHAPE);
 	cairo_line_join_t join = (cairo_line_join_t)luaL_checkinteger(L, 2);
-	cairo_set_line_join(*cr, join);
+	cairo_set_line_join(shape->cr, join);
 	return 0;
 }
 
 static int m_shape_set_dash(lua_State * L)
 {
-	cairo_t ** cr = luaL_checkudata(L, 1, MT_SHAPE);
+	struct lshape_t * shape = luaL_checkudata(L, 1, MT_SHAPE);
 	double offset = luaL_checknumber(L, 3);
 	double * dashes;
 	int ndashes, i;
@@ -213,7 +210,7 @@ static int m_shape_set_dash(lua_State * L)
 			dashes[i] = lua_tonumber(L, -1);
 			lua_pop(L, 1);
 		}
-		cairo_set_dash(*cr, dashes, ndashes, offset);
+		cairo_set_dash(shape->cr, dashes, ndashes, offset);
 		free(dashes);
 	}
 	return 0;
@@ -221,166 +218,156 @@ static int m_shape_set_dash(lua_State * L)
 
 static int m_shape_move_to(lua_State * L)
 {
-	cairo_t ** cr = luaL_checkudata(L, 1, MT_SHAPE);
+	struct lshape_t * shape = luaL_checkudata(L, 1, MT_SHAPE);
 	double x = luaL_checknumber(L, 2);
 	double y = luaL_checknumber(L, 3);
-	cairo_move_to(*cr, x, y);
+	cairo_move_to(shape->cr, x, y);
 	return 0;
 }
 
 static int m_shape_rel_move_to(lua_State * L)
 {
-	cairo_t ** cr = luaL_checkudata(L, 1, MT_SHAPE);
+	struct lshape_t * shape = luaL_checkudata(L, 1, MT_SHAPE);
 	double dx = luaL_checknumber(L, 2);
 	double dy = luaL_checknumber(L, 3);
-	cairo_rel_move_to(*cr, dx, dy);
+	cairo_rel_move_to(shape->cr, dx, dy);
 	return 0;
 }
 
 static int m_shape_line_to(lua_State * L)
 {
-	cairo_t ** cr = luaL_checkudata(L, 1, MT_SHAPE);
+	struct lshape_t * shape = luaL_checkudata(L, 1, MT_SHAPE);
 	double x = luaL_checknumber(L, 2);
 	double y = luaL_checknumber(L, 3);
-	cairo_line_to(*cr, x, y);
+	cairo_line_to(shape->cr, x, y);
 	return 0;
 }
 
 static int m_shape_rel_line_to(lua_State * L)
 {
-	cairo_t ** cr = luaL_checkudata(L, 1, MT_SHAPE);
+	struct lshape_t * shape = luaL_checkudata(L, 1, MT_SHAPE);
 	double dx = luaL_checknumber(L, 2);
 	double dy = luaL_checknumber(L, 3);
-	cairo_rel_line_to(*cr, dx, dy);
+	cairo_rel_line_to(shape->cr, dx, dy);
 	return 0;
 }
 
 static int m_shape_curve_to(lua_State * L)
 {
-	cairo_t ** cr = luaL_checkudata(L, 1, MT_SHAPE);
+	struct lshape_t * shape = luaL_checkudata(L, 1, MT_SHAPE);
 	double x1 = luaL_checknumber(L, 2);
 	double y1 = luaL_checknumber(L, 3);
 	double x2 = luaL_checknumber(L, 4);
 	double y2 = luaL_checknumber(L, 5);
 	double x3 = luaL_checknumber(L, 6);
 	double y3 = luaL_checknumber(L, 7);
-	cairo_curve_to(*cr, x1, y1, x2, y2, x3, y3);
+	cairo_curve_to(shape->cr, x1, y1, x2, y2, x3, y3);
 	return 0;
 }
 
 static int m_shape_rel_curve_to(lua_State * L)
 {
-	cairo_t ** cr = luaL_checkudata(L, 1, MT_SHAPE);
+	struct lshape_t * shape = luaL_checkudata(L, 1, MT_SHAPE);
 	double dx1 = luaL_checknumber(L, 2);
 	double dy1 = luaL_checknumber(L, 3);
 	double dx2 = luaL_checknumber(L, 4);
 	double dy2 = luaL_checknumber(L, 5);
 	double dx3 = luaL_checknumber(L, 6);
 	double dy3 = luaL_checknumber(L, 7);
-	cairo_rel_curve_to(*cr, dx1, dy1, dx2, dy2, dx3, dy3);
+	cairo_rel_curve_to(shape->cr, dx1, dy1, dx2, dy2, dx3, dy3);
 	return 0;
 }
 
 static int m_shape_rectangle(lua_State * L)
 {
-	cairo_t ** cr = luaL_checkudata(L, 1, MT_SHAPE);
+	struct lshape_t * shape = luaL_checkudata(L, 1, MT_SHAPE);
 	double x = luaL_checknumber(L, 2);
 	double y = luaL_checknumber(L, 3);
 	double width = luaL_checknumber(L, 4);
 	double height = luaL_checknumber(L, 5);
-	cairo_rectangle(*cr, x, y, width, height);
+	cairo_rectangle(shape->cr, x, y, width, height);
 	return 0;
 }
 
 static int m_shape_arc(lua_State * L)
 {
-	cairo_t ** cr = luaL_checkudata(L, 1, MT_SHAPE);
+	struct lshape_t * shape = luaL_checkudata(L, 1, MT_SHAPE);
 	double xc = luaL_checknumber(L, 2);
 	double yc = luaL_checknumber(L, 3);
 	double radius = luaL_checknumber(L, 4);
 	double angle1 = luaL_checknumber(L, 5);
 	double angle2 = luaL_checknumber(L, 6);
-	cairo_arc(*cr, xc, yc, radius, angle1, angle2);
+	cairo_arc(shape->cr, xc, yc, radius, angle1, angle2);
 	return 0;
 }
 
 static int m_shape_arc_negative(lua_State * L)
 {
-	cairo_t ** cr = luaL_checkudata(L, 1, MT_SHAPE);
+	struct lshape_t * shape = luaL_checkudata(L, 1, MT_SHAPE);
 	double xc = luaL_checknumber(L, 2);
 	double yc = luaL_checknumber(L, 3);
 	double radius = luaL_checknumber(L, 4);
 	double angle1 = luaL_checknumber(L, 5);
 	double angle2 = luaL_checknumber(L, 6);
-	cairo_arc_negative(*cr, xc, yc, radius, angle1, angle2);
+	cairo_arc_negative(shape->cr, xc, yc, radius, angle1, angle2);
 	return 0;
 }
 
 static int m_shape_stroke(lua_State * L)
 {
-	cairo_t ** cr = luaL_checkudata(L, 1, MT_SHAPE);
-	cairo_stroke(*cr);
+	struct lshape_t * shape = luaL_checkudata(L, 1, MT_SHAPE);
+	cairo_stroke(shape->cr);
 	return 0;
 }
 
 static int m_shape_stroke_preserve(lua_State * L)
 {
-	cairo_t ** cr = luaL_checkudata(L, 1, MT_SHAPE);
-	cairo_stroke_preserve(*cr);
+	struct lshape_t * shape = luaL_checkudata(L, 1, MT_SHAPE);
+	cairo_stroke_preserve(shape->cr);
 	return 0;
 }
 
 static int m_shape_fill(lua_State * L)
 {
-	cairo_t ** cr = luaL_checkudata(L, 1, MT_SHAPE);
-	cairo_fill(*cr);
+	struct lshape_t * shape = luaL_checkudata(L, 1, MT_SHAPE);
+	cairo_fill(shape->cr);
 	return 0;
 }
 
 static int m_shape_fill_preserve(lua_State * L)
 {
-	cairo_t ** cr = luaL_checkudata(L, 1, MT_SHAPE);
-	cairo_fill_preserve(*cr);
+	struct lshape_t * shape = luaL_checkudata(L, 1, MT_SHAPE);
+	cairo_fill_preserve(shape->cr);
 	return 0;
 }
 
 static int m_shape_clip(lua_State * L)
 {
-	cairo_t ** cr = luaL_checkudata(L, 1, MT_SHAPE);
-	cairo_clip(*cr);
+	struct lshape_t * shape = luaL_checkudata(L, 1, MT_SHAPE);
+	cairo_clip(shape->cr);
 	return 0;
 }
 
 static int m_shape_clip_preserve(lua_State * L)
 {
-	cairo_t ** cr = luaL_checkudata(L, 1, MT_SHAPE);
-	cairo_clip_preserve(*cr);
+	struct lshape_t * shape = luaL_checkudata(L, 1, MT_SHAPE);
+	cairo_clip_preserve(shape->cr);
 	return 0;
 }
 
 static int m_shape_paint(lua_State * L)
 {
-	cairo_t ** cr = luaL_checkudata(L, 1, MT_SHAPE);
+	struct lshape_t * shape = luaL_checkudata(L, 1, MT_SHAPE);
 	double alpha = luaL_optnumber(L, 2, 1.0);
-	cairo_paint_with_alpha(*cr, alpha);
+	cairo_paint_with_alpha(shape->cr, alpha);
 	return 0;
 }
 
 static int m_shape_size(lua_State * L)
 {
-	cairo_t ** cr = luaL_checkudata(L, 1, MT_SHAPE);
-	cairo_surface_t * surface = cairo_get_target(*cr);
-	cairo_rectangle_t r;
-	if(cairo_recording_surface_get_extents(surface, &r))
-	{
-		lua_pushnumber(L, r.width);
-		lua_pushnumber(L, r.height);
-	}
-	else
-	{
-		lua_pushnumber(L, 0);
-		lua_pushnumber(L, 0);
-	}
+	struct lshape_t * shape = luaL_checkudata(L, 1, MT_SHAPE);
+	lua_pushnumber(L, cairo_image_surface_get_width(shape->cs));
+	lua_pushnumber(L, cairo_image_surface_get_height(shape->cs));
 	return 2;
 }
 

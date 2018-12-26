@@ -84,6 +84,11 @@ struct lpattern_t {
 	cairo_pattern_t * pattern;
 };
 
+struct lshape_t {
+	cairo_surface_t * cs;
+	cairo_t * cr;
+};
+
 #define	MT_DISPLAY		"__mt_display__"
 #define	MT_DOBJECT		"__mt_dobject__"
 #define	MT_EASING		"__mt_easing__"

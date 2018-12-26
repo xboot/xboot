@@ -12,24 +12,24 @@ extern "C" {
 #if __ARM32_ARCH__ == 5
 static inline void atomic_add(atomic_t * a, int v)
 {
-	(volatile)a->counter += v;
+	a->counter += v;
 }
 
 static inline int atomic_add_return(atomic_t * a, int v)
 {
-	(volatile)a->counter += v;
-	return (volatile)a->counter;
+	a->counter += v;
+	return a->counter;
 }
 
 static inline void atomic_sub(atomic_t * a, int v)
 {
-	(volatile)a->counter -= v;
+	a->counter -= v;
 }
 
 static inline int atomic_sub_return(atomic_t * a, int v)
 {
-	(volatile)a->counter -= v;
-	return (volatile)a->counter;
+	a->counter -= v;
+	return a->counter;
 }
 
 static inline int atomic_cmp_exchange(atomic_t * a, int o, int n)
@@ -38,7 +38,7 @@ static inline int atomic_cmp_exchange(atomic_t * a, int o, int n)
 
 	v = a->counter;
 	if(v == o)
-		(volatile)a->counter = n;
+		a->counter = n;
 	return v;
 }
 #else

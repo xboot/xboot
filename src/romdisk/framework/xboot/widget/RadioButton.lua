@@ -60,13 +60,13 @@ function M:init(option, name)
 	self:setChecked(self.opt.checked)
 	self:updateVisualState()
 
-	self:addEventListener(Event.MOUSE_DOWN, self.onMouseDown, self)
-	self:addEventListener(Event.MOUSE_MOVE, self.onMouseMove, self)
-	self:addEventListener(Event.MOUSE_UP, self.onMouseUp, self)
+	self:addEventListener(Event.MOUSE_DOWN, self.onMouseDown)
+	self:addEventListener(Event.MOUSE_MOVE, self.onMouseMove)
+	self:addEventListener(Event.MOUSE_UP, self.onMouseUp)
 
-	self:addEventListener(Event.TOUCH_BEGIN, self.onTouchBegin, self)
-	self:addEventListener(Event.TOUCH_MOVE, self.onTouchMove, self)
-	self:addEventListener(Event.TOUCH_END, self.onTouchEnd, self)
+	self:addEventListener(Event.TOUCH_BEGIN, self.onTouchBegin)
+	self:addEventListener(Event.TOUCH_MOVE, self.onTouchMove)
+	self:addEventListener(Event.TOUCH_END, self.onTouchEnd)
 end
 
 function M:setSize(width, height)

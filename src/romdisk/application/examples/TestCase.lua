@@ -16,7 +16,7 @@ function M:init(width, height, cases)
 	end
 	self.tweening = false
 	
-	self:addEventListener(Event.ENTER_FRAME, self.onEnterFrame, self)
+	self:addEventListener(Event.ENTER_FRAME, self.onEnterFrame)
 end
 
 function M:onEnterFrame(e)

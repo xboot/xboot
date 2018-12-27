@@ -269,7 +269,7 @@ end
 function M:animate(properties, duration, easing)
 	local function __animate_listener(d, e)
 		if d.__animate ~= true then
-			d:removeEventListener(Event.ENTER_FRAME, __animate_listener, d)
+			d:removeEventListener(Event.ENTER_FRAME, __animate_listener)
 			d.__duration = nil
 			d.__tween = nil
 			d.__watch = nil
@@ -300,7 +300,7 @@ function M:animate(properties, duration, easing)
 		end
 
 		if elapsed >= d.__duration then
-			d:removeEventListener(Event.ENTER_FRAME, __animate_listener, d)
+			d:removeEventListener(Event.ENTER_FRAME, __animate_listener)
 			self:dispatchEvent(Event.new(Event.ANIMATE_COMPLETE))
 			d.__duration = nil
 			d.__tween = nil
@@ -310,7 +310,7 @@ function M:animate(properties, duration, easing)
 	end
 
 	if self.__animate == true then
-		self:removeEventListener(Event.ENTER_FRAME, __animate_listener, self)
+		self:removeEventListener(Event.ENTER_FRAME, __animate_listener)
 		self:dispatchEvent(Event.new(Event.ANIMATE_COMPLETE))
 		self.__duration = nil
 		self.__tween = nil
@@ -352,13 +352,13 @@ function M:animate(properties, duration, easing)
 	end
 
 	if not next(self.__tween) then
-		self:removeEventListener(Event.ENTER_FRAME, __animate_listener, self)
+		self:removeEventListener(Event.ENTER_FRAME, __animate_listener)
 		self.__duration = nil
 		self.__tween = nil
 		self.__watch = nil
 		self.__animate = nil
 	else
-		self:addEventListener(Event.ENTER_FRAME, __animate_listener, self)
+		self:addEventListener(Event.ENTER_FRAME, __animate_listener)
 		self.__watch = Stopwatch.new()
 		self.__animate = true
 	end

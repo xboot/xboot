@@ -16,7 +16,7 @@ function M:init(image, w, h)
 	self:setX(math.random(40, self.maxWidth - 40))
 	self:setY(math.random(40, self.maxHeight - 40))
 	self:addChild(assets:loadDisplay(image):setAnchor(0.5, 0.5))
-	self:addEventListener(Event.ENTER_FRAME, self.onEnterFrame, self)
+	self:addEventListener(Event.ENTER_FRAME, self.onEnterFrame)
 end
 
 function M:onEnterFrame(e)

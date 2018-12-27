@@ -20,12 +20,12 @@ function M:init(w, h)
 			:stroke()
 			:setPosition(math.random(0, w - 100), math.random(0, h - 50))
 	
-		shape:addEventListener(Event.MOUSE_DOWN, self.onMouseDown, shape)
-		shape:addEventListener(Event.MOUSE_MOVE, self.onMouseMove, shape)
-		shape:addEventListener(Event.MOUSE_UP, self.onMouseUp, shape)
-		shape:addEventListener(Event.TOUCH_BEGIN, self.onTouchBegin, shape)
-		shape:addEventListener(Event.TOUCH_MOVE, self.onTouchMove, shape)
-		shape:addEventListener(Event.TOUCH_END, self.onTouchEnd, shape)
+		shape:addEventListener(Event.MOUSE_DOWN, self.onMouseDown)
+		shape:addEventListener(Event.MOUSE_MOVE, self.onMouseMove)
+		shape:addEventListener(Event.MOUSE_UP, self.onMouseUp)
+		shape:addEventListener(Event.TOUCH_BEGIN, self.onTouchBegin)
+		shape:addEventListener(Event.TOUCH_MOVE, self.onTouchMove)
+		shape:addEventListener(Event.TOUCH_END, self.onTouchEnd)
 	
 		self:addChild(shape)
 	end

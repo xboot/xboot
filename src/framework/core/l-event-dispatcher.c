@@ -29,20 +29,22 @@
 #include <framework/core/l-event-dispatcher.h>
 
 static const char event_dispatcher_lua[] = X(
+local table = table
 local M = Class()
 
 function M:init()
-	self.eventListenersMap = {}
+	self.eventListenerMap = {}
 end
 
 function M:hasEventListener(type, listener, data)
-	local els = self.eventListenersMap[type]
+	local data = data or self
+	local elm = self.eventListenerMap[type]
 
-	if not els or #els == 0 then
+	if not elm or #elm == 0 then
 		return false
 	end
 
-	for i, v in ipairs(els) do
+	for i, v in ipairs(elm) do
 		if v.listener == listener and v.data == data then
 			return true
 		end
@@ -53,35 +55,33 @@ end
 
 function M:addEventListener(type, listener, data)
 	local data = data or self
-	local table = table
 
 	if self:hasEventListener(type, listener, data) then
 		return self
 	end
 
-	if not self.eventListenersMap[type] then
-		self.eventListenersMap[type] = {}
+	if not self.eventListenerMap[type] then
+		self.eventListenerMap[type] = {}
 	end
 
-	local els = self.eventListenersMap[type]
+	local elm = self.eventListenerMap[type]
 	local el = {type = type, listener = listener, data = data}
-	table.insert(els, el)
+	table.insert(elm, el)
 
 	return self
 end
 
 function M:removeEventListener(type, listener, data)
-	local els = self.eventListenersMap[type]
 	local data = data or self
-	local table = table
+	local elm = self.eventListenerMap[type]
 
-	if not els or #els == 0 then
+	if not elm or #elm == 0 then
 		return self
 	end
 
-	for i, v in ipairs(els) do
+	for i, v in ipairs(elm) do
 		if v.type == type and v.listener == listener and v.data == data then
-			table.remove(els, i)
+			table.remove(elm, i)
 			break
 		end
 	end
@@ -94,13 +94,13 @@ function M:dispatchEvent(event)
 		return self
 	end
 
-	local els = self.eventListenersMap[event.type]
+	local elm = self.eventListenerMap[event.type]
 
-	if not els or #els == 0 then
+	if not elm or #elm == 0 then
 		return self
 	end
 
-	for i, v in ipairs(els) do
+	for i, v in ipairs(elm) do
 		if v.type == event.type then
 			v.listener(v.data, event)
 		end

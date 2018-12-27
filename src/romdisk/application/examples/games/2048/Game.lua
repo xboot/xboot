@@ -16,7 +16,7 @@ function M:init(w, h)
 		imageNormal = "games/2048/images/restartNormal.png",
 		imagePressed = "games/2048/images/restartPressed.png",
 		imageDisabled = "games/2048/images/restartDisabled.png"})
-		:addEventListener("Release", function(d, e) self:restart() end, self)
+		:addEventListener("Release", function(d, e) d:restart() end, self)
 	self:addChild(button)
 
 	self.score = Score.new(0):setPosition(140, 50)

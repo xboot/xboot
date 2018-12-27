@@ -69,7 +69,7 @@ stage:addChild(DisplayShape.new(sw, sh)
 for i = 1, 10 do
 	local img = assets:loadDisplay("tomato.png")
 		:setPosition(math.random(0, sw - 64), math.random(0, sh - 64))
-		:setScale(math.random(40, 100) / 100)
+		:setScale(math.random() * 0.4 + 0.6)
 		:setRotation(math.random(0, 360))
 		:setAnchor(0.5, 0.5)
 	img.sx = img:getScaleX()

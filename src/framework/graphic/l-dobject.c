@@ -111,6 +111,7 @@ static void dobject_draw_ninepatch(lua_State * L, struct ldobject_t * o)
 		cairo_save(cr);
 		cairo_translate(cr, 0, 0);
 		cairo_set_source_surface(cr, ninepatch->lt, 0, 0);
+		cairo_pattern_set_filter(cairo_get_source(cr), CAIRO_FILTER_FAST);
 		cairo_paint_with_alpha(cr, o->alpha);
 		cairo_restore(cr);
 	}
@@ -120,6 +121,7 @@ static void dobject_draw_ninepatch(lua_State * L, struct ldobject_t * o)
 		cairo_translate(cr, ninepatch->left, 0);
 		cairo_scale(cr, ninepatch->__sx, 1);
 		cairo_set_source_surface(cr, ninepatch->mt, 0, 0);
+		cairo_pattern_set_filter(cairo_get_source(cr), CAIRO_FILTER_FAST);
 		cairo_paint_with_alpha(cr, o->alpha);
 		cairo_restore(cr);
 	}
@@ -128,6 +130,7 @@ static void dobject_draw_ninepatch(lua_State * L, struct ldobject_t * o)
 		cairo_save(cr);
 		cairo_translate(cr, ninepatch->__w - ninepatch->right, 0);
 		cairo_set_source_surface(cr, ninepatch->rt, 0, 0);
+		cairo_pattern_set_filter(cairo_get_source(cr), CAIRO_FILTER_FAST);
 		cairo_paint_with_alpha(cr, o->alpha);
 		cairo_restore(cr);
 	}
@@ -137,6 +140,7 @@ static void dobject_draw_ninepatch(lua_State * L, struct ldobject_t * o)
 		cairo_translate(cr, 0, ninepatch->top);
 		cairo_scale(cr, 1, ninepatch->__sy);
 		cairo_set_source_surface(cr, ninepatch->lm, 0, 0);
+		cairo_pattern_set_filter(cairo_get_source(cr), CAIRO_FILTER_FAST);
 		cairo_paint_with_alpha(cr, o->alpha);
 		cairo_restore(cr);
 	}
@@ -146,6 +150,7 @@ static void dobject_draw_ninepatch(lua_State * L, struct ldobject_t * o)
 		cairo_translate(cr, ninepatch->left, ninepatch->top);
 		cairo_scale(cr, ninepatch->__sx, ninepatch->__sy);
 		cairo_set_source_surface(cr, ninepatch->mm, 0, 0);
+		cairo_pattern_set_filter(cairo_get_source(cr), CAIRO_FILTER_FAST);
 		cairo_paint_with_alpha(cr, o->alpha);
 		cairo_restore(cr);
 	}
@@ -155,6 +160,7 @@ static void dobject_draw_ninepatch(lua_State * L, struct ldobject_t * o)
 		cairo_translate(cr, ninepatch->__w - ninepatch->right, ninepatch->top);
 		cairo_scale(cr, 1, ninepatch->__sy);
 		cairo_set_source_surface(cr, ninepatch->rm, 0, 0);
+		cairo_pattern_set_filter(cairo_get_source(cr), CAIRO_FILTER_FAST);
 		cairo_paint_with_alpha(cr, o->alpha);
 		cairo_restore(cr);
 	}
@@ -164,6 +170,7 @@ static void dobject_draw_ninepatch(lua_State * L, struct ldobject_t * o)
 		cairo_translate(cr, 0, ninepatch->__h - ninepatch->bottom);
 		cairo_set_source_surface(cr, ninepatch->lb, 0, 0);
 		cairo_paint_with_alpha(cr, o->alpha);
+		cairo_pattern_set_filter(cairo_get_source(cr), CAIRO_FILTER_FAST);
 		cairo_restore(cr);
 	}
 	if(ninepatch->mb)
@@ -172,6 +179,7 @@ static void dobject_draw_ninepatch(lua_State * L, struct ldobject_t * o)
 		cairo_translate(cr, ninepatch->left, ninepatch->__h - ninepatch->bottom);
 		cairo_scale(cr, ninepatch->__sx, 1);
 		cairo_set_source_surface(cr, ninepatch->mb, 0, 0);
+		cairo_pattern_set_filter(cairo_get_source(cr), CAIRO_FILTER_FAST);
 		cairo_paint_with_alpha(cr, o->alpha);
 		cairo_restore(cr);
 	}
@@ -181,6 +189,7 @@ static void dobject_draw_ninepatch(lua_State * L, struct ldobject_t * o)
 		cairo_translate(cr, ninepatch->__w - ninepatch->right, ninepatch->__h - ninepatch->bottom);
 		cairo_set_source_surface(cr, ninepatch->rb, 0, 0);
 		cairo_paint_with_alpha(cr, o->alpha);
+		cairo_pattern_set_filter(cairo_get_source(cr), CAIRO_FILTER_FAST);
 		cairo_restore(cr);
 	}
 	cairo_restore(cr);

@@ -61,7 +61,7 @@ struct ldobject_t {
 };
 
 struct limage_t {
-	cairo_surface_t * surface;
+	cairo_surface_t * cs;
 };
 
 struct lninepatch_t {

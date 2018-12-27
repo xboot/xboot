@@ -52,22 +52,22 @@ static cairo_surface_t * cairo_image_surface_create_from_png_xfs(lua_State * L, 
 {
 	struct xfs_context_t * ctx = ((struct vmctx_t *)luahelper_vmctx(L))->xfs;
 	struct xfs_file_t * file;
-	cairo_surface_t * surface;
+	cairo_surface_t * cs;
 
 	file = xfs_open_read(ctx, filename);
 	if(!file)
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_FILE_NOT_FOUND));
-	surface = cairo_image_surface_create_from_png_stream(xfs_read_func, file);
+	cs = cairo_image_surface_create_from_png_stream(xfs_read_func, file);
 	xfs_close(file);
-    return surface;
+	return cs;
 }
 
 static int l_image_new(lua_State * L)
 {
 	const char * filename = luaL_checkstring(L, 1);
 	struct limage_t * image = lua_newuserdata(L, sizeof(struct limage_t));
-	image->surface = cairo_image_surface_create_from_png_xfs(L, filename);
-	if(cairo_surface_status(image->surface) != CAIRO_STATUS_SUCCESS)
+	image->cs = cairo_image_surface_create_from_png_xfs(L, filename);
+	if(cairo_surface_status(image->cs) != CAIRO_STATUS_SUCCESS)
 		return 0;
 	luaL_setmetatable(L, MT_IMAGE);
 	return 1;
@@ -81,15 +81,15 @@ static const luaL_Reg l_image[] = {
 static int m_image_gc(lua_State * L)
 {
 	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
-	cairo_surface_destroy(img->surface);
+	cairo_surface_destroy(img->cs);
 	return 0;
 }
 
 static int m_image_size(lua_State * L)
 {
 	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
-	int w = cairo_image_surface_get_width(img->surface);
-	int h = cairo_image_surface_get_height(img->surface);
+	int w = cairo_image_surface_get_width(img->cs);
+	int h = cairo_image_surface_get_height(img->cs);
 	lua_pushnumber(L, w);
 	lua_pushnumber(L, h);
 	return 2;
@@ -100,12 +100,12 @@ static int m_image_region(lua_State * L)
 	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
 	int x = luaL_optinteger(L, 2, 0);
 	int y = luaL_optinteger(L, 3, 0);
-	int w = luaL_optinteger(L, 4, cairo_image_surface_get_width(img->surface));
-	int h = luaL_optinteger(L, 5, cairo_image_surface_get_height(img->surface));
+	int w = luaL_optinteger(L, 4, cairo_image_surface_get_width(img->cs));
+	int h = luaL_optinteger(L, 5, cairo_image_surface_get_height(img->cs));
 	struct limage_t * subimg = lua_newuserdata(L, sizeof(struct limage_t));
-	subimg->surface = cairo_surface_create_similar(img->surface, cairo_surface_get_content(img->surface), w, h);
-	cairo_t * cr = cairo_create(subimg->surface);
-	cairo_set_source_surface(cr, img->surface, -x, -y);
+	subimg->cs = cairo_surface_create_similar(img->cs, cairo_surface_get_content(img->cs), w, h);
+	cairo_t * cr = cairo_create(subimg->cs);
+	cairo_set_source_surface(cr, img->cs, -x, -y);
 	cairo_paint(cr);
 	cairo_destroy(cr);
 	luaL_setmetatable(L, MT_IMAGE);

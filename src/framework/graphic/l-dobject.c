@@ -94,7 +94,7 @@ static void dobject_draw_image(lua_State * L, struct ldobject_t * o)
 	cairo_t * cr = d->cr;
 	cairo_save(cr);
 	cairo_set_matrix(cr, dobject_global_matrix(o));
-	cairo_set_source_surface(cr, img->surface, 0, 0);
+	cairo_set_source_surface(cr, img->cs, 0, 0);
 	cairo_pattern_set_filter(cairo_get_source(cr), CAIRO_FILTER_FAST);
 	cairo_paint_with_alpha(cr, o->alpha);
 	cairo_restore(cr);

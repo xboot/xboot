@@ -45,7 +45,7 @@ static int l_pattern_create_image(lua_State * L)
 {
 	struct limage_t * image = luaL_checkudata(L, 1, MT_IMAGE);
 	struct lpattern_t * pattern = lua_newuserdata(L, sizeof(struct lpattern_t));
-	pattern->pattern = cairo_pattern_create_for_surface(image->surface);
+	pattern->pattern = cairo_pattern_create_for_surface(image->cs);
 	luaL_setmetatable(L, MT_PATTERN);
 	return 1;
 }

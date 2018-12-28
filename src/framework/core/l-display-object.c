@@ -56,42 +56,27 @@ function M:getParent()
 end
 
 function M:addChild(child)
-	if child == nil or self == child then
-		return false
+	if child and child ~= self and child.parent ~= self then
+		child:removeSelf()
+		table.insert(self.children, child)
+		child.parent = self
+		self.dobj:addChild(child.dobj, true)
 	end
-	if child.parent == self then
-		return false
-	end
-	child:removeSelf()
-
-	table.insert(self.children, child)
-	child.parent = self
-	self.dobj:addChild(child.dobj, true)
-	return true
+	return self
 end
 
 function M:removeChild(child)
-	if child == nil or self == child then
-		return false
-	end
-
-	for i, v in ipairs(self.children) do
-		if v == child then
-			table.remove(self.children, i)
-			v.parent = nil
-			self.dobj:removeChild(v.dobj)
-			return true
+	if child and child ~= self then
+		for i, v in ipairs(self.children) do
+			if v == child then
+				table.remove(self.children, i)
+				v.parent = nil
+				self.dobj:removeChild(v.dobj)
+				break;
+			end
 		end
 	end
-	return false
-end
-
-function M:removeSelf()
-	local parent = self.parent
-	if parent == nil then
-		return false
-	end
-	return parent:removeChild(self)
+	return self
 end
 
 function M:removeChildAll()
@@ -100,37 +85,37 @@ function M:removeChildAll()
 		self.dobj:removeChild(v.dobj)
 	end
 	self.children = {}
-	return true
+	return self
+end
+
+function M:removeSelf()
+	local parent = self.parent
+	if parent then
+		parent:removeChild(self)
+	end
+	return self
 end
 
 function M:toFront()
 	local parent = self.parent
-	if parent == nil then
-		return false
+	if parent then
+		parent:removeChild(self)
+		table.insert(parent.children, self)
+		self.parent = parent
+		parent.dobj:addChild(self.dobj, true)
 	end
-	if not parent:removeChild(self) then
-		return false
-	end
-
-	table.insert(parent.children, self)
-	self.parent = parent
-	parent.dobj:addChild(self.dobj, true)
-	return true
+	return self
 end
 
 function M:toBack()
 	local parent = self.parent
-	if parent == nil then
-		return false
+	if parent then
+		parent:removeChild(self)
+		table.insert(parent.children, 1, self)
+		self.parent = parent
+		parent.dobj:addChild(self.dobj, false)
 	end
-	if not parent:removeChild(self) then
-		return false
-	end
-
-	table.insert(parent.children, 1, self)
-	self.parent = parent
-	parent.dobj:addChild(self.dobj, false)
-	return true
+	return self
 end
 
 function M:setSize(width, height)

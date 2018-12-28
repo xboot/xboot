@@ -2,7 +2,7 @@ local Pattern = require "graphic.pattern"
 
 local function onMouseDown(self, e)
 	if self:hitTestPoint(e.x, e.y) then
-		self:animate({scalex = self.sx * 1.2, scaley = self.sx * 1.2}, 0.1, "inOutElastic"):toFront()
+		self:toFront():animate({scalex = self.sx * 1.2, scaley = self.sx * 1.2}, 0.1, "inOutElastic")
 		self.touchid = -1
 		self.x0 = e.x
 		self.y0 = e.y
@@ -24,7 +24,7 @@ end
 
 local function onMouseUp(self, e)
 	if self.touchid == -1 then
-		self:animate({scalex = self.sx * 1, scaley = self.sx * 1}, 0.1, "inOutElastic"):toFront()
+		self:toFront():animate({scalex = self.sx * 1, scaley = self.sx * 1}, 0.1, "inOutElastic")
 		self.touchid = nil
 		e.stop = true
 	end
@@ -32,7 +32,7 @@ end
 
 local function onTouchBegin(self, e)
 	if self:hitTestPoint(e.x, e.y) then
-		self:animate({scalex = self.sx * 1.2, scaley = self.sx * 1.2}, 0.1, "inOutElastic"):toFront()
+		self:toFront():animate({scalex = self.sx * 1.2, scaley = self.sx * 1.2}, 0.1, "inOutElastic")
 		self.touchid = e.id
 		self.x0 = e.x
 		self.y0 = e.y
@@ -54,7 +54,7 @@ end
 
 local function onTouchEnd(self, e)
 	if self.touchid == e.id then
-		self:animate({scalex = self.sx * 1, scaley = self.sx * 1}, 0.1, "inOutElastic"):toFront()
+		self:toFront():animate({scalex = self.sx * 1, scaley = self.sx * 1}, 0.1, "inOutElastic")
 		self.touchid = nil
 		e.stop = true
 	end

@@ -190,6 +190,33 @@ function M:getScale()
 	return self.dobj:getScale()
 end
 
+function M:setSkewX(x)
+	self.dobj:setSkewX(x)
+	return self
+end
+
+function M:getSkewX()
+	return self.dobj:getSkewX()
+end
+
+function M:setSkewY(y)
+	self.dobj:setSkewY(y)
+	return self
+end
+
+function M:getSkewY()
+	return self.dobj:getSkewY()
+end
+
+function M:setSkew(x, y)
+	self.dobj:setSkew(x, y or x)
+	return self
+end
+
+function M:getSkew()
+	return self.dobj:getSkew()
+end
+
 function M:setAnchor(x, y)
 	self.dobj:setAnchor(x, y or x)
 	return self
@@ -279,6 +306,10 @@ function M:animate(properties, duration, easing)
 				d:setScaleX(v:easing(elapsed))
 			elseif k == "scaley" then
 				d:setScaleY(v:easing(elapsed))
+			elseif k == "skewx" then
+				d:setSkewX(v:easing(elapsed))
+			elseif k == "skewy" then
+				d:setSkewY(v:easing(elapsed))
 			elseif k == "alpha" then
 				d:setAlpha(v:easing(elapsed))
 			end
@@ -327,6 +358,10 @@ function M:animate(properties, duration, easing)
 			b = self:getScaleX()
 		elseif k == "scaley" then
 			b = self:getScaleY()
+		elseif k == "skewx" then
+			b = self:getSkewX()
+		elseif k == "skewy" then
+			b = self:getSkewY()
 		elseif k == "alpha" then
 			b = self:getAlpha()
 		end

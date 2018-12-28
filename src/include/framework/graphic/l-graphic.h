@@ -46,6 +46,7 @@ struct ldobject_t {
 	double x, y;
 	double rotation;
 	double scalex, scaley;
+	double skewx, skewy;
 	double anchorx, anchory;
 	double alpha;
 	enum alignment_t alignment;

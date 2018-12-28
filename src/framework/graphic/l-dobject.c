@@ -33,7 +33,8 @@ enum {
 	MFLAG_TRANSLATE				= (0x1 << 0),
 	MFLAG_ROTATE				= (0x1 << 1),
 	MFLAG_SCALE					= (0x1 << 2),
-	MFLAG_ANCHOR				= (0x1 << 3),
+	MFLAG_SKEW					= (0x1 << 3),
+	MFLAG_ANCHOR				= (0x1 << 4),
 
 	MFLAG_LOCAL_MATRIX			= (0x1 << 8),
 	MFLAG_GLOBAL_MATRIX			= (0x1 << 9),
@@ -45,15 +46,48 @@ static inline cairo_matrix_t * dobject_local_matrix(struct ldobject_t * o)
 	cairo_matrix_t * m = &o->local_matrix;
 	if(o->mflag & MFLAG_LOCAL_MATRIX)
 	{
-		cairo_matrix_init_identity(m);
-		if(o->mflag & MFLAG_TRANSLATE)
-			cairo_matrix_translate(m, o->x, o->y);
-		if(o->mflag & MFLAG_ROTATE)
-			cairo_matrix_rotate(m, o->rotation);
-		if(o->mflag & MFLAG_ANCHOR)
-			cairo_matrix_translate(m, -o->anchorx * o->width * o->scalex, -o->anchory * o->height * o->scaley);
-		if(o->mflag & MFLAG_SCALE)
-			cairo_matrix_scale(m, o->scalex, o->scaley);
+		if((o->mflag & (MFLAG_TRANSLATE | MFLAG_ROTATE | MFLAG_SCALE | MFLAG_SKEW | MFLAG_ANCHOR)) == MFLAG_TRANSLATE)
+		{
+			m->xx = 1; m->yx = 0;
+			m->xy = 0; m->yy = 1;
+			m->x0 = o->x; m->y0 = o->y;
+		}
+		else
+		{
+			if(o->mflag & (MFLAG_ROTATE | MFLAG_SKEW))
+			{
+				double rx = o->rotation + o->skewy;
+				double ry = o->rotation - o->skewx;
+				m->xx = cos(rx);
+				m->yx = sin(rx);
+				m->xy = -sin(ry);
+				m->yy = cos(ry);
+				if(o->mflag & MFLAG_SCALE)
+				{
+					m->xx *= o->scalex;
+					m->yx *= o->scalex;
+					m->xy *= o->scaley;
+					m->yy *= o->scaley;
+				}
+			}
+			else
+			{
+				m->xx = o->scalex; m->yx = 0;
+				m->xy = 0; m->yy = o->scaley;
+			}
+			if(o->mflag & MFLAG_ANCHOR)
+			{
+				double anchorx = o->anchorx * o->width;
+				double anchory = o->anchory * o->height;
+				m->x0 = o->x - (anchorx * m->xx + anchory * m->xy);
+				m->y0 = o->y - (anchorx * m->yx + anchory * m->yy);
+			}
+			else
+			{
+				m->x0 = o->x;
+				m->y0 = o->y;
+			}
+		}
 		o->mflag &= ~MFLAG_LOCAL_MATRIX;
 	}
 	return m;
@@ -222,6 +256,8 @@ static int l_dobject_new(lua_State * L)
 	o->rotation = 0;
 	o->scalex = 1;
 	o->scaley = 1;
+	o->skewx = 0;
+	o->skewy = 0;
 	o->anchorx = 0;
 	o->anchory = 0;
 	o->alpha = 1;
@@ -406,10 +442,6 @@ static int m_set_rotation(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
 	o->rotation = luaL_checknumber(L, 2) * (M_PI / 180.0);
-	while(o->rotation < 0)
-		o->rotation = o->rotation + (M_PI * 2);
-	while(o->rotation > (M_PI * 2))
-		o->rotation = o->rotation - (M_PI * 2);
 	if(o->rotation == 0.0)
 		o->mflag &= ~MFLAG_ROTATE;
 	else
@@ -422,7 +454,7 @@ static int m_set_rotation(lua_State * L)
 static int m_get_rotation(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
-	lua_pushnumber(L, o->rotation / (M_PI / 180.0));
+	lua_pushnumber(L, fmod(o->rotation / (M_PI / 180.0), 360.0));
 	return 1;
 }
 
@@ -485,6 +517,68 @@ static int m_get_scale(lua_State * L)
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
 	lua_pushnumber(L, o->scalex);
 	lua_pushnumber(L, o->scaley);
+	return 2;
+}
+
+static int m_set_skew_x(lua_State * L)
+{
+	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
+	o->skewx = luaL_checknumber(L, 2) * (M_PI / 180.0);
+	if((o->skewx == 0.0) && (o->skewy == 0.0))
+		o->mflag &= ~MFLAG_SKEW;
+	else
+		o->mflag |= MFLAG_SKEW;
+	o->mflag |= MFLAG_LOCAL_MATRIX;
+	dobject_mark_with_child(o, MFLAG_GLOBAL_MATRIX | MFLAG_GLOBAL_MATRIX_INVERT);
+	return 0;
+}
+
+static int m_get_skew_x(lua_State * L)
+{
+	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
+	lua_pushnumber(L, o->skewx);
+	return 1;
+}
+
+static int m_set_skew_y(lua_State * L)
+{
+	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
+	o->skewy = luaL_checknumber(L, 2) * (M_PI / 180.0);
+	if((o->skewx == 0.0) && (o->skewy == 0.0))
+		o->mflag &= ~MFLAG_SKEW;
+	else
+		o->mflag |= MFLAG_SKEW;
+	o->mflag |= MFLAG_LOCAL_MATRIX;
+	dobject_mark_with_child(o, MFLAG_GLOBAL_MATRIX | MFLAG_GLOBAL_MATRIX_INVERT);
+	return 0;
+}
+
+static int m_get_skew_y(lua_State * L)
+{
+	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
+	lua_pushnumber(L, o->skewy);
+	return 1;
+}
+
+static int m_set_skew(lua_State * L)
+{
+	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
+	o->skewx = luaL_checknumber(L, 2) * (M_PI / 180.0);
+	o->skewy = luaL_checknumber(L, 3) * (M_PI / 180.0);
+	if((o->skewx == 0.0) && (o->skewy == 0.0))
+		o->mflag &= ~MFLAG_SKEW;
+	else
+		o->mflag |= MFLAG_SKEW;
+	o->mflag |= MFLAG_LOCAL_MATRIX;
+	dobject_mark_with_child(o, MFLAG_GLOBAL_MATRIX | MFLAG_GLOBAL_MATRIX_INVERT);
+	return 0;
+}
+
+static int m_get_skew(lua_State * L)
+{
+	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
+	lua_pushnumber(L, fmod(o->skewx / (M_PI / 180.0), 360.0));
+	lua_pushnumber(L, fmod(o->skewy / (M_PI / 180.0), 360.0));
 	return 2;
 }
 
@@ -649,6 +743,8 @@ static inline void dobject_translate_fill(struct ldobject_t * o, double x, doubl
 			o->mflag |= MFLAG_SCALE;
 	}
 	o->rotation = 0;
+	o->skewx = 0;
+	o->skewy = 0;
 	o->anchorx = 0;
 	o->anchory = 0;
 	o->mflag |= MFLAG_LOCAL_MATRIX;
@@ -835,6 +931,12 @@ static const luaL_Reg m_dobject[] = {
 	{"getScaleY",		m_get_scale_y},
 	{"setScale",		m_set_scale},
 	{"getScale",		m_get_scale},
+	{"setSkewX",		m_set_skew_x},
+	{"getSkewX",		m_get_skew_x},
+	{"setSkewY",		m_set_skew_y},
+	{"getSkewY",		m_get_skew_y},
+	{"setSkew",			m_set_skew},
+	{"getSkew",			m_get_skew},
 	{"setAnchor",		m_set_archor},
 	{"getAnchor",		m_get_archor},
 	{"setAlpha",		m_set_alpha},

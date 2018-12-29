@@ -284,7 +284,7 @@ static const luaL_Reg l_dobject[] = {
 	{NULL,	NULL}
 };
 
-static void dobject_mark_with_child(struct ldobject_t * o, int mark)
+static void dobject_mark_with_children(struct ldobject_t * o, int mark)
 {
 	struct ldobject_t * pos, * n;
 
@@ -293,7 +293,7 @@ static void dobject_mark_with_child(struct ldobject_t * o, int mark)
 		o->mflag |= mark;
 		list_for_each_entry_safe(pos, n, &(o->children), entry)
 		{
-			dobject_mark_with_child(pos, mark);
+			dobject_mark_with_children(pos, mark);
 		}
 	}
 }
@@ -309,7 +309,7 @@ static int m_add_child(lua_State * L)
 			list_add_tail(&c->entry, &o->children);
 		else
 			list_add(&c->entry, &o->children);
-		dobject_mark_with_child(c, MFLAG_GLOBAL_MATRIX);
+		dobject_mark_with_children(c, MFLAG_GLOBAL_MATRIX);
 	}
 	return 0;
 }
@@ -322,7 +322,7 @@ static int m_remove_child(lua_State * L)
 	{
 		c->parent = c;
 		list_del_init(&c->entry);
-		dobject_mark_with_child(c, MFLAG_GLOBAL_MATRIX);
+		dobject_mark_with_children(c, MFLAG_GLOBAL_MATRIX);
 	}
 	return 0;
 }
@@ -349,7 +349,7 @@ static int m_set_size(lua_State * L)
 	o->width = luaL_checknumber(L, 2);
 	o->height = luaL_checknumber(L, 3);
 	o->mflag |= MFLAG_LOCAL_MATRIX;
-	dobject_mark_with_child(o, MFLAG_GLOBAL_MATRIX);
+	dobject_mark_with_children(o, MFLAG_GLOBAL_MATRIX);
 	return 0;
 }
 
@@ -370,7 +370,7 @@ static int m_set_x(lua_State * L)
 	else
 		o->mflag |= MFLAG_TRANSLATE;
 	o->mflag |= MFLAG_LOCAL_MATRIX;
-	dobject_mark_with_child(o, MFLAG_GLOBAL_MATRIX);
+	dobject_mark_with_children(o, MFLAG_GLOBAL_MATRIX);
 	return 0;
 }
 
@@ -390,7 +390,7 @@ static int m_set_y(lua_State * L)
 	else
 		o->mflag |= MFLAG_TRANSLATE;
 	o->mflag |= MFLAG_LOCAL_MATRIX;
-	dobject_mark_with_child(o, MFLAG_GLOBAL_MATRIX);
+	dobject_mark_with_children(o, MFLAG_GLOBAL_MATRIX);
 	return 0;
 }
 
@@ -411,7 +411,7 @@ static int m_set_position(lua_State * L)
 	else
 		o->mflag |= MFLAG_TRANSLATE;
 	o->mflag |= MFLAG_LOCAL_MATRIX;
-	dobject_mark_with_child(o, MFLAG_GLOBAL_MATRIX);
+	dobject_mark_with_children(o, MFLAG_GLOBAL_MATRIX);
 	return 0;
 }
 
@@ -432,7 +432,7 @@ static int m_set_rotation(lua_State * L)
 	else
 		o->mflag |= MFLAG_ROTATE;
 	o->mflag |= MFLAG_LOCAL_MATRIX;
-	dobject_mark_with_child(o, MFLAG_GLOBAL_MATRIX);
+	dobject_mark_with_children(o, MFLAG_GLOBAL_MATRIX);
 	return 0;
 }
 
@@ -452,7 +452,7 @@ static int m_set_scale_x(lua_State * L)
 	else
 		o->mflag |= MFLAG_SCALE;
 	o->mflag |= MFLAG_LOCAL_MATRIX;
-	dobject_mark_with_child(o, MFLAG_GLOBAL_MATRIX);
+	dobject_mark_with_children(o, MFLAG_GLOBAL_MATRIX);
 	return 0;
 }
 
@@ -472,7 +472,7 @@ static int m_set_scale_y(lua_State * L)
 	else
 		o->mflag |= MFLAG_SCALE;
 	o->mflag |= MFLAG_LOCAL_MATRIX;
-	dobject_mark_with_child(o, MFLAG_GLOBAL_MATRIX);
+	dobject_mark_with_children(o, MFLAG_GLOBAL_MATRIX);
 	return 0;
 }
 
@@ -493,7 +493,7 @@ static int m_set_scale(lua_State * L)
 	else
 		o->mflag |= MFLAG_SCALE;
 	o->mflag |= MFLAG_LOCAL_MATRIX;
-	dobject_mark_with_child(o, MFLAG_GLOBAL_MATRIX);
+	dobject_mark_with_children(o, MFLAG_GLOBAL_MATRIX);
 	return 0;
 }
 
@@ -514,7 +514,7 @@ static int m_set_skew_x(lua_State * L)
 	else
 		o->mflag |= MFLAG_SKEW;
 	o->mflag |= MFLAG_LOCAL_MATRIX;
-	dobject_mark_with_child(o, MFLAG_GLOBAL_MATRIX);
+	dobject_mark_with_children(o, MFLAG_GLOBAL_MATRIX);
 	return 0;
 }
 
@@ -534,7 +534,7 @@ static int m_set_skew_y(lua_State * L)
 	else
 		o->mflag |= MFLAG_SKEW;
 	o->mflag |= MFLAG_LOCAL_MATRIX;
-	dobject_mark_with_child(o, MFLAG_GLOBAL_MATRIX);
+	dobject_mark_with_children(o, MFLAG_GLOBAL_MATRIX);
 	return 0;
 }
 
@@ -555,7 +555,7 @@ static int m_set_skew(lua_State * L)
 	else
 		o->mflag |= MFLAG_SKEW;
 	o->mflag |= MFLAG_LOCAL_MATRIX;
-	dobject_mark_with_child(o, MFLAG_GLOBAL_MATRIX);
+	dobject_mark_with_children(o, MFLAG_GLOBAL_MATRIX);
 	return 0;
 }
 
@@ -577,7 +577,7 @@ static int m_set_archor(lua_State * L)
 	else
 		o->mflag |= MFLAG_ANCHOR;
 	o->mflag |= MFLAG_LOCAL_MATRIX;
-	dobject_mark_with_child(o, MFLAG_GLOBAL_MATRIX);
+	dobject_mark_with_children(o, MFLAG_GLOBAL_MATRIX);
 	return 0;
 }
 
@@ -714,7 +714,7 @@ static inline void dobject_translate(struct ldobject_t * o, double dx, double dy
 	else
 		o->mflag |= MFLAG_TRANSLATE;
 	o->mflag |= MFLAG_LOCAL_MATRIX;
-	dobject_mark_with_child(o, MFLAG_GLOBAL_MATRIX);
+	dobject_mark_with_children(o, MFLAG_GLOBAL_MATRIX);
 }
 
 static inline void dobject_translate_fill(struct ldobject_t * o, double x, double y, double w, double h)
@@ -741,7 +741,7 @@ static inline void dobject_translate_fill(struct ldobject_t * o, double x, doubl
 	o->anchorx = 0;
 	o->anchory = 0;
 	o->mflag |= MFLAG_LOCAL_MATRIX;
-	dobject_mark_with_child(o, MFLAG_GLOBAL_MATRIX);
+	dobject_mark_with_children(o, MFLAG_GLOBAL_MATRIX);
 }
 
 static int m_layout(lua_State * L)

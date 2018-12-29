@@ -55,7 +55,6 @@ struct ldobject_t {
 	int mflag;
 	cairo_matrix_t local_matrix;
 	cairo_matrix_t global_matrix;
-	cairo_matrix_t global_matrix_invert;
 
 	void (*draw)(lua_State * L, struct ldobject_t * o);
 	void * priv;

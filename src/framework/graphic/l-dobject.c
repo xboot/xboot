@@ -35,10 +35,8 @@ enum {
 	MFLAG_SCALE					= (0x1 << 2),
 	MFLAG_SKEW					= (0x1 << 3),
 	MFLAG_ANCHOR				= (0x1 << 4),
-
-	MFLAG_LOCAL_MATRIX			= (0x1 << 8),
-	MFLAG_GLOBAL_MATRIX			= (0x1 << 9),
-	MFLAG_GLOBAL_MATRIX_INVERT	= (0x1 << 10),
+	MFLAG_LOCAL_MATRIX			= (0x1 << 5),
+	MFLAG_GLOBAL_MATRIX			= (0x1 << 6),
 };
 
 static inline cairo_matrix_t * dobject_local_matrix(struct ldobject_t * o)
@@ -105,18 +103,6 @@ static inline cairo_matrix_t * dobject_global_matrix(struct ldobject_t * o)
 			cairo_matrix_multiply(m, m, dobject_local_matrix(o));
 		}
 		o->mflag &= ~MFLAG_GLOBAL_MATRIX;
-	}
-	return m;
-}
-
-static inline cairo_matrix_t * dobject_global_matrix_invert(struct ldobject_t * o)
-{
-	cairo_matrix_t * m = &o->global_matrix_invert;
-	if(o->mflag & MFLAG_GLOBAL_MATRIX_INVERT)
-	{
-		memcpy(m, dobject_global_matrix(o), sizeof(cairo_matrix_t));
-		cairo_matrix_invert(m);
-		o->mflag &= ~MFLAG_GLOBAL_MATRIX_INVERT;
 	}
 	return m;
 }
@@ -267,7 +253,6 @@ static int l_dobject_new(lua_State * L)
 	o->mflag = 0;
 	cairo_matrix_init_identity(&o->local_matrix);
 	cairo_matrix_init_identity(&o->global_matrix);
-	cairo_matrix_init_identity(&o->global_matrix_invert);
 
 	if(luaL_testudata(L, 3, MT_IMAGE))
 	{
@@ -324,7 +309,7 @@ static int m_add_child(lua_State * L)
 			list_add_tail(&c->entry, &o->children);
 		else
 			list_add(&c->entry, &o->children);
-		dobject_mark_with_child(c, MFLAG_GLOBAL_MATRIX | MFLAG_GLOBAL_MATRIX_INVERT);
+		dobject_mark_with_child(c, MFLAG_GLOBAL_MATRIX);
 	}
 	return 0;
 }
@@ -337,7 +322,7 @@ static int m_remove_child(lua_State * L)
 	{
 		c->parent = c;
 		list_del_init(&c->entry);
-		dobject_mark_with_child(c, MFLAG_GLOBAL_MATRIX | MFLAG_GLOBAL_MATRIX_INVERT);
+		dobject_mark_with_child(c, MFLAG_GLOBAL_MATRIX);
 	}
 	return 0;
 }
@@ -364,7 +349,7 @@ static int m_set_size(lua_State * L)
 	o->width = luaL_checknumber(L, 2);
 	o->height = luaL_checknumber(L, 3);
 	o->mflag |= MFLAG_LOCAL_MATRIX;
-	dobject_mark_with_child(o, MFLAG_GLOBAL_MATRIX | MFLAG_GLOBAL_MATRIX_INVERT);
+	dobject_mark_with_child(o, MFLAG_GLOBAL_MATRIX);
 	return 0;
 }
 
@@ -385,7 +370,7 @@ static int m_set_x(lua_State * L)
 	else
 		o->mflag |= MFLAG_TRANSLATE;
 	o->mflag |= MFLAG_LOCAL_MATRIX;
-	dobject_mark_with_child(o, MFLAG_GLOBAL_MATRIX | MFLAG_GLOBAL_MATRIX_INVERT);
+	dobject_mark_with_child(o, MFLAG_GLOBAL_MATRIX);
 	return 0;
 }
 
@@ -405,7 +390,7 @@ static int m_set_y(lua_State * L)
 	else
 		o->mflag |= MFLAG_TRANSLATE;
 	o->mflag |= MFLAG_LOCAL_MATRIX;
-	dobject_mark_with_child(o, MFLAG_GLOBAL_MATRIX | MFLAG_GLOBAL_MATRIX_INVERT);
+	dobject_mark_with_child(o, MFLAG_GLOBAL_MATRIX);
 	return 0;
 }
 
@@ -426,7 +411,7 @@ static int m_set_position(lua_State * L)
 	else
 		o->mflag |= MFLAG_TRANSLATE;
 	o->mflag |= MFLAG_LOCAL_MATRIX;
-	dobject_mark_with_child(o, MFLAG_GLOBAL_MATRIX | MFLAG_GLOBAL_MATRIX_INVERT);
+	dobject_mark_with_child(o, MFLAG_GLOBAL_MATRIX);
 	return 0;
 }
 
@@ -447,7 +432,7 @@ static int m_set_rotation(lua_State * L)
 	else
 		o->mflag |= MFLAG_ROTATE;
 	o->mflag |= MFLAG_LOCAL_MATRIX;
-	dobject_mark_with_child(o, MFLAG_GLOBAL_MATRIX | MFLAG_GLOBAL_MATRIX_INVERT);
+	dobject_mark_with_child(o, MFLAG_GLOBAL_MATRIX);
 	return 0;
 }
 
@@ -467,7 +452,7 @@ static int m_set_scale_x(lua_State * L)
 	else
 		o->mflag |= MFLAG_SCALE;
 	o->mflag |= MFLAG_LOCAL_MATRIX;
-	dobject_mark_with_child(o, MFLAG_GLOBAL_MATRIX | MFLAG_GLOBAL_MATRIX_INVERT);
+	dobject_mark_with_child(o, MFLAG_GLOBAL_MATRIX);
 	return 0;
 }
 
@@ -487,7 +472,7 @@ static int m_set_scale_y(lua_State * L)
 	else
 		o->mflag |= MFLAG_SCALE;
 	o->mflag |= MFLAG_LOCAL_MATRIX;
-	dobject_mark_with_child(o, MFLAG_GLOBAL_MATRIX | MFLAG_GLOBAL_MATRIX_INVERT);
+	dobject_mark_with_child(o, MFLAG_GLOBAL_MATRIX);
 	return 0;
 }
 
@@ -508,7 +493,7 @@ static int m_set_scale(lua_State * L)
 	else
 		o->mflag |= MFLAG_SCALE;
 	o->mflag |= MFLAG_LOCAL_MATRIX;
-	dobject_mark_with_child(o, MFLAG_GLOBAL_MATRIX | MFLAG_GLOBAL_MATRIX_INVERT);
+	dobject_mark_with_child(o, MFLAG_GLOBAL_MATRIX);
 	return 0;
 }
 
@@ -529,7 +514,7 @@ static int m_set_skew_x(lua_State * L)
 	else
 		o->mflag |= MFLAG_SKEW;
 	o->mflag |= MFLAG_LOCAL_MATRIX;
-	dobject_mark_with_child(o, MFLAG_GLOBAL_MATRIX | MFLAG_GLOBAL_MATRIX_INVERT);
+	dobject_mark_with_child(o, MFLAG_GLOBAL_MATRIX);
 	return 0;
 }
 
@@ -549,7 +534,7 @@ static int m_set_skew_y(lua_State * L)
 	else
 		o->mflag |= MFLAG_SKEW;
 	o->mflag |= MFLAG_LOCAL_MATRIX;
-	dobject_mark_with_child(o, MFLAG_GLOBAL_MATRIX | MFLAG_GLOBAL_MATRIX_INVERT);
+	dobject_mark_with_child(o, MFLAG_GLOBAL_MATRIX);
 	return 0;
 }
 
@@ -570,7 +555,7 @@ static int m_set_skew(lua_State * L)
 	else
 		o->mflag |= MFLAG_SKEW;
 	o->mflag |= MFLAG_LOCAL_MATRIX;
-	dobject_mark_with_child(o, MFLAG_GLOBAL_MATRIX | MFLAG_GLOBAL_MATRIX_INVERT);
+	dobject_mark_with_child(o, MFLAG_GLOBAL_MATRIX);
 	return 0;
 }
 
@@ -592,7 +577,7 @@ static int m_set_archor(lua_State * L)
 	else
 		o->mflag |= MFLAG_ANCHOR;
 	o->mflag |= MFLAG_LOCAL_MATRIX;
-	dobject_mark_with_child(o, MFLAG_GLOBAL_MATRIX | MFLAG_GLOBAL_MATRIX_INVERT);
+	dobject_mark_with_child(o, MFLAG_GLOBAL_MATRIX);
 	return 0;
 }
 
@@ -663,22 +648,27 @@ static int m_get_touchable(lua_State * L)
 static int m_global_to_local(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
-	double x = luaL_checknumber(L, 2);
-	double y = luaL_checknumber(L, 3);
-	cairo_matrix_transform_point(dobject_global_matrix_invert(o), &x, &y);
-	lua_pushnumber(L, x);
-	lua_pushnumber(L, y);
+	double nx, x = luaL_checknumber(L, 2);
+	double ny, y = luaL_checknumber(L, 3);
+	cairo_matrix_t * m = dobject_global_matrix(o);
+	double id = 1.0 / (m->xx * m->yy - m->xy * m->yx);
+	nx = ((x - m->x0) * m->yy + (m->y0 - y) * m->xy) * id;
+	ny = ((y - m->y0) * m->xx + (m->x0 - x) * m->yx) * id;
+	lua_pushnumber(L, nx);
+	lua_pushnumber(L, ny);
 	return 2;
 }
 
 static int m_local_to_global(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
-	double x = luaL_checknumber(L, 2);
-	double y = luaL_checknumber(L, 3);
-	cairo_matrix_transform_point(dobject_global_matrix(o), &x, &y);
-	lua_pushnumber(L, x);
-	lua_pushnumber(L, y);
+	double nx, x = luaL_checknumber(L, 2);
+	double ny, y = luaL_checknumber(L, 3);
+	cairo_matrix_t * m = dobject_global_matrix(o);
+	nx = m->xx * x + m->xy * y + m->x0;
+	ny = m->yx * x + m->yy * y + m->y0;
+	lua_pushnumber(L, nx);
+	lua_pushnumber(L, ny);
 	return 2;
 }
 
@@ -687,10 +677,13 @@ static int m_hit_test_point(lua_State * L)
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
 	if(o->visible && o->touchable)
 	{
-		double x = luaL_checknumber(L, 2);
-		double y = luaL_checknumber(L, 3);
-		cairo_matrix_transform_point(dobject_global_matrix_invert(o), &x, &y);
-		lua_pushboolean(L, ((x >= 0) && (y >= 0) && (x <= o->width) && (y <= o->height)) ? 1 : 0);
+		double nx, x = luaL_checknumber(L, 2);
+		double ny, y = luaL_checknumber(L, 3);
+		cairo_matrix_t * m = dobject_global_matrix(o);
+		double id = 1.0 / (m->xx * m->yy - m->xy * m->yx);
+		nx = ((x - m->x0) * m->yy + (m->y0 - y) * m->xy) * id;
+		ny = ((y - m->y0) * m->xx + (m->x0 - x) * m->yx) * id;
+		lua_pushboolean(L, ((nx >= 0) && (ny >= 0) && (nx <= o->width) && (ny <= o->height)) ? 1 : 0);
 		return 1;
 	}
 	lua_pushboolean(L, 0);
@@ -721,7 +714,7 @@ static inline void dobject_translate(struct ldobject_t * o, double dx, double dy
 	else
 		o->mflag |= MFLAG_TRANSLATE;
 	o->mflag |= MFLAG_LOCAL_MATRIX;
-	dobject_mark_with_child(o, MFLAG_GLOBAL_MATRIX | MFLAG_GLOBAL_MATRIX_INVERT);
+	dobject_mark_with_child(o, MFLAG_GLOBAL_MATRIX);
 }
 
 static inline void dobject_translate_fill(struct ldobject_t * o, double x, double y, double w, double h)
@@ -748,7 +741,7 @@ static inline void dobject_translate_fill(struct ldobject_t * o, double x, doubl
 	o->anchorx = 0;
 	o->anchory = 0;
 	o->mflag |= MFLAG_LOCAL_MATRIX;
-	dobject_mark_with_child(o, MFLAG_GLOBAL_MATRIX | MFLAG_GLOBAL_MATRIX_INVERT);
+	dobject_mark_with_child(o, MFLAG_GLOBAL_MATRIX);
 }
 
 static int m_layout(lua_State * L)

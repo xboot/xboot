@@ -79,7 +79,7 @@ function M:removeChild(child)
 	return self
 end
 
-function M:removeChildAll()
+function M:removeChildren()
 	for i, v in ipairs(self.children) do
 		v.parent = nil
 		self.dobj:removeChild(v.dobj)

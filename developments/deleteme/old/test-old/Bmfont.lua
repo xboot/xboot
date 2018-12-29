@@ -41,7 +41,7 @@ function M:setText(str)
 end
 
 function M:createCharacters()
-	self:removeChildAll()
+	self:removeChildren()
 	
 	local x = 0
 	local y = 0

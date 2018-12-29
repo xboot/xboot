@@ -12,7 +12,7 @@ function M:set(n)
 	local text = string.format("%5d", self.n or 0)
 	local x = 0
 	
-	self:removeChildAll()
+	self:removeChildren()
 	for c in string.gmatch(text, "[%z\1-\127\194-\244][\128-\191]*") do
 		if c ~= ' ' then
 			local char = self.assets:loadDisplay("games/2048/images/no" .. c .. ".png"):setPosition(x, 0)

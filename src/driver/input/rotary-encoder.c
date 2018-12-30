@@ -21,7 +21,7 @@
  *                 |<>|
  * 	          one step (quarter-period mode)
  *
- * Copyright(c) 2007-2018 Jianjun Jiang <8192542@qq.com>
+ * Copyright(c) 2007-2019 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
  * Mobile phone: +86-18665388956
  * QQ: 8192542

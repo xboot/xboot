@@ -31,6 +31,7 @@
 static const char display_object_lua[] = X(
 local Dobject = require "graphic.dobject"
 local Easing = require "graphic.easing"
+local Event = Event
 local table = table
 
 local M = Class(EventDispatcher)
@@ -279,110 +280,94 @@ function M:getBounds()
 end
 
 function M:animate(properties, duration, easing)
-	local function __animate_listener(d, e)
-		if d.__animate ~= true then
-			d:removeEventListener(Event.ENTER_FRAME, __animate_listener)
-			d.__duration = nil
-			d.__tween = nil
-			d.__watch = nil
-			d.__animate = nil
-			return
-		end
+	local function listener(d, e)
+		if next(d.tweenlist) then
+			local tween = d.tweenlist[1]
+			if not tween.easinglist then
+				tween.easinglist = {}
+				for k, v in pairs(tween.properties) do
+					local b = nil
+					if k == "x" then
+						b = d:getX()
+					elseif k == "y" then
+						b = d:getY()
+					elseif k == "rotation" then
+						b = d:getRotation()
+					elseif k == "scalex" then
+						b = d:getScaleX()
+					elseif k == "scaley" then
+						b = d:getScaleY()
+					elseif k == "skewx" then
+						b = d:getSkewX()
+					elseif k == "skewy" then
+						b = d:getSkewY()
+					elseif k == "alpha" then
+						b = d:getAlpha()
+					end
+					if b ~= nil then
+						tween.easinglist[k] = Easing.new(b, v - b, tween.duration, tween.easing)
+					end
+				end
+			end
 
-		local elapsed = d.__watch:elapsed()
+			local elapsed = d.animateStopwatch:elapsed()
+			if elapsed > tween.duration then
+				elapsed = tween.duration
+			end
 
-		if elapsed > d.__duration then
-			elapsed = d.__duration
-		end
+			for k, v in pairs(tween.easinglist) do
+				if k == "x" then
+					d:setX(v:easing(elapsed))
+				elseif k == "y" then
+					d:setY(v:easing(elapsed))
+				elseif k == "rotation" then
+					d:setRotation(v:easing(elapsed))
+				elseif k == "scalex" then
+					d:setScaleX(v:easing(elapsed))
+				elseif k == "scaley" then
+					d:setScaleY(v:easing(elapsed))
+				elseif k == "skewx" then
+					d:setSkewX(v:easing(elapsed))
+				elseif k == "skewy" then
+					d:setSkewY(v:easing(elapsed))
+				elseif k == "alpha" then
+					d:setAlpha(v:easing(elapsed))
+				end
+			end
 
-		for k, v in pairs(d.__tween) do
-			if k == "x" then
-				d:setX(v:easing(elapsed))
-			elseif k == "y" then
-				d:setY(v:easing(elapsed))
-			elseif k == "rotation" then
-				d:setRotation(v:easing(elapsed))
-			elseif k == "scalex" then
-				d:setScaleX(v:easing(elapsed))
-			elseif k == "scaley" then
-				d:setScaleY(v:easing(elapsed))
-			elseif k == "skewx" then
-				d:setSkewX(v:easing(elapsed))
-			elseif k == "skewy" then
-				d:setSkewY(v:easing(elapsed))
-			elseif k == "alpha" then
-				d:setAlpha(v:easing(elapsed))
+			if elapsed >= tween.duration then
+				table.remove(d.tweenlist, 1)
+				d.animateStopwatch:reset()
+			end
+		else
+			d:dispatchEvent(Event.new(Event.ANIMATE_COMPLETE))
+			if not next(d.tweenlist) then
+				d:removeEventListener(Event.ENTER_FRAME, listener)
+				d.animateStopwatch = nil
 			end
 		end
-
-		if elapsed >= d.__duration then
-			d:removeEventListener(Event.ENTER_FRAME, __animate_listener)
-			self:dispatchEvent(Event.new(Event.ANIMATE_COMPLETE))
-			d.__duration = nil
-			d.__tween = nil
-			d.__watch = nil
-			d.__animate = nil
-		end
-	end
-
-	if self.__animate == true then
-		self:removeEventListener(Event.ENTER_FRAME, __animate_listener)
-		self:dispatchEvent(Event.new(Event.ANIMATE_COMPLETE))
-		self.__duration = nil
-		self.__tween = nil
-		self.__watch = nil
-		self.__animate = nil
 	end
 
 	if not properties or type(properties) ~= "table" or not next(properties) then
 		return self
 	end
-
 	if duration and duration <= 0 then
 		return self
 	end
+	if not self.tweenlist then
+		self.tweenlist = {}
+	end
 
-	self.__duration = duration or 1
-	self.__tween = {}
-
+	local tween = {properties = {}, duration = duration or 1, easing = easing or "linear"}
 	for k, v in pairs(properties) do
-		local b = nil
-
-		if k == "x" then
-			b = self:getX()
-		elseif k == "y" then
-			b = self:getY()
-		elseif k == "rotation" then
-			b = self:getRotation()
-		elseif k == "scalex" then
-			b = self:getScaleX()
-		elseif k == "scaley" then
-			b = self:getScaleY()
-		elseif k == "skewx" then
-			b = self:getSkewX()
-		elseif k == "skewy" then
-			b = self:getSkewY()
-		elseif k == "alpha" then
-			b = self:getAlpha()
-		end
-
-		if b ~= nil then
-			self.__tween[k] = Easing.new(b, v - b, self.__duration, easing)
-		end
+		tween.properties[k] = v
 	end
+	table.insert(self.tweenlist, tween)
 
-	if not next(self.__tween) then
-		self:removeEventListener(Event.ENTER_FRAME, __animate_listener)
-		self.__duration = nil
-		self.__tween = nil
-		self.__watch = nil
-		self.__animate = nil
-	else
-		self:addEventListener(Event.ENTER_FRAME, __animate_listener)
-		self.__watch = Stopwatch.new()
-		self.__animate = true
+	if next(self.tweenlist) and not self.animateStopwatch then
+		self:addEventListener(Event.ENTER_FRAME, listener)
+		self.animateStopwatch = Stopwatch.new()
 	end
-
 	return self
 end
 

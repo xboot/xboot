@@ -7,6 +7,12 @@ extern "C" {
 
 #include <arm32.h>
 
+#if __ARM32_ARCH__ == 5
+static inline int smp_processor_id(void)
+{
+	return 0;
+}
+#else
 static inline int smp_processor_id(void)
 {
 	int tmp;
@@ -19,6 +25,7 @@ static inline int smp_processor_id(void)
 		: "memory");
 	return tmp;
 }
+#endif
 
 #ifdef __cplusplus
 }

@@ -33,32 +33,32 @@ void sys_uart_init(void)
 	virtual_addr_t addr;
 	u32_t val;
 
-	/* Config GPIOE1 and GPIOE0 to txd0 and rxd0 */
-	addr = 0x01c20890 + 0x00;
+	/* Config GPIOA2 and GPIOA3 to txd1 and rxd1 */
+	addr = 0x01c20800 + 0x00;
 	val = read32(addr);
-	val &= ~(0xf << ((1 & 0x7) << 2));
-	val |= ((0x5 & 0x7) << ((1 & 0x7) << 2));
+	val &= ~(0xf << ((3 & 0x7) << 2));
+	val |= ((0x5 & 0x7) << ((3 & 0x7) << 2));
 	write32(addr, val);
 
 	val = read32(addr);
-	val &= ~(0xf << ((0 & 0x7) << 2));
-	val |= ((0x5 & 0x7) << ((0 & 0x7) << 2));
+	val &= ~(0xf << ((2 & 0x7) << 2));
+	val |= ((0x5 & 0x7) << ((2 & 0x7) << 2));
 	write32(addr, val);
 
-	/* Open the clock gate for uart0 */
+	/* Open the clock gate for uart1 */
 	addr = 0x01c20068;
 	val = read32(addr);
-	val |= 1 << 20;
+	val |= 1 << 21;
 	write32(addr, val);
 
-	/* Deassert uart0 reset */
+	/* Deassert uart1 reset */
 	addr = 0x01c202d0;
 	val = read32(addr);
-	val |= 1 << 20;
+	val |= 1 << 21;
 	write32(addr, val);
 
-	/* Config uart0 to 115200-8-1-0 */
-	addr = 0x01c25000;
+	/* Config uart1 to 115200-8-1-0 */
+	addr = 0x01c25400;
 	write32(addr + 0x04, 0x0);
 	write32(addr + 0x08, 0xf7);
 	write32(addr + 0x10, 0x0);
@@ -78,7 +78,7 @@ void sys_uart_init(void)
 
 void sys_uart_putc(char c)
 {
-	virtual_addr_t addr = 0x01c25000;
+	virtual_addr_t addr = 0x01c25400;
 
 	while((read32(addr + 0x7c) & (0x1 << 1)) == 0);
 	write32(addr + 0x00, c);

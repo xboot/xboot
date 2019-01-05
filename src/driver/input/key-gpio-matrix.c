@@ -31,8 +31,8 @@
 #include <input/input.h>
 #include <input/keyboard.h>
 
-#define MAX_ROWS	(32)
-#define MAX_COLS	(32)
+#define MAX_ROWS	(16)
+#define MAX_COLS	(16)
 
 struct gpio_pin_t {
 	int gpio;
@@ -117,7 +117,7 @@ static inline int key_gpio_matrix_get_keycode(struct key_gpio_matrix_pdata_t * p
 		if((map->row == row) && (map->col == col))
 			return map->keycode;
 	}
-	return (map->col & 0xffff << 16) | (map->row & 0xffff << 0);
+	return ((col & 0xffff) << 16) | ((row & 0xffff) << 0);
 }
 
 static int key_gpio_matrix_timer_function(struct timer_t * timer, void * data)
@@ -128,7 +128,7 @@ static int key_gpio_matrix_timer_function(struct timer_t * timer, void * data)
 	uint32_t changed;
 	int row, col, keycode;
 
-	memset(state, 0, sizeof(state));
+	memset(state, 0, sizeof(uint32_t) * pdat->ncols);
 	activate_all_cols(pdat, 0);
 
 	for(col = 0; col < pdat->ncols; col++)
@@ -157,7 +157,7 @@ static int key_gpio_matrix_timer_function(struct timer_t * timer, void * data)
 				push_event_key_up(input, keycode);
 		}
 	}
-	memcpy(pdat->last_state, state, sizeof(state));
+	memcpy(pdat->last_state, state, sizeof(uint32_t) * pdat->ncols);
 	activate_all_cols(pdat, 1);
 
 	timer_forward_now(timer, ms_to_ktime(pdat->interval));
@@ -189,6 +189,9 @@ static struct device_t * key_gpio_matrix_probe(struct driver_t * drv, struct dtn
 		return NULL;
 
 	if((nmaps = dt_read_array_length(n, "keymaps")) <= 0)
+		return NULL;
+
+	if((nrows > MAX_ROWS) || (ncols > MAX_COLS))
 		return NULL;
 
 	pdat = malloc(sizeof(struct key_gpio_matrix_pdata_t));

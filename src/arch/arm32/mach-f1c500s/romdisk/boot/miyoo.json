@@ -342,6 +342,37 @@
 		]
 	},
 
+	"key-gpio-matrix@0": {
+		"rows": [
+			{ "gpio": 135, "gpio-config": 0 },
+			{ "gpio": 136, "gpio-config": 0 },
+			{ "gpio": 137, "gpio-config": 0 }
+		],
+		"cols": [
+			{ "gpio": 133, "gpio-config": 1 },
+			{ "gpio": 132, "gpio-config": 1 },
+			{ "gpio": 131, "gpio-config": 1 },
+			{ "gpio": 130, "gpio-config": 1 }
+		],
+		"keymaps": [
+			{ "row": 0, "col": 0, "key-code": 2 },
+			{ "row": 0, "col": 1, "key-code": 10 },
+			{ "row": 0, "col": 2, "key-code": 89 },
+			{ "row": 1, "col": 0, "key-code": 4 },
+			{ "row": 1, "col": 1, "key-code": 5 },
+			{ "row": 1, "col": 2, "key-code": 66 },
+			{ "row": 1, "col": 3, "key-code": 88 },
+			{ "row": 2, "col": 0, "key-code": 3 },
+			{ "row": 2, "col": 1, "key-code": 9 },
+			{ "row": 2, "col": 2, "key-code": 11 },
+			{ "row": 2, "col": 3, "key-code": 65 }
+		],
+		"gpio-active-low": true,
+		"drive-inactive-cols": true,
+		"col-scan-delay-us": 0,
+		"poll-interval-ms": 100
+	},
+
 	"led-gpio@0": {
 		"gpio": 1,
 		"gpio-config": 1,

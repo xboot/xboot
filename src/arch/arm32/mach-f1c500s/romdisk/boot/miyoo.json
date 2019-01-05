@@ -331,9 +331,9 @@
 	},
 
 	"led-gpio@0": {
-		"gpio": 0,
+		"gpio": 1,
 		"gpio-config": 1,
-		"active-low": false,
+		"active-low": true,
 		"default-brightness": 0
 	},
 

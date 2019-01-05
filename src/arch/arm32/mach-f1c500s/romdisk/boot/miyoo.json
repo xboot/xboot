@@ -243,6 +243,17 @@
 		"scl-gpio-config": 4
 	},
 
+	"i2c-gpio@0": {
+		"sda-gpio": 105,
+		"sda-gpio-config": 1,
+		"scl-gpio": 96,
+		"scl-gpio-config": 1,
+		"sda-open-drain": false,
+		"scl-open-drain": false,
+		"sda-output-only": false,
+		"delay-us": 5
+	},
+
 	"uart-16550@0x01c25000": {
 		"clock-name": "link-uart0",
 		"reset": 84,

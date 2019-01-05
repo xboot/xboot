@@ -316,7 +316,8 @@
 		"miso-gpio": 138,
 		"miso-gpio-config": 4,
 		"cs-gpio": 135,
-		"cs-gpio-config": 4
+		"cs-gpio-config": 4,
+		"status": "disabled"
 	},
 
 	"spi-flash@0": {

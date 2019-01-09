@@ -335,6 +335,46 @@
 		"clock-name": "link-wdt"
 	},
 
+	"battery-adc@0": {
+		"adc-name": "adc-f1c500s.0",
+		"adc-channel": 0,
+		"adc-voltage-multiply": 3,
+		"adc-voltage-divide": 1,
+		"median-filter-length": 7,
+		"mean-filter-length": 10,
+		"designed-capacity": 3000,
+		"designed-voltage": 3700,
+		"charging-detect-gpio": 138,
+		"charging-detect-gpio-config": 0,
+		"charging-detect-active-low": true,
+		"charging-curve": [
+			{ "voltage": 3400, "level": 0},
+			{ "voltage": 3572, "level": 10},
+			{ "voltage": 3608, "level": 20},
+			{ "voltage": 3645, "level": 30},
+			{ "voltage": 3688, "level": 40},
+			{ "voltage": 3719, "level": 50},
+			{ "voltage": 3768, "level": 60},
+			{ "voltage": 3817, "level": 70},
+			{ "voltage": 3866, "level": 80},
+			{ "voltage": 3976, "level": 90},
+			{ "voltage": 4086, "level": 100}
+		],
+		"discharging-curve": [
+			{ "voltage": 3400, "level": 0},
+			{ "voltage": 3572, "level": 10},
+			{ "voltage": 3608, "level": 20},
+			{ "voltage": 3645, "level": 30},
+			{ "voltage": 3688, "level": 40},
+			{ "voltage": 3719, "level": 50},
+			{ "voltage": 3768, "level": 60},
+			{ "voltage": 3817, "level": 70},
+			{ "voltage": 3866, "level": 80},
+			{ "voltage": 3976, "level": 90},
+			{ "voltage": 4086, "level": 100}
+		]
+	},
+
 	"key-gpio-matrix@0": {
 		"rows": [
 			{ "gpio": 135, "gpio-config": 0 },

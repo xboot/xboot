@@ -204,6 +204,10 @@
 		"pwm-gpio-config": 3
 	},
 
+	"adc-f1c500s@0x01c23400": {
+		"reference-voltage": 3000000
+	},
+
 	"ce-f1c500s-timer@0x01c20c00": {
 		"clock-name": "link-timer0",
 		"interrupt": 13
@@ -329,17 +333,6 @@
 
 	"wdg-f1c500s@0x01c20ca0": {
 		"clock-name": "link-wdt"
-	},
-
-	"key-f1c500s-lradc@0x01c23400": {
-		"interrupt": 22,
-		"reference-voltage": 3000000,
-		"keys": [
-			{ "min-voltage": 100000, "max-voltage": 300000, "key-code": 6 },
-			{ "min-voltage": 300000, "max-voltage": 500000, "key-code": 7 },
-			{ "min-voltage": 500000, "max-voltage": 700000, "key-code": 10 },
-			{ "min-voltage": 700000, "max-voltage": 900000, "key-code": 11 }
-		]
 	},
 
 	"key-gpio-matrix@0": {

@@ -74,9 +74,10 @@ static int l_event_new(lua_State * L)
 
 static int l_event_pump(lua_State * L)
 {
+	struct event_context_t * ectx = ((struct vmctx_t *)luahelper_vmctx(L))->ectx;
 	struct event_t e;
 
-	if(!pump_event(&e))
+	if(!pump_event(ectx, &e))
 		return 0;
 
 	switch(e.type)

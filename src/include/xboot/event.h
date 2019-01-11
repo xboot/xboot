@@ -6,6 +6,8 @@ extern "C" {
 #endif
 
 #include <types.h>
+#include <list.h>
+#include <fifo.h>
 
 enum event_type_t {
 	EVENT_TYPE_KEY_DOWN					= 0x0100,
@@ -143,6 +145,14 @@ struct event_t {
 	} e;
 };
 
+struct event_context_t {
+	struct fifo_t * fifo;
+	struct list_head entry;
+};
+
+struct event_context_t * event_context_alloc(void);
+void event_context_free(struct event_context_t * ectx);
+
 void push_event(struct event_t * e);
 void push_event_key_down(void * device, u32_t key);
 void push_event_key_up(void * device, u32_t key);
@@ -161,9 +171,7 @@ void push_event_joystick_left_trigger(void * device, s32_t v);
 void push_event_joystick_right_trigger(void * device, s32_t v);
 void push_event_joystick_button_down(void * device, u32_t button);
 void push_event_joystick_button_up(void * device, u32_t button);
-int pump_event(struct event_t * e);
-
-void do_init_event(void);
+int pump_event(struct event_context_t * ectx, struct event_t * e);
 
 #ifdef __cplusplus
 }

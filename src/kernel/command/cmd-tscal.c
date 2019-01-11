@@ -140,6 +140,7 @@ static int do_tscal(int argc, char ** argv)
 {
 	struct input_t * input;
 	struct framebuffer_t * fb;
+	struct event_context_t * ectx;
 	struct tscal_t cal;
 	struct event_t e;
 	cairo_surface_t * cs;
@@ -193,16 +194,16 @@ static int do_tscal(int argc, char ** argv)
 	cal.yfb[4] = height / 2;
 	index = 0;
 
-	while(pump_event(&e));
 	cairo_draw_point(cr, cal.xfb[index], cal.yfb[index]);
 	cairo_xboot_surface_present(cs, NULL, 0);
+	ectx = event_context_alloc();
 
 	while(1)
 	{
 		if(ctrlc())
 			break;
 
-		if(pump_event(&e))
+		if(pump_event(ectx, &e))
 		{
 			if(e.type == EVENT_TYPE_KEY_UP)
 			{
@@ -236,6 +237,7 @@ static int do_tscal(int argc, char ** argv)
 	}
 	cairo_destroy(cr);
 	cairo_surface_destroy(cs);
+	event_context_free(ectx);
 
 	return 0;
 }

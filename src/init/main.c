@@ -37,9 +37,6 @@ int xboot_main(int argc, char * argv[])
 	/* Do initial scheduler */
 	do_init_sched();
 
-	/* Do initial event */
-	do_init_event();
-
 	/* Do initial vfs */
 	do_init_vfs();
 

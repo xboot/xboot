@@ -31,11 +31,11 @@
 
 static int l_shape_new(lua_State * L)
 {
-	struct display_t * d = ((struct vmctx_t *)luahelper_vmctx(L))->d;
+	struct display_t * disp = ((struct vmctx_t *)luahelper_vmctx(L))->disp;
 	int width = luaL_checkinteger(L, 1);
 	int height = luaL_checkinteger(L, 2);
 	struct lshape_t * shape = lua_newuserdata(L, sizeof(struct lshape_t));
-	shape->cs = cairo_surface_create_similar(d->cs, CAIRO_CONTENT_COLOR_ALPHA, width, height);
+	shape->cs = cairo_surface_create_similar(disp->cs, CAIRO_CONTENT_COLOR_ALPHA, width, height);
 	shape->cr = cairo_create(shape->cs);
 	luaL_setmetatable(L, MT_SHAPE);
 	return 1;

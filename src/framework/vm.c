@@ -307,7 +307,7 @@ static struct vmctx_t * vmctx_alloc(const char * path, const char * fb)
 		return NULL;
 
 	ctx->xfs = xfs_alloc(path);
-	ctx->d = display_alloc(fb);
+	ctx->disp = display_alloc(fb);
 	ctx->ectx = event_context_alloc();
 	return ctx;
 }
@@ -318,7 +318,7 @@ static void vmctx_free(struct vmctx_t * ctx)
 		return;
 
 	xfs_free(ctx->xfs);
-	display_free(ctx->d);
+	display_free(ctx->disp);
 	event_context_free(ctx->ectx);
 	free(ctx);
 }

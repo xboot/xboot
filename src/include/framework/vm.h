@@ -12,7 +12,7 @@ extern "C" {
 struct vmctx_t
 {
 	struct xfs_context_t * xfs;
-	struct display_t * d;
+	struct display_t * disp;
 	struct event_context_t * ectx;
 };
 

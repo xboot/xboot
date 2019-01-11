@@ -109,9 +109,9 @@ static inline cairo_matrix_t * dobject_global_matrix(struct ldobject_t * o)
 
 static void dobject_draw_image(lua_State * L, struct ldobject_t * o)
 {
-	struct display_t * d = ((struct vmctx_t *)luahelper_vmctx(L))->d;
+	struct display_t * disp = ((struct vmctx_t *)luahelper_vmctx(L))->disp;
 	struct limage_t * img = o->priv;
-	cairo_t * cr = d->cr;
+	cairo_t * cr = disp->cr;
 	cairo_save(cr);
 	cairo_set_matrix(cr, dobject_global_matrix(o));
 	cairo_set_source_surface(cr, img->cs, 0, 0);
@@ -121,9 +121,9 @@ static void dobject_draw_image(lua_State * L, struct ldobject_t * o)
 
 static void dobject_draw_ninepatch(lua_State * L, struct ldobject_t * o)
 {
-	struct display_t * d = ((struct vmctx_t *)luahelper_vmctx(L))->d;
+	struct display_t * disp = ((struct vmctx_t *)luahelper_vmctx(L))->disp;
 	struct lninepatch_t * ninepatch = o->priv;
-	cairo_t * cr = d->cr;
+	cairo_t * cr = disp->cr;
 	cairo_save(cr);
 	cairo_set_matrix(cr, dobject_global_matrix(o));
 	if(ninepatch->lt)
@@ -217,9 +217,9 @@ static void dobject_draw_ninepatch(lua_State * L, struct ldobject_t * o)
 
 static void dobject_draw_shape(lua_State * L, struct ldobject_t * o)
 {
-	struct display_t * d = ((struct vmctx_t *)luahelper_vmctx(L))->d;
+	struct display_t * disp = ((struct vmctx_t *)luahelper_vmctx(L))->disp;
 	struct lshape_t * shape = o->priv;
-	cairo_t * cr = d->cr;
+	cairo_t * cr = disp->cr;
 	cairo_save(cr);
 	cairo_set_matrix(cr, dobject_global_matrix(o));
 	cairo_set_source_surface(cr, shape->cs, 0, 0);

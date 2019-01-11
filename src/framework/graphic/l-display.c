@@ -31,8 +31,8 @@
 
 static int l_display_new(lua_State * L)
 {
-	struct display_t * d = ((struct vmctx_t *)luahelper_vmctx(L))->d;
-	lua_pushlightuserdata(L, d);
+	struct display_t * disp = ((struct vmctx_t *)luahelper_vmctx(L))->disp;
+	lua_pushlightuserdata(L, disp);
 	luaL_setmetatable(L, MT_DISPLAY);
 	return 1;
 }
@@ -44,75 +44,75 @@ static const luaL_Reg l_display[] = {
 
 static int m_get_size(lua_State * L)
 {
-	struct display_t * s = luaL_checkudata(L, 1, MT_DISPLAY);
-	lua_pushnumber(L, s->fb->width);
-	lua_pushnumber(L, s->fb->height);
+	struct display_t * disp = luaL_checkudata(L, 1, MT_DISPLAY);
+	lua_pushnumber(L, disp->fb->width);
+	lua_pushnumber(L, disp->fb->height);
 	return 2;
 }
 
 static int m_get_physical_size(lua_State * L)
 {
-	struct display_t * s = luaL_checkudata(L, 1, MT_DISPLAY);
-	lua_pushnumber(L, s->fb->pwidth);
-	lua_pushnumber(L, s->fb->pheight);
+	struct display_t * disp = luaL_checkudata(L, 1, MT_DISPLAY);
+	lua_pushnumber(L, disp->fb->pwidth);
+	lua_pushnumber(L, disp->fb->pheight);
 	return 2;
 }
 
 static int m_get_bits_per_pixel(lua_State * L)
 {
-	struct display_t * s = luaL_checkudata(L, 1, MT_DISPLAY);
-	lua_pushnumber(L, s->fb->bpp);
+	struct display_t * disp = luaL_checkudata(L, 1, MT_DISPLAY);
+	lua_pushnumber(L, disp->fb->bpp);
 	return 1;
 }
 
 static int m_set_backlight(lua_State * L)
 {
-	struct display_t * s = luaL_checkudata(L, 1, MT_DISPLAY);
+	struct display_t * disp = luaL_checkudata(L, 1, MT_DISPLAY);
 	int brightness = luaL_checknumber(L, 2) * (lua_Number)(CONFIG_MAX_BRIGHTNESS);
-	framebuffer_set_backlight(s->fb, brightness);
+	framebuffer_set_backlight(disp->fb, brightness);
 	return 0;
 }
 
 static int m_get_backlight(lua_State * L)
 {
-	struct display_t * s = luaL_checkudata(L, 1, MT_DISPLAY);
-	int brightness = framebuffer_get_backlight(s->fb);
+	struct display_t * disp = luaL_checkudata(L, 1, MT_DISPLAY);
+	int brightness = framebuffer_get_backlight(disp->fb);
 	lua_pushnumber(L, brightness / (lua_Number)(CONFIG_MAX_BRIGHTNESS));
 	return 1;
 }
 
 static int m_display_showfps(lua_State * L)
 {
-	struct display_t * d = luaL_checkudata(L, 1, MT_DISPLAY);
+	struct display_t * disp = luaL_checkudata(L, 1, MT_DISPLAY);
 	int flag = lua_toboolean(L, 2) ? 1 : 0;
-	if(flag && !d->showfps)
-		d->stamp = ktime_get();
-	d->showfps = flag;
+	if(flag && !disp->showfps)
+		disp->stamp = ktime_get();
+	disp->showfps = flag;
 	return 0;
 }
 
 static int m_present(lua_State * L)
 {
-	struct display_t * d = luaL_checkudata(L, 1, MT_DISPLAY);
-	cairo_t * cr = d->cr;
-	if(d->showfps)
+	struct display_t * disp = luaL_checkudata(L, 1, MT_DISPLAY);
+	cairo_t * cr = disp->cr;
+	if(disp->showfps)
 	{
 		char buf[32];
 		ktime_t now = ktime_get();
-		s64_t delta = ktime_ms_delta(now, d->stamp);
+		s64_t delta = ktime_ms_delta(now, disp->stamp);
 		if(delta > 0)
-			d->fps = ((double)1000.0 / (double)delta) * 0.618 + d->fps * 0.382;
-		d->frame++;
-		d->stamp = now;
+			disp->fps = ((double)1000.0 / (double)delta) * 0.618 + disp->fps * 0.382;
+		disp->frame++;
+		disp->stamp = now;
 		cairo_save(cr);
 		cairo_set_font_size(cr, 24);
 		cairo_set_source_rgb(cr, 0.4, 0.4, 0.4);
 		cairo_move_to(cr, 0, 24);
-		snprintf(buf, sizeof(buf), "%.2f %ld", d->fps, d->frame);
+		snprintf(buf, sizeof(buf), "%.2f %ld", disp->fps, disp->frame);
 		cairo_show_text(cr, buf);
 		cairo_restore(cr);
 	}
-	cairo_xboot_surface_present(d->cs, NULL, 0);
+	cairo_xboot_surface_present(disp->cs, NULL, 0);
 	cairo_save(cr);
 	cairo_set_source_rgb(cr, 1, 1, 1);
 	cairo_set_operator(cr, CAIRO_OPERATOR_SOURCE);

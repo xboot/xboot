@@ -29,7 +29,7 @@
 #include <framework/core/l-assets.h>
 
 static const char assets_lua[] = X(
-local Font = require "graphic.font"
+local Font = Font
 local Image = Image
 local Ninepatch = Ninepatch
 local DisplayImage = DisplayImage

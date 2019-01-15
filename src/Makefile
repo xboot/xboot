@@ -157,7 +157,6 @@ SRCDIRS		+=	arch/$(ARCH)/lib/cpu						\
 				framework									\
 				framework/codec								\
 				framework/core								\
-				framework/graphic							\
 				framework/hardware
 
 #

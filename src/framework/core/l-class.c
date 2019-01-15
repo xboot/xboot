@@ -54,7 +54,7 @@ return function(b)
 
 	function o.new(...)
 		local self = {}
-		setmetatable (self, o)
+		setmetatable(self, o)
 		self.super = setmetatable({self = self, base = b}, {__index = super})
 
 		if self.init then

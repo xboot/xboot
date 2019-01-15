@@ -28,6 +28,7 @@
 
 #include <xboot.h>
 #include <framework/core/l-image.h>
+#include <framework/core/l-ninepatch.h>
 #include <framework/graphic/l-graphic.h>
 
 enum {

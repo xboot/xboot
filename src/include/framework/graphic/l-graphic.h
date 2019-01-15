@@ -60,22 +60,6 @@ struct ldobject_t {
 	void * priv;
 };
 
-struct lninepatch_t {
-	int width, height;
-	int left, top, right, bottom;
-	cairo_surface_t * lt;
-	cairo_surface_t * mt;
-	cairo_surface_t * rt;
-	cairo_surface_t * lm;
-	cairo_surface_t * mm;
-	cairo_surface_t * rm;
-	cairo_surface_t * lb;
-	cairo_surface_t * mb;
-	cairo_surface_t * rb;
-	double __w, __h;
-	double __sx, __sy;
-};
-
 struct lpattern_t {
 	cairo_pattern_t * pattern;
 };
@@ -87,13 +71,11 @@ struct lshape_t {
 
 #define	MT_DOBJECT		"__mt_dobject__"
 #define	MT_FONT			"__mt_font__"
-#define	MT_NINEPATCH	"__mt_ninepatch__"
 #define	MT_PATTERN		"__mt_pattern__"
 #define	MT_SHAPE		"__mt_shape__"
 
 int luaopen_dobject(lua_State * L);
 int luaopen_font(lua_State * L);
-int luaopen_ninepatch(lua_State * L);
 int luaopen_pattern(lua_State * L);
 int luaopen_shape(lua_State * L);
 

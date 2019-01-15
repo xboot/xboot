@@ -29,8 +29,6 @@
 #include <framework/core/l-display-ninepatch.h>
 
 static const char display_ninepatch_lua[] = X(
-local Ninepatch = require "graphic.ninepatch"
-
 local M = Class(DisplayObject)
 
 function M:init(ninepatch)

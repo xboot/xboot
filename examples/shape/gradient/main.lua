@@ -1,5 +1,5 @@
 local Pattern = require "graphic.pattern"
-local Shape = require "graphic.shape"
+local Shape = Shape
 local M_PI = math.pi
 
 local p1 = Pattern.linear(0.0, 0.0, 0.0, 256.0)

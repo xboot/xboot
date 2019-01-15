@@ -1,5 +1,5 @@
 /*
- * framework/graphic/l-shape.c
+ * framework/core/l-shape.c
  *
  * Copyright(c) 2007-2019 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -28,6 +28,7 @@
 
 #include <xboot.h>
 #include <framework/graphic/l-graphic.h>
+#include <framework/core/l-shape.h>
 
 static int l_shape_new(lua_State * L)
 {

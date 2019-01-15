@@ -64,20 +64,13 @@ struct lpattern_t {
 	cairo_pattern_t * pattern;
 };
 
-struct lshape_t {
-	cairo_surface_t * cs;
-	cairo_t * cr;
-};
-
 #define	MT_DOBJECT		"__mt_dobject__"
 #define	MT_FONT			"__mt_font__"
 #define	MT_PATTERN		"__mt_pattern__"
-#define	MT_SHAPE		"__mt_shape__"
 
 int luaopen_dobject(lua_State * L);
 int luaopen_font(lua_State * L);
 int luaopen_pattern(lua_State * L);
-int luaopen_shape(lua_State * L);
 
 #ifdef __cplusplus
 }

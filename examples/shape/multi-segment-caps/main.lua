@@ -1,4 +1,4 @@
-local Shape = require "graphic.shape"
+local Shape = Shape
 local M_PI = math.pi
 local sqrt = math.sqrt
 

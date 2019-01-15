@@ -29,8 +29,6 @@
 #include <framework/core/l-display-shape.h>
 
 static const char display_shape_lua[] = X(
-local Shape = require "graphic.shape"
-
 local M = Class(DisplayObject)
 
 function M:init(width, height)

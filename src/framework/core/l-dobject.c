@@ -1,5 +1,5 @@
 /*
- * framework/graphic/l-dobject.c
+ * framework/core/l-dobject.c
  *
  * Copyright(c) 2007-2019 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -30,7 +30,7 @@
 #include <framework/core/l-image.h>
 #include <framework/core/l-ninepatch.h>
 #include <framework/core/l-shape.h>
-#include <framework/graphic/l-graphic.h>
+#include <framework/core/l-dobject.h>
 
 enum {
 	MFLAG_TRANSLATE				= (0x1 << 0),

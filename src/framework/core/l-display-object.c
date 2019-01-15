@@ -29,7 +29,7 @@
 #include <framework/core/l-display-object.h>
 
 static const char display_object_lua[] = X(
-local Dobject = require "graphic.dobject"
+local Dobject = Dobject
 local Easing = Easing
 local Event = Event
 local table = table

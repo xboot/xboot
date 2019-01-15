@@ -1,5 +1,5 @@
-local Dobject = require "graphic.dobject"
 local Button = require "xboot.widget.Button"
+local Dobject = Dobject
 
 local M = Class(DisplayObject)
 

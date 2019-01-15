@@ -39,6 +39,7 @@
 #include <framework/core/l-ninepatch.h>
 #include <framework/core/l-pattern.h>
 #include <framework/core/l-shape.h>
+#include <framework/core/l-dobject.h>
 #include <framework/core/l-event.h>
 #include <framework/core/l-event-dispatcher.h>
 #include <framework/core/l-display-object.h>
@@ -58,7 +59,6 @@ static void luaopen_prelibs(lua_State * L)
 		{ "codec.base64",			luaopen_base64 },
 		{ "codec.json",				luaopen_cjson_safe },
 
-		{ "graphic.dobject",		luaopen_dobject },
 		{ "graphic.font",			luaopen_font },
 
 		{ "hardware.adc",			luaopen_hardware_adc },
@@ -111,6 +111,7 @@ static void luaopen_glblibs(lua_State * L)
 		{ "Ninepatch",				luaopen_ninepatch },
 		{ "Pattern",				luaopen_pattern },
 		{ "Shape",					luaopen_shape },
+		{ "Dobject",				luaopen_dobject },
 		{ "Event",					luaopen_event },
 		{ "EventDispatcher",		luaopen_event_dispatcher },
 		{ "DisplayObject",			luaopen_display_object },

@@ -1,4 +1,4 @@
-local Dobject = require "graphic.dobject"
+local Dobject = Dobject
 
 local M = Class(DisplayObject)
 

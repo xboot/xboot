@@ -29,8 +29,6 @@
 #include <framework/core/l-display-image.h>
 
 static const char display_image_lua[] = X(
-local Image = require "graphic.image"
-
 local M = Class(DisplayObject)
 
 function M:init(image)

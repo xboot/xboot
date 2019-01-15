@@ -28,6 +28,7 @@
 
 #include <xboot.h>
 #include <framework/core/l-matrix.h>
+#include <framework/core/l-image.h>
 #include <framework/graphic/l-graphic.h>
 
 static int l_pattern_create_color(lua_State * L)

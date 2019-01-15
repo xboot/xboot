@@ -1,5 +1,5 @@
 /*
- * framework/graphic/l-image.c
+ * framework/core/l-image.c
  *
  * Copyright(c) 2007-2019 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -27,7 +27,7 @@
  */
 
 #include <xboot.h>
-#include <framework/graphic/l-graphic.h>
+#include <framework/core/l-image.h>
 
 static cairo_status_t xfs_read_func(void * closure, unsigned char * data, unsigned int size)
 {

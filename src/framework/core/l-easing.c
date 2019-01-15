@@ -29,8 +29,6 @@
 #include <xboot.h>
 #include <framework/core/l-easing.h>
 
-#define	MT_EASING	"__mt_easing__"
-
 /*
  * For all easing functions:
  *

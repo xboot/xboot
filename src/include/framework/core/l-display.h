@@ -7,6 +7,8 @@ extern "C" {
 
 #include <framework/luahelper.h>
 
+#define MT_DISPLAY	"__mt_display__"
+
 int luaopen_display(lua_State * L);
 
 #ifdef __cplusplus

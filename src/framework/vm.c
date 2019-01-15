@@ -34,6 +34,7 @@
 #include <framework/core/l-easing.h>
 #include <framework/core/l-timer.h>
 #include <framework/core/l-display.h>
+#include <framework/core/l-matrix.h>
 #include <framework/core/l-event.h>
 #include <framework/core/l-event-dispatcher.h>
 #include <framework/core/l-display-object.h>
@@ -56,7 +57,6 @@ static void luaopen_prelibs(lua_State * L)
 		{ "graphic.dobject",		luaopen_dobject },
 		{ "graphic.font",			luaopen_font },
 		{ "graphic.image",			luaopen_image },
-		{ "graphic.matrix",			luaopen_matrix },
 		{ "graphic.ninepatch",		luaopen_ninepatch },
 		{ "graphic.pattern",		luaopen_pattern },
 		{ "graphic.shape",			luaopen_shape },
@@ -106,6 +106,7 @@ static void luaopen_glblibs(lua_State * L)
 		{ "Easing",					luaopen_easing },
 		{ "Timer",					luaopen_timer },
 		{ "Display",				luaopen_display },
+		{ "Matrix",					luaopen_matrix },
 		{ "Event",					luaopen_event },
 		{ "EventDispatcher",		luaopen_event_dispatcher },
 		{ "DisplayObject",			luaopen_display_object },

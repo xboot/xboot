@@ -7,6 +7,8 @@ extern "C" {
 
 #include <framework/luahelper.h>
 
+#define	MT_EASING	"__mt_easing__"
+
 int luaopen_easing(lua_State * L);
 
 #ifdef __cplusplus

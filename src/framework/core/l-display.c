@@ -29,8 +29,6 @@
 #include <xboot.h>
 #include <framework/core/l-display.h>
 
-#define MT_DISPLAY	"__mt_display__"
-
 static int l_display_new(lua_State * L)
 {
 	struct display_t * disp = ((struct vmctx_t *)luahelper_vmctx(L))->disp;

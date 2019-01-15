@@ -1,5 +1,5 @@
-local Pattern = require "graphic.pattern"
 local RadioButton = require "xboot.widget.RadioButton"
+local Pattern = Pattern
 
 local M = Class(DisplayObject)
 

@@ -1,5 +1,5 @@
-local Pattern = require "graphic.pattern"
 local Ball = require "graphics.balls.Ball"
+local Pattern = Pattern
 
 local M = Class(DisplayObject)
 

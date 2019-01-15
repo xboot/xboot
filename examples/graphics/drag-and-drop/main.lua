@@ -1,4 +1,4 @@
-local Pattern = require "graphic.pattern"
+local Pattern = Pattern
 
 local function onMouseDown(self, e)
 	if self:hitTestPoint(e.x, e.y) then

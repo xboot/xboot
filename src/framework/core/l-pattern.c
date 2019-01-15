@@ -1,5 +1,5 @@
 /*
- * framework/graphic/l-pattern.c
+ * framework/core/l-pattern.c
  *
  * Copyright(c) 2007-2019 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -29,7 +29,7 @@
 #include <xboot.h>
 #include <framework/core/l-matrix.h>
 #include <framework/core/l-image.h>
-#include <framework/graphic/l-graphic.h>
+#include <framework/core/l-pattern.h>
 
 static int l_pattern_create_color(lua_State * L)
 {

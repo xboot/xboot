@@ -1,4 +1,5 @@
-local Pattern = require "graphic.pattern"
+local Pattern = Pattern
+
 local M = Class(DisplayObject)
 
 function M:init(w, h)

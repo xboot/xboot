@@ -60,17 +60,11 @@ struct ldobject_t {
 	void * priv;
 };
 
-struct lpattern_t {
-	cairo_pattern_t * pattern;
-};
-
 #define	MT_DOBJECT		"__mt_dobject__"
 #define	MT_FONT			"__mt_font__"
-#define	MT_PATTERN		"__mt_pattern__"
 
 int luaopen_dobject(lua_State * L);
 int luaopen_font(lua_State * L);
-int luaopen_pattern(lua_State * L);
 
 #ifdef __cplusplus
 }

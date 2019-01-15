@@ -1,5 +1,5 @@
 local Dobject = require "graphic.dobject"
-local Pattern = require "graphic.pattern"
+local Pattern = Pattern
 local M_PI = math.pi
 
 local sw, sh = stage:getSize()

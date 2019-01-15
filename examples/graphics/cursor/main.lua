@@ -1,4 +1,4 @@
-local Pattern = require "graphic.pattern"
+local Pattern = Pattern
 
 local cursor = assets:loadDisplay("cursor.png")
 	:addEventListener(Event.MOUSE_DOWN, function(d, e) d:setPosition(e.x, e.y) end)

@@ -1,5 +1,5 @@
-local Pattern = require "graphic.pattern"
 local CheckBox = require "xboot.widget.CheckBox"
+local Pattern = Pattern
 
 local M = Class(DisplayObject)
 

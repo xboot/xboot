@@ -27,7 +27,7 @@
  */
 
 #include <xboot.h>
-#include <framework/graphic/l-graphic.h>
+#include <framework/core/l-pattern.h>
 #include <framework/core/l-shape.h>
 
 static int l_shape_new(lua_State * L)

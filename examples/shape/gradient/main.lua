@@ -1,4 +1,4 @@
-local Pattern = require "graphic.pattern"
+local Pattern = Pattern
 local Shape = Shape
 local M_PI = math.pi
 

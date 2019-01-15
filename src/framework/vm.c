@@ -33,6 +33,7 @@
 #include <framework/core/l-stopwatch.h>
 #include <framework/core/l-easing.h>
 #include <framework/core/l-timer.h>
+#include <framework/core/l-display.h>
 #include <framework/core/l-event.h>
 #include <framework/core/l-event-dispatcher.h>
 #include <framework/core/l-display-object.h>
@@ -52,7 +53,6 @@ static void luaopen_prelibs(lua_State * L)
 		{ "codec.base64",			luaopen_base64 },
 		{ "codec.json",				luaopen_cjson_safe },
 
-		{ "graphic.display",		luaopen_display },
 		{ "graphic.dobject",		luaopen_dobject },
 		{ "graphic.font",			luaopen_font },
 		{ "graphic.image",			luaopen_image },
@@ -105,6 +105,7 @@ static void luaopen_glblibs(lua_State * L)
 		{ "Stopwatch",				luaopen_stopwatch },
 		{ "Easing",					luaopen_easing },
 		{ "Timer",					luaopen_timer },
+		{ "Display",				luaopen_display },
 		{ "Event",					luaopen_event },
 		{ "EventDispatcher",		luaopen_event_dispatcher },
 		{ "DisplayObject",			luaopen_display_object },

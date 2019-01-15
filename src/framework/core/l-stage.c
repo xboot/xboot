@@ -29,8 +29,6 @@
 #include <framework/core/l-stage.h>
 
 static const char stage_lua[] = X(
-local Display = require "graphic.display"
-
 local M = Class(DisplayObject)
 
 function M:init()

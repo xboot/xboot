@@ -1,5 +1,5 @@
 /*
- * framework/graphic/l-display.c
+ * framework/core/l-display.c
  *
  * Copyright(c) 2007-2019 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -27,7 +27,9 @@
  */
 
 #include <xboot.h>
-#include <framework/graphic/l-graphic.h>
+#include <framework/core/l-display.h>
+
+#define MT_DISPLAY	"__mt_display__"
 
 static int l_display_new(lua_State * L)
 {

@@ -89,7 +89,6 @@ struct lshape_t {
 	cairo_t * cr;
 };
 
-#define	MT_DISPLAY		"__mt_display__"
 #define	MT_DOBJECT		"__mt_dobject__"
 #define	MT_FONT			"__mt_font__"
 #define	MT_IMAGE		"__mt_image__"
@@ -98,7 +97,6 @@ struct lshape_t {
 #define	MT_PATTERN		"__mt_pattern__"
 #define	MT_SHAPE		"__mt_shape__"
 
-int luaopen_display(lua_State * L);
 int luaopen_dobject(lua_State * L);
 int luaopen_font(lua_State * L);
 int luaopen_image(lua_State * L);

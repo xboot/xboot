@@ -30,15 +30,16 @@
 #include <framework/luahelper.h>
 #include <framework/core/l-assets.h>
 #include <framework/core/l-class.h>
-#include <framework/core/l-display-image.h>
-#include <framework/core/l-display-ninepatch.h>
-#include <framework/core/l-display-object.h>
-#include <framework/core/l-display-shape.h>
+#include <framework/core/l-stopwatch.h>
+#include <framework/core/l-easing.h>
+#include <framework/core/l-timer.h>
 #include <framework/core/l-event.h>
 #include <framework/core/l-event-dispatcher.h>
+#include <framework/core/l-display-object.h>
+#include <framework/core/l-display-image.h>
+#include <framework/core/l-display-ninepatch.h>
+#include <framework/core/l-display-shape.h>
 #include <framework/core/l-stage.h>
-#include <framework/core/l-stopwatch.h>
-#include <framework/core/l-timer.h>
 #include <framework/codec/l-base64.h>
 #include <framework/codec/l-json.h>
 #include <framework/graphic/l-graphic.h>
@@ -53,7 +54,6 @@ static void luaopen_prelibs(lua_State * L)
 
 		{ "graphic.display",		luaopen_display },
 		{ "graphic.dobject",		luaopen_dobject },
-		{ "graphic.easing",			luaopen_easing },
 		{ "graphic.font",			luaopen_font },
 		{ "graphic.image",			luaopen_image },
 		{ "graphic.matrix",			luaopen_matrix },
@@ -103,6 +103,7 @@ static void luaopen_glblibs(lua_State * L)
 	const luaL_Reg glblibs[] = {
 		{ "Class",					luaopen_class },
 		{ "Stopwatch",				luaopen_stopwatch },
+		{ "Easing",					luaopen_easing },
 		{ "Timer",					luaopen_timer },
 		{ "Event",					luaopen_event },
 		{ "EventDispatcher",		luaopen_event_dispatcher },

@@ -91,7 +91,6 @@ struct lshape_t {
 
 #define	MT_DISPLAY		"__mt_display__"
 #define	MT_DOBJECT		"__mt_dobject__"
-#define	MT_EASING		"__mt_easing__"
 #define	MT_FONT			"__mt_font__"
 #define	MT_IMAGE		"__mt_image__"
 #define	MT_MATRIX		"__mt_matrix__"
@@ -101,7 +100,6 @@ struct lshape_t {
 
 int luaopen_display(lua_State * L);
 int luaopen_dobject(lua_State * L);
-int luaopen_easing(lua_State * L);
 int luaopen_font(lua_State * L);
 int luaopen_image(lua_State * L);
 int luaopen_matrix(lua_State * L);

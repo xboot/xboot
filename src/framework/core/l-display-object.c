@@ -30,7 +30,7 @@
 
 static const char display_object_lua[] = X(
 local Dobject = require "graphic.dobject"
-local Easing = require "graphic.easing"
+local Easing = Easing
 local Event = Event
 local table = table
 

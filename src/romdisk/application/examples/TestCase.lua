@@ -1,4 +1,4 @@
-local Easing = require "graphic.easing"
+local Easing = Easing
 
 local M = Class(DisplayObject)
 

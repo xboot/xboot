@@ -48,10 +48,46 @@
 #include <framework/core/l-stage.h>
 #include <framework/core/l-stopwatch.h>
 #include <framework/core/l-timer.h>
+#include <framework/core/l-xfs.h>
 #include <framework/codec/l-base64.h>
 #include <framework/codec/l-json.h>
 #include <framework/hardware/l-hardware.h>
 #include <framework/vm.h>
+
+static void luaopen_glblibs(lua_State * L)
+{
+	const luaL_Reg glblibs[] = {
+		{ "Class",					luaopen_class },
+		{ "Xfs",					luaopen_xfs },
+		{ "Display",				luaopen_display },
+		{ "Easing",					luaopen_easing },
+		{ "Stopwatch",				luaopen_stopwatch },
+		{ "Matrix",					luaopen_matrix },
+		{ "Image",					luaopen_image },
+		{ "Ninepatch",				luaopen_ninepatch },
+		{ "Pattern",				luaopen_pattern },
+		{ "Shape",					luaopen_shape },
+		{ "Font",					luaopen_font },
+		{ "Dobject",				luaopen_dobject },
+		{ "Event",					luaopen_event },
+		{ "EventDispatcher",		luaopen_event_dispatcher },
+		{ "DisplayObject",			luaopen_display_object },
+		{ "DisplayImage",			luaopen_display_image },
+		{ "DisplayNinepatch",		luaopen_display_ninepatch },
+		{ "DisplayShape",			luaopen_display_shape },
+		{ "Timer",					luaopen_timer },
+		{ "Stage",					luaopen_stage },
+		{ "Assets",					luaopen_assets },
+		{ NULL,	NULL },
+	};
+	const luaL_Reg * lib;
+
+	for(lib = glblibs; lib->func; lib++)
+	{
+		luaL_requiref(L, lib->name, lib->func, 1);
+		lua_pop(L, 1);
+	}
+}
 
 static void luaopen_prelibs(lua_State * L)
 {
@@ -93,40 +129,6 @@ static void luaopen_prelibs(lua_State * L)
 	for(lib = prelibs; lib->func; lib++)
 	{
 		luahelper_preload(L, lib->name, lib->func);
-	}
-}
-
-static void luaopen_glblibs(lua_State * L)
-{
-	const luaL_Reg glblibs[] = {
-		{ "Class",					luaopen_class },
-		{ "Stopwatch",				luaopen_stopwatch },
-		{ "Easing",					luaopen_easing },
-		{ "Timer",					luaopen_timer },
-		{ "Display",				luaopen_display },
-		{ "Matrix",					luaopen_matrix },
-		{ "Image",					luaopen_image },
-		{ "Ninepatch",				luaopen_ninepatch },
-		{ "Pattern",				luaopen_pattern },
-		{ "Shape",					luaopen_shape },
-		{ "Font",					luaopen_font },
-		{ "Dobject",				luaopen_dobject },
-		{ "Event",					luaopen_event },
-		{ "EventDispatcher",		luaopen_event_dispatcher },
-		{ "DisplayObject",			luaopen_display_object },
-		{ "DisplayImage",			luaopen_display_image },
-		{ "DisplayNinepatch",		luaopen_display_ninepatch },
-		{ "DisplayShape",			luaopen_display_shape },
-		{ "Stage",					luaopen_stage },
-		{ "Assets",					luaopen_assets },
-		{ NULL,	NULL },
-	};
-	const luaL_Reg * lib;
-
-	for(lib = glblibs; lib->func; lib++)
-	{
-		luaL_requiref(L, lib->name, lib->func, 1);
-		lua_pop(L, 1);
 	}
 }
 
@@ -251,8 +253,8 @@ static int l_xboot_uniqueid(lua_State * L)
 static int pmain(lua_State * L)
 {
 	luaL_openlibs(L);
-	luaopen_prelibs(L);
 	luaopen_glblibs(L);
+	luaopen_prelibs(L);
 
 	luahelper_package_searcher(L, l_search_package_lua, 2);
 	luahelper_package_path(L, "./?/init.lua;./?.lua");

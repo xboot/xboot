@@ -47,6 +47,7 @@
 #include <framework/core/l-shape.h>
 #include <framework/core/l-stage.h>
 #include <framework/core/l-stopwatch.h>
+#include <framework/core/l-text.h>
 #include <framework/core/l-timer.h>
 #include <framework/core/l-xfs.h>
 #include <framework/codec/l-base64.h>
@@ -68,6 +69,7 @@ static void luaopen_glblibs(lua_State * L)
 		{ "Pattern",				luaopen_pattern },
 		{ "Shape",					luaopen_shape },
 		{ "Font",					luaopen_font },
+		{ "Text",					luaopen_text },
 		{ "Dobject",				luaopen_dobject },
 		{ "Event",					luaopen_event },
 		{ "EventDispatcher",		luaopen_event_dispatcher },

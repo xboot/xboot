@@ -231,6 +231,14 @@ static s64_t dir_seek(void * f, s64_t offset)
 	return (pos >= 0) ? pos : 0;
 }
 
+static s64_t dir_tell(void * f)
+{
+	struct fhandle_dir_t * fh = (struct fhandle_dir_t *)f;
+	s64_t pos;
+	pos = vfs_lseek(fh->fd, 0, VFS_SEEK_CUR);
+	return (pos >= 0) ? pos : 0;
+}
+
 static s64_t dir_length(void * f)
 {
 	struct fhandle_dir_t * fh = (struct fhandle_dir_t *)f;
@@ -260,6 +268,7 @@ static struct xfs_archiver_t archiver_dir = {
 	.read		= dir_read,
 	.write		= dir_write,
 	.seek		= dir_seek,
+	.tell		= dir_tell,
 	.length		= dir_length,
 	.close		= dir_close,
 };

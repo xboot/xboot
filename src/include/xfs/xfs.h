@@ -39,6 +39,7 @@ struct xfs_file_t * xfs_open_append(struct xfs_context_t * ctx, const char * nam
 s64_t xfs_read(struct xfs_file_t * file, void * buf, s64_t size);
 s64_t xfs_write(struct xfs_file_t * file, void * buf, s64_t size);
 s64_t xfs_seek(struct xfs_file_t * file, s64_t offset);
+s64_t xfs_tell(struct xfs_file_t * file);
 s64_t xfs_length(struct xfs_file_t * file);
 void xfs_close(struct xfs_file_t * file);
 

@@ -103,7 +103,8 @@ static int m_xfs_file_gc(lua_State * L)
 
 static int xfs_file_test_eof(lua_State * L, struct lxfsfile_t * f)
 {
-	return 0;
+	lua_pushliteral(L, "");
+	return (xfs_tell(f->file) >= xfs_length(f->file)) ? 1 : 0;
 }
 
 static int xfs_file_read_chars(lua_State * L, struct lxfsfile_t * f, s64_t l)
@@ -228,6 +229,13 @@ static int m_xfs_file_seek(lua_State * L)
 	return 1;
 }
 
+static int m_xfs_file_tell(lua_State * L)
+{
+	struct lxfsfile_t * f = luaL_checkudata(L, 1, MT_XFS_FILE);
+	lua_pushinteger(L, xfs_tell(f->file));
+	return 1;
+}
+
 static int m_xfs_file_length(lua_State * L)
 {
 	struct lxfsfile_t * f = luaL_checkudata(L, 1, MT_XFS_FILE);
@@ -251,6 +259,7 @@ static const luaL_Reg m_xfs_file[] = {
 	{"read",	m_xfs_file_read},
 	{"write",	m_xfs_file_write},
 	{"seek",	m_xfs_file_seek},
+	{"tell",	m_xfs_file_tell},
 	{"length",	m_xfs_file_length},
 	{"close",	m_xfs_file_close},
 	{NULL,		NULL}

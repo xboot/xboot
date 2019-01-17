@@ -329,6 +329,13 @@ s64_t xfs_seek(struct xfs_file_t * file, s64_t offset)
 	return 0;
 }
 
+s64_t xfs_tell(struct xfs_file_t * file)
+{
+	if(file)
+		return file->path->archiver->tell(file->fhandle);
+	return 0;
+}
+
 s64_t xfs_length(struct xfs_file_t * file)
 {
 	if(file)

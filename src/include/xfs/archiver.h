@@ -41,6 +41,7 @@ struct xfs_archiver_t
 	s64_t (*read)(void * f, void * buf, s64_t size);
 	s64_t (*write)(void * f, void * buf, s64_t size);
 	s64_t (*seek)(void * f, s64_t offset);
+	s64_t (*tell)(void * f);
 	s64_t (*length)(void * f);
 	void (*close)(void * f);
 };

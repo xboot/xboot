@@ -189,6 +189,12 @@ static s64_t dir_seek(void * f, s64_t offset)
 	return sandbox_file_seek(fh->fd, offset);
 }
 
+static s64_t dir_tell(void * f)
+{
+	struct fhandle_dir_t * fh = (struct fhandle_dir_t *)f;
+	return sandbox_file_tell(fh->fd);
+}
+
 static s64_t dir_length(void * f)
 {
 	struct fhandle_dir_t * fh = (struct fhandle_dir_t *)f;
@@ -215,6 +221,7 @@ static struct xfs_archiver_t archiver_dir = {
 	.read		= dir_read,
 	.write		= dir_write,
 	.seek		= dir_seek,
+	.tell		= dir_tell,
 	.length		= dir_length,
 	.close		= dir_close,
 };

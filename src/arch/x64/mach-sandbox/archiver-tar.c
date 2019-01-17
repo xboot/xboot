@@ -397,7 +397,15 @@ static s64_t tar_seek(void * f, s64_t offset)
 		fh->offset = 0;
 	else if(offset > fh->size)
 		fh->offset = fh->size;
+	else
+		fh->offset = offset;
 	sandbox_file_seek(fh->fd, fh->start + fh->offset);
+	return fh->offset;
+}
+
+static s64_t tar_tell(void * f)
+{
+	struct fhandle_tar_t * fh = (struct fhandle_tar_t *)f;
 	return fh->offset;
 }
 
@@ -426,6 +434,7 @@ static struct xfs_archiver_t archiver_tar = {
 	.read		= tar_read,
 	.write		= tar_write,
 	.seek		= tar_seek,
+	.tell		= tar_tell,
 	.length		= tar_length,
 	.close		= tar_close,
 };

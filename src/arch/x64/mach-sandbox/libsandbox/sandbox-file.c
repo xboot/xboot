@@ -166,16 +166,26 @@ ssize_t sandbox_file_write(int fd, const void * buf, size_t count)
 	return (ret > 0) ? ret: 0;
 }
 
-uint64_t sandbox_file_seek(int fd, uint64_t offset)
+int64_t sandbox_file_seek(int fd, int64_t offset)
 {
-	return (uint64_t)lseek(fd, offset, SEEK_SET);
+	int64_t len = (int64_t)lseek(fd, 0, SEEK_END);
+	if(offset < 0)
+		offset = 0;
+	else if(offset > len)
+		offset = len;
+	return (int64_t)lseek(fd, offset, SEEK_SET);
 }
 
-uint64_t sandbox_file_length(int fd)
+int64_t sandbox_file_tell(int fd)
+{
+	return (int64_t)lseek(fd, 0, SEEK_CUR);
+}
+
+int64_t sandbox_file_length(int fd)
 {
 	off_t off, ret;
 	off = lseek(fd, 0, SEEK_CUR);
 	ret = lseek(fd, 0, SEEK_END);
 	lseek(fd, off, SEEK_SET);
-	return (ret > 0) ? ret: 0;
+	return (ret > 0) ? (int64_t)ret: 0;
 }

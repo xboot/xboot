@@ -40,8 +40,9 @@ void sandbox_file_walk(const char * path, void (*cb)(const char * dir, const cha
 ssize_t sandbox_file_read(int fd, void * buf, size_t count);
 ssize_t sandbox_file_read_nonblock(int fd, void * buf, size_t count);
 ssize_t sandbox_file_write(int fd, const void * buf, size_t count);
-uint64_t sandbox_file_seek(int fd, uint64_t offset);
-uint64_t sandbox_file_length(int fd);
+int64_t sandbox_file_seek(int fd, int64_t offset);
+int64_t sandbox_file_tell(int fd);
+int64_t sandbox_file_length(int fd);
 
 /*
  * PM interface

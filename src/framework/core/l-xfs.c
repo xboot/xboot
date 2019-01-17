@@ -101,9 +101,118 @@ static int m_xfs_file_gc(lua_State * L)
 	return 0;
 }
 
-static int m_xfs_file_read(lua_State * L)
+static int xfs_file_test_eof(lua_State * L, struct lxfsfile_t * f)
 {
 	return 0;
+}
+
+static int xfs_file_read_chars(lua_State * L, struct lxfsfile_t * f, s64_t l)
+{
+	luaL_Buffer b;
+	char * p;
+	s64_t n;
+
+	luaL_buffinit(L, &b);
+	p = luaL_prepbuffsize(&b, l);
+	n = xfs_read(f->file, p, l);
+	luaL_addsize(&b, n);
+	luaL_pushresult(&b);
+	return (n > 0);
+}
+
+static int xfs_file_read_line(lua_State * L, struct lxfsfile_t * f, int chop)
+{
+	luaL_Buffer b;
+	char * buf, c = '\0';
+	int i;
+
+	luaL_buffinit(L, &b);
+	while(c != '\n')
+	{
+		buf = luaL_prepbuffer(&b);
+		i = 0;
+		while((i < LUAL_BUFFERSIZE) && (xfs_read(f->file, &c, 1) == 1) && (c != '\n'))
+			buf[i++] = c;
+		luaL_addsize(&b, i);
+	}
+	if(!chop && (c == '\n'))
+		luaL_addchar(&b, c);
+	luaL_pushresult(&b);
+	return ((c == '\n') || (lua_rawlen(L, -1) > 0));
+}
+
+static int xfs_file_read_all(lua_State * L, struct lxfsfile_t * f)
+{
+	luaL_Buffer b;
+	char * p;
+	s64_t n;
+
+	luaL_buffinit(L, &b);
+	do
+	{
+		p = luaL_prepbuffer(&b);
+		n = xfs_read(f->file, p, LUAL_BUFFERSIZE);
+		luaL_addsize(&b, n);
+	} while(n == LUAL_BUFFERSIZE);
+	luaL_pushresult(&b);
+	return 1;
+}
+
+static int m_xfs_file_read(lua_State * L)
+{
+	struct lxfsfile_t * f = luaL_checkudata(L, 1, MT_XFS_FILE);
+	int nargs = lua_gettop(L) - 1;
+	int first = 2;
+	int success;
+	int n;
+
+	if(nargs == 0)
+	{
+		success = xfs_file_read_line(L, f, 1);
+		n = first + 1;
+	}
+	else
+	{
+		luaL_checkstack(L, nargs + LUA_MINSTACK, "too many arguments");
+		success = 1;
+		for(n = first; nargs-- && success; n++)
+		{
+			if(lua_type(L, n) == LUA_TNUMBER)
+			{
+				s64_t l = (s64_t)luaL_checkinteger(L, n);
+				success = (l == 0) ? xfs_file_test_eof(L, f) : xfs_file_read_chars(L, f, l);
+			}
+			else
+			{
+				const char * q = luaL_checkstring(L, n);
+				if(*q == '*')
+					q++;
+				switch(*q)
+				{
+				case 'n':
+					success = 0;
+					break;
+				case 'l':
+					success = xfs_file_read_line(L, f, 1);
+					break;
+				case 'L':
+					success = xfs_file_read_line(L, f, 0);
+					break;
+				case 'a':
+					success = xfs_file_read_all(L, f);
+					break;
+				default:
+					return luaL_argerror(L, n, "invalid format");
+				}
+			}
+		}
+	}
+	if(!success)
+	{
+		lua_pop(L, 1);
+		lua_pushnil(L);
+	}
+	return n - first;
 }
 
 static int m_xfs_file_write(lua_State * L)

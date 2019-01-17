@@ -11,6 +11,7 @@ extern "C" {
 
 struct lxfsfile_t {
 	struct xfs_file_t * file;
+	int closed;
 };
 
 int luaopen_xfs(lua_State * L);

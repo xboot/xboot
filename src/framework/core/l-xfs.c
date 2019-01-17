@@ -45,6 +45,7 @@ static int l_xfs_open(lua_State * L)
 		return 0;
 	struct lxfsfile_t * f = lua_newuserdata(L, sizeof(struct lxfsfile_t));
 	f->file = file;
+	f->closed = 0;
 	luaL_setmetatable(L, MT_XFS_FILE);
 	return 1;
 }
@@ -93,12 +94,21 @@ static const luaL_Reg l_xfs[] = {
 static int m_xfs_file_gc(lua_State * L)
 {
 	struct lxfsfile_t * f = luaL_checkudata(L, 1, MT_XFS_FILE);
-	if(f->file)
+	if(f->file && !f->closed)
 	{
 		xfs_close(f->file);
 		f->file = NULL;
+		f->closed = 1;
 	}
 	return 0;
+}
+
+static inline int xfs_file_getc(struct xfs_file_t * file)
+{
+	int c;
+	if(xfs_read(file, &c, 1) == 1)
+		return c;
+	return -1;
 }
 
 static int xfs_file_test_eof(lua_State * L, struct lxfsfile_t * f)
@@ -128,11 +138,11 @@ static int xfs_file_read_line(lua_State * L, struct lxfsfile_t * f, int chop)
 	int i;
 
 	luaL_buffinit(L, &b);
-	while(c != '\n')
+	while((c != -1) && (c != '\n'))
 	{
 		buf = luaL_prepbuffer(&b);
 		i = 0;
-		while((i < LUAL_BUFFERSIZE) && (xfs_read(f->file, &c, 1) == 1) && (c != '\n'))
+		while((i < LUAL_BUFFERSIZE) && ((c = xfs_file_getc(f->file)) != -1) && (c != '\n'))
 			buf[i++] = c;
 		luaL_addsize(&b, i);
 	}
@@ -159,11 +169,9 @@ static int xfs_file_read_all(lua_State * L, struct lxfsfile_t * f)
 	return 1;
 }
 
-static int m_xfs_file_read(lua_State * L)
+static int xfs_file_read(lua_State * L, struct lxfsfile_t * f, int first)
 {
-	struct lxfsfile_t * f = luaL_checkudata(L, 1, MT_XFS_FILE);
 	int nargs = lua_gettop(L) - 1;
-	int first = 2;
 	int success;
 	int n;
 
@@ -190,9 +198,6 @@ static int m_xfs_file_read(lua_State * L)
 					q++;
 				switch(*q)
 				{
-				case 'n':
-					success = 0;
-					break;
 				case 'l':
 					success = xfs_file_read_line(L, f, 1);
 					break;
@@ -216,9 +221,95 @@ static int m_xfs_file_read(lua_State * L)
 	return n - first;
 }
 
+static int xfs_file_write(lua_State * L, struct lxfsfile_t * f, int arg)
+{
+	int nargs = lua_gettop(L) - arg;
+	int status = 1;
+	for(; nargs--; arg++)
+	{
+		if(lua_type(L, arg) == LUA_TNUMBER)
+		{
+			char buf[128];
+			int len;
+			if(lua_isinteger(L, arg))
+			{
+				len = sprintf(buf, LUA_INTEGER_FMT, (LUAI_UACINT)lua_tointeger(L, arg));
+			}
+			else
+			{
+				len = sprintf(buf, LUA_NUMBER_FMT, (LUAI_UACNUMBER)lua_tonumber(L, arg));
+			}
+			status = status && (len > 0) && (xfs_write(f->file, (void *)buf, len) == len);
+		}
+		else
+		{
+			size_t l;
+			const char * s = luaL_checklstring(L, arg, &l);
+			status = status && (xfs_write(f->file, (void *)s, l) == l);
+		}
+	}
+	return status ? 1 : 0;
+}
+
+static int xfs_file_lines(lua_State * L)
+{
+	struct lxfsfile_t * f = (struct lxfsfile_t *)lua_touserdata(L, lua_upvalueindex(1));
+	int n = (int)lua_tointeger(L, lua_upvalueindex(2));
+	int i;
+	if(!f->file || f->closed)
+		return luaL_error(L, "file is already closed");
+	lua_settop(L, 1);
+	luaL_checkstack(L, n, "too many arguments");
+	for(i = 1; i <= n; i++)
+		lua_pushvalue(L, lua_upvalueindex(3 + i));
+	n = xfs_file_read(L, f, 2);
+	lua_assert(n > 0);
+	if(lua_toboolean(L, -n))
+		return n;
+	else
+	{
+		if(n > 1)
+		{
+			return luaL_error(L, "%s", lua_tostring(L, -n + 1));
+		}
+		if(lua_toboolean(L, lua_upvalueindex(3)))
+		{
+			lua_settop(L, 0);
+			lua_pushvalue(L, lua_upvalueindex(1));
+			f = (struct lxfsfile_t * )luaL_checkudata(L, 1, MT_XFS_FILE);
+			if(f->file && !f->closed)
+			{
+				xfs_close(f->file);
+				f->file = NULL;
+				f->closed = 1;
+			}
+		}
+		return 0;
+	}
+}
+
+static int m_xfs_file_lines(lua_State * L)
+{
+	int n = lua_gettop(L) - 1;
+	luaL_argcheck(L, n <= 250, 250 + 2, "too many arguments");
+	lua_pushinteger(L, n);
+	lua_pushboolean(L, 0);
+	lua_rotate(L, 2, 2);
+	lua_pushcclosure(L, xfs_file_lines, 3 + n);
+	return 1;
+}
+
+static int m_xfs_file_read(lua_State * L)
+{
+	struct lxfsfile_t * f = luaL_checkudata(L, 1, MT_XFS_FILE);
+	return xfs_file_read(L, f, 2);
+}
+
 static int m_xfs_file_write(lua_State * L)
 {
-	return 0;
+	struct lxfsfile_t * f = luaL_checkudata(L, 1, MT_XFS_FILE);
+	lua_pushvalue(L, 1);
+	return xfs_file_write(L, f, 2);
 }
 
 static int m_xfs_file_seek(lua_State * L)
@@ -246,16 +337,18 @@ static int m_xfs_file_length(lua_State * L)
 static int m_xfs_file_close(lua_State * L)
 {
 	struct lxfsfile_t * f = luaL_checkudata(L, 1, MT_XFS_FILE);
-	if(f->file)
+	if(f->file && !f->closed)
 	{
 		xfs_close(f->file);
 		f->file = NULL;
+		f->closed = 1;
 	}
 	return 0;
 }
 
 static const luaL_Reg m_xfs_file[] = {
 	{"__gc",	m_xfs_file_gc},
+	{"lines",	m_xfs_file_lines},
 	{"read",	m_xfs_file_read},
 	{"write",	m_xfs_file_write},
 	{"seek",	m_xfs_file_seek},

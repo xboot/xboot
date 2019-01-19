@@ -105,9 +105,9 @@ static int m_xfs_file_gc(lua_State * L)
 
 static inline int xfs_file_getc(struct xfs_file_t * file)
 {
-	int c;
+	unsigned char c;
 	if(xfs_read(file, &c, 1) == 1)
-		return c;
+		return (int)c;
 	return -1;
 }
 
@@ -134,7 +134,8 @@ static int xfs_file_read_chars(lua_State * L, struct lxfsfile_t * f, s64_t l)
 static int xfs_file_read_line(lua_State * L, struct lxfsfile_t * f, int chop)
 {
 	luaL_Buffer b;
-	char * buf, c = '\0';
+	char * buf;
+	int c = '\0';
 	int i;
 
 	luaL_buffinit(L, &b);

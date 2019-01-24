@@ -35,6 +35,7 @@
 #include <framework/core/l-display-ninepatch.h>
 #include <framework/core/l-display-object.h>
 #include <framework/core/l-display-shape.h>
+#include <framework/core/l-display-text.h>
 #include <framework/core/l-dobject.h>
 #include <framework/core/l-easing.h>
 #include <framework/core/l-event.h>
@@ -77,6 +78,7 @@ static void luaopen_glblibs(lua_State * L)
 		{ "DisplayImage",			luaopen_display_image },
 		{ "DisplayNinepatch",		luaopen_display_ninepatch },
 		{ "DisplayShape",			luaopen_display_shape },
+		{ "DisplayText",			luaopen_display_text },
 		{ "Timer",					luaopen_timer },
 		{ "Stage",					luaopen_stage },
 		{ "Assets",					luaopen_assets },

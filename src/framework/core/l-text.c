@@ -27,11 +27,21 @@
  */
 
 #include <xboot.h>
+#include <framework/core/l-pattern.h>
+#include <framework/core/l-font.h>
 #include <framework/core/l-text.h>
 
 static int l_text_new(lua_State * L)
 {
-	return 0;
+	struct lfont_t * font = luaL_checkudata(L, 1, MT_FONT);
+	struct lpattern_t * pattern = luaL_checkudata(L, 2, MT_PATTERN);
+	const char * utf8 = luaL_checkstring(L, 3);
+	struct ltext_t * text = lua_newuserdata(L, sizeof(struct ltext_t));
+	text->utf8 = strdup(utf8);
+	text->font = font->sfont;
+	text->pattern = pattern->pattern;
+	luaL_setmetatable(L, MT_TEXT);
+	return 1;
 }
 
 static const luaL_Reg l_text[] = {
@@ -42,11 +52,42 @@ static const luaL_Reg l_text[] = {
 static int m_text_gc(lua_State * L)
 {
 	struct ltext_t * text = luaL_checkudata(L, 1, MT_TEXT);
+	if(text->utf8)
+		free(text->utf8);
+	return 0;
+}
+
+static int m_text_set_text(lua_State * L)
+{
+	struct ltext_t * text = luaL_checkudata(L, 1, MT_TEXT);
+	const char * utf8 = luaL_checkstring(L, 2);
+	if(text->utf8)
+		free(text->utf8);
+	text->utf8 = strdup(utf8);
+	return 0;
+}
+
+static int m_text_set_font(lua_State * L)
+{
+	struct ltext_t * text = luaL_checkudata(L, 1, MT_TEXT);
+	struct lfont_t * font = luaL_checkudata(L, 2, MT_FONT);
+	text->font = font->sfont;
+	return 0;
+}
+
+static int m_text_set_pattern(lua_State * L)
+{
+	struct ltext_t * text = luaL_checkudata(L, 1, MT_TEXT);
+	struct lpattern_t * pattern = luaL_checkudata(L, 2, MT_PATTERN);
+	text->pattern = pattern->pattern;
 	return 0;
 }
 
 static const luaL_Reg m_text[] = {
 	{"__gc",		m_text_gc},
+	{"setText",		m_text_set_text},
+	{"setFont",		m_text_set_font},
+	{"setPattern",	m_text_set_pattern},
 	{NULL,			NULL}
 };
 

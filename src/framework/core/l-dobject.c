@@ -30,6 +30,7 @@
 #include <framework/core/l-image.h>
 #include <framework/core/l-ninepatch.h>
 #include <framework/core/l-shape.h>
+#include <framework/core/l-text.h>
 #include <framework/core/l-dobject.h>
 
 enum {
@@ -230,6 +231,22 @@ static void dobject_draw_shape(lua_State * L, struct ldobject_t * o)
 	cairo_restore(cr);
 }
 
+static void dobject_draw_text(lua_State * L, struct ldobject_t * o)
+{
+	struct display_t * disp = ((struct vmctx_t *)luahelper_vmctx(L))->disp;
+	struct ltext_t * text = o->priv;
+	cairo_matrix_t * m = dobject_global_matrix(o);
+	cairo_t * cr = disp->cr;
+	cairo_save(cr);
+	cairo_set_scaled_font(cr, text->font);
+	cairo_move_to(cr, m->x0, m->y0);
+	cairo_set_matrix(cr, m);
+	cairo_text_path(cr, text->utf8);
+	cairo_set_source(cr, text->pattern);
+	cairo_fill(cr);
+	cairo_restore(cr);
+}
+
 static int l_dobject_new(lua_State * L)
 {
 	struct ldobject_t * o = lua_newuserdata(L, sizeof(struct ldobject_t));
@@ -270,6 +287,11 @@ static int l_dobject_new(lua_State * L)
 	else if(luaL_testudata(L, 3, MT_SHAPE))
 	{
 		o->draw = dobject_draw_shape;
+		o->priv = lua_touserdata(L, 3);
+	}
+	else if(luaL_testudata(L, 3, MT_TEXT))
+	{
+		o->draw = dobject_draw_text;
 		o->priv = lua_touserdata(L, 3);
 	}
 	else

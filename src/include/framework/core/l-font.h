@@ -12,6 +12,13 @@ extern "C" {
 
 #define	MT_FONT		"__mt_font__"
 
+struct lfont_t {
+	FT_Library library;
+	FT_Face fface;
+	cairo_font_face_t * face;
+	cairo_scaled_font_t * sfont;
+};
+
 int luaopen_font(lua_State * L);
 
 #ifdef __cplusplus

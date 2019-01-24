@@ -29,19 +29,6 @@
 #include <xboot.h>
 #include <framework/core/l-font.h>
 
-struct lfont_t {
-	FT_Library library;
-	FT_Face fface;
-	cairo_font_face_t * face;
-	cairo_scaled_font_t * sfont;
-};
-
-cairo_scaled_font_t * luaL_checkudata_scaled_font(lua_State * L, int ud, const char * tname)
-{
-	struct lfont_t * font = luaL_checkudata(L, ud, tname);
-	return font->sfont;
-}
-
 static unsigned long ft_xfs_stream_io(FT_Stream stream, unsigned long offset, unsigned char * buffer, unsigned long count)
 {
 	struct xfs_file_t * file = ((struct xfs_file_t *)stream->descriptor.pointer);

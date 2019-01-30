@@ -125,6 +125,11 @@ function M:getBacklight()
 	return self.display:getBacklight()
 end
 
+function M:showobj(value)
+	self.display:showobj(value)
+	return self
+end
+
 function M:showfps(value)
 	self.display:showfps(value)
 	return self

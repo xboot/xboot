@@ -13,6 +13,7 @@ struct display_t
 	cairo_surface_t * cs;
 	cairo_t * cr;
 
+	int showobj;
 	int showfps;
 	double fps;
 	uint64_t frame;

@@ -115,6 +115,7 @@ struct display_t * display_alloc(const char * fb)
 	d->fb = dev;
 	d->cs = cairo_xboot_surface_create(d->fb);
 	d->cr = cairo_create(d->cs);
+	d->showobj = 0;
 	d->showfps = 0;
 	d->fps = 60;
 	d->frame = 0;

@@ -85,7 +85,7 @@ static int m_image_gc(lua_State * L)
 	return 0;
 }
 
-static int m_image_size(lua_State * L)
+static int m_image_get_size(lua_State * L)
 {
 	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
 	int w = cairo_image_surface_get_width(img->cs);
@@ -114,7 +114,7 @@ static int m_image_region(lua_State * L)
 
 static const luaL_Reg m_image[] = {
 	{"__gc",		m_image_gc},
-	{"size",		m_image_size},
+	{"getSize",		m_image_get_size},
 	{"region",		m_image_region},
 	{NULL,			NULL}
 };

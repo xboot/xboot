@@ -7,12 +7,12 @@ function M:init()
 	self.super:init()
 
 	self.imgWood = assets:loadImage("wood.png")
-	local w, h = self.imgWood:size()
+	local w, h = self.imgWood:getSize()
 	self.imgWoodWidth = w
 	self.imgWoodHeight = h
 
 	self.imgKnife = assets:loadImage("knife.png")
-	local w, h = self.imgKnife:size()
+	local w, h = self.imgKnife:getSize()
 	self.imgKnifeWidth = w
 	self.imgKnifeHeight = h
 

@@ -33,7 +33,7 @@ local M = Class(DisplayObject)
 
 function M:init(image)
 	if image then
-		local w, h = image:size()
+		local w, h = image:getSize()
 		self.image = image
 		self.super:init(w, h, image)
 	else

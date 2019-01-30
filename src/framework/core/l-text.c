@@ -38,8 +38,9 @@ static int l_text_new(lua_State * L)
 	const char * utf8 = luaL_checkstring(L, 3);
 	struct ltext_t * text = lua_newuserdata(L, sizeof(struct ltext_t));
 	text->utf8 = strdup(utf8);
-	text->font = font->sfont;
+	text->font = font->font;
 	text->pattern = pattern->pattern;
+	cairo_scaled_font_text_extents(text->font, text->utf8, &text->metric);
 	luaL_setmetatable(L, MT_TEXT);
 	return 1;
 }
@@ -64,6 +65,7 @@ static int m_text_set_text(lua_State * L)
 	if(text->utf8)
 		free(text->utf8);
 	text->utf8 = strdup(utf8);
+	cairo_scaled_font_text_extents(text->font, text->utf8, &text->metric);
 	return 0;
 }
 
@@ -71,7 +73,8 @@ static int m_text_set_font(lua_State * L)
 {
 	struct ltext_t * text = luaL_checkudata(L, 1, MT_TEXT);
 	struct lfont_t * font = luaL_checkudata(L, 2, MT_FONT);
-	text->font = font->sfont;
+	text->font = font->font;
+	cairo_scaled_font_text_extents(text->font, text->utf8, &text->metric);
 	return 0;
 }
 
@@ -83,11 +86,20 @@ static int m_text_set_pattern(lua_State * L)
 	return 0;
 }
 
+static int m_text_get_size(lua_State * L)
+{
+	struct ltext_t * text = luaL_checkudata(L, 1, MT_TEXT);
+	lua_pushnumber(L, text->metric.width);
+	lua_pushnumber(L, text->metric.height);
+	return 2;
+}
+
 static const luaL_Reg m_text[] = {
 	{"__gc",		m_text_gc},
 	{"setText",		m_text_set_text},
 	{"setFont",		m_text_set_font},
 	{"setPattern",	m_text_set_pattern},
+	{"getSize",		m_text_get_size},
 	{NULL,			NULL}
 };
 

@@ -239,7 +239,7 @@ static void dobject_draw_text(lua_State * L, struct ldobject_t * o)
 	cairo_t * cr = disp->cr;
 	cairo_save(cr);
 	cairo_set_scaled_font(cr, text->font);
-	cairo_move_to(cr, m->x0, m->y0);
+	cairo_move_to(cr, m->x0, m->y0 + text->metric.height);
 	cairo_set_matrix(cr, m);
 	cairo_text_path(cr, text->utf8);
 	cairo_set_source(cr, text->pattern);
@@ -924,7 +924,22 @@ static int m_draw(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
 	if(o->visible && o->draw)
+	{
 		o->draw(L, o);
+#if 0
+		struct display_t * disp = ((struct vmctx_t *)luahelper_vmctx(L))->disp;
+		cairo_t * cr = disp->cr;
+		cairo_save(cr);
+		cairo_set_matrix(cr, dobject_global_matrix(o));
+		cairo_set_line_width(cr, 1);
+		cairo_rectangle(cr, 0, 0, o->width, o->height);
+		cairo_set_source_rgba(cr, 1, 0, 0, 0.1);
+		cairo_fill_preserve(cr);
+		cairo_set_source_rgba(cr, 0, 0, 1, 0.9);
+		cairo_stroke(cr);
+		cairo_restore(cr);
+#endif
+	}
 	return 0;
 }
 

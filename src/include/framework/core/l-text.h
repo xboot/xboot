@@ -16,6 +16,7 @@ struct ltext_t {
 	char * utf8;
 	cairo_scaled_font_t * font;
 	cairo_pattern_t * pattern;
+	cairo_text_extents_t metric;
 };
 
 int luaopen_text(lua_State * L);

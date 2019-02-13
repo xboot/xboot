@@ -39,7 +39,6 @@ local M = Class()
 
 function M:init()
 	self.images = {}
-	self.ninepatches = {}
 	self.fonts = {}
 	self.themes = {}
 end
@@ -58,10 +57,7 @@ function M:loadNinepatch(filename)
 	if not filename then
 		return nil
 	end
-	if not self.ninepatches[filename] then
-		self.ninepatches[filename] = Ninepatch.new(filename)
-	end
-	return self.ninepatches[filename]
+	return Ninepatch.new(filename)
 end
 
 function M:loadFont(family, size)
@@ -100,7 +96,6 @@ end
 
 function M:clear()
 	self.images = {}
-	self.ninepatches = {}
 	self.fonts = {}
 	self.themes = {}
 end

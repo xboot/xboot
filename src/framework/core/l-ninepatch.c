@@ -76,8 +76,8 @@ static inline void ninepatch_stretch(struct lninepatch_t * ninepatch, double wid
 		width = ninepatch->width;
 	if(height < ninepatch->height)
 		height = ninepatch->height;
-	ninepatch->__w = width;
-	ninepatch->__h = height;
+	ninepatch->__w = round(width);
+	ninepatch->__h = round(height);
 	ninepatch->__sx = (ninepatch->__w - lr) / (ninepatch->width - lr);
 	ninepatch->__sy = (ninepatch->__h - tb) / (ninepatch->height - tb);
 }

@@ -369,6 +369,38 @@ static int m_to_back(lua_State * L)
 	return 0;
 }
 
+static int m_set_width(lua_State * L)
+{
+	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
+	o->width = luaL_checknumber(L, 2);
+	o->mflag |= MFLAG_LOCAL_MATRIX;
+	dobject_mark_with_children(o, MFLAG_GLOBAL_MATRIX);
+	return 0;
+}
+
+static int m_get_width(lua_State * L)
+{
+	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
+	lua_pushnumber(L, o->width);
+	return 1;
+}
+
+static int m_set_height(lua_State * L)
+{
+	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
+	o->height = luaL_checknumber(L, 2);
+	o->mflag |= MFLAG_LOCAL_MATRIX;
+	dobject_mark_with_children(o, MFLAG_GLOBAL_MATRIX);
+	return 0;
+}
+
+static int m_get_height(lua_State * L)
+{
+	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
+	lua_pushnumber(L, o->height);
+	return 1;
+}
+
 static int m_set_size(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
@@ -950,6 +982,10 @@ static const luaL_Reg m_dobject[] = {
 	{"removeChild",		m_remove_child},
 	{"toFront",			m_to_front},
 	{"toBack",			m_to_back},
+	{"setWidth",		m_set_width},
+	{"getWidth",		m_get_width},
+	{"setHeight",		m_set_height},
+	{"getHeight",		m_get_height},
 	{"setSize",			m_set_size},
 	{"getSize",			m_get_size},
 	{"setX",			m_set_x},

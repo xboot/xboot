@@ -41,6 +41,22 @@ function M:init(ninepatch)
 	end
 end
 
+function M:setWidth(width)
+	self.super:setWidth(width)
+	if self.ninepatch then
+		self.ninepatch:setWidth(width)
+	end
+	return self
+end
+
+function M:setHeight(height)
+	self.super:setHeight(height)
+	if self.ninepatch then
+		self.ninepatch:setHeight(height)
+	end
+	return self
+end
+
 function M:setSize(width, height)
 	self.super:setSize(width, height)
 	if self.ninepatch then

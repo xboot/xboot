@@ -119,6 +119,24 @@ function M:toBack()
 	return self
 end
 
+function M:setWidth(width)
+	self.dobj:setWidth(width)
+	return self
+end
+
+function M:getWidth()
+	return self.dobj:getWidth()
+end
+
+function M:setHeight(height)
+	self.dobj:setHeight(height)
+	return self
+end
+
+function M:getHeight()
+	return self.dobj:getHeight()
+end
+
 function M:setSize(width, height)
 	self.dobj:setSize(width, height)
 	return self
@@ -303,6 +321,10 @@ function M:animate(properties, duration, easing)
 						b = d:getSkewY()
 					elseif k == "alpha" then
 						b = d:getAlpha()
+					elseif k == "width" then
+						b = d:getWidth()
+					elseif k == "height" then
+						b = d:getHeight()
 					end
 					if b ~= nil then
 						tween.easinglist[k] = Easing.new(b, v - b, tween.duration, tween.easing)
@@ -332,6 +354,10 @@ function M:animate(properties, duration, easing)
 					d:setSkewY(v:easing(elapsed))
 				elseif k == "alpha" then
 					d:setAlpha(v:easing(elapsed))
+				elseif k == "width" then
+					d:setWidth(v:easing(elapsed))
+				elseif k == "height" then
+					d:setHeight(v:easing(elapsed))
 				end
 			end
 

@@ -56,6 +56,24 @@ function M:init(option, name)
 	self:addEventListener(Event.TOUCH_END, self.onTouchEnd)
 end
 
+function M:setWidth(width)
+	self.super:setWidth(width)
+	self.frameNormal:setWidth(width)
+	self.framePressed:setWidth(width)
+	self.frameDisabled:setWidth(width)
+	self:updateVisualState()
+	return self
+end
+
+function M:setHeight(height)
+	self.super:setHeight(height)
+	self.frameNormal:setHeight(height)
+	self.framePressed:setHeight(height)
+	self.frameDisabled:setHeight(height)
+	self:updateVisualState()
+	return self
+end
+
 function M:setSize(width, height)
 	self.super:setSize(width, height)
 	self.frameNormal:setSize(width, height)

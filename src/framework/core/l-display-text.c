@@ -35,7 +35,20 @@ function M:init(font, pattern, text)
 	self.font = font
 	self.pattern = pattern or Pattern.color()
 	self.text = Text.new(self.font, self.pattern, text or "")
-	self.super:init(0, 0, self.text)
+	local width, height = self.text:getSize()
+	self.super:init(width, height, self.text)
+end
+
+function M:setWidth(width)
+	return self
+end
+
+function M:setHeight(height)
+	return self
+end
+
+function M:setSize(width, height)
+	return self
 end
 
 function M:setFont(font)

@@ -41,6 +41,18 @@ function M:init(image)
 	end
 end
 
+function M:setWidth(width)
+	return self
+end
+
+function M:setHeight(height)
+	return self
+end
+
+function M:setSize(width, height)
+	return self
+end
+
 return M
 );
 

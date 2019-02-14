@@ -36,6 +36,18 @@ function M:init(width, height)
 	self.super:init(width, height, self.shape)
 end
 
+function M:setWidth(width)
+	return self
+end
+
+function M:setHeight(height)
+	return self
+end
+
+function M:setSize(width, height)
+	return self
+end
+
 function M:save()
 	self.shape:save()
 	return self

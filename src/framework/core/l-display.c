@@ -27,6 +27,7 @@
  */
 
 #include <xboot.h>
+#include <framework/core/l-image.h>
 #include <framework/core/l-display.h>
 
 static int l_display_new(lua_State * L)
@@ -42,7 +43,7 @@ static const luaL_Reg l_display[] = {
 	{NULL,	NULL}
 };
 
-static int m_get_size(lua_State * L)
+static int m_display_get_size(lua_State * L)
 {
 	struct display_t * disp = luaL_checkudata(L, 1, MT_DISPLAY);
 	lua_pushnumber(L, disp->fb->width);
@@ -50,7 +51,7 @@ static int m_get_size(lua_State * L)
 	return 2;
 }
 
-static int m_get_physical_size(lua_State * L)
+static int m_display_get_physical_size(lua_State * L)
 {
 	struct display_t * disp = luaL_checkudata(L, 1, MT_DISPLAY);
 	lua_pushnumber(L, disp->fb->pwidth);
@@ -58,14 +59,14 @@ static int m_get_physical_size(lua_State * L)
 	return 2;
 }
 
-static int m_get_bits_per_pixel(lua_State * L)
+static int m_display_get_bits_per_pixel(lua_State * L)
 {
 	struct display_t * disp = luaL_checkudata(L, 1, MT_DISPLAY);
 	lua_pushnumber(L, disp->fb->bpp);
 	return 1;
 }
 
-static int m_set_backlight(lua_State * L)
+static int m_display_set_backlight(lua_State * L)
 {
 	struct display_t * disp = luaL_checkudata(L, 1, MT_DISPLAY);
 	int brightness = luaL_checknumber(L, 2) * (lua_Number)(CONFIG_MAX_BRIGHTNESS);
@@ -73,7 +74,7 @@ static int m_set_backlight(lua_State * L)
 	return 0;
 }
 
-static int m_get_backlight(lua_State * L)
+static int m_display_get_backlight(lua_State * L)
 {
 	struct display_t * disp = luaL_checkudata(L, 1, MT_DISPLAY);
 	int brightness = framebuffer_get_backlight(disp->fb);
@@ -99,7 +100,22 @@ static int m_display_showfps(lua_State * L)
 	return 0;
 }
 
-static int m_present(lua_State * L)
+static int m_display_snapshot(lua_State * L)
+{
+	struct display_t * disp = luaL_checkudata(L, 1, MT_DISPLAY);
+	struct limage_t * img = lua_newuserdata(L, sizeof(struct limage_t));
+	int w = cairo_image_surface_get_width(disp->cs);
+	int h = cairo_image_surface_get_height(disp->cs);
+	img->cs = cairo_surface_create_similar(disp->cs, cairo_surface_get_content(disp->cs), w, h);
+	cairo_t * cr = cairo_create(img->cs);
+	cairo_set_source_surface(cr, disp->cs, 0, 0);
+	cairo_paint(cr);
+	cairo_destroy(cr);
+	luaL_setmetatable(L, MT_IMAGE);
+	return 1;
+}
+
+static int m_display_present(lua_State * L)
 {
 	struct display_t * disp = luaL_checkudata(L, 1, MT_DISPLAY);
 	cairo_t * cr = disp->cr;
@@ -130,14 +146,15 @@ static int m_present(lua_State * L)
 }
 
 static const luaL_Reg m_display[] = {
-	{"getSize",			m_get_size},
-	{"getPhysicalSize",	m_get_physical_size},
-	{"getBitsPerPixel",	m_get_bits_per_pixel},
-	{"setBacklight",	m_set_backlight},
-	{"getBacklight",	m_get_backlight},
+	{"getSize",			m_display_get_size},
+	{"getPhysicalSize",	m_display_get_physical_size},
+	{"getBitsPerPixel",	m_display_get_bits_per_pixel},
+	{"setBacklight",	m_display_set_backlight},
+	{"getBacklight",	m_display_get_backlight},
 	{"showobj",			m_display_showobj},
 	{"showfps",			m_display_showfps},
-	{"present",			m_present},
+	{"snapshot",		m_display_snapshot},
+	{"present",			m_display_present},
 	{NULL,				NULL}
 };
 

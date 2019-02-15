@@ -135,6 +135,10 @@ function M:showfps(value)
 	return self
 end
 
+function M:snapshot()
+	return self.display:snapshot()
+end
+
 function M:loop()
 	local Event = Event
 	local display = self.display

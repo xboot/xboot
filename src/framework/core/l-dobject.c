@@ -256,8 +256,8 @@ static int l_dobject_new(lua_State * L)
 	init_list_head(&o->entry);
 	init_list_head(&o->children);
 
-	o->width = luaL_optnumber(L, 1, 0);
-	o->height = luaL_optnumber(L, 2, 0);
+	o->width = round(luaL_optnumber(L, 1, 0));
+	o->height = round(luaL_optnumber(L, 2, 0));
 	o->x = 0;
 	o->y = 0;
 	o->rotation = 0;
@@ -938,8 +938,6 @@ static int m_layout(lua_State * L)
 			w = rx2 - rx1;
 			h = ry2 - ry1;
 			dobject_translate_fill(c, rx1, ry1, w, h);
-			rx1 += w;
-			ry1 += h;
 			break;
 		default:
 			break;

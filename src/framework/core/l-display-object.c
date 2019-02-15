@@ -263,6 +263,15 @@ function M:getAlignment()
 	return self.dobj:getAlignment()
 end
 
+function M:setMargin(left, top, right, bottom)
+	self.dobj:setMargin(left, top, right, bottom)
+	return self
+end
+
+function M:getMargin()
+	return self.dobj:getMargin()
+end
+
 function M:setVisible(visible)
 	self.dobj:setVisible(visible)
 	return self

@@ -269,6 +269,10 @@ static int l_dobject_new(lua_State * L)
 	o->anchory = 0;
 	o->alpha = 1;
 	o->alignment = ALIGN_NONE;
+	o->margin.left = 0;
+	o->margin.top = 0;
+	o->margin.right = 0;
+	o->margin.bottom = 0;
 	o->visible = 1;
 	o->touchable = 1;
 	o->mflag = 0;
@@ -675,6 +679,26 @@ static int m_get_alignment(lua_State * L)
 	return 1;
 }
 
+static int m_set_margin(lua_State * L)
+{
+	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
+	o->margin.left = luaL_optnumber(L, 2, 0);
+	o->margin.top = luaL_optnumber(L, 3, 0);
+	o->margin.right = luaL_optnumber(L, 4, 0);
+	o->margin.bottom = luaL_optnumber(L, 5, 0);
+	return 0;
+}
+
+static int m_get_margin(lua_State * L)
+{
+	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
+	lua_pushnumber(L, o->margin.left);
+	lua_pushnumber(L, o->margin.top);
+	lua_pushnumber(L, o->margin.right);
+	lua_pushnumber(L, o->margin.bottom);
+	return 4;
+}
+
 static int m_set_visible(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
@@ -786,6 +810,10 @@ static inline void dobject_translate_fill(struct ldobject_t * o, double x, doubl
 
 	if(o->width != 0.0 && o->height != 0.0)
 	{
+		if(w < 1.0)
+			w = 1.0;
+		if(h < 1.0)
+			h = 1.0;
 		o->scalex = w / o->width;
 		o->scaley = h / o->height;
 		if((o->scalex == 1.0) && (o->scaley == 1.0))
@@ -820,128 +848,159 @@ static int m_layout(lua_State * L)
 		double oy1 = ry1;
 		double ox2 = rx2;
 		double oy2 = ry2;
-		double cx1 = 0;
-		double cy1 = 0;
-		double cx2 = c->width;
-		double cy2 = c->height;
+		double cx1 = 0 - c->margin.left;
+		double cy1 = 0 - c->margin.top;
+		double cx2 = c->width + c->margin.right;
+		double cy2 = c->height + c->margin.bottom;
+		double dx, dy;
 		_cairo_matrix_transform_bounding_box(dobject_local_matrix(c), &cx1, &cy1, &cx2, &cy2, NULL);
 
 		switch(c->alignment)
 		{
 		case ALIGN_LEFT:
-			dobject_translate(c, ox1 - cx1, 0);
+			dx = ox1 - cx1;
+			dy = 0;
 			rx1 += cx2 - cx1;
 			break;
 		case ALIGN_TOP:
-			dobject_translate(c, 0, oy1 - cy1);
+			dx = 0;
+			dy = oy1 - cy1;
 			ry1 += cy2 - cy1;
 			break;
 		case ALIGN_RIGHT:
-			dobject_translate(c, ox2 - cx2, 0);
+			dx = ox2 - cx2;
+			dy = 0;
 			rx2 -= cx2 - cx1;
 			break;
 		case ALIGN_BOTTOM:
-			dobject_translate(c, 0, oy2 - cy2);
+			dx = 0;
+			dy = oy2 - cy2;
 			ry2 -= cy2 - cy1;
 			break;
 		case ALIGN_LEFT_TOP:
-			dobject_translate(c, ox1 - cx1, oy1 - cy1);
+			dx = ox1 - cx1;
+			dy = oy1 - cy1;
 			rx1 += cx2 - cx1;
 			ry1 += cy2 - cy1;
 			break;
 		case ALIGN_RIGHT_TOP:
-			dobject_translate(c, ox2 - cx2, oy1 - cy1);
+			dx = ox2 - cx2;
+			dy = oy1 - cy1;
 			rx2 -= cx2 - cx1;
 			ry1 += cy2 - cy1;
 			break;
 		case ALIGN_LEFT_BOTTOM:
-			dobject_translate(c, ox1 - cx1, oy2 - cy2);
+			dx = ox1 - cx1;
+			dy = oy2 - cy2;
 			rx1 += cx2 - cx1;
 			ry2 -= cy2 - cy1;
 			break;
 		case ALIGN_RIGHT_BOTTOM:
-			dobject_translate(c, ox2 - cx2, oy2 - cy2);
+			dx = ox2 - cx2;
+			dy = oy2 - cy2;
 			rx2 -= cx2 - cx1;
 			ry2 -= cy2 - cy1;
 			break;
 		case ALIGN_LEFT_CENTER:
-			dobject_translate(c, ox1 - cx1, oy1 - cy1 + ((oy2 - oy1) - (cy2 - cy1)) / 2);
+			dx = ox1 - cx1;
+			dy = oy1 - cy1 + ((oy2 - oy1) - (cy2 - cy1)) / 2;
 			rx1 += cx2 - cx1;
 			break;
 		case ALIGN_TOP_CENTER:
-			dobject_translate(c, ox1 - cx1 + ((ox2 - ox1) - (cx2 - cx1)) / 2, oy1 - cy1);
+			dx = ox1 - cx1 + ((ox2 - ox1) - (cx2 - cx1)) / 2;
+			dy = oy1 - cy1;
 			ry1 += cy2 - cy1;
 			break;
 		case ALIGN_RIGHT_CENTER:
-			dobject_translate(c, ox2 - cx2, oy1 - cy1 + ((oy2 - oy1) - (cy2 - cy1)) / 2);
+			dx = ox2 - cx2;
+			dy = oy1 - cy1 + ((oy2 - oy1) - (cy2 - cy1)) / 2;
 			rx2 -= cx2 - cx1;
 			break;
 		case ALIGN_BOTTOM_CENTER:
-			dobject_translate(c, ox1 - cx1 + ((ox2 - ox1) - (cx2 - cx1)) / 2, oy2 - cy2);
+			dx = ox1 - cx1 + ((ox2 - ox1) - (cx2 - cx1)) / 2;
+			dy = oy2 - cy2;
 			ry2 -= cy2 - cy1;
 			break;
 		case ALIGN_HORIZONTAL_CENTER:
-			dobject_translate(c, ox1 - cx1 + ((ox2 - ox1) - (cx2 - cx1)) / 2, 0);
+			dx = ox1 - cx1 + ((ox2 - ox1) - (cx2 - cx1)) / 2;
+			dy = 0;
 			break;
 		case ALIGN_VERTICAL_CENTER:
-			dobject_translate(c, 0, oy1 - cy1 + ((oy2 - oy1) - (cy2 - cy1)) / 2);
+			dx = 0;
+			dy = oy1 - cy1 + ((oy2 - oy1) - (cy2 - cy1)) / 2;
 			break;
 		case ALIGN_CENTER:
-			dobject_translate(c, ox1 - cx1 + ((ox2 - ox1) - (cx2 - cx1)) / 2, oy1 - cy1 + ((oy2 - oy1) - (cy2 - cy1)) / 2);
+			dx = ox1 - cx1 + ((ox2 - ox1) - (cx2 - cx1)) / 2;
+			dy = oy1 - cy1 + ((oy2 - oy1) - (cy2 - cy1)) / 2;
 			break;
 		default:
+			dx = 0;
+			dy = 0;
 			break;
 		}
+		dobject_translate(c, dx, dy);
 	}
 	else if((c->alignment <= ALIGN_CENTER_FILL))
 	{
-		double w;
-		double h;
+		double x, y;
+		double w, h;
 
 		switch(c->alignment)
 		{
 		case ALIGN_LEFT_FILL:
 			w = c->width * c->scalex;
-			h = ry2 - ry1;
-			dobject_translate_fill(c, rx1, ry1, w, h);
-			rx1 += w;
+			h = ry2 - ry1 - (c->margin.top + c->margin.bottom);
+			x = rx1 + c->margin.left;
+			y = ry1 + c->margin.top;
+			rx1 += w + c->margin.right;
 			break;
 		case ALIGN_TOP_FILL:
-			w = rx2 - rx1;
+			w = rx2 - rx1 - (c->margin.left + c->margin.right);
 			h = c->height * c->scaley;
-			dobject_translate_fill(c, rx1, ry1, w, h);
-			ry1 += h;
+			x = rx1 + c->margin.left;
+			y = ry1 + c->margin.top;
+			ry1 += h + c->margin.bottom;
 			break;
 		case ALIGN_RIGHT_FILL:
 			w = c->width * c->scalex;
-			h = ry2 - ry1;
-			dobject_translate_fill(c, rx2 - w, ry1, w, h);
-			rx2 -= w;
+			h = ry2 - ry1 - (c->margin.top + c->margin.bottom);
+			x = rx2 - w - c->margin.right;
+			y = ry1 + c->margin.top;
+			rx2 -= w + c->margin.left;
 			break;
 		case ALIGN_BOTTOM_FILL:
-			w = rx2 - rx1;
+			w = rx2 - rx1 - (c->margin.left + c->margin.right);
 			h = c->height * c->scaley;
-			dobject_translate_fill(c, rx1, ry2 - h, w, h);
-			ry2 -= h;
+			x = rx1 + c->margin.left;
+			y = ry2 - h - c->margin.bottom;
+			ry2 -= h + c->margin.top;
 			break;
 		case ALIGN_HORIZONTAL_FILL:
-			w = rx2 - rx1;
+			w = rx2 - rx1 - (c->margin.left + c->margin.right);
 			h = c->height * c->scaley;
-			dobject_translate_fill(c, rx1, c->y, w, h);
+			x = rx1 + c->margin.left;
+			y = c->y;
 			break;
 		case ALIGN_VERTICAL_FILL:
 			w = c->width * c->scalex;
-			h = ry2 - ry1;
-			dobject_translate_fill(c, c->x, ry1, w, h);
+			h = ry2 - ry1 - (c->margin.top + c->margin.bottom);
+			x = c->x;
+			y = ry1 + c->margin.top;
 			break;
 		case ALIGN_CENTER_FILL:
-			w = rx2 - rx1;
-			h = ry2 - ry1;
-			dobject_translate_fill(c, rx1, ry1, w, h);
+			w = rx2 - rx1 - (c->margin.left + c->margin.right);
+			h = ry2 - ry1 - (c->margin.top + c->margin.bottom);
+			x = rx1 + c->margin.left;
+			y = ry1 + c->margin.top;
 			break;
 		default:
+			w = c->width * c->scalex;
+			h = c->height * c->scaley;
+			x = c->x;
+			y = c->y;
 			break;
 		}
+		dobject_translate_fill(c, x, y, w, h);
 	}
 
 	lua_pushnumber(L, rx1);
@@ -1012,6 +1071,8 @@ static const luaL_Reg m_dobject[] = {
 	{"getAlpha",		m_get_alpha},
 	{"setAlignment",	m_set_alignment},
 	{"getAlignment",	m_get_alignment},
+	{"setMargin",		m_set_margin},
+	{"getMargin",		m_get_margin},
 	{"setVisible",		m_set_visible},
 	{"getVisible",		m_get_visible},
 	{"setTouchable",	m_set_touchable},

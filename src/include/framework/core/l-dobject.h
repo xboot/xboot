@@ -51,6 +51,13 @@ struct ldobject_t {
 	double anchorx, anchory;
 	double alpha;
 	enum alignment_t alignment;
+	struct {
+		double left;
+		double top;
+		double right;
+		double bottom;
+	} margin;
+
 	int visible;
 	int touchable;
 	int mflag;

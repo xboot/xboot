@@ -299,10 +299,10 @@ static int m_shape_round_rectangle(lua_State * L)
 	double width = luaL_checknumber(L, 4);
 	double height = luaL_checknumber(L, 5);
 	double radius = luaL_optnumber(L, 6, 0);
-	int lt = lua_toboolean(L, 7);
-	int rt = lua_toboolean(L, 8);
-	int rb = lua_toboolean(L, 9);
-	int lb = lua_toboolean(L, 10);
+	int lt = lua_isboolean(L, 7) ? lua_toboolean(L, 7) : 1;
+	int rt = lua_isboolean(L, 8) ? lua_toboolean(L, 8) : 1;
+	int rb = lua_isboolean(L, 9) ? lua_toboolean(L, 9) : 1;
+	int lb = lua_isboolean(L, 10) ? lua_toboolean(L, 10) : 1;
 	cairo_move_to(cr, x + radius, y);
 	cairo_line_to(cr, x + width - radius, y);
 	if(rt)

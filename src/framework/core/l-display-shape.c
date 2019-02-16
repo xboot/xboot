@@ -178,6 +178,11 @@ function M:rectangle(x, y, width, height)
 	return self
 end
 
+function M:roundRectangle(x, y, width, height, radius, lt, rt, rb, lb)
+	self.shape:roundRectangle(x, y, width, height, radius, lt, rt, rb, lb)
+	return self
+end
+
 function M:arc(xc, yc, radius, angle1, angle2)
 	self.shape:arc(xc, yc, radius, angle1, angle2)
 	return self

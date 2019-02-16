@@ -290,6 +290,61 @@ static int m_shape_rectangle(lua_State * L)
 	return 0;
 }
 
+static int m_shape_round_rectangle(lua_State * L)
+{
+	struct lshape_t * shape = luaL_checkudata(L, 1, MT_SHAPE);
+	cairo_t * cr = shape->cr;
+	double x = luaL_checknumber(L, 2);
+	double y = luaL_checknumber(L, 3);
+	double width = luaL_checknumber(L, 4);
+	double height = luaL_checknumber(L, 5);
+	double radius = luaL_optnumber(L, 6, 0);
+	int lt = lua_toboolean(L, 7);
+	int rt = lua_toboolean(L, 8);
+	int rb = lua_toboolean(L, 9);
+	int lb = lua_toboolean(L, 10);
+	cairo_move_to(cr, x + radius, y);
+	cairo_line_to(cr, x + width - radius, y);
+	if(rt)
+	{
+		cairo_arc(cr, x + width - radius, y + radius, radius, - M_PI / 2, 0);
+	}
+	else
+	{
+		cairo_line_to(cr, x + width, y);
+		cairo_line_to(cr, x + width, y + radius);
+	}
+	cairo_line_to(cr, x + width, y + height - radius);
+	if(rb)
+	{
+		cairo_arc(cr, x + width - radius, y + height - radius, radius, 0, M_PI / 2);
+	}
+	else
+	{
+		cairo_line_to(cr, x + width, y + height);
+		cairo_line_to(cr, width - radius, y + height);
+	}
+	cairo_line_to(cr, x + radius, y + height);
+	if(lb)
+	{
+		cairo_arc(cr, x + radius, y + height - radius, radius, M_PI / 2, M_PI);
+	}
+	else
+	{
+		cairo_line_to(cr, x, y + height);
+	}
+	if(lt)
+	{
+		cairo_arc(cr, x + radius, y + radius, radius, M_PI, M_PI + M_PI / 2);
+	}
+	else
+	{
+		cairo_line_to(cr, x, y);
+		cairo_line_to(cr, x + radius, y);
+	}
+	return 0;
+}
+
 static int m_shape_arc(lua_State * L)
 {
 	struct lshape_t * shape = luaL_checkudata(L, 1, MT_SHAPE);
@@ -400,6 +455,7 @@ static const luaL_Reg m_shape[] = {
 	{"curveTo",				m_shape_curve_to},
 	{"relCurveTo",			m_shape_rel_curve_to},
 	{"rectangle",			m_shape_rectangle},
+	{"roundRectangle",		m_shape_round_rectangle},
 	{"arc",					m_shape_arc},
 	{"arcNegative",			m_shape_arc_negative},
 	{"stroke",				m_shape_stroke},

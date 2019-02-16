@@ -290,7 +290,7 @@ static int m_shape_rectangle(lua_State * L)
 	return 0;
 }
 
-static int m_shape_round_rectangle(lua_State * L)
+static int m_shape_rounded_rectangle(lua_State * L)
 {
 	struct lshape_t * shape = luaL_checkudata(L, 1, MT_SHAPE);
 	cairo_t * cr = shape->cr;
@@ -455,7 +455,7 @@ static const luaL_Reg m_shape[] = {
 	{"curveTo",				m_shape_curve_to},
 	{"relCurveTo",			m_shape_rel_curve_to},
 	{"rectangle",			m_shape_rectangle},
-	{"roundRectangle",		m_shape_round_rectangle},
+	{"roundedRectangle",	m_shape_rounded_rectangle},
 	{"arc",					m_shape_arc},
 	{"arcNegative",			m_shape_arc_negative},
 	{"stroke",				m_shape_stroke},

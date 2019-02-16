@@ -272,6 +272,15 @@ function M:getMargin()
 	return self.dobj:getMargin()
 end
 
+function M:setCollider(type, ...)
+	self.dobj:setCollider(type, ...)
+	return self
+end
+
+function M:getCollider()
+	return self.dobj:getCollider()
+end
+
 function M:setVisible(visible)
 	self.dobj:setVisible(visible)
 	return self

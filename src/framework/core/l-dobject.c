@@ -256,8 +256,8 @@ static int l_dobject_new(lua_State * L)
 	init_list_head(&o->entry);
 	init_list_head(&o->children);
 
-	o->width = round(luaL_optnumber(L, 1, 0));
-	o->height = round(luaL_optnumber(L, 2, 0));
+	o->width = luaL_optnumber(L, 1, 0);
+	o->height = luaL_optnumber(L, 2, 0);
 	o->x = 0;
 	o->y = 0;
 	o->rotation = 0;
@@ -376,7 +376,7 @@ static int m_to_back(lua_State * L)
 static int m_set_width(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
-	o->width = round(luaL_checknumber(L, 2));
+	o->width = luaL_checknumber(L, 2);
 	o->mflag |= MFLAG_LOCAL_MATRIX;
 	dobject_mark_with_children(o, MFLAG_GLOBAL_MATRIX);
 	return 0;
@@ -392,7 +392,7 @@ static int m_get_width(lua_State * L)
 static int m_set_height(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
-	o->height = round(luaL_checknumber(L, 2));
+	o->height = luaL_checknumber(L, 2);
 	o->mflag |= MFLAG_LOCAL_MATRIX;
 	dobject_mark_with_children(o, MFLAG_GLOBAL_MATRIX);
 	return 0;
@@ -408,8 +408,8 @@ static int m_get_height(lua_State * L)
 static int m_set_size(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
-	o->width = round(luaL_checknumber(L, 2));
-	o->height = round(luaL_checknumber(L, 3));
+	o->width = luaL_checknumber(L, 2);
+	o->height = luaL_checknumber(L, 3);
 	o->mflag |= MFLAG_LOCAL_MATRIX;
 	dobject_mark_with_children(o, MFLAG_GLOBAL_MATRIX);
 	return 0;

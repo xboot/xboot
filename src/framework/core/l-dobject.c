@@ -702,7 +702,7 @@ static int m_get_margin(lua_State * L)
 static int m_set_visible(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
-	o->visible = lua_toboolean(L, 2) ? 1 : 0;
+	o->visible = lua_toboolean(L, 2);
 	return 0;
 }
 
@@ -716,7 +716,7 @@ static int m_get_visible(lua_State * L)
 static int m_set_touchable(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
-	o->touchable = lua_toboolean(L, 2) ? 1 : 0;
+	o->touchable = lua_toboolean(L, 2);
 	return 0;
 }
 

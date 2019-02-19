@@ -85,17 +85,7 @@ static int m_image_gc(lua_State * L)
 	return 0;
 }
 
-static int m_image_get_size(lua_State * L)
-{
-	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
-	int w = cairo_image_surface_get_width(img->cs);
-	int h = cairo_image_surface_get_height(img->cs);
-	lua_pushnumber(L, w);
-	lua_pushnumber(L, h);
-	return 2;
-}
-
-static int m_image_region(lua_State * L)
+static int m_image_clone(lua_State * L)
 {
 	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
 	int x = luaL_optinteger(L, 2, 0);
@@ -112,10 +102,20 @@ static int m_image_region(lua_State * L)
 	return 1;
 }
 
+static int m_image_get_size(lua_State * L)
+{
+	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
+	int w = cairo_image_surface_get_width(img->cs);
+	int h = cairo_image_surface_get_height(img->cs);
+	lua_pushnumber(L, w);
+	lua_pushnumber(L, h);
+	return 2;
+}
+
 static const luaL_Reg m_image[] = {
 	{"__gc",		m_image_gc},
+	{"clone",		m_image_clone},
 	{"getSize",		m_image_get_size},
-	{"region",		m_image_region},
 	{NULL,			NULL}
 };
 

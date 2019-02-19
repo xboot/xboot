@@ -45,7 +45,7 @@ function M:setText(text)
 	for i = 1, #text do
 		local c = self.chars[text:byte(i)]
 		if c ~= nil then
-			local t = self.image:region(c.x, c.y, c.width, c.height)
+			local t = self.image:clone(c.x, c.y, c.width, c.height)
 			local bitmap = DisplayImage.new(t):setPosition(x + c.xoffset, y + c.yoffset)
 			self:addChild(bitmap)
 			x = x + c.xadvance

@@ -4,7 +4,7 @@ local function D(name)
 	return ("assets/themes/default/" .. name)
 end
 
-local basic = {
+local common = {
 	fontFamily = "assets/fonts/Roboto-Regular.ttf",
 	fontSize = 32,
 	textPatternNormal = Pattern.color(1, 1, 1),
@@ -17,11 +17,11 @@ return {
 		imageNormal = D("button-normal.9.png"),
 		imagePressed = D("button-pressed.9.png"),
 		imageDisabled = D("button-disabled.9.png"),
-		fontFamily = basic.fontFamily,
-		fontSize = basic.fontSize,
-		textPatternNormal = basic.textPatternNormal,
-		textPatternPressed = basic.textPatternPressed,
-		textPatternDisabled = basic.textPatternDisabled,
+		fontFamily = common.fontFamily,
+		fontSize = common.fontSize,
+		textPatternNormal = common.textPatternNormal,
+		textPatternPressed = common.textPatternPressed,
+		textPatternDisabled = common.textPatternDisabled,
 	},
 
 	checkbox = {

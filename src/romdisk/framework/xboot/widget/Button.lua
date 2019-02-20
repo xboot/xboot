@@ -113,10 +113,10 @@ function M:setEnable(enable)
 end
 
 function M:getEnable()
-	if self.state ~= self.STATE_DISABLED then
-		return true
+	if self.state == self.STATE_DISABLED then
+		return false
 	end
-	return false
+	return true
 end
 
 function M:enable()

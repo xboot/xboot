@@ -28,7 +28,7 @@ function M:init(option, name)
 	self.opt.imageThumbPressed = assert(option.imageThumbPressed or theme.slider.imageThumbPressed)
 	self.opt.imageThumbDisabled = assert(option.imageThumbDisabled or theme.slider.imageThumbDisabled)
 
-	self.frameimageTrack = assets:loadDisplay(self.opt.imageimageTrack)
+	self.frameimageTrack = assets:loadDisplay(self.opt.imageTrack)
 	self.frameBackground = assets:loadDisplay(self.opt.imageBackground)
 	self.frameThumbNormal = assets:loadDisplay(self.opt.imageThumbNormal)
 	self.frameThumbPressed = assets:loadDisplay(self.opt.imageThumbPressed)

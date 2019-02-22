@@ -7,39 +7,91 @@ end
 local common = {
 	fontFamily = "assets/fonts/Roboto-Regular.ttf",
 	fontSize = 24,
-	textPatternNormal = Pattern.color(1, 1, 1),
+	textPatternNormal = Pattern.color(0, 0, 0),
 	textPatternPressed = Pattern.color(0.5, 0.5, 0.1),
 	textPatternDisabled = Pattern.color(0.4, 0.4, 0.4),
 }
 
 return {
 	button = {
-		imageNormal = D("button-normal.9.png"),
-		imagePressed = D("button-pressed.9.png"),
-		imageDisabled = D("button-disabled.9.png"),
-		fontFamily = common.fontFamily,
-		fontSize = common.fontSize,
-		textPatternNormal = common.textPatternNormal,
-		textPatternPressed = common.textPatternPressed,
-		textPatternDisabled = common.textPatternDisabled,
+		image = {
+			normal = D("button-normal.9.png"),
+			pressed = D("button-pressed.9.png"),
+			disabled = D("button-disabled.9.png"),
+		},
+		text = {
+			font = {
+				family = "assets/fonts/Roboto-Regular.ttf",
+				size = 24,
+			},
+			pattern = {
+				normal = Pattern.color(0, 0, 0),
+				pressed = Pattern.color(0.5, 0.5, 0.1),
+				disabled = Pattern.color(0.4, 0.4, 0.4),
+			},
+			margin = {
+				left = 0,
+				top = 0,
+				right = 0,
+				bottom = 0,
+			},
+		},
 	},
 
 	checkbox = {
-		imageOnNormal = D("checkbox-on-normal.png"),
-		imageOnPressed = D("checkbox-on-pressed.png"),
-		imageOnDisabled = D("checkbox-on-disabled.png"),
-		imageOffNormal = D("checkbox-off-normal.png"),
-		imageOffPressed = D("checkbox-off-pressed.png"),
-		imageOffDisabled = D("checkbox-off-disabled.png"),
+		image = {
+			onNormal = D("checkbox-on-normal.png"),
+			onPressed = D("checkbox-on-pressed.png"),
+			onDisabled = D("checkbox-on-disabled.png"),
+			offNormal = D("checkbox-off-normal.png"),
+			offPressed = D("checkbox-off-pressed.png"),
+			offDisabled = D("checkbox-off-disabled.png"),
+		},
+		text = {
+			font = {
+				family = "assets/fonts/Roboto-Regular.ttf",
+				size = 24,
+			},
+			pattern = {
+				normal = Pattern.color(0, 0, 0),
+				pressed = Pattern.color(0.5, 0.5, 0.1),
+				disabled = Pattern.color(0.4, 0.4, 0.4),
+			},
+			margin = {
+				left = 6,
+				top = 2,
+				right = 6,
+				bottom = 2,
+			},
+		},
 	},
 
 	radiobutton = {
-		imageOnNormal = D("radiobutton-on-normal.png"),
-		imageOnPressed = D("radiobutton-on-pressed.png"),
-		imageOnDisabled = D("radiobutton-on-disabled.png"),
-		imageOffNormal = D("radiobutton-off-normal.png"),
-		imageOffPressed = D("radiobutton-off-pressed.png"),
-		imageOffDisabled = D("radiobutton-off-disabled.png"),
+		image = {
+			onNormal = D("radiobutton-on-normal.png"),
+			onPressed = D("radiobutton-on-pressed.png"),
+			onDisabled = D("radiobutton-on-disabled.png"),
+			offNormal = D("radiobutton-off-normal.png"),
+			offPressed = D("radiobutton-off-pressed.png"),
+			offDisabled = D("radiobutton-off-disabled.png"),
+		},
+		text = {
+			font = {
+				family = "assets/fonts/Roboto-Regular.ttf",
+				size = 24,
+			},
+			pattern = {
+				normal = Pattern.color(0, 0, 0),
+				pressed = Pattern.color(0.5, 0.5, 0.1),
+				disabled = Pattern.color(0.4, 0.4, 0.4),
+			},
+			margin = {
+				left = 6,
+				top = 2,
+				right = 6,
+				bottom = 2,
+			},
+		},
 	},
 
 	stepper = {

@@ -23,14 +23,18 @@ function M:init(option, name)
 	self.opt.enable = option.enable or true
 	self.opt.text = option.text
 	self.opt.textAlignment = option.textAlignment or Dobject.ALIGN_CENTER
-	self.opt.imageNormal = assert(option.imageNormal or theme.button.imageNormal)
-	self.opt.imagePressed = assert(option.imagePressed or theme.button.imagePressed)
-	self.opt.imageDisabled = assert(option.imageDisabled or theme.button.imageDisabled)
-	self.opt.fontFamily = assert(option.fontFamily or theme.button.fontFamily)
-	self.opt.fontSize = assert(option.fontSize or theme.button.fontSize)
-	self.opt.textPatternNormal = assert(option.textPatternNormal or theme.button.textPatternNormal)
-	self.opt.textPatternPressed = assert(option.textPatternPressed or theme.button.textPatternPressed)
-	self.opt.textPatternDisabled = assert(option.textPatternDisabled or theme.button.textPatternDisabled)
+	self.opt.imageNormal = assert(option.imageNormal or theme.button.image.normal)
+	self.opt.imagePressed = assert(option.imagePressed or theme.button.image.pressed)
+	self.opt.imageDisabled = assert(option.imageDisabled or theme.button.image.disabled)
+	self.opt.textFontFamily = assert(option.textFontFamily or theme.button.text.font.family)
+	self.opt.textFontSize = assert(option.textFontSize or theme.button.text.font.size)
+	self.opt.textPatternNormal = assert(option.textPatternNormal or theme.button.text.pattern.normal)
+	self.opt.textPatternPressed = assert(option.textPatternPressed or theme.button.text.pattern.pressed)
+	self.opt.textPatternDisabled = assert(option.textPatternDisabled or theme.button.text.pattern.disabled)
+	self.opt.textMarginLeft = assert(option.textMarginLeft or theme.button.text.margin.left)
+	self.opt.textMarginTop = assert(option.textMarginTop or theme.button.text.margin.top)
+	self.opt.textMarginRight = assert(option.textMarginRight or theme.button.text.margin.right)
+	self.opt.textMarginBottom = assert(option.textMarginBottom or theme.button.text.margin.bottom)
 
 	self.frameNormal = assets:loadDisplay(self.opt.imageNormal):setAlignment(Dobject.ALIGN_CENTER_FILL)
 	self.framePressed = assets:loadDisplay(self.opt.imagePressed):setAlignment(Dobject.ALIGN_CENTER_FILL)
@@ -92,7 +96,8 @@ function M:setText(text)
 		if self.text then
 			self.text:setText(text)
 		else
-			self.text = DisplayText.new(assets:loadFont(self.opt.fontFamily, self.opt.fontSize), self.opt.textPatternNormal, text)
+			self.text = DisplayText.new(assets:loadFont(self.opt.textFontFamily, self.opt.textFontSize), self.opt.textPatternNormal, text)
+			self.text:setMargin(self.opt.textMarginLeft, self.opt.textMarginTop, self.opt.textMarginRight, self.opt.textMarginBottom)
 			self.text:setAlignment(self.opt.textAlignment)
 		end
 	else

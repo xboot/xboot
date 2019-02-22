@@ -1278,9 +1278,10 @@ static int m_draw(lua_State * L)
 {
 	struct display_t * disp = ((struct vmctx_t *)luahelper_vmctx(L))->disp;
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
-	if(o->visible && o->draw)
+	if(o->visible)
 	{
-		o->draw(L, o);
+		if(o->draw)
+			o->draw(L, o);
 		if(disp->showobj)
 		{
 			cairo_t * cr = disp->cr;

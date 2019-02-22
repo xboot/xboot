@@ -1,15 +1,15 @@
 local Pattern = Pattern
 
 local function D(name)
-	return ("assets/themes/default/" .. name)
+	return ("assets/themes/ios/" .. name)
 end
 
 local common = {
 	fontFamily = "assets/fonts/Roboto-Regular.ttf",
 	fontSize = 24,
 	textPatternNormal = Pattern.color(1, 1, 1),
-	textPatternPressed = Pattern.color(0.5, 0.5, 0.1),
-	textPatternDisabled = Pattern.color(0.4, 0.4, 0.4),
+	textPatternPressed = Pattern.color(1, 1, 1),
+	textPatternDisabled = Pattern.color(1, 1, 1),
 }
 
 return {

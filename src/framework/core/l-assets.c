@@ -29,6 +29,7 @@
 #include <framework/core/l-assets.h>
 
 static const char assets_lua[] = X(
+local Xfs = Xfs
 local Font = Font
 local Image = Image
 local Ninepatch = Ninepatch
@@ -43,54 +44,64 @@ function M:init()
 	self.themes = {}
 end
 
-function M:loadImage(filename)
-	if not filename then
-		return nil
+function M:loadImage(name)
+	if type(name) == "string" then
+		if not self.images[name] and Xfs.isfile(name) then
+			self.images[name] = Image.new(name)
+		end
+		return self.images[name]
 	end
-	if not self.images[filename] then
-		self.images[filename] = Image.new(filename)
-	end
-	return self.images[filename]
-end
-
-function M:loadNinepatch(filename)
-	if not filename then
-		return nil
-	end
-	return Ninepatch.new(filename)
+	return nil
 end
 
 function M:loadFont(family, size)
-	local size = size or 1
-	if not family then
-		return nil
+	if type(family) == "string" then
+		if not self.fonts[family] then
+			self.fonts[family] = {}
+		end
+		local size = size or 1
+		if not self.fonts[family][size] and Xfs.isfile(family) then
+			self.fonts[family][size] = Font.new(family, size)
+		end
+		return self.fonts[family][size]
 	end
-	if not self.fonts[family] then
-		self.fonts[family] = {}
-	end
-	if not self.fonts[family][size] then
-		self.fonts[family][size] = Font.new(family, size)
-	end
-	return self.fonts[family][size]
+	return nil
 end
 
 function M:loadTheme(name)
-	local name = name or "default"
+	local default = "assets/themes/default"
+	local name = type(name) == "string" and name or default
 	if not self.themes[name] then
-		self.themes[name] = require("assets.themes." .. name)
+		if Xfs.isdir(name) then
+			self.themes[name] = require(name)
+		end
+		if not self.themes[name] then
+			name = "assets/themes/" .. name
+			if Xfs.isdir(name) then
+				self.themes[name] = require(name)
+			end
+			if not self.themes[name] then
+				if not self.themes[default] then
+					if Xfs.isdir(default) then
+						self.themes[default] = require(default)
+					end
+				end
+				return self.themes[default]
+			end
+		end
 	end
 	return self.themes[name]
 end
 
-function M:loadDisplay(image)
-	if type(image) == "string" then
-		if string.lower(string.sub(image, -6)) == ".9.png" then
-			return DisplayNinepatch.new(self:loadNinepatch(image))
-		elseif string.lower(string.sub(image, -4)) == ".png" then
-			return DisplayImage.new(self:loadImage(image))
+function M:loadDisplay(name)
+	if type(name) == "string" and Xfs.isfile(name) then
+		if string.lower(string.sub(name, -6)) == ".9.png" then
+			return DisplayNinepatch.new(Ninepatch.new(name))
+		elseif string.lower(string.sub(name, -4)) == ".png" then
+			return DisplayImage.new(self:loadImage(name))
 		end
 	else
-		return image
+		return name
 	end
 end
 

@@ -32,8 +32,8 @@ static const char display_shape_lua[] = X(
 local M = Class(DisplayObject)
 
 function M:init(width, height)
-	self.shape = Shape.new(width, height)
-	self.super:init(width, height, self.shape)
+	self.__shape = Shape.new(width, height)
+	self.super:init(width, height, self.__shape)
 end
 
 function M:setWidth(width)
@@ -49,182 +49,182 @@ function M:setSize(width, height)
 end
 
 function M:save()
-	self.shape:save()
+	self.__shape:save()
 	return self
 end
 
 function M:restore()
-	self.shape:restore()
+	self.__shape:restore()
 	return self
 end
 
 function M:pushGroup()
-	self.shape:pushGroup()
+	self.__shape:pushGroup()
 	return self
 end
 
 function M:popGroup()
-	self.shape:popGroup()
+	self.__shape:popGroup()
 	return self
 end
 
 function M:popGroupToSource()
-	self.shape:popGroupToSource()
+	self.__shape:popGroupToSource()
 	return self
 end
 
 function M:newPath()
-	self.shape:newPath()
+	self.__shape:newPath()
 	return self
 end
 
 function M:newSubPath()
-	self.shape:newSubPath()
+	self.__shape:newSubPath()
 	return self
 end
 
 function M:closePath()
-	self.shape:closePath()
+	self.__shape:closePath()
 	return self
 end
 
 function M:setOperator(op)
-	self.shape:setOperator(op)
+	self.__shape:setOperator(op)
 	return self
 end
 
 function M:setSource(pattern)
-	self.shape:setSource(pattern)
+	self.__shape:setSource(pattern)
 	return self
 end
 
 function M:setSourceColor(r, g, b, a)
-	self.shape:setSourceColor(r, g, b, a)
+	self.__shape:setSourceColor(r, g, b, a)
 	return self
 end
 
 function M:setTolerance(tolerance)
-	self.shape:setTolerance(tolerance)
+	self.__shape:setTolerance(tolerance)
 	return self
 end
 
 function M:setMiterLimit(limit)
-	self.shape:setMiterLimit(limit)
+	self.__shape:setMiterLimit(limit)
 	return self
 end
 
 function M:setAntialias(antialias)
-	self.shape:setAntialias(antialias)
+	self.__shape:setAntialias(antialias)
 	return self
 end
 
 function M:setFillRule(rule)
-	self.shape:setFillRule(rule)
+	self.__shape:setFillRule(rule)
 	return self
 end
 
 function M:setLineWidth(width)
-	self.shape:setLineWidth(width)
+	self.__shape:setLineWidth(width)
 	return self
 end
 
 function M:setLineCap(cap)
-	self.shape:setLineCap(cap)
+	self.__shape:setLineCap(cap)
 	return self
 end
 
 function M:setLineJoin(join)
-	self.shape:setLineJoin(join)
+	self.__shape:setLineJoin(join)
 	return self
 end
 
 function M:setDash(dashes, offset)
-	self.shape:setDash(dashes, offset)
+	self.__shape:setDash(dashes, offset)
 	return self
 end
 
 function M:moveTo(x, y)
-	self.shape:moveTo(x, y)
+	self.__shape:moveTo(x, y)
 	return self
 end
 
 function M:relMoveTo(dx, dy)
-	self.shape:relMoveTo(dx, dy)
+	self.__shape:relMoveTo(dx, dy)
 	return self
 end
 
 function M:lineTo(x, y)
-	self.shape:lineTo(x, y)
+	self.__shape:lineTo(x, y)
 	return self
 end
 
 function M:relLineTo(dx, dy)
-	self.shape:relLineTo(dx, dy)
+	self.__shape:relLineTo(dx, dy)
 	return self
 end
 
 function M:curveTo(x1, y1, x2, y2, x3, y3)
-	self.shape:curveTo(x1, y1, x2, y2, x3, y3)
+	self.__shape:curveTo(x1, y1, x2, y2, x3, y3)
 	return self
 end
 
 function M:relCurveTo(dx1, dy1, dx2, dy2, dx3, dy3)
-	self.shape:relCurveTo(dx1, dy1, dx2, dy2, dx3, dy3)
+	self.__shape:relCurveTo(dx1, dy1, dx2, dy2, dx3, dy3)
 	return self
 end
 
 function M:rectangle(x, y, width, height)
-	self.shape:rectangle(x, y, width, height)
+	self.__shape:rectangle(x, y, width, height)
 	return self
 end
 
 function M:roundedRectangle(x, y, width, height, radius, lt, rt, rb, lb)
-	self.shape:roundedRectangle(x, y, width, height, radius, lt, rt, rb, lb)
+	self.__shape:roundedRectangle(x, y, width, height, radius, lt, rt, rb, lb)
 	return self
 end
 
 function M:arc(xc, yc, radius, angle1, angle2)
-	self.shape:arc(xc, yc, radius, angle1, angle2)
+	self.__shape:arc(xc, yc, radius, angle1, angle2)
 	return self
 end
 
 function M:arcNegative(xc, yc, radius, angle1, angle2)
-	self.shape:arcNegative(xc, yc, radius, angle1, angle2)
+	self.__shape:arcNegative(xc, yc, radius, angle1, angle2)
 	return self
 end
 
 function M:stroke()
-	self.shape:stroke()
+	self.__shape:stroke()
 	return self
 end
 
 function M:strokePreserve()
-	self.shape:strokePreserve()
+	self.__shape:strokePreserve()
 	return self
 end
 
 function M:fill()
-	self.shape:fill()
+	self.__shape:fill()
 	return self
 end
 
 function M:fillPreserve()
-	self.shape:fillPreserve()
+	self.__shape:fillPreserve()
 	return self
 end
 
 function M:clip()
-	self.shape:clip()
+	self.__shape:clip()
 	return self
 end
 
 function M:clipPreserve()
-	self.shape:clipPreserve()
+	self.__shape:clipPreserve()
 	return self
 end
 
 function M:paint(alpha)
-	self.shape:paint(alpha)
+	self.__shape:paint(alpha)
 	return self
 end
 

@@ -29,6 +29,18 @@
 #include <xboot.h>
 #include <framework/core/l-image.h>
 
+#ifndef MIN
+#define MIN(a, b)	((a) < (b) ? (a) : (b))
+#endif
+
+#ifndef MAX
+#define MAX(a, b)	((a) > (b) ? (a) : (b))
+#endif
+
+#ifndef CLIP3
+#define CLIP3(x, min, max)	((x) < (min) ? (min) : ((x) > (max) ? (max) : (x)))
+#endif
+
 static cairo_status_t xfs_read_func(void * closure, unsigned char * data, unsigned int size)
 {
 	struct xfs_file_t * file = closure;
@@ -116,6 +128,7 @@ static int m_image_grayscale(lua_State * L)
 	switch(format)
 	{
 	case CAIRO_FORMAT_ARGB32:
+	case CAIRO_FORMAT_RGB24:
 		for(y = 0; y < height; y++, q += stride)
 		{
 			for(x = 0, p = q; x < width; x++, p += 4)
@@ -126,13 +139,64 @@ static int m_image_grayscale(lua_State * L)
 		}
 		cairo_surface_mark_dirty(cs);
 		break;
+	case CAIRO_FORMAT_A8:
+	case CAIRO_FORMAT_A1:
+	case CAIRO_FORMAT_RGB16_565:
+	case CAIRO_FORMAT_RGB30:
+	default:
+		break;
+	}
+	lua_settop(L, 1);
+	return 1;
+}
+
+static int m_image_saturate(lua_State * L)
+{
+	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
+	int k = luaL_optnumber(L, 2, 0) * 128.0;
+	cairo_surface_t * cs = img->cs;
+	int width = cairo_image_surface_get_width(cs);
+	int height = cairo_image_surface_get_height(cs);
+	int stride = cairo_image_surface_get_stride(cs);
+	cairo_format_t format = cairo_image_surface_get_format(cs);
+	unsigned char * p, * q = cairo_image_surface_get_data(cs);
+	int x, y;
+	int r, g, b, min, max;
+	int alpha, delta, value, l, s;
+	switch(format)
+	{
+	case CAIRO_FORMAT_ARGB32:
 	case CAIRO_FORMAT_RGB24:
 		for(y = 0; y < height; y++, q += stride)
 		{
 			for(x = 0, p = q; x < width; x++, p += 4)
 			{
-				gray = (p[2] * 19595 + p[1] * 38469 + p[0] * 7472) >> 16;
-				p[2] = p[1] = p[0] = gray;
+				b = p[0];
+				g = p[1];
+				r = p[2];
+				min = MIN(MIN(r, g), b);
+				max = MAX(MAX(r, g), b);
+				delta = max - min;
+				value = max + min;
+				if(delta == 0)
+					continue;
+				l = value >> 1;
+				s = l < 128 ? (delta << 7) / value : (delta << 7) / (510 - value);
+				if(k >= 0)
+				{
+					alpha = (k + s >= 128) ? s : 128 - k;
+					alpha = 128 * 128 / alpha - 128;
+				}
+				else
+				{
+					alpha = k;
+				}
+				r = r + ((r - l) * alpha >> 7);
+				g = g + ((g - l) * alpha >> 7);
+				b = b + ((b - l) * alpha >> 7);
+				p[0] = CLIP3(b, 0, 255);
+				p[1] = CLIP3(g, 0, 255);
+				p[2] = CLIP3(r, 0, 255);
 			}
 		}
 		cairo_surface_mark_dirty(cs);
@@ -162,6 +226,7 @@ static const luaL_Reg m_image[] = {
 	{"__gc",		m_image_gc},
 	{"clone",		m_image_clone},
 	{"grayscale",	m_image_grayscale},
+	{"saturate",	m_image_saturate},
 	{"getSize",		m_image_get_size},
 	{NULL,			NULL}
 };

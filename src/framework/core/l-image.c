@@ -111,8 +111,7 @@ static int m_image_grayscale(lua_State * L)
 	int stride = cairo_image_surface_get_stride(cs);
 	cairo_format_t format = cairo_image_surface_get_format(cs);
 	unsigned char * p, * q = cairo_image_surface_get_data(cs);
-	uint8_t r, g, b, gray;
-	uint16_t * c;
+	unsigned char gray;
 	int x, y;
 	switch(format)
 	{
@@ -130,7 +129,7 @@ static int m_image_grayscale(lua_State * L)
 	case CAIRO_FORMAT_RGB24:
 		for(y = 0; y < height; y++, q += stride)
 		{
-			for(x = 0, p = q; x < width; x++, p += 3)
+			for(x = 0, p = q; x < width; x++, p += 4)
 			{
 				gray = (p[2] * 19595 + p[1] * 38469 + p[0] * 7472) >> 16;
 				p[2] = p[1] = p[0] = gray;
@@ -139,26 +138,9 @@ static int m_image_grayscale(lua_State * L)
 		cairo_surface_mark_dirty(cs);
 		break;
 	case CAIRO_FORMAT_A8:
-		break;
 	case CAIRO_FORMAT_A1:
-		break;
 	case CAIRO_FORMAT_RGB16_565:
-		for(y = 0; y < height; y++, q += stride)
-		{
-			for(x = 0, p = q; x < width; x++, p += 2)
-			{
-				c = (uint16_t *)p;
-				b = ((*c >> 0) & 0x1f) << 3;
-				g = ((*c >> 5) & 0x3f) << 2;
-				r = ((*c >> 11) & 0x1f) << 3;
-				gray = (r * 19595 + g * 38469 + b * 7472) >> 16;
-				*c = ((gray >> 3) << 11) | ((gray >> 2) << 5) | ((gray >> 3) << 0);
-			}
-		}
-		cairo_surface_mark_dirty(cs);
-		break;
 	case CAIRO_FORMAT_RGB30:
-		break;
 	default:
 		break;
 	}

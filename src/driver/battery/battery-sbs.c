@@ -70,47 +70,47 @@ struct battery_sbs_pdata_t {
 static bool_t sbs_read_byte(struct i2c_device_t * dev, u8_t reg, u8_t * val)
 {
 	struct i2c_msg_t msgs[2];
-    u8_t buf;
+	u8_t buf;
 
-    msgs[0].addr = dev->addr;
-    msgs[0].flags = 0;
-    msgs[0].len = 1;
-    msgs[0].buf = &reg;
+	msgs[0].addr = dev->addr;
+	msgs[0].flags = 0;
+	msgs[0].len = 1;
+	msgs[0].buf = &reg;
 
-    msgs[1].addr = dev->addr;
-    msgs[1].flags = I2C_M_RD;
-    msgs[1].len = 1;
-    msgs[1].buf = &buf;
+	msgs[1].addr = dev->addr;
+	msgs[1].flags = I2C_M_RD;
+	msgs[1].len = 1;
+	msgs[1].buf = &buf;
 
-    if(i2c_transfer(dev->i2c, msgs, 2) != 2)
-    	return FALSE;
+	if(i2c_transfer(dev->i2c, msgs, 2) != 2)
+		return FALSE;
 
-    if(val)
-    	*val = buf;
-    return TRUE;
+	if(val)
+		*val = buf;
+	return TRUE;
 }
 
 static bool_t sbs_read_word(struct i2c_device_t * dev, u8_t reg, u16_t * val)
 {
 	struct i2c_msg_t msgs[2];
-    u8_t buf[2];
+	u8_t buf[2];
 
-    msgs[0].addr = dev->addr;
-    msgs[0].flags = 0;
-    msgs[0].len = 1;
-    msgs[0].buf = &reg;
+	msgs[0].addr = dev->addr;
+	msgs[0].flags = 0;
+	msgs[0].len = 1;
+	msgs[0].buf = &reg;
 
-    msgs[1].addr = dev->addr;
-    msgs[1].flags = I2C_M_RD;
-    msgs[1].len = 2;
-    msgs[1].buf = &buf[0];
+	msgs[1].addr = dev->addr;
+	msgs[1].flags = I2C_M_RD;
+	msgs[1].len = 2;
+	msgs[1].buf = &buf[0];
 
-    if(i2c_transfer(dev->i2c, msgs, 2) != 2)
-    	return FALSE;
+	if(i2c_transfer(dev->i2c, msgs, 2) != 2)
+		return FALSE;
 
-    if(val)
-    	*val = ((u16_t)buf[1] << 8) | buf[0];
-    return TRUE;
+	if(val)
+		*val = ((u16_t)buf[1] << 8) | buf[0];
+	return TRUE;
 }
 
 static bool_t battery_sbs_update(struct battery_t * bat, struct battery_info_t * info)
@@ -186,9 +186,6 @@ static struct device_t * battery_sbs_probe(struct driver_t * drv, struct dtnode_
 	if(sbs_read_word(i2cdev, SBS_BATTERY_STATUS, &val))
 	{
 		if(val & (0x1 << 7))
-		{
-		}
-		else
 		{
 		}
 	}

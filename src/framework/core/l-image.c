@@ -401,6 +401,111 @@ static int m_image_get_size(lua_State * L)
 	return 2;
 }
 
+static inline void blurinner(unsigned char * pixel, int * zr, int * zg, int * zb, int * za, int alpha, int aprec, int zprec)
+{
+	unsigned char a;
+	int r, g, b;
+
+	r = *pixel;
+	g = *(pixel + 1);
+	b = *(pixel + 2);
+	a = *(pixel + 3);
+
+	*zr += (alpha * ((r << zprec) - *zr)) >> aprec;
+	*zg += (alpha * ((g << zprec) - *zg)) >> aprec;
+	*zb += (alpha * ((b << zprec) - *zb)) >> aprec;
+	*za += (alpha * ((a << zprec) - *za)) >> aprec;
+
+	*pixel = *zr >> zprec;
+	*(pixel + 1) = *zg >> zprec;
+	*(pixel + 2) = *zb >> zprec;
+	*(pixel + 3) = *za >> zprec;
+}
+
+static inline void blurrow(unsigned char * pixel, int width, int height, int channels, int line, int alpha, int aprec, int zprec)
+{
+	unsigned char * scanline = &(pixel[line * width * channels]);
+	int zr, zg, zb, za;
+	int i;
+
+	zr = *scanline << zprec;
+	zg = *(scanline + 1) << zprec;
+	zb = *(scanline + 2) << zprec;
+	za = *(scanline + 3) << zprec;
+
+	for(i = 0; i < width; i++)
+		blurinner(&scanline[i * channels], &zr, &zg, &zb, &za, alpha, aprec, zprec);
+	for(i = width - 2; i >= 0; i--)
+		blurinner(&scanline[i * channels], &zr, &zg, &zb, &za, alpha, aprec, zprec);
+}
+
+static inline void blurcol(unsigned char * pixel, int width, int height, int channels, int x, int alpha, int aprec, int zprec)
+{
+	unsigned char * ptr = pixel;
+	int zr, zg, zb, za;
+	int i;
+
+	ptr += x * channels;
+	zr = *((unsigned char *)ptr) << zprec;
+	zg = *((unsigned char *)ptr + 1) << zprec;
+	zb = *((unsigned char *)ptr + 2) << zprec;
+	za = *((unsigned char *)ptr + 3) << zprec;
+
+	for(i = width; i < (height - 1) * width; i += width)
+		blurinner((unsigned char *)&ptr[i * channels], &zr, &zg, &zb, &za, alpha, aprec, zprec);
+	for(i = (height - 2) * width; i >= 0; i -= width)
+		blurinner((unsigned char *)&ptr[i * channels], &zr, &zg, &zb, &za, alpha, aprec, zprec);
+}
+
+static void expblur(unsigned char * pixel, int width, int height, int channels, int radius, int aprec, int zprec)
+{
+	int row, col;
+	int alpha;
+
+	if(radius >= 1)
+	{
+		alpha = (int)((1 << aprec) * (1.0f - expf(-2.3f / (radius + 1.f))));
+		for(row = 0; row < height; row++)
+			blurrow(pixel, width, height, channels, row, alpha, aprec, zprec);
+		for(col = 0; col < width; col++)
+			blurcol(pixel, width, height, channels, col, alpha, aprec, zprec);
+	}
+}
+
+static int m_image_blur(lua_State * L)
+{
+	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
+	int radius = luaL_optinteger(L, 2, 0);
+	cairo_surface_t * cs = img->cs;
+	int width = cairo_image_surface_get_width(cs);
+	int height = cairo_image_surface_get_height(cs);
+	cairo_format_t format = cairo_image_surface_get_format(cs);
+	unsigned char * pixel = cairo_image_surface_get_data(cs);
+
+	switch(format)
+	{
+	case CAIRO_FORMAT_ARGB32:
+		expblur(pixel, width, height, 4, radius, 16, 7);
+		cairo_surface_mark_dirty(cs);
+		break;
+	case CAIRO_FORMAT_RGB24:
+		expblur(pixel, width, height, 3, radius, 16, 7);
+		cairo_surface_mark_dirty(cs);
+		break;
+	case CAIRO_FORMAT_A8:
+		expblur(pixel, width, height, 1, radius, 16, 7);
+		cairo_surface_mark_dirty(cs);
+		break;
+	case CAIRO_FORMAT_A1:
+	case CAIRO_FORMAT_RGB16_565:
+	case CAIRO_FORMAT_RGB30:
+	default:
+		break;
+	}
+	lua_settop(L, 1);
+	return 1;
+}
+
 static const luaL_Reg m_image[] = {
 	{"__gc",		m_image_gc},
 	{"clone",		m_image_clone},
@@ -410,6 +515,7 @@ static const luaL_Reg m_image[] = {
 	{"saturate",	m_image_saturate},
 	{"brightness",	m_image_brightness},
 	{"contrast",	m_image_contrast},
+	{"blur",		m_image_blur},
 	{"getSize",		m_image_get_size},
 	{NULL,			NULL}
 };

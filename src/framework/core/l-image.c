@@ -445,6 +445,65 @@ static int m_image_threshold(lua_State * L)
 	return 1;
 }
 
+static int m_image_hue(lua_State * L)
+{
+	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
+	float angle = luaL_optinteger(L, 2, 0) * M_PI / 180.0;
+	float c = cosf(angle);
+	float s = sinf(angle);
+	cairo_surface_t * cs = img->cs;
+	int width = cairo_image_surface_get_width(cs);
+	int height = cairo_image_surface_get_height(cs);
+	int stride = cairo_image_surface_get_stride(cs);
+	cairo_format_t format = cairo_image_surface_get_format(cs);
+	unsigned char * p, * q = cairo_image_surface_get_data(cs);
+	int r, g, b;
+	int tr, tg, tb;
+	int x, y;
+	int m[9];
+
+	m[0] = (0.213 + c * 0.787 - s * 0.213) * 65536;
+	m[1] = (0.715 - c * 0.715 - s * 0.715) * 65536;
+	m[2] = (0.072 - c * 0.072 + s * 0.928) * 65536;
+	m[3] = (0.213 - c * 0.213 + s * 0.143) * 65536;
+	m[4] = (0.715 + c * 0.285 + s * 0.140) * 65536;
+	m[5] = (0.072 - c * 0.072 - s * 0.283) * 65536;
+	m[6] = (0.213 - c * 0.213 - s * 0.787) * 65536;
+	m[7] = (0.715 - c * 0.715 + s * 0.715) * 65536;
+	m[8] = (0.072 + c * 0.928 + s * 0.072) * 65536;
+
+	switch(format)
+	{
+	case CAIRO_FORMAT_ARGB32:
+	case CAIRO_FORMAT_RGB24:
+		for(y = 0; y < height; y++, q += stride)
+		{
+			for(x = 0, p = q; x < width; x++, p += 4)
+			{
+				b = p[0];
+				g = p[1];
+				r = p[2];
+				tb = (m[6] * r + m[7] * g + m[8] * b) >> 16;
+				tg = (m[3] * r + m[4] * g + m[5] * b) >> 16;
+				tr = (m[0] * r + m[1] * g + m[2] * b) >> 16;
+				p[0] = CLIP(tb, 0, 255);
+				p[1] = CLIP(tg, 0, 255);
+				p[2] = CLIP(tr, 0, 255);
+			}
+		}
+		cairo_surface_mark_dirty(cs);
+		break;
+	case CAIRO_FORMAT_A8:
+	case CAIRO_FORMAT_A1:
+	case CAIRO_FORMAT_RGB16_565:
+	case CAIRO_FORMAT_RGB30:
+	default:
+		break;
+	}
+	lua_settop(L, 1);
+	return 1;
+}
+
 static int m_image_saturate(lua_State * L)
 {
 	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
@@ -734,6 +793,7 @@ static const luaL_Reg m_image[] = {
 	{"sepia",		m_image_sepia},
 	{"invert",		m_image_invert},
 	{"threshold",	m_image_threshold},
+	{"hue",			m_image_hue},
 	{"saturate",	m_image_saturate},
 	{"brightness",	m_image_brightness},
 	{"contrast",	m_image_contrast},

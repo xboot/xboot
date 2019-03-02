@@ -520,11 +520,8 @@ static int m_image_blur(lua_State * L)
 	switch(format)
 	{
 	case CAIRO_FORMAT_ARGB32:
-		expblur(pixel, width, height, 4, radius);
-		cairo_surface_mark_dirty(cs);
-		break;
 	case CAIRO_FORMAT_RGB24:
-		expblur(pixel, width, height, 3, radius);
+		expblur(pixel, width, height, 4, radius);
 		cairo_surface_mark_dirty(cs);
 		break;
 	case CAIRO_FORMAT_A8:

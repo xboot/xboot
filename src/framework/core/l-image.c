@@ -97,6 +97,41 @@ static int m_image_gc(lua_State * L)
 	return 0;
 }
 
+static const char * cairo_format_tostring(cairo_format_t format)
+{
+	switch(format)
+	{
+	case CAIRO_FORMAT_ARGB32:
+		return "ARGB32";
+	case CAIRO_FORMAT_RGB24:
+		return "RGB24";
+	case CAIRO_FORMAT_A8:
+		return "A8";
+	case CAIRO_FORMAT_A1:
+		return "A1";
+	case CAIRO_FORMAT_RGB16_565:
+		return "RGB16_565";
+	case CAIRO_FORMAT_RGB30:
+		return "RGB30";
+	default:
+		break;
+	}
+	return "INVALID";
+}
+
+static int m_image_tostring(lua_State * L)
+{
+	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
+	cairo_surface_t * cs = img->cs;
+	int width = cairo_image_surface_get_width(cs);
+	int height = cairo_image_surface_get_height(cs);
+	int stride = cairo_image_surface_get_stride(cs);
+	cairo_format_t format = cairo_image_surface_get_format(cs);
+	unsigned char * pixel = cairo_image_surface_get_data(cs);
+	lua_pushfstring(L, "image(%d,%d,%d,%s,%p)", width, height, stride, cairo_format_tostring(format), pixel);
+	return 1;
+}
+
 static int m_image_clone(lua_State * L)
 {
 	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
@@ -508,6 +543,7 @@ static int m_image_blur(lua_State * L)
 
 static const luaL_Reg m_image[] = {
 	{"__gc",		m_image_gc},
+	{"__tostring",	m_image_tostring},
 	{"clone",		m_image_clone},
 	{"grayscale",	m_image_grayscale},
 	{"sepia",		m_image_sepia},

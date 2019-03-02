@@ -37,8 +37,8 @@
 #define MAX(a, b)	((a) > (b) ? (a) : (b))
 #endif
 
-#ifndef CLIP3
-#define CLIP3(x, min, max)	((x) < (min) ? (min) : ((x) > (max) ? (max) : (x)))
+#ifndef CLIP
+#define CLIP(x, min, max)	((x) < (min) ? (min) : ((x) > (max) ? (max) : (x)))
 #endif
 
 static cairo_status_t xfs_read_func(void * closure, unsigned char * data, unsigned int size)
@@ -271,6 +271,170 @@ static int m_image_invert(lua_State * L)
 		cairo_surface_mark_dirty(cs);
 		break;
 	case CAIRO_FORMAT_A8:
+		for(y = 0; y < height; y++, q += stride)
+		{
+			for(x = 0, p = q; x < width; x++, p += 1)
+			{
+				p[0] = 255 - p[0];
+			}
+		}
+		cairo_surface_mark_dirty(cs);
+		break;
+	case CAIRO_FORMAT_A1:
+	case CAIRO_FORMAT_RGB16_565:
+	case CAIRO_FORMAT_RGB30:
+	default:
+		break;
+	}
+	lua_settop(L, 1);
+	return 1;
+}
+
+enum threshold_type_t {
+	THRESHOLD_TYPE_BINARY			= 0,
+	THRESHOLD_TYPE_BINARY_INVERT	= 1,
+	THRESHOLD_TYPE_TOZERO			= 2,
+	THRESHOLD_TYPE_TOZERO_INVERT	= 3,
+	THRESHOLD_TYPE_TRUNC			= 4,
+};
+
+static int m_image_threshold(lua_State * L)
+{
+	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
+	int threshold = luaL_optinteger(L, 2, 128);
+	int value = luaL_optinteger(L, 3, 255);
+	const char * type = luaL_optstring(L, 4, "binary");
+	cairo_surface_t * cs = img->cs;
+	int width = cairo_image_surface_get_width(cs);
+	int height = cairo_image_surface_get_height(cs);
+	int stride = cairo_image_surface_get_stride(cs);
+	cairo_format_t format = cairo_image_surface_get_format(cs);
+	unsigned char * p, * q = cairo_image_surface_get_data(cs);
+	enum threshold_type_t t;
+	int x, y;
+	if(strcmp(type, "binary") == 0)
+		t = THRESHOLD_TYPE_BINARY;
+	else if(strcmp(type, "binary-invert") == 0)
+		t = THRESHOLD_TYPE_BINARY_INVERT;
+	else if(strcmp(type, "tozero") == 0)
+		t = THRESHOLD_TYPE_TOZERO;
+	else if(strcmp(type, "tozero-invert") == 0)
+		t = THRESHOLD_TYPE_TOZERO_INVERT;
+	else if(strcmp(type, "trunc") == 0)
+		t = THRESHOLD_TYPE_TRUNC;
+	else
+		t = THRESHOLD_TYPE_BINARY;
+	threshold = CLIP(threshold, 0, 255);
+	value = CLIP(value, 0, 255);
+	switch(format)
+	{
+	case CAIRO_FORMAT_ARGB32:
+	case CAIRO_FORMAT_RGB24:
+		switch(t)
+		{
+		case THRESHOLD_TYPE_BINARY:
+			for(y = 0; y < height; y++, q += stride)
+			{
+				for(x = 0, p = q; x < width; x++, p += 4)
+				{
+					p[2] = p[1] = p[0] = (p[0] > threshold) ? value : 0;
+				}
+			}
+			break;
+		case THRESHOLD_TYPE_BINARY_INVERT:
+			for(y = 0; y < height; y++, q += stride)
+			{
+				for(x = 0, p = q; x < width; x++, p += 4)
+				{
+					p[2] = p[1] = p[0] = (p[0] > threshold) ? 0 : value;
+				}
+			}
+			break;
+		case THRESHOLD_TYPE_TOZERO:
+			for(y = 0; y < height; y++, q += stride)
+			{
+				for(x = 0, p = q; x < width; x++, p += 4)
+				{
+					p[2] = p[1] = p[0] = (p[0] > threshold) ? p[0] : 0;
+				}
+			}
+			break;
+		case THRESHOLD_TYPE_TOZERO_INVERT:
+			for(y = 0; y < height; y++, q += stride)
+			{
+				for(x = 0, p = q; x < width; x++, p += 4)
+				{
+					p[2] = p[1] = p[0] = (p[0] > threshold) ? 0 : p[0];
+				}
+			}
+			break;
+		case THRESHOLD_TYPE_TRUNC:
+			for(y = 0; y < height; y++, q += stride)
+			{
+				for(x = 0, p = q; x < width; x++, p += 4)
+				{
+					p[2] = p[1] = p[0] = (p[0] > threshold) ? threshold : value;
+				}
+			}
+			break;
+		default:
+			break;
+		}
+		cairo_surface_mark_dirty(cs);
+		break;
+	case CAIRO_FORMAT_A8:
+		switch(t)
+		{
+		case THRESHOLD_TYPE_BINARY:
+			for(y = 0; y < height; y++, q += stride)
+			{
+				for(x = 0, p = q; x < width; x++, p += 1)
+				{
+					p[0] = (p[0] > threshold) ? value : 0;
+				}
+			}
+			break;
+		case THRESHOLD_TYPE_BINARY_INVERT:
+			for(y = 0; y < height; y++, q += stride)
+			{
+				for(x = 0, p = q; x < width; x++, p += 1)
+				{
+					p[0] = (p[0] > threshold) ? 0 : value;
+				}
+			}
+			break;
+		case THRESHOLD_TYPE_TOZERO:
+			for(y = 0; y < height; y++, q += stride)
+			{
+				for(x = 0, p = q; x < width; x++, p += 1)
+				{
+					p[0] = (p[0] > threshold) ? p[0] : 0;
+				}
+			}
+			break;
+		case THRESHOLD_TYPE_TOZERO_INVERT:
+			for(y = 0; y < height; y++, q += stride)
+			{
+				for(x = 0, p = q; x < width; x++, p += 1)
+				{
+					p[0] = (p[0] > threshold) ? 0 : p[0];
+				}
+			}
+			break;
+		case THRESHOLD_TYPE_TRUNC:
+			for(y = 0; y < height; y++, q += stride)
+			{
+				for(x = 0, p = q; x < width; x++, p += 1)
+				{
+					p[0] = (p[0] > threshold) ? threshold : value;
+				}
+			}
+			break;
+		default:
+			break;
+		}
+		cairo_surface_mark_dirty(cs);
+		break;
 	case CAIRO_FORMAT_A1:
 	case CAIRO_FORMAT_RGB16_565:
 	case CAIRO_FORMAT_RGB30:
@@ -285,7 +449,7 @@ static int m_image_saturate(lua_State * L)
 {
 	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
 	int saturate = luaL_optinteger(L, 2, 0);
-	int k = CLIP3(saturate, -100, 100) / 100.0 * 128.0;
+	int k = CLIP(saturate, -100, 100) / 100.0 * 128.0;
 	cairo_surface_t * cs = img->cs;
 	int width = cairo_image_surface_get_width(cs);
 	int height = cairo_image_surface_get_height(cs);
@@ -326,9 +490,9 @@ static int m_image_saturate(lua_State * L)
 				r = r + ((r - l) * alpha >> 7);
 				g = g + ((g - l) * alpha >> 7);
 				b = b + ((b - l) * alpha >> 7);
-				p[0] = CLIP3(b, 0, 255);
-				p[1] = CLIP3(g, 0, 255);
-				p[2] = CLIP3(r, 0, 255);
+				p[0] = CLIP(b, 0, 255);
+				p[1] = CLIP(g, 0, 255);
+				p[2] = CLIP(r, 0, 255);
 			}
 		}
 		cairo_surface_mark_dirty(cs);
@@ -348,15 +512,15 @@ static int m_image_brightness(lua_State * L)
 {
 	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
 	int brightness = luaL_optinteger(L, 2, 0);
-	int delta = CLIP3(brightness, -100, 100) / 100.0 * 255.0;
+	int delta = CLIP(brightness, -100, 100) / 100.0 * 255.0;
 	cairo_surface_t * cs = img->cs;
 	int width = cairo_image_surface_get_width(cs);
 	int height = cairo_image_surface_get_height(cs);
 	int stride = cairo_image_surface_get_stride(cs);
 	cairo_format_t format = cairo_image_surface_get_format(cs);
 	unsigned char * p, * q = cairo_image_surface_get_data(cs);
-	int r, g, b;
-	int tr, tg, tb;
+	int r, g, b, a;
+	int tr, tg, tb, ta;
 	int x, y;
 	switch(format)
 	{
@@ -372,14 +536,25 @@ static int m_image_brightness(lua_State * L)
 				tb = b + delta;
 				tg = g + delta;
 				tr = r + delta;
-				p[0] = CLIP3(tb, 0, 255);
-				p[1] = CLIP3(tg, 0, 255);
-				p[2] = CLIP3(tr, 0, 255);
+				p[0] = CLIP(tb, 0, 255);
+				p[1] = CLIP(tg, 0, 255);
+				p[2] = CLIP(tr, 0, 255);
 			}
 		}
 		cairo_surface_mark_dirty(cs);
 		break;
 	case CAIRO_FORMAT_A8:
+		for(y = 0; y < height; y++, q += stride)
+		{
+			for(x = 0, p = q; x < width; x++, p += 1)
+			{
+				a = p[0];
+				ta = a + delta;
+				p[0] = CLIP(ta, 0, 255);
+			}
+		}
+		cairo_surface_mark_dirty(cs);
+		break;
 	case CAIRO_FORMAT_A1:
 	case CAIRO_FORMAT_RGB16_565:
 	case CAIRO_FORMAT_RGB30:
@@ -394,15 +569,15 @@ static int m_image_contrast(lua_State * L)
 {
 	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
 	int contrast = luaL_optinteger(L, 2, 0);
-	int k = CLIP3(contrast, -100, 100) / 100.0 * 128.0;
+	int k = CLIP(contrast, -100, 100) / 100.0 * 128.0;
 	cairo_surface_t * cs = img->cs;
 	int width = cairo_image_surface_get_width(cs);
 	int height = cairo_image_surface_get_height(cs);
 	int stride = cairo_image_surface_get_stride(cs);
 	cairo_format_t format = cairo_image_surface_get_format(cs);
 	unsigned char * p, * q = cairo_image_surface_get_data(cs);
-	int r, g, b;
-	int tr, tg, tb;
+	int r, g, b, a;
+	int tr, tg, tb, ta;
 	int x, y;
 	switch(format)
 	{
@@ -418,14 +593,25 @@ static int m_image_contrast(lua_State * L)
 				tb = (b << 7) + (b - 128) * k;
 				tg = (g << 7) + (g - 128) * k;
 				tr = (r << 7) + (r - 128) * k;
-				p[0] = CLIP3(tb, 0, 255 << 7) >> 7;
-				p[1] = CLIP3(tg, 0, 255 << 7) >> 7;
-				p[2] = CLIP3(tr, 0, 255 << 7) >> 7;
+				p[0] = CLIP(tb, 0, 255 << 7) >> 7;
+				p[1] = CLIP(tg, 0, 255 << 7) >> 7;
+				p[2] = CLIP(tr, 0, 255 << 7) >> 7;
 			}
 		}
 		cairo_surface_mark_dirty(cs);
 		break;
 	case CAIRO_FORMAT_A8:
+		for(y = 0; y < height; y++, q += stride)
+		{
+			for(x = 0, p = q; x < width; x++, p += 1)
+			{
+				a = p[0];
+				ta = (a << 7) + (a - 128) * k;
+				p[0] = CLIP(ta, 0, 255 << 7) >> 7;
+			}
+		}
+		cairo_surface_mark_dirty(cs);
+		break;
 	case CAIRO_FORMAT_A1:
 	case CAIRO_FORMAT_RGB16_565:
 	case CAIRO_FORMAT_RGB30:
@@ -546,6 +732,7 @@ static const luaL_Reg m_image[] = {
 	{"grayscale",	m_image_grayscale},
 	{"sepia",		m_image_sepia},
 	{"invert",		m_image_invert},
+	{"threshold",	m_image_threshold},
 	{"saturate",	m_image_saturate},
 	{"brightness",	m_image_brightness},
 	{"contrast",	m_image_contrast},

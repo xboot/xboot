@@ -481,7 +481,8 @@ static int m_image_saturate(lua_State * L)
 				if(k >= 0)
 				{
 					alpha = (k + s >= 128) ? s : 128 - k;
-					alpha = 128 * 128 / alpha - 128;
+					if(alpha != 0)
+						alpha = 128 * 128 / alpha - 128;
 				}
 				else
 				{

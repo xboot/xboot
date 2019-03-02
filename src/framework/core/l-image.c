@@ -132,6 +132,16 @@ static int m_image_tostring(lua_State * L)
 	return 1;
 }
 
+static int m_image_get_size(lua_State * L)
+{
+	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
+	int w = cairo_image_surface_get_width(img->cs);
+	int h = cairo_image_surface_get_height(img->cs);
+	lua_pushnumber(L, w);
+	lua_pushnumber(L, h);
+	return 2;
+}
+
 static int m_image_clone(lua_State * L)
 {
 	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
@@ -426,70 +436,60 @@ static int m_image_contrast(lua_State * L)
 	return 1;
 }
 
-static int m_image_get_size(lua_State * L)
+static inline void blurinner(unsigned char * p, int * zr, int * zg, int * zb, int * za, int alpha)
 {
-	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
-	int w = cairo_image_surface_get_width(img->cs);
-	int h = cairo_image_surface_get_height(img->cs);
-	lua_pushnumber(L, w);
-	lua_pushnumber(L, h);
-	return 2;
-}
-
-static inline void blurinner(unsigned char * pixel, int * zr, int * zg, int * zb, int * za, int alpha)
-{
-	unsigned char a;
 	int r, g, b;
+	unsigned char a;
 
-	r = *pixel;
-	g = *(pixel + 1);
-	b = *(pixel + 2);
-	a = *(pixel + 3);
+	r = p[0];
+	g = p[1];
+	b = p[2];
+	a = p[3];
 
 	*zr += (alpha * ((r << 7) - *zr)) >> 16;
 	*zg += (alpha * ((g << 7) - *zg)) >> 16;
 	*zb += (alpha * ((b << 7) - *zb)) >> 16;
 	*za += (alpha * ((a << 7) - *za)) >> 16;
 
-	*pixel = *zr >> 7;
-	*(pixel + 1) = *zg >> 7;
-	*(pixel + 2) = *zb >> 7;
-	*(pixel + 3) = *za >> 7;
+	p[0] = *zr >> 7;
+	p[1] = *zg >> 7;
+	p[2] = *zb >> 7;
+	p[3] = *za >> 7;
 }
 
 static inline void blurrow(unsigned char * pixel, int width, int height, int channel, int line, int alpha)
 {
-	unsigned char * scanline = &(pixel[line * width * channel]);
+	unsigned char * p = &(pixel[line * width * channel]);
 	int zr, zg, zb, za;
 	int i;
 
-	zr = *scanline << 7;
-	zg = *(scanline + 1) << 7;
-	zb = *(scanline + 2) << 7;
-	za = *(scanline + 3) << 7;
+	zr = p[0] << 7;
+	zg = p[1] << 7;
+	zb = p[2] << 7;
+	za = p[3] << 7;
 
 	for(i = 0; i < width; i++)
-		blurinner(&scanline[i * channel], &zr, &zg, &zb, &za, alpha);
+		blurinner(&p[i * channel], &zr, &zg, &zb, &za, alpha);
 	for(i = width - 2; i >= 0; i--)
-		blurinner(&scanline[i * channel], &zr, &zg, &zb, &za, alpha);
+		blurinner(&p[i * channel], &zr, &zg, &zb, &za, alpha);
 }
 
 static inline void blurcol(unsigned char * pixel, int width, int height, int channel, int x, int alpha)
 {
-	unsigned char * ptr = pixel;
+	unsigned char * p = pixel;
 	int zr, zg, zb, za;
 	int i;
 
-	ptr += x * channel;
-	zr = *((unsigned char *)ptr) << 7;
-	zg = *((unsigned char *)ptr + 1) << 7;
-	zb = *((unsigned char *)ptr + 2) << 7;
-	za = *((unsigned char *)ptr + 3) << 7;
+	p += x * channel;
+	zr = p[0] << 7;
+	zg = p[1] << 7;
+	zb = p[2] << 7;
+	za = p[3] << 7;
 
 	for(i = width; i < (height - 1) * width; i += width)
-		blurinner((unsigned char *)&ptr[i * channel], &zr, &zg, &zb, &za, alpha);
+		blurinner(&p[i * channel], &zr, &zg, &zb, &za, alpha);
 	for(i = (height - 2) * width; i >= 0; i -= width)
-		blurinner((unsigned char *)&ptr[i * channel], &zr, &zg, &zb, &za, alpha);
+		blurinner(&p[i * channel], &zr, &zg, &zb, &za, alpha);
 }
 
 static void expblur(unsigned char * pixel, int width, int height, int channel, int radius)
@@ -541,6 +541,7 @@ static int m_image_blur(lua_State * L)
 static const luaL_Reg m_image[] = {
 	{"__gc",		m_image_gc},
 	{"__tostring",	m_image_tostring},
+	{"getSize",		m_image_get_size},
 	{"clone",		m_image_clone},
 	{"grayscale",	m_image_grayscale},
 	{"sepia",		m_image_sepia},
@@ -549,7 +550,6 @@ static const luaL_Reg m_image[] = {
 	{"brightness",	m_image_brightness},
 	{"contrast",	m_image_contrast},
 	{"blur",		m_image_blur},
-	{"getSize",		m_image_get_size},
 	{NULL,			NULL}
 };
 

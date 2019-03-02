@@ -401,7 +401,7 @@ static int m_image_get_size(lua_State * L)
 	return 2;
 }
 
-static inline void blurinner(unsigned char * pixel, int * zr, int * zg, int * zb, int * za, int alpha, int aprec, int zprec)
+static inline void blurinner(unsigned char * pixel, int * zr, int * zg, int * zb, int * za, int alpha)
 {
 	unsigned char a;
 	int r, g, b;
@@ -411,64 +411,64 @@ static inline void blurinner(unsigned char * pixel, int * zr, int * zg, int * zb
 	b = *(pixel + 2);
 	a = *(pixel + 3);
 
-	*zr += (alpha * ((r << zprec) - *zr)) >> aprec;
-	*zg += (alpha * ((g << zprec) - *zg)) >> aprec;
-	*zb += (alpha * ((b << zprec) - *zb)) >> aprec;
-	*za += (alpha * ((a << zprec) - *za)) >> aprec;
+	*zr += (alpha * ((r << 7) - *zr)) >> 16;
+	*zg += (alpha * ((g << 7) - *zg)) >> 16;
+	*zb += (alpha * ((b << 7) - *zb)) >> 16;
+	*za += (alpha * ((a << 7) - *za)) >> 16;
 
-	*pixel = *zr >> zprec;
-	*(pixel + 1) = *zg >> zprec;
-	*(pixel + 2) = *zb >> zprec;
-	*(pixel + 3) = *za >> zprec;
+	*pixel = *zr >> 7;
+	*(pixel + 1) = *zg >> 7;
+	*(pixel + 2) = *zb >> 7;
+	*(pixel + 3) = *za >> 7;
 }
 
-static inline void blurrow(unsigned char * pixel, int width, int height, int channels, int line, int alpha, int aprec, int zprec)
+static inline void blurrow(unsigned char * pixel, int width, int height, int channel, int line, int alpha)
 {
-	unsigned char * scanline = &(pixel[line * width * channels]);
+	unsigned char * scanline = &(pixel[line * width * channel]);
 	int zr, zg, zb, za;
 	int i;
 
-	zr = *scanline << zprec;
-	zg = *(scanline + 1) << zprec;
-	zb = *(scanline + 2) << zprec;
-	za = *(scanline + 3) << zprec;
+	zr = *scanline << 7;
+	zg = *(scanline + 1) << 7;
+	zb = *(scanline + 2) << 7;
+	za = *(scanline + 3) << 7;
 
 	for(i = 0; i < width; i++)
-		blurinner(&scanline[i * channels], &zr, &zg, &zb, &za, alpha, aprec, zprec);
+		blurinner(&scanline[i * channel], &zr, &zg, &zb, &za, alpha);
 	for(i = width - 2; i >= 0; i--)
-		blurinner(&scanline[i * channels], &zr, &zg, &zb, &za, alpha, aprec, zprec);
+		blurinner(&scanline[i * channel], &zr, &zg, &zb, &za, alpha);
 }
 
-static inline void blurcol(unsigned char * pixel, int width, int height, int channels, int x, int alpha, int aprec, int zprec)
+static inline void blurcol(unsigned char * pixel, int width, int height, int channel, int x, int alpha)
 {
 	unsigned char * ptr = pixel;
 	int zr, zg, zb, za;
 	int i;
 
-	ptr += x * channels;
-	zr = *((unsigned char *)ptr) << zprec;
-	zg = *((unsigned char *)ptr + 1) << zprec;
-	zb = *((unsigned char *)ptr + 2) << zprec;
-	za = *((unsigned char *)ptr + 3) << zprec;
+	ptr += x * channel;
+	zr = *((unsigned char *)ptr) << 7;
+	zg = *((unsigned char *)ptr + 1) << 7;
+	zb = *((unsigned char *)ptr + 2) << 7;
+	za = *((unsigned char *)ptr + 3) << 7;
 
 	for(i = width; i < (height - 1) * width; i += width)
-		blurinner((unsigned char *)&ptr[i * channels], &zr, &zg, &zb, &za, alpha, aprec, zprec);
+		blurinner((unsigned char *)&ptr[i * channel], &zr, &zg, &zb, &za, alpha);
 	for(i = (height - 2) * width; i >= 0; i -= width)
-		blurinner((unsigned char *)&ptr[i * channels], &zr, &zg, &zb, &za, alpha, aprec, zprec);
+		blurinner((unsigned char *)&ptr[i * channel], &zr, &zg, &zb, &za, alpha);
 }
 
-static void expblur(unsigned char * pixel, int width, int height, int channels, int radius, int aprec, int zprec)
+static void expblur(unsigned char * pixel, int width, int height, int channel, int radius)
 {
 	int row, col;
 	int alpha;
 
 	if(radius >= 1)
 	{
-		alpha = (int)((1 << aprec) * (1.0f - expf(-2.3f / (radius + 1.f))));
+		alpha = (int)((1 << 16) * (1.0 - expf(-2.3 / (radius + 1.0))));
 		for(row = 0; row < height; row++)
-			blurrow(pixel, width, height, channels, row, alpha, aprec, zprec);
+			blurrow(pixel, width, height, channel, row, alpha);
 		for(col = 0; col < width; col++)
-			blurcol(pixel, width, height, channels, col, alpha, aprec, zprec);
+			blurcol(pixel, width, height, channel, col, alpha);
 	}
 }
 
@@ -485,15 +485,15 @@ static int m_image_blur(lua_State * L)
 	switch(format)
 	{
 	case CAIRO_FORMAT_ARGB32:
-		expblur(pixel, width, height, 4, radius, 16, 7);
+		expblur(pixel, width, height, 4, radius);
 		cairo_surface_mark_dirty(cs);
 		break;
 	case CAIRO_FORMAT_RGB24:
-		expblur(pixel, width, height, 3, radius, 16, 7);
+		expblur(pixel, width, height, 3, radius);
 		cairo_surface_mark_dirty(cs);
 		break;
 	case CAIRO_FORMAT_A8:
-		expblur(pixel, width, height, 1, radius, 16, 7);
+		expblur(pixel, width, height, 1, radius);
 		cairo_surface_mark_dirty(cs);
 		break;
 	case CAIRO_FORMAT_A1:

@@ -113,6 +113,10 @@ static const char * cairo_format_tostring(cairo_format_t format)
 		return "RGB16_565";
 	case CAIRO_FORMAT_RGB30:
 		return "RGB30";
+	case CAIRO_FORMAT_RGB96F:
+		return "RGB96F";
+	case CAIRO_FORMAT_RGBA128F:
+		return "RGBA128F";
 	default:
 		break;
 	}
@@ -194,6 +198,8 @@ static int m_image_grayscale(lua_State * L)
 	case CAIRO_FORMAT_A1:
 	case CAIRO_FORMAT_RGB16_565:
 	case CAIRO_FORMAT_RGB30:
+	case CAIRO_FORMAT_RGB96F:
+	case CAIRO_FORMAT_RGBA128F:
 	default:
 		break;
 	}
@@ -238,6 +244,8 @@ static int m_image_sepia(lua_State * L)
 	case CAIRO_FORMAT_A1:
 	case CAIRO_FORMAT_RGB16_565:
 	case CAIRO_FORMAT_RGB30:
+	case CAIRO_FORMAT_RGB96F:
+	case CAIRO_FORMAT_RGBA128F:
 	default:
 		break;
 	}
@@ -283,6 +291,8 @@ static int m_image_invert(lua_State * L)
 	case CAIRO_FORMAT_A1:
 	case CAIRO_FORMAT_RGB16_565:
 	case CAIRO_FORMAT_RGB30:
+	case CAIRO_FORMAT_RGB96F:
+	case CAIRO_FORMAT_RGBA128F:
 	default:
 		break;
 	}
@@ -438,6 +448,8 @@ static int m_image_threshold(lua_State * L)
 	case CAIRO_FORMAT_A1:
 	case CAIRO_FORMAT_RGB16_565:
 	case CAIRO_FORMAT_RGB30:
+	case CAIRO_FORMAT_RGB96F:
+	case CAIRO_FORMAT_RGBA128F:
 	default:
 		break;
 	}
@@ -497,6 +509,8 @@ static int m_image_hue(lua_State * L)
 	case CAIRO_FORMAT_A1:
 	case CAIRO_FORMAT_RGB16_565:
 	case CAIRO_FORMAT_RGB30:
+	case CAIRO_FORMAT_RGB96F:
+	case CAIRO_FORMAT_RGBA128F:
 	default:
 		break;
 	}
@@ -561,6 +575,8 @@ static int m_image_saturate(lua_State * L)
 	case CAIRO_FORMAT_A1:
 	case CAIRO_FORMAT_RGB16_565:
 	case CAIRO_FORMAT_RGB30:
+	case CAIRO_FORMAT_RGB96F:
+	case CAIRO_FORMAT_RGBA128F:
 	default:
 		break;
 	}
@@ -618,6 +634,8 @@ static int m_image_brightness(lua_State * L)
 	case CAIRO_FORMAT_A1:
 	case CAIRO_FORMAT_RGB16_565:
 	case CAIRO_FORMAT_RGB30:
+	case CAIRO_FORMAT_RGB96F:
+	case CAIRO_FORMAT_RGBA128F:
 	default:
 		break;
 	}
@@ -675,6 +693,8 @@ static int m_image_contrast(lua_State * L)
 	case CAIRO_FORMAT_A1:
 	case CAIRO_FORMAT_RGB16_565:
 	case CAIRO_FORMAT_RGB30:
+	case CAIRO_FORMAT_RGB96F:
+	case CAIRO_FORMAT_RGBA128F:
 	default:
 		break;
 	}
@@ -777,6 +797,8 @@ static int m_image_blur(lua_State * L)
 	case CAIRO_FORMAT_A1:
 	case CAIRO_FORMAT_RGB16_565:
 	case CAIRO_FORMAT_RGB30:
+	case CAIRO_FORMAT_RGB96F:
+	case CAIRO_FORMAT_RGBA128F:
 	default:
 		break;
 	}

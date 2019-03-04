@@ -7711,6 +7711,11 @@ _cairo_pdf_surface_mask (void			*abstract_surface,
      * and most common, case to handle. */
     if (_cairo_pattern_is_constant_alpha (mask, &extents.bounded, &alpha) &&
 	_can_paint_pattern (source)) {
+
+	status = _cairo_pdf_operators_flush (&surface->pdf_operators);
+	if (unlikely (status))
+	    goto cleanup;
+
 	_cairo_output_stream_printf (surface->output, "q\n");
 	status = _cairo_pdf_surface_paint_pattern (surface,
 						   op,

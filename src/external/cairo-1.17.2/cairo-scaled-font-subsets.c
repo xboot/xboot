@@ -625,19 +625,14 @@ _cairo_sub_font_map_glyph (cairo_sub_font_t	*sub_font,
 	}
 
 	/* If glyph is in the winansi encoding and font is not a user
-	 * font, put glyph in the latin subset. If glyph is .notdef
-	 * the latin subset is preferred but only if the latin subset
-	 * already contains at least one glyph. We don't want to
-	 * create a separate subset just for the .notdef glyph.
-	 */
+	 * font, put glyph in the latin subset. */
 	is_latin = FALSE;
 	latin_character = -1;
 	if (sub_font->use_latin_subset &&
 	    (! _cairo_font_face_is_user (sub_font->scaled_font->font_face)))
 	{
 	    latin_character = _cairo_unicode_to_winansi (font_unicode);
-	    if (latin_character > 0 ||
-		(latin_character == 0 && sub_font->num_glyphs_in_latin_subset > 0))
+	    if (latin_character > 0)
 	    {
 		if (!sub_font->latin_char_map[latin_character]) {
 		    sub_font->latin_char_map[latin_character] = TRUE;

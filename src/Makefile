@@ -185,8 +185,8 @@ INCDIRS		+= 	external/pixman-0.36.0 \
 SRCDIRS		+=	external/pixman-0.36.0 \
 				external/pixman-0.36.0/$(ARCH)
 
-INCDIRS		+= 	external/cairo-1.16.0
-SRCDIRS		+=	external/cairo-1.16.0
+INCDIRS		+= 	external/cairo-1.17.2
+SRCDIRS		+=	external/cairo-1.17.2
 
 INCDIRS		+= 	external/freetype-2.8/include \
 				external/freetype-2.8/src/autofit \

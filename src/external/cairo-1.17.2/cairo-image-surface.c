@@ -93,6 +93,10 @@ cairo_format_t
 _cairo_format_from_pixman_format (pixman_format_code_t pixman_format)
 {
     switch (pixman_format) {
+    case PIXMAN_rgba_float:
+	return CAIRO_FORMAT_RGBA128F;
+    case PIXMAN_rgb_float:
+	return CAIRO_FORMAT_RGB96F;
     case PIXMAN_a8r8g8b8:
 	return CAIRO_FORMAT_ARGB32;
     case PIXMAN_x2r10g10b10:
@@ -321,6 +325,12 @@ _cairo_format_to_pixman_format_code (cairo_format_t format)
 	break;
     case CAIRO_FORMAT_RGB16_565:
 	ret = PIXMAN_r5g6b5;
+	break;
+    case CAIRO_FORMAT_RGB96F:
+	ret = PIXMAN_rgb_float;
+	break;
+    case CAIRO_FORMAT_RGBA128F:
+	ret = PIXMAN_rgba_float;
 	break;
     case CAIRO_FORMAT_ARGB32:
     case CAIRO_FORMAT_INVALID:
@@ -693,8 +703,10 @@ _cairo_format_from_content (cairo_content_t content)
 _cairo_content_from_format (cairo_format_t format)
 {
     switch (format) {
+    case CAIRO_FORMAT_RGBA128F:
     case CAIRO_FORMAT_ARGB32:
 	return CAIRO_CONTENT_COLOR_ALPHA;
+    case CAIRO_FORMAT_RGB96F:
     case CAIRO_FORMAT_RGB30:
 	return CAIRO_CONTENT_COLOR;
     case CAIRO_FORMAT_RGB24:
@@ -716,6 +728,10 @@ _cairo_content_from_format (cairo_format_t format)
 _cairo_format_bits_per_pixel (cairo_format_t format)
 {
     switch (format) {
+    case CAIRO_FORMAT_RGBA128F:
+	return 128;
+    case CAIRO_FORMAT_RGB96F:
+	return 96;
     case CAIRO_FORMAT_ARGB32:
     case CAIRO_FORMAT_RGB30:
     case CAIRO_FORMAT_RGB24:

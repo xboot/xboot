@@ -204,7 +204,7 @@ _cairo_hash_table_create (cairo_hash_keys_equal_func_t keys_equal)
  * _cairo_hash_table_destroy is called. It is a fatal error otherwise,
  * and this function will halt. The rationale for this behavior is to
  * avoid memory leaks and to avoid needless complication of the API
- * with destroy notifiy callbacks.
+ * with destroy notify callbacks.
  *
  * WARNING: The hash_table must have no running iterators in it when
  * _cairo_hash_table_destroy is called. It is a fatal error otherwise,

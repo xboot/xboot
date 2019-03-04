@@ -2331,7 +2331,7 @@ _cairo_radial_pattern_box_to_parameter (const cairo_radial_pattern_t *radial,
     maxx = x1 + DBL_EPSILON;
     maxy = y1 + DBL_EPSILON;
 
-    /* we dont' allow negative radiuses, so we will be checking that
+    /* we don't allow negative radiuses, so we will be checking that
      * t*dr >= mindr to consider t valid */
     mindr = -(cr + DBL_EPSILON);
 
@@ -3022,8 +3022,8 @@ _cairo_pattern_alpha_range (const cairo_pattern_t *pattern,
  *
  * This function cannot be used while the mesh is being constructed.
  *
- * The function returns TRUE and sets the output parametes to define
- * the coodrinate range if the mesh pattern contains at least one
+ * The function returns TRUE and sets the output parameters to define
+ * the coordinate range if the mesh pattern contains at least one
  * patch, otherwise it returns FALSE.
  **/
 cairo_bool_t
@@ -4760,7 +4760,7 @@ _cairo_debug_print_pattern (FILE *file, const cairo_pattern_t *pattern)
     case CAIRO_FILTER_BEST: s = "best"; break;
     case CAIRO_FILTER_NEAREST: s = "nearest"; break;
     case CAIRO_FILTER_BILINEAR: s = "bilinear"; break;
-    case CAIRO_FILTER_GAUSSIAN: s = "guassian"; break;
+    case CAIRO_FILTER_GAUSSIAN: s = "gaussian"; break;
     default: s = "invalid"; ASSERT_NOT_REACHED; break;
     }
     fprintf (file, "  filter: %s\n", s);

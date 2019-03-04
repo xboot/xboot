@@ -56,6 +56,8 @@ typedef struct _cairo_ps_form {
     cairo_bool_t is_image;
     int id;
     cairo_surface_t *src_surface;
+    cairo_rectangle_int_t src_surface_extents;
+    cairo_bool_t src_surface_bounded;
     cairo_filter_t filter;
 
     /* Union of source extents required for all operations using this form */

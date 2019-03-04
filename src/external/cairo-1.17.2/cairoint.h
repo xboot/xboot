@@ -1526,7 +1526,7 @@ _cairo_surface_release_device_reference (cairo_surface_t *surface);
  * visuals. This time we invented #cairo_internal_format_t instead,
  * (see it for more discussion).
  *
- * The punchline is that %CAIRO_FORMAT_VALID must not conside any
+ * The punchline is that %CAIRO_FORMAT_VALID must not consider any
  * internal format to be valid. Also we need to decide if the
  * RGB16_565 should be moved to instead be an internal format. If so,
  * this macro need not change for it. (We probably will need to leave
@@ -1540,7 +1540,7 @@ _cairo_surface_release_device_reference (cairo_surface_t *surface);
  * in cairo-xlib-surface.c--again see -Wswitch-enum).
  */
 #define CAIRO_FORMAT_VALID(format) ((format) >= CAIRO_FORMAT_ARGB32 &&		\
-                                    (format) <= CAIRO_FORMAT_RGB30)
+                                    (format) <= CAIRO_FORMAT_RGBA128F)
 
 /* pixman-required stride alignment in bytes. */
 #define CAIRO_STRIDE_ALIGNMENT (sizeof (uint32_t))

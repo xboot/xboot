@@ -976,10 +976,12 @@ _compute_xrender_bitmap_size(FT_Bitmap      *target,
 	pitch = width * 4;
 	break;
 
+#ifdef FT_PIXEL_MODE_BGRA
     case FT_PIXEL_MODE_BGRA:
 	/* each pixel is replicated into a 32-bit ARGB value */
 	pitch = width * 4;
 	break;
+#endif
 
     default:  /* unsupported source format */
 	return -1;
@@ -1177,10 +1179,12 @@ _fill_xrender_bitmap(FT_Bitmap      *target,
 	}
 	break;
 
+#ifdef FT_PIXEL_MODE_BGRA
     case FT_PIXEL_MODE_BGRA:
 	for (h = height; h > 0; h--, srcLine += src_pitch, dstLine += pitch)
 	    memcpy (dstLine, srcLine, width * 4);
 	break;
+#endif
 
     default:
 	assert (0);
@@ -1289,6 +1293,7 @@ _get_bitmap_surface (FT_Bitmap		     *bitmap,
 	    component_alpha = TRUE;
 	}
 	break;
+#ifdef FT_PIXEL_MODE_BGRA
     case FT_PIXEL_MODE_BGRA:
 	stride = width * 4;
 	if (own_buffer) {
@@ -1311,6 +1316,7 @@ _get_bitmap_surface (FT_Bitmap		     *bitmap,
 	}
 	format = CAIRO_FORMAT_ARGB32;
 	break;
+#endif
     case FT_PIXEL_MODE_GRAY2:
     case FT_PIXEL_MODE_GRAY4:
     convert:
@@ -2393,7 +2399,11 @@ skip:
 done:
         free (coords);
         free (current_coords);
+#if HAVE_FT_DONE_MM_VAR
+        FT_Done_MM_Var (face->glyph->library, ft_mm_var);
+#else
         free (ft_mm_var);
+#endif
     }
 }
 
@@ -2487,7 +2497,9 @@ _cairo_ft_scaled_glyph_init (void			*abstract_font,
 	vertical_layout = TRUE;
     }
 
+#ifdef FT_LOAD_COLOR
     load_flags |= FT_LOAD_COLOR;
+#endif
 
 
     if (info & CAIRO_SCALED_GLYPH_INFO_METRICS) {
@@ -2656,7 +2668,9 @@ LOAD:
          */
 	scaled_glyph_loaded = FALSE;
         info &= ~CAIRO_SCALED_GLYPH_INFO_METRICS;
+#ifdef FT_LOAD_COLOR
         load_flags &= ~FT_LOAD_COLOR;
+#endif
         goto LOAD;
     }
 
@@ -2881,7 +2895,7 @@ _cairo_index_to_glyph_name (void	         *abstract_font,
     cairo_ft_scaled_font_t *scaled_font = abstract_font;
     cairo_ft_unscaled_font_t *unscaled = scaled_font->unscaled;
     FT_Face face;
-    char buffer[256]; /* PLRM spcifies max name length of 127 */
+    char buffer[256]; /* PLRM specifies max name length of 127 */
     FT_Error error;
     int i;
 

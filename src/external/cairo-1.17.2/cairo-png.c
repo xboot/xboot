@@ -105,6 +105,84 @@ unpremultiply_data (png_structp png, png_row_infop row_info, png_bytep data)
     }
 }
 
+static uint16_t f_to_u16(float val)
+{
+    if (val < 0)
+	return 0;
+    else if (val > 1)
+	return 65535;
+    else
+	return (uint16_t)(val * 65535.f);
+}
+
+static void
+unpremultiply_float (float *f, uint16_t *d16, unsigned width)
+{
+    unsigned int i;
+
+    for (i = 0; i < width; i++) {
+	float r, g, b, a;
+
+	r = *f++;
+	g = *f++;
+	b = *f++;
+	a = *f++;
+
+	if (a > 0) {
+	    *d16++ = f_to_u16(r / a);
+	    *d16++ = f_to_u16(g / a);
+	    *d16++ = f_to_u16(b / a);
+	    *d16++ = f_to_u16(a);
+	} else {
+	    *d16++ = 0;
+	    *d16++ = 0;
+	    *d16++ = 0;
+	    *d16++ = 0;
+	}
+    }
+}
+
+static void
+premultiply_float (float *f, const uint16_t *d16, unsigned int width)
+{
+    unsigned int i = width;
+
+    /* Convert d16 in place back to float */
+    while (i--) {
+	float a = d16[i * 4 + 3] / 65535.f;
+
+	f[i * 4 + 3] = a;
+	f[i * 4 + 2] = (float)d16[i * 4 + 2] / 65535.f * a;
+	f[i * 4 + 1] = (float)d16[i * 4 + 1] / 65535.f * a;
+	f[i * 4] = (float)d16[i * 4] / 65535.f * a;
+    }
+}
+
+static void convert_u16_to_float (float *f, const uint16_t *d16, unsigned int width)
+{
+    /* Convert d16 in place back to float */
+    unsigned int i = width;
+
+    while (i--) {
+	f[i * 3 + 2] = (float)d16[i * 4 + 2] / 65535.f;
+	f[i * 3 + 1] = (float)d16[i * 4 + 1] / 65535.f;
+	f[i * 3] = (float)d16[i * 4] / 65535.f;
+    }
+}
+
+static void
+convert_float_to_u16 (float *f, uint16_t *d16, unsigned int width)
+{
+    unsigned int i;
+
+    for (i = 0; i < width; i++) {
+	*d16++ = f_to_u16(*f++);
+	*d16++ = f_to_u16(*f++);
+	*d16++ = f_to_u16(*f++);
+	*d16++ = 0;
+    }
+}
+
 /* Converts native endian xRGB => RGBx bytes */
 static void
 convert_data_to_bytes (png_structp png, png_row_infop row_info, png_bytep data)
@@ -182,6 +260,7 @@ write_png (cairo_surface_t	*surface,
     png_color_16 white;
     int png_color_type;
     int bpc;
+    unsigned char *volatile u16_copy = NULL;
 
     status = _cairo_surface_acquire_source_image (surface,
 						  &image,
@@ -198,11 +277,22 @@ write_png (cairo_surface_t	*surface,
 	goto BAIL1;
     }
 
-    /* Handle the various fallback formats (e.g. low bit-depth XServers)
-     * by coercing them to a simpler format using pixman.
-     */
-    clone = _cairo_image_surface_coerce (image);
-    status = clone->base.status;
+    /* Don't coerce to a lower resolution format */
+    if (image->format == CAIRO_FORMAT_RGB96F ||
+        image->format == CAIRO_FORMAT_RGBA128F) {
+	u16_copy = _cairo_malloc_ab (image->width * 8, image->height);
+	if (!u16_copy) {
+	    status = _cairo_error (CAIRO_STATUS_NO_MEMORY);
+	    goto BAIL1;
+	}
+	clone = (cairo_image_surface_t *)cairo_surface_reference (&image->base);
+    } else {
+	  /* Handle the various fallback formats (e.g. low bit-depth XServers)
+	  * by coercing them to a simpler format using pixman.
+	  */
+	  clone = _cairo_image_surface_coerce (image);
+	  status = clone->base.status;
+    }
     if (unlikely (status))
         goto BAIL1;
 
@@ -212,8 +302,22 @@ write_png (cairo_surface_t	*surface,
 	goto BAIL2;
     }
 
-    for (i = 0; i < clone->height; i++)
-	rows[i] = (png_byte *) clone->data + i * clone->stride;
+    if (!u16_copy) {
+	for (i = 0; i < clone->height; i++)
+	    rows[i] = (png_byte *)clone->data + i * clone->stride;
+    } else {
+	for (i = 0; i < clone->height; i++) {
+	    float *float_line = (float *)&clone->data[i * clone->stride];
+	    uint16_t *u16_line = (uint16_t *)&u16_copy[i * clone->width * 8];
+
+	    if (image->format == CAIRO_FORMAT_RGBA128F)
+		unpremultiply_float (float_line, u16_line, clone->width);
+	    else
+		convert_float_to_u16 (float_line, u16_line, clone->width);
+
+	    rows[i] = (png_byte *)u16_line;
+	}
+    }
 
     png = png_create_write_struct (PNG_LIBPNG_VER_STRING, &status,
 	                           png_simple_error_callback,
@@ -263,6 +367,14 @@ write_png (cairo_surface_t	*surface,
 	png_set_packswap (png);
 #endif
 	break;
+    case CAIRO_FORMAT_RGB96F:
+	bpc = 16;
+	png_color_type = PNG_COLOR_TYPE_RGB;
+	break;
+    case CAIRO_FORMAT_RGBA128F:
+	bpc = 16;
+	png_color_type = PNG_COLOR_TYPE_RGB_ALPHA;
+	break;
     case CAIRO_FORMAT_INVALID:
     case CAIRO_FORMAT_RGB16_565:
     default:
@@ -296,9 +408,11 @@ write_png (cairo_surface_t	*surface,
     png_write_info (png, info);
 
     if (png_color_type == PNG_COLOR_TYPE_RGB_ALPHA) {
-	png_set_write_user_transform_fn (png, unpremultiply_data);
+	if (clone->format != CAIRO_FORMAT_RGBA128F)
+	    png_set_write_user_transform_fn (png, unpremultiply_data);
     } else if (png_color_type == PNG_COLOR_TYPE_RGB) {
-	png_set_write_user_transform_fn (png, convert_data_to_bytes);
+	if (clone->format != CAIRO_FORMAT_RGB96F)
+	    png_set_write_user_transform_fn (png, convert_data_to_bytes);
 	png_set_filler (png, 0, PNG_FILLER_AFTER);
     }
 
@@ -311,6 +425,7 @@ BAIL3:
     free (rows);
 BAIL2:
     cairo_surface_destroy (&clone->base);
+    free (u16_copy);
 BAIL1:
     _cairo_surface_release_source_image (surface, image, image_extra);
 
@@ -612,9 +727,6 @@ read_png (struct png_read_closure_t *png_closure)
     if (png_get_valid (png, info, PNG_INFO_tRNS))
         png_set_tRNS_to_alpha (png);
 
-    if (depth == 16)
-        png_set_strip_16 (png);
-
     if (depth < 8)
         png_set_packing (png);
 
@@ -635,7 +747,7 @@ read_png (struct png_read_closure_t *png_closure)
     png_get_IHDR (png, info,
                   &png_width, &png_height, &depth,
                   &color_type, &interlace, NULL, NULL);
-    if (depth != 8 ||
+    if ((depth != 8 && depth != 16) ||
 	! (color_type == PNG_COLOR_TYPE_RGB ||
 	   color_type == PNG_COLOR_TYPE_RGB_ALPHA))
     {
@@ -649,13 +761,21 @@ read_png (struct png_read_closure_t *png_closure)
 	    /* fall-through just in case ;-) */
 
 	case PNG_COLOR_TYPE_RGB_ALPHA:
-	    format = CAIRO_FORMAT_ARGB32;
-	    png_set_read_user_transform_fn (png, premultiply_data);
+	    if (depth == 8) {
+		format = CAIRO_FORMAT_ARGB32;
+		png_set_read_user_transform_fn (png, premultiply_data);
+	    } else {
+		format = CAIRO_FORMAT_RGBA128F;
+	    }
 	    break;
 
 	case PNG_COLOR_TYPE_RGB:
-	    format = CAIRO_FORMAT_RGB24;
-	    png_set_read_user_transform_fn (png, convert_bytes_to_data);
+	    if (depth == 8) {
+		format = CAIRO_FORMAT_RGB24;
+		png_set_read_user_transform_fn (png, convert_bytes_to_data);
+	    } else {
+		format = CAIRO_FORMAT_RGB96F;
+	    }
 	    break;
     }
 
@@ -686,6 +806,26 @@ read_png (struct png_read_closure_t *png_closure)
     if (unlikely (status)) { /* catch any late warnings - probably hit an error already */
 	surface = _cairo_surface_create_in_error (status);
 	goto BAIL;
+    }
+
+    if (format == CAIRO_FORMAT_RGBA128F) {
+	i = png_height;
+
+	while (i--) {
+	    float *float_line = (float *)row_pointers[i];
+	    uint16_t *u16_line = (uint16_t *)row_pointers[i];
+
+	    premultiply_float (float_line, u16_line, png_width);
+	}
+    } else if (format == CAIRO_FORMAT_RGB96F) {
+	i = png_height;
+
+	while (i--) {
+	    float *float_line = (float *)row_pointers[i];
+	    uint16_t *u16_line = (uint16_t *)row_pointers[i];
+
+	    convert_u16_to_float (float_line, u16_line, png_width);
+	}
     }
 
     surface = cairo_image_surface_create_for_data (data, format,

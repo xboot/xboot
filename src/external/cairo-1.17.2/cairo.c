@@ -144,35 +144,34 @@
  *
  * An example of creating a link with user specified clickable region:
  * <informalexample><programlisting>
- * cairo_font_extents_t font_extents;
+ * struct text {
+ *     const char *s;
+ *     double x, y;
+ * };
+ * const struct text text1 = { "This link is split", 450, 70 };
+ * const struct text text2 = { "across two lines", 50, 70 };
  * cairo_text_extents_t text1_extents;
  * cairo_text_extents_t text2_extents;
  * char attribs[100];
- * const char *text1 = "This link is split";
- * const char *text2 = "across two lines";
  *
- * cairo_font_extents (cr, &font_extents);
- * cairo_move_to (cr, 450, 50);
- * cairo_text_extents (cr, text1, &text1_extents);
- * cairo_move_to (cr, 50, 70);
- * cairo_text_extents (cr, text2, &text2_extents);
+ * cairo_text_extents (cr, text1.s, &text1_extents);
+ * cairo_text_extents (cr, text2.s, &text2_extents);
  * sprintf (attribs,
  *          "rect=[%f %f %f %f %f %f %f %f] uri='https://cairographics.org'",
- *          text1_extents.x_bearing,
- *          text1_extents.y_bearing,
+ *          text1_extents.x_bearing + text1.x,
+ *          text1_extents.y_bearing + text1.y,
  *          text1_extents.width,
  *          text1_extents.height,
- *          text2_extents.x_bearing,
- *          text2_extents.y_bearing,
+ *          text2_extents.x_bearing + text2.x,
+ *          text2_extents.y_bearing + text2.y,
  *          text2_extents.width,
  *          text2_extents.height);
  *
  * cairo_tag_begin (cr, CAIRO_TAG_LINK, attribs);
- * cairo_show_text (cr, "This is a link to the cairo website");
- * cairo_move_to (cr, 450, 50);
- * cairo_show_text (cr, text1);
- * cairo_move_to (cr, 50, 70);
- * cairo_show_text (cr, text2);
+ * cairo_move_to (cr, text1.x, text1.y);
+ * cairo_show_text (cr, text1.s);
+ * cairo_move_to (cr, text2.x, text2.y);
+ * cairo_show_text (cr, text2.s);
  * cairo_tag_end (cr, CAIRO_TAG_LINK);
  * </programlisting></informalexample>
  *

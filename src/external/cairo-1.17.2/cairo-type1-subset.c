@@ -388,6 +388,11 @@ cairo_type1_font_subset_get_bbox (cairo_type1_font_subset_t *font)
     /* Freetype uses 1/yy to get units per EM */
     font->base.units_per_em = 1.0/yy;
 
+    /* If the FontMatrix is not a uniform scale the metrics we extract
+     * from the font won't match what FreeType returns */
+    if (xx != yy || yx != 0.0 || xy != 0.0)
+	return CAIRO_INT_STATUS_UNSUPPORTED;
+
     font->base.x_min = x_min / font->base.units_per_em;
     font->base.y_min = y_min / font->base.units_per_em;
     font->base.x_max = x_max / font->base.units_per_em;

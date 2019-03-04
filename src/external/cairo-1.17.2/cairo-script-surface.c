@@ -871,6 +871,8 @@ static const char *
 _format_to_string (cairo_format_t format)
 {
     switch (format) {
+    case CAIRO_FORMAT_RGBA128F: return "RGBA128F";
+    case CAIRO_FORMAT_RGB96F: return "RGB96F";
     case CAIRO_FORMAT_ARGB32:  return "ARGB32";
     case CAIRO_FORMAT_RGB30:   return "RGB30";
     case CAIRO_FORMAT_RGB24:   return "RGB24";
@@ -1315,6 +1317,18 @@ _write_image_surface (cairo_output_stream_t *output,
 	    data += stride;
 	}
 	break;
+    case CAIRO_FORMAT_RGB96F:
+	for (row = image->height; row--; ) {
+	    _cairo_output_stream_write (output, data, 12*width);
+	    data += stride;
+	}
+	break;
+    case CAIRO_FORMAT_RGBA128F:
+	for (row = image->height; row--; ) {
+	    _cairo_output_stream_write (output, data, 16*width);
+	    data += stride;
+	}
+	break;
     case CAIRO_FORMAT_INVALID:
     default:
 	ASSERT_NOT_REACHED;
@@ -1420,6 +1434,12 @@ _emit_image_surface (cairo_script_surface_t *surface,
 	case CAIRO_FORMAT_RGB30:
 	case CAIRO_FORMAT_ARGB32:
 	    len = clone->width * 4;
+	    break;
+	case CAIRO_FORMAT_RGB96F:
+	    len = clone->width * 12;
+	    break;
+	case CAIRO_FORMAT_RGBA128F:
+	    len = clone->width * 16;
 	    break;
 	case CAIRO_FORMAT_INVALID:
 	default:
@@ -3805,7 +3825,7 @@ cairo_script_create_for_stream (cairo_write_func_t	 write_func,
  * cairo_script_write_comment:
  * @script: the script (output device)
  * @comment: the string to emit
- * @len:the length of the sting to write, or -1 to use strlen()
+ * @len:the length of the string to write, or -1 to use strlen()
  *
  * Emit a string verbatim into the script.
  *

@@ -524,7 +524,6 @@ _cairo_clip_reduce_to_boxes (cairo_clip_t *clip)
     cairo_clip_path_t *clip_path;
     cairo_status_t status;
 
-	return clip;
     if (clip->path == NULL)
 	return clip;
 

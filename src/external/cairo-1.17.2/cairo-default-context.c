@@ -523,7 +523,7 @@ _cairo_default_context_get_tolerance (void *abstract_cr)
 }
 
 
-/* Current tranformation matrix */
+/* Current transformation matrix */
 
 static cairo_status_t
 _cairo_default_context_translate (void *abstract_cr,

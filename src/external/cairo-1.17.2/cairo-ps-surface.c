@@ -3481,7 +3481,7 @@ _cairo_ps_surface_emit_solid_pattern (cairo_ps_surface_t    *surface,
  * @source: [in] the source for the form
  * @params: [in] source parameters
  * @test: [in] if TRUE, test if form will be used (excludes size check)
- * @ps_form [out] the new or exisiting entry int the hash table.
+ * @ps_form [out] the new or existing entry int the hash table.
  *                image or recording.
  */
 static cairo_int_status_t
@@ -3548,6 +3548,8 @@ _cairo_ps_surface_use_form (cairo_ps_surface_t           *surface,
     source_entry->unique_id = unique_id;
     source_entry->id = surface->num_forms++;
     source_entry->src_surface = cairo_surface_reference (params->src_surface);
+    source_entry->src_surface_extents = *params->src_surface_extents;
+    source_entry->src_surface_bounded = params->src_surface_bounded;
     source_entry->required_extents = *params->src_op_extents;
     source_entry->filter = params->filter;
     source_entry->is_image = params->is_image;
@@ -3726,11 +3728,14 @@ _cairo_ps_form_emit (void *entry, void *closure)
 
     params.src_surface = form->src_surface;
     params.op = CAIRO_OPERATOR_OVER;
+    params.src_surface_extents = &form->src_surface_extents;
+    params.src_surface_bounded = form->src_surface_bounded;
     params.src_op_extents = &form->required_extents;
     params.filter = form->filter;
     params.stencil_mask = FALSE;
     params.is_image = form->is_image;
     params.approx_size = 0;
+    params.eod_count = 0;
 
     _cairo_output_stream_printf (surface->final_stream,
 				 "%%%%BeginResource: form cairoform-%d\n",

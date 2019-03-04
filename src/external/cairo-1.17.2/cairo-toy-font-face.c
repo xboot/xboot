@@ -208,7 +208,7 @@ static void
 _cairo_toy_font_face_fini (cairo_toy_font_face_t *font_face)
 {
     /* We assert here that we own font_face->family before casting
-     * away the const qualifer. */
+     * away the const qualifier. */
     assert (font_face->owns_family);
     free ((char*) font_face->family);
 
@@ -420,7 +420,7 @@ _cairo_font_face_is_toy (cairo_font_face_t *font_face)
  * cairo_toy_font_face_get_family:
  * @font_face: A toy font face
  *
- * Gets the familly name of a toy font.
+ * Gets the family name of a toy font.
  *
  * Return value: The family name.  This string is owned by the font face
  * and remains valid as long as the font face is alive (referenced).

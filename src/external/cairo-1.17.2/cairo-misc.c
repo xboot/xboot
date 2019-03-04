@@ -959,7 +959,7 @@ _cairo_fopen (const char *filename, const char *mode, FILE **file_out)
 /* tmpfile() replacement for Windows.
  *
  * On Windows tmpfile() creates the file in the root directory. This
- * may fail due to unsufficient privileges. However, this isn't a
+ * may fail due to insufficient privileges. However, this isn't a
  * problem on Windows CE so we don't use it there.
  */
 FILE *

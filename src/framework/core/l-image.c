@@ -254,7 +254,7 @@ static int m_image_shadow(lua_State * L)
 	int w = cairo_image_surface_get_width(img->cs);
 	int h = cairo_image_surface_get_height(img->cs);
 	cairo_format_t format = cairo_image_surface_get_format(img->cs);
-	int extra = radius * 2;
+	int extra = radius + radius;
 	int width = w + extra + extra;
 	int height = h + extra + extra;
 	struct limage_t * subimg = lua_newuserdata(L, sizeof(struct limage_t));

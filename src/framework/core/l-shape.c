@@ -321,49 +321,14 @@ static int m_shape_rounded_rectangle(lua_State * L)
 	double width = luaL_checknumber(L, 4);
 	double height = luaL_checknumber(L, 5);
 	double radius = luaL_optnumber(L, 6, 0);
-	int lt = lua_isboolean(L, 7) ? lua_toboolean(L, 7) : 1;
-	int rt = lua_isboolean(L, 8) ? lua_toboolean(L, 8) : 1;
-	int rb = lua_isboolean(L, 9) ? lua_toboolean(L, 9) : 1;
-	int lb = lua_isboolean(L, 10) ? lua_toboolean(L, 10) : 1;
 	cairo_move_to(cr, x + radius, y);
 	cairo_line_to(cr, x + width - radius, y);
-	if(rt)
-	{
-		cairo_arc(cr, x + width - radius, y + radius, radius, - M_PI / 2, 0);
-	}
-	else
-	{
-		cairo_line_to(cr, x + width, y);
-		cairo_line_to(cr, x + width, y + radius);
-	}
+	cairo_arc(cr, x + width - radius, y + radius, radius, - M_PI / 2, 0);
 	cairo_line_to(cr, x + width, y + height - radius);
-	if(rb)
-	{
-		cairo_arc(cr, x + width - radius, y + height - radius, radius, 0, M_PI / 2);
-	}
-	else
-	{
-		cairo_line_to(cr, x + width, y + height);
-		cairo_line_to(cr, width - radius, y + height);
-	}
+	cairo_arc(cr, x + width - radius, y + height - radius, radius, 0, M_PI / 2);
 	cairo_line_to(cr, x + radius, y + height);
-	if(lb)
-	{
-		cairo_arc(cr, x + radius, y + height - radius, radius, M_PI / 2, M_PI);
-	}
-	else
-	{
-		cairo_line_to(cr, x, y + height);
-	}
-	if(lt)
-	{
-		cairo_arc(cr, x + radius, y + radius, radius, M_PI, M_PI + M_PI / 2);
-	}
-	else
-	{
-		cairo_line_to(cr, x, y);
-		cairo_line_to(cr, x + radius, y);
-	}
+	cairo_arc(cr, x + radius, y + height - radius, radius, M_PI / 2, M_PI);
+	cairo_arc(cr, x + radius, y + radius, radius, M_PI, M_PI + M_PI / 2);
 	return 0;
 }
 

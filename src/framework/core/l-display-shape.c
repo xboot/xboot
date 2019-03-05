@@ -178,8 +178,8 @@ function M:rectangle(x, y, width, height)
 	return self
 end
 
-function M:roundedRectangle(x, y, width, height, radius, lt, rt, rb, lb)
-	self.__shape:roundedRectangle(x, y, width, height, radius, lt, rt, rb, lb)
+function M:roundedRectangle(x, y, width, height, radius)
+	self.__shape:roundedRectangle(x, y, width, height, radius)
 	return self
 end
 

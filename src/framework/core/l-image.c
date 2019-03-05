@@ -37,8 +37,8 @@
 #define MAX(a, b)	((a) > (b) ? (a) : (b))
 #endif
 
-#ifndef CLIP
-#define CLIP(x, min, max)	((x) < (min) ? (min) : ((x) > (max) ? (max) : (x)))
+#ifndef CLAMP
+#define CLAMP(x, min, max)	((x) < (min) ? (min) : ((x) > (max) ? (max) : (x)))
 #endif
 
 static cairo_status_t xfs_read_func(void * closure, unsigned char * data, unsigned int size)
@@ -90,13 +90,6 @@ static const luaL_Reg l_image[] = {
 	{NULL,	NULL}
 };
 
-static int m_image_gc(lua_State * L)
-{
-	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
-	cairo_surface_destroy(img->cs);
-	return 0;
-}
-
 static const char * cairo_format_tostring(cairo_format_t format)
 {
 	switch(format)
@@ -121,6 +114,80 @@ static const char * cairo_format_tostring(cairo_format_t format)
 		break;
 	}
 	return "INVALID";
+}
+
+static inline void blurinner(unsigned char * p, int * zr, int * zg, int * zb, int * za, int alpha)
+{
+	int r, g, b;
+	unsigned char a;
+
+	r = p[0];
+	g = p[1];
+	b = p[2];
+	a = p[3];
+
+	*zr += (alpha * ((r << 7) - *zr)) >> 16;
+	*zg += (alpha * ((g << 7) - *zg)) >> 16;
+	*zb += (alpha * ((b << 7) - *zb)) >> 16;
+	*za += (alpha * ((a << 7) - *za)) >> 16;
+
+	p[0] = *zr >> 7;
+	p[1] = *zg >> 7;
+	p[2] = *zb >> 7;
+	p[3] = *za >> 7;
+}
+
+static inline void blurrow(unsigned char * pixel, int width, int height, int channel, int line, int alpha)
+{
+	unsigned char * p = &(pixel[line * width * channel]);
+	int zr, zg, zb, za;
+	int i;
+
+	zr = p[0] << 7;
+	zg = p[1] << 7;
+	zb = p[2] << 7;
+	za = p[3] << 7;
+
+	for(i = 0; i < width; i++)
+		blurinner(&p[i * channel], &zr, &zg, &zb, &za, alpha);
+	for(i = width - 2; i >= 0; i--)
+		blurinner(&p[i * channel], &zr, &zg, &zb, &za, alpha);
+}
+
+static inline void blurcol(unsigned char * pixel, int width, int height, int channel, int x, int alpha)
+{
+	unsigned char * p = pixel;
+	int zr, zg, zb, za;
+	int i;
+
+	p += x * channel;
+	zr = p[0] << 7;
+	zg = p[1] << 7;
+	zb = p[2] << 7;
+	za = p[3] << 7;
+
+	for(i = width; i < (height - 1) * width; i += width)
+		blurinner(&p[i * channel], &zr, &zg, &zb, &za, alpha);
+	for(i = (height - 2) * width; i >= 0; i -= width)
+		blurinner(&p[i * channel], &zr, &zg, &zb, &za, alpha);
+}
+
+static void expblur(unsigned char * pixel, int width, int height, int channel, int radius)
+{
+	int alpha = (int)((1 << 16) * (1.0 - expf(-2.3 / (radius + 1.0))));
+	int row, col;
+
+	for(row = 0; row < height; row++)
+		blurrow(pixel, width, height, channel, row, alpha);
+	for(col = 0; col < width; col++)
+		blurcol(pixel, width, height, channel, col, alpha);
+}
+
+static int m_image_gc(lua_State * L)
+{
+	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
+	cairo_surface_destroy(img->cs);
+	return 0;
 }
 
 static int m_image_tostring(lua_State * L)
@@ -153,12 +220,64 @@ static int m_image_clone(lua_State * L)
 	int y = luaL_optinteger(L, 3, 0);
 	int w = luaL_optinteger(L, 4, cairo_image_surface_get_width(img->cs));
 	int h = luaL_optinteger(L, 5, cairo_image_surface_get_height(img->cs));
+	cairo_format_t format = cairo_image_surface_get_format(img->cs);
 	struct limage_t * subimg = lua_newuserdata(L, sizeof(struct limage_t));
-	subimg->cs = cairo_surface_create_similar(img->cs, cairo_surface_get_content(img->cs), w, h);
+	subimg->cs = cairo_surface_create_similar_image(img->cs, format, w, h);
 	cairo_t * cr = cairo_create(subimg->cs);
 	cairo_set_source_surface(cr, img->cs, -x, -y);
 	cairo_paint(cr);
 	cairo_destroy(cr);
+	luaL_setmetatable(L, MT_IMAGE);
+	return 1;
+}
+
+static int m_image_shadow(lua_State * L)
+{
+	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
+	int radius = luaL_optinteger(L, 2, 0);
+	double red = luaL_optnumber(L, 3, 0);
+	double green = luaL_optnumber(L, 4, 0);
+	double blue = luaL_optnumber(L, 5, 0);
+	double alpha = luaL_optnumber(L, 6, 1);
+	int w = cairo_image_surface_get_width(img->cs);
+	int h = cairo_image_surface_get_height(img->cs);
+	cairo_format_t format = cairo_image_surface_get_format(img->cs);
+	int extra = radius * 2;
+	int width = w + extra + extra;
+	int height = h + extra + extra;
+	struct limage_t * subimg = lua_newuserdata(L, sizeof(struct limage_t));
+	subimg->cs = cairo_surface_create_similar_image(img->cs, format, width, height);
+	cairo_surface_t * cs = subimg->cs;
+	unsigned char * pixel = cairo_image_surface_get_data(cs);
+	cairo_t * cr = cairo_create(cs);
+	cairo_pattern_t * pattern = cairo_pattern_create_rgba(red, green, blue, alpha);
+	cairo_pattern_set_filter(cairo_get_source(cr), CAIRO_FILTER_FAST);
+	cairo_set_source(cr, pattern);
+	cairo_mask_surface(cr, img->cs, extra, extra);
+	cairo_pattern_destroy(pattern);
+	cairo_destroy(cr);
+	if(radius > 0)
+	{
+		switch(format)
+		{
+		case CAIRO_FORMAT_ARGB32:
+		case CAIRO_FORMAT_RGB24:
+			expblur(pixel, width, height, 4, radius);
+			cairo_surface_mark_dirty(cs);
+			break;
+		case CAIRO_FORMAT_A8:
+			expblur(pixel, width, height, 1, radius);
+			cairo_surface_mark_dirty(cs);
+			break;
+		case CAIRO_FORMAT_A1:
+		case CAIRO_FORMAT_RGB16_565:
+		case CAIRO_FORMAT_RGB30:
+		case CAIRO_FORMAT_RGB96F:
+		case CAIRO_FORMAT_RGBA128F:
+		default:
+			break;
+		}
+	}
 	luaL_setmetatable(L, MT_IMAGE);
 	return 1;
 }
@@ -334,8 +453,8 @@ static int m_image_threshold(lua_State * L)
 		t = THRESHOLD_TYPE_TRUNC;
 	else
 		t = THRESHOLD_TYPE_BINARY;
-	threshold = CLIP(threshold, 0, 255);
-	value = CLIP(value, 0, 255);
+	threshold = CLAMP(threshold, 0, 255);
+	value = CLAMP(value, 0, 255);
 	switch(format)
 	{
 	case CAIRO_FORMAT_ARGB32:
@@ -498,9 +617,9 @@ static int m_image_hue(lua_State * L)
 				tb = (m[6] * r + m[7] * g + m[8] * b) >> 16;
 				tg = (m[3] * r + m[4] * g + m[5] * b) >> 16;
 				tr = (m[0] * r + m[1] * g + m[2] * b) >> 16;
-				p[0] = CLIP(tb, 0, 255);
-				p[1] = CLIP(tg, 0, 255);
-				p[2] = CLIP(tr, 0, 255);
+				p[0] = CLAMP(tb, 0, 255);
+				p[1] = CLAMP(tg, 0, 255);
+				p[2] = CLAMP(tr, 0, 255);
 			}
 		}
 		cairo_surface_mark_dirty(cs);
@@ -522,7 +641,7 @@ static int m_image_saturate(lua_State * L)
 {
 	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
 	int saturate = luaL_optinteger(L, 2, 0);
-	int k = CLIP(saturate, -100, 100) / 100.0 * 128.0;
+	int k = CLAMP(saturate, -100, 100) / 100.0 * 128.0;
 	cairo_surface_t * cs = img->cs;
 	int width = cairo_image_surface_get_width(cs);
 	int height = cairo_image_surface_get_height(cs);
@@ -564,9 +683,9 @@ static int m_image_saturate(lua_State * L)
 				r = r + ((r - l) * alpha >> 7);
 				g = g + ((g - l) * alpha >> 7);
 				b = b + ((b - l) * alpha >> 7);
-				p[0] = CLIP(b, 0, 255);
-				p[1] = CLIP(g, 0, 255);
-				p[2] = CLIP(r, 0, 255);
+				p[0] = CLAMP(b, 0, 255);
+				p[1] = CLAMP(g, 0, 255);
+				p[2] = CLAMP(r, 0, 255);
 			}
 		}
 		cairo_surface_mark_dirty(cs);
@@ -588,7 +707,7 @@ static int m_image_brightness(lua_State * L)
 {
 	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
 	int brightness = luaL_optinteger(L, 2, 0);
-	int delta = CLIP(brightness, -100, 100) / 100.0 * 255.0;
+	int delta = CLAMP(brightness, -100, 100) / 100.0 * 255.0;
 	cairo_surface_t * cs = img->cs;
 	int width = cairo_image_surface_get_width(cs);
 	int height = cairo_image_surface_get_height(cs);
@@ -612,9 +731,9 @@ static int m_image_brightness(lua_State * L)
 				tb = b + delta;
 				tg = g + delta;
 				tr = r + delta;
-				p[0] = CLIP(tb, 0, 255);
-				p[1] = CLIP(tg, 0, 255);
-				p[2] = CLIP(tr, 0, 255);
+				p[0] = CLAMP(tb, 0, 255);
+				p[1] = CLAMP(tg, 0, 255);
+				p[2] = CLAMP(tr, 0, 255);
 			}
 		}
 		cairo_surface_mark_dirty(cs);
@@ -626,7 +745,7 @@ static int m_image_brightness(lua_State * L)
 			{
 				a = p[0];
 				ta = a + delta;
-				p[0] = CLIP(ta, 0, 255);
+				p[0] = CLAMP(ta, 0, 255);
 			}
 		}
 		cairo_surface_mark_dirty(cs);
@@ -647,7 +766,7 @@ static int m_image_contrast(lua_State * L)
 {
 	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
 	int contrast = luaL_optinteger(L, 2, 0);
-	int k = CLIP(contrast, -100, 100) / 100.0 * 128.0;
+	int k = CLAMP(contrast, -100, 100) / 100.0 * 128.0;
 	cairo_surface_t * cs = img->cs;
 	int width = cairo_image_surface_get_width(cs);
 	int height = cairo_image_surface_get_height(cs);
@@ -671,9 +790,9 @@ static int m_image_contrast(lua_State * L)
 				tb = (b << 7) + (b - 128) * k;
 				tg = (g << 7) + (g - 128) * k;
 				tr = (r << 7) + (r - 128) * k;
-				p[0] = CLIP(tb, 0, 255 << 7) >> 7;
-				p[1] = CLIP(tg, 0, 255 << 7) >> 7;
-				p[2] = CLIP(tr, 0, 255 << 7) >> 7;
+				p[0] = CLAMP(tb, 0, 255 << 7) >> 7;
+				p[1] = CLAMP(tg, 0, 255 << 7) >> 7;
+				p[2] = CLAMP(tr, 0, 255 << 7) >> 7;
 			}
 		}
 		cairo_surface_mark_dirty(cs);
@@ -685,7 +804,7 @@ static int m_image_contrast(lua_State * L)
 			{
 				a = p[0];
 				ta = (a << 7) + (a - 128) * k;
-				p[0] = CLIP(ta, 0, 255 << 7) >> 7;
+				p[0] = CLAMP(ta, 0, 255 << 7) >> 7;
 			}
 		}
 		cairo_surface_mark_dirty(cs);
@@ -702,77 +821,6 @@ static int m_image_contrast(lua_State * L)
 	return 1;
 }
 
-static inline void blurinner(unsigned char * p, int * zr, int * zg, int * zb, int * za, int alpha)
-{
-	int r, g, b;
-	unsigned char a;
-
-	r = p[0];
-	g = p[1];
-	b = p[2];
-	a = p[3];
-
-	*zr += (alpha * ((r << 7) - *zr)) >> 16;
-	*zg += (alpha * ((g << 7) - *zg)) >> 16;
-	*zb += (alpha * ((b << 7) - *zb)) >> 16;
-	*za += (alpha * ((a << 7) - *za)) >> 16;
-
-	p[0] = *zr >> 7;
-	p[1] = *zg >> 7;
-	p[2] = *zb >> 7;
-	p[3] = *za >> 7;
-}
-
-static inline void blurrow(unsigned char * pixel, int width, int height, int channel, int line, int alpha)
-{
-	unsigned char * p = &(pixel[line * width * channel]);
-	int zr, zg, zb, za;
-	int i;
-
-	zr = p[0] << 7;
-	zg = p[1] << 7;
-	zb = p[2] << 7;
-	za = p[3] << 7;
-
-	for(i = 0; i < width; i++)
-		blurinner(&p[i * channel], &zr, &zg, &zb, &za, alpha);
-	for(i = width - 2; i >= 0; i--)
-		blurinner(&p[i * channel], &zr, &zg, &zb, &za, alpha);
-}
-
-static inline void blurcol(unsigned char * pixel, int width, int height, int channel, int x, int alpha)
-{
-	unsigned char * p = pixel;
-	int zr, zg, zb, za;
-	int i;
-
-	p += x * channel;
-	zr = p[0] << 7;
-	zg = p[1] << 7;
-	zb = p[2] << 7;
-	za = p[3] << 7;
-
-	for(i = width; i < (height - 1) * width; i += width)
-		blurinner(&p[i * channel], &zr, &zg, &zb, &za, alpha);
-	for(i = (height - 2) * width; i >= 0; i -= width)
-		blurinner(&p[i * channel], &zr, &zg, &zb, &za, alpha);
-}
-
-static void expblur(unsigned char * pixel, int width, int height, int channel, int radius)
-{
-	int row, col;
-	int alpha;
-
-	if(radius >= 1)
-	{
-		alpha = (int)((1 << 16) * (1.0 - expf(-2.3 / (radius + 1.0))));
-		for(row = 0; row < height; row++)
-			blurrow(pixel, width, height, channel, row, alpha);
-		for(col = 0; col < width; col++)
-			blurcol(pixel, width, height, channel, col, alpha);
-	}
-}
-
 static int m_image_blur(lua_State * L)
 {
 	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
@@ -782,25 +830,27 @@ static int m_image_blur(lua_State * L)
 	int height = cairo_image_surface_get_height(cs);
 	cairo_format_t format = cairo_image_surface_get_format(cs);
 	unsigned char * pixel = cairo_image_surface_get_data(cs);
-
-	switch(format)
+	if(radius > 0)
 	{
-	case CAIRO_FORMAT_ARGB32:
-	case CAIRO_FORMAT_RGB24:
-		expblur(pixel, width, height, 4, radius);
-		cairo_surface_mark_dirty(cs);
-		break;
-	case CAIRO_FORMAT_A8:
-		expblur(pixel, width, height, 1, radius);
-		cairo_surface_mark_dirty(cs);
-		break;
-	case CAIRO_FORMAT_A1:
-	case CAIRO_FORMAT_RGB16_565:
-	case CAIRO_FORMAT_RGB30:
-	case CAIRO_FORMAT_RGB96F:
-	case CAIRO_FORMAT_RGBA128F:
-	default:
-		break;
+		switch(format)
+		{
+		case CAIRO_FORMAT_ARGB32:
+		case CAIRO_FORMAT_RGB24:
+			expblur(pixel, width, height, 4, radius);
+			cairo_surface_mark_dirty(cs);
+			break;
+		case CAIRO_FORMAT_A8:
+			expblur(pixel, width, height, 1, radius);
+			cairo_surface_mark_dirty(cs);
+			break;
+		case CAIRO_FORMAT_A1:
+		case CAIRO_FORMAT_RGB16_565:
+		case CAIRO_FORMAT_RGB30:
+		case CAIRO_FORMAT_RGB96F:
+		case CAIRO_FORMAT_RGBA128F:
+		default:
+			break;
+		}
 	}
 	lua_settop(L, 1);
 	return 1;
@@ -811,6 +861,7 @@ static const luaL_Reg m_image[] = {
 	{"__tostring",	m_image_tostring},
 	{"getSize",		m_image_get_size},
 	{"clone",		m_image_clone},
+	{"shadow",		m_image_shadow},
 	{"grayscale",	m_image_grayscale},
 	{"sepia",		m_image_sepia},
 	{"invert",		m_image_invert},

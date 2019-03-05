@@ -28,6 +28,7 @@
 
 #include <xboot.h>
 #include <framework/core/l-pattern.h>
+#include <framework/core/l-image.h>
 #include <framework/core/l-shape.h>
 
 static int l_shape_new(lua_State * L)
@@ -406,6 +407,21 @@ static int m_shape_paint(lua_State * L)
 	return 0;
 }
 
+static int m_shape_snapshot(lua_State * L)
+{
+	struct lshape_t * shape = luaL_checkudata(L, 1, MT_SHAPE);
+	struct limage_t * img = lua_newuserdata(L, sizeof(struct limage_t));
+	int w = cairo_image_surface_get_width(shape->cs);
+	int h = cairo_image_surface_get_height(shape->cs);
+	img->cs = cairo_surface_create_similar(shape->cs, cairo_surface_get_content(shape->cs), w, h);
+	cairo_t * cr = cairo_create(img->cs);
+	cairo_set_source_surface(cr, shape->cs, 0, 0);
+	cairo_paint(cr);
+	cairo_destroy(cr);
+	luaL_setmetatable(L, MT_IMAGE);
+	return 1;
+}
+
 static const luaL_Reg m_shape[] = {
 	{"__gc",				m_shape_gc},
 	{"getWidth",			m_shape_get_width},
@@ -447,6 +463,7 @@ static const luaL_Reg m_shape[] = {
 	{"clip",				m_shape_clip},
 	{"clipPreserve",		m_shape_clip_preserve},
 	{"paint",				m_shape_paint},
+	{"snapshot",			m_shape_snapshot},
 	{NULL,					NULL}
 };
 

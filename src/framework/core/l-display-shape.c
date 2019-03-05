@@ -228,6 +228,10 @@ function M:paint(alpha)
 	return self
 end
 
+function M:snapshot()
+	return self.__shape:snapshot()
+end
+
 return M
 );
 

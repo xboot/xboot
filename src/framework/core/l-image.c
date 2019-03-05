@@ -203,13 +203,25 @@ static int m_image_tostring(lua_State * L)
 	return 1;
 }
 
+static int m_image_get_width(lua_State * L)
+{
+	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
+	lua_pushnumber(L, cairo_image_surface_get_width(img->cs));
+	return 1;
+}
+
+static int m_image_get_height(lua_State * L)
+{
+	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
+	lua_pushnumber(L, cairo_image_surface_get_height(img->cs));
+	return 1;
+}
+
 static int m_image_get_size(lua_State * L)
 {
 	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
-	int w = cairo_image_surface_get_width(img->cs);
-	int h = cairo_image_surface_get_height(img->cs);
-	lua_pushnumber(L, w);
-	lua_pushnumber(L, h);
+	lua_pushnumber(L, cairo_image_surface_get_width(img->cs));
+	lua_pushnumber(L, cairo_image_surface_get_height(img->cs));
 	return 2;
 }
 
@@ -859,6 +871,8 @@ static int m_image_blur(lua_State * L)
 static const luaL_Reg m_image[] = {
 	{"__gc",		m_image_gc},
 	{"__tostring",	m_image_tostring},
+	{"getWidth",	m_image_get_width},
+	{"getHeight",	m_image_get_height},
 	{"getSize",		m_image_get_size},
 	{"clone",		m_image_clone},
 	{"shadow",		m_image_shadow},

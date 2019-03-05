@@ -55,6 +55,28 @@ static int m_shape_gc(lua_State * L)
 	return 0;
 }
 
+static int m_shape_get_width(lua_State * L)
+{
+	struct lshape_t * shape = luaL_checkudata(L, 1, MT_SHAPE);
+	lua_pushnumber(L, cairo_image_surface_get_width(shape->cs));
+	return 1;
+}
+
+static int m_shape_get_height(lua_State * L)
+{
+	struct lshape_t * shape = luaL_checkudata(L, 1, MT_SHAPE);
+	lua_pushnumber(L, cairo_image_surface_get_height(shape->cs));
+	return 1;
+}
+
+static int m_shape_get_size(lua_State * L)
+{
+	struct lshape_t * shape = luaL_checkudata(L, 1, MT_SHAPE);
+	lua_pushnumber(L, cairo_image_surface_get_width(shape->cs));
+	lua_pushnumber(L, cairo_image_surface_get_height(shape->cs));
+	return 2;
+}
+
 static int m_shape_save(lua_State * L)
 {
 	struct lshape_t * shape = luaL_checkudata(L, 1, MT_SHAPE);
@@ -419,16 +441,11 @@ static int m_shape_paint(lua_State * L)
 	return 0;
 }
 
-static int m_shape_size(lua_State * L)
-{
-	struct lshape_t * shape = luaL_checkudata(L, 1, MT_SHAPE);
-	lua_pushnumber(L, cairo_image_surface_get_width(shape->cs));
-	lua_pushnumber(L, cairo_image_surface_get_height(shape->cs));
-	return 2;
-}
-
 static const luaL_Reg m_shape[] = {
 	{"__gc",				m_shape_gc},
+	{"getWidth",			m_shape_get_width},
+	{"getHeight",			m_shape_get_height},
+	{"getSize",				m_shape_get_size},
 	{"save",				m_shape_save},
 	{"restore",				m_shape_restore},
 	{"pushGroup",			m_shape_push_group},
@@ -465,7 +482,6 @@ static const luaL_Reg m_shape[] = {
 	{"clip",				m_shape_clip},
 	{"clipPreserve",		m_shape_clip_preserve},
 	{"paint",				m_shape_paint},
-	{"size",				m_shape_size},
 	{NULL,					NULL}
 };
 

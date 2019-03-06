@@ -13,7 +13,7 @@ end))
 
 stage:addTimer(Timer.new(1, 0, function(t)
 	local s = math.random() * 360 + 0
-	txt:animate({rotation = s}, 1, "outCirc")
+	txt:animate({rotation = s}, 1, "circ-out")
 end))
 
 stage:showfps(true)

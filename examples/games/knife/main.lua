@@ -19,8 +19,8 @@ end)
 knife:addEventListener(Event.ANIMATE_COMPLETE, function(d, e)
 	if wood:hitting() then
 		knife:setVisible(false):setPosition(sw / 2, sh - 120)
-		dropknife:setVisible(true):setPosition(sw / 2, 120):animate({x = sw / 2, y = sh - 120, rotation = dropknife:getRotation() + 180}, 0.6, "inSine")
-		wood:animate({scalex = 1.1, scaley = 1.1}, 0.3, "outBounce"):animate({scalex = 1, scaley = 1}, 0.3, "inBounce")
+		dropknife:setVisible(true):setPosition(sw / 2, 120):animate({x = sw / 2, y = sh - 120, rotation = dropknife:getRotation() + 180}, 0.6, "sine-in")
+		wood:animate({scalex = 1.1, scaley = 1.1}, 0.3, "bounce-out"):animate({scalex = 1, scaley = 1}, 0.3, "bounce-in")
 	else
 		knife:setPosition(sw / 2, sh - 120)
 		isready = true
@@ -30,7 +30,7 @@ end)
 local function onEnter(d, e)
 	if isready then
 		isready = false
-		d:setPosition(sw / 2, sh - 120):animate({x = sw / 2, y = 120}, 0.3, "inSine")
+		d:setPosition(sw / 2, sh - 120):animate({x = sw / 2, y = 120}, 0.3, "sine-in")
 	end
 end
 

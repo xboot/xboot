@@ -357,25 +357,25 @@ function M:animate(properties, duration, easing)
 
 			for k, v in pairs(tween.easinglist) do
 				if k == "x" then
-					d:setX(v:easing(elapsed))
+					d:setX(v(elapsed))
 				elseif k == "y" then
-					d:setY(v:easing(elapsed))
+					d:setY(v(elapsed))
 				elseif k == "rotation" then
-					d:setRotation(v:easing(elapsed))
+					d:setRotation(v(elapsed))
 				elseif k == "scalex" then
-					d:setScaleX(v:easing(elapsed))
+					d:setScaleX(v(elapsed))
 				elseif k == "scaley" then
-					d:setScaleY(v:easing(elapsed))
+					d:setScaleY(v(elapsed))
 				elseif k == "skewx" then
-					d:setSkewX(v:easing(elapsed))
+					d:setSkewX(v(elapsed))
 				elseif k == "skewy" then
-					d:setSkewY(v:easing(elapsed))
+					d:setSkewY(v(elapsed))
 				elseif k == "alpha" then
-					d:setAlpha(v:easing(elapsed))
+					d:setAlpha(v(elapsed))
 				elseif k == "width" then
-					d:setWidth(v:easing(elapsed))
+					d:setWidth(v(elapsed))
 				elseif k == "height" then
-					d:setHeight(v:easing(elapsed))
+					d:setHeight(v(elapsed))
 				end
 			end
 

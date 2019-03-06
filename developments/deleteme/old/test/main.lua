@@ -62,7 +62,7 @@ local i = 0;
 timermanager:addTimer(Timer.new(1, 0, function(t, e)
 	anmi:rotate(10)
 	--text:rotate(5)
-	text:animate({rotation = text:getRotation() + 20}, 2/3, "outBounce")
+	text:animate({rotation = text:getRotation() + 20}, 2/3, "bounce-out")
 	s:rotate(6)
 	
 	i = i + 1

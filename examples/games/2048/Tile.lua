@@ -9,7 +9,7 @@ function M:init(x, y, n)
 		:setPosition((self.gx - 1) * 70 + 55, (self.gy - 1) * 70 + 171)
 		:setAnchor(0.5, 0.5)
 		:setScale(0.1, 0.1)
-		:animate({scalex = 1, scaley = 1}, 0.3, "inOutQuint")
+		:animate({scalex = 1, scaley = 1}, 0.3, "quint-in-out")
 	self:addChild(self.o)
 end
 
@@ -17,7 +17,7 @@ function M:move(x, y)
 	if self.gx ~= x or self.gy ~= y then
 		self.gx = x
 		self.gy = y
-		self.o:animate({x = (x - 1) * 70 + 55, y = (y - 1) * 70 + 171}, 0.3, "inOutQuint")
+		self.o:animate({x = (x - 1) * 70 + 55, y = (y - 1) * 70 + 171}, 0.3, "quint-in-out")
 	end
 end
 

@@ -16,7 +16,7 @@ end))
 stage:addTimer(Timer.new(1, 0, function(t)
 	local w, h = 200, 50
 	local s = math.random() * 1.0 + 0.5
-	bmtext:animate({x = math.random(0, sw - w), y = math.random(0, sh - h), scalex = s, scaley = s}, 1, "outCirc")
+	bmtext:animate({x = math.random(0, sw - w), y = math.random(0, sh - h), scalex = s, scaley = s}, 1, "circ-out")
 end))
 
 stage:showfps(true)

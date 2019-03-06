@@ -38,7 +38,7 @@ function M:init()
 		local time = os.date("*t");
 		hour:setRotation(time.hour * 360 / 12 + time.min * 360 / (12 * 60) + time.sec * 360 / (12 * 60 * 60))
 		minute:setRotation(time.min * 360 / 60 + time.sec * 360 / (60 * 60))
-		second:animate({rotation = (time.sec ~= 0) and time.sec * 360 / 60 or 60 * 360 / 60}, 0.6, "inOutElastic")
+		second:animate({rotation = (time.sec ~= 0) and time.sec * 360 / 60 or 60 * 360 / 60}, 0.6, "elastic-in-out")
 	end))
 end
 

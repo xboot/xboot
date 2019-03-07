@@ -420,88 +420,104 @@ static int l_new(lua_State * L)
 	e->b = luaL_optnumber(L, 1, 0);
 	e->c = luaL_optnumber(L, 2, 1);
 	e->d = luaL_optnumber(L, 3, 1);
-	e->func = linear;
-	if(type)
+	switch(shash(type))
 	{
-		switch(type[0])
-		{
-		case 'b':
-			if(strcmp(type, "back-in") == 0)
-				e->func = back_in;
-			else if(strcmp(type, "back-in-out") == 0)
-				e->func = back_in_out;
-			else if(strcmp(type, "back-out") == 0)
-				e->func = back_out;
-			else if(strcmp(type, "bounce-in") == 0)
-				e->func = bounce_in;
-			else if(strcmp(type, "bounce-in-out") == 0)
-				e->func = bounce_in_out;
-			else if(strcmp(type, "bounce-out") == 0)
-				e->func = bounce_out;
-			break;
-		case 'c':
-			if(strcmp(type, "circ-in") == 0)
-				e->func = circ_in;
-			else if(strcmp(type, "circ-in-out") == 0)
-				e->func = circ_in_out;
-			else if(strcmp(type, "circ-out") == 0)
-				e->func = circ_out;
-			else if(strcmp(type, "cubic-in") == 0)
-				e->func = cubic_in;
-			else if(strcmp(type, "cubic-in-out") == 0)
-				e->func = cubic_in_out;
-			else if(strcmp(type, "cubic-out") == 0)
-				e->func = cubic_out;
-			break;
-		case 'e':
-			if(strcmp(type, "elastic-in") == 0)
-				e->func = elastic_in;
-			else if(strcmp(type, "elastic-in-out") == 0)
-				e->func = elastic_in_out;
-			else if(strcmp(type, "elastic-out") == 0)
-				e->func = elastic_out;
-			else if(strcmp(type, "expo-in") == 0)
-				e->func = expo_in;
-			else if(strcmp(type, "expo-in-out") == 0)
-				e->func = expo_in_out;
-			else if(strcmp(type, "expo-out") == 0)
-				e->func = expo_out;
-			break;
-		case 'q':
-			if(strcmp(type, "quad-in") == 0)
-				e->func = quad_in;
-			else if(strcmp(type, "quad-in-out") == 0)
-				e->func = quad_in_out;
-			else if(strcmp(type, "quad-out") == 0)
-				e->func = quad_out;
-			else if(strcmp(type, "quart-in") == 0)
-				e->func = quart_in;
-			else if(strcmp(type, "quart-in-out") == 0)
-				e->func = quart_in_out;
-			else if(strcmp(type, "quart-out") == 0)
-				e->func = quart_out;
-			else if(strcmp(type, "quint-in") == 0)
-				e->func = quint_in;
-			else if(strcmp(type, "quint-in-out") == 0)
-				e->func = quint_in_out;
-			else if(strcmp(type, "quint-out") == 0)
-				e->func = quint_out;
-			break;
-		case 's':
-			if(strcmp(type, "sine-in") == 0)
-				e->func = sine_in;
-			else if(strcmp(type, "sine-in-out") == 0)
-				e->func = sine_in_out;
-			else if(strcmp(type, "sine-out") == 0)
-				e->func = sine_out;
-			break;
-		case 'l':
-			if(strcmp(type, "linear") == 0)
-				e->func = linear;
-			break;
-		default:
-			break;
-		}
+	case 0x0b7641e0: /* "linear" */
+		e->func = linear;
+		break;
+	case 0x95154938: /* "sine-in" */
+		e->func = sine_in;
+		break;
+	case 0x37be8b19: /* "sine-out" */
+		e->func = sine_out;
+		break;
+	case 0x44a1b9fd: /* "sine-in-out" */
+		e->func = sine_in_out;
+		break;
+	case 0x1632ec54: /* "quad-in" */
+		e->func = quad_in;
+		break;
+	case 0xdc9091b5: /* "quad-out" */
+		e->func = quad_out;
+		break;
+	case 0x93d38b19: /* "quad-in-out" */
+		e->func = quad_in_out;
+		break;
+	case 0xf3c312af: /* "cubic-in" */
+		e->func = cubic_in;
+		break;
+	case 0x6c258370: /* "cubic-out" */
+		e->func = cubic_out;
+		break;
+	case 0x6f7566f4: /* "cubic-in-out" */
+		e->func = cubic_in_out;
+		break;
+	case 0xddb3bd56: /* "quart-in" */
+		e->func = quart_in;
+		break;
+	case 0x942b82f7: /* "quart-out" */
+		e->func = quart_out;
+		break;
+	case 0xe1790d1b: /* "quart-in-out" */
+		e->func = quart_in_out;
+		break;
+	case 0xf014a05a: /* "quint-in" */
+		e->func = quint_in;
+		break;
+	case 0xf2a8c67b: /* "quint-out" */
+		e->func = quint_out;
+		break;
+	case 0x2fdbd21f: /* "quint-in-out" */
+		e->func = quint_in_out;
+		break;
+	case 0x828d04e5: /* "expo-in" */
+		e->func = expo_in;
+		break;
+	case 0xd42dbc66: /* "expo-out" */
+		e->func = expo_out;
+		break;
+	case 0x59b9842a: /* "expo-in-out" */
+		e->func = expo_in_out;
+		break;
+	case 0xc5b8c66a: /* "circ-in" */
+		e->func = circ_in;
+		break;
+	case 0x7cd1ae8b: /* "circ-out" */
+		e->func = circ_out;
+		break;
+	case 0xe844802f: /* "circ-in-out" */
+		e->func = circ_in_out;
+		break;
+	case 0x650a381a: /* "back-in" */
+		e->func = back_in;
+		break;
+	case 0x0651563b: /* "back-out" */
+		e->func = back_out;
+		break;
+	case 0xd15749df: /* "back-in-out" */
+		e->func = back_in_out;
+		break;
+	case 0x21ed4e6e: /* "elastic-in" */
+		e->func = elastic_in;
+		break;
+	case 0x5f97370f: /* "elastic-out" */
+		e->func = elastic_out;
+		break;
+	case 0xdbc56a33: /* "elastic-in-out" */
+		e->func = elastic_in_out;
+		break;
+	case 0x3077fd85: /* "bounce-in" */
+		e->func = bounce_in;
+		break;
+	case 0x3f77c906: /* "bounce-out" */
+		e->func = bounce_out;
+		break;
+	case 0x7fafccca: /* "bounce-in-out" */
+		e->func = bounce_in_out;
+		break;
+	default:
+		e->func = linear;
+		break;
 	}
 	luaL_setmetatable(L, MT_EASING);
 	return 1;

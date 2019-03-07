@@ -34,15 +34,7 @@ static spinlock_t __driver_lock = SPIN_LOCK_INIT();
 
 static struct hlist_head * driver_hash(const char * name)
 {
-	unsigned char * p = (unsigned char *)name;
-	unsigned int seed = 131;
-	unsigned int hash = 0;
-
-	while(*p)
-	{
-		hash = hash * seed + (*p++);
-	}
-	return &__driver_hash[hash % ARRAY_SIZE(__driver_hash)];
+	return &__driver_hash[shash(name) % ARRAY_SIZE(__driver_hash)];
 }
 
 static struct kobj_t * search_class_driver_kobj(void)

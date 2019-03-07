@@ -37,15 +37,7 @@ static struct notifier_chain_t __device_nc = NOTIFIER_CHAIN_INIT();
 
 static struct hlist_head * device_hash(const char * name)
 {
-	unsigned char * p = (unsigned char *)name;
-	unsigned int seed = 131;
-	unsigned int hash = 0;
-
-	while(*p)
-	{
-		hash = hash * seed + (*p++);
-	}
-	return &__device_hash[hash % ARRAY_SIZE(__device_hash)];
+	return &__device_hash[shash(name) % ARRAY_SIZE(__device_hash)];
 }
 
 static struct kobj_t * search_device_kobj(struct device_t * dev)

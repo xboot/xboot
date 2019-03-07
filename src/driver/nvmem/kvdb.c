@@ -56,15 +56,7 @@ static char * trim(char * s)
 
 static struct hlist_head * kvdb_hash(struct kvdb_t * db, const char * key)
 {
-	unsigned char * p = (unsigned char *)key;
-	unsigned int seed = 131;
-	unsigned int hash = 0;
-
-	while(*p)
-	{
-		hash = hash * seed + (*p++);
-	}
-	return &db->hash[hash % db->hash_size];
+	return &db->hash[shash(key) % db->hash_size];
 }
 
 static struct record_t * kvdb_search_record(struct kvdb_t * db, const char * key)

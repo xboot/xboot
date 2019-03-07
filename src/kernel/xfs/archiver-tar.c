@@ -115,15 +115,7 @@ struct fhandle_tar_t
 
 static struct hlist_head * fhandle_hash(struct mhandle_tar_t * m, const char * name)
 {
-	unsigned char * p = (unsigned char *)name;
-	unsigned int seed = 131;
-	unsigned int hash = 0;
-
-	while(*p)
-	{
-		hash = hash * seed + (*p++);
-	}
-	return &m->hash[hash % m->hsize];
+	return &m->hash[shash(name) % m->hsize];
 }
 
 static struct fhandle_tar_t * search_fhandle(struct mhandle_tar_t * m, const char * name)

@@ -28,8 +28,9 @@ extern "C" {
 #include <stdio.h>
 #include <assert.h>
 #include <locale.h>
-#include <path.h>
+#include <shash.h>
 #include <log2.h>
+#include <path.h>
 #include <time.h>
 #include <math.h>
 #include <exit.h>

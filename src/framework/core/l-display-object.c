@@ -402,7 +402,7 @@ function M:animate(properties, duration, easing)
 		self.__tweenlist = {}
 	end
 
-	local tween = {properties = {}, duration = duration or 1, easing = easing or "linear"}
+	local tween = {properties = {}, duration = duration or 1, easing = easing}
 	for k, v in pairs(properties) do
 		tween.properties[k] = v
 	end

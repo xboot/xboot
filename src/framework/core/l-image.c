@@ -588,6 +588,60 @@ static int m_image_threshold(lua_State * L)
 	return 1;
 }
 
+static int m_image_gamma(lua_State * L)
+{
+	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
+	float gamma = luaL_optnumber(L, 2, 1);
+	cairo_surface_t * cs = img->cs;
+	int width = cairo_image_surface_get_width(cs);
+	int height = cairo_image_surface_get_height(cs);
+	int stride = cairo_image_surface_get_stride(cs);
+	cairo_format_t format = cairo_image_surface_get_format(cs);
+	unsigned char * p, * q = cairo_image_surface_get_data(cs);
+	unsigned char lut[256];
+	int x, y, i, t;
+	for(i = 0; i < 256; i++)
+	{
+		t = powf(i / 255.0, gamma) * 255.0;
+		lut[i] = MIN(t, 255);
+	}
+	switch(format)
+	{
+	case CAIRO_FORMAT_ARGB32:
+	case CAIRO_FORMAT_RGB24:
+		for(y = 0; y < height; y++, q += stride)
+		{
+			for(x = 0, p = q; x < width; x++, p += 4)
+			{
+				p[0] = lut[p[0]];
+				p[1] = lut[p[1]];
+				p[2] = lut[p[2]];
+			}
+		}
+		cairo_surface_mark_dirty(cs);
+		break;
+	case CAIRO_FORMAT_A8:
+		for(y = 0; y < height; y++, q += stride)
+		{
+			for(x = 0, p = q; x < width; x++, p += 1)
+			{
+				p[0] = lut[p[0]];
+			}
+		}
+		cairo_surface_mark_dirty(cs);
+		break;
+	case CAIRO_FORMAT_A1:
+	case CAIRO_FORMAT_RGB16_565:
+	case CAIRO_FORMAT_RGB30:
+	case CAIRO_FORMAT_RGB96F:
+	case CAIRO_FORMAT_RGBA128F:
+	default:
+		break;
+	}
+	lua_settop(L, 1);
+	return 1;
+}
+
 static int m_image_hue(lua_State * L)
 {
 	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
@@ -880,6 +934,7 @@ static const luaL_Reg m_image[] = {
 	{"sepia",		m_image_sepia},
 	{"invert",		m_image_invert},
 	{"threshold",	m_image_threshold},
+	{"gamma",		m_image_gamma},
 	{"hue",			m_image_hue},
 	{"saturate",	m_image_saturate},
 	{"brightness",	m_image_brightness},

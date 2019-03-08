@@ -431,14 +431,6 @@ static int m_image_invert(lua_State * L)
 	return 1;
 }
 
-enum threshold_type_t {
-	THRESHOLD_TYPE_BINARY			= 0,
-	THRESHOLD_TYPE_BINARY_INVERT	= 1,
-	THRESHOLD_TYPE_TOZERO			= 2,
-	THRESHOLD_TYPE_TOZERO_INVERT	= 3,
-	THRESHOLD_TYPE_TRUNC			= 4,
-};
-
 static int m_image_threshold(lua_State * L)
 {
 	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
@@ -451,20 +443,8 @@ static int m_image_threshold(lua_State * L)
 	int stride = cairo_image_surface_get_stride(cs);
 	cairo_format_t format = cairo_image_surface_get_format(cs);
 	unsigned char * p, * q = cairo_image_surface_get_data(cs);
-	enum threshold_type_t t;
+	uint32_t t = shash(type);
 	int x, y;
-	if(strcmp(type, "binary") == 0)
-		t = THRESHOLD_TYPE_BINARY;
-	else if(strcmp(type, "binary-invert") == 0)
-		t = THRESHOLD_TYPE_BINARY_INVERT;
-	else if(strcmp(type, "tozero") == 0)
-		t = THRESHOLD_TYPE_TOZERO;
-	else if(strcmp(type, "tozero-invert") == 0)
-		t = THRESHOLD_TYPE_TOZERO_INVERT;
-	else if(strcmp(type, "trunc") == 0)
-		t = THRESHOLD_TYPE_TRUNC;
-	else
-		t = THRESHOLD_TYPE_BINARY;
 	threshold = CLAMP(threshold, 0, 255);
 	value = CLAMP(value, 0, 255);
 	switch(format)
@@ -473,7 +453,7 @@ static int m_image_threshold(lua_State * L)
 	case CAIRO_FORMAT_RGB24:
 		switch(t)
 		{
-		case THRESHOLD_TYPE_BINARY:
+		case 0xf4229cca: /* "binary" */
 			for(y = 0; y < height; y++, q += stride)
 			{
 				for(x = 0, p = q; x < width; x++, p += 4)
@@ -482,7 +462,7 @@ static int m_image_threshold(lua_State * L)
 				}
 			}
 			break;
-		case THRESHOLD_TYPE_BINARY_INVERT:
+		case 0xc880666f: /* "binary-invert" */
 			for(y = 0; y < height; y++, q += stride)
 			{
 				for(x = 0, p = q; x < width; x++, p += 4)
@@ -491,7 +471,7 @@ static int m_image_threshold(lua_State * L)
 				}
 			}
 			break;
-		case THRESHOLD_TYPE_TOZERO:
+		case 0x1e92b0a8: /* "tozero" */
 			for(y = 0; y < height; y++, q += stride)
 			{
 				for(x = 0, p = q; x < width; x++, p += 4)
@@ -500,7 +480,7 @@ static int m_image_threshold(lua_State * L)
 				}
 			}
 			break;
-		case THRESHOLD_TYPE_TOZERO_INVERT:
+		case 0x98d3b48d: /* "tozero-invert" */
 			for(y = 0; y < height; y++, q += stride)
 			{
 				for(x = 0, p = q; x < width; x++, p += 4)
@@ -509,7 +489,7 @@ static int m_image_threshold(lua_State * L)
 				}
 			}
 			break;
-		case THRESHOLD_TYPE_TRUNC:
+		case 0x10729e11: /* "trunc" */
 			for(y = 0; y < height; y++, q += stride)
 			{
 				for(x = 0, p = q; x < width; x++, p += 4)
@@ -526,7 +506,7 @@ static int m_image_threshold(lua_State * L)
 	case CAIRO_FORMAT_A8:
 		switch(t)
 		{
-		case THRESHOLD_TYPE_BINARY:
+		case 0xf4229cca: /* "binary" */
 			for(y = 0; y < height; y++, q += stride)
 			{
 				for(x = 0, p = q; x < width; x++, p += 1)
@@ -535,7 +515,7 @@ static int m_image_threshold(lua_State * L)
 				}
 			}
 			break;
-		case THRESHOLD_TYPE_BINARY_INVERT:
+		case 0xc880666f: /* "binary-invert" */
 			for(y = 0; y < height; y++, q += stride)
 			{
 				for(x = 0, p = q; x < width; x++, p += 1)
@@ -544,7 +524,7 @@ static int m_image_threshold(lua_State * L)
 				}
 			}
 			break;
-		case THRESHOLD_TYPE_TOZERO:
+		case 0x1e92b0a8: /* "tozero" */
 			for(y = 0; y < height; y++, q += stride)
 			{
 				for(x = 0, p = q; x < width; x++, p += 1)
@@ -553,7 +533,7 @@ static int m_image_threshold(lua_State * L)
 				}
 			}
 			break;
-		case THRESHOLD_TYPE_TOZERO_INVERT:
+		case 0x98d3b48d: /* "tozero-invert" */
 			for(y = 0; y < height; y++, q += stride)
 			{
 				for(x = 0, p = q; x < width; x++, p += 1)
@@ -562,7 +542,7 @@ static int m_image_threshold(lua_State * L)
 				}
 			}
 			break;
-		case THRESHOLD_TYPE_TRUNC:
+		case 0x10729e11: /* "trunc" */
 			for(y = 0; y < height; y++, q += stride)
 			{
 				for(x = 0, p = q; x < width; x++, p += 1)

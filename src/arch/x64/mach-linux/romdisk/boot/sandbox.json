@@ -1,0 +1,38 @@
+{
+	"ce-sandbox@0": {
+	},
+
+	"cs-sandbox@0": {
+	},
+
+	"input-sandbox@0": {
+		"type": "keyboard"
+	},
+
+	"input-sandbox@1": {
+		"type": "mouse"
+	},
+
+	"input-sandbox@2": {
+		"type": "touchscreen"
+	},
+
+	"input-sandbox@3": {
+		"type": "joystick"
+	},
+
+	"audio-sandbox@0": {
+	},
+
+	"fb-sandbox@0": {
+		"width": 640,
+		"height": 480,
+		"physical-width": 216,
+		"physical-height": 135,
+		"bits-per-pixel": 32,
+		"fullscreen": false
+	},
+
+	"console-sandbox@0": {
+	}
+}

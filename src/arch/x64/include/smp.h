@@ -5,10 +5,19 @@
 extern "C" {
 #endif
 
+#include <xconfigs.h>
+
+#if defined(CONFIG_MAX_SMP_CPUS) && (CONFIG_MAX_SMP_CPUS > 1)
 static inline int smp_processor_id(void)
 {
 	return 0;
 }
+#else
+static inline int smp_processor_id(void)
+{
+	return 0;
+}
+#endif
 
 #ifdef __cplusplus
 }

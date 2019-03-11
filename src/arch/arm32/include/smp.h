@@ -5,14 +5,10 @@
 extern "C" {
 #endif
 
+#include <xconfigs.h>
 #include <arm32.h>
 
-#if __ARM32_ARCH__ == 5
-static inline int smp_processor_id(void)
-{
-	return 0;
-}
-#else
+#if defined(CONFIG_MAX_SMP_CPUS) && (CONFIG_MAX_SMP_CPUS > 1)
 static inline int smp_processor_id(void)
 {
 	int tmp;
@@ -24,6 +20,11 @@ static inline int smp_processor_id(void)
 		:
 		: "memory");
 	return tmp;
+}
+#else
+static inline int smp_processor_id(void)
+{
+	return 0;
 }
 #endif
 

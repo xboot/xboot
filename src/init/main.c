@@ -49,7 +49,7 @@ int xboot_main(int argc, char * argv[])
 	/* Do auto boot */
 	do_autoboot();
 
-#if	defined(CONFIG_SHELL_TASK) && (CONFIG_SHELL_TASK > 0)
+#if defined(CONFIG_SHELL_TASK) && (CONFIG_SHELL_TASK > 0)
 	/* Create shell task */
 	struct task_t * task = task_create(NULL, "shell", shell_task, NULL, 0, 0);
 

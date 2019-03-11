@@ -5,12 +5,20 @@
 extern "C" {
 #endif
 
+#include <xconfigs.h>
 #include <riscv64.h>
 
+#if defined(CONFIG_MAX_SMP_CPUS) && (CONFIG_MAX_SMP_CPUS > 1)
 static inline int smp_processor_id(void)
 {
 	return csr_read(mhartid);
 }
+#else
+static inline int smp_processor_id(void)
+{
+	return 0;
+}
+#endif
 
 #ifdef __cplusplus
 }

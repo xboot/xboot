@@ -56,8 +56,6 @@ void sandbox_pm_sleep(void);
 /*
  * Stdio interface
  */
-void sandbox_stdio_init(void);
-void sandbox_stdio_exit(void);
 ssize_t sandbox_stdio_read(void * buf, size_t count);
 ssize_t sandbox_stdio_write(void * buf, size_t count);
 

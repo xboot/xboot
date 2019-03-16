@@ -57,7 +57,7 @@ static inline u32_t clocksource_hz2mult(u32_t hz, u32_t shift)
 	 * mult = 1000000000 * 2^shift / hz
 	 * mult = (1000000000<<shift) / hz
 	 */
-	u64_t tmp = ((u64_t)1000000000) << shift;
+	u64_t tmp = ((u64_t)1000000000ULL) << shift;
 	tmp += hz/2;
 	tmp = tmp / hz;
 	return (u32_t)tmp;
@@ -81,7 +81,7 @@ static inline u32_t clocksource_khz2mult(u32_t khz, u32_t shift)
 	 * mult = 1000000 * 2^shift / khz
 	 * mult = (1000000<<shift) / khz
 	 */
-	u64_t tmp = ((u64_t)1000000) << shift;
+	u64_t tmp = ((u64_t)1000000ULL) << shift;
 	tmp += khz / 2;
 	tmp = tmp / khz;
 	return (u32_t)tmp;

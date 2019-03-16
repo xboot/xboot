@@ -73,6 +73,9 @@ int sandbox_sysfs_write_string(const char * path, const char * s);
 /*
  * Timer interface
  */
+void sandbox_timer_init(void);
+void sandbox_timer_exit(void);
+void sandbox_timer_next(uint64_t time, void (*cb)(void *), void * data);
 uint64_t sandbox_timer_count(void);
 uint64_t sandbox_timer_frequency(void);
 

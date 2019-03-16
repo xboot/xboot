@@ -12,6 +12,8 @@ extern "C" {
 #include <limits.h>
 #include <time.h>
 #include <errno.h>
+#include <time.h>
+#include <signal.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <dirent.h>

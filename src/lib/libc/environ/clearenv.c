@@ -8,13 +8,13 @@
 
 int clearenv(void)
 {
-	struct environ_t * environ = &__environ;
+	struct environ_t * xenv = &__xenviron;
 	struct environ_t * p, * q;
 
-	if (!environ || !environ->content)
+	if (!xenv || !xenv->content)
 		return -1;
 
-	for(p = environ->next; p != environ;)
+	for(p = xenv->next; p != xenv;)
 	{
 		q = p;
 		p = p->next;

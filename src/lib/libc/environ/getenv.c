@@ -9,15 +9,15 @@
 
 char * getenv(const char * name)
 {
-	struct environ_t * environ = &__environ;
+	struct environ_t * xenv = &__xenviron;
 	struct environ_t * p;
 	int len;
 
-	if(!environ || !environ->content)
+	if(!xenv || !xenv->content)
 		return NULL;
 
 	len = strlen(name);
-	for(p = environ->next; p != environ; p = p->next)
+	for(p = xenv->next; p != xenv; p = p->next)
 	{
 		if(!strncmp(name, p->content, len) && (p->content[len] == '='))
 			return p->content + (len + 1);

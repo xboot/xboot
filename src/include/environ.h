@@ -10,7 +10,7 @@ struct environ_t {
 	struct environ_t * prev;
 	struct environ_t * next;
 };
-extern struct environ_t __environ;
+extern struct environ_t __xenviron;
 
 char * getenv(const char * name);
 int putenv(const char * str);

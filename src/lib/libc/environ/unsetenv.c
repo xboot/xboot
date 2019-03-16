@@ -10,7 +10,7 @@
 
 int unsetenv(const char * name)
 {
-	struct environ_t * environ = &__environ;
+	struct environ_t * xenv = &__xenviron;
 	struct environ_t * p;
 	size_t len;
 	const char * z;
@@ -26,10 +26,10 @@ int unsetenv(const char * name)
 			return -1;
 	}
 
-	if(!environ || !environ->content)
+	if(!xenv || !xenv->content)
 		return 0;
 
-	for(p = environ->next; p != environ; p = p->next)
+	for(p = xenv->next; p != xenv; p = p->next)
 	{
 		if(!strncmp(name, p->content, len) && (p->content[len] == '='))
 		{

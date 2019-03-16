@@ -9,14 +9,14 @@
 
 int __put_env(char * str, size_t len, int overwrite)
 {
-	struct environ_t * environ = &__environ;
+	struct environ_t * xenv = &__xenviron;
 	struct environ_t * env;
 	struct environ_t * p;
 
-	if(!environ)
+	if(!xenv)
 		return -1;
 
-	for(p = environ->next; p != environ; p = p->next)
+	for(p = xenv->next; p != xenv; p = p->next)
 	{
 		if(p->content && !strncmp(p->content, str, len))
 		{
@@ -38,10 +38,10 @@ int __put_env(char * str, size_t len, int overwrite)
 		return -1;
 
 	env->content = str;
-	env->prev = environ->prev;
-	env->next = environ;
-	environ->prev->next = env;
-	environ->prev = env;
+	env->prev = xenv->prev;
+	env->next = xenv;
+	xenv->prev->next = env;
+	xenv->prev = env;
 
 	return 0;
 }

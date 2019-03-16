@@ -37,7 +37,7 @@ static void usage(void)
 
 static int do_env(int argc, char ** argv)
 {
-	struct environ_t * environ = &__environ;
+	struct environ_t * environ = &__xenviron;
 	struct environ_t * p;
 	int i;
 

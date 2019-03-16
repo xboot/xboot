@@ -6,8 +6,8 @@
 #include <environ.h>
 #include <xboot/module.h>
 
-struct environ_t __environ = {
+struct environ_t __xenviron = {
 	.content = NULL,
-	.prev = &__environ,
-	.next = &__environ,
+	.prev = &__xenviron,
+	.next = &__xenviron,
 };

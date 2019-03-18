@@ -9,6 +9,10 @@
 		"device": "/dev/ttyUSB0"
 	},
 
+	"fb-sandbox@0": {
+		"device": "/dev/fb0"
+	},
+
 	"input-sandbox@0": {
 		"type": "keyboard"
 	},
@@ -26,15 +30,6 @@
 	},
 
 	"audio-sandbox@0": {
-	},
-
-	"fb-sandbox@0": {
-		"width": 640,
-		"height": 480,
-		"physical-width": 216,
-		"physical-height": 135,
-		"bits-per-pixel": 32,
-		"fullscreen": false
 	},
 
 	"console-sandbox@0": {

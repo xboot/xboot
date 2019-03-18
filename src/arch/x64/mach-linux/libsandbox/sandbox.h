@@ -23,6 +23,28 @@ void sandbox_init(int argc, char * argv[]);
 void sandbox_exit(void);
 
 /*
+ * Framebuffer interface
+ */
+struct sandbox_fb_surface_t {
+	int width;
+	int height;
+	int pitch;
+	void * pixels;
+};
+void * sandbox_fb_open(const char * dev);
+void sandbox_fb_close(void * handle);
+int sandbox_fb_get_width(void * handle);
+int sandbox_fb_get_height(void * handle);
+int sandbox_fb_get_pwidth(void * handle);
+int sandbox_fb_get_pheight(void * handle);
+int sandbox_fb_get_bpp(void * handle);
+int sandbox_fb_surface_create(void * handle, struct sandbox_fb_surface_t * surface);
+int sandbox_fb_surface_destroy(void * handle, struct sandbox_fb_surface_t * surface);
+int sandbox_fb_surface_present(void * handle, struct sandbox_fb_surface_t * surface);
+void sandbox_fb_set_backlight(void * handle, int brightness);
+int sandbox_fb_get_backlight(void * handle);
+
+/*
  * File interface
  */
 int sandbox_file_open(const char * path, const char * mode);

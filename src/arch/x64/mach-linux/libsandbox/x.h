@@ -14,13 +14,18 @@ extern "C" {
 #include <errno.h>
 #include <time.h>
 #include <signal.h>
+#include <malloc.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <dirent.h>
 #include <termios.h>
+#include <sys/mman.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/timerfd.h>
+#include <linux/types.h>
+#include <linux/ioctl.h>
+#include <linux/fb.h>
 
 #ifdef __cplusplus
 }

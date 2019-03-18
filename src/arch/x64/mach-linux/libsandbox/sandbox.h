@@ -77,6 +77,15 @@ void sandbox_timer_next(uint64_t time, void (*cb)(void *), void * data);
 uint64_t sandbox_timer_count(void);
 uint64_t sandbox_timer_frequency(void);
 
+/*
+ * Uart interface
+ */
+int sandbox_uart_open(const char * dev);
+int sandbox_uart_close(int fd);
+int sandbox_uart_set(int fd, int baud, int data, int parity, int stop);
+ssize_t sandbox_uart_read(int fd, void * buf, size_t len);
+ssize_t sandbox_uart_write(int fd, const void * buf, size_t len);
+
 #ifdef __cplusplus
 }
 #endif

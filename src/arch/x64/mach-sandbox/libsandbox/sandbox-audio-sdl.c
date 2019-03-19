@@ -1,18 +1,7 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <SDL.h>
+#include <x.h>
 #include <sandbox.h>
 
-void sandbox_sdl_audio_init(void)
-{
-}
-
-void sandbox_sdl_audio_exit(void)
-{
-}
-
-void sandbox_sdl_audio_open(int fmt, int rate, int ch, int sample, void(*cb)(void *, void *, int), void * data)
+void sandbox_audio_sdl_open(int fmt, int rate, int ch, int sample, void(*cb)(void *, void *, int), void * data)
 {
 	SDL_AudioSpec spec;
 
@@ -45,18 +34,18 @@ void sandbox_sdl_audio_open(int fmt, int rate, int ch, int sample, void(*cb)(voi
 	SDL_UnlockAudio();
 }
 
-void sandbox_sdl_audio_close(void)
+void sandbox_audio_sdl_close(void)
 {
 	SDL_CloseAudio();
 }
 
-void sandbox_sdl_audio_start(void)
+void sandbox_audio_sdl_start(void)
 {
 	if(SDL_GetAudioStatus() != SDL_AUDIO_PLAYING)
 		SDL_PauseAudio(0);
 }
 
-void sandbox_sdl_audio_stop(void)
+void sandbox_audio_sdl_stop(void)
 {
 	if(SDL_GetAudioStatus() != SDL_AUDIO_PAUSED)
 		SDL_PauseAudio(1);

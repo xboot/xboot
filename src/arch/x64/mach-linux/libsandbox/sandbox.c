@@ -103,7 +103,7 @@ void sandbox_init(int argc, char * argv[])
 
 	/* Require root privileges */
 	if(geteuid() != 0)
-		printf("WARNNING: This program must run as root.\n");
+		printf("WARNING: Running without root permission.\r\n");
 
 	/* Save terminal config */
 	tcgetattr(0, &__tconfig);

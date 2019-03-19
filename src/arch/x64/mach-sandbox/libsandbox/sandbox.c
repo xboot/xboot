@@ -1,16 +1,24 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <limits.h>
-#include <SDL.h>
+#include <x.h>
 #include <sandbox.h>
 
 static struct sandbox_t __sandbox;
+static struct termios __tconfig;
 
-static size_t read_file_to_memory(const char * filename, char ** buffer)
+static void print_usage(void)
 {
-	size_t len;
+	printf(
+		"Usage: xboot [OPTIONS] <application>\n"
+		"Options:\n"
+		"  --help        Print help information\n"
+		"  --json <FILE> Start xboot with a specified file of device tree using json format\n"
+	);
+	exit(-1);
+}
+
+static size_t file_read_to_memory(const char * filename, char ** buffer)
+{
 	char * buf;
+	size_t len;
 	int fd;
 
 	if(!filename || !buffer)
@@ -40,17 +48,6 @@ static size_t read_file_to_memory(const char * filename, char ** buffer)
 	return len;
 }
 
-static void print_usage(void)
-{
-	printf(
-		"Usage: xboot [OPTIONS] <application>\n"
-		"Options:\n"
-		"  --help  Print help information\n"
-		"  --json <FILE>  Start xboot with a specified file of device tree using json format\n"
-	);
-	exit(0);
-}
-
 struct sandbox_t * sandbox_get(void)
 {
 	return &__sandbox;
@@ -58,13 +55,16 @@ struct sandbox_t * sandbox_get(void)
 
 void sandbox_init(int argc, char * argv[])
 {
+	struct termios ta;
 	char path[PATH_MAX];
 	int i, idx = 0;
 	char * buf;
 	size_t len;
 
+	/* Clear __sandbox */
 	memset(&__sandbox, 0, sizeof(struct sandbox_t));
 
+	/* Parse command line */
 	for(i = 1; i < argc; i++)
 	{
 		if(!strcmp(argv[i], "--help"))
@@ -75,7 +75,7 @@ void sandbox_init(int argc, char * argv[])
 		{
 			if(sandbox_file_isfile(argv[++i]) == 0)
 			{
-				if((len = read_file_to_memory(argv[i], &buf)) > 0)
+				if((len = file_read_to_memory(argv[i], &buf)) > 0)
 				{
 					__sandbox.json.buffer = buf;
 					__sandbox.json.size = len;
@@ -90,30 +90,47 @@ void sandbox_init(int argc, char * argv[])
 		{
 			if(idx == 0)
 			{
-				if((sandbox_file_isdir(argv[i]) == 0) || (sandbox_file_isfile(argv[i]) == 0))
+				if(sandbox_file_isdir(argv[i]) || sandbox_file_isfile(argv[i]))
 					__sandbox.app = strdup(realpath(argv[i], path));
 			}
 			else
+			{
 				print_usage();
+			}
 			idx++;
 		}
 	}
 
+	/* Require root privileges */
+	if(geteuid() != 0)
+		printf("WARNING: Running without root permission.\r\n");
+
+	/* Save terminal config */
+	tcgetattr(0, &__tconfig);
+	ta = __tconfig;
+	ta.c_lflag &= (~ICANON & ~ECHO & ~ISIG);
+	ta.c_iflag &= (~IXON & ~ICRNL);
+	ta.c_oflag |= (ONLCR);
+	ta.c_cc[VMIN] = 1;
+	ta.c_cc[VTIME] = 0;
+	tcsetattr(0, TCSANOW, &ta);
+
 	SDL_Init(SDL_INIT_EVERYTHING);
-	sandbox_stdio_init();
-	sandbox_sdl_event_init();
 }
 
 void sandbox_exit(void)
 {
+	/* Free some memroy */
 	if(__sandbox.json.buffer && (__sandbox.json.size > 0))
 		free(__sandbox.json.buffer);
 	if(__sandbox.app)
 		free(__sandbox.app);
 
-	sandbox_sdl_timer_exit();
-	sandbox_sdl_event_exit();
-	sandbox_stdio_exit();
+	/* Restore terminal config */
+	fflush(stdout);
+	tcsetattr(0, TCSANOW, &__tconfig);
+
+	/* Program exit */
 	SDL_Quit();
 	exit(0);
 }

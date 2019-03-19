@@ -10,26 +10,9 @@
 	},
 
 	"fb-sandbox@0": {
-		"device": "/dev/fb0"
-	},
-
-	"input-sandbox@0": {
-		"type": "keyboard"
-	},
-
-	"input-sandbox@1": {
-		"type": "mouse"
-	},
-
-	"input-sandbox@2": {
-		"type": "touchscreen"
-	},
-
-	"input-sandbox@3": {
-		"type": "joystick"
-	},
-
-	"audio-sandbox@0": {
+		"device": "/dev/fb0",
+		"physical-width": 216,
+		"physical-height": 135
 	},
 
 	"console-sandbox@0": {

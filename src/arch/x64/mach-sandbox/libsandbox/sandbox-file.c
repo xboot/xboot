@@ -1,14 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <string.h>
-#include <time.h>
-#include <errno.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <dirent.h>
-#include <sys/stat.h>
-#include <sys/types.h>
+#include <x.h>
 #include <sandbox.h>
 
 int sandbox_file_open(const char * path, const char * mode)
@@ -70,7 +60,7 @@ int sandbox_file_mkdir(const char * path)
 {
 	int ret = 0;
 
-	if(mkdir(path, (S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH)) == 0)
+	if(mkdir(path, (S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH)) == 0)
 		ret = 1;
 	return ret;
 }

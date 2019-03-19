@@ -27,8 +27,8 @@
  */
 
 #include <xboot.h>
-#include <sandbox.h>
 #include <framebuffer/framebuffer.h>
+#include <sandbox.h>
 
 struct fb_sandbox_pdata_t
 {
@@ -37,20 +37,19 @@ struct fb_sandbox_pdata_t
 	int pwidth;
 	int pheight;
 	int bpp;
-	int fullscreen;
 	void * priv;
 };
 
 static void fb_setbl(struct framebuffer_t * fb, int brightness)
 {
 	struct fb_sandbox_pdata_t * pdat = (struct fb_sandbox_pdata_t *)fb->priv;
-	sandbox_sdl_fb_set_backlight(pdat->priv, brightness);
+	sandbox_fb_set_backlight(pdat->priv, brightness);
 }
 
 static int fb_getbl(struct framebuffer_t * fb)
 {
 	struct fb_sandbox_pdata_t * pdat = (struct fb_sandbox_pdata_t *)fb->priv;
-	return sandbox_sdl_fb_get_backlight(pdat->priv);
+	return sandbox_fb_get_backlight(pdat->priv);
 }
 
 static struct render_t * fb_create(struct framebuffer_t * fb)
@@ -63,7 +62,7 @@ static struct render_t * fb_create(struct framebuffer_t * fb)
 	if(!surface)
 		return NULL;
 
-	if(sandbox_sdl_fb_surface_create(pdat->priv, surface) != 0)
+	if(!sandbox_fb_surface_create(pdat->priv, surface))
 	{
 		free(surface);
 		return NULL;
@@ -72,7 +71,7 @@ static struct render_t * fb_create(struct framebuffer_t * fb)
 	render = malloc(sizeof(struct render_t));
 	if(!render)
 	{
-		sandbox_sdl_fb_surface_destroy(pdat->priv, surface);
+		sandbox_fb_surface_destroy(pdat->priv, surface);
 		free(surface);
 		return NULL;
 	}
@@ -94,7 +93,7 @@ static void fb_destroy(struct framebuffer_t * fb, struct render_t * render)
 
 	if(render)
 	{
-		sandbox_sdl_fb_surface_destroy(pdat->priv, render->priv);
+		sandbox_fb_surface_destroy(pdat->priv, render->priv);
 		free(render->priv);
 		free(render);
 	}
@@ -103,7 +102,7 @@ static void fb_destroy(struct framebuffer_t * fb, struct render_t * render)
 static void fb_present(struct framebuffer_t * fb, struct render_t * render, struct dirty_rect_t * rect, int nrect)
 {
 	struct fb_sandbox_pdata_t * pdat = (struct fb_sandbox_pdata_t *)fb->priv;
-	sandbox_sdl_fb_surface_present(pdat->priv, render->priv);
+	sandbox_fb_surface_present(pdat->priv, render->priv);
 }
 
 static struct device_t * fb_sandbox_probe(struct driver_t * drv, struct dtnode_t * n)
@@ -111,7 +110,10 @@ static struct device_t * fb_sandbox_probe(struct driver_t * drv, struct dtnode_t
 	struct fb_sandbox_pdata_t * pdat;
 	struct framebuffer_t * fb;
 	struct device_t * dev;
-	char title[64];
+	void * priv = sandbox_fb_open(dt_read_string(n, "device", NULL));
+
+	if(!priv)
+		return NULL;
 
 	pdat = malloc(sizeof(struct fb_sandbox_pdata_t));
 	if(!pdat)
@@ -124,16 +126,12 @@ static struct device_t * fb_sandbox_probe(struct driver_t * drv, struct dtnode_t
 		return NULL;
 	}
 
-	sprintf(title, "Xboot Runtime Environment - V%s", xboot_version_string());
-	pdat->width = dt_read_int(n, "width", 640);
-	pdat->height = dt_read_int(n, "height", 480);
-	pdat->pwidth = dt_read_int(n, "physical-width", 216);
-	pdat->pheight = dt_read_int(n, "physical-height", 135);
-	pdat->bpp = dt_read_int(n, "bits-per-pixel", 32);
-	pdat->fullscreen = dt_read_bool(n, "fullscreen", 0);
-	pdat->priv = sandbox_sdl_fb_init(title, pdat->width, pdat->height, pdat->fullscreen);
-	pdat->width = sandbox_sdl_fb_get_width(pdat->priv);
-	pdat->height = sandbox_sdl_fb_get_height(pdat->priv);
+	pdat->priv = priv;
+	pdat->width = sandbox_fb_get_width(pdat->priv);
+	pdat->height = sandbox_fb_get_height(pdat->priv);
+	pdat->pwidth = dt_read_int(n, "physical-width", sandbox_fb_get_pwidth(pdat->priv));
+	pdat->pheight = dt_read_int(n, "physical-height", sandbox_fb_get_pheight(pdat->priv));
+	pdat->bpp = 32;
 
 	fb->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	fb->width = pdat->width;
@@ -150,7 +148,7 @@ static struct device_t * fb_sandbox_probe(struct driver_t * drv, struct dtnode_t
 
 	if(!register_framebuffer(&dev, fb))
 	{
-		sandbox_sdl_fb_exit(pdat->priv);
+		sandbox_fb_close(pdat->priv);
 
 		free_device_name(fb->name);
 		free(fb->priv);
@@ -169,7 +167,7 @@ static void fb_sandbox_remove(struct device_t * dev)
 
 	if(fb && unregister_framebuffer(fb))
 	{
-		sandbox_sdl_fb_exit(pdat->priv);
+		sandbox_fb_close(pdat->priv);
 
 		free_device_name(fb->name);
 		free(fb->priv);

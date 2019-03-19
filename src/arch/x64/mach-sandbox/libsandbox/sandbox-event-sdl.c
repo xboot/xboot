@@ -1,7 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <SDL.h>
+#include <x.h>
 #include <sandbox.h>
 
 struct event_callback_t {
@@ -37,7 +34,7 @@ struct event_callback_t {
 	} joystick;
 };
 
-static struct event_callback_t __event_callback = { 0 };
+static struct event_callback_t __event_callback;
 static SDL_Thread * __event = NULL;
 
 static unsigned int keycode_map(SDL_Keycode code)
@@ -378,19 +375,24 @@ static int handle_event(void * data)
 	return 0;
 }
 
-void sandbox_sdl_event_init(void)
+void * sandbox_event_sdl_open(void)
 {
-	memset(&__event_callback, 0, sizeof(struct event_callback_t));
-	__event = SDL_CreateThread(handle_event, "event", &__event_callback);
+	if(!__event)
+	{
+		memset(&__event_callback, 0, sizeof(struct event_callback_t));
+		__event = SDL_CreateThread(handle_event, "event", &__event_callback);
+	}
+	return __event;
 }
 
-void sandbox_sdl_event_exit(void)
+void sandbox_event_sdl_close(void * handle)
 {
-	if(__event)
-		SDL_WaitThread(__event, NULL);
+	SDL_Thread * hdl = (SDL_Thread *)handle;
+	if(hdl)
+		SDL_WaitThread(hdl, NULL);
 }
 
-void sandbox_sdl_event_set_key_callback(void * device,
+void sandbox_event_sdl_set_key_callback(void * device,
 		void (*down)(void * device, unsigned int key),
 		void (*up)(void * device, unsigned int key))
 {
@@ -399,7 +401,7 @@ void sandbox_sdl_event_set_key_callback(void * device,
 	__event_callback.key.up = up;
 }
 
-void sandbox_sdl_event_set_mouse_callback(void * device,
+void sandbox_event_sdl_set_mouse_callback(void * device,
 		void (*down)(void * device, int x, int y, unsigned int button),
 		void (*move)(void * device, int x, int y),
 		void (*up)(void * device, int x, int y, unsigned int button),
@@ -412,7 +414,7 @@ void sandbox_sdl_event_set_mouse_callback(void * device,
 	__event_callback.mouse.wheel = wheel;
 }
 
-void sandbox_sdl_event_set_touch_callback(void * device,
+void sandbox_event_sdl_set_touch_callback(void * device,
 		void (*begin)(void * device, int x, int y, unsigned int id),
 		void (*move)(void * device, int x, int y, unsigned int id),
 		void (*end)(void * device, int x, int y, unsigned int id))
@@ -423,7 +425,7 @@ void sandbox_sdl_event_set_touch_callback(void * device,
 	__event_callback.touch.end = end;
 }
 
-void sandbox_sdl_event_set_joystick_callback(void * device,
+void sandbox_event_sdl_set_joystick_callback(void * device,
 		void (*left_stick)(void * device, int x, int y),
 		void (*right_stick)(void * device, int x, int y),
 		void (*left_trigger)(void * device, int v),

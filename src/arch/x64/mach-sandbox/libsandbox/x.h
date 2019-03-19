@@ -25,6 +25,7 @@ extern "C" {
 #include <sys/ioctl.h>
 #include <sys/timerfd.h>
 #include <linux/fb.h>
+#include <SDL.h>
 
 #ifdef __cplusplus
 }

@@ -1,7 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <fcntl.h>
+#include <x.h>
 #include <sandbox.h>
 
 int sandbox_sysfs_access(const char * path, const char * mode)
@@ -34,12 +31,14 @@ int sandbox_sysfs_access(const char * path, const char * mode)
 int sandbox_sysfs_read_value(const char * path, int * v)
 {
 	FILE * fd;
+	int ret = 0;
 	fd = fopen(path, "r");
 	if(!fd)
-		return 0;
-	fscanf(fd, "%d", v);
+		return ret;
+	if(fscanf(fd, "%d", v) == 1)
+		ret = 1;
 	fclose(fd);
-	return 1;
+	return ret;
 }
 
 int sandbox_sysfs_write_value(const char * path, const int v)
@@ -56,12 +55,14 @@ int sandbox_sysfs_write_value(const char * path, const int v)
 int sandbox_sysfs_read_string(const char * path, char * s)
 {
 	FILE * fd;
+	int ret = 0;
 	fd = fopen(path, "r");
 	if(!fd)
-		return 0;
-	fscanf(fd, "%s", s);
+		return ret;
+	if(fscanf(fd, "%s", s) == 1)
+		ret = 1;
 	fclose(fd);
-	return 1;
+	return ret;
 }
 
 int sandbox_sysfs_write_string(const char * path, const char * s)

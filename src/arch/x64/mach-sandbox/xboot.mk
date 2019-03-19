@@ -143,9 +143,8 @@ DEFINES		+=	$(NS_JMP) $(NS_CTYPE) $(NS_ENVIRON) $(NS_ERRNO) \
 
 DEFINES		+=	-D__SANDBOX__
 
-SDL_CONFIG	?= sdl2-config
-SDL_FLAGS	:= $(shell $(SDL_CONFIG) --cflags)
-SDL_LIBS	:= $(shell $(SDL_CONFIG) --libs)
+XFLAGS		:= $(shell pkg-config --cflags libdrm) $(shell sdl2-config --cflags)
+XLIBS		:= $(shell pkg-config --libs libdrm) $(shell sdl2-config --libs)
 
 ASFLAGS		:= -g -ggdb -Wall -O2
 CFLAGS		:= -g -ggdb -Wall -O2
@@ -153,13 +152,13 @@ LDFLAGS		:= -T arch/$(ARCH)/$(MACH)/xboot.ld
 MCFLAGS		:= -m64 -mmmx -msse -msse2 -mssse3 -mfpmath=sse
 
 LIBDIRS		:= arch/$(ARCH)/$(MACH)/libsandbox
-LIBS 		:= -lsandbox -lc -lm -lgcc -lpthread $(SDL_LIBS)
+LIBS 		:= -lsandbox -lc -lm -lgcc -lrt -lpthread $(XLIBS)
 INCDIRS		:= arch/$(ARCH)/$(MACH)/libsandbox
 SRCDIRS		:=
 
 xbegin:
 	@echo Building libsandbox
-	@CROSS_COMPILE="$(CROSS_COMPILE)" ASFLAGS="$(SDL_FLAGS)" CFLAGS="$(SDL_FLAGS)" $(MAKE) -C arch/$(ARCH)/$(MACH)/libsandbox
+	@CROSS_COMPILE="$(CROSS_COMPILE)" ASFLAGS="$(XFLAGS)" CFLAGS="$(XFLAGS)" $(MAKE) -C arch/$(ARCH)/$(MACH)/libsandbox
 
 xclean:
 	@$(MAKE) -C arch/$(ARCH)/$(MACH)/libsandbox clean

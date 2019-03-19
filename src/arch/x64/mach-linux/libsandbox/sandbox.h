@@ -30,14 +30,16 @@ struct sandbox_fb_surface_t {
 	int height;
 	int pitch;
 	void * pixels;
+	void * priv;
 };
+
+/* Framebuffer device */
 void * sandbox_fb_open(const char * dev);
 void sandbox_fb_close(void * handle);
 int sandbox_fb_get_width(void * handle);
 int sandbox_fb_get_height(void * handle);
 int sandbox_fb_get_pwidth(void * handle);
 int sandbox_fb_get_pheight(void * handle);
-int sandbox_fb_get_bpp(void * handle);
 int sandbox_fb_surface_create(void * handle, struct sandbox_fb_surface_t * surface);
 int sandbox_fb_surface_destroy(void * handle, struct sandbox_fb_surface_t * surface);
 int sandbox_fb_surface_present(void * handle, struct sandbox_fb_surface_t * surface);

@@ -1,5 +1,5 @@
 /*
- * driver/fb-sandbox.c
+ * driver/fb-sandbox-sdl.c
  *
  * Copyright(c) 2007-2019 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -30,7 +30,7 @@
 #include <framebuffer/framebuffer.h>
 #include <sandbox.h>
 
-struct fb_sandbox_pdata_t
+struct fb_sandbox_sdl_pdata_t
 {
 	int width;
 	int height;
@@ -42,19 +42,19 @@ struct fb_sandbox_pdata_t
 
 static void fb_setbl(struct framebuffer_t * fb, int brightness)
 {
-	struct fb_sandbox_pdata_t * pdat = (struct fb_sandbox_pdata_t *)fb->priv;
-	sandbox_fb_set_backlight(pdat->priv, brightness);
+	struct fb_sandbox_sdl_pdata_t * pdat = (struct fb_sandbox_sdl_pdata_t *)fb->priv;
+	sandbox_fb_sdl_set_backlight(pdat->priv, brightness);
 }
 
 static int fb_getbl(struct framebuffer_t * fb)
 {
-	struct fb_sandbox_pdata_t * pdat = (struct fb_sandbox_pdata_t *)fb->priv;
-	return sandbox_fb_get_backlight(pdat->priv);
+	struct fb_sandbox_sdl_pdata_t * pdat = (struct fb_sandbox_sdl_pdata_t *)fb->priv;
+	return sandbox_fb_sdl_get_backlight(pdat->priv);
 }
 
 static struct render_t * fb_create(struct framebuffer_t * fb)
 {
-	struct fb_sandbox_pdata_t * pdat = (struct fb_sandbox_pdata_t *)fb->priv;
+	struct fb_sandbox_sdl_pdata_t * pdat = (struct fb_sandbox_sdl_pdata_t *)fb->priv;
 	struct sandbox_fb_surface_t * surface;
 	struct render_t * render;
 
@@ -62,7 +62,7 @@ static struct render_t * fb_create(struct framebuffer_t * fb)
 	if(!surface)
 		return NULL;
 
-	if(!sandbox_fb_surface_create(pdat->priv, surface))
+	if(!sandbox_fb_sdl_surface_create(pdat->priv, surface))
 	{
 		free(surface);
 		return NULL;
@@ -71,7 +71,7 @@ static struct render_t * fb_create(struct framebuffer_t * fb)
 	render = malloc(sizeof(struct render_t));
 	if(!render)
 	{
-		sandbox_fb_surface_destroy(pdat->priv, surface);
+		sandbox_fb_sdl_surface_destroy(pdat->priv, surface);
 		free(surface);
 		return NULL;
 	}
@@ -89,11 +89,11 @@ static struct render_t * fb_create(struct framebuffer_t * fb)
 
 static void fb_destroy(struct framebuffer_t * fb, struct render_t * render)
 {
-	struct fb_sandbox_pdata_t * pdat = (struct fb_sandbox_pdata_t *)fb->priv;
+	struct fb_sandbox_sdl_pdata_t * pdat = (struct fb_sandbox_sdl_pdata_t *)fb->priv;
 
 	if(render)
 	{
-		sandbox_fb_surface_destroy(pdat->priv, render->priv);
+		sandbox_fb_sdl_surface_destroy(pdat->priv, render->priv);
 		free(render->priv);
 		free(render);
 	}
@@ -101,21 +101,26 @@ static void fb_destroy(struct framebuffer_t * fb, struct render_t * render)
 
 static void fb_present(struct framebuffer_t * fb, struct render_t * render, struct dirty_rect_t * rect, int nrect)
 {
-	struct fb_sandbox_pdata_t * pdat = (struct fb_sandbox_pdata_t *)fb->priv;
-	sandbox_fb_surface_present(pdat->priv, render->priv);
+	struct fb_sandbox_sdl_pdata_t * pdat = (struct fb_sandbox_sdl_pdata_t *)fb->priv;
+	sandbox_fb_sdl_surface_present(pdat->priv, render->priv);
 }
 
-static struct device_t * fb_sandbox_probe(struct driver_t * drv, struct dtnode_t * n)
+static struct device_t * fb_sandbox_sdl_probe(struct driver_t * drv, struct dtnode_t * n)
 {
-	struct fb_sandbox_pdata_t * pdat;
+	struct fb_sandbox_sdl_pdata_t * pdat;
 	struct framebuffer_t * fb;
 	struct device_t * dev;
-	void * priv = sandbox_fb_open(dt_read_string(n, "device", NULL));
+	int width = dt_read_int(n, "width", 640);
+	int height = dt_read_int(n, "height", 480);
+	char title[64];
+	void * priv;
 
+	sprintf(title, "Xboot Runtime Environment - V%s", xboot_version_string());
+	priv = sandbox_fb_sdl_open(title, width, height);
 	if(!priv)
 		return NULL;
 
-	pdat = malloc(sizeof(struct fb_sandbox_pdata_t));
+	pdat = malloc(sizeof(struct fb_sandbox_sdl_pdata_t));
 	if(!pdat)
 		return NULL;
 
@@ -127,8 +132,8 @@ static struct device_t * fb_sandbox_probe(struct driver_t * drv, struct dtnode_t
 	}
 
 	pdat->priv = priv;
-	pdat->width = sandbox_fb_get_width(pdat->priv);
-	pdat->height = sandbox_fb_get_height(pdat->priv);
+	pdat->width = sandbox_fb_sdl_get_width(pdat->priv);
+	pdat->height = sandbox_fb_sdl_get_height(pdat->priv);
 	pdat->pwidth = dt_read_int(n, "physical-width", sandbox_fb_get_pwidth(pdat->priv));
 	pdat->pheight = dt_read_int(n, "physical-height", sandbox_fb_get_pheight(pdat->priv));
 	pdat->bpp = 32;
@@ -148,7 +153,7 @@ static struct device_t * fb_sandbox_probe(struct driver_t * drv, struct dtnode_t
 
 	if(!register_framebuffer(&dev, fb))
 	{
-		sandbox_fb_close(pdat->priv);
+		sandbox_fb_sdl_close(pdat->priv);
 
 		free_device_name(fb->name);
 		free(fb->priv);
@@ -160,14 +165,14 @@ static struct device_t * fb_sandbox_probe(struct driver_t * drv, struct dtnode_t
 	return dev;
 }
 
-static void fb_sandbox_remove(struct device_t * dev)
+static void fb_sandbox_sdl_remove(struct device_t * dev)
 {
 	struct framebuffer_t * fb = (struct framebuffer_t *)dev->priv;
-	struct fb_sandbox_pdata_t * pdat = (struct fb_sandbox_pdata_t *)fb->priv;
+	struct fb_sandbox_sdl_pdata_t * pdat = (struct fb_sandbox_sdl_pdata_t *)fb->priv;
 
 	if(fb && unregister_framebuffer(fb))
 	{
-		sandbox_fb_close(pdat->priv);
+		sandbox_fb_sdl_close(pdat->priv);
 
 		free_device_name(fb->name);
 		free(fb->priv);
@@ -175,31 +180,31 @@ static void fb_sandbox_remove(struct device_t * dev)
 	}
 }
 
-static void fb_sandbox_suspend(struct device_t * dev)
+static void fb_sandbox_sdl_suspend(struct device_t * dev)
 {
 }
 
-static void fb_sandbox_resume(struct device_t * dev)
+static void fb_sandbox_sdl_resume(struct device_t * dev)
 {
 }
 
-static struct driver_t fb_sandbox = {
-	.name		= "fb-sandbox",
-	.probe		= fb_sandbox_probe,
-	.remove		= fb_sandbox_remove,
-	.suspend	= fb_sandbox_suspend,
-	.resume		= fb_sandbox_resume,
+static struct driver_t fb_sandbox_sdl = {
+	.name		= "fb-sandbox-sdl",
+	.probe		= fb_sandbox_sdl_probe,
+	.remove		= fb_sandbox_sdl_remove,
+	.suspend	= fb_sandbox_sdl_suspend,
+	.resume		= fb_sandbox_sdl_resume,
 };
 
-static __init void fb_sandbox_driver_init(void)
+static __init void fb_sandbox_sdl_driver_init(void)
 {
-	register_driver(&fb_sandbox);
+	register_driver(&fb_sandbox_sdl);
 }
 
-static __exit void fb_sandbox_driver_exit(void)
+static __exit void fb_sandbox_sdl_driver_exit(void)
 {
-	unregister_driver(&fb_sandbox);
+	unregister_driver(&fb_sandbox_sdl);
 }
 
-driver_initcall(fb_sandbox_driver_init);
-driver_exitcall(fb_sandbox_driver_exit);
+driver_initcall(fb_sandbox_sdl_driver_init);
+driver_exitcall(fb_sandbox_sdl_driver_exit);

@@ -5,32 +5,37 @@
 	"cs-sandbox@0": {
 	},
 
-	"input-sandbox@0": {
+	"input-sandbox-sdl@0": {
 		"type": "keyboard"
 	},
 
-	"input-sandbox@1": {
+	"input-sandbox-sdl@1": {
 		"type": "mouse"
 	},
 
-	"input-sandbox@2": {
+	"input-sandbox-sdl@2": {
 		"type": "touchscreen"
 	},
 
-	"input-sandbox@3": {
+	"input-sandbox-sdl@3": {
 		"type": "joystick"
 	},
 
-	"audio-sandbox@0": {
+	"fb-sandbox@0": {
+		"device": "/dev/fb0",
+		"physical-width": 216,
+		"physical-height": 135,
+		"status": "disabled"
 	},
 
-	"fb-sandbox@0": {
+	"fb-sandbox-sdl@0": {
 		"width": 640,
 		"height": 480,
 		"physical-width": 216,
-		"physical-height": 135,
-		"bits-per-pixel": 32,
-		"fullscreen": false
+		"physical-height": 135
+	},
+
+	"audio-sandbox-sdl@0": {
 	},
 
 	"console-sandbox@0": {

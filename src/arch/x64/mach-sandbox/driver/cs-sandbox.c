@@ -32,7 +32,7 @@
 
 static u64_t cs_sandbox_read(struct clocksource_t * cs)
 {
-	return sandbox_get_time_counter();
+	return sandbox_timer_count();
 }
 
 static struct device_t * cs_sandbox_probe(struct driver_t * drv, struct dtnode_t * n)
@@ -44,9 +44,17 @@ static struct device_t * cs_sandbox_probe(struct driver_t * drv, struct dtnode_t
 	if(!cs)
 		return NULL;
 
-	clocksource_calc_mult_shift(&cs->mult, &cs->shift, sandbox_get_time_frequency(), 1000000000ULL, 10);
+	if(sandbox_timer_frequency() != 1000000000ULL)
+	{
+		clocksource_calc_mult_shift(&cs->mult, &cs->shift, sandbox_timer_frequency(), 1000000000ULL, 60);
+	}
+	else
+	{
+		cs->mult = 1;
+		cs->shift = 0;
+	}
 	cs->name = alloc_device_name(dt_read_name(n), -1);
-	cs->mask = CLOCKSOURCE_MASK(32);
+	cs->mask = CLOCKSOURCE_MASK(63);
 	cs->read = cs_sandbox_read;
 	cs->priv = 0;
 

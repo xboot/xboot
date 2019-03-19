@@ -38,7 +38,7 @@ static void ce_sandbox_interrupt(void * data)
 
 static bool_t ce_sandbox_next(struct clockevent_t * ce, u64_t evt)
 {
-	sandbox_sdl_timer_set_next((evt & 0x7fffffff), ce_sandbox_interrupt, ce);
+	sandbox_timer_next(evt & 0x7fffffffffffffff, ce_sandbox_interrupt, ce);
 	return TRUE;
 }
 
@@ -51,16 +51,25 @@ static struct device_t * ce_sandbox_probe(struct driver_t * drv, struct dtnode_t
 	if(!ce)
 		return NULL;
 
-	clockevent_calc_mult_shift(ce, 1000, 10);
+	if(sandbox_timer_frequency() != 1000000000ULL)
+	{
+		clockevent_calc_mult_shift(ce, sandbox_timer_frequency(), 60);
+	}
+	else
+	{
+		ce->mult = 1;
+		ce->shift = 0;
+	}
 	ce->name = alloc_device_name(dt_read_name(n), -1);
 	ce->min_delta_ns = clockevent_delta2ns(ce, 0x1);
-	ce->max_delta_ns = clockevent_delta2ns(ce, 0x7fffffff);
+	ce->max_delta_ns = clockevent_delta2ns(ce, 0x7fffffffffffffff);
 	ce->next = ce_sandbox_next;
 	ce->priv = 0;
-	sandbox_sdl_timer_init();
+	sandbox_timer_init();
 
 	if(!register_clockevent(&dev, ce))
 	{
+		sandbox_timer_exit();
 		free_device_name(ce->name);
 		free(ce->priv);
 		free(ce);
@@ -77,6 +86,7 @@ static void ce_sandbox_remove(struct device_t * dev)
 
 	if(ce && unregister_clockevent(ce))
 	{
+		sandbox_timer_exit();
 		free_device_name(ce->name);
 		free(ce->priv);
 		free(ce);

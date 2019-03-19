@@ -72,12 +72,12 @@ static void mach_logger(struct machine_t * mach, const char * buf, int count)
 
 static const char * mach_uniqueid(struct machine_t * mach)
 {
-	return NULL;
+	return sandbox_uniqueid();
 }
 
 static int mach_keygen(struct machine_t * mach, const char * msg, void * key)
 {
-	return 0;
+	return sandbox_keygen(msg, key);
 }
 
 static struct machine_t sandbox = {

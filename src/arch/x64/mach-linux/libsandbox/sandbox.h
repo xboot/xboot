@@ -33,6 +33,11 @@ struct sandbox_fb_surface_t {
 	void * priv;
 };
 
+struct sandbox_fb_dirty_rect_t {
+	uint32_t x, y;
+	uint32_t w, h;
+};
+
 /* Framebuffer device */
 void * sandbox_fb_open(const char * dev);
 void sandbox_fb_close(void * handle);
@@ -40,9 +45,10 @@ int sandbox_fb_get_width(void * handle);
 int sandbox_fb_get_height(void * handle);
 int sandbox_fb_get_pwidth(void * handle);
 int sandbox_fb_get_pheight(void * handle);
+int sandbox_fb_get_bpp(void * handle);
 int sandbox_fb_surface_create(void * handle, struct sandbox_fb_surface_t * surface);
 int sandbox_fb_surface_destroy(void * handle, struct sandbox_fb_surface_t * surface);
-int sandbox_fb_surface_present(void * handle, struct sandbox_fb_surface_t * surface);
+int sandbox_fb_surface_present(void * handle, struct sandbox_fb_surface_t * surface, struct sandbox_fb_dirty_rect_t * rect, int nrect);
 void sandbox_fb_set_backlight(void * handle, int brightness);
 int sandbox_fb_get_backlight(void * handle);
 

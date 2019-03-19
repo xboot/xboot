@@ -18,19 +18,19 @@ enum pixel_format_t
 };
 
 struct dirty_rect_t {
-	u32_t x, y;
-	u32_t w, h;
+	uint32_t x, y;
+	uint32_t w, h;
 };
 
 struct render_t {
 	/* The width of render */
-	u32_t width;
+	uint32_t width;
 
 	/* The height of render */
-	u32_t height;
+	uint32_t height;
 
 	/* The pitch of one scan line */
-	u32_t pitch;
+	uint32_t pitch;
 
 	/* Pixel format */
 	enum pixel_format_t format;

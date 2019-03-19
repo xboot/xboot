@@ -102,7 +102,7 @@ static void fb_destroy(struct framebuffer_t * fb, struct render_t * render)
 static void fb_present(struct framebuffer_t * fb, struct render_t * render, struct dirty_rect_t * rect, int nrect)
 {
 	struct fb_sandbox_pdata_t * pdat = (struct fb_sandbox_pdata_t *)fb->priv;
-	sandbox_fb_surface_present(pdat->priv, render->priv);
+	sandbox_fb_surface_present(pdat->priv, render->priv, (struct sandbox_fb_dirty_rect_t *)rect, nrect);
 }
 
 static struct device_t * fb_sandbox_probe(struct driver_t * drv, struct dtnode_t * n)
@@ -110,10 +110,19 @@ static struct device_t * fb_sandbox_probe(struct driver_t * drv, struct dtnode_t
 	struct fb_sandbox_pdata_t * pdat;
 	struct framebuffer_t * fb;
 	struct device_t * dev;
-	void * priv = sandbox_fb_open(dt_read_string(n, "device", NULL));
+	void * priv;
+	int bpp;
 
+	priv = sandbox_fb_open(dt_read_string(n, "device", NULL));
 	if(!priv)
 		return NULL;
+
+	bpp = sandbox_fb_get_bpp(priv);
+	if(bpp != 32)
+	{
+		sandbox_fb_close(priv);
+		return NULL;
+	}
 
 	pdat = malloc(sizeof(struct fb_sandbox_pdata_t));
 	if(!pdat)
@@ -131,7 +140,7 @@ static struct device_t * fb_sandbox_probe(struct driver_t * drv, struct dtnode_t
 	pdat->height = sandbox_fb_get_height(pdat->priv);
 	pdat->pwidth = dt_read_int(n, "physical-width", sandbox_fb_get_pwidth(pdat->priv));
 	pdat->pheight = dt_read_int(n, "physical-height", sandbox_fb_get_pheight(pdat->priv));
-	pdat->bpp = 32;
+	pdat->bpp = bpp;
 
 	fb->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	fb->width = pdat->width;

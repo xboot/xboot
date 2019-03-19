@@ -61,23 +61,41 @@ void sandbox_fb_sdl_close(void * handle)
 int sandbox_fb_sdl_get_width(void * handle)
 {
 	struct sandbox_fb_t * hdl = (struct sandbox_fb_t *)handle;
-	return hdl->width;
+	if(hdl)
+		return hdl->width;
+	return 0;
 }
 
 int sandbox_fb_sdl_get_height(void * handle)
 {
 	struct sandbox_fb_t * hdl = (struct sandbox_fb_t *)handle;
-	return hdl->height;
+	if(hdl)
+		return hdl->height;
+	return 0;
 }
 
 int sandbox_fb_sdl_get_pwidth(void * handle)
 {
-	return 216;
+	struct sandbox_fb_t * hdl = (struct sandbox_fb_t *)handle;
+	if(hdl)
+		return 216;
+	return 0;
 }
 
 int sandbox_fb_sdl_get_pheight(void * handle)
 {
-	return 135;
+	struct sandbox_fb_t * hdl = (struct sandbox_fb_t *)handle;
+	if(hdl)
+		return 135;
+	return 0;
+}
+
+int sandbox_fb_sdl_get_bpp(void * handle)
+{
+	struct sandbox_fb_t * hdl = (struct sandbox_fb_t *)handle;
+	if(hdl)
+		return 32;
+	return 0;
 }
 
 int sandbox_fb_sdl_surface_create(void * handle, struct sandbox_fb_surface_t * surface)
@@ -108,10 +126,27 @@ int sandbox_fb_sdl_surface_destroy(void * handle, struct sandbox_fb_surface_t * 
 	return 1;
 }
 
-int sandbox_fb_sdl_surface_present(void * handle, struct sandbox_fb_surface_t * surface)
+int sandbox_fb_sdl_surface_present(void * handle, struct sandbox_fb_surface_t * surface, struct sandbox_fb_dirty_rect_t * rect, int nrect)
 {
 	struct sandbox_fb_t * hdl = (struct sandbox_fb_t *)handle;
-	SDL_BlitSurface(surface->priv, NULL, hdl->screen, NULL);
+	SDL_Rect r;
+	int i;
+
+	if(rect && (nrect > 0))
+	{
+		for(i = 0; i < nrect; i++)
+		{
+			r.x = rect[i].x;
+			r.y = rect[i].y;
+			r.w = rect[i].w;
+			r.h = rect[i].h;
+			SDL_BlitSurface(surface->priv, &r, hdl->screen, &r);
+		}
+	}
+	else
+	{
+		SDL_BlitSurface(surface->priv, NULL, hdl->screen, NULL);
+	}
 	SDL_UpdateWindowSurface(hdl->window);
 	return 1;
 }

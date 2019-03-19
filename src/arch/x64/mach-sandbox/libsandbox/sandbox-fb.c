@@ -2,8 +2,8 @@
 #include <sandbox.h>
 
 struct sandbox_fb_t {
-	struct fb_fix_screeninfo finfo;
-	struct fb_var_screeninfo vinfo;
+	struct fb_fix_screeninfo fi;
+	struct fb_var_screeninfo vi;
 	int fd;
 	int vramsz;
 	void * vram;
@@ -24,21 +24,39 @@ void * sandbox_fb_open(const char * dev)
 		return NULL;
 	}
 
-	if(ioctl(hdl->fd, FBIOGET_FSCREENINFO, &hdl->finfo) != 0)
+	if(ioctl(hdl->fd, FBIOGET_FSCREENINFO, &hdl->fi) != 0)
 	{
 		close(hdl->fd);
 		free(hdl);
 		return NULL;
 	}
 
-	if(ioctl(hdl->fd, FBIOGET_VSCREENINFO, &hdl->vinfo) != 0)
+	if(ioctl(hdl->fd, FBIOGET_VSCREENINFO, &hdl->vi) != 0)
 	{
 		close(hdl->fd);
 		free(hdl);
 		return NULL;
 	}
 
-	hdl->vramsz = hdl->vinfo.xres * hdl->vinfo.yres * hdl->vinfo.bits_per_pixel / 8;
+	hdl->vi.red.offset = 0;
+	hdl->vi.red.length = 8;
+	hdl->vi.green.offset = 8;
+	hdl->vi.green.length = 8;
+	hdl->vi.blue.offset = 16;
+	hdl->vi.blue.length = 8;
+	hdl->vi.transp.offset = 24;
+	hdl->vi.transp.length = 8;
+	hdl->vi.bits_per_pixel = 32;
+	hdl->vi.nonstd = 0;
+
+	if(ioctl(hdl->fd, FBIOPUT_VSCREENINFO, &hdl->vi) != 0)
+	{
+		close(hdl->fd);
+		free(hdl);
+		return NULL;
+	}
+
+	hdl->vramsz = hdl->vi.yres_virtual * hdl->fi.line_length;
 	hdl->vram = mmap(0, hdl->vramsz, PROT_READ | PROT_WRITE, MAP_SHARED, hdl->fd, 0);
 	if(hdl->vram == (void *)(-1))
 	{
@@ -46,6 +64,8 @@ void * sandbox_fb_open(const char * dev)
 		free(hdl);
 		return NULL;
 	}
+	memset(hdl->vram, 0, hdl->vramsz);
+
 	return hdl;
 }
 
@@ -65,31 +85,49 @@ void sandbox_fb_close(void * handle)
 int sandbox_fb_get_width(void * handle)
 {
 	struct sandbox_fb_t * hdl = (struct sandbox_fb_t *)handle;
-	return hdl->vinfo.xres;
+	if(hdl)
+		return hdl->vi.xres;
+	return 0;
 }
 
 int sandbox_fb_get_height(void * handle)
 {
 	struct sandbox_fb_t * hdl = (struct sandbox_fb_t *)handle;
-	return hdl->vinfo.yres;
+	if(hdl)
+		return hdl->vi.yres;
+	return 0;
 }
 
 int sandbox_fb_get_pwidth(void * handle)
 {
-	return 216;
+	struct sandbox_fb_t * hdl = (struct sandbox_fb_t *)handle;
+	if(hdl)
+		return 256;
+	return 0;
 }
 
 int sandbox_fb_get_pheight(void * handle)
 {
-	return 135;
+	struct sandbox_fb_t * hdl = (struct sandbox_fb_t *)handle;
+	if(hdl)
+		return 135;
+	return 0;
+}
+
+int sandbox_fb_get_bpp(void * handle)
+{
+	struct sandbox_fb_t * hdl = (struct sandbox_fb_t *)handle;
+	if(hdl)
+		return hdl->vi.bits_per_pixel;
+	return 0;
 }
 
 int sandbox_fb_surface_create(void * handle, struct sandbox_fb_surface_t * surface)
 {
 	struct sandbox_fb_t * hdl = (struct sandbox_fb_t *)handle;
-	surface->width = hdl->vinfo.xres;
-	surface->height = hdl->vinfo.yres;
-	surface->pitch = hdl->vinfo.xres * hdl->vinfo.bits_per_pixel / 8;
+	surface->width = hdl->vi.xres;
+	surface->height = hdl->vi.yres;
+	surface->pitch = hdl->fi.line_length;
 	surface->pixels = memalign(4, hdl->vramsz);
 	return 1;
 }
@@ -101,29 +139,35 @@ int sandbox_fb_surface_destroy(void * handle, struct sandbox_fb_surface_t * surf
 	return 1;
 }
 
-int sandbox_fb_surface_present(void * handle, struct sandbox_fb_surface_t * surface)
+int sandbox_fb_surface_present(void * handle, struct sandbox_fb_surface_t * surface, struct sandbox_fb_dirty_rect_t * rect, int nrect)
 {
 	struct sandbox_fb_t * hdl = (struct sandbox_fb_t *)handle;
-	uint32_t *fbp, *pix;
-	char * p;
-	char * q;
+	unsigned char * p, * q;
+	int stride, bytes, height, line;
 	int i, j;
 
-	fbp = hdl->vram;
-	pix = surface->pixels;
-	for(i = 0; i < hdl->vinfo.yres; i++)
+	if(rect && (nrect > 0))
 	{
-		for(j = 0; j < hdl->vinfo.xres; j++)
+		stride = hdl->fi.line_length;
+		bytes = hdl->vi.bits_per_pixel / 8;
+		for(i = 0; i < nrect; i++)
 		{
-			q = (char *)pix;
-			p = (char *)fbp;
-			p[0] = q[0];
-			p[1] = q[1];
-			p[2] = q[2];
-			p[3] = q[3];
-			fbp++;
-			pix++;
+			height = rect[i].h;
+			line = rect[i].w * bytes;
+			p = (unsigned char *)surface->pixels + rect[i].y * stride + rect[i].x * bytes;
+			q = (unsigned char *)hdl->vram + rect[i].y * stride + rect[i].x * bytes;
+			for(j = 0; j < height; j++, p += stride, q += stride)
+				memcpy(q, p, line);
 		}
+	}
+	else
+	{
+		stride = hdl->fi.line_length;
+		height = hdl->vi.yres;
+		p = (unsigned char *)surface->pixels;
+		q = (unsigned char *)hdl->vram;
+		for(j = 0; j < height; j++, p += stride, q += stride)
+			memcpy(q, p, stride);
 	}
 	return 1;
 }

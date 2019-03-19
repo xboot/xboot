@@ -66,65 +66,65 @@ function M:select(index, duration, transition, ease)
 	self:addChild(self.case2)
 
 	self.duration = duration or 1
-	local transition = transition or "moveFromLeft"
-	local ease = ease or "outBounce"
+	local transition = transition or "move-from-left"
+	local ease = ease or "bounce-out"
 
-	if transition == "moveFromLeft" then
+	if transition == "move-from-left" then
 		self.transition = function(t)
-			local x = self.ease:easing(t)
+			local x = self.ease(t)
 			self.case1:setX(x)
 			self.case2:setX(x - self.width)
 		end
 		self.ease = Easing.new(0, self.width, self.duration, ease)
 
-	elseif transition == "moveFromRight" then
+	elseif transition == "move-from-right" then
 		self.transition = function(t)
-			local x = self.ease:easing(t)
+			local x = self.ease(t)
 			self.case1:setX(-x)
 			self.case2:setX(self.width - x)
 		end
 		self.ease = Easing.new(0, self.width, self.duration, ease)
 
-	elseif transition == "moveFromTop" then
+	elseif transition == "move-from-top" then
 		self.transition = function(t)
-			local y = self.ease:easing(t)
+			local y = self.ease(t)
 			self.case1:setY(y)
 			self.case2:setY(y - self.height)
 		end
 		self.ease = Easing.new(0, self.height, self.duration, ease)
 	
-	elseif transition == "moveFromBottom" then
+	elseif transition == "move-from-bottom" then
 		self.transition = function(t)
-			local y = self.ease:easing(t)
+			local y = self.ease(t)
 			self.case1:setY(-y)
 			self.case2:setY(self.height - y)
 		end
 		self.ease = Easing.new(0, self.height, self.duration, ease)
 	
-	elseif transition == "overFromLeft" then
+	elseif transition == "over-from-left" then
 		self.transition = function(t)
-			local x = self.ease:easing(t)
+			local x = self.ease(t)
 			self.case2:setX(x - self.width)
 		end
 		self.ease = Easing.new(0, self.width, self.duration, ease)
 		
-	elseif transition == "overFromRight" then
+	elseif transition == "over-from-right" then
 		self.transition = function(t)
-			local x = self.ease:easing(t)
+			local x = self.ease(t)
 			self.case2:setX(self.width - x)
 		end
 		self.ease = Easing.new(0, self.width, self.duration, ease)
 
-	elseif transition == "overFromTop" then
+	elseif transition == "over-from-top" then
 		self.transition = function(t)
-			local y = self.ease:easing(t)
+			local y = self.ease(t)
 			self.case2:setY(y - self.height)
 		end
 		self.ease = Easing.new(0, self.height, self.duration, ease)
 	
-	elseif transition == "overFromBottom" then
+	elseif transition == "over-from-bottom" then
 		self.transition = function(t)
-			local y = self.ease:easing(t)
+			local y = self.ease(t)
 			self.case2:setY(self.height - y)
 		end
 		self.ease = Easing.new(0, self.height, self.duration, ease)
@@ -135,11 +135,11 @@ function M:select(index, duration, transition, ease)
 end
 
 function M:prev()
-	self:select(self.index - 1, 0.6, "moveFromLeft", "outBounce")
+	self:select(self.index - 1, 0.6, "move-from-left", "bounce-out")
 end
 
 function M:next()
-	self:select(self.index + 1, 0.6, "moveFromRight", "outBounce")
+	self:select(self.index + 1, 0.6, "move-from-right", "bounce-out")
 end
 
 return M

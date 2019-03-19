@@ -146,8 +146,8 @@ DEFINES		+=	-D__SANDBOX__
 XFLAGS		:= $(shell pkg-config --cflags libdrm) 
 XLIBS		:= $(shell pkg-config --libs libdrm)
 
-ASFLAGS		:= -g -ggdb -Wall -O2
-CFLAGS		:= -g -ggdb -Wall -O2
+ASFLAGS		:= -g -ggdb -Wall -O3
+CFLAGS		:= -g -ggdb -Wall -O3
 LDFLAGS		:= -T arch/$(ARCH)/$(MACH)/xboot.ld
 MCFLAGS		:= -m64 -mmmx -msse -msse2 -mssse3 -mfpmath=sse
 

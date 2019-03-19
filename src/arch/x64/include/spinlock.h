@@ -10,6 +10,7 @@ extern "C" {
 #include <irqflags.h>
 #include <smp.h>
 
+#if defined(CONFIG_MAX_SMP_CPUS) && (CONFIG_MAX_SMP_CPUS > 1) && !defined(__SANDBOX__)
 static inline int arch_spin_trylock(spinlock_t * lock)
 {
 	return 0;
@@ -22,6 +23,20 @@ static inline void arch_spin_lock(spinlock_t * lock)
 static inline void arch_spin_unlock(spinlock_t * lock)
 {
 }
+#else
+static inline int arch_spin_trylock(spinlock_t * lock)
+{
+	return 0;
+}
+
+static inline void arch_spin_lock(spinlock_t * lock)
+{
+}
+
+static inline void arch_spin_unlock(spinlock_t * lock)
+{
+}
+#endif
 
 #define SPIN_LOCK_INIT()					{ .lock = 0 }
 #define spin_lock_init(plock)				do { (plock)->lock = 0; } while(0)

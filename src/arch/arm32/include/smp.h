@@ -8,7 +8,7 @@ extern "C" {
 #include <xconfigs.h>
 #include <arm32.h>
 
-#if defined(CONFIG_MAX_SMP_CPUS) && (CONFIG_MAX_SMP_CPUS > 1)
+#if defined(CONFIG_MAX_SMP_CPUS) && (CONFIG_MAX_SMP_CPUS > 1) && !defined(__SANDBOX__)
 static inline int smp_processor_id(void)
 {
 	int tmp;

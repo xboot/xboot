@@ -10,7 +10,7 @@ extern "C" {
 #include <irqflags.h>
 #include <smp.h>
 
-#if defined(CONFIG_MAX_SMP_CPUS) && (CONFIG_MAX_SMP_CPUS > 1)
+#if defined(CONFIG_MAX_SMP_CPUS) && (CONFIG_MAX_SMP_CPUS > 1) && !defined(__SANDBOX__)
 static inline int arch_spin_trylock(spinlock_t * lock)
 {
 	int tmp = 1, busy;

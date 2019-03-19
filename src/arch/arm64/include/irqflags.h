@@ -7,6 +7,7 @@ extern "C" {
 
 #include <types.h>
 
+#if !defined(__SANDBOX__)
 static inline void arch_local_irq_enable(void)
 {
 	__asm__ __volatile__("msr daifclr, #2" ::: "memory");
@@ -38,6 +39,24 @@ static inline void arch_local_irq_restore(irq_flags_t flags)
 		:"r" (flags)
 		:"memory", "cc");
 }
+#else
+static inline void arch_local_irq_enable(void)
+{
+}
+
+static inline void arch_local_irq_disable(void)
+{
+}
+
+static inline irq_flags_t arch_local_irq_save(void)
+{
+	return 0;
+}
+
+static inline void arch_local_irq_restore(irq_flags_t flags)
+{
+}
+#endif
 
 #define local_irq_enable()			do { arch_local_irq_enable(); } while(0)
 #define local_irq_disable()			do { arch_local_irq_disable(); } while(0)

@@ -7,7 +7,7 @@ extern "C" {
 
 #include <xconfigs.h>
 
-#if defined(CONFIG_MAX_SMP_CPUS) && (CONFIG_MAX_SMP_CPUS > 1)
+#if defined(CONFIG_MAX_SMP_CPUS) && (CONFIG_MAX_SMP_CPUS > 1) && !defined(__SANDBOX__)
 static inline int smp_processor_id(void)
 {
 	return 0;

@@ -142,7 +142,7 @@ static int ram_mount(struct vfs_mount_t * m, const char * dev, u32_t flags)
 		return -1;
 
 	rn = ram_node_alloc("/", VNT_DIR);
-	if(!rn )
+	if(!rn)
 		return -1;
 
 	m->m_flags = flags & MOUNT_MASK;
@@ -314,7 +314,7 @@ static int ram_lookup(struct vfs_node_t * dn, const char * name, struct vfs_node
 	len = strlen(name);
 	drn = dn->v_data;
 
-	for(rn = drn->child; rn != NULL; rn = rn->next)
+	for(rn = drn ? drn->child : NULL; rn != NULL; rn = rn->next)
 	{
 		if((rn->name_len == len) && (memcmp(name, rn->name, len) == 0))
 		{

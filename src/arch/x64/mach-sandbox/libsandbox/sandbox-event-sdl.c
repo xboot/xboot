@@ -34,8 +34,10 @@ struct event_callback_t {
 	} joystick;
 };
 
-static struct event_callback_t __event_callback;
-static SDL_Thread * __event = NULL;
+struct sandbox_event_sdl_context_t {
+	struct event_callback_t ecb;
+	SDL_Thread * thread;
+};
 
 static unsigned int keycode_map(SDL_Keycode code)
 {
@@ -102,11 +104,12 @@ static unsigned int keycode_map(SDL_Keycode code)
 
 static int handle_event(void * data)
 {
-	struct event_callback_t * cb = (struct event_callback_t *)(data);
+	struct sandbox_event_sdl_context_t * ctx = (struct sandbox_event_sdl_context_t *)data;
+	struct event_callback_t * cb = &ctx->ecb;
 	SDL_GameController * gc = NULL;
 	SDL_Event e;
-	int x, y, v;
 	unsigned int button;
+	int x, y, v;
 
 	while(1)
 	{
@@ -371,61 +374,78 @@ static int handle_event(void * data)
 	        }
 		}
 	}
-
 	return 0;
 }
 
 void * sandbox_event_sdl_open(void)
 {
-	if(!__event)
-	{
-		memset(&__event_callback, 0, sizeof(struct event_callback_t));
-		__event = SDL_CreateThread(handle_event, "event", &__event_callback);
-	}
-	return __event;
+	struct sandbox_event_sdl_context_t * ctx;
+
+	ctx = malloc(sizeof(struct sandbox_event_sdl_context_t));
+	if(!ctx)
+		return NULL;
+
+	memset(ctx, 0, sizeof(struct sandbox_event_sdl_context_t));
+	ctx->thread = SDL_CreateThread(handle_event, "event", ctx);
+	return ctx;
 }
 
-void sandbox_event_sdl_close(void * handle)
+void sandbox_event_sdl_close(void * context)
 {
-	SDL_Thread * hdl = (SDL_Thread *)handle;
-	if(hdl)
-		SDL_WaitThread(hdl, NULL);
+	struct sandbox_event_sdl_context_t * ctx = (struct sandbox_event_sdl_context_t *)context;
+	if(ctx)
+	{
+		SDL_WaitThread(ctx->thread, NULL);
+		free(ctx);
+	}
 }
 
-void sandbox_event_sdl_set_key_callback(void * device,
+void sandbox_event_sdl_set_key_callback(void * context, void * device,
 		void (*down)(void * device, unsigned int key),
 		void (*up)(void * device, unsigned int key))
 {
-	__event_callback.key.device = device;
-	__event_callback.key.down = down;
-	__event_callback.key.up = up;
+	struct sandbox_event_sdl_context_t * ctx = (struct sandbox_event_sdl_context_t *)context;
+	if(ctx)
+	{
+		ctx->ecb.key.device = device;
+		ctx->ecb.key.down = down;
+		ctx->ecb.key.up = up;
+	}
 }
 
-void sandbox_event_sdl_set_mouse_callback(void * device,
+void sandbox_event_sdl_set_mouse_callback(void * context, void * device,
 		void (*down)(void * device, int x, int y, unsigned int button),
 		void (*move)(void * device, int x, int y),
 		void (*up)(void * device, int x, int y, unsigned int button),
 		void (*wheel)(void * device, int dx, int dy))
 {
-	__event_callback.mouse.device = device;
-	__event_callback.mouse.down = down;
-	__event_callback.mouse.move = move;
-	__event_callback.mouse.up = up;
-	__event_callback.mouse.wheel = wheel;
+	struct sandbox_event_sdl_context_t * ctx = (struct sandbox_event_sdl_context_t *)context;
+	if(ctx)
+	{
+		ctx->ecb.mouse.device = device;
+		ctx->ecb.mouse.down = down;
+		ctx->ecb.mouse.move = move;
+		ctx->ecb.mouse.up = up;
+		ctx->ecb.mouse.wheel = wheel;
+	}
 }
 
-void sandbox_event_sdl_set_touch_callback(void * device,
+void sandbox_event_sdl_set_touch_callback(void * context, void * device,
 		void (*begin)(void * device, int x, int y, unsigned int id),
 		void (*move)(void * device, int x, int y, unsigned int id),
 		void (*end)(void * device, int x, int y, unsigned int id))
 {
-	__event_callback.touch.device = device;
-	__event_callback.touch.begin = begin;
-	__event_callback.touch.move = move;
-	__event_callback.touch.end = end;
+	struct sandbox_event_sdl_context_t * ctx = (struct sandbox_event_sdl_context_t *)context;
+	if(ctx)
+	{
+		ctx->ecb.touch.device = device;
+		ctx->ecb.touch.begin = begin;
+		ctx->ecb.touch.move = move;
+		ctx->ecb.touch.end = end;
+	}
 }
 
-void sandbox_event_sdl_set_joystick_callback(void * device,
+void sandbox_event_sdl_set_joystick_callback(void * context, void * device,
 		void (*left_stick)(void * device, int x, int y),
 		void (*right_stick)(void * device, int x, int y),
 		void (*left_trigger)(void * device, int v),
@@ -433,11 +453,15 @@ void sandbox_event_sdl_set_joystick_callback(void * device,
 		void (*button_down)(void * device, unsigned int button),
 		void (*button_up)(void * device, unsigned int button))
 {
-	__event_callback.joystick.device = device;
-	__event_callback.joystick.left_stick = left_stick;
-	__event_callback.joystick.right_stick = right_stick;
-	__event_callback.joystick.left_trigger = left_trigger;
-	__event_callback.joystick.right_trigger = right_trigger;
-	__event_callback.joystick.button_down = button_down;
-	__event_callback.joystick.button_up = button_up;
+	struct sandbox_event_sdl_context_t * ctx = (struct sandbox_event_sdl_context_t *)context;
+	if(ctx)
+	{
+		ctx->ecb.joystick.device = device;
+		ctx->ecb.joystick.left_stick = left_stick;
+		ctx->ecb.joystick.right_stick = right_stick;
+		ctx->ecb.joystick.left_trigger = left_trigger;
+		ctx->ecb.joystick.right_trigger = right_trigger;
+		ctx->ecb.joystick.button_down = button_down;
+		ctx->ecb.joystick.button_up = button_up;
+	}
 }

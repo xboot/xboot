@@ -1,7 +1,7 @@
 #include <x.h>
 #include <sandbox.h>
 
-struct sandbox_fb_t {
+struct sandbox_fb_context_t {
 	struct fb_fix_screeninfo fi;
 	struct fb_var_screeninfo vi;
 	int fd;
@@ -11,172 +11,172 @@ struct sandbox_fb_t {
 
 void * sandbox_fb_open(const char * dev)
 {
-	struct sandbox_fb_t * hdl;
+	struct sandbox_fb_context_t * ctx;
 
-	hdl = malloc(sizeof(struct sandbox_fb_t));
-	if(!hdl)
+	ctx = malloc(sizeof(struct sandbox_fb_context_t));
+	if(!ctx)
 		return NULL;
 
-	hdl->fd = open(dev, O_RDWR);
-	if(hdl->fd < 0)
+	ctx->fd = open(dev, O_RDWR);
+	if(ctx->fd < 0)
 	{
-		free(hdl);
+		free(ctx);
 		return NULL;
 	}
 
-	if(ioctl(hdl->fd, FBIOGET_FSCREENINFO, &hdl->fi) != 0)
+	if(ioctl(ctx->fd, FBIOGET_FSCREENINFO, &ctx->fi) != 0)
 	{
-		close(hdl->fd);
-		free(hdl);
+		close(ctx->fd);
+		free(ctx);
 		return NULL;
 	}
 
-	if(ioctl(hdl->fd, FBIOGET_VSCREENINFO, &hdl->vi) != 0)
+	if(ioctl(ctx->fd, FBIOGET_VSCREENINFO, &ctx->vi) != 0)
 	{
-		close(hdl->fd);
-		free(hdl);
+		close(ctx->fd);
+		free(ctx);
 		return NULL;
 	}
 
-	hdl->vi.red.offset = 0;
-	hdl->vi.red.length = 8;
-	hdl->vi.green.offset = 8;
-	hdl->vi.green.length = 8;
-	hdl->vi.blue.offset = 16;
-	hdl->vi.blue.length = 8;
-	hdl->vi.transp.offset = 24;
-	hdl->vi.transp.length = 8;
-	hdl->vi.bits_per_pixel = 32;
-	hdl->vi.nonstd = 0;
+	ctx->vi.red.offset = 0;
+	ctx->vi.red.length = 8;
+	ctx->vi.green.offset = 8;
+	ctx->vi.green.length = 8;
+	ctx->vi.blue.offset = 16;
+	ctx->vi.blue.length = 8;
+	ctx->vi.transp.offset = 24;
+	ctx->vi.transp.length = 8;
+	ctx->vi.bits_per_pixel = 32;
+	ctx->vi.nonstd = 0;
 
-	if(ioctl(hdl->fd, FBIOPUT_VSCREENINFO, &hdl->vi) != 0)
+	if(ioctl(ctx->fd, FBIOPUT_VSCREENINFO, &ctx->vi) != 0)
 	{
-		close(hdl->fd);
-		free(hdl);
+		close(ctx->fd);
+		free(ctx);
 		return NULL;
 	}
 
-	hdl->vramsz = hdl->vi.yres_virtual * hdl->fi.line_length;
-	hdl->vram = mmap(0, hdl->vramsz, PROT_READ | PROT_WRITE, MAP_SHARED, hdl->fd, 0);
-	if(hdl->vram == (void *)(-1))
+	ctx->vramsz = ctx->vi.yres_virtual * ctx->fi.line_length;
+	ctx->vram = mmap(0, ctx->vramsz, PROT_READ | PROT_WRITE, MAP_SHARED, ctx->fd, 0);
+	if(ctx->vram == (void *)(-1))
 	{
-		close(hdl->fd);
-		free(hdl);
+		close(ctx->fd);
+		free(ctx);
 		return NULL;
 	}
-	memset(hdl->vram, 0, hdl->vramsz);
+	memset(ctx->vram, 0, ctx->vramsz);
 
-	return hdl;
+	return ctx;
 }
 
-void sandbox_fb_close(void * handle)
+void sandbox_fb_close(void * context)
 {
-	struct sandbox_fb_t * hdl = (struct sandbox_fb_t *)handle;
+	struct sandbox_fb_context_t * ctx = (struct sandbox_fb_context_t *)context;
 
-	if(!hdl)
+	if(!ctx)
 		return;
-	if(hdl->vram != (void *)(-1))
-		munmap(hdl->vram, hdl->vramsz);
-	if(!(hdl->fd < 0))
-		close(hdl->fd);
-	free(hdl);
+	if(ctx->vram != (void *)(-1))
+		munmap(ctx->vram, ctx->vramsz);
+	if(!(ctx->fd < 0))
+		close(ctx->fd);
+	free(ctx);
 }
 
-int sandbox_fb_get_width(void * handle)
+int sandbox_fb_get_width(void * context)
 {
-	struct sandbox_fb_t * hdl = (struct sandbox_fb_t *)handle;
-	if(hdl)
-		return hdl->vi.xres;
+	struct sandbox_fb_context_t * ctx = (struct sandbox_fb_context_t *)context;
+	if(ctx)
+		return ctx->vi.xres;
 	return 0;
 }
 
-int sandbox_fb_get_height(void * handle)
+int sandbox_fb_get_height(void * context)
 {
-	struct sandbox_fb_t * hdl = (struct sandbox_fb_t *)handle;
-	if(hdl)
-		return hdl->vi.yres;
+	struct sandbox_fb_context_t * ctx = (struct sandbox_fb_context_t *)context;
+	if(ctx)
+		return ctx->vi.yres;
 	return 0;
 }
 
-int sandbox_fb_get_pwidth(void * handle)
+int sandbox_fb_get_pwidth(void * context)
 {
-	struct sandbox_fb_t * hdl = (struct sandbox_fb_t *)handle;
-	if(hdl)
+	struct sandbox_fb_context_t * ctx = (struct sandbox_fb_context_t *)context;
+	if(ctx)
 		return 256;
 	return 0;
 }
 
-int sandbox_fb_get_pheight(void * handle)
+int sandbox_fb_get_pheight(void * context)
 {
-	struct sandbox_fb_t * hdl = (struct sandbox_fb_t *)handle;
-	if(hdl)
+	struct sandbox_fb_context_t * ctx = (struct sandbox_fb_context_t *)context;
+	if(ctx)
 		return 135;
 	return 0;
 }
 
-int sandbox_fb_get_bpp(void * handle)
+int sandbox_fb_get_bpp(void * context)
 {
-	struct sandbox_fb_t * hdl = (struct sandbox_fb_t *)handle;
-	if(hdl)
-		return hdl->vi.bits_per_pixel;
+	struct sandbox_fb_context_t * ctx = (struct sandbox_fb_context_t *)context;
+	if(ctx)
+		return ctx->vi.bits_per_pixel;
 	return 0;
 }
 
-int sandbox_fb_surface_create(void * handle, struct sandbox_fb_surface_t * surface)
+int sandbox_fb_surface_create(void * context, struct sandbox_fb_surface_t * surface)
 {
-	struct sandbox_fb_t * hdl = (struct sandbox_fb_t *)handle;
-	surface->width = hdl->vi.xres;
-	surface->height = hdl->vi.yres;
-	surface->pitch = hdl->fi.line_length;
-	surface->pixels = memalign(4, hdl->vramsz);
+	struct sandbox_fb_context_t * ctx = (struct sandbox_fb_context_t *)context;
+	surface->width = ctx->vi.xres;
+	surface->height = ctx->vi.yres;
+	surface->pitch = ctx->fi.line_length;
+	surface->pixels = memalign(4, ctx->vramsz);
 	return 1;
 }
 
-int sandbox_fb_surface_destroy(void * handle, struct sandbox_fb_surface_t * surface)
+int sandbox_fb_surface_destroy(void * context, struct sandbox_fb_surface_t * surface)
 {
 	if(surface && surface->pixels)
 		free(surface->pixels);
 	return 1;
 }
 
-int sandbox_fb_surface_present(void * handle, struct sandbox_fb_surface_t * surface, struct sandbox_fb_dirty_rect_t * rect, int nrect)
+int sandbox_fb_surface_present(void * context, struct sandbox_fb_surface_t * surface, struct sandbox_fb_dirty_rect_t * rect, int nrect)
 {
-	struct sandbox_fb_t * hdl = (struct sandbox_fb_t *)handle;
+	struct sandbox_fb_context_t * ctx = (struct sandbox_fb_context_t *)context;
 	unsigned char * p, * q;
 	int stride, bytes, height, line;
 	int i, j;
 
 	if(rect && (nrect > 0))
 	{
-		stride = hdl->fi.line_length;
-		bytes = hdl->vi.bits_per_pixel / 8;
+		stride = ctx->fi.line_length;
+		bytes = ctx->vi.bits_per_pixel / 8;
 		for(i = 0; i < nrect; i++)
 		{
 			height = rect[i].h;
 			line = rect[i].w * bytes;
 			p = (unsigned char *)surface->pixels + rect[i].y * stride + rect[i].x * bytes;
-			q = (unsigned char *)hdl->vram + rect[i].y * stride + rect[i].x * bytes;
+			q = (unsigned char *)ctx->vram + rect[i].y * stride + rect[i].x * bytes;
 			for(j = 0; j < height; j++, p += stride, q += stride)
 				memcpy(q, p, line);
 		}
 	}
 	else
 	{
-		stride = hdl->fi.line_length;
-		height = hdl->vi.yres;
+		stride = ctx->fi.line_length;
+		height = ctx->vi.yres;
 		p = (unsigned char *)surface->pixels;
-		q = (unsigned char *)hdl->vram;
+		q = (unsigned char *)ctx->vram;
 		for(j = 0; j < height; j++, p += stride, q += stride)
 			memcpy(q, p, stride);
 	}
 	return 1;
 }
 
-void sandbox_fb_set_backlight(void * handle, int brightness)
+void sandbox_fb_set_backlight(void * context, int brightness)
 {
 }
 
-int sandbox_fb_get_backlight(void * handle)
+int sandbox_fb_get_backlight(void * context)
 {
 	return 0;
 }

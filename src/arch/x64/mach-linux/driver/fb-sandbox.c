@@ -110,17 +110,17 @@ static struct device_t * fb_sandbox_probe(struct driver_t * drv, struct dtnode_t
 	struct fb_sandbox_pdata_t * pdat;
 	struct framebuffer_t * fb;
 	struct device_t * dev;
-	void * priv;
+	void * ctx;
 	int bpp;
 
-	priv = sandbox_fb_open(dt_read_string(n, "device", NULL));
-	if(!priv)
+	ctx = sandbox_fb_open(dt_read_string(n, "device", NULL));
+	if(!ctx)
 		return NULL;
 
-	bpp = sandbox_fb_get_bpp(priv);
+	bpp = sandbox_fb_get_bpp(ctx);
 	if(bpp != 32)
 	{
-		sandbox_fb_close(priv);
+		sandbox_fb_close(ctx);
 		return NULL;
 	}
 
@@ -135,7 +135,7 @@ static struct device_t * fb_sandbox_probe(struct driver_t * drv, struct dtnode_t
 		return NULL;
 	}
 
-	pdat->priv = priv;
+	pdat->priv = ctx;
 	pdat->width = sandbox_fb_get_width(pdat->priv);
 	pdat->height = sandbox_fb_get_height(pdat->priv);
 	pdat->pwidth = dt_read_int(n, "physical-width", sandbox_fb_get_pwidth(pdat->priv));

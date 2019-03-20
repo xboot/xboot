@@ -40,17 +40,17 @@ struct sandbox_fb_dirty_rect_t {
 
 /* Framebuffer device */
 void * sandbox_fb_open(const char * dev);
-void sandbox_fb_close(void * handle);
-int sandbox_fb_get_width(void * handle);
-int sandbox_fb_get_height(void * handle);
-int sandbox_fb_get_pwidth(void * handle);
-int sandbox_fb_get_pheight(void * handle);
-int sandbox_fb_get_bpp(void * handle);
-int sandbox_fb_surface_create(void * handle, struct sandbox_fb_surface_t * surface);
-int sandbox_fb_surface_destroy(void * handle, struct sandbox_fb_surface_t * surface);
-int sandbox_fb_surface_present(void * handle, struct sandbox_fb_surface_t * surface, struct sandbox_fb_dirty_rect_t * rect, int nrect);
-void sandbox_fb_set_backlight(void * handle, int brightness);
-int sandbox_fb_get_backlight(void * handle);
+void sandbox_fb_close(void * context);
+int sandbox_fb_get_width(void * context);
+int sandbox_fb_get_height(void * context);
+int sandbox_fb_get_pwidth(void * context);
+int sandbox_fb_get_pheight(void * context);
+int sandbox_fb_get_bpp(void * context);
+int sandbox_fb_surface_create(void * context, struct sandbox_fb_surface_t * surface);
+int sandbox_fb_surface_destroy(void * context, struct sandbox_fb_surface_t * surface);
+int sandbox_fb_surface_present(void * context, struct sandbox_fb_surface_t * surface, struct sandbox_fb_dirty_rect_t * rect, int nrect);
+void sandbox_fb_set_backlight(void * context, int brightness);
+int sandbox_fb_get_backlight(void * context);
 
 /*
  * File interface

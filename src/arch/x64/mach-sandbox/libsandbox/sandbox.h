@@ -36,20 +36,20 @@ void sandbox_audio_sdl_stop(void);
  */
 /* SDL event */
 void * sandbox_event_sdl_open(void);
-void sandbox_event_sdl_close(void * handle);
-void sandbox_event_sdl_set_key_callback(void * device,
+void sandbox_event_sdl_close(void * context);
+void sandbox_event_sdl_set_key_callback(void * context, void * device,
 		void (*down)(void * device, unsigned int key),
 		void (*up)(void * device, unsigned int key));
-void sandbox_event_sdl_set_mouse_callback(void * device,
+void sandbox_event_sdl_set_mouse_callback(void * context, void * device,
 		void (*down)(void * device, int x, int y, unsigned int button),
 		void (*move)(void * device, int x, int y),
 		void (*up)(void * device, int x, int y, unsigned int button),
 		void (*wheel)(void * device, int dx, int dy));
-void sandbox_event_sdl_set_touch_callback(void * device,
+void sandbox_event_sdl_set_touch_callback(void * context, void * device,
 		void (*begin)(void * device, int x, int y, unsigned int id),
 		void (*move)(void * device, int x, int y, unsigned int id),
 		void (*end)(void * device, int x, int y, unsigned int id));
-void sandbox_event_sdl_set_joystick_callback(void * device,
+void sandbox_event_sdl_set_joystick_callback(void * context, void * device,
 		void (*left_stick)(void * device, int x, int y),
 		void (*right_stick)(void * device, int x, int y),
 		void (*left_trigger)(void * device, int v),
@@ -75,31 +75,31 @@ struct sandbox_fb_dirty_rect_t {
 
 /* Framebuffer device */
 void * sandbox_fb_open(const char * dev);
-void sandbox_fb_close(void * handle);
-int sandbox_fb_get_width(void * handle);
-int sandbox_fb_get_height(void * handle);
-int sandbox_fb_get_pwidth(void * handle);
-int sandbox_fb_get_pheight(void * handle);
-int sandbox_fb_get_bpp(void * handle);
-int sandbox_fb_surface_create(void * handle, struct sandbox_fb_surface_t * surface);
-int sandbox_fb_surface_destroy(void * handle, struct sandbox_fb_surface_t * surface);
-int sandbox_fb_surface_present(void * handle, struct sandbox_fb_surface_t * surface, struct sandbox_fb_dirty_rect_t * rect, int nrect);
-void sandbox_fb_set_backlight(void * handle, int brightness);
-int sandbox_fb_get_backlight(void * handle);
+void sandbox_fb_close(void * context);
+int sandbox_fb_get_width(void * context);
+int sandbox_fb_get_height(void * context);
+int sandbox_fb_get_pwidth(void * context);
+int sandbox_fb_get_pheight(void * context);
+int sandbox_fb_get_bpp(void * context);
+int sandbox_fb_surface_create(void * context, struct sandbox_fb_surface_t * surface);
+int sandbox_fb_surface_destroy(void * context, struct sandbox_fb_surface_t * surface);
+int sandbox_fb_surface_present(void * context, struct sandbox_fb_surface_t * surface, struct sandbox_fb_dirty_rect_t * rect, int nrect);
+void sandbox_fb_set_backlight(void * context, int brightness);
+int sandbox_fb_get_backlight(void * context);
 
 /* SDL windows */
 void * sandbox_fb_sdl_open(const char * title, int width, int height);
-void sandbox_fb_sdl_close(void * handle);
-int sandbox_fb_sdl_get_width(void * handle);
-int sandbox_fb_sdl_get_height(void * handle);
-int sandbox_fb_sdl_get_pwidth(void * handle);
-int sandbox_fb_sdl_get_pheight(void * handle);
-int sandbox_fb_sdl_get_bpp(void * handle);
-int sandbox_fb_sdl_surface_create(void * handle, struct sandbox_fb_surface_t * surface);
-int sandbox_fb_sdl_surface_destroy(void * handle, struct sandbox_fb_surface_t * surface);
-int sandbox_fb_sdl_surface_present(void * handle, struct sandbox_fb_surface_t * surface, struct sandbox_fb_dirty_rect_t * rect, int nrect);
-void sandbox_fb_sdl_set_backlight(void * handle, int brightness);
-int sandbox_fb_sdl_get_backlight(void * handle);
+void sandbox_fb_sdl_close(void * context);
+int sandbox_fb_sdl_get_width(void * context);
+int sandbox_fb_sdl_get_height(void * context);
+int sandbox_fb_sdl_get_pwidth(void * context);
+int sandbox_fb_sdl_get_pheight(void * context);
+int sandbox_fb_sdl_get_bpp(void * context);
+int sandbox_fb_sdl_surface_create(void * context, struct sandbox_fb_surface_t * surface);
+int sandbox_fb_sdl_surface_destroy(void * context, struct sandbox_fb_surface_t * surface);
+int sandbox_fb_sdl_surface_present(void * context, struct sandbox_fb_surface_t * surface, struct sandbox_fb_dirty_rect_t * rect, int nrect);
+void sandbox_fb_sdl_set_backlight(void * context, int brightness);
+int sandbox_fb_sdl_get_backlight(void * context);
 
 /*
  * File interface

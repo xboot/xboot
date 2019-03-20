@@ -51,6 +51,9 @@ static ssize_t input_read_type(struct kobj_t * kobj, void * buf, size_t size)
 	case INPUT_TYPE_JOYSTICK:
 		name = "joystick";
 		break;
+	case INPUT_TYPE_ALL:
+		name = "all";
+		break;
 	default:
 		name = "unknown";
 		break;

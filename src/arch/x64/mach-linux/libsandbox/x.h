@@ -24,7 +24,10 @@ extern "C" {
 #include <sys/types.h>
 #include <sys/ioctl.h>
 #include <sys/timerfd.h>
+#include <sys/inotify.h>
+#include <sys/poll.h>
 #include <linux/fb.h>
+#include <linux/input.h>
 
 #ifdef __cplusplus
 }

@@ -13,6 +13,7 @@ enum input_type_t {
 	INPUT_TYPE_MOUSE		= 3,
 	INPUT_TYPE_TOUCHSCREEN	= 4,
 	INPUT_TYPE_JOYSTICK		= 5,
+	INPUT_TYPE_ALL			= 6,
 };
 
 enum {

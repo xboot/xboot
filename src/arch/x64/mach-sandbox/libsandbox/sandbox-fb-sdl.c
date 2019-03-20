@@ -1,7 +1,7 @@
 #include <x.h>
 #include <sandbox.h>
 
-struct sandbox_fb_t {
+struct sandbox_fb_sdl_context_t {
 	SDL_Window * window;
 	SDL_Surface * screen;
 	char * title;
@@ -11,102 +11,102 @@ struct sandbox_fb_t {
 
 void * sandbox_fb_sdl_open(const char * title, int width, int height)
 {
-	struct sandbox_fb_t * hdl;
+	struct sandbox_fb_sdl_context_t * ctx;
 	Uint32 flags = SDL_WINDOW_SHOWN | SDL_WINDOW_INPUT_FOCUS | SDL_WINDOW_MOUSE_FOCUS;
 
-	hdl = malloc(sizeof(struct sandbox_fb_t));
-	if(!hdl)
+	ctx = malloc(sizeof(struct sandbox_fb_sdl_context_t));
+	if(!ctx)
 		return NULL;
 
-	hdl->title = strdup(title ? title : "Xboot Runtime Environment");
-	hdl->window = SDL_CreateWindow(hdl->title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, flags);
-	if(!hdl->window)
+	ctx->title = strdup(title ? title : "Xboot Runtime Environment");
+	ctx->window = SDL_CreateWindow(ctx->title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, flags);
+	if(!ctx->window)
 	{
-		if(hdl->title)
-			free(hdl->title);
-		free(hdl);
+		if(ctx->title)
+			free(ctx->title);
+		free(ctx);
 		return NULL;
 	}
 
-	hdl->screen = SDL_GetWindowSurface(hdl->window);
-	if(!hdl->screen)
+	ctx->screen = SDL_GetWindowSurface(ctx->window);
+	if(!ctx->screen)
 	{
-		if(hdl->window)
-			SDL_DestroyWindow(hdl->window);
-		if(hdl->title)
-			free(hdl->title);
-		free(hdl);
+		if(ctx->window)
+			SDL_DestroyWindow(ctx->window);
+		if(ctx->title)
+			free(ctx->title);
+		free(ctx);
 		return NULL;
 	}
 
-	SDL_GetWindowSize(hdl->window, &hdl->width, &hdl->height);
-	return hdl;
+	SDL_GetWindowSize(ctx->window, &ctx->width, &ctx->height);
+	return ctx;
 }
 
-void sandbox_fb_sdl_close(void * handle)
+void sandbox_fb_sdl_close(void * context)
 {
-	struct sandbox_fb_t * hdl = (struct sandbox_fb_t *)handle;
+	struct sandbox_fb_sdl_context_t * ctx = (struct sandbox_fb_sdl_context_t *)context;
 
-	if(!hdl)
+	if(!ctx)
 		return;
-	if(hdl->window)
-		SDL_DestroyWindow(hdl->window);
-	if(hdl->screen)
-		SDL_FreeSurface(hdl->screen);
-	if(hdl->title)
-		free(hdl->title);
-	free(hdl);
+	if(ctx->window)
+		SDL_DestroyWindow(ctx->window);
+	if(ctx->screen)
+		SDL_FreeSurface(ctx->screen);
+	if(ctx->title)
+		free(ctx->title);
+	free(ctx);
 }
 
-int sandbox_fb_sdl_get_width(void * handle)
+int sandbox_fb_sdl_get_width(void * context)
 {
-	struct sandbox_fb_t * hdl = (struct sandbox_fb_t *)handle;
-	if(hdl)
-		return hdl->width;
+	struct sandbox_fb_sdl_context_t * ctx = (struct sandbox_fb_sdl_context_t *)context;
+	if(ctx)
+		return ctx->width;
 	return 0;
 }
 
-int sandbox_fb_sdl_get_height(void * handle)
+int sandbox_fb_sdl_get_height(void * context)
 {
-	struct sandbox_fb_t * hdl = (struct sandbox_fb_t *)handle;
-	if(hdl)
-		return hdl->height;
+	struct sandbox_fb_sdl_context_t * ctx = (struct sandbox_fb_sdl_context_t *)context;
+	if(ctx)
+		return ctx->height;
 	return 0;
 }
 
-int sandbox_fb_sdl_get_pwidth(void * handle)
+int sandbox_fb_sdl_get_pwidth(void * context)
 {
-	struct sandbox_fb_t * hdl = (struct sandbox_fb_t *)handle;
-	if(hdl)
+	struct sandbox_fb_sdl_context_t * ctx = (struct sandbox_fb_sdl_context_t *)context;
+	if(ctx)
 		return 216;
 	return 0;
 }
 
-int sandbox_fb_sdl_get_pheight(void * handle)
+int sandbox_fb_sdl_get_pheight(void * context)
 {
-	struct sandbox_fb_t * hdl = (struct sandbox_fb_t *)handle;
-	if(hdl)
+	struct sandbox_fb_sdl_context_t * ctx = (struct sandbox_fb_sdl_context_t *)context;
+	if(ctx)
 		return 135;
 	return 0;
 }
 
-int sandbox_fb_sdl_get_bpp(void * handle)
+int sandbox_fb_sdl_get_bpp(void * context)
 {
-	struct sandbox_fb_t * hdl = (struct sandbox_fb_t *)handle;
-	if(hdl)
+	struct sandbox_fb_sdl_context_t * ctx = (struct sandbox_fb_sdl_context_t *)context;
+	if(ctx)
 		return 32;
 	return 0;
 }
 
-int sandbox_fb_sdl_surface_create(void * handle, struct sandbox_fb_surface_t * surface)
+int sandbox_fb_sdl_surface_create(void * context, struct sandbox_fb_surface_t * surface)
 {
-	struct sandbox_fb_t * hdl = (struct sandbox_fb_t *)handle;
+	struct sandbox_fb_sdl_context_t * ctx = (struct sandbox_fb_sdl_context_t *)context;
 	SDL_Surface * face;
 	Uint32 r, g, b, a;
 	int bpp;
 
 	SDL_PixelFormatEnumToMasks(SDL_PIXELFORMAT_ARGB8888, &bpp, &r, &g, &b, &a);
-	face = SDL_CreateRGBSurface(SDL_SWSURFACE, hdl->width, hdl->height, bpp, r, g, b, a);
+	face = SDL_CreateRGBSurface(SDL_SWSURFACE, ctx->width, ctx->height, bpp, r, g, b, a);
 	if(!face)
 		return 0;
 
@@ -119,16 +119,16 @@ int sandbox_fb_sdl_surface_create(void * handle, struct sandbox_fb_surface_t * s
 	return 1;
 }
 
-int sandbox_fb_sdl_surface_destroy(void * handle, struct sandbox_fb_surface_t * surface)
+int sandbox_fb_sdl_surface_destroy(void * context, struct sandbox_fb_surface_t * surface)
 {
 	if(surface)
 		SDL_FreeSurface(surface->priv);
 	return 1;
 }
 
-int sandbox_fb_sdl_surface_present(void * handle, struct sandbox_fb_surface_t * surface, struct sandbox_fb_dirty_rect_t * rect, int nrect)
+int sandbox_fb_sdl_surface_present(void * context, struct sandbox_fb_surface_t * surface, struct sandbox_fb_dirty_rect_t * rect, int nrect)
 {
-	struct sandbox_fb_t * hdl = (struct sandbox_fb_t *)handle;
+	struct sandbox_fb_sdl_context_t * ctx = (struct sandbox_fb_sdl_context_t *)context;
 	SDL_Rect r;
 	int i;
 
@@ -140,25 +140,25 @@ int sandbox_fb_sdl_surface_present(void * handle, struct sandbox_fb_surface_t * 
 			r.y = rect[i].y;
 			r.w = rect[i].w;
 			r.h = rect[i].h;
-			SDL_BlitSurface(surface->priv, &r, hdl->screen, &r);
+			SDL_BlitSurface(surface->priv, &r, ctx->screen, &r);
 		}
 	}
 	else
 	{
-		SDL_BlitSurface(surface->priv, NULL, hdl->screen, NULL);
+		SDL_BlitSurface(surface->priv, NULL, ctx->screen, NULL);
 	}
-	SDL_UpdateWindowSurface(hdl->window);
+	SDL_UpdateWindowSurface(ctx->window);
 	return 1;
 }
 
-void sandbox_fb_sdl_set_backlight(void * handle, int brightness)
+void sandbox_fb_sdl_set_backlight(void * context, int brightness)
 {
-	struct sandbox_fb_t * hdl = (struct sandbox_fb_t *)handle;
-	SDL_SetWindowBrightness(hdl->window, brightness / 1000.0);
+	struct sandbox_fb_sdl_context_t * ctx = (struct sandbox_fb_sdl_context_t *)context;
+	SDL_SetWindowBrightness(ctx->window, brightness / 1000.0);
 }
 
-int sandbox_fb_sdl_get_backlight(void * handle)
+int sandbox_fb_sdl_get_backlight(void * context)
 {
-	struct sandbox_fb_t * hdl = (struct sandbox_fb_t *)handle;
-	return (int)(SDL_GetWindowBrightness(hdl->window) * 1000.0);
+	struct sandbox_fb_sdl_context_t * ctx = (struct sandbox_fb_sdl_context_t *)context;
+	return (int)(SDL_GetWindowBrightness(ctx->window) * 1000.0);
 }

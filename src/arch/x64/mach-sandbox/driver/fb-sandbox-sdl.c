@@ -113,18 +113,18 @@ static struct device_t * fb_sandbox_sdl_probe(struct driver_t * drv, struct dtno
 	int width = dt_read_int(n, "width", 640);
 	int height = dt_read_int(n, "height", 480);
 	char title[64];
-	void * priv;
+	void * ctx;
 	int bpp;
 
 	sprintf(title, "Xboot Runtime Environment - V%s", xboot_version_string());
-	priv = sandbox_fb_sdl_open(title, width, height);
-	if(!priv)
+	ctx = sandbox_fb_sdl_open(title, width, height);
+	if(!ctx)
 		return NULL;
 
-	bpp = sandbox_fb_sdl_get_bpp(priv);
+	bpp = sandbox_fb_sdl_get_bpp(ctx);
 	if(bpp != 32)
 	{
-		sandbox_fb_sdl_close(priv);
+		sandbox_fb_sdl_close(ctx);
 		return NULL;
 	}
 
@@ -139,7 +139,7 @@ static struct device_t * fb_sandbox_sdl_probe(struct driver_t * drv, struct dtno
 		return NULL;
 	}
 
-	pdat->priv = priv;
+	pdat->priv = ctx;
 	pdat->width = sandbox_fb_sdl_get_width(pdat->priv);
 	pdat->height = sandbox_fb_sdl_get_height(pdat->priv);
 	pdat->pwidth = dt_read_int(n, "physical-width", sandbox_fb_get_pwidth(pdat->priv));

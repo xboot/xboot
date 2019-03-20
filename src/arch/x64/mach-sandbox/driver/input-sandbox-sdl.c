@@ -30,168 +30,172 @@
 #include <input/input.h>
 #include <sandbox.h>
 
+struct input_sandbox_sdl_pdata_t {
+	void * ctx;
+};
+
 static void cb_key_down(void * device, unsigned int key)
 {
-	struct event_t event;
+	struct event_t e;
 
-	event.device = device;
-	event.type = EVENT_TYPE_KEY_DOWN;
-	event.e.key_down.key = key;
-	push_event(&event);
+	e.device = device;
+	e.type = EVENT_TYPE_KEY_DOWN;
+	e.e.key_down.key = key;
+	push_event(&e);
 }
 
 static void cb_key_up(void * device, unsigned int key)
 {
-	struct event_t event;
+	struct event_t e;
 
-	event.device = device;
-	event.type = EVENT_TYPE_KEY_UP;
-	event.e.key_up.key = key;
-	push_event(&event);
+	e.device = device;
+	e.type = EVENT_TYPE_KEY_UP;
+	e.e.key_up.key = key;
+	push_event(&e);
 }
 
 static void cb_mouse_down(void * device, int x, int y, unsigned int button)
 {
-	struct event_t event;
+	struct event_t e;
 
-	event.device = device;
-	event.type = EVENT_TYPE_MOUSE_DOWN;
-	event.e.mouse_down.x = x;
-	event.e.mouse_down.y = y;
-	event.e.mouse_down.button = button;
-	push_event(&event);
+	e.device = device;
+	e.type = EVENT_TYPE_MOUSE_DOWN;
+	e.e.mouse_down.x = x;
+	e.e.mouse_down.y = y;
+	e.e.mouse_down.button = button;
+	push_event(&e);
 }
 
 static void cb_mouse_move(void * device, int x, int y)
 {
-	struct event_t event;
+	struct event_t e;
 
-	event.device = device;
-	event.type = EVENT_TYPE_MOUSE_MOVE;
-	event.e.mouse_move.x = x;
-	event.e.mouse_move.y = y;
-	push_event(&event);
+	e.device = device;
+	e.type = EVENT_TYPE_MOUSE_MOVE;
+	e.e.mouse_move.x = x;
+	e.e.mouse_move.y = y;
+	push_event(&e);
 }
 
 static void cb_mouse_up(void * device, int x, int y, unsigned int button)
 {
-	struct event_t event;
+	struct event_t e;
 
-	event.device = device;
-	event.type = EVENT_TYPE_MOUSE_UP;
-	event.e.mouse_down.x = x;
-	event.e.mouse_down.y = y;
-	event.e.mouse_down.button = button;
-	push_event(&event);
+	e.device = device;
+	e.type = EVENT_TYPE_MOUSE_UP;
+	e.e.mouse_down.x = x;
+	e.e.mouse_down.y = y;
+	e.e.mouse_down.button = button;
+	push_event(&e);
 }
 
 static void cb_mouse_wheel(void * device, int dx, int dy)
 {
-	struct event_t event;
+	struct event_t e;
 
-	event.device = device;
-	event.type = EVENT_TYPE_MOUSE_WHEEL;
-	event.e.mouse_wheel.dx = dx;
-	event.e.mouse_wheel.dy = dy;
-	push_event(&event);
+	e.device = device;
+	e.type = EVENT_TYPE_MOUSE_WHEEL;
+	e.e.mouse_wheel.dx = dx;
+	e.e.mouse_wheel.dy = dy;
+	push_event(&e);
 }
 
 static void cb_touch_begin(void * device, int x, int y, unsigned int id)
 {
-	struct event_t event;
+	struct event_t e;
 
-	event.device = device;
-	event.type = EVENT_TYPE_TOUCH_BEGIN;
-	event.e.touch_begin.x = x;
-	event.e.touch_begin.y = y;
-	event.e.touch_begin.id = id;
-	push_event(&event);
+	e.device = device;
+	e.type = EVENT_TYPE_TOUCH_BEGIN;
+	e.e.touch_begin.x = x;
+	e.e.touch_begin.y = y;
+	e.e.touch_begin.id = id;
+	push_event(&e);
 }
 
 static void cb_touch_move(void * device, int x, int y, unsigned int id)
 {
-	struct event_t event;
+	struct event_t e;
 
-	event.device = device;
-	event.type = EVENT_TYPE_TOUCH_MOVE;
-	event.e.touch_move.x = x;
-	event.e.touch_move.y = y;
-	event.e.touch_move.id = id;
-	push_event(&event);
+	e.device = device;
+	e.type = EVENT_TYPE_TOUCH_MOVE;
+	e.e.touch_move.x = x;
+	e.e.touch_move.y = y;
+	e.e.touch_move.id = id;
+	push_event(&e);
 }
 
 static void cb_touch_end(void * device, int x, int y, unsigned int id)
 {
-	struct event_t event;
+	struct event_t e;
 
-	event.device = device;
-	event.type = EVENT_TYPE_TOUCH_END;
-	event.e.touch_end.x = x;
-	event.e.touch_end.y = y;
-	event.e.touch_end.id = id;
-	push_event(&event);
+	e.device = device;
+	e.type = EVENT_TYPE_TOUCH_END;
+	e.e.touch_end.x = x;
+	e.e.touch_end.y = y;
+	e.e.touch_end.id = id;
+	push_event(&e);
 }
 
 static void cb_joystick_left_stick(void * device, int x, int y)
 {
-	struct event_t event;
+	struct event_t e;
 
-	event.device = device;
-	event.type = EVENT_TYPE_JOYSTICK_LEFTSTICK;
-	event.e.joystick_left_stick.x = x;
-	event.e.joystick_left_stick.y = y;
-	push_event(&event);
+	e.device = device;
+	e.type = EVENT_TYPE_JOYSTICK_LEFTSTICK;
+	e.e.joystick_left_stick.x = x;
+	e.e.joystick_left_stick.y = y;
+	push_event(&e);
 }
 
 static void cb_joystick_right_stick(void * device, int x, int y)
 {
-	struct event_t event;
+	struct event_t e;
 
-	event.device = device;
-	event.type = EVENT_TYPE_JOYSTICK_RIGHTSTICK;
-	event.e.joystick_right_stick.x = x;
-	event.e.joystick_right_stick.y = y;
-	push_event(&event);
+	e.device = device;
+	e.type = EVENT_TYPE_JOYSTICK_RIGHTSTICK;
+	e.e.joystick_right_stick.x = x;
+	e.e.joystick_right_stick.y = y;
+	push_event(&e);
 }
 
 static void cb_joystick_left_trigger(void * device, int v)
 {
-	struct event_t event;
+	struct event_t e;
 
-	event.device = device;
-	event.type = EVENT_TYPE_JOYSTICK_LEFTTRIGGER;
-	event.e.joystick_left_trigger.v = v;
-	push_event(&event);
+	e.device = device;
+	e.type = EVENT_TYPE_JOYSTICK_LEFTTRIGGER;
+	e.e.joystick_left_trigger.v = v;
+	push_event(&e);
 }
 
 static void cb_joystick_right_trigger(void * device, int v)
 {
-	struct event_t event;
+	struct event_t e;
 
-	event.device = device;
-	event.type = EVENT_TYPE_JOYSTICK_RIGHTTRIGGER;
-	event.e.joystick_left_trigger.v = v;
-	push_event(&event);
+	e.device = device;
+	e.type = EVENT_TYPE_JOYSTICK_RIGHTTRIGGER;
+	e.e.joystick_left_trigger.v = v;
+	push_event(&e);
 }
 
 static void cb_joystick_button_down(void * device, unsigned int button)
 {
-	struct event_t event;
+	struct event_t e;
 
-	event.device = device;
-	event.type = EVENT_TYPE_JOYSTICK_BUTTONDOWN;
-	event.e.joystick_button_down.button = button;
-	push_event(&event);
+	e.device = device;
+	e.type = EVENT_TYPE_JOYSTICK_BUTTONDOWN;
+	e.e.joystick_button_down.button = button;
+	push_event(&e);
 }
 
 static void cb_joystick_button_up(void * device, unsigned int button)
 {
-	struct event_t event;
+	struct event_t e;
 
-	event.device = device;
-	event.type = EVENT_TYPE_JOYSTICK_BUTTONUP;
-	event.e.joystick_button_down.button = button;
-	push_event(&event);
+	e.device = device;
+	e.type = EVENT_TYPE_JOYSTICK_BUTTONUP;
+	e.e.joystick_button_down.button = button;
+	push_event(&e);
 }
 
 static int input_sandbox_sdl_ioctl(struct input_t * input, int cmd, void * arg)
@@ -201,89 +205,62 @@ static int input_sandbox_sdl_ioctl(struct input_t * input, int cmd, void * arg)
 
 static struct device_t * input_sandbox_sdl_probe(struct driver_t * drv, struct dtnode_t * n)
 {
+	struct input_sandbox_sdl_pdata_t * pdat;
 	struct input_t * input;
 	struct device_t * dev;
-	enum input_type_t type;
-	char * t = dt_read_string(n, "type", NULL);
-	void * handle = sandbox_event_sdl_open();
+	void * ctx;
 
-	if(!handle)
+	ctx = sandbox_event_sdl_open();
+	if(!ctx)
 		return NULL;
 
-	if(strcmp(t, "keyboard") == 0)
-		type = INPUT_TYPE_KEYBOARD;
-	else if(strcmp(t, "mouse") == 0)
-		type = INPUT_TYPE_MOUSE;
-	else if(strcmp(t, "touchscreen") == 0)
-		type = INPUT_TYPE_TOUCHSCREEN;
-	else if(strcmp(t, "joystick") == 0)
-		type = INPUT_TYPE_JOYSTICK;
-	else
+	pdat = malloc(sizeof(struct input_sandbox_sdl_pdata_t));
+	if(!pdat)
+	{
+		sandbox_event_sdl_close(ctx);
 		return NULL;
+	}
 
 	input = malloc(sizeof(struct input_t));
 	if(!input)
-		return NULL;
-
-	input->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
-	input->type = type;
-	input->ioctl = input_sandbox_sdl_ioctl;
-	input->priv = handle;
-
-	switch(input->type)
 	{
-	case INPUT_TYPE_KEYBOARD:
-		sandbox_event_sdl_set_key_callback(input,
-				cb_key_down,
-				cb_key_up);
-		break;
-	case INPUT_TYPE_MOUSE:
-		sandbox_event_sdl_set_mouse_callback(input,
-				cb_mouse_down,
-				cb_mouse_move,
-				cb_mouse_up,
-				cb_mouse_wheel);
-		break;
-	case INPUT_TYPE_TOUCHSCREEN:
-		sandbox_event_sdl_set_touch_callback(input,
-				cb_touch_begin,
-				cb_touch_move,
-				cb_touch_end);
-		break;
-	case INPUT_TYPE_JOYSTICK:
-		sandbox_event_sdl_set_joystick_callback(input,
-				cb_joystick_left_stick,
-				cb_joystick_right_stick,
-				cb_joystick_left_trigger,
-				cb_joystick_right_trigger,
-				cb_joystick_button_down,
-				cb_joystick_button_up);
-		break;
-	default:
-		break;
+		sandbox_event_sdl_close(ctx);
+		free(pdat);
+		return NULL;
 	}
+
+	pdat->ctx = ctx;
+	input->name = alloc_device_name(dt_read_name(n), -1);
+	input->type = INPUT_TYPE_ALL;
+	input->ioctl = input_sandbox_sdl_ioctl;
+	input->priv = pdat;
+
+	sandbox_event_sdl_set_key_callback(ctx, input,
+			cb_key_down,
+			cb_key_up);
+	sandbox_event_sdl_set_mouse_callback(ctx, input,
+			cb_mouse_down,
+			cb_mouse_move,
+			cb_mouse_up,
+			cb_mouse_wheel);
+	sandbox_event_sdl_set_touch_callback(ctx, input,
+			cb_touch_begin,
+			cb_touch_move,
+			cb_touch_end);
+	sandbox_event_sdl_set_joystick_callback(ctx, input,
+			cb_joystick_left_stick,
+			cb_joystick_right_stick,
+			cb_joystick_left_trigger,
+			cb_joystick_right_trigger,
+			cb_joystick_button_down,
+			cb_joystick_button_up);
 
 	if(!register_input(&dev, input))
 	{
-		switch(input->type)
-		{
-		case INPUT_TYPE_KEYBOARD:
-			sandbox_event_sdl_set_key_callback(0, 0, 0);
-			break;
-		case INPUT_TYPE_MOUSE:
-			sandbox_event_sdl_set_mouse_callback(0, 0, 0, 0, 0);
-			break;
-		case INPUT_TYPE_TOUCHSCREEN:
-			sandbox_event_sdl_set_touch_callback(0, 0, 0, 0);
-			break;
-		case INPUT_TYPE_JOYSTICK:
-			sandbox_event_sdl_set_joystick_callback(0, 0, 0, 0, 0, 0, 0);
-			break;
-		default:
-			break;
-		}
 		sandbox_event_sdl_close(input->priv);
+
 		free_device_name(input->name);
+		free(input->priv);
 		free(input);
 		return NULL;
 	}
@@ -298,25 +275,10 @@ static void input_sandbox_sdl_remove(struct device_t * dev)
 
 	if(input && unregister_input(input))
 	{
-		switch(input->type)
-		{
-		case INPUT_TYPE_KEYBOARD:
-			sandbox_event_sdl_set_key_callback(0, 0, 0);
-			break;
-		case INPUT_TYPE_MOUSE:
-			sandbox_event_sdl_set_mouse_callback(0, 0, 0, 0, 0);
-			break;
-		case INPUT_TYPE_TOUCHSCREEN:
-			sandbox_event_sdl_set_touch_callback(0, 0, 0, 0);
-			break;
-		case INPUT_TYPE_JOYSTICK:
-			sandbox_event_sdl_set_joystick_callback(0, 0, 0, 0, 0, 0, 0);
-			break;
-		default:
-			break;
-		}
 		sandbox_event_sdl_close(input->priv);
+
 		free_device_name(input->name);
+		free(input->priv);
 		free(input);
 	}
 }

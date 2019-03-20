@@ -23,15 +23,6 @@ void sandbox_init(int argc, char * argv[]);
 void sandbox_exit(void);
 
 /*
- * Audio interface
- */
-/* SDL audio */
-void sandbox_audio_sdl_open(int fmt, int rate, int ch, int sample, void(*cb)(void *, void *, int), void * data);
-void sandbox_audio_sdl_close(void);
-void sandbox_audio_sdl_start(void);
-void sandbox_audio_sdl_stop(void);
-
-/*
  * Event interface
  */
 /* Input device */

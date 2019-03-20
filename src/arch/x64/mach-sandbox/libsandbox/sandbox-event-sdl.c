@@ -102,7 +102,7 @@ static unsigned int keycode_map(SDL_Keycode code)
 	return key;
 }
 
-static int handle_event(void * data)
+static int sandbox_event_sdl_thread(void * data)
 {
 	struct sandbox_event_sdl_context_t * ctx = (struct sandbox_event_sdl_context_t *)data;
 	struct sandbox_event_callback_t * cb = &ctx->cb;
@@ -386,7 +386,7 @@ void * sandbox_event_sdl_open(void)
 		return NULL;
 
 	memset(ctx, 0, sizeof(struct sandbox_event_sdl_context_t));
-	ctx->thread = SDL_CreateThread(handle_event, "event", ctx);
+	ctx->thread = SDL_CreateThread(sandbox_event_sdl_thread, "event", ctx);
 	return ctx;
 }
 

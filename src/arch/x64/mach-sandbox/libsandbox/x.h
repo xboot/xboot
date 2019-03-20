@@ -19,6 +19,7 @@ extern "C" {
 #include <unistd.h>
 #include <dirent.h>
 #include <termios.h>
+#include <pthread.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <sys/types.h>

@@ -5,7 +5,8 @@
 	"cs-sandbox@0": {
 	},
 
-	"input-sandbox-sdl@0": {
+	"input-sandbox@0": {
+		"status": "disabled"
 	},
 
 	"fb-sandbox@0": {
@@ -13,6 +14,9 @@
 		"physical-width": 216,
 		"physical-height": 135,
 		"status": "disabled"
+	},
+
+	"input-sandbox-sdl@0": {
 	},
 
 	"fb-sandbox-sdl@0": {

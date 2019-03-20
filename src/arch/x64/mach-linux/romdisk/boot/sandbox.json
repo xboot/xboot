@@ -5,8 +5,7 @@
 	"cs-sandbox@0": {
 	},
 
-	"uart-sandbox@0": {
-		"device": "/dev/ttyUSB0"
+	"input-sandbox@0": {
 	},
 
 	"fb-sandbox@0": {

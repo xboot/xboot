@@ -231,7 +231,6 @@ static struct device_t * input_sandbox_sdl_probe(struct driver_t * drv, struct d
 
 	pdat->ctx = ctx;
 	input->name = alloc_device_name(dt_read_name(n), -1);
-	input->type = INPUT_TYPE_ALL;
 	input->ioctl = input_sandbox_sdl_ioctl;
 	input->priv = pdat;
 

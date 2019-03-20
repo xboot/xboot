@@ -123,7 +123,6 @@ static struct device_t * key_gpio_probe(struct driver_t * drv, struct dtnode_t *
 	pdat->nkeys = nkeys;
 
 	input->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
-	input->type = INPUT_TYPE_KEYBOARD;
 	input->ioctl = key_gpio_ioctl;
 	input->priv = pdat;
 

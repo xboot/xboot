@@ -29,39 +29,6 @@
 #include <xboot.h>
 #include <input/input.h>
 
-static ssize_t input_read_type(struct kobj_t * kobj, void * buf, size_t size)
-{
-	struct input_t * input = (struct input_t *)kobj->priv;
-	char * name;
-
-	switch(input->type)
-	{
-	case INPUT_TYPE_KEYBOARD:
-		name = "keyboard";
-		break;
-	case INPUT_TYPE_ROTARY:
-		name = "rotary";
-		break;
-	case INPUT_TYPE_MOUSE:
-		name = "mouse";
-		break;
-	case INPUT_TYPE_TOUCHSCREEN:
-		name = "touchscreen";
-		break;
-	case INPUT_TYPE_JOYSTICK:
-		name = "joystick";
-		break;
-	case INPUT_TYPE_ALL:
-		name = "all";
-		break;
-	default:
-		name = "unknown";
-		break;
-	}
-
-	return sprintf(buf, "%s", name);
-}
-
 struct input_t * search_input(const char * name)
 {
 	struct device_t * dev;
@@ -88,7 +55,6 @@ bool_t register_input(struct device_t ** device, struct input_t * input)
 	dev->driver = NULL;
 	dev->priv = input;
 	dev->kobj = kobj_alloc_directory(dev->name);
-	kobj_add_regular(dev->kobj, "type", input_read_type, NULL, input);
 
 	if(!register_device(dev))
 	{

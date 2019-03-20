@@ -219,7 +219,6 @@ static struct device_t * key_rk816_probe(struct driver_t * drv, struct dtnode_t 
 	pdat->irq = irq;
 
 	input->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
-	input->type = INPUT_TYPE_KEYBOARD;
 	input->ioctl = key_rk816_ioctl;
 	input->priv = pdat;
 

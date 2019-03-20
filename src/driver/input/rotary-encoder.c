@@ -228,7 +228,6 @@ static struct device_t * rotary_encoder_probe(struct driver_t * drv, struct dtno
 	pdat->invc = dt_read_bool(n, "c-inverted", 0);
 
 	input->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
-	input->type = INPUT_TYPE_ROTARY;
 	input->ioctl = rotary_encoder_ioctl;
 	input->priv = pdat;
 

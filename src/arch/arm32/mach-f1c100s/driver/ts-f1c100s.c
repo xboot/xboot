@@ -262,7 +262,6 @@ static struct device_t * ts_f1c100s_probe(struct driver_t * drv, struct dtnode_t
 	pdat->ignore_fifo_data = 1;
 
 	input->name = alloc_device_name(dt_read_name(n), -1);
-	input->type = INPUT_TYPE_TOUCHSCREEN;
 	input->ioctl = ts_f1c100s_ioctl;
 	input->priv = pdat;
 

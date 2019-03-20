@@ -277,7 +277,6 @@ static struct device_t * key_gpio_matrix_probe(struct driver_t * drv, struct dtn
 	pdat->interval = dt_read_int(n, "poll-interval-ms", 100);
 
 	input->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
-	input->type = INPUT_TYPE_KEYBOARD;
 	input->ioctl = key_gpio_matrix_ioctl;
 	input->priv = pdat;
 

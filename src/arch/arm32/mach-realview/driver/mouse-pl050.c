@@ -234,10 +234,6 @@ static struct device_t * mouse_pl050_probe(struct driver_t * drv, struct dtnode_
 	pdat->obtn = 0;
 
 	input->name = alloc_device_name(dt_read_name(n), -1);
-	if(pdat->touchevent)
-		input->type = INPUT_TYPE_TOUCHSCREEN;
-	else
-		input->type = INPUT_TYPE_MOUSE;
 	input->ioctl = mouse_pl050_ioctl;
 	input->priv = pdat;
 

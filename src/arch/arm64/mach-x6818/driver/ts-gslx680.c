@@ -5286,7 +5286,6 @@ static struct device_t * ts_gslx680_probe(struct driver_t * drv, struct dtnode_t
 	pdat->fingers = dt_read_int(n, "maximum-fingers", 10);
 
 	input->name = alloc_device_name(dt_read_name(n), -1);
-	input->type = INPUT_TYPE_TOUCHSCREEN;
 	input->ioctl = ts_gslx680_ioctl;
 	input->priv = pdat;
 

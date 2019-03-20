@@ -249,7 +249,6 @@ static struct device_t * ts_tsc2007_probe(struct driver_t * drv, struct dtnode_t
 	pdat->press = 0;
 
 	input->name = alloc_device_name(dt_read_name(n), -1);
-	input->type = INPUT_TYPE_TOUCHSCREEN;
 	input->ioctl = ts_tsc2007_ioctl;
 	input->priv = pdat;
 

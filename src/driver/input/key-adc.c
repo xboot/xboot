@@ -152,7 +152,6 @@ static struct device_t * key_adc_probe(struct driver_t * drv, struct dtnode_t * 
 	pdat->keyold = 0;
 
 	input->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
-	input->type = INPUT_TYPE_KEYBOARD;
 	input->ioctl = key_adc_ioctl;
 	input->priv = pdat;
 

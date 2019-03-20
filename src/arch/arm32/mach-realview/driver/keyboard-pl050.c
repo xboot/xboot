@@ -407,7 +407,6 @@ static struct device_t * keyboard_pl050_probe(struct driver_t * drv, struct dtno
 	pdat->flag = KBD_NUM_LOCK;
 
 	input->name = alloc_device_name(dt_read_name(n), -1);
-	input->type = INPUT_TYPE_KEYBOARD;
 	input->ioctl = keyboard_pl050_ioctl;
 	input->priv = pdat;
 

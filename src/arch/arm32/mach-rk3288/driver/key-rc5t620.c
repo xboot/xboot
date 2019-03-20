@@ -197,7 +197,6 @@ static struct device_t * key_rc5t620_probe(struct driver_t * drv, struct dtnode_
 	pdat->irq = irq;
 
 	input->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
-	input->type = INPUT_TYPE_KEYBOARD;
 	input->ioctl = key_rc5t620_ioctl;
 	input->priv = pdat;
 

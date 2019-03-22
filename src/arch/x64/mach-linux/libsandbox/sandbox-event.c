@@ -34,19 +34,38 @@ struct sandbox_event_callback_t {
 	} joystick;
 };
 
+struct sandbox_event_buffer_t {
+	struct {
+		int code;
+		int value;
+	} keyboard;
+	struct {
+		int relx;
+		int rely;
+		int deltax;
+		int deltay;
+		int btndown;
+		int btnup;
+	} mouse;
+};
+
 struct sandbox_event_context_t {
 	struct sandbox_event_callback_t cb;
 	struct pollfd * pfd;
 	int npfd;
-	char ** devices;
+	char ** device;
+	struct sandbox_event_buffer_t * buf;
 	pthread_t thread;
+	int xmax, ymax;
+	int xpos, ypos;
 };
 
 static int sandbox_event_open_device(struct sandbox_event_context_t * ctx, const char * dev)
 {
 	struct pollfd * new_pfd;
 	struct input_id id;
-	char ** new_devices;
+	char ** new_device;
+	struct sandbox_event_buffer_t * new_buf;
 	char name[80];
 	char location[80];
 	char idstr[80];
@@ -76,26 +95,22 @@ static int sandbox_event_open_device(struct sandbox_event_context_t * ctx, const
 	new_pfd = realloc(ctx->pfd, sizeof(struct pollfd) * (ctx->npfd + 1));
 	if(!new_pfd)
 		return -1;
-
 	ctx->pfd = new_pfd;
-	new_devices = realloc(ctx->devices, sizeof(ctx->devices[0]) * (ctx->npfd + 1));
-	if(new_devices == NULL)
-		return -1;
-	ctx->devices = new_devices;
 
-	printf(	"add device %d: %s\n", ctx->npfd, dev);
-	printf(	"  bus:      %04x\n"
-			"  vendor    %04x\n"
-			"  product   %04x\n"
-			"  version   %04x\n", id.bustype, id.vendor, id.product, id.version);
-	printf(	"  name:     \"%s\"\n", name);
-	printf(	"  location: \"%s\"\n"
-			"  id:       \"%s\"\n", location, idstr);
-	printf(	"  version:  %d.%d.%d\n", version >> 16, (version >> 8) & 0xff, version & 0xff);
+	new_device = realloc(ctx->device, sizeof(ctx->device[0]) * (ctx->npfd + 1));
+	if(new_device == NULL)
+		return -1;
+	ctx->device = new_device;
+
+	new_buf = realloc(ctx->buf, sizeof(struct sandbox_event_buffer_t) * (ctx->npfd + 1));
+	if(new_buf == NULL)
+		return -1;
+	ctx->buf = new_buf;
+	memset(&ctx->buf[ctx->npfd], 0, sizeof(struct sandbox_event_buffer_t));
 
 	ctx->pfd[ctx->npfd].fd = fd;
 	ctx->pfd[ctx->npfd].events = POLLIN;
-	ctx->devices[ctx->npfd] = strdup(dev);
+	ctx->device[ctx->npfd] = strdup(dev);
 	ctx->npfd++;
 	return 0;
 }
@@ -105,11 +120,12 @@ static int sandbox_event_close_device(struct sandbox_event_context_t * ctx, cons
 	int i;
 	for(i = 1; i < ctx->npfd; i++)
 	{
-		if(strcmp(ctx->devices[i], dev) == 0)
+		if(strcmp(ctx->device[i], dev) == 0)
 		{
 			int count = ctx->npfd - i - 1;
-			free(ctx->devices[i]);
-			memmove(ctx->devices + i, ctx->devices + i + 1, sizeof(ctx->devices[0]) * count);
+			free(ctx->device[i]);
+			memmove(ctx->buf + i, ctx->buf + i + 1, sizeof(struct sandbox_event_buffer_t) * count);
+			memmove(ctx->device + i, ctx->device + i + 1, sizeof(ctx->device[0]) * count);
 			memmove(ctx->pfd + i, ctx->pfd + i + 1, sizeof(struct pollfd) * count);
 			ctx->npfd--;
 			return 0;
@@ -220,27 +236,123 @@ static void * sandbox_event_thread(void * arg)
 						switch(e.type)
 						{
 						case EV_SYN:
+							if(e.code == SYN_REPORT)
+							{
+								if(ctx->buf[i].keyboard.code != 0)
+								{
+									if(ctx->buf[i].keyboard.value == 0)
+									{
+										if(cb->key.up)
+											cb->key.up(cb->key.device, keycode_map(ctx->buf[i].keyboard.code));
+									}
+									else
+									{
+										if(cb->key.down)
+											cb->key.down(cb->key.device, keycode_map(ctx->buf[i].keyboard.code));
+									}
+									ctx->buf[i].keyboard.code = 0;
+								}
+
+								if((ctx->buf[i].mouse.relx != 0) || (ctx->buf[i].mouse.rely != 0))
+								{
+									if(ctx->buf[i].mouse.relx != 0)
+									{
+										ctx->xpos += ctx->buf[i].mouse.relx;
+										if(ctx->xpos < 0)
+											ctx->xpos = 0;
+										if(ctx->xpos > ctx->xmax - 1)
+											ctx->xpos = ctx->xmax - 1;
+									}
+									if(ctx->buf[i].mouse.rely != 0)
+									{
+										ctx->ypos += ctx->buf[i].mouse.rely;
+										if(ctx->ypos < 0)
+											ctx->ypos = 0;
+										if(ctx->ypos > ctx->ymax - 1)
+											ctx->ypos = ctx->ymax - 1;
+									}
+									if(cb->mouse.move)
+										cb->mouse.move(cb->mouse.device, ctx->xpos, ctx->ypos);
+									ctx->buf[i].mouse.relx = 0;
+									ctx->buf[i].mouse.rely = 0;
+								}
+								if(ctx->buf[i].mouse.btndown)
+								{
+									if(cb->mouse.down)
+										cb->mouse.down(cb->mouse.device, ctx->xpos, ctx->ypos, ctx->buf[i].mouse.btndown);
+									ctx->buf[i].mouse.btndown = 0;
+								}
+								if(ctx->buf[i].mouse.btnup)
+								{
+									if(cb->mouse.up)
+										cb->mouse.up(cb->mouse.device, ctx->xpos, ctx->ypos, ctx->buf[i].mouse.btnup);
+									ctx->buf[i].mouse.btnup = 0;
+								}
+								if((ctx->buf[i].mouse.deltax != 0) || (ctx->buf[i].mouse.deltay != 0))
+								{
+									if(cb->mouse.wheel)
+										cb->mouse.wheel(cb->mouse.device, ctx->buf[i].mouse.deltax, ctx->buf[i].mouse.deltay);
+									ctx->buf[i].mouse.deltax = 0;
+									ctx->buf[i].mouse.deltay = 0;
+								}
+							}
 							break;
 						case EV_KEY:
-							switch(e.value)
+							if(e.code >= BTN_MOUSE && e.code < (BTN_MOUSE + 16))
 							{
-							case 0:
-					        	if(cb->key.up)
-					        		cb->key.up(cb->key.device, keycode_map(e.code));
-					        	break;
-							case 1:
-					        	if(cb->key.down)
-					        		cb->key.down(cb->key.device, keycode_map(e.code));
-					        	break;
-							case 2:
-					        	if(cb->key.down)
-					        		cb->key.down(cb->key.device, keycode_map(e.code));
-					        	break;
-							default:
-								break;
+								if(e.value == 0)
+									ctx->buf[i].mouse.btnup |= 1 << (e.code - BTN_MOUSE);
+								else
+									ctx->buf[i].mouse.btndown |= 1 << (e.code - BTN_MOUSE);
+							}
+							else if(e.code >= BTN_JOYSTICK && e.code < (BTN_JOYSTICK + 16))
+							{
+							}
+							else if(e.code >= BTN_GAMEPAD && e.code < (BTN_GAMEPAD + 16))
+							{
+							}
+							else if(e.code >= BTN_DIGI && e.code < (BTN_DIGI + 16))
+							{
+							}
+							else if(e.code >= BTN_WHEEL && e.code < (BTN_WHEEL + 16))
+							{
+							}
+							else
+							{
+								ctx->buf[i].keyboard.code = e.code;
+								ctx->buf[i].keyboard.value = e.value;
 							}
 							break;
 						case EV_REL:
+							switch(e.code)
+							{
+							case REL_X:
+								ctx->buf[i].mouse.relx = e.value;
+								break;
+							case REL_Y:
+								ctx->buf[i].mouse.rely = e.value;
+								break;
+							case REL_Z:
+								break;
+							case REL_RX:
+								break;
+							case REL_RY:
+								break;
+							case REL_RZ:
+								break;
+							case REL_HWHEEL:
+								ctx->buf[i].mouse.deltax = e.value;
+								break;
+							case REL_DIAL:
+								break;
+							case REL_WHEEL:
+								ctx->buf[i].mouse.deltay = e.value;
+								break;
+							case REL_MISC:
+								break;
+							default:
+								break;
+							}
 							break;
 						case EV_ABS:
 							break;
@@ -263,7 +375,6 @@ static void * sandbox_event_thread(void * arg)
 						default:
 							break;
 						}
-						// printf("[%8ld.%06ld] %04x %04x %08x\r\n", e.time.tv_sec, e.time.tv_usec, e.type, e.code, e.value);
 					}
 				}
 			}
@@ -286,7 +397,10 @@ void * sandbox_event_open(void)
 	ctx->pfd = calloc(ctx->npfd, sizeof(struct pollfd));
 	ctx->pfd[0].fd = inotify_init();
 	ctx->pfd[0].events = POLLIN;
-
+	ctx->xmax = 640;
+	ctx->ymax = 480;
+	ctx->xpos = 0;
+	ctx->ypos = 0;
 	if(inotify_add_watch(ctx->pfd[0].fd, "/dev/input", IN_DELETE | IN_CREATE) < 0)
 	{
 		free(ctx->pfd);
@@ -326,6 +440,15 @@ void sandbox_event_close(void * context)
 		free(ctx->pfd);
 		free(ctx);
 	}
+}
+
+void sandbox_event_set_mouse_max(void * context, int xmax, int ymax)
+{
+	struct sandbox_event_context_t * ctx = (struct sandbox_event_context_t *)context;
+	if(xmax > 0)
+		ctx->xmax = xmax;
+	if(ymax > 0)
+		ctx->ymax = ymax;
 }
 
 void sandbox_event_set_key_callback(void * context, void * device,

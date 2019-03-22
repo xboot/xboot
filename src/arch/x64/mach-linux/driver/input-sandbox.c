@@ -234,6 +234,7 @@ static struct device_t * input_sandbox_probe(struct driver_t * drv, struct dtnod
 	input->ioctl = input_sandbox_ioctl;
 	input->priv = pdat;
 
+	sandbox_event_set_mouse_max(ctx, dt_read_int(n, "x-pos-max", 640), dt_read_int(n, "y-pos-max", 480));
 	sandbox_event_set_key_callback(ctx, input,
 			cb_key_down,
 			cb_key_up);

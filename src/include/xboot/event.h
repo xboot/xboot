@@ -35,8 +35,8 @@ enum event_type_t {
 
 enum {
 	MOUSE_BUTTON_LEFT					= 0x01,
-	MOUSE_BUTTON_MIDDLE					= 0x02,
-	MOUSE_BUTTON_RIGHT					= 0x03,
+	MOUSE_BUTTON_RIGHT					= 0x02,
+	MOUSE_BUTTON_MIDDLE					= 0x03,
 	MOUSE_BUTTON_X1						= 0x04,
 	MOUSE_BUTTON_X2						= 0x05,
 };

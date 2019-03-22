@@ -28,6 +28,7 @@ void sandbox_exit(void);
 /* Input device */
 void * sandbox_event_open(void);
 void sandbox_event_close(void * context);
+void sandbox_event_set_mouse_max(void * context, int xmax, int ymax);
 void sandbox_event_set_key_callback(void * context, void * device,
 		void (*down)(void * device, unsigned int key),
 		void (*up)(void * device, unsigned int key));

@@ -165,10 +165,10 @@ static int sandbox_event_sdl_thread(void * data)
 					button = 0x01;
 					break;
 				case SDL_BUTTON_MIDDLE:
-					button = 0x02;
+					button = 0x03;
 					break;
 				case SDL_BUTTON_RIGHT:
-					button = 0x03;
+					button = 0x02;
 					break;
 				case SDL_BUTTON_X1:
 					button = 0x04;

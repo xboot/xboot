@@ -260,8 +260,8 @@ static struct device_t * mouse_pl050_probe(struct driver_t * drv, struct dtnode_
 	pdat->virt = virt;
 	pdat->clk = strdup(clk);
 	pdat->irq = irq;
-	pdat->xmax = dt_read_int(n, "x-max-range", 640);
-	pdat->ymax = dt_read_int(n, "y-max-range", 480);
+	pdat->xmax = dt_read_int(n, "pointer-range-x", 640);
+	pdat->ymax = dt_read_int(n, "pointer-range-y", 480);
 	pdat->sensitivity = dt_read_int(n, "pointer-sensitivity", 6);
 	pdat->touchevent = dt_read_bool(n, "simulate-touch-event", 0);
 	pdat->xpos = pdat->xmax / 2;

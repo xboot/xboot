@@ -270,7 +270,7 @@ static struct device_t * input_sandbox_probe(struct driver_t * drv, struct dtnod
 	input->ioctl = input_sandbox_ioctl;
 	input->priv = pdat;
 
-	sandbox_event_mouse_set_range(pdat->ctx, dt_read_int(n, "x-max-range", 640), dt_read_int(n, "y-max-range", 480));
+	sandbox_event_mouse_set_range(pdat->ctx, dt_read_int(n, "pointer-range-x", 640), dt_read_int(n, "pointer-range-y", 480));
 	sandbox_event_mouse_set_sensitivity(pdat->ctx, dt_read_int(n, "pointer-sensitivity", 6));
 	sandbox_event_set_key_callback(pdat->ctx, input,
 			cb_key_down,

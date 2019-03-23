@@ -125,9 +125,11 @@ static int m_display_present(lua_State * L)
 		ktime_t now = ktime_get();
 		s64_t delta = ktime_ms_delta(now, disp->stamp);
 		if(delta > 0)
+		{
 			disp->fps = ((double)1000.0 / (double)delta) * 0.618 + disp->fps * 0.382;
-		disp->frame++;
-		disp->stamp = now;
+			disp->frame++;
+			disp->stamp = now;
+		}
 		cairo_save(cr);
 		cairo_set_font_size(cr, 24);
 		cairo_set_source_rgb(cr, 0.4, 0.4, 0.4);

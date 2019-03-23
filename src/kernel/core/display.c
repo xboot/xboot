@@ -114,7 +114,11 @@ struct display_t * display_alloc(const char * fb)
 
 	d->fb = dev;
 	d->cs = cairo_xboot_surface_create(d->fb);
+	d->cursor = cairo_image_surface_create_from_png("/framework/assets/images/cursor.png");
 	d->cr = cairo_create(d->cs);
+	d->xpos = 0;
+	d->ypos = 0;
+	d->showcur = 0;
 	d->showobj = 0;
 	d->showfps = 0;
 	d->fps = 60;
@@ -130,6 +134,7 @@ void display_free(struct display_t * d)
 		return;
 
 	cairo_destroy(d->cr);
+	cairo_surface_destroy(d->cursor);
 	cairo_surface_destroy(d->cs);
 	free(d);
 }

@@ -11,8 +11,11 @@ struct display_t
 {
 	struct framebuffer_t * fb;
 	cairo_surface_t * cs;
+	cairo_surface_t * cursor;
 	cairo_t * cr;
 
+	int xpos, ypos;
+	int showcur;
 	int showobj;
 	int showfps;
 	double fps;

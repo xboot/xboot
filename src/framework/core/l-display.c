@@ -136,6 +136,13 @@ static int m_display_present(lua_State * L)
 		cairo_show_text(cr, buf);
 		cairo_restore(cr);
 	}
+	if(disp->showcur)
+	{
+		cairo_save(cr);
+		cairo_set_source_surface(cr, disp->cursor, disp->xpos - 2, disp->ypos - 2);
+		cairo_paint(cr);
+		cairo_restore(cr);
+	}
 	cairo_xboot_surface_present(disp->cs, NULL, 0);
 	cairo_save(cr);
 	cairo_set_source_rgb(cr, 1, 1, 1);

@@ -47,6 +47,16 @@ struct sandbox_event_buffer_t {
 		int btndown;
 		int btnup;
 	} mouse;
+	struct {
+		int x;
+		int y;
+		int press;
+		int move;
+	} stouch;
+	struct {
+		int x;
+		int y;
+	} mtouch;
 };
 
 struct sandbox_event_context_t {
@@ -296,6 +306,25 @@ static void * sandbox_event_thread(void * arg)
 									ctx->buf[i].mouse.deltax = 0;
 									ctx->buf[i].mouse.deltay = 0;
 								}
+
+								if(ctx->buf[i].stouch.press == 1)
+								{
+									if(cb->touch.begin)
+										cb->touch.begin(cb->touch.device, ctx->buf[i].stouch.x, ctx->buf[i].stouch.y, 0);
+									ctx->buf[i].stouch.press = 0;
+								}
+								else if(ctx->buf[i].stouch.press == -1)
+								{
+									if(cb->touch.end)
+										cb->touch.end(cb->touch.device, ctx->buf[i].stouch.x, ctx->buf[i].stouch.y, 0);
+									ctx->buf[i].stouch.press = 0;
+								}
+								if(ctx->buf[i].stouch.move != 0)
+								{
+									if(cb->touch.move)
+										cb->touch.move(cb->touch.device, ctx->buf[i].stouch.x, ctx->buf[i].stouch.y, 0);
+									ctx->buf[i].stouch.move = 0;
+								}
 							}
 							break;
 						case EV_KEY:
@@ -314,6 +343,8 @@ static void * sandbox_event_thread(void * arg)
 							}
 							else if(e.code >= BTN_DIGI && e.code < (BTN_DIGI + 16))
 							{
+								if(e.code == BTN_TOUCH)
+									ctx->buf[i].stouch.press = (e.value != 0) ? 1 : -1;
 							}
 							else if(e.code >= BTN_WHEEL && e.code < (BTN_WHEEL + 16))
 							{
@@ -333,29 +364,30 @@ static void * sandbox_event_thread(void * arg)
 							case REL_Y:
 								ctx->buf[i].mouse.rely = e.value;
 								break;
-							case REL_Z:
-								break;
-							case REL_RX:
-								break;
-							case REL_RY:
-								break;
-							case REL_RZ:
-								break;
 							case REL_HWHEEL:
 								ctx->buf[i].mouse.deltax = e.value;
 								break;
-							case REL_DIAL:
-								break;
 							case REL_WHEEL:
 								ctx->buf[i].mouse.deltay = e.value;
-								break;
-							case REL_MISC:
 								break;
 							default:
 								break;
 							}
 							break;
 						case EV_ABS:
+							switch(e.code)
+							{
+							case ABS_X:
+								ctx->buf[i].stouch.x = e.value;
+								ctx->buf[i].stouch.move = 1;
+								break;
+							case ABS_Y:
+								ctx->buf[i].stouch.y = e.value;
+								ctx->buf[i].stouch.move = 1;
+								break;
+							default:
+								break;
+							}
 							break;
 						case EV_MSC:
 							break;

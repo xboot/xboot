@@ -200,6 +200,42 @@ static void cb_joystick_button_up(void * device, unsigned int button)
 
 static int input_sandbox_ioctl(struct input_t * input, int cmd, void * arg)
 {
+	struct input_sandbox_pdata_t * pdat = (struct input_sandbox_pdata_t *)input->priv;
+	int * p = arg;
+
+	switch(cmd)
+	{
+	case INPUT_IOCTL_MOUSE_SET_RANGE:
+		if(p)
+		{
+			sandbox_event_mouse_set_range(pdat->ctx, p[0], p[1]);
+			return 0;
+		}
+		break;
+	case INPUT_IOCTL_MOUSE_GET_RANGE:
+		if(p)
+		{
+			sandbox_event_mouse_get_range(pdat->ctx, &p[0], &p[1]);
+			return 0;
+		}
+		break;
+	case INPUT_IOCTL_MOUSE_SET_SENSITIVITY:
+		if(p)
+		{
+			sandbox_event_mouse_set_sensitivity(pdat->ctx, p[0]);
+			return 0;
+		}
+		break;
+	case INPUT_IOCTL_MOUSE_GET_SENSITIVITY:
+		if(p)
+		{
+			sandbox_event_mouse_get_sensitivity(pdat->ctx, &p[0]);
+			return 0;
+		}
+		break;
+	default:
+		break;
+	}
 	return -1;
 }
 
@@ -234,20 +270,21 @@ static struct device_t * input_sandbox_probe(struct driver_t * drv, struct dtnod
 	input->ioctl = input_sandbox_ioctl;
 	input->priv = pdat;
 
-	sandbox_event_set_mouse_max(ctx, dt_read_int(n, "x-pos-max", 640), dt_read_int(n, "y-pos-max", 480));
-	sandbox_event_set_key_callback(ctx, input,
+	sandbox_event_mouse_set_range(pdat->ctx, dt_read_int(n, "x-max-range", 640), dt_read_int(n, "y-max-range", 480));
+	sandbox_event_mouse_set_sensitivity(pdat->ctx, dt_read_int(n, "sensitivity", 6));
+	sandbox_event_set_key_callback(pdat->ctx, input,
 			cb_key_down,
 			cb_key_up);
-	sandbox_event_set_mouse_callback(ctx, input,
+	sandbox_event_set_mouse_callback(pdat->ctx, input,
 			cb_mouse_down,
 			cb_mouse_move,
 			cb_mouse_up,
 			cb_mouse_wheel);
-	sandbox_event_set_touch_callback(ctx, input,
+	sandbox_event_set_touch_callback(pdat->ctx, input,
 			cb_touch_begin,
 			cb_touch_move,
 			cb_touch_end);
-	sandbox_event_set_joystick_callback(ctx, input,
+	sandbox_event_set_joystick_callback(pdat->ctx, input,
 			cb_joystick_left_stick,
 			cb_joystick_right_stick,
 			cb_joystick_left_trigger,

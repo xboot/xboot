@@ -57,6 +57,7 @@ struct sandbox_event_context_t {
 	struct sandbox_event_buffer_t * buf;
 	pthread_t thread;
 	int xmax, ymax;
+	int sensitivity;
 	int xpos, ypos;
 };
 
@@ -399,6 +400,7 @@ void * sandbox_event_open(void)
 	ctx->pfd[0].events = POLLIN;
 	ctx->xmax = 640;
 	ctx->ymax = 480;
+	ctx->sensitivity = 6;
 	ctx->xpos = 0;
 	ctx->ypos = 0;
 	if(inotify_add_watch(ctx->pfd[0].fd, "/dev/input", IN_DELETE | IN_CREATE) < 0)
@@ -442,13 +444,36 @@ void sandbox_event_close(void * context)
 	}
 }
 
-void sandbox_event_set_mouse_max(void * context, int xmax, int ymax)
+void sandbox_event_mouse_set_range(void * context, int xmax, int ymax)
 {
 	struct sandbox_event_context_t * ctx = (struct sandbox_event_context_t *)context;
 	if(xmax > 0)
 		ctx->xmax = xmax;
 	if(ymax > 0)
 		ctx->ymax = ymax;
+}
+
+void sandbox_event_mouse_get_range(void * context, int * xmax, int * ymax)
+{
+	struct sandbox_event_context_t * ctx = (struct sandbox_event_context_t *)context;
+	if(xmax)
+		*xmax = ctx->xmax;
+	if(ymax)
+		*ymax = ctx->ymax;
+}
+
+void sandbox_event_mouse_set_sensitivity(void * context, int s)
+{
+	struct sandbox_event_context_t * ctx = (struct sandbox_event_context_t *)context;
+	if((s >= 1) && (s <= 11))
+		ctx->sensitivity = s;
+}
+
+void sandbox_event_mouse_get_sensitivity(void * context, int * s)
+{
+	struct sandbox_event_context_t * ctx = (struct sandbox_event_context_t *)context;
+	if(s)
+		*s = ctx->sensitivity;
 }
 
 void sandbox_event_set_key_callback(void * context, void * device,

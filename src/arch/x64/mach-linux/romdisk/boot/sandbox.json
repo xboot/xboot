@@ -6,8 +6,9 @@
 	},
 
 	"input-sandbox@0": {
-		"x-pos-max": 1920,
-		"y-pos-max": 1080
+		"x-max-range": 1920,
+		"y-max-range": 1080,
+		"sensitivity": 6
 	},
 
 	"fb-sandbox@0": {

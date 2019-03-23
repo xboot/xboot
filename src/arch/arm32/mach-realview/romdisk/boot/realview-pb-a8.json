@@ -157,8 +157,9 @@
 	"mouse-pl050@0x10007000": {
 		"clock-name": "kclk",
 		"interrupt": 53,
-		"x-pos-max": 640,
-		"y-pos-max": 480,
+		"x-max-range": 640,
+		"y-max-range": 480,
+		"sensitivity": 6,
 		"simulate-touch-event": false
 	},
 

@@ -44,6 +44,7 @@ struct mouse_pl050_pdata_t {
 	char * clk;
 	int irq;
 	int xmax, ymax;
+	int sensitivity;
 	int xpos, ypos;
 	int touchevent;
 	unsigned char packet[4];
@@ -180,6 +181,44 @@ static void mouse_pl050_interrupt(void * data)
 
 static int mouse_pl050_ioctl(struct input_t * input, int cmd, void * arg)
 {
+	struct mouse_pl050_pdata_t * pdat = (struct mouse_pl050_pdata_t *)input->priv;
+	int * p = arg;
+
+	switch(cmd)
+	{
+	case INPUT_IOCTL_MOUSE_SET_RANGE:
+		if(p)
+		{
+			pdat->xmax = p[0];
+			pdat->ymax = p[1];
+			return 0;
+		}
+		break;
+	case INPUT_IOCTL_MOUSE_GET_RANGE:
+		if(p)
+		{
+			p[0] = pdat->xmax;
+			p[1] = pdat->ymax;
+			return 0;
+		}
+		break;
+	case INPUT_IOCTL_MOUSE_SET_SENSITIVITY:
+		if(p)
+		{
+			pdat->sensitivity = p[0];
+			return 0;
+		}
+		break;
+	case INPUT_IOCTL_MOUSE_GET_SENSITIVITY:
+		if(p)
+		{
+			p[0] = pdat->sensitivity;
+			return 0;
+		}
+		break;
+	default:
+		break;
+	}
 	return -1;
 }
 
@@ -221,8 +260,9 @@ static struct device_t * mouse_pl050_probe(struct driver_t * drv, struct dtnode_
 	pdat->virt = virt;
 	pdat->clk = strdup(clk);
 	pdat->irq = irq;
-	pdat->xmax = dt_read_int(n, "x-pos-max", 640);
-	pdat->ymax = dt_read_int(n, "y-pos-max", 480);
+	pdat->xmax = dt_read_int(n, "x-max-range", 640);
+	pdat->ymax = dt_read_int(n, "y-max-range", 480);
+	pdat->sensitivity = dt_read_int(n, "sensitivity", 6);
 	pdat->touchevent = dt_read_bool(n, "simulate-touch-event", 0);
 	pdat->xpos = pdat->xmax / 2;
 	pdat->ypos = pdat->ymax / 2;

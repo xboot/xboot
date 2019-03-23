@@ -28,7 +28,10 @@ void sandbox_exit(void);
 /* Input device */
 void * sandbox_event_open(void);
 void sandbox_event_close(void * context);
-void sandbox_event_set_mouse_max(void * context, int xmax, int ymax);
+void sandbox_event_mouse_set_range(void * context, int xmax, int ymax);
+void sandbox_event_mouse_get_range(void * context, int * xmax, int * ymax);
+void sandbox_event_mouse_set_sensitivity(void * context, int s);
+void sandbox_event_mouse_get_sensitivity(void * context, int * s);
 void sandbox_event_set_key_callback(void * context, void * device,
 		void (*down)(void * device, unsigned int key),
 		void (*up)(void * device, unsigned int key));
@@ -52,6 +55,10 @@ void sandbox_event_set_joystick_callback(void * context, void * device,
 /* SDL event */
 void * sandbox_event_sdl_open(void);
 void sandbox_event_sdl_close(void * context);
+void sandbox_event_sdl_mouse_set_range(void * context, int xmax, int ymax);
+void sandbox_event_sdl_mouse_get_range(void * context, int * xmax, int * ymax);
+void sandbox_event_sdl_mouse_set_sensitivity(void * context, int s);
+void sandbox_event_sdl_mouse_get_sensitivity(void * context, int * s);
 void sandbox_event_sdl_set_key_callback(void * context, void * device,
 		void (*down)(void * device, unsigned int key),
 		void (*up)(void * device, unsigned int key));

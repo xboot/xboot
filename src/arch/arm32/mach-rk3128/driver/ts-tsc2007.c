@@ -178,15 +178,25 @@ static void tsc2007_interrupt(void * data)
 static int ts_tsc2007_ioctl(struct input_t * input, int cmd, void * arg)
 {
 	struct ts_tsc2007_pdata_t * pdat = (struct ts_tsc2007_pdata_t *)input->priv;
-	int cal[7];
 
-	if(cmd == INPUT_IOCTL_TOUCHSCEEN_SET_CALIBRATION)
+	switch(cmd)
 	{
-		if(!arg)
-			return -1;
-		memcpy(cal, arg, sizeof(int) * 7);
-		tsfilter_setcal(pdat->filter, cal);
-		return 0;
+	case INPUT_IOCTL_TOUCHSCEEN_SET_CALIBRATION:
+		if(arg)
+		{
+			tsfilter_setcal(pdat->filter, (int *)arg);
+			return 0;
+		}
+		break;
+	case INPUT_IOCTL_TOUCHSCEEN_GET_CALIBRATION:
+		if(arg)
+		{
+			memcpy(arg, pdat->filter->cal, sizeof(int) * 7);
+			return 0;
+		}
+		break;
+	default:
+		break;
 	}
 	return -1;
 }

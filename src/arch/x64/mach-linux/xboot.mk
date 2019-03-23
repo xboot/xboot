@@ -143,8 +143,8 @@ DEFINES		+=	$(NS_JMP) $(NS_CTYPE) $(NS_ENVIRON) $(NS_ERRNO) \
 
 DEFINES		+=	-D__SANDBOX__
 
-XFLAGS		:= $(shell pkg-config --cflags libdrm) 
-XLIBS		:= $(shell pkg-config --libs libdrm)
+XFLAGS		:=
+XLIBS		:=
 
 ASFLAGS		:= -g -ggdb -Wall -O3
 CFLAGS		:= -g -ggdb -Wall -O3

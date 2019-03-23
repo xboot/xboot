@@ -77,6 +77,7 @@ static int l_event_pump(lua_State * L)
 	struct display_t * disp = ((struct vmctx_t *)luahelper_vmctx(L))->disp;
 	struct event_context_t * ectx = ((struct vmctx_t *)luahelper_vmctx(L))->ectx;
 	struct event_t e;
+	int range[2];
 
 	if(!pump_event(ectx, &e))
 		return 0;
@@ -134,7 +135,13 @@ static int l_event_pump(lua_State * L)
 	case EVENT_TYPE_MOUSE_DOWN:
 		disp->xpos = e.e.mouse_down.x;
 		disp->ypos = e.e.mouse_down.y;
-		disp->showcur = 1;
+		if(!disp->showcur)
+		{
+			range[0] = framebuffer_get_width(disp->fb);
+			range[1] = framebuffer_get_height(disp->fb);
+			input_ioctl((struct input_t *)e.device, INPUT_IOCTL_MOUSE_SET_RANGE, &range[0]);
+			disp->showcur = 1;
+		}
 		lua_newtable(L);
 		lua_pushstring(L, ((struct input_t *)e.device)->name);
 		lua_setfield(L, -2, "device");
@@ -153,7 +160,13 @@ static int l_event_pump(lua_State * L)
 	case EVENT_TYPE_MOUSE_MOVE:
 		disp->xpos = e.e.mouse_move.x;
 		disp->ypos = e.e.mouse_move.y;
-		disp->showcur = 1;
+		if(!disp->showcur)
+		{
+			range[0] = framebuffer_get_width(disp->fb);
+			range[1] = framebuffer_get_height(disp->fb);
+			input_ioctl((struct input_t *)e.device, INPUT_IOCTL_MOUSE_SET_RANGE, &range[0]);
+			disp->showcur = 1;
+		}
 		lua_newtable(L);
 		lua_pushstring(L, ((struct input_t *)e.device)->name);
 		lua_setfield(L, -2, "device");
@@ -170,7 +183,13 @@ static int l_event_pump(lua_State * L)
 	case EVENT_TYPE_MOUSE_UP:
 		disp->xpos = e.e.mouse_up.x;
 		disp->ypos = e.e.mouse_up.y;
-		disp->showcur = 1;
+		if(!disp->showcur)
+		{
+			range[0] = framebuffer_get_width(disp->fb);
+			range[1] = framebuffer_get_height(disp->fb);
+			input_ioctl((struct input_t *)e.device, INPUT_IOCTL_MOUSE_SET_RANGE, &range[0]);
+			disp->showcur = 1;
+		}
 		lua_newtable(L);
 		lua_pushstring(L, ((struct input_t *)e.device)->name);
 		lua_setfield(L, -2, "device");

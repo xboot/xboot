@@ -8,7 +8,7 @@
 	"input-sandbox@0": {
 		"x-max-range": 1920,
 		"y-max-range": 1080,
-		"sensitivity": 6,
+		"pointer-sensitivity": 6,
 		"status": "disabled"
 	},
 

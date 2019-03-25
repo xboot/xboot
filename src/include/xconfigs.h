@@ -52,7 +52,7 @@ extern "C" {
 #endif
 
 #if !defined(CONFIG_AUTO_BOOT_COMMAND)
-#define CONFIG_AUTO_BOOT_COMMAND			""
+#define CONFIG_AUTO_BOOT_COMMAND			"/application/launcher"
 #endif
 
 #ifdef __cplusplus

@@ -181,7 +181,7 @@ int shell_system(const char * cmdline)
 					if(shell_realpath(args[0], fpath) < 0)
 						ret = -1;
 					else
-						ret = vmexec(fpath, (n > 1) ? args[1] : NULL);
+						ret = vmexec(fpath, (n > 1) ? args[1] : NULL, (n > 2) ? args[2] : NULL);
 				}
 				if((ret < 0) && pos)
 				{

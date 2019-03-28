@@ -147,10 +147,11 @@ struct event_t {
 
 struct event_context_t {
 	struct fifo_t * fifo;
+	struct hmap_t * map;
 	struct list_head entry;
 };
 
-struct event_context_t * event_context_alloc(void);
+struct event_context_t * event_context_alloc(const char * input);
 void event_context_free(struct event_context_t * ectx);
 
 void push_event(struct event_t * e);

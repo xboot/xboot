@@ -196,7 +196,7 @@ static int do_tscal(int argc, char ** argv)
 
 	cairo_draw_point(cr, cal.xfb[index], cal.yfb[index]);
 	cairo_xboot_surface_present(cs, NULL, 0);
-	ectx = event_context_alloc();
+	ectx = event_context_alloc(NULL);
 
 	while(1)
 	{

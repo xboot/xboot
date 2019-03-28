@@ -39,7 +39,7 @@ static void usage(void)
 
 static int do_event(int argc, char ** argv)
 {
-	struct event_context_t * ectx = event_context_alloc();
+	struct event_context_t * ectx = event_context_alloc(NULL);
 	struct input_t * input;
 	struct event_t e;
 

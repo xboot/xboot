@@ -27,6 +27,7 @@
  */
 
 #include <xboot.h>
+#include <input/input.h>
 #include <xboot/event.h>
 
 static struct event_context_t __event_context = {
@@ -37,9 +38,11 @@ static struct event_context_t __event_context = {
 };
 static spinlock_t __event_context_lock = SPIN_LOCK_INIT();
 
-struct event_context_t * event_context_alloc(void)
+struct event_context_t * event_context_alloc(const char * input)
 {
 	struct event_context_t * ectx;
+	struct input_t * dev;
+	char *r, * p = (char *)input;
 	irq_flags_t flags;
 
 	ectx = malloc(sizeof(struct event_context_t));
@@ -51,6 +54,21 @@ struct event_context_t * event_context_alloc(void)
 	{
 		free(ectx);
 		return NULL;
+	}
+
+	if(p)
+	{
+		ectx->map = hmap_alloc(0);
+		while((r = strsep(&p, ",;:|")) != NULL)
+		{
+			dev = search_input(r);
+			if(dev)
+				hmap_add(ectx->map, r, dev);
+		}
+	}
+	else
+	{
+		ectx->map = NULL;
 	}
 
 	spin_lock_irqsave(&__event_context_lock, flags);
@@ -78,6 +96,8 @@ void event_context_free(struct event_context_t * ectx)
 
 			if(pos->fifo)
 				fifo_free(pos->fifo);
+			if(pos->map)
+				hmap_free(pos->map);
 			free(pos);
 		}
 	}
@@ -92,7 +112,17 @@ void push_event(struct event_t * e)
 		e->timestamp = ktime_get();
 		list_for_each_entry_safe(pos, n, &__event_context.entry, entry)
 		{
-			fifo_put(pos->fifo, (unsigned char *)e, sizeof(struct event_t));
+			if(pos->map)
+			{
+				if(hmap_search(pos->map, ((struct input_t *)e->device)->name) == e->device)
+				{
+					fifo_put(pos->fifo, (unsigned char *)e, sizeof(struct event_t));
+				}
+			}
+			else
+			{
+				fifo_put(pos->fifo, (unsigned char *)e, sizeof(struct event_t));
+			}
 		}
 	}
 }

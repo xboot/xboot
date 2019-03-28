@@ -16,7 +16,7 @@ struct vmctx_t
 	struct event_context_t * ectx;
 };
 
-int vmexec(const char * path, const char * fb);
+int vmexec(const char * path, const char * fb, const char * input);
 
 #ifdef __cplusplus
 }

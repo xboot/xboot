@@ -21,8 +21,8 @@ struct hmap_t * hmap_alloc(unsigned int size)
 	struct hmap_t * m;
 	int i;
 
-	if(size < 2)
-		size = 2;
+	if(size < 16)
+		size = 16;
 	if(size & (size - 1))
 		size = roundup_pow_of_two(size);
 

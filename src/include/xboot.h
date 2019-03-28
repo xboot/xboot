@@ -39,6 +39,7 @@ extern "C" {
 #include <div.h>
 #include <list.h>
 #include <slist.h>
+#include <hmap.h>
 #include <fifo.h>
 #include <queue.h>
 #include <ssize.h>

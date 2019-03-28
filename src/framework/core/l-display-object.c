@@ -272,6 +272,70 @@ function M:getMargin()
 	return self.__dobj:getMargin()
 end
 
+function M:setFlexDirection(direction)
+	self.__dobj:setFlexDirection(direction)
+	return self
+end
+
+function M:getFlexDirection()
+	return self.__dobj:getFlexDirection()
+end
+
+function M:setFlexWrap(wrap)
+	self.__dobj:setFlexWrap(wrap)
+	return self
+end
+
+function M:getFlexWrap()
+	return self.__dobj:getFlexWrap()
+end
+
+function M:setFlexFlow(direction, wrap)
+	self.__dobj:setFlexDirection(direction)
+	self.__dobj:setFlexWrap(wrap)
+	return self
+end
+
+function M:getFlexFlow()
+	return self.__dobj:getFlexDirection(), self.__dobj:getFlexWrap()
+end
+
+function M:setJustifyContent(justify)
+	self.__dobj:setJustifyContent(justify)
+	return self
+end
+
+function M:getJustifyContent()
+	return self.__dobj:getJustifyContent()
+end
+
+function M:setAlignItems(align)
+	self.__dobj:setAlignItems(align)
+	return self
+end
+
+function M:getAlignItems()
+	return self.__dobj:getAlignItems()
+end
+
+function M:setAlignContent(align)
+	self.__dobj:setAlignContent(align)
+	return self
+end
+
+function M:getAlignContent()
+	return self.__dobj:getAlignContent()
+end
+
+function M:setAlignSelf(align)
+	self.__dobj:setAlignSelf(align)
+	return self
+end
+
+function M:getAlignSelf()
+	return self.__dobj:getAlignSelf()
+end
+
 function M:setCollider(type, ...)
 	self.__dobj:setCollider(type, ...)
 	return self

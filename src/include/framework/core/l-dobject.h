@@ -67,6 +67,10 @@ struct ldobject_t {
 		double bottom;
 	} margin;
 
+	struct {
+		uint32_t flex;
+	} layout;
+
 	enum collider_type_t type;
 	union {
 		struct {

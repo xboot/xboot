@@ -206,6 +206,13 @@ static int l_event_pump(lua_State * L)
 		return 1;
 
 	case EVENT_TYPE_MOUSE_WHEEL:
+		if(!disp->showcur)
+		{
+			range[0] = framebuffer_get_width(disp->fb);
+			range[1] = framebuffer_get_height(disp->fb);
+			input_ioctl((struct input_t *)e.device, INPUT_IOCTL_MOUSE_SET_RANGE, &range[0]);
+			disp->showcur = 1;
+		}
 		lua_newtable(L);
 		lua_pushstring(L, ((struct input_t *)e.device)->name);
 		lua_setfield(L, -2, "device");

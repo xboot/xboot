@@ -77,6 +77,7 @@ struct ldobject_t {
 			double bottom;
 		} padding;
 
+		int enable;
 		uint32_t style;
 		double grow;
 		double shrink;

@@ -326,6 +326,7 @@ static int l_dobject_new(lua_State * L)
 	o->layout.padding.top = 0;
 	o->layout.padding.right = 0;
 	o->layout.padding.bottom = 0;
+	o->layout.enable = 0;
 	o->layout.style = (FLEX_DIRECTION_ROW << 0) | (FLEX_WRAP_NO_WRAP << 4) | (JUSTIFY_CONTENT_FLEX_START << 8) | (ALIGN_ITEMS_FLEX_START << 12) | (ALIGN_CONTENT_FLEX_START << 16) | (ALIGN_SELF_AUTO << 20);
 	o->layout.grow = 0;
 	o->layout.shrink = 1;

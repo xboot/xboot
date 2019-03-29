@@ -317,11 +317,18 @@ static int l_dobject_new(lua_State * L)
 	o->anchory = 0;
 	o->alpha = 1;
 	o->alignment = ALIGN_NONE;
-	o->margin.left = 0;
-	o->margin.top = 0;
-	o->margin.right = 0;
-	o->margin.bottom = 0;
+	o->layout.margin.left = 0;
+	o->layout.margin.top = 0;
+	o->layout.margin.right = 0;
+	o->layout.margin.bottom = 0;
+	o->layout.padding.left = 0;
+	o->layout.padding.top = 0;
+	o->layout.padding.right = 0;
+	o->layout.padding.bottom = 0;
 	o->layout.flex = (FLEX_DIRECTION_ROW << 0) | (FLEX_WRAP_NO_WRAP << 4) | (JUSTIFY_CONTENT_FLEX_START << 8) | (ALIGN_ITEMS_FLEX_START << 12) | (ALIGN_CONTENT_FLEX_START << 16) | (ALIGN_SELF_AUTO << 20);
+	o->layout.grow = 0;
+	o->layout.shrink = 1;
+	o->layout.basis = 0;
 	o->type = COLLIDER_TYPE_NONE;
 	o->visible = 1;
 	o->touchable = 1;
@@ -747,20 +754,40 @@ static int m_get_alignment(lua_State * L)
 static int m_set_margin(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
-	o->margin.left = luaL_optnumber(L, 2, 0);
-	o->margin.top = luaL_optnumber(L, 3, 0);
-	o->margin.right = luaL_optnumber(L, 4, 0);
-	o->margin.bottom = luaL_optnumber(L, 5, 0);
+	o->layout.margin.left = luaL_optnumber(L, 2, 0);
+	o->layout.margin.top = luaL_optnumber(L, 3, 0);
+	o->layout.margin.right = luaL_optnumber(L, 4, 0);
+	o->layout.margin.bottom = luaL_optnumber(L, 5, 0);
 	return 0;
 }
 
 static int m_get_margin(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
-	lua_pushnumber(L, o->margin.left);
-	lua_pushnumber(L, o->margin.top);
-	lua_pushnumber(L, o->margin.right);
-	lua_pushnumber(L, o->margin.bottom);
+	lua_pushnumber(L, o->layout.margin.left);
+	lua_pushnumber(L, o->layout.margin.top);
+	lua_pushnumber(L, o->layout.margin.right);
+	lua_pushnumber(L, o->layout.margin.bottom);
+	return 4;
+}
+
+static int m_set_padding(lua_State * L)
+{
+	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
+	o->layout.padding.left = luaL_optnumber(L, 2, 0);
+	o->layout.padding.top = luaL_optnumber(L, 3, 0);
+	o->layout.padding.right = luaL_optnumber(L, 4, 0);
+	o->layout.padding.bottom = luaL_optnumber(L, 5, 0);
+	return 0;
+}
+
+static int m_get_padding(lua_State * L)
+{
+	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
+	lua_pushnumber(L, o->layout.padding.left);
+	lua_pushnumber(L, o->layout.padding.top);
+	lua_pushnumber(L, o->layout.padding.right);
+	lua_pushnumber(L, o->layout.padding.bottom);
 	return 4;
 }
 
@@ -1121,6 +1148,48 @@ static int m_get_align_self(lua_State * L)
 		lua_pushnil(L);
 		break;
 	}
+	return 1;
+}
+
+static int m_set_grow(lua_State * L)
+{
+	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
+	o->layout.grow = luaL_checknumber(L, 2);
+	return 0;
+}
+
+static int m_get_grow(lua_State * L)
+{
+	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
+	lua_pushnumber(L, o->layout.grow);
+	return 1;
+}
+
+static int m_set_shrink(lua_State * L)
+{
+	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
+	o->layout.shrink = luaL_checknumber(L, 2);
+	return 0;
+}
+
+static int m_get_shrink(lua_State * L)
+{
+	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
+	lua_pushnumber(L, o->layout.shrink);
+	return 1;
+}
+
+static int m_set_basis(lua_State * L)
+{
+	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
+	o->layout.basis = luaL_checknumber(L, 2);
+	return 0;
+}
+
+static int m_get_basis(lua_State * L)
+{
+	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
+	lua_pushnumber(L, o->layout.basis);
 	return 1;
 }
 
@@ -1521,10 +1590,10 @@ static int m_layout(lua_State * L)
 		double oy1 = ry1;
 		double ox2 = rx2;
 		double oy2 = ry2;
-		double cx1 = 0 - c->margin.left;
-		double cy1 = 0 - c->margin.top;
-		double cx2 = c->width + c->margin.right;
-		double cy2 = c->height + c->margin.bottom;
+		double cx1 = 0 - c->layout.margin.left;
+		double cy1 = 0 - c->layout.margin.top;
+		double cx2 = c->width + c->layout.margin.right;
+		double cy2 = c->height + c->layout.margin.bottom;
 		double dx, dy;
 		_cairo_matrix_transform_bounding_box(dobject_local_matrix(c), &cx1, &cy1, &cx2, &cy2, NULL);
 
@@ -1622,49 +1691,49 @@ static int m_layout(lua_State * L)
 		{
 		case ALIGN_LEFT_FILL:
 			w = c->width * c->scalex;
-			h = ry2 - ry1 - (c->margin.top + c->margin.bottom);
-			x = rx1 + c->margin.left;
-			y = ry1 + c->margin.top;
-			rx1 += w + c->margin.right;
+			h = ry2 - ry1 - (c->layout.margin.top + c->layout.margin.bottom);
+			x = rx1 + c->layout.margin.left;
+			y = ry1 + c->layout.margin.top;
+			rx1 += w + c->layout.margin.right;
 			break;
 		case ALIGN_TOP_FILL:
-			w = rx2 - rx1 - (c->margin.left + c->margin.right);
+			w = rx2 - rx1 - (c->layout.margin.left + c->layout.margin.right);
 			h = c->height * c->scaley;
-			x = rx1 + c->margin.left;
-			y = ry1 + c->margin.top;
-			ry1 += h + c->margin.bottom;
+			x = rx1 + c->layout.margin.left;
+			y = ry1 + c->layout.margin.top;
+			ry1 += h + c->layout.margin.bottom;
 			break;
 		case ALIGN_RIGHT_FILL:
 			w = c->width * c->scalex;
-			h = ry2 - ry1 - (c->margin.top + c->margin.bottom);
-			x = rx2 - w - c->margin.right;
-			y = ry1 + c->margin.top;
-			rx2 -= w + c->margin.left;
+			h = ry2 - ry1 - (c->layout.margin.top + c->layout.margin.bottom);
+			x = rx2 - w - c->layout.margin.right;
+			y = ry1 + c->layout.margin.top;
+			rx2 -= w + c->layout.margin.left;
 			break;
 		case ALIGN_BOTTOM_FILL:
-			w = rx2 - rx1 - (c->margin.left + c->margin.right);
+			w = rx2 - rx1 - (c->layout.margin.left + c->layout.margin.right);
 			h = c->height * c->scaley;
-			x = rx1 + c->margin.left;
-			y = ry2 - h - c->margin.bottom;
-			ry2 -= h + c->margin.top;
+			x = rx1 + c->layout.margin.left;
+			y = ry2 - h - c->layout.margin.bottom;
+			ry2 -= h + c->layout.margin.top;
 			break;
 		case ALIGN_HORIZONTAL_FILL:
-			w = rx2 - rx1 - (c->margin.left + c->margin.right);
+			w = rx2 - rx1 - (c->layout.margin.left + c->layout.margin.right);
 			h = c->height * c->scaley;
-			x = rx1 + c->margin.left;
+			x = rx1 + c->layout.margin.left;
 			y = c->y;
 			break;
 		case ALIGN_VERTICAL_FILL:
 			w = c->width * c->scalex;
-			h = ry2 - ry1 - (c->margin.top + c->margin.bottom);
+			h = ry2 - ry1 - (c->layout.margin.top + c->layout.margin.bottom);
 			x = c->x;
-			y = ry1 + c->margin.top;
+			y = ry1 + c->layout.margin.top;
 			break;
 		case ALIGN_CENTER_FILL:
-			w = rx2 - rx1 - (c->margin.left + c->margin.right);
-			h = ry2 - ry1 - (c->margin.top + c->margin.bottom);
-			x = rx1 + c->margin.left;
-			y = ry1 + c->margin.top;
+			w = rx2 - rx1 - (c->layout.margin.left + c->layout.margin.right);
+			h = ry2 - ry1 - (c->layout.margin.top + c->layout.margin.bottom);
+			x = rx1 + c->layout.margin.left;
+			y = ry1 + c->layout.margin.top;
 			break;
 		default:
 			w = c->width * c->scalex;
@@ -1818,6 +1887,8 @@ static const luaL_Reg m_dobject[] = {
 	{"getAlignment",		m_get_alignment},
 	{"setMargin",			m_set_margin},
 	{"getMargin",			m_get_margin},
+	{"setPadding",			m_set_padding},
+	{"getPadding",			m_get_padding},
 	{"setFlexDirection",	m_set_flex_direction},
 	{"getFlexDirection",	m_get_flex_direction},
 	{"setFlexWrap",			m_set_flex_wrap},
@@ -1830,6 +1901,12 @@ static const luaL_Reg m_dobject[] = {
 	{"getAlignContent",		m_get_align_content},
 	{"setAlignSelf",		m_set_align_self},
 	{"getAlignSelf",		m_get_align_self},
+	{"setGrow",				m_set_grow},
+	{"getGrow",				m_get_grow},
+	{"setShrink",			m_set_shrink},
+	{"getShrink",			m_get_shrink},
+	{"setBasis",			m_set_basis},
+	{"getBasis",			m_get_basis},
 	{"setCollider",			m_set_collider},
 	{"getCollider",			m_get_collider},
 	{"setVisible",			m_set_visible},

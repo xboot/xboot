@@ -59,16 +59,27 @@ struct ldobject_t {
 	double skewx, skewy;
 	double anchorx, anchory;
 	double alpha;
+
 	enum alignment_t alignment;
 	struct {
-		double left;
-		double top;
-		double right;
-		double bottom;
-	} margin;
+		struct {
+			double left;
+			double top;
+			double right;
+			double bottom;
+		} margin;
 
-	struct {
+		struct {
+			double left;
+			double top;
+			double right;
+			double bottom;
+		} padding;
+
 		uint32_t flex;
+		double grow;
+		double shrink;
+		double basis;
 	} layout;
 
 	enum collider_type_t type;

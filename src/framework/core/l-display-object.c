@@ -272,6 +272,15 @@ function M:getMargin()
 	return self.__dobj:getMargin()
 end
 
+function M:setPadding(left, top, right, bottom)
+	self.__dobj:setPadding(left, top, right, bottom)
+	return self
+end
+
+function M:getPadding()
+	return self.__dobj:getPadding()
+end
+
 function M:setFlexDirection(direction)
 	self.__dobj:setFlexDirection(direction)
 	return self
@@ -334,6 +343,33 @@ end
 
 function M:getAlignSelf()
 	return self.__dobj:getAlignSelf()
+end
+
+function M:setGrow(grow)
+	self.__dobj:setGrow(grow)
+	return self
+end
+
+function M:getGrow()
+	return self.__dobj:getGrow()
+end
+
+function M:setShrink(shrink)
+	self.__dobj:setShrink(shrink)
+	return self
+end
+
+function M:getShrink()
+	return self.__dobj:getShrink()
+end
+
+function M:setBasis(basis)
+	self.__dobj:setBasis(basis)
+	return self
+end
+
+function M:getBasis()
+	return self.__dobj:getBasis()
 end
 
 function M:setCollider(type, ...)

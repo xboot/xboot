@@ -51,6 +51,7 @@ struct ldobject_t {
 	struct ldobject_t * parent;
 	struct list_head entry;
 	struct list_head children;
+	int count;
 
 	double width, height;
 	double x, y;

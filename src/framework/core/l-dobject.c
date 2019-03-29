@@ -149,7 +149,7 @@ static inline cairo_matrix_t * dobject_global_matrix(struct ldobject_t * o)
 	if(o->mflag & MFLAG_GLOBAL_MATRIX)
 	{
 		memcpy(m, dobject_local_matrix(o), sizeof(cairo_matrix_t));
-		while(o->parent && (o->parent != o))
+		while(o->parent)
 		{
 			o = o->parent;
 			cairo_matrix_multiply(m, m, dobject_local_matrix(o));
@@ -300,7 +300,8 @@ static int l_dobject_new(lua_State * L)
 {
 	struct ldobject_t * o = lua_newuserdata(L, sizeof(struct ldobject_t));
 
-	o->parent = o;
+	o->parent = NULL;
+	o->count = 0;
 	init_list_head(&o->entry);
 	init_list_head(&o->children);
 
@@ -407,6 +408,7 @@ static int m_add_child(lua_State * L)
 	if(c->parent != o)
 	{
 		c->parent = o;
+		o->count++;
 		if(lua_toboolean(L, 3))
 			list_add_tail(&c->entry, &o->children);
 		else
@@ -422,7 +424,8 @@ static int m_remove_child(lua_State * L)
 	struct ldobject_t * c = luaL_checkudata(L, 2, MT_DOBJECT);
 	if(c->parent == o)
 	{
-		c->parent = c;
+		c->parent = NULL;
+		o->count--;
 		list_del_init(&c->entry);
 		dobject_mark_with_children(c, MFLAG_GLOBAL_MATRIX);
 	}
@@ -432,7 +435,7 @@ static int m_remove_child(lua_State * L)
 static int m_to_front(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
-	if(o->parent && (o->parent != o))
+	if(o->parent)
 		list_move(&o->entry, &o->parent->children);
 	return 0;
 }
@@ -440,7 +443,7 @@ static int m_to_front(lua_State * L)
 static int m_to_back(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
-	if(o->parent && (o->parent != o))
+	if(o->parent)
 		list_move_tail(&o->entry, &o->parent->children);
 	return 0;
 }

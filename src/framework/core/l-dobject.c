@@ -326,7 +326,7 @@ static int l_dobject_new(lua_State * L)
 	o->layout.padding.top = 0;
 	o->layout.padding.right = 0;
 	o->layout.padding.bottom = 0;
-	o->layout.flex = (FLEX_DIRECTION_ROW << 0) | (FLEX_WRAP_NO_WRAP << 4) | (JUSTIFY_CONTENT_FLEX_START << 8) | (ALIGN_ITEMS_FLEX_START << 12) | (ALIGN_CONTENT_FLEX_START << 16) | (ALIGN_SELF_AUTO << 20);
+	o->layout.style = (FLEX_DIRECTION_ROW << 0) | (FLEX_WRAP_NO_WRAP << 4) | (JUSTIFY_CONTENT_FLEX_START << 8) | (ALIGN_ITEMS_FLEX_START << 12) | (ALIGN_CONTENT_FLEX_START << 16) | (ALIGN_SELF_AUTO << 20);
 	o->layout.grow = 0;
 	o->layout.shrink = 1;
 	o->layout.basis = 0;
@@ -801,20 +801,20 @@ static int m_set_flex_direction(lua_State * L)
 	switch(shash(type))
 	{
 	case 0x0b88a69d: /* "row" */
-		o->layout.flex &= ~(0xf << 0);
-		o->layout.flex |= FLEX_DIRECTION_ROW << 0;
+		o->layout.style &= ~(0xf << 0);
+		o->layout.style |= FLEX_DIRECTION_ROW << 0;
 		break;
 	case 0xf84b1686: /* "row-reverse" */
-		o->layout.flex &= ~(0xf << 0);
-		o->layout.flex |= FLEX_DIRECTION_ROW_REVERSE << 0;
+		o->layout.style &= ~(0xf << 0);
+		o->layout.style |= FLEX_DIRECTION_ROW_REVERSE << 0;
 		break;
 	case 0xf6e39413: /* "column" */
-		o->layout.flex &= ~(0xf << 0);
-		o->layout.flex |= FLEX_DIRECTION_COLUMN << 0;
+		o->layout.style &= ~(0xf << 0);
+		o->layout.style |= FLEX_DIRECTION_COLUMN << 0;
 		break;
 	case 0x839f19fc: /* "column-reverse" */
-		o->layout.flex &= ~(0xf << 0);
-		o->layout.flex |= FLEX_DIRECTION_COLUMN_REVERSE << 0;
+		o->layout.style &= ~(0xf << 0);
+		o->layout.style |= FLEX_DIRECTION_COLUMN_REVERSE << 0;
 		break;
 	default:
 		break;
@@ -825,7 +825,7 @@ static int m_set_flex_direction(lua_State * L)
 static int m_get_flex_direction(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
-	enum flex_direction_t type = o->layout.flex & (0xf << 0);
+	enum flex_direction_t type = o->layout.style & (0xf << 0);
 	switch(type)
 	{
 	case FLEX_DIRECTION_ROW:
@@ -854,16 +854,16 @@ static int m_set_flex_wrap(lua_State * L)
 	switch(shash(type))
 	{
 	case 0x10924cdc: /* "nowrap" */
-		o->layout.flex &= ~(0xf << 4);
-		o->layout.flex |= FLEX_WRAP_NO_WRAP << 4;
+		o->layout.style &= ~(0xf << 4);
+		o->layout.style |= FLEX_WRAP_NO_WRAP << 4;
 		break;
 	case 0x7ca0427f: /* "wrap" */
-		o->layout.flex &= ~(0xf << 4);
-		o->layout.flex |= FLEX_WRAP_WRAP << 4;
+		o->layout.style &= ~(0xf << 4);
+		o->layout.style |= FLEX_WRAP_WRAP << 4;
 		break;
 	case 0xbea97468: /* "wrap-reverse" */
-		o->layout.flex &= ~(0xf << 4);
-		o->layout.flex |= FLEX_WRAP_WRAP_REVERSE << 4;
+		o->layout.style &= ~(0xf << 4);
+		o->layout.style |= FLEX_WRAP_WRAP_REVERSE << 4;
 		break;
 	default:
 		break;
@@ -874,7 +874,7 @@ static int m_set_flex_wrap(lua_State * L)
 static int m_get_flex_wrap(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
-	enum flex_wrap_t type = o->layout.flex & (0xf << 4);
+	enum flex_wrap_t type = o->layout.style & (0xf << 4);
 	switch(type)
 	{
 	case FLEX_WRAP_NO_WRAP:
@@ -900,28 +900,28 @@ static int m_set_justify_content(lua_State * L)
 	switch(shash(type))
 	{
 	case 0xb303440f: /* "flex-start" */
-		o->layout.flex &= ~(0xf << 8);
-		o->layout.flex |= JUSTIFY_CONTENT_FLEX_START << 8;
+		o->layout.style &= ~(0xf << 8);
+		o->layout.style |= JUSTIFY_CONTENT_FLEX_START << 8;
 		break;
 	case 0x0baeaa58: /* "flex-end" */
-		o->layout.flex &= ~(0xf << 8);
-		o->layout.flex |= JUSTIFY_CONTENT_FLEX_END << 8;
+		o->layout.style &= ~(0xf << 8);
+		o->layout.style |= JUSTIFY_CONTENT_FLEX_END << 8;
 		break;
 	case 0xf62fb286: /* "center" */
-		o->layout.flex &= ~(0xf << 8);
-		o->layout.flex |= JUSTIFY_CONTENT_CENTER << 8;
+		o->layout.style &= ~(0xf << 8);
+		o->layout.style |= JUSTIFY_CONTENT_CENTER << 8;
 		break;
 	case 0x7fe1a2e8: /* "space-between" */
-		o->layout.flex &= ~(0xf << 8);
-		o->layout.flex |= JUSTIFY_CONTENT_SPACE_BETWEEN << 8;
+		o->layout.style &= ~(0xf << 8);
+		o->layout.style |= JUSTIFY_CONTENT_SPACE_BETWEEN << 8;
 		break;
 	case 0xeb2d8be7: /* "space-around" */
-		o->layout.flex &= ~(0xf << 8);
-		o->layout.flex |= JUSTIFY_CONTENT_SPACE_AROUND << 8;
+		o->layout.style &= ~(0xf << 8);
+		o->layout.style |= JUSTIFY_CONTENT_SPACE_AROUND << 8;
 		break;
 	case 0xf4c4f6b1: /* "space-evenly" */
-		o->layout.flex &= ~(0xf << 8);
-		o->layout.flex |= JUSTIFY_CONTENT_SPACE_EVENLY << 8;
+		o->layout.style &= ~(0xf << 8);
+		o->layout.style |= JUSTIFY_CONTENT_SPACE_EVENLY << 8;
 		break;
 	default:
 		break;
@@ -932,7 +932,7 @@ static int m_set_justify_content(lua_State * L)
 static int m_get_justify_content(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
-	enum justify_content_t type = o->layout.flex & (0xf << 8);
+	enum justify_content_t type = o->layout.style & (0xf << 8);
 	switch(type)
 	{
 	case JUSTIFY_CONTENT_FLEX_START:
@@ -967,24 +967,24 @@ static int m_set_align_items(lua_State * L)
 	switch(shash(type))
 	{
 	case 0xb303440f: /* "flex-start" */
-		o->layout.flex &= ~(0xf << 12);
-		o->layout.flex |= ALIGN_ITEMS_FLEX_START << 12;
+		o->layout.style &= ~(0xf << 12);
+		o->layout.style |= ALIGN_ITEMS_FLEX_START << 12;
 		break;
 	case 0x0baeaa58: /* "flex-end" */
-		o->layout.flex &= ~(0xf << 12);
-		o->layout.flex |= ALIGN_ITEMS_FLEX_END << 12;
+		o->layout.style &= ~(0xf << 12);
+		o->layout.style |= ALIGN_ITEMS_FLEX_END << 12;
 		break;
 	case 0xf62fb286: /* "center" */
-		o->layout.flex &= ~(0xf << 12);
-		o->layout.flex |= ALIGN_ITEMS_CENTER << 12;
+		o->layout.style &= ~(0xf << 12);
+		o->layout.style |= ALIGN_ITEMS_CENTER << 12;
 		break;
 	case 0x2b59bea8: /* "baseline" */
-		o->layout.flex &= ~(0xf << 12);
-		o->layout.flex |= ALIGN_ITEMS_BASELINE << 12;
+		o->layout.style &= ~(0xf << 12);
+		o->layout.style |= ALIGN_ITEMS_BASELINE << 12;
 		break;
 	case 0xaf079762: /* "stretch" */
-		o->layout.flex &= ~(0xf << 12);
-		o->layout.flex |= ALIGN_ITEMS_STRETCH << 12;
+		o->layout.style &= ~(0xf << 12);
+		o->layout.style |= ALIGN_ITEMS_STRETCH << 12;
 		break;
 	default:
 		break;
@@ -995,7 +995,7 @@ static int m_set_align_items(lua_State * L)
 static int m_get_align_items(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
-	enum align_items_t type = o->layout.flex & (0xf << 12);
+	enum align_items_t type = o->layout.style & (0xf << 12);
 	switch(type)
 	{
 	case ALIGN_ITEMS_FLEX_START:
@@ -1027,28 +1027,28 @@ static int m_set_align_content(lua_State * L)
 	switch(shash(type))
 	{
 	case 0xb303440f: /* "flex-start" */
-		o->layout.flex &= ~(0xf << 16);
-		o->layout.flex |= ALIGN_CONTENT_FLEX_START << 16;
+		o->layout.style &= ~(0xf << 16);
+		o->layout.style |= ALIGN_CONTENT_FLEX_START << 16;
 		break;
 	case 0x0baeaa58: /* "flex-end" */
-		o->layout.flex &= ~(0xf << 16);
-		o->layout.flex |= ALIGN_CONTENT_FLEX_END << 16;
+		o->layout.style &= ~(0xf << 16);
+		o->layout.style |= ALIGN_CONTENT_FLEX_END << 16;
 		break;
 	case 0xf62fb286: /* "center" */
-		o->layout.flex &= ~(0xf << 16);
-		o->layout.flex |= ALIGN_CONTENT_CENTER << 16;
+		o->layout.style &= ~(0xf << 16);
+		o->layout.style |= ALIGN_CONTENT_CENTER << 16;
 		break;
 	case 0x7fe1a2e8: /* "space-between" */
-		o->layout.flex &= ~(0xf << 16);
-		o->layout.flex |= ALIGN_CONTENT_SPACE_BETWEEN << 16;
+		o->layout.style &= ~(0xf << 16);
+		o->layout.style |= ALIGN_CONTENT_SPACE_BETWEEN << 16;
 		break;
 	case 0xeb2d8be7: /* "space-around" */
-		o->layout.flex &= ~(0xf << 16);
-		o->layout.flex |= ALIGN_CONTENT_SPACE_AROUND << 16;
+		o->layout.style &= ~(0xf << 16);
+		o->layout.style |= ALIGN_CONTENT_SPACE_AROUND << 16;
 		break;
 	case 0xaf079762: /* "stretch" */
-		o->layout.flex &= ~(0xf << 16);
-		o->layout.flex |= ALIGN_CONTENT_STRETCH << 16;
+		o->layout.style &= ~(0xf << 16);
+		o->layout.style |= ALIGN_CONTENT_STRETCH << 16;
 		break;
 	default:
 		break;
@@ -1059,7 +1059,7 @@ static int m_set_align_content(lua_State * L)
 static int m_get_align_content(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
-	enum align_content_t type = o->layout.flex & (0xf << 16);
+	enum align_content_t type = o->layout.style & (0xf << 16);
 	switch(type)
 	{
 	case ALIGN_CONTENT_FLEX_START:
@@ -1093,29 +1093,29 @@ static int m_set_align_self(lua_State * L)
 	const char * type = luaL_optstring(L, 2, "auto");
 	switch(shash(type))
 	{
-	case 0x7c94415e: /* "auto" */
-		o->layout.flex &= ~(0xf << 20);
-		o->layout.flex |= ALIGN_SELF_AUTO << 20;
-		break;
 	case 0xb303440f: /* "flex-start" */
-		o->layout.flex &= ~(0xf << 20);
-		o->layout.flex |= ALIGN_SELF_FLEX_START << 20;
+		o->layout.style &= ~(0xf << 20);
+		o->layout.style |= ALIGN_SELF_FLEX_START << 20;
 		break;
 	case 0x0baeaa58: /* "flex-end" */
-		o->layout.flex &= ~(0xf << 20);
-		o->layout.flex |= ALIGN_SELF_FLEX_END << 20;
+		o->layout.style &= ~(0xf << 20);
+		o->layout.style |= ALIGN_SELF_FLEX_END << 20;
 		break;
 	case 0xf62fb286: /* "center" */
-		o->layout.flex &= ~(0xf << 20);
-		o->layout.flex |= ALIGN_SELF_CENTER << 20;
+		o->layout.style &= ~(0xf << 20);
+		o->layout.style |= ALIGN_SELF_CENTER << 20;
 		break;
 	case 0x2b59bea8: /* "baseline" */
-		o->layout.flex &= ~(0xf << 20);
-		o->layout.flex |= ALIGN_SELF_BASELINE << 20;
+		o->layout.style &= ~(0xf << 20);
+		o->layout.style |= ALIGN_SELF_BASELINE << 20;
 		break;
 	case 0xaf079762: /* "stretch" */
-		o->layout.flex &= ~(0xf << 20);
-		o->layout.flex |= ALIGN_SELF_STRETCH << 20;
+		o->layout.style &= ~(0xf << 20);
+		o->layout.style |= ALIGN_SELF_STRETCH << 20;
+		break;
+	case 0x7c94415e: /* "auto" */
+		o->layout.style &= ~(0xf << 20);
+		o->layout.style |= ALIGN_SELF_AUTO << 20;
 		break;
 	default:
 		break;
@@ -1126,7 +1126,7 @@ static int m_set_align_self(lua_State * L)
 static int m_get_align_self(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
-	enum align_self_t type = o->layout.flex & (0xf << 20);
+	enum align_self_t type = o->layout.style & (0xf << 20);
 	switch(type)
 	{
 	case ALIGN_SELF_FLEX_START:

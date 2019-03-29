@@ -43,17 +43,15 @@ function M:init(width, height, content)
 	self.__dobj = Dobject.new(width, height, content)
 end
 
-function M:contains(child)
-	for i, v in ipairs(self.__children) do
-		if v == child then
-			return true
-		end
-	end
-	return false
-end
-
 function M:getParent()
 	return self.__parent
+end
+
+function M:contains(child)
+	if child and child.__parent == self then
+		return true
+	end
+	return false
 end
 
 function M:addChild(child)

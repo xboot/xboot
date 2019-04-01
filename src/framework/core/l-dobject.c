@@ -33,86 +33,97 @@
 #include <framework/core/l-text.h>
 #include <framework/core/l-dobject.h>
 
-enum flex_direction_t {
-	FLEX_DIRECTION_ROW 				= 0,
-	FLEX_DIRECTION_COLUMN			= 1,
+enum layout_direction_t {
+	LAYOUT_DIRECTION_ROW 		= 0,
+	LAYOUT_DIRECTION_COLUMN		= 1,
 };
 
-enum justify_content_t {
-	JUSTIFY_CONTENT_FLEX_START		= 0,
-	JUSTIFY_CONTENT_FLEX_END		= 1,
-	JUSTIFY_CONTENT_CENTER			= 2,
-	JUSTIFY_CONTENT_SPACE_BETWEEN	= 3,
-	JUSTIFY_CONTENT_SPACE_AROUND	= 4,
+enum layout_justify_t {
+	LAYOUT_JUSTIFY_START		= 0,
+	LAYOUT_JUSTIFY_END			= 1,
+	LAYOUT_JUSTIFY_CENTER		= 2,
+	LAYOUT_JUSTIFY_BETWEEN		= 3,
+	LAYOUT_JUSTIFY_AROUND		= 4,
 };
 
-enum align_items_t {
-	ALIGN_ITEMS_FLEX_START			= 0,
-	ALIGN_ITEMS_FLEX_END			= 1,
-	ALIGN_ITEMS_CENTER				= 2,
-	ALIGN_ITEMS_STRETCH				= 3,
+enum layout_align_t {
+	LAYOUT_ALIGN_START			= 0,
+	LAYOUT_ALIGN_END			= 1,
+	LAYOUT_ALIGN_CENTER			= 2,
+	LAYOUT_ALIGN_STRETCH		= 3,
 };
 
-enum align_self_t {
-	ALIGN_SELF_FLEX_START			= ALIGN_ITEMS_FLEX_START,
-	ALIGN_SELF_FLEX_END				= ALIGN_ITEMS_FLEX_END,
-	ALIGN_SELF_CENTER				= ALIGN_ITEMS_CENTER,
-	ALIGN_SELF_STRETCH				= ALIGN_ITEMS_STRETCH,
-	ALIGN_SELF_AUTO					= 4,
+enum layout_align_self_t {
+	LAYOUT_ALIGN_SELF_AUTO		= 0,
+	LAYOUT_ALIGN_SELF_START		= 1,
+	LAYOUT_ALIGN_SELF_END		= 2,
+	LAYOUT_ALIGN_SELF_CENTER	= 3,
+	LAYOUT_ALIGN_SELF_STRETCH	= 4,
 };
 
-static inline void dobject_layout_set_flex_direction(struct ldobject_t * o, enum flex_direction_t direction)
+static inline void dobject_set_layout_enable(struct ldobject_t * o, int enable)
 {
-	o->layout.style &= ~(0xf << 0);
-	o->layout.style |= direction << 0;
+	o->layout.style &= ~(0x1 << 0);
+	o->layout.style |= (enable ? 1 : 0) << 0;
 }
 
-static inline enum flex_direction_t dobject_layout_get_flex_direction(struct ldobject_t * o)
+static inline int dobject_get_layout_enable(struct ldobject_t * o)
 {
-	return o->layout.style & (0xf << 0);
+	return (o->layout.style >> 0) & 0x1;
 }
 
-static inline void dobject_layout_set_justify_content(struct ldobject_t * o, enum justify_content_t justify)
+static inline void dobject_set_layout_direction(struct ldobject_t * o, enum layout_direction_t direction)
+{
+	o->layout.style &= ~(0x3 << 2);
+	o->layout.style |= direction << 2;
+}
+
+static inline enum layout_direction_t dobject_get_layout_direction(struct ldobject_t * o)
+{
+	return (o->layout.style >> 2) & 0x3;
+}
+
+static inline void dobject_set_layout_justify(struct ldobject_t * o, enum layout_justify_t justify)
 {
 	o->layout.style &= ~(0xf << 4);
 	o->layout.style |= justify << 4;
 }
 
-static inline enum justify_content_t dobject_layout_get_justify_content(struct ldobject_t * o)
+static inline enum layout_justify_t dobject_get_layout_justify(struct ldobject_t * o)
 {
-	return o->layout.style & (0xf << 4);
+	return (o->layout.style >> 4) & 0xf;
 }
 
-static inline void dobject_layout_set_align_items(struct ldobject_t * o, enum align_items_t align)
+static inline void dobject_set_layout_align(struct ldobject_t * o, enum layout_align_t align)
 {
 	o->layout.style &= ~(0xf << 8);
 	o->layout.style |= align << 8;
 }
 
-static inline enum align_items_t dobject_layout_get_align_items(struct ldobject_t * o)
+static inline enum layout_align_t dobject_get_layout_align(struct ldobject_t * o)
 {
-	return o->layout.style & (0xf << 8);
+	return (o->layout.style >> 8) & 0xf;
 }
 
-static inline void dobject_layout_set_align_self(struct ldobject_t * o, enum align_self_t align)
+static inline void dobject_set_layout_align_self(struct ldobject_t * o, enum layout_align_self_t align)
 {
 	o->layout.style &= ~(0xf << 12);
 	o->layout.style |= align << 12;
 }
 
-static inline enum align_self_t dobject_layout_get_align_self(struct ldobject_t * o)
+static inline enum layout_align_self_t dobject_get_layout_align_self(struct ldobject_t * o)
 {
-	return o->layout.style & (0xf << 12);
+	return (o->layout.style >> 12) & 0xf;
 }
 
 enum {
-	MFLAG_TRANSLATE					= (0x1 << 0),
-	MFLAG_ROTATE					= (0x1 << 1),
-	MFLAG_SCALE						= (0x1 << 2),
-	MFLAG_SKEW						= (0x1 << 3),
-	MFLAG_ANCHOR					= (0x1 << 4),
-	MFLAG_LOCAL_MATRIX				= (0x1 << 5),
-	MFLAG_GLOBAL_MATRIX				= (0x1 << 6),
+	MFLAG_TRANSLATE				= (0x1 << 0),
+	MFLAG_ROTATE				= (0x1 << 1),
+	MFLAG_SCALE					= (0x1 << 2),
+	MFLAG_SKEW					= (0x1 << 3),
+	MFLAG_ANCHOR				= (0x1 << 4),
+	MFLAG_LOCAL_MATRIX			= (0x1 << 5),
+	MFLAG_GLOBAL_MATRIX			= (0x1 << 6),
 };
 
 static inline cairo_matrix_t * dobject_local_matrix(struct ldobject_t * o)
@@ -325,7 +336,6 @@ static int l_dobject_new(lua_State * L)
 	struct ldobject_t * o = lua_newuserdata(L, sizeof(struct ldobject_t));
 
 	o->parent = NULL;
-	o->count = 0;
 	init_list_head(&o->entry);
 	init_list_head(&o->children);
 
@@ -341,15 +351,13 @@ static int l_dobject_new(lua_State * L)
 	o->anchorx = 0;
 	o->anchory = 0;
 	o->alpha = 1;
-	o->alignment = ALIGN_NONE;
-	o->layout.margin.left = 0;
-	o->layout.margin.top = 0;
-	o->layout.margin.right = 0;
-	o->layout.margin.bottom = 0;
-	o->layout.style = (FLEX_DIRECTION_ROW << 0) | (JUSTIFY_CONTENT_FLEX_START << 4) | (ALIGN_ITEMS_FLEX_START << 8) | (ALIGN_SELF_AUTO << 12);
+	o->margin.left = 0;
+	o->margin.top = 0;
+	o->margin.right = 0;
+	o->margin.bottom = 0;
+	o->layout.style = 0;
 	o->layout.grow = 0;
 	o->layout.shrink = 1;
-	o->layout.basis = 0;
 	o->type = COLLIDER_TYPE_NONE;
 	o->visible = 1;
 	o->touchable = 1;
@@ -428,7 +436,6 @@ static int m_add_child(lua_State * L)
 	if(c->parent != o)
 	{
 		c->parent = o;
-		o->count++;
 		if(lua_toboolean(L, 3))
 			list_add_tail(&c->entry, &o->children);
 		else
@@ -445,7 +452,6 @@ static int m_remove_child(lua_State * L)
 	if(c->parent == o)
 	{
 		c->parent = NULL;
-		o->count--;
 		list_del_init(&c->entry);
 		dobject_mark_with_children(c, MFLAG_GLOBAL_MATRIX);
 	}
@@ -760,51 +766,51 @@ static int m_get_alpha(lua_State * L)
 	return 1;
 }
 
-static int m_set_alignment(lua_State * L)
-{
-	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
-	o->alignment = (enum alignment_t)luaL_checkinteger(L, 2);
-	return 0;
-}
-
-static int m_get_alignment(lua_State * L)
-{
-	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
-	lua_pushinteger(L, o->alignment);
-	return 1;
-}
-
 static int m_set_margin(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
-	o->layout.margin.left = luaL_optnumber(L, 2, 0);
-	o->layout.margin.top = luaL_optnumber(L, 3, 0);
-	o->layout.margin.right = luaL_optnumber(L, 4, 0);
-	o->layout.margin.bottom = luaL_optnumber(L, 5, 0);
+	o->margin.left = luaL_optnumber(L, 2, 0);
+	o->margin.top = luaL_optnumber(L, 3, 0);
+	o->margin.right = luaL_optnumber(L, 4, 0);
+	o->margin.bottom = luaL_optnumber(L, 5, 0);
 	return 0;
 }
 
 static int m_get_margin(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
-	lua_pushnumber(L, o->layout.margin.left);
-	lua_pushnumber(L, o->layout.margin.top);
-	lua_pushnumber(L, o->layout.margin.right);
-	lua_pushnumber(L, o->layout.margin.bottom);
+	lua_pushnumber(L, o->margin.left);
+	lua_pushnumber(L, o->margin.top);
+	lua_pushnumber(L, o->margin.right);
+	lua_pushnumber(L, o->margin.bottom);
 	return 4;
 }
 
-static int m_set_flex_direction(lua_State * L)
+static int m_set_layout_enable(lua_State * L)
+{
+	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
+	dobject_set_layout_enable(o, lua_toboolean(L, 2));
+	return 0;
+}
+
+static int m_get_layout_enable(lua_State * L)
+{
+	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
+	lua_pushboolean(L, dobject_get_layout_enable(o));
+	return 1;
+}
+
+static int m_set_layout_direction(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
 	const char * type = luaL_optstring(L, 2, "row");
 	switch(shash(type))
 	{
 	case 0x0b88a69d: /* "row" */
-		dobject_layout_set_flex_direction(o, FLEX_DIRECTION_ROW);
+		dobject_set_layout_direction(o, LAYOUT_DIRECTION_ROW);
 		break;
 	case 0xf6e39413: /* "column" */
-		dobject_layout_set_flex_direction(o, FLEX_DIRECTION_COLUMN);
+		dobject_set_layout_direction(o, LAYOUT_DIRECTION_COLUMN);
 		break;
 	default:
 		break;
@@ -812,15 +818,15 @@ static int m_set_flex_direction(lua_State * L)
 	return 0;
 }
 
-static int m_get_flex_direction(lua_State * L)
+static int m_get_layout_direction(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
-	switch(dobject_layout_get_flex_direction(o))
+	switch(dobject_get_layout_direction(o))
 	{
-	case FLEX_DIRECTION_ROW:
+	case LAYOUT_DIRECTION_ROW:
 		lua_pushstring(L, "row");
 		break;
-	case FLEX_DIRECTION_COLUMN:
+	case LAYOUT_DIRECTION_COLUMN:
 		lua_pushstring(L, "column");
 		break;
 	default:
@@ -830,26 +836,26 @@ static int m_get_flex_direction(lua_State * L)
 	return 1;
 }
 
-static int m_set_justify_content(lua_State * L)
+static int m_set_layout_justify(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
-	const char * type = luaL_optstring(L, 2, "flex-start");
+	const char * type = luaL_optstring(L, 2, "start");
 	switch(shash(type))
 	{
-	case 0xb303440f: /* "flex-start" */
-		dobject_layout_set_justify_content(o, JUSTIFY_CONTENT_FLEX_START);
+	case 0x106149d3: /* "start" */
+		dobject_set_layout_justify(o, LAYOUT_JUSTIFY_START);
 		break;
-	case 0x0baeaa58: /* "flex-end" */
-		dobject_layout_set_justify_content(o, JUSTIFY_CONTENT_FLEX_END);
+	case 0x0b886f1c: /* "end" */
+		dobject_set_layout_justify(o, LAYOUT_JUSTIFY_END);
 		break;
 	case 0xf62fb286: /* "center" */
-		dobject_layout_set_justify_content(o, JUSTIFY_CONTENT_CENTER);
+		dobject_set_layout_justify(o, LAYOUT_JUSTIFY_CENTER);
 		break;
-	case 0x7fe1a2e8: /* "space-between" */
-		dobject_layout_set_justify_content(o, JUSTIFY_CONTENT_SPACE_BETWEEN);
+	case 0x6f99fd6f: /* "between" */
+		dobject_set_layout_justify(o, LAYOUT_JUSTIFY_BETWEEN);
 		break;
-	case 0xeb2d8be7: /* "space-around" */
-		dobject_layout_set_justify_content(o, JUSTIFY_CONTENT_SPACE_AROUND);
+	case 0xf271318e: /* "around" */
+		dobject_set_layout_justify(o, LAYOUT_JUSTIFY_AROUND);
 		break;
 	default:
 		break;
@@ -857,25 +863,25 @@ static int m_set_justify_content(lua_State * L)
 	return 0;
 }
 
-static int m_get_justify_content(lua_State * L)
+static int m_get_layout_justify(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
-	switch(dobject_layout_get_justify_content(o))
+	switch(dobject_get_layout_justify(o))
 	{
-	case JUSTIFY_CONTENT_FLEX_START:
-		lua_pushstring(L, "flex-start");
+	case LAYOUT_JUSTIFY_START:
+		lua_pushstring(L, "start");
 		break;
-	case JUSTIFY_CONTENT_FLEX_END:
-		lua_pushstring(L, "flex-end");
+	case LAYOUT_JUSTIFY_END:
+		lua_pushstring(L, "end");
 		break;
-	case JUSTIFY_CONTENT_CENTER:
+	case LAYOUT_JUSTIFY_CENTER:
 		lua_pushstring(L, "center");
 		break;
-	case JUSTIFY_CONTENT_SPACE_BETWEEN:
-		lua_pushstring(L, "space-between");
+	case LAYOUT_JUSTIFY_BETWEEN:
+		lua_pushstring(L, "between");
 		break;
-	case JUSTIFY_CONTENT_SPACE_AROUND:
-		lua_pushstring(L, "space-around");
+	case LAYOUT_JUSTIFY_AROUND:
+		lua_pushstring(L, "around");
 		break;
 	default:
 		lua_pushnil(L);
@@ -884,23 +890,23 @@ static int m_get_justify_content(lua_State * L)
 	return 1;
 }
 
-static int m_set_align_items(lua_State * L)
+static int m_set_layout_align(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
-	const char * type = luaL_optstring(L, 2, "flex-start");
+	const char * type = luaL_optstring(L, 2, "start");
 	switch(shash(type))
 	{
-	case 0xb303440f: /* "flex-start" */
-		dobject_layout_set_align_items(o, ALIGN_ITEMS_FLEX_START);
+	case 0x106149d3: /* "start" */
+		dobject_set_layout_align(o, LAYOUT_ALIGN_START);
 		break;
-	case 0x0baeaa58: /* "flex-end" */
-		dobject_layout_set_align_items(o, ALIGN_ITEMS_FLEX_END);
+	case 0x0b886f1c: /* "end" */
+		dobject_set_layout_align(o, LAYOUT_ALIGN_END);
 		break;
 	case 0xf62fb286: /* "center" */
-		dobject_layout_set_align_items(o, ALIGN_ITEMS_CENTER);
+		dobject_set_layout_align(o, LAYOUT_ALIGN_CENTER);
 		break;
 	case 0xaf079762: /* "stretch" */
-		dobject_layout_set_align_items(o, ALIGN_ITEMS_STRETCH);
+		dobject_set_layout_align(o, LAYOUT_ALIGN_STRETCH);
 		break;
 	default:
 		break;
@@ -908,21 +914,21 @@ static int m_set_align_items(lua_State * L)
 	return 0;
 }
 
-static int m_get_align_items(lua_State * L)
+static int m_get_layout_align(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
-	switch(dobject_layout_get_align_items(o))
+	switch(dobject_get_layout_align(o))
 	{
-	case ALIGN_ITEMS_FLEX_START:
-		lua_pushstring(L, "flex-start");
+	case LAYOUT_ALIGN_START:
+		lua_pushstring(L, "start");
 		break;
-	case ALIGN_ITEMS_FLEX_END:
-		lua_pushstring(L, "flex-end");
+	case LAYOUT_ALIGN_END:
+		lua_pushstring(L, "end");
 		break;
-	case ALIGN_ITEMS_CENTER:
+	case LAYOUT_ALIGN_CENTER:
 		lua_pushstring(L, "center");
 		break;
-	case ALIGN_ITEMS_STRETCH:
+	case LAYOUT_ALIGN_STRETCH:
 		lua_pushstring(L, "stretch");
 		break;
 	default:
@@ -932,26 +938,26 @@ static int m_get_align_items(lua_State * L)
 	return 1;
 }
 
-static int m_set_align_self(lua_State * L)
+static int m_set_layout_align_self(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
 	const char * type = luaL_optstring(L, 2, "auto");
 	switch(shash(type))
 	{
-	case 0xb303440f: /* "flex-start" */
-		dobject_layout_set_align_self(o, ALIGN_SELF_FLEX_START);
+	case 0x7c94415e: /* "auto" */
+		dobject_set_layout_align_self(o, LAYOUT_ALIGN_SELF_AUTO);
 		break;
-	case 0x0baeaa58: /* "flex-end" */
-		dobject_layout_set_align_self(o, ALIGN_SELF_FLEX_END);
+	case 0x106149d3: /* "start" */
+		dobject_set_layout_align_self(o, LAYOUT_ALIGN_SELF_START);
+		break;
+	case 0x0b886f1c: /* "end" */
+		dobject_set_layout_align_self(o, LAYOUT_ALIGN_SELF_END);
 		break;
 	case 0xf62fb286: /* "center" */
-		dobject_layout_set_align_self(o, ALIGN_SELF_CENTER);
+		dobject_set_layout_align_self(o, LAYOUT_ALIGN_SELF_CENTER);
 		break;
 	case 0xaf079762: /* "stretch" */
-		dobject_layout_set_align_self(o, ALIGN_SELF_STRETCH);
-		break;
-	case 0x7c94415e: /* "auto" */
-		dobject_layout_set_align_self(o, ALIGN_SELF_AUTO);
+		dobject_set_layout_align_self(o, LAYOUT_ALIGN_SELF_STRETCH);
 		break;
 	default:
 		break;
@@ -959,25 +965,25 @@ static int m_set_align_self(lua_State * L)
 	return 0;
 }
 
-static int m_get_align_self(lua_State * L)
+static int m_get_layout_align_self(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
-	switch(dobject_layout_get_align_self(o))
+	switch(dobject_get_layout_align_self(o))
 	{
-	case ALIGN_SELF_FLEX_START:
-		lua_pushstring(L, "flex-start");
+	case LAYOUT_ALIGN_SELF_AUTO:
+		lua_pushstring(L, "auto");
 		break;
-	case ALIGN_SELF_FLEX_END:
-		lua_pushstring(L, "flex-end");
+	case LAYOUT_ALIGN_SELF_START:
+		lua_pushstring(L, "start");
 		break;
-	case ALIGN_SELF_CENTER:
+	case LAYOUT_ALIGN_SELF_END:
+		lua_pushstring(L, "end");
+		break;
+	case LAYOUT_ALIGN_SELF_CENTER:
 		lua_pushstring(L, "center");
 		break;
-	case ALIGN_SELF_STRETCH:
+	case LAYOUT_ALIGN_SELF_STRETCH:
 		lua_pushstring(L, "stretch");
-		break;
-	case ALIGN_SELF_AUTO:
-		lua_pushstring(L, "auto");
 		break;
 	default:
 		lua_pushnil(L);
@@ -986,45 +992,31 @@ static int m_get_align_self(lua_State * L)
 	return 1;
 }
 
-static int m_set_grow(lua_State * L)
+static int m_set_layout_grow(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
 	o->layout.grow = luaL_checknumber(L, 2);
 	return 0;
 }
 
-static int m_get_grow(lua_State * L)
+static int m_get_layout_grow(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
 	lua_pushnumber(L, o->layout.grow);
 	return 1;
 }
 
-static int m_set_shrink(lua_State * L)
+static int m_set_layout_shrink(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
 	o->layout.shrink = luaL_checknumber(L, 2);
 	return 0;
 }
 
-static int m_get_shrink(lua_State * L)
+static int m_get_layout_shrink(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
 	lua_pushnumber(L, o->layout.shrink);
-	return 1;
-}
-
-static int m_set_basis(lua_State * L)
-{
-	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
-	o->layout.basis = luaL_checknumber(L, 2);
-	return 0;
-}
-
-static int m_get_basis(lua_State * L)
-{
-	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
-	lua_pushnumber(L, o->layout.basis);
 	return 1;
 }
 
@@ -1364,227 +1356,169 @@ static int m_bounds(lua_State * L)
 	return 4;
 }
 
-static inline void dobject_translate(struct ldobject_t * o, double dx, double dy)
+static void dobject_layout(struct ldobject_t * o)
 {
-	o->x = o->x + dx;
-	o->y = o->y + dy;
-	if((o->x == 0.0) && (o->y == 0.0))
-		o->mflag &= ~MFLAG_TRANSLATE;
-	else
-		o->mflag |= MFLAG_TRANSLATE;
-	o->mflag |= MFLAG_LOCAL_MATRIX;
-	dobject_mark_with_children(o, MFLAG_GLOBAL_MATRIX);
-}
+	struct ldobject_t * pos, * n;
+	double consumed, grow, shrink;
+	double space, from, between;
+	double x, w;
+	enum layout_align_t align;
+	int count;
 
-static inline void dobject_translate_fill(struct ldobject_t * o, double x, double y, double w, double h)
-{
-	o->x = x;
-	o->y = y;
-	if((o->x == 0.0) && (o->y == 0.0))
-		o->mflag &= ~MFLAG_TRANSLATE;
-	else
-		o->mflag |= MFLAG_TRANSLATE;
+	if(!dobject_get_layout_enable(o))
+		return;
+	if(list_empty(&o->children))
+		return;
+	if(!o->visible)
+		return;
 
-	if(o->width != 0.0 && o->height != 0.0)
+	consumed = 0;
+	grow = 0;
+	shrink = 0;
+	count = 0;
+	list_for_each_entry_safe(pos, n, &(o->children), entry)
 	{
-		if(w < 1.0)
-			w = 1.0;
-		if(h < 1.0)
-			h = 1.0;
-		o->scalex = w / o->width;
-		o->scaley = h / o->height;
-		if((o->scalex == 1.0) && (o->scaley == 1.0))
-			o->mflag &= ~MFLAG_SCALE;
-		else
-			o->mflag |= MFLAG_SCALE;
+		if(pos->visible)
+		{
+			consumed += pos->width + pos->margin.left + pos->margin.right;
+			grow += pos->layout.grow;
+			shrink += pos->layout.shrink * pos->width;
+			count++;
+		}
 	}
-	o->rotation = 0;
-	o->skewx = 0;
-	o->skewy = 0;
-	o->anchorx = 0;
-	o->anchory = 0;
-	o->mflag |= MFLAG_LOCAL_MATRIX;
-	dobject_mark_with_children(o, MFLAG_GLOBAL_MATRIX);
+
+	space = o->width - consumed;
+	from = 0;
+	between = 0;
+	if((space > 0) && (grow == 0))
+	{
+		switch(dobject_get_layout_justify(o))
+		{
+		case LAYOUT_JUSTIFY_START:
+			break;
+		case LAYOUT_JUSTIFY_END:
+			from = space;
+			break;
+		case LAYOUT_JUSTIFY_CENTER:
+			from = space / 2;
+			break;
+		case LAYOUT_JUSTIFY_BETWEEN:
+			if(count > 1)
+				between = space / (count - 1);
+			break;
+		case LAYOUT_JUSTIFY_AROUND:
+			if(count > 0)
+				between = space / count;
+			from = between / 2;
+			break;
+		default:
+			break;
+		}
+	}
+
+	x = from;
+	list_for_each_entry_safe(pos, n, &(o->children), entry)
+	{
+		if(pos->visible)
+		{
+			w = pos->width + pos->margin.left + pos->margin.right;
+			if((space >= 0) && (pos->layout.grow > 0))
+				w += space * (pos->layout.grow / grow);
+			else if((space < 0) && (pos->layout.shrink > 0))
+				w += space * (pos->layout.shrink * pos->width / shrink);
+			pos->layout.w = w - (pos->margin.left + pos->margin.right);
+			pos->layout.x = x + pos->margin.left;
+			x = x + w + between;
+		}
+	}
+
+	list_for_each_entry_safe(pos, n, &(o->children), entry)
+	{
+		if(pos->visible)
+		{
+			switch(dobject_get_layout_align_self(pos))
+			{
+			case LAYOUT_ALIGN_SELF_AUTO:
+				align = dobject_get_layout_align(o);
+				break;
+			case LAYOUT_ALIGN_SELF_START:
+				align = LAYOUT_ALIGN_START;
+				break;
+			case LAYOUT_ALIGN_SELF_END:
+				align = LAYOUT_ALIGN_END;
+				break;
+			case LAYOUT_ALIGN_SELF_CENTER:
+				align = LAYOUT_ALIGN_CENTER;
+				break;
+			case LAYOUT_ALIGN_SELF_STRETCH:
+				align = LAYOUT_ALIGN_STRETCH;
+				break;
+			default:
+				align = dobject_get_layout_align(o);
+				break;
+			}
+
+			switch(align)
+			{
+			case LAYOUT_ALIGN_START:
+				pos->layout.y = 0 + pos->margin.top;
+				pos->layout.h = pos->height;
+				break;
+			case LAYOUT_ALIGN_END:
+				pos->layout.y = o->height - pos->height - pos->margin.bottom;
+				pos->layout.h = pos->height;
+				break;
+			case LAYOUT_ALIGN_CENTER:
+				pos->layout.y = (o->height - (pos->height + pos->margin.top + pos->margin.bottom)) / 2 + pos->margin.top;
+				pos->layout.h = pos->height;
+				break;
+			case LAYOUT_ALIGN_STRETCH:
+				pos->layout.y = pos->margin.top;
+				pos->layout.h = o->height - (pos->margin.top + pos->margin.bottom);
+				break;
+			default:
+				break;
+			}
+		}
+	}
+
+	list_for_each_entry_safe(pos, n, &(o->children), entry)
+	{
+		pos->x = pos->layout.x;
+		pos->y = pos->layout.y;
+		if((pos->x == 0.0) && (pos->y == 0.0))
+			pos->mflag &= ~MFLAG_TRANSLATE;
+		else
+			pos->mflag |= MFLAG_TRANSLATE;
+
+		if(pos->width != 0.0 && pos->height != 0.0)
+		{
+			if(pos->layout.w < 1.0)
+				pos->layout.w = 1.0;
+			if(pos->layout.h < 1.0)
+				pos->layout.h = 1.0;
+			pos->scalex = pos->layout.w / pos->width;
+			pos->scaley = pos->layout.h / pos->height;
+			if((pos->scalex == 1.0) && (pos->scaley == 1.0))
+				pos->mflag &= ~MFLAG_SCALE;
+			else
+				pos->mflag |= MFLAG_SCALE;
+		}
+		pos->rotation = 0;
+		pos->skewx = 0;
+		pos->skewy = 0;
+		pos->anchorx = 0;
+		pos->anchory = 0;
+		pos->mflag |= MFLAG_LOCAL_MATRIX | MFLAG_GLOBAL_MATRIX;
+		dobject_layout(pos);
+	}
 }
 
 static int m_layout(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
-	struct ldobject_t * c = luaL_checkudata(L, 2, MT_DOBJECT);
-	double rx1 = luaL_optnumber(L, 3, 0);
-	double ry1 = luaL_optnumber(L, 4, 0);
-	double rx2 = luaL_optnumber(L, 5, o->width);
-	double ry2 = luaL_optnumber(L, 6, o->height);
-
-	if(c->alignment <= ALIGN_NONE)
-	{
-	}
-	else if((c->alignment <= ALIGN_CENTER))
-	{
-		double ox1 = rx1;
-		double oy1 = ry1;
-		double ox2 = rx2;
-		double oy2 = ry2;
-		double cx1 = 0 - c->layout.margin.left;
-		double cy1 = 0 - c->layout.margin.top;
-		double cx2 = c->width + c->layout.margin.right;
-		double cy2 = c->height + c->layout.margin.bottom;
-		double dx, dy;
-		_cairo_matrix_transform_bounding_box(dobject_local_matrix(c), &cx1, &cy1, &cx2, &cy2, NULL);
-
-		switch(c->alignment)
-		{
-		case ALIGN_LEFT:
-			dx = ox1 - cx1;
-			dy = 0;
-			rx1 += cx2 - cx1;
-			break;
-		case ALIGN_TOP:
-			dx = 0;
-			dy = oy1 - cy1;
-			ry1 += cy2 - cy1;
-			break;
-		case ALIGN_RIGHT:
-			dx = ox2 - cx2;
-			dy = 0;
-			rx2 -= cx2 - cx1;
-			break;
-		case ALIGN_BOTTOM:
-			dx = 0;
-			dy = oy2 - cy2;
-			ry2 -= cy2 - cy1;
-			break;
-		case ALIGN_LEFT_TOP:
-			dx = ox1 - cx1;
-			dy = oy1 - cy1;
-			rx1 += cx2 - cx1;
-			ry1 += cy2 - cy1;
-			break;
-		case ALIGN_RIGHT_TOP:
-			dx = ox2 - cx2;
-			dy = oy1 - cy1;
-			rx2 -= cx2 - cx1;
-			ry1 += cy2 - cy1;
-			break;
-		case ALIGN_LEFT_BOTTOM:
-			dx = ox1 - cx1;
-			dy = oy2 - cy2;
-			rx1 += cx2 - cx1;
-			ry2 -= cy2 - cy1;
-			break;
-		case ALIGN_RIGHT_BOTTOM:
-			dx = ox2 - cx2;
-			dy = oy2 - cy2;
-			rx2 -= cx2 - cx1;
-			ry2 -= cy2 - cy1;
-			break;
-		case ALIGN_LEFT_CENTER:
-			dx = ox1 - cx1;
-			dy = oy1 - cy1 + ((oy2 - oy1) - (cy2 - cy1)) / 2;
-			rx1 += cx2 - cx1;
-			break;
-		case ALIGN_TOP_CENTER:
-			dx = ox1 - cx1 + ((ox2 - ox1) - (cx2 - cx1)) / 2;
-			dy = oy1 - cy1;
-			ry1 += cy2 - cy1;
-			break;
-		case ALIGN_RIGHT_CENTER:
-			dx = ox2 - cx2;
-			dy = oy1 - cy1 + ((oy2 - oy1) - (cy2 - cy1)) / 2;
-			rx2 -= cx2 - cx1;
-			break;
-		case ALIGN_BOTTOM_CENTER:
-			dx = ox1 - cx1 + ((ox2 - ox1) - (cx2 - cx1)) / 2;
-			dy = oy2 - cy2;
-			ry2 -= cy2 - cy1;
-			break;
-		case ALIGN_HORIZONTAL_CENTER:
-			dx = ox1 - cx1 + ((ox2 - ox1) - (cx2 - cx1)) / 2;
-			dy = 0;
-			break;
-		case ALIGN_VERTICAL_CENTER:
-			dx = 0;
-			dy = oy1 - cy1 + ((oy2 - oy1) - (cy2 - cy1)) / 2;
-			break;
-		case ALIGN_CENTER:
-			dx = ox1 - cx1 + ((ox2 - ox1) - (cx2 - cx1)) / 2;
-			dy = oy1 - cy1 + ((oy2 - oy1) - (cy2 - cy1)) / 2;
-			break;
-		default:
-			dx = 0;
-			dy = 0;
-			break;
-		}
-		dobject_translate(c, dx, dy);
-	}
-	else if((c->alignment <= ALIGN_CENTER_FILL))
-	{
-		double x, y;
-		double w, h;
-
-		switch(c->alignment)
-		{
-		case ALIGN_LEFT_FILL:
-			w = c->width * c->scalex;
-			h = ry2 - ry1 - (c->layout.margin.top + c->layout.margin.bottom);
-			x = rx1 + c->layout.margin.left;
-			y = ry1 + c->layout.margin.top;
-			rx1 += w + c->layout.margin.right;
-			break;
-		case ALIGN_TOP_FILL:
-			w = rx2 - rx1 - (c->layout.margin.left + c->layout.margin.right);
-			h = c->height * c->scaley;
-			x = rx1 + c->layout.margin.left;
-			y = ry1 + c->layout.margin.top;
-			ry1 += h + c->layout.margin.bottom;
-			break;
-		case ALIGN_RIGHT_FILL:
-			w = c->width * c->scalex;
-			h = ry2 - ry1 - (c->layout.margin.top + c->layout.margin.bottom);
-			x = rx2 - w - c->layout.margin.right;
-			y = ry1 + c->layout.margin.top;
-			rx2 -= w + c->layout.margin.left;
-			break;
-		case ALIGN_BOTTOM_FILL:
-			w = rx2 - rx1 - (c->layout.margin.left + c->layout.margin.right);
-			h = c->height * c->scaley;
-			x = rx1 + c->layout.margin.left;
-			y = ry2 - h - c->layout.margin.bottom;
-			ry2 -= h + c->layout.margin.top;
-			break;
-		case ALIGN_HORIZONTAL_FILL:
-			w = rx2 - rx1 - (c->layout.margin.left + c->layout.margin.right);
-			h = c->height * c->scaley;
-			x = rx1 + c->layout.margin.left;
-			y = c->y;
-			break;
-		case ALIGN_VERTICAL_FILL:
-			w = c->width * c->scalex;
-			h = ry2 - ry1 - (c->layout.margin.top + c->layout.margin.bottom);
-			x = c->x;
-			y = ry1 + c->layout.margin.top;
-			break;
-		case ALIGN_CENTER_FILL:
-			w = rx2 - rx1 - (c->layout.margin.left + c->layout.margin.right);
-			h = ry2 - ry1 - (c->layout.margin.top + c->layout.margin.bottom);
-			x = rx1 + c->layout.margin.left;
-			y = ry1 + c->layout.margin.top;
-			break;
-		default:
-			w = c->width * c->scalex;
-			h = c->height * c->scaley;
-			x = c->x;
-			y = c->y;
-			break;
-		}
-		dobject_translate_fill(c, x, y, w, h);
-	}
-
-	lua_pushnumber(L, rx1);
-	lua_pushnumber(L, ry1);
-	lua_pushnumber(L, rx2);
-	lua_pushnumber(L, ry2);
-	return 4;
+	dobject_layout(o);
+	return 0;
 }
 
 static int m_draw(lua_State * L)
@@ -1718,24 +1652,22 @@ static const luaL_Reg m_dobject[] = {
 	{"getAnchor",			m_get_archor},
 	{"setAlpha",			m_set_alpha},
 	{"getAlpha",			m_get_alpha},
-	{"setAlignment",		m_set_alignment},
-	{"getAlignment",		m_get_alignment},
 	{"setMargin",			m_set_margin},
 	{"getMargin",			m_get_margin},
-	{"setFlexDirection",	m_set_flex_direction},
-	{"getFlexDirection",	m_get_flex_direction},
-	{"setJustifyContent",	m_set_justify_content},
-	{"getJustifyContent",	m_get_justify_content},
-	{"setAlignItems",		m_set_align_items},
-	{"getAlignItems",		m_get_align_items},
-	{"setAlignSelf",		m_set_align_self},
-	{"getAlignSelf",		m_get_align_self},
-	{"setGrow",				m_set_grow},
-	{"getGrow",				m_get_grow},
-	{"setShrink",			m_set_shrink},
-	{"getShrink",			m_get_shrink},
-	{"setBasis",			m_set_basis},
-	{"getBasis",			m_get_basis},
+	{"setLayoutEnable",		m_set_layout_enable},
+	{"getLayoutEnable",		m_get_layout_enable},
+	{"setLayoutDirection",	m_set_layout_direction},
+	{"getLayoutDirection",	m_get_layout_direction},
+	{"setLayoutJustify",	m_set_layout_justify},
+	{"getLayoutJustify",	m_get_layout_justify},
+	{"setLayoutAlign",		m_set_layout_align},
+	{"getLayoutAlign",		m_get_layout_align},
+	{"setLayoutAlignSelf",	m_set_layout_align_self},
+	{"getLayoutAlignSelf",	m_get_layout_align_self},
+	{"setLayoutGrow",		m_set_layout_grow},
+	{"getLayoutGrow",		m_get_layout_grow},
+	{"setLayoutShrink",		m_set_layout_shrink},
+	{"getLayoutShrink",		m_get_layout_shrink},
 	{"setCollider",			m_set_collider},
 	{"getCollider",			m_get_collider},
 	{"setVisible",			m_set_visible},
@@ -1754,30 +1686,6 @@ static const luaL_Reg m_dobject[] = {
 int luaopen_dobject(lua_State * L)
 {
 	luaL_newlib(L, l_dobject);
-	/* enum alignment_t */
-	luahelper_set_intfield(L, "ALIGN_NONE", 				ALIGN_NONE);
-	luahelper_set_intfield(L, "ALIGN_LEFT", 				ALIGN_LEFT);
-	luahelper_set_intfield(L, "ALIGN_TOP", 					ALIGN_TOP);
-	luahelper_set_intfield(L, "ALIGN_RIGHT", 				ALIGN_RIGHT);
-	luahelper_set_intfield(L, "ALIGN_BOTTOM", 				ALIGN_BOTTOM);
-	luahelper_set_intfield(L, "ALIGN_LEFT_TOP", 			ALIGN_LEFT_TOP);
-	luahelper_set_intfield(L, "ALIGN_RIGHT_TOP", 			ALIGN_RIGHT_TOP);
-	luahelper_set_intfield(L, "ALIGN_LEFT_BOTTOM", 			ALIGN_LEFT_BOTTOM);
-	luahelper_set_intfield(L, "ALIGN_RIGHT_BOTTOM", 		ALIGN_RIGHT_BOTTOM);
-	luahelper_set_intfield(L, "ALIGN_LEFT_CENTER", 			ALIGN_LEFT_CENTER);
-	luahelper_set_intfield(L, "ALIGN_TOP_CENTER", 			ALIGN_TOP_CENTER);
-	luahelper_set_intfield(L, "ALIGN_RIGHT_CENTER", 		ALIGN_RIGHT_CENTER);
-	luahelper_set_intfield(L, "ALIGN_BOTTOM_CENTER",		ALIGN_BOTTOM_CENTER);
-	luahelper_set_intfield(L, "ALIGN_HORIZONTAL_CENTER",	ALIGN_HORIZONTAL_CENTER);
-	luahelper_set_intfield(L, "ALIGN_VERTICAL_CENTER", 		ALIGN_VERTICAL_CENTER);
-	luahelper_set_intfield(L, "ALIGN_CENTER", 				ALIGN_CENTER);
-	luahelper_set_intfield(L, "ALIGN_LEFT_FILL", 			ALIGN_LEFT_FILL);
-	luahelper_set_intfield(L, "ALIGN_TOP_FILL", 			ALIGN_TOP_FILL);
-	luahelper_set_intfield(L, "ALIGN_RIGHT_FILL", 			ALIGN_RIGHT_FILL);
-	luahelper_set_intfield(L, "ALIGN_BOTTOM_FILL", 			ALIGN_BOTTOM_FILL);
-	luahelper_set_intfield(L, "ALIGN_HORIZONTAL_FILL", 		ALIGN_HORIZONTAL_FILL);
-	luahelper_set_intfield(L, "ALIGN_VERTICAL_FILL", 		ALIGN_VERTICAL_FILL);
-	luahelper_set_intfield(L, "ALIGN_CENTER_FILL", 			ALIGN_CENTER_FILL);
 	luahelper_create_metatable(L, MT_DOBJECT, m_dobject);
 	return 1;
 }

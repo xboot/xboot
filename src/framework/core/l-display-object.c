@@ -252,15 +252,6 @@ function M:getAlpha()
 	return self.__dobj:getAlpha()
 end
 
-function M:setAlignment(align)
-	self.__dobj:setAlignment(align)
-	return self
-end
-
-function M:getAlignment()
-	return self.__dobj:getAlignment()
-end
-
 function M:setMargin(left, top, right, bottom)
 	self.__dobj:setMargin(left, top, right, bottom)
 	return self
@@ -270,67 +261,67 @@ function M:getMargin()
 	return self.__dobj:getMargin()
 end
 
-function M:setFlexDirection(direction)
-	self.__dobj:setFlexDirection(direction)
+function M:setLayoutEnable(enable)
+	self.__dobj:setLayoutEnable(enable)
 	return self
 end
 
-function M:getFlexDirection()
-	return self.__dobj:getFlexDirection()
+function M:getLayoutEnable()
+	return self.__dobj:getLayoutEnable()
 end
 
-function M:setJustifyContent(justify)
-	self.__dobj:setJustifyContent(justify)
+function M:setLayoutDirection(direction)
+	self.__dobj:setLayoutDirection(direction)
 	return self
 end
 
-function M:getJustifyContent()
-	return self.__dobj:getJustifyContent()
+function M:getLayoutDirection()
+	return self.__dobj:getLayoutDirection()
 end
 
-function M:setAlignItems(align)
-	self.__dobj:setAlignItems(align)
+function M:setLayoutJustify(justify)
+	self.__dobj:setLayoutJustify(justify)
 	return self
 end
 
-function M:getAlignItems()
-	return self.__dobj:getAlignItems()
+function M:getLayoutJustify()
+	return self.__dobj:getLayoutJustify()
 end
 
-function M:setAlignSelf(align)
-	self.__dobj:setAlignSelf(align)
+function M:setLayoutAlign(align)
+	self.__dobj:setLayoutAlign(align)
 	return self
 end
 
-function M:getAlignSelf()
-	return self.__dobj:getAlignSelf()
+function M:getLayoutAlign()
+	return self.__dobj:getLayoutAlign()
 end
 
-function M:setGrow(grow)
-	self.__dobj:setGrow(grow)
+function M:setLayoutAlignSelf(align)
+	self.__dobj:setLayoutAlignSelf(align)
 	return self
 end
 
-function M:getGrow()
-	return self.__dobj:getGrow()
+function M:getLayoutAlignSelf()
+	return self.__dobj:getLayoutAlignSelf()
 end
 
-function M:setShrink(shrink)
-	self.__dobj:setShrink(shrink)
+function M:setLayoutGrow(grow)
+	self.__dobj:setLayoutGrow(grow)
 	return self
 end
 
-function M:getShrink()
-	return self.__dobj:getShrink()
+function M:getLayoutGrow()
+	return self.__dobj:getLayoutGrow()
 end
 
-function M:setBasis(basis)
-	self.__dobj:setBasis(basis)
+function M:setLayoutShrink(shrink)
+	self.__dobj:setLayoutShrink(shrink)
 	return self
 end
 
-function M:getBasis()
-	return self.__dobj:getBasis()
+function M:getLayoutShrink()
+	return self.__dobj:getLayoutShrink()
 end
 
 function M:setCollider(type, ...)
@@ -477,13 +468,8 @@ function M:animate(properties, duration, easing)
 end
 
 function M:layout()
-	local x1, y1, x2, y2
-	for i, v in ipairs(self.__children) do
-		if v:getVisible() then
-			x1, y1, x2, y2 = self.__dobj:layout(v.__dobj, x1, y1, x2, y2)
-			v:layout()
-		end
-	end
+	self.__dobj:layout()
+	return self
 end
 
 function M:render(event)

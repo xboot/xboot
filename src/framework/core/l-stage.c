@@ -36,6 +36,7 @@ function M:init()
 	self.timerlist = {}
 	self.display = Display.new()
 	self.super:init(self.display:getSize())
+	self:setLayoutEnable(true)
 end
 
 function M:exit()

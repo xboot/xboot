@@ -70,7 +70,6 @@ struct ldobject_t {
 			double bottom;
 		} margin;
 
-		int enable;
 		uint32_t style;
 		double grow;
 		double shrink;

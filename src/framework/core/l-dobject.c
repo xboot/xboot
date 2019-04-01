@@ -33,16 +33,6 @@
 #include <framework/core/l-text.h>
 #include <framework/core/l-dobject.h>
 
-enum {
-	MFLAG_TRANSLATE					= (0x1 << 0),
-	MFLAG_ROTATE					= (0x1 << 1),
-	MFLAG_SCALE						= (0x1 << 2),
-	MFLAG_SKEW						= (0x1 << 3),
-	MFLAG_ANCHOR					= (0x1 << 4),
-	MFLAG_LOCAL_MATRIX				= (0x1 << 5),
-	MFLAG_GLOBAL_MATRIX				= (0x1 << 6),
-};
-
 enum flex_direction_t {
 	FLEX_DIRECTION_ROW 				= 0,
 	FLEX_DIRECTION_COLUMN			= 1,
@@ -69,6 +59,60 @@ enum align_self_t {
 	ALIGN_SELF_CENTER				= ALIGN_ITEMS_CENTER,
 	ALIGN_SELF_STRETCH				= ALIGN_ITEMS_STRETCH,
 	ALIGN_SELF_AUTO					= 4,
+};
+
+static inline void dobject_layout_set_flex_direction(struct ldobject_t * o, enum flex_direction_t direction)
+{
+	o->layout.style &= ~(0xf << 0);
+	o->layout.style |= direction << 0;
+}
+
+static inline enum flex_direction_t dobject_layout_get_flex_direction(struct ldobject_t * o)
+{
+	return o->layout.style & (0xf << 0);
+}
+
+static inline void dobject_layout_set_justify_content(struct ldobject_t * o, enum justify_content_t justify)
+{
+	o->layout.style &= ~(0xf << 4);
+	o->layout.style |= justify << 4;
+}
+
+static inline enum justify_content_t dobject_layout_get_justify_content(struct ldobject_t * o)
+{
+	return o->layout.style & (0xf << 4);
+}
+
+static inline void dobject_layout_set_align_items(struct ldobject_t * o, enum align_items_t align)
+{
+	o->layout.style &= ~(0xf << 8);
+	o->layout.style |= align << 8;
+}
+
+static inline enum align_items_t dobject_layout_get_align_items(struct ldobject_t * o)
+{
+	return o->layout.style & (0xf << 8);
+}
+
+static inline void dobject_layout_set_align_self(struct ldobject_t * o, enum align_self_t align)
+{
+	o->layout.style &= ~(0xf << 12);
+	o->layout.style |= align << 12;
+}
+
+static inline enum align_self_t dobject_layout_get_align_self(struct ldobject_t * o)
+{
+	return o->layout.style & (0xf << 12);
+}
+
+enum {
+	MFLAG_TRANSLATE					= (0x1 << 0),
+	MFLAG_ROTATE					= (0x1 << 1),
+	MFLAG_SCALE						= (0x1 << 2),
+	MFLAG_SKEW						= (0x1 << 3),
+	MFLAG_ANCHOR					= (0x1 << 4),
+	MFLAG_LOCAL_MATRIX				= (0x1 << 5),
+	MFLAG_GLOBAL_MATRIX				= (0x1 << 6),
 };
 
 static inline cairo_matrix_t * dobject_local_matrix(struct ldobject_t * o)
@@ -757,12 +801,10 @@ static int m_set_flex_direction(lua_State * L)
 	switch(shash(type))
 	{
 	case 0x0b88a69d: /* "row" */
-		o->layout.style &= ~(0xf << 0);
-		o->layout.style |= FLEX_DIRECTION_ROW << 0;
+		dobject_layout_set_flex_direction(o, FLEX_DIRECTION_ROW);
 		break;
 	case 0xf6e39413: /* "column" */
-		o->layout.style &= ~(0xf << 0);
-		o->layout.style |= FLEX_DIRECTION_COLUMN << 0;
+		dobject_layout_set_flex_direction(o, FLEX_DIRECTION_COLUMN);
 		break;
 	default:
 		break;
@@ -773,8 +815,7 @@ static int m_set_flex_direction(lua_State * L)
 static int m_get_flex_direction(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
-	enum flex_direction_t type = o->layout.style & (0xf << 0);
-	switch(type)
+	switch(dobject_layout_get_flex_direction(o))
 	{
 	case FLEX_DIRECTION_ROW:
 		lua_pushstring(L, "row");
@@ -796,24 +837,19 @@ static int m_set_justify_content(lua_State * L)
 	switch(shash(type))
 	{
 	case 0xb303440f: /* "flex-start" */
-		o->layout.style &= ~(0xf << 4);
-		o->layout.style |= JUSTIFY_CONTENT_FLEX_START << 4;
+		dobject_layout_set_justify_content(o, JUSTIFY_CONTENT_FLEX_START);
 		break;
 	case 0x0baeaa58: /* "flex-end" */
-		o->layout.style &= ~(0xf << 4);
-		o->layout.style |= JUSTIFY_CONTENT_FLEX_END << 4;
+		dobject_layout_set_justify_content(o, JUSTIFY_CONTENT_FLEX_END);
 		break;
 	case 0xf62fb286: /* "center" */
-		o->layout.style &= ~(0xf << 4);
-		o->layout.style |= JUSTIFY_CONTENT_CENTER << 4;
+		dobject_layout_set_justify_content(o, JUSTIFY_CONTENT_CENTER);
 		break;
 	case 0x7fe1a2e8: /* "space-between" */
-		o->layout.style &= ~(0xf << 4);
-		o->layout.style |= JUSTIFY_CONTENT_SPACE_BETWEEN << 4;
+		dobject_layout_set_justify_content(o, JUSTIFY_CONTENT_SPACE_BETWEEN);
 		break;
 	case 0xeb2d8be7: /* "space-around" */
-		o->layout.style &= ~(0xf << 4);
-		o->layout.style |= JUSTIFY_CONTENT_SPACE_AROUND << 4;
+		dobject_layout_set_justify_content(o, JUSTIFY_CONTENT_SPACE_AROUND);
 		break;
 	default:
 		break;
@@ -824,8 +860,7 @@ static int m_set_justify_content(lua_State * L)
 static int m_get_justify_content(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
-	enum justify_content_t type = o->layout.style & (0xf << 4);
-	switch(type)
+	switch(dobject_layout_get_justify_content(o))
 	{
 	case JUSTIFY_CONTENT_FLEX_START:
 		lua_pushstring(L, "flex-start");
@@ -856,20 +891,16 @@ static int m_set_align_items(lua_State * L)
 	switch(shash(type))
 	{
 	case 0xb303440f: /* "flex-start" */
-		o->layout.style &= ~(0xf << 8);
-		o->layout.style |= ALIGN_ITEMS_FLEX_START << 8;
+		dobject_layout_set_align_items(o, ALIGN_ITEMS_FLEX_START);
 		break;
 	case 0x0baeaa58: /* "flex-end" */
-		o->layout.style &= ~(0xf << 8);
-		o->layout.style |= ALIGN_ITEMS_FLEX_END << 8;
+		dobject_layout_set_align_items(o, ALIGN_ITEMS_FLEX_END);
 		break;
 	case 0xf62fb286: /* "center" */
-		o->layout.style &= ~(0xf << 8);
-		o->layout.style |= ALIGN_ITEMS_CENTER << 8;
+		dobject_layout_set_align_items(o, ALIGN_ITEMS_CENTER);
 		break;
 	case 0xaf079762: /* "stretch" */
-		o->layout.style &= ~(0xf << 8);
-		o->layout.style |= ALIGN_ITEMS_STRETCH << 8;
+		dobject_layout_set_align_items(o, ALIGN_ITEMS_STRETCH);
 		break;
 	default:
 		break;
@@ -880,8 +911,7 @@ static int m_set_align_items(lua_State * L)
 static int m_get_align_items(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
-	enum align_items_t type = o->layout.style & (0xf << 8);
-	switch(type)
+	switch(dobject_layout_get_align_items(o))
 	{
 	case ALIGN_ITEMS_FLEX_START:
 		lua_pushstring(L, "flex-start");
@@ -909,24 +939,19 @@ static int m_set_align_self(lua_State * L)
 	switch(shash(type))
 	{
 	case 0xb303440f: /* "flex-start" */
-		o->layout.style &= ~(0xf << 12);
-		o->layout.style |= ALIGN_SELF_FLEX_START << 12;
+		dobject_layout_set_align_self(o, ALIGN_SELF_FLEX_START);
 		break;
 	case 0x0baeaa58: /* "flex-end" */
-		o->layout.style &= ~(0xf << 12);
-		o->layout.style |= ALIGN_SELF_FLEX_END << 12;
+		dobject_layout_set_align_self(o, ALIGN_SELF_FLEX_END);
 		break;
 	case 0xf62fb286: /* "center" */
-		o->layout.style &= ~(0xf << 12);
-		o->layout.style |= ALIGN_SELF_CENTER << 12;
+		dobject_layout_set_align_self(o, ALIGN_SELF_CENTER);
 		break;
 	case 0xaf079762: /* "stretch" */
-		o->layout.style &= ~(0xf << 12);
-		o->layout.style |= ALIGN_SELF_STRETCH << 12;
+		dobject_layout_set_align_self(o, ALIGN_SELF_STRETCH);
 		break;
 	case 0x7c94415e: /* "auto" */
-		o->layout.style &= ~(0xf << 12);
-		o->layout.style |= ALIGN_SELF_AUTO << 12;
+		dobject_layout_set_align_self(o, ALIGN_SELF_AUTO);
 		break;
 	default:
 		break;
@@ -937,8 +962,7 @@ static int m_set_align_self(lua_State * L)
 static int m_get_align_self(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
-	enum align_self_t type = o->layout.style & (0xf << 12);
-	switch(type)
+	switch(dobject_layout_get_align_self(o))
 	{
 	case ALIGN_SELF_FLEX_START:
 		lua_pushstring(L, "flex-start");

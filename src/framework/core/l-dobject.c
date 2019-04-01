@@ -322,10 +322,6 @@ static int l_dobject_new(lua_State * L)
 	o->layout.margin.top = 0;
 	o->layout.margin.right = 0;
 	o->layout.margin.bottom = 0;
-	o->layout.padding.left = 0;
-	o->layout.padding.top = 0;
-	o->layout.padding.right = 0;
-	o->layout.padding.bottom = 0;
 	o->layout.enable = 0;
 	o->layout.style = (FLEX_DIRECTION_ROW << 0) | (FLEX_WRAP_NO_WRAP << 4) | (JUSTIFY_CONTENT_FLEX_START << 8) | (ALIGN_ITEMS_FLEX_START << 12) | (ALIGN_CONTENT_FLEX_START << 16) | (ALIGN_SELF_AUTO << 20);
 	o->layout.grow = 0;
@@ -772,26 +768,6 @@ static int m_get_margin(lua_State * L)
 	lua_pushnumber(L, o->layout.margin.top);
 	lua_pushnumber(L, o->layout.margin.right);
 	lua_pushnumber(L, o->layout.margin.bottom);
-	return 4;
-}
-
-static int m_set_padding(lua_State * L)
-{
-	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
-	o->layout.padding.left = luaL_optnumber(L, 2, 0);
-	o->layout.padding.top = luaL_optnumber(L, 3, 0);
-	o->layout.padding.right = luaL_optnumber(L, 4, 0);
-	o->layout.padding.bottom = luaL_optnumber(L, 5, 0);
-	return 0;
-}
-
-static int m_get_padding(lua_State * L)
-{
-	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
-	lua_pushnumber(L, o->layout.padding.left);
-	lua_pushnumber(L, o->layout.padding.top);
-	lua_pushnumber(L, o->layout.padding.right);
-	lua_pushnumber(L, o->layout.padding.bottom);
 	return 4;
 }
 
@@ -1891,8 +1867,6 @@ static const luaL_Reg m_dobject[] = {
 	{"getAlignment",		m_get_alignment},
 	{"setMargin",			m_set_margin},
 	{"getMargin",			m_get_margin},
-	{"setPadding",			m_set_padding},
-	{"getPadding",			m_get_padding},
 	{"setFlexDirection",	m_set_flex_direction},
 	{"getFlexDirection",	m_get_flex_direction},
 	{"setFlexWrap",			m_set_flex_wrap},

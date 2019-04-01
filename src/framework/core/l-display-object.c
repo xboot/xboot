@@ -270,15 +270,6 @@ function M:getMargin()
 	return self.__dobj:getMargin()
 end
 
-function M:setPadding(left, top, right, bottom)
-	self.__dobj:setPadding(left, top, right, bottom)
-	return self
-end
-
-function M:getPadding()
-	return self.__dobj:getPadding()
-end
-
 function M:setFlexDirection(direction)
 	self.__dobj:setFlexDirection(direction)
 	return self

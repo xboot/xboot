@@ -70,13 +70,6 @@ struct ldobject_t {
 			double bottom;
 		} margin;
 
-		struct {
-			double left;
-			double top;
-			double right;
-			double bottom;
-		} padding;
-
 		int enable;
 		uint32_t style;
 		double grow;

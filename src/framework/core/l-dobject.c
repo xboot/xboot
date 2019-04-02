@@ -1045,6 +1045,8 @@ static int m_set_collider(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
 	const char * type = luaL_optstring(L, 2, "");
+	double * p = NULL;
+	int i, n = 0;
 	if(o->type == COLLIDER_TYPE_POLYGON)
 	{
 		if((o->hit.polygon.length > 0) && o->hit.polygon.points)
@@ -1054,42 +1056,37 @@ static int m_set_collider(lua_State * L)
 			o->hit.polygon.length = 0;
 		}
 	}
-	if(strcmp(type, "circle") == 0)
+	switch(shash(type))
 	{
+	case 0xf679fe97: /* "circle" */
 		o->type = COLLIDER_TYPE_CIRCLE;
 		o->hit.circle.x = luaL_optnumber(L, 3, o->width / 2);
 		o->hit.circle.y = luaL_optnumber(L, 4, o->height / 2);
 		o->hit.circle.radius = luaL_optnumber(L, 5, (o->width < o->height ? o->width : o->height) / 2);
-	}
-	else if(strcmp(type, "ellipse") == 0)
-	{
+		break;
+	case 0x66448f53: /* "ellipse" */
 		o->type = COLLIDER_TYPE_ELLIPSE;
 		o->hit.ellipse.x = luaL_optnumber(L, 3, o->width / 2);
 		o->hit.ellipse.y = luaL_optnumber(L, 4, o->height / 2);
 		o->hit.ellipse.width = luaL_optnumber(L, 5, o->width / 2);
 		o->hit.ellipse.height = luaL_optnumber(L, 6, o->height / 2);
-	}
-	else if(strcmp(type, "rectangle") == 0)
-	{
+		break;
+	case 0xe1f5207a: /* "rectangle" */
 		o->type = COLLIDER_TYPE_RECTANGLE;
 		o->hit.rectangle.x = luaL_optnumber(L, 3, 0);
 		o->hit.rectangle.y = luaL_optnumber(L, 4, 0);
 		o->hit.rectangle.width = luaL_optnumber(L, 5, o->width);
 		o->hit.rectangle.height = luaL_optnumber(L, 6, o->height);
-	}
-	else if(strcmp(type, "roundedRectangle") == 0)
-	{
-		o->type = COLLIDER_TYPE_ROUND_RECTANGLE;
+		break;
+	case 0x4b99d0b8: /* "rounded-rectangle" */
+		o->type = COLLIDER_TYPE_ROUNDED_RECTANGLE;
 		o->hit.rounded_rectangle.x = luaL_optnumber(L, 3, 0);
 		o->hit.rounded_rectangle.y = luaL_optnumber(L, 4, 0);
 		o->hit.rounded_rectangle.width = luaL_optnumber(L, 5, o->width);
 		o->hit.rounded_rectangle.height = luaL_optnumber(L, 6, o->height);
 		o->hit.rounded_rectangle.radius = luaL_optnumber(L, 7, (o->width < o->height ? o->width : o->height) / 5);
-	}
-	else if(strcmp(type, "polygon") == 0)
-	{
-		double * p = NULL;
-		int i, n = 0;
+		break;
+	case 0xbc0d44cd: /* "polygon" */
 		o->type = COLLIDER_TYPE_POLYGON;
 		if(lua_istable(L, 3))
 		{
@@ -1107,10 +1104,10 @@ static int m_set_collider(lua_State * L)
 		}
 		o->hit.polygon.points = p;
 		o->hit.polygon.length = n;
-	}
-	else
-	{
+		break;
+	default:
 		o->type = COLLIDER_TYPE_NONE;
+		break;
 	}
 	return 0;
 }
@@ -1144,8 +1141,8 @@ static int m_get_collider(lua_State * L)
 		lua_pushnumber(L, o->hit.rectangle.width);
 		lua_pushnumber(L, o->hit.rectangle.height);
 		return 5;
-	case COLLIDER_TYPE_ROUND_RECTANGLE:
-		lua_pushstring(L, "roundedRectangle");
+	case COLLIDER_TYPE_ROUNDED_RECTANGLE:
+		lua_pushstring(L, "rounded-rectangle");
 		lua_pushnumber(L, o->hit.rounded_rectangle.x);
 		lua_pushnumber(L, o->hit.rounded_rectangle.y);
 		lua_pushnumber(L, o->hit.rounded_rectangle.width);
@@ -1348,7 +1345,7 @@ static int m_hit_test_point(lua_State * L)
 		case COLLIDER_TYPE_RECTANGLE:
 			hit = rectangle_hit_test_point(o, nx, ny);
 			break;
-		case COLLIDER_TYPE_ROUND_RECTANGLE:
+		case COLLIDER_TYPE_ROUNDED_RECTANGLE:
 			hit = rounded_rectangle_hit_test_point(o, nx, ny);
 			break;
 		case COLLIDER_TYPE_POLYGON:
@@ -1600,7 +1597,7 @@ static int m_draw(lua_State * L)
 					cairo_rectangle(cr, o->hit.rectangle.x, o->hit.rectangle.y, o->hit.rectangle.width, o->hit.rectangle.height);
 					cairo_close_path(cr);
 					break;
-				case COLLIDER_TYPE_ROUND_RECTANGLE:
+				case COLLIDER_TYPE_ROUNDED_RECTANGLE:
 					x = o->hit.rounded_rectangle.x;
 					y = o->hit.rounded_rectangle.y;
 					w = o->hit.rounded_rectangle.width;

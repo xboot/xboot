@@ -44,6 +44,7 @@ enum layout_justify_t {
 	LAYOUT_JUSTIFY_CENTER		= 2,
 	LAYOUT_JUSTIFY_BETWEEN		= 3,
 	LAYOUT_JUSTIFY_AROUND		= 4,
+	LAYOUT_JUSTIFY_EVENLY		= 5,
 };
 
 enum layout_align_t {
@@ -857,6 +858,9 @@ static int m_set_layout_justify(lua_State * L)
 	case 0xf271318e: /* "around" */
 		dobject_set_layout_justify(o, LAYOUT_JUSTIFY_AROUND);
 		break;
+	case 0xfc089c58: /* "evenly" */
+		dobject_set_layout_justify(o, LAYOUT_JUSTIFY_EVENLY);
+		break;
 	default:
 		break;
 	}
@@ -882,6 +886,9 @@ static int m_get_layout_justify(lua_State * L)
 		break;
 	case LAYOUT_JUSTIFY_AROUND:
 		lua_pushstring(L, "around");
+		break;
+	case LAYOUT_JUSTIFY_EVENLY:
+		lua_pushstring(L, "evenly");
 		break;
 	default:
 		lua_pushnil(L);
@@ -1410,6 +1417,11 @@ static void dobject_layout(struct ldobject_t * o)
 			if(count > 0)
 				between = space / count;
 			from = between / 2;
+			break;
+		case LAYOUT_JUSTIFY_EVENLY:
+			if(count > 0)
+				between = space / (count + 1);
+			from = between;
 			break;
 		default:
 			break;

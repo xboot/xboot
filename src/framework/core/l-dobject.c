@@ -1496,13 +1496,18 @@ static void dobject_layout(struct ldobject_t * o)
 
 	list_for_each_entry_safe(pos, n, &(o->children), entry)
 	{
+		pos->mflag = MFLAG_LOCAL_MATRIX | MFLAG_GLOBAL_MATRIX;
+		pos->rotation = 0;
+		pos->skewx = 0;
+		pos->skewy = 0;
+		pos->anchorx = 0;
+		pos->anchory = 0;
 		pos->x = pos->layout.x;
 		pos->y = pos->layout.y;
 		if((pos->x == 0.0) && (pos->y == 0.0))
 			pos->mflag &= ~MFLAG_TRANSLATE;
 		else
 			pos->mflag |= MFLAG_TRANSLATE;
-
 		if(pos->width != 0.0 && pos->height != 0.0)
 		{
 			if(pos->layout.w < 1.0)
@@ -1516,12 +1521,6 @@ static void dobject_layout(struct ldobject_t * o)
 			else
 				pos->mflag |= MFLAG_SCALE;
 		}
-		pos->rotation = 0;
-		pos->skewx = 0;
-		pos->skewy = 0;
-		pos->anchorx = 0;
-		pos->anchory = 0;
-		pos->mflag |= MFLAG_LOCAL_MATRIX | MFLAG_GLOBAL_MATRIX;
 		dobject_layout(pos);
 	}
 }

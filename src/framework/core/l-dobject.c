@@ -34,32 +34,34 @@
 #include <framework/core/l-dobject.h>
 
 enum layout_direction_t {
-	LAYOUT_DIRECTION_ROW 		= 0,
-	LAYOUT_DIRECTION_COLUMN		= 1,
+	LAYOUT_DIRECTION_ROW 			= 0,
+	LAYOUT_DIRECTION_ROW_REVERSE	= 1,
+	LAYOUT_DIRECTION_COLUMN			= 2,
+	LAYOUT_DIRECTION_COLUMN_REVERSE	= 3,
 };
 
 enum layout_justify_t {
-	LAYOUT_JUSTIFY_START		= 0,
-	LAYOUT_JUSTIFY_END			= 1,
-	LAYOUT_JUSTIFY_CENTER		= 2,
-	LAYOUT_JUSTIFY_BETWEEN		= 3,
-	LAYOUT_JUSTIFY_AROUND		= 4,
-	LAYOUT_JUSTIFY_EVENLY		= 5,
+	LAYOUT_JUSTIFY_START			= 0,
+	LAYOUT_JUSTIFY_END				= 1,
+	LAYOUT_JUSTIFY_CENTER			= 2,
+	LAYOUT_JUSTIFY_BETWEEN			= 3,
+	LAYOUT_JUSTIFY_AROUND			= 4,
+	LAYOUT_JUSTIFY_EVENLY			= 5,
 };
 
 enum layout_align_t {
-	LAYOUT_ALIGN_START			= 0,
-	LAYOUT_ALIGN_END			= 1,
-	LAYOUT_ALIGN_CENTER			= 2,
-	LAYOUT_ALIGN_STRETCH		= 3,
+	LAYOUT_ALIGN_START				= 0,
+	LAYOUT_ALIGN_END				= 1,
+	LAYOUT_ALIGN_CENTER				= 2,
+	LAYOUT_ALIGN_STRETCH			= 3,
 };
 
 enum layout_align_self_t {
-	LAYOUT_ALIGN_SELF_AUTO		= 0,
-	LAYOUT_ALIGN_SELF_START		= 1,
-	LAYOUT_ALIGN_SELF_END		= 2,
-	LAYOUT_ALIGN_SELF_CENTER	= 3,
-	LAYOUT_ALIGN_SELF_STRETCH	= 4,
+	LAYOUT_ALIGN_SELF_AUTO			= 0,
+	LAYOUT_ALIGN_SELF_START			= 1,
+	LAYOUT_ALIGN_SELF_END			= 2,
+	LAYOUT_ALIGN_SELF_CENTER		= 3,
+	LAYOUT_ALIGN_SELF_STRETCH		= 4,
 };
 
 static inline void dobject_set_layout_enable(struct ldobject_t * o, int enable)
@@ -118,13 +120,13 @@ static inline enum layout_align_self_t dobject_get_layout_align_self(struct ldob
 }
 
 enum {
-	MFLAG_TRANSLATE				= (0x1 << 0),
-	MFLAG_ROTATE				= (0x1 << 1),
-	MFLAG_SCALE					= (0x1 << 2),
-	MFLAG_SKEW					= (0x1 << 3),
-	MFLAG_ANCHOR				= (0x1 << 4),
-	MFLAG_LOCAL_MATRIX			= (0x1 << 5),
-	MFLAG_GLOBAL_MATRIX			= (0x1 << 6),
+	MFLAG_TRANSLATE					= (0x1 << 0),
+	MFLAG_ROTATE					= (0x1 << 1),
+	MFLAG_SCALE						= (0x1 << 2),
+	MFLAG_SKEW						= (0x1 << 3),
+	MFLAG_ANCHOR					= (0x1 << 4),
+	MFLAG_LOCAL_MATRIX				= (0x1 << 5),
+	MFLAG_GLOBAL_MATRIX				= (0x1 << 6),
 };
 
 static inline cairo_matrix_t * dobject_local_matrix(struct ldobject_t * o)
@@ -810,8 +812,14 @@ static int m_set_layout_direction(lua_State * L)
 	case 0x0b88a69d: /* "row" */
 		dobject_set_layout_direction(o, LAYOUT_DIRECTION_ROW);
 		break;
+	case 0xf84b1686: /* "row-reverse" */
+		dobject_set_layout_direction(o, LAYOUT_DIRECTION_ROW_REVERSE);
+		break;
 	case 0xf6e39413: /* "column" */
 		dobject_set_layout_direction(o, LAYOUT_DIRECTION_COLUMN);
+		break;
+	case 0x839f19fc: /* "column-reverse" */
+		dobject_set_layout_direction(o, LAYOUT_DIRECTION_COLUMN_REVERSE);
 		break;
 	default:
 		break;
@@ -827,8 +835,14 @@ static int m_get_layout_direction(lua_State * L)
 	case LAYOUT_DIRECTION_ROW:
 		lua_pushstring(L, "row");
 		break;
+	case LAYOUT_DIRECTION_ROW_REVERSE:
+		lua_pushstring(L, "row-reverse");
+		break;
 	case LAYOUT_DIRECTION_COLUMN:
 		lua_pushstring(L, "column");
+		break;
+	case LAYOUT_DIRECTION_COLUMN_REVERSE:
+		lua_pushstring(L, "column-reverse");
 		break;
 	default:
 		lua_pushnil(L);

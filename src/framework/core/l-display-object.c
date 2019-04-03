@@ -270,15 +270,6 @@ function M:getLayoutEnable()
 	return self.__dobj:getLayoutEnable()
 end
 
-function M:setLayoutPosition(position)
-	self.__dobj:setLayoutPosition(position)
-	return self
-end
-
-function M:getLayoutPosition()
-	return self.__dobj:getLayoutPosition()
-end
-
 function M:setLayoutDirection(direction)
 	self.__dobj:setLayoutDirection(direction)
 	return self

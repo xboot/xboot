@@ -1,6 +1,6 @@
 local Game = require("Game")
 
-stage:addChild(Game.new())
-stage:setLayoutDirection("row"):setLayoutJustify("center"):setLayoutAlign("center"):setLayoutEnable(true)
+stage:addChild(Game.new():setLayoutEnable(true))
+stage:setLayoutDirection("row"):setLayoutJustify("center"):setLayoutAlign("center")
 stage:layout()
 stage:showfps(true)

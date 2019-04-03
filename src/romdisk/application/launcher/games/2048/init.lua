@@ -9,11 +9,10 @@ function M:init(w, h)
 	local assets = assets
 	self:addChild(DisplayShape.new(w, h)
 		:setSource(Pattern.image(assets:loadImage("games/2048/images/bg.png")):setExtend(Pattern.EXTEND_REPEAT))
-		:paint()
-		:setLayoutPosition("absolute"))
+		:paint())
 	self:setSize(w, h)
-	self:addChild(Game.new(w, h))
-	self:setLayoutDirection("row"):setLayoutJustify("center"):setLayoutAlign("center"):setLayoutEnable(true)
+	self:addChild(Game.new(w, h):setLayoutEnable(true))
+	self:setLayoutDirection("row"):setLayoutJustify("center"):setLayoutAlign("center")
 	self:layout()
 end
 

@@ -35,12 +35,12 @@ function M:init(option, name)
 	self.opt.textMarginRight = assert(option.textMarginRight or theme.radiobutton.text.margin.right)
 	self.opt.textMarginBottom = assert(option.textMarginBottom or theme.radiobutton.text.margin.bottom)
 
-	self.frameOnNormal = assets:loadDisplay(self.opt.imageOnNormal)
-	self.frameOnPressed = assets:loadDisplay(self.opt.imageOnPressed)
-	self.frameOnDisabled = assets:loadDisplay(self.opt.imageOnDisabled)
-	self.frameOffNormal = assets:loadDisplay(self.opt.imageOffNormal)
-	self.frameOffPressed = assets:loadDisplay(self.opt.imageOffPressed)
-	self.frameOffDisabled = assets:loadDisplay(self.opt.imageOffDisabled)
+	self.frameOnNormal = assets:loadDisplay(self.opt.imageOnNormal):setLayoutEnable(true)
+	self.frameOnPressed = assets:loadDisplay(self.opt.imageOnPressed):setLayoutEnable(true)
+	self.frameOnDisabled = assets:loadDisplay(self.opt.imageOnDisabled):setLayoutEnable(true)
+	self.frameOffNormal = assets:loadDisplay(self.opt.imageOffNormal):setLayoutEnable(true)
+	self.frameOffPressed = assets:loadDisplay(self.opt.imageOffPressed):setLayoutEnable(true)
+	self.frameOffDisabled = assets:loadDisplay(self.opt.imageOffDisabled):setLayoutEnable(true)
 
 	local width, height = self.frameOnNormal:getSize()
 	self.opt.width = width
@@ -57,7 +57,7 @@ function M:init(option, name)
 	self:setChecked(self.opt.checked)
 	self:setText(self.opt.text)
 	self:setSize(0, 0)
-	self:setLayoutDirection("row"):setLayoutJustify("start"):setLayoutAlign("center"):setLayoutEnable(true)
+	self:setLayoutDirection("row"):setLayoutJustify("start"):setLayoutAlign("center")
 	self:updateVisualState()
 
 	self:addEventListener(Event.MOUSE_DOWN, self.onMouseDown)
@@ -107,6 +107,7 @@ function M:setText(text)
 		else
 			self.text = DisplayText.new(assets:loadFont(self.opt.textFontFamily, self.opt.textFontSize), self.opt.textPatternNormal, text)
 			self.text:setMargin(self.opt.textMarginLeft, self.opt.textMarginTop, self.opt.textMarginRight, self.opt.textMarginBottom)
+			self.text:setLayoutEnable(true)
 		end
 	else
 		self.text = nil

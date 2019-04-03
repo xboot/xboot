@@ -33,11 +33,6 @@
 #include <framework/core/l-text.h>
 #include <framework/core/l-dobject.h>
 
-enum layout_position_t {
-	LAYOUT_POSITION_RELATIVE		= 0,
-	LAYOUT_POSITION_ABSOLUTE		= 1,
-};
-
 enum layout_direction_t {
 	LAYOUT_DIRECTION_ROW 			= 0,
 	LAYOUT_DIRECTION_ROW_REVERSE	= 1,
@@ -78,17 +73,6 @@ static inline void dobject_layout_set_enable(struct ldobject_t * o, int enable)
 static inline int dobject_layout_get_enable(struct ldobject_t * o)
 {
 	return (o->layout.style >> 0) & 0x1;
-}
-
-static inline void dobject_layout_set_position(struct ldobject_t * o, enum layout_position_t position)
-{
-	o->layout.style &= ~(0x1 << 1);
-	o->layout.style |= position << 1;
-}
-
-static inline enum layout_position_t dobject_layout_get_position(struct ldobject_t * o)
-{
-	return (o->layout.style >> 1) & 0x1;
 }
 
 static inline void dobject_layout_set_direction(struct ldobject_t * o, enum layout_direction_t direction)
@@ -1021,42 +1005,6 @@ static int m_get_layout_enable(lua_State * L)
 	return 1;
 }
 
-static int m_set_layout_position(lua_State * L)
-{
-	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
-	const char * type = luaL_optstring(L, 2, "relative");
-	switch(shash(type))
-	{
-	case 0x12c7e561: /* "relative" */
-		dobject_layout_set_position(o, LAYOUT_POSITION_RELATIVE);
-		break;
-	case 0x8cc74f64: /* "absolute" */
-		dobject_layout_set_position(o, LAYOUT_POSITION_ABSOLUTE);
-		break;
-	default:
-		break;
-	}
-	return 0;
-}
-
-static int m_get_layout_position(lua_State * L)
-{
-	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
-	switch(dobject_layout_get_position(o))
-	{
-	case LAYOUT_POSITION_RELATIVE:
-		lua_pushstring(L, "relative");
-		break;
-	case LAYOUT_POSITION_ABSOLUTE:
-		lua_pushstring(L, "absolute");
-		break;
-	default:
-		lua_pushnil(L);
-		break;
-	}
-	return 1;
-}
-
 static int m_set_layout_direction(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
@@ -1652,8 +1600,6 @@ static void dobject_layout(struct ldobject_t * o)
 	enum layout_align_t align;
 	int count;
 
-	if(!dobject_layout_get_enable(o))
-		return;
 	if(list_empty(&o->children))
 		return;
 	if(!o->visible)
@@ -1665,7 +1611,7 @@ static void dobject_layout(struct ldobject_t * o)
 	count = 0;
 	list_for_each_entry_safe(pos, n, &(o->children), entry)
 	{
-		if(pos->visible && (dobject_layout_get_position(pos) == LAYOUT_POSITION_RELATIVE))
+		if(pos->visible && dobject_layout_get_enable(pos))
 		{
 			basis = dobject_layout_main_size(pos);
 			consumed += basis + dobject_layout_main_margin(pos);
@@ -1712,7 +1658,7 @@ static void dobject_layout(struct ldobject_t * o)
 	offset = start;
 	list_for_each_entry_safe(pos, n, &(o->children), entry)
 	{
-		if(pos->visible && (dobject_layout_get_position(pos) == LAYOUT_POSITION_RELATIVE))
+		if(pos->visible && dobject_layout_get_enable(pos))
 		{
 			basis = dobject_layout_main_size(pos);
 			margin = dobject_layout_main_margin(pos);
@@ -1748,7 +1694,7 @@ static void dobject_layout(struct ldobject_t * o)
 
 	list_for_each_entry_safe(pos, n, &(o->children), entry)
 	{
-		if(pos->visible && (dobject_layout_get_position(pos) == LAYOUT_POSITION_RELATIVE))
+		if(pos->visible && dobject_layout_get_enable(pos))
 		{
 			switch(dobject_layout_get_align_self(pos))
 			{
@@ -1818,7 +1764,7 @@ static void dobject_layout(struct ldobject_t * o)
 	{
 		if(pos->visible)
 		{
-			if((dobject_layout_get_position(pos) == LAYOUT_POSITION_RELATIVE))
+			if(dobject_layout_get_enable(pos))
 			{
 				pos->mflag = MFLAG_LOCAL_MATRIX | MFLAG_GLOBAL_MATRIX;
 				pos->rotation = 0;
@@ -1854,7 +1800,7 @@ static void dobject_layout(struct ldobject_t * o)
 static int m_layout(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
-	dobject_layout(o);
+	dobject_layout(o->parent ? o->parent : o);
 	return 0;
 }
 
@@ -1993,8 +1939,6 @@ static const luaL_Reg m_dobject[] = {
 	{"getMargin",			m_get_margin},
 	{"setLayoutEnable",		m_set_layout_enable},
 	{"getLayoutEnable",		m_get_layout_enable},
-	{"setLayoutPosition",	m_set_layout_position},
-	{"getLayoutPosition",	m_get_layout_position},
 	{"setLayoutDirection",	m_set_layout_direction},
 	{"getLayoutDirection",	m_get_layout_direction},
 	{"setLayoutJustify",	m_set_layout_justify},

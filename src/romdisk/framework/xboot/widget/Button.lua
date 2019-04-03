@@ -33,9 +33,9 @@ function M:init(option, name)
 	self.opt.textMarginRight = assert(option.textMarginRight or theme.button.text.margin.right)
 	self.opt.textMarginBottom = assert(option.textMarginBottom or theme.button.text.margin.bottom)
 
-	self.frameNormal = assets:loadDisplay(self.opt.imageNormal):setLayoutPosition("absolute")
-	self.framePressed = assets:loadDisplay(self.opt.imagePressed):setLayoutPosition("absolute")
-	self.frameDisabled = assets:loadDisplay(self.opt.imageDisabled):setLayoutPosition("absolute")
+	self.frameNormal = assets:loadDisplay(self.opt.imageNormal)
+	self.framePressed = assets:loadDisplay(self.opt.imagePressed)
+	self.frameDisabled = assets:loadDisplay(self.opt.imageDisabled)
 
 	local width, height = self.frameNormal:getSize()
 	self.opt.width = self.opt.width or width
@@ -50,7 +50,7 @@ function M:init(option, name)
 	self:setTouchable(self.opt.touchable)
 	self:setEnable(self.opt.enable)
 	self:setText(self.opt.text)
-	self:setLayoutDirection("row"):setLayoutJustify("center"):setLayoutAlign("center"):setLayoutEnable(true)
+	self:setLayoutDirection("row"):setLayoutJustify("center"):setLayoutAlign("center")
 	self:updateVisualState()
 
 	self:addEventListener(Event.MOUSE_DOWN, self.onMouseDown)
@@ -96,6 +96,7 @@ function M:setText(text)
 		else
 			self.text = DisplayText.new(assets:loadFont(self.opt.textFontFamily, self.opt.textFontSize), self.opt.textPatternNormal, text)
 			self.text:setMargin(self.opt.textMarginLeft, self.opt.textMarginTop, self.opt.textMarginRight, self.opt.textMarginBottom)
+			self.text:setLayoutEnable(true)
 		end
 	else
 		self.text = nil

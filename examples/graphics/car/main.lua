@@ -1,4 +1,3 @@
-local Dobject = Dobject
 local Pattern = Pattern
 local M_PI = math.pi
 

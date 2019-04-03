@@ -1,5 +1,4 @@
 local Button = require "xboot.widget.Button"
-local Dobject = Dobject
 
 local M = Class(DisplayObject)
 
@@ -34,12 +33,10 @@ function M:init(option, name)
 		imageNormal = self.opt.imageMinusNormal,
 		imagePressed = self.opt.imageMinusPressed,
 		imageDisabled = self.opt.imageMinusDisabled,})
-		:setAlignment(Dobject.ALIGN_LEFT)
 	self.buttonPlus = Button.new({
 		imageNormal = self.opt.imagePlusNormal,
 		imagePressed = self.opt.imagePlusPressed,
 		imageDisabled = self.opt.imagePlusDisabled,})
-		:setAlignment(Dobject.ALIGN_RIGHT)
 
 	self:addChild(self.buttonMinus)
 	self:addChild(self.buttonPlus)

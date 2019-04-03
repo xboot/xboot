@@ -1,5 +1,3 @@
-local Dobject = Dobject
-
 local M = Class(DisplayObject)
 
 M.STATE_NORMAL = "NORMAL"
@@ -21,7 +19,6 @@ function M:init(option, name)
 	self.opt.enable = option.enable or true
 	self.opt.checked = option.checked or false
 	self.opt.text = option.text
-	self.opt.textAlignment = option.textAlignment or Dobject.ALIGN_LEFT_CENTER
 	self.opt.imageOnNormal = assert(option.imageOnNormal or theme.checkbox.image.onNormal)
 	self.opt.imageOnPressed = assert(option.imageOnPressed or theme.checkbox.image.onPressed)
 	self.opt.imageOnDisabled = assert(option.imageOnDisabled or theme.checkbox.image.onDisabled)
@@ -38,12 +35,12 @@ function M:init(option, name)
 	self.opt.textMarginRight = assert(option.textMarginRight or theme.checkbox.text.margin.right)
 	self.opt.textMarginBottom = assert(option.textMarginBottom or theme.checkbox.text.margin.bottom)
 
-	self.frameOnNormal = assets:loadDisplay(self.opt.imageOnNormal):setAlignment(Dobject.ALIGN_LEFT_CENTER)
-	self.frameOnPressed = assets:loadDisplay(self.opt.imageOnPressed):setAlignment(Dobject.ALIGN_LEFT_CENTER)
-	self.frameOnDisabled = assets:loadDisplay(self.opt.imageOnDisabled):setAlignment(Dobject.ALIGN_LEFT_CENTER)
-	self.frameOffNormal = assets:loadDisplay(self.opt.imageOffNormal):setAlignment(Dobject.ALIGN_LEFT_CENTER)
-	self.frameOffPressed = assets:loadDisplay(self.opt.imageOffPressed):setAlignment(Dobject.ALIGN_LEFT_CENTER)
-	self.frameOffDisabled = assets:loadDisplay(self.opt.imageOffDisabled):setAlignment(Dobject.ALIGN_LEFT_CENTER)
+	self.frameOnNormal = assets:loadDisplay(self.opt.imageOnNormal)
+	self.frameOnPressed = assets:loadDisplay(self.opt.imageOnPressed)
+	self.frameOnDisabled = assets:loadDisplay(self.opt.imageOnDisabled)
+	self.frameOffNormal = assets:loadDisplay(self.opt.imageOffNormal)
+	self.frameOffPressed = assets:loadDisplay(self.opt.imageOffPressed)
+	self.frameOffDisabled = assets:loadDisplay(self.opt.imageOffDisabled)
 
 	local width, height = self.frameOnNormal:getSize()
 	self.opt.width = width
@@ -60,6 +57,7 @@ function M:init(option, name)
 	self:setChecked(self.opt.checked)
 	self:setText(self.opt.text)
 	self:setSize(0, 0)
+	self:setLayoutDirection("row"):setLayoutJustify("start"):setLayoutAlign("center"):setLayoutEnable(true)
 	self:updateVisualState()
 
 	self:addEventListener(Event.MOUSE_DOWN, self.onMouseDown)
@@ -109,7 +107,6 @@ function M:setText(text)
 		else
 			self.text = DisplayText.new(assets:loadFont(self.opt.textFontFamily, self.opt.textFontSize), self.opt.textPatternNormal, text)
 			self.text:setMargin(self.opt.textMarginLeft, self.opt.textMarginTop, self.opt.textMarginRight, self.opt.textMarginBottom)
-			self.text:setAlignment(self.opt.textAlignment)
 		end
 	else
 		self.text = nil

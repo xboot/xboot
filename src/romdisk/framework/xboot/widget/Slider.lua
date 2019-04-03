@@ -1,5 +1,3 @@
-local Dobject = Dobject
-
 local M = Class(DisplayObject)
 
 M.STATE_NORMAL = "NORMAL"
@@ -33,12 +31,6 @@ function M:init(option, name)
 	self.frameThumbNormal = assets:loadDisplay(self.opt.imageThumbNormal)
 	self.frameThumbPressed = assets:loadDisplay(self.opt.imageThumbPressed)
 	self.frameThumbDisabled = assets:loadDisplay(self.opt.imageThumbDisabled)
-
-	self.frameimageTrack:setAlignment(Dobject.ALIGN_NONE)
-	self.frameBackground:setAlignment(Dobject.ALIGN_CENTER_FILL)
-	self.frameThumbNormal:setAlignment(Dobject.ALIGN_NONE)
-	self.frameThumbPressed:setAlignment(Dobject.ALIGN_NONE)
-	self.frameThumbDisabled:setAlignment(Dobject.ALIGN_NONE)
 
 	local width, height = self.frameBackground:getSize()
 	self.opt.width = self.opt.width or width

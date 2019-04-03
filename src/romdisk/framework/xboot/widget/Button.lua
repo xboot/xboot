@@ -1,5 +1,3 @@
-local Dobject = Dobject
-
 local M = Class(DisplayObject)
 
 M.STATE_NORMAL = "NORMAL"
@@ -22,7 +20,6 @@ function M:init(option, name)
 	self.opt.touchable = option.touchable or true
 	self.opt.enable = option.enable or true
 	self.opt.text = option.text
-	self.opt.textAlignment = option.textAlignment or Dobject.ALIGN_CENTER
 	self.opt.imageNormal = assert(option.imageNormal or theme.button.image.normal)
 	self.opt.imagePressed = assert(option.imagePressed or theme.button.image.pressed)
 	self.opt.imageDisabled = assert(option.imageDisabled or theme.button.image.disabled)
@@ -36,9 +33,9 @@ function M:init(option, name)
 	self.opt.textMarginRight = assert(option.textMarginRight or theme.button.text.margin.right)
 	self.opt.textMarginBottom = assert(option.textMarginBottom or theme.button.text.margin.bottom)
 
-	self.frameNormal = assets:loadDisplay(self.opt.imageNormal):setAlignment(Dobject.ALIGN_CENTER_FILL)
-	self.framePressed = assets:loadDisplay(self.opt.imagePressed):setAlignment(Dobject.ALIGN_CENTER_FILL)
-	self.frameDisabled = assets:loadDisplay(self.opt.imageDisabled):setAlignment(Dobject.ALIGN_CENTER_FILL)
+	self.frameNormal = assets:loadDisplay(self.opt.imageNormal):setLayoutPosition("absolute")
+	self.framePressed = assets:loadDisplay(self.opt.imagePressed):setLayoutPosition("absolute")
+	self.frameDisabled = assets:loadDisplay(self.opt.imageDisabled):setLayoutPosition("absolute")
 
 	local width, height = self.frameNormal:getSize()
 	self.opt.width = self.opt.width or width
@@ -53,6 +50,7 @@ function M:init(option, name)
 	self:setTouchable(self.opt.touchable)
 	self:setEnable(self.opt.enable)
 	self:setText(self.opt.text)
+	self:setLayoutDirection("row"):setLayoutJustify("center"):setLayoutAlign("center"):setLayoutEnable(true)
 	self:updateVisualState()
 
 	self:addEventListener(Event.MOUSE_DOWN, self.onMouseDown)
@@ -98,7 +96,6 @@ function M:setText(text)
 		else
 			self.text = DisplayText.new(assets:loadFont(self.opt.textFontFamily, self.opt.textFontSize), self.opt.textPatternNormal, text)
 			self.text:setMargin(self.opt.textMarginLeft, self.opt.textMarginTop, self.opt.textMarginRight, self.opt.textMarginBottom)
-			self.text:setAlignment(self.opt.textAlignment)
 		end
 	else
 		self.text = nil

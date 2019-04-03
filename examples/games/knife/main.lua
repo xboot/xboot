@@ -1,6 +1,4 @@
 local Wood = require "Wood"
-local Dobject = Dobject
-local Pattern = Pattern
 
 local sw, sh = stage:getSize()
 

@@ -33,6 +33,11 @@
 #include <framework/core/l-text.h>
 #include <framework/core/l-dobject.h>
 
+enum layout_position_t {
+	LAYOUT_POSITION_RELATIVE		= 0,
+	LAYOUT_POSITION_ABSOLUTE		= 1,
+};
+
 enum layout_direction_t {
 	LAYOUT_DIRECTION_ROW 			= 0,
 	LAYOUT_DIRECTION_ROW_REVERSE	= 1,
@@ -73,6 +78,17 @@ static inline void dobject_layout_set_enable(struct ldobject_t * o, int enable)
 static inline int dobject_layout_get_enable(struct ldobject_t * o)
 {
 	return (o->layout.style >> 0) & 0x1;
+}
+
+static inline void dobject_layout_set_position(struct ldobject_t * o, enum layout_position_t position)
+{
+	o->layout.style &= ~(0x1 << 1);
+	o->layout.style |= position << 1;
+}
+
+static inline enum layout_position_t dobject_layout_get_position(struct ldobject_t * o)
+{
+	return (o->layout.style >> 1) & 0x1;
 }
 
 static inline void dobject_layout_set_direction(struct ldobject_t * o, enum layout_direction_t direction)
@@ -1005,6 +1021,42 @@ static int m_get_layout_enable(lua_State * L)
 	return 1;
 }
 
+static int m_set_layout_position(lua_State * L)
+{
+	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
+	const char * type = luaL_optstring(L, 2, "relative");
+	switch(shash(type))
+	{
+	case 0x12c7e561: /* "relative" */
+		dobject_layout_set_position(o, LAYOUT_POSITION_RELATIVE);
+		break;
+	case 0x8cc74f64: /* "absolute" */
+		dobject_layout_set_position(o, LAYOUT_POSITION_ABSOLUTE);
+		break;
+	default:
+		break;
+	}
+	return 0;
+}
+
+static int m_get_layout_position(lua_State * L)
+{
+	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
+	switch(dobject_layout_get_position(o))
+	{
+	case LAYOUT_POSITION_RELATIVE:
+		lua_pushstring(L, "relative");
+		break;
+	case LAYOUT_POSITION_ABSOLUTE:
+		lua_pushstring(L, "absolute");
+		break;
+	default:
+		lua_pushnil(L);
+		break;
+	}
+	return 1;
+}
+
 static int m_set_layout_direction(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
@@ -1613,7 +1665,7 @@ static void dobject_layout(struct ldobject_t * o)
 	count = 0;
 	list_for_each_entry_safe(pos, n, &(o->children), entry)
 	{
-		if(pos->visible)
+		if(pos->visible && (dobject_layout_get_position(pos) == LAYOUT_POSITION_RELATIVE))
 		{
 			basis = dobject_layout_main_size(pos);
 			consumed += basis + dobject_layout_main_margin(pos);
@@ -1660,7 +1712,7 @@ static void dobject_layout(struct ldobject_t * o)
 	offset = start;
 	list_for_each_entry_safe(pos, n, &(o->children), entry)
 	{
-		if(pos->visible)
+		if(pos->visible && (dobject_layout_get_position(pos) == LAYOUT_POSITION_RELATIVE))
 		{
 			basis = dobject_layout_main_size(pos);
 			margin = dobject_layout_main_margin(pos);
@@ -1696,7 +1748,7 @@ static void dobject_layout(struct ldobject_t * o)
 
 	list_for_each_entry_safe(pos, n, &(o->children), entry)
 	{
-		if(pos->visible)
+		if(pos->visible && (dobject_layout_get_position(pos) == LAYOUT_POSITION_RELATIVE))
 		{
 			switch(dobject_layout_get_align_self(pos))
 			{
@@ -1764,32 +1816,38 @@ static void dobject_layout(struct ldobject_t * o)
 
 	list_for_each_entry_safe(pos, n, &(o->children), entry)
 	{
-		pos->mflag = MFLAG_LOCAL_MATRIX | MFLAG_GLOBAL_MATRIX;
-		pos->rotation = 0;
-		pos->skewx = 0;
-		pos->skewy = 0;
-		pos->anchorx = 0;
-		pos->anchory = 0;
-		pos->x = pos->layout.x;
-		pos->y = pos->layout.y;
-		if((pos->x == 0.0) && (pos->y == 0.0))
-			pos->mflag &= ~MFLAG_TRANSLATE;
-		else
-			pos->mflag |= MFLAG_TRANSLATE;
-		if(pos->width != 0.0 && pos->height != 0.0)
+		if(pos->visible)
 		{
-			if(pos->layout.w < 1.0)
-				pos->layout.w = 1.0;
-			if(pos->layout.h < 1.0)
-				pos->layout.h = 1.0;
-			pos->scalex = pos->layout.w / pos->width;
-			pos->scaley = pos->layout.h / pos->height;
-			if((pos->scalex == 1.0) && (pos->scaley == 1.0))
-				pos->mflag &= ~MFLAG_SCALE;
-			else
-				pos->mflag |= MFLAG_SCALE;
+			if((dobject_layout_get_position(pos) == LAYOUT_POSITION_RELATIVE))
+			{
+				pos->mflag = MFLAG_LOCAL_MATRIX | MFLAG_GLOBAL_MATRIX;
+				pos->rotation = 0;
+				pos->skewx = 0;
+				pos->skewy = 0;
+				pos->anchorx = 0;
+				pos->anchory = 0;
+				pos->x = pos->layout.x;
+				pos->y = pos->layout.y;
+				if((pos->x == 0.0) && (pos->y == 0.0))
+					pos->mflag &= ~MFLAG_TRANSLATE;
+				else
+					pos->mflag |= MFLAG_TRANSLATE;
+				if(pos->width != 0.0 && pos->height != 0.0)
+				{
+					if(pos->layout.w < 1.0)
+						pos->layout.w = 1.0;
+					if(pos->layout.h < 1.0)
+						pos->layout.h = 1.0;
+					pos->scalex = pos->layout.w / pos->width;
+					pos->scaley = pos->layout.h / pos->height;
+					if((pos->scalex == 1.0) && (pos->scaley == 1.0))
+						pos->mflag &= ~MFLAG_SCALE;
+					else
+						pos->mflag |= MFLAG_SCALE;
+				}
+			}
+			dobject_layout(pos);
 		}
-		dobject_layout(pos);
 	}
 }
 
@@ -1935,6 +1993,8 @@ static const luaL_Reg m_dobject[] = {
 	{"getMargin",			m_get_margin},
 	{"setLayoutEnable",		m_set_layout_enable},
 	{"getLayoutEnable",		m_get_layout_enable},
+	{"setLayoutPosition",	m_set_layout_position},
+	{"getLayoutPosition",	m_get_layout_position},
 	{"setLayoutDirection",	m_set_layout_direction},
 	{"getLayoutDirection",	m_get_layout_direction},
 	{"setLayoutJustify",	m_set_layout_justify},

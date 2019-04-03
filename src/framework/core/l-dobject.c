@@ -362,7 +362,7 @@ static int l_dobject_new(lua_State * L)
 	o->layout.grow = 0;
 	o->layout.shrink = 1;
 	o->layout.basis = 0;
-	o->type = COLLIDER_TYPE_NONE;
+	o->ctype = COLLIDER_TYPE_NONE;
 	o->visible = 1;
 	o->touchable = 1;
 	o->mflag = 0;
@@ -407,7 +407,7 @@ static const luaL_Reg l_dobject[] = {
 static int m_dobject_gc(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
-	if(o->type == COLLIDER_TYPE_POLYGON)
+	if(o->ctype == COLLIDER_TYPE_POLYGON)
 	{
 		if((o->hit.polygon.length > 0) && o->hit.polygon.points)
 		{
@@ -1062,7 +1062,7 @@ static int m_set_collider(lua_State * L)
 	const char * type = luaL_optstring(L, 2, "");
 	double * p = NULL;
 	int i, n = 0;
-	if(o->type == COLLIDER_TYPE_POLYGON)
+	if(o->ctype == COLLIDER_TYPE_POLYGON)
 	{
 		if((o->hit.polygon.length > 0) && o->hit.polygon.points)
 		{
@@ -1074,27 +1074,27 @@ static int m_set_collider(lua_State * L)
 	switch(shash(type))
 	{
 	case 0xf679fe97: /* "circle" */
-		o->type = COLLIDER_TYPE_CIRCLE;
+		o->ctype = COLLIDER_TYPE_CIRCLE;
 		o->hit.circle.x = luaL_optnumber(L, 3, o->width / 2);
 		o->hit.circle.y = luaL_optnumber(L, 4, o->height / 2);
 		o->hit.circle.radius = luaL_optnumber(L, 5, (o->width < o->height ? o->width : o->height) / 2);
 		break;
 	case 0x66448f53: /* "ellipse" */
-		o->type = COLLIDER_TYPE_ELLIPSE;
+		o->ctype = COLLIDER_TYPE_ELLIPSE;
 		o->hit.ellipse.x = luaL_optnumber(L, 3, o->width / 2);
 		o->hit.ellipse.y = luaL_optnumber(L, 4, o->height / 2);
 		o->hit.ellipse.width = luaL_optnumber(L, 5, o->width / 2);
 		o->hit.ellipse.height = luaL_optnumber(L, 6, o->height / 2);
 		break;
 	case 0xe1f5207a: /* "rectangle" */
-		o->type = COLLIDER_TYPE_RECTANGLE;
+		o->ctype = COLLIDER_TYPE_RECTANGLE;
 		o->hit.rectangle.x = luaL_optnumber(L, 3, 0);
 		o->hit.rectangle.y = luaL_optnumber(L, 4, 0);
 		o->hit.rectangle.width = luaL_optnumber(L, 5, o->width);
 		o->hit.rectangle.height = luaL_optnumber(L, 6, o->height);
 		break;
 	case 0x4b99d0b8: /* "rounded-rectangle" */
-		o->type = COLLIDER_TYPE_ROUNDED_RECTANGLE;
+		o->ctype = COLLIDER_TYPE_ROUNDED_RECTANGLE;
 		o->hit.rounded_rectangle.x = luaL_optnumber(L, 3, 0);
 		o->hit.rounded_rectangle.y = luaL_optnumber(L, 4, 0);
 		o->hit.rounded_rectangle.width = luaL_optnumber(L, 5, o->width);
@@ -1102,7 +1102,7 @@ static int m_set_collider(lua_State * L)
 		o->hit.rounded_rectangle.radius = luaL_optnumber(L, 7, (o->width < o->height ? o->width : o->height) / 5);
 		break;
 	case 0xbc0d44cd: /* "polygon" */
-		o->type = COLLIDER_TYPE_POLYGON;
+		o->ctype = COLLIDER_TYPE_POLYGON;
 		if(lua_istable(L, 3))
 		{
 			n = lua_rawlen(L, 3) & ~0x1;
@@ -1121,7 +1121,7 @@ static int m_set_collider(lua_State * L)
 		o->hit.polygon.length = n;
 		break;
 	default:
-		o->type = COLLIDER_TYPE_NONE;
+		o->ctype = COLLIDER_TYPE_NONE;
 		break;
 	}
 	return 0;
@@ -1131,7 +1131,7 @@ static int m_get_collider(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
 	int i;
-	switch(o->type)
+	switch(o->ctype)
 	{
 	case COLLIDER_TYPE_NONE:
 		lua_pushstring(L, "none");
@@ -1345,7 +1345,7 @@ static int m_hit_test_point(lua_State * L)
 		double id = 1.0 / (m->xx * m->yy - m->xy * m->yx);
 		nx = ((x - m->x0) * m->yy + (m->y0 - y) * m->xy) * id;
 		ny = ((y - m->y0) * m->xx + (m->x0 - x) * m->yx) * id;
-		switch(o->type)
+		switch(o->ctype)
 		{
 		case COLLIDER_TYPE_NONE:
 			if((nx >= 0) && (nx < o->width) && (ny >= 0) && (ny < o->height))
@@ -1573,9 +1573,9 @@ static int m_draw(lua_State * L)
 			cairo_set_matrix(cr, dobject_global_matrix(o));
 			cairo_set_line_width(cr, 1);
 			cairo_rectangle(cr, 0, 0, o->width, o->height);
-			cairo_set_source_rgba(cr, 1, 0, 0, 0.5);
+			cairo_set_source_rgba(cr, 1, 0, 0, 0.6);
 			cairo_stroke(cr);
-			if((o->type != COLLIDER_TYPE_NONE) && o->touchable)
+			if((o->ctype != COLLIDER_TYPE_NONE) && o->touchable)
 			{
 				cairo_matrix_t m;
 				double x, y;
@@ -1584,7 +1584,7 @@ static int m_draw(lua_State * L)
 				double * p;
 				int n, i;
 
-				switch(o->type)
+				switch(o->ctype)
 				{
 				case COLLIDER_TYPE_CIRCLE:
 					cairo_new_sub_path(cr);

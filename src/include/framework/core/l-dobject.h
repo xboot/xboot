@@ -50,7 +50,7 @@ struct ldobject_t {
 		double w, h;
 	} layout;
 
-	enum collider_type_t type;
+	enum collider_type_t ctype;
 	union {
 		struct {
 			double x;

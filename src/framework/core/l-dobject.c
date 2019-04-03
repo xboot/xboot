@@ -361,6 +361,7 @@ static int l_dobject_new(lua_State * L)
 	o->layout.style = 0;
 	o->layout.grow = 0;
 	o->layout.shrink = 1;
+	o->layout.basis = 0;
 	o->type = COLLIDER_TYPE_NONE;
 	o->visible = 1;
 	o->touchable = 1;
@@ -1041,6 +1042,20 @@ static int m_get_layout_shrink(lua_State * L)
 	return 1;
 }
 
+static int m_set_layout_basis(lua_State * L)
+{
+	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
+	o->layout.basis = luaL_checknumber(L, 2);
+	return 0;
+}
+
+static int m_get_layout_basis(lua_State * L)
+{
+	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
+	lua_pushnumber(L, o->layout.basis);
+	return 1;
+}
+
 static int m_set_collider(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
@@ -1690,6 +1705,8 @@ static const luaL_Reg m_dobject[] = {
 	{"getLayoutGrow",		m_get_layout_grow},
 	{"setLayoutShrink",		m_set_layout_shrink},
 	{"getLayoutShrink",		m_get_layout_shrink},
+	{"setLayoutBasis",		m_set_layout_basis},
+	{"getLayoutBasis",		m_get_layout_basis},
 	{"setCollider",			m_set_collider},
 	{"getCollider",			m_get_collider},
 	{"setVisible",			m_set_visible},

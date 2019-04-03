@@ -324,6 +324,15 @@ function M:getLayoutShrink()
 	return self.__dobj:getLayoutShrink()
 end
 
+function M:setLayoutBasis(basis)
+	self.__dobj:setLayoutBasis(basis)
+	return self
+end
+
+function M:getLayoutBasis()
+	return self.__dobj:getLayoutBasis()
+end
+
 function M:setCollider(type, ...)
 	self.__dobj:setCollider(type, ...)
 	return self

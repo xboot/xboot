@@ -45,6 +45,7 @@ struct ldobject_t {
 		int style;
 		double grow;
 		double shrink;
+		double basis;
 		double x, y;
 		double w, h;
 	} layout;

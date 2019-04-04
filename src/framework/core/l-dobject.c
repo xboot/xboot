@@ -389,11 +389,11 @@ static inline double dobject_layout_container_cross_size(struct ldobject_t * o)
 
 static void dobject_layout(struct ldobject_t * o)
 {
-	struct ldobject_t * pos, * n;
-	double consumed, grow, shrink;
-	double space, start, between;
-	double basis, margin, offset;
-	double ms, cp, cs;
+	struct ldobject_t * pos;
+	double consumed, grow, shrink, cms, ccs;
+	double space, offset, between;
+	double basis, ms, cp, cs;
+	enum layout_direction_t direction;
 	enum layout_align_t align;
 	int count;
 
@@ -404,7 +404,7 @@ static void dobject_layout(struct ldobject_t * o)
 	grow = 0;
 	shrink = 0;
 	count = 0;
-	list_for_each_entry_safe(pos, n, &(o->children), entry)
+	list_for_each_entry(pos, &o->children, entry)
 	{
 		if(pos->layoutable)
 		{
@@ -416,146 +416,133 @@ static void dobject_layout(struct ldobject_t * o)
 		}
 	}
 
-	space = dobject_layout_container_main_size(o) - consumed;
-	start = 0;
-	between = 0;
-	if((space > 0) && (grow == 0))
+	if(count > 0)
 	{
-		switch(dobject_layout_get_justify(o))
+		cms = dobject_layout_container_main_size(o);
+		ccs = dobject_layout_container_cross_size(o);
+		direction = dobject_layout_get_direction(o);
+		align = dobject_layout_get_align(o);
+		space = cms - consumed;
+		offset = 0;
+		between = 0;
+		if((space > 0) && (grow == 0))
 		{
-		case LAYOUT_JUSTIFY_START:
-			break;
-		case LAYOUT_JUSTIFY_END:
-			start = space;
-			break;
-		case LAYOUT_JUSTIFY_CENTER:
-			start = space / 2;
-			break;
-		case LAYOUT_JUSTIFY_BETWEEN:
-			if(count > 1)
-				between = space / (count - 1);
-			break;
-		case LAYOUT_JUSTIFY_AROUND:
-			if(count > 0)
+			switch(dobject_layout_get_justify(o))
+			{
+			case LAYOUT_JUSTIFY_START:
+				break;
+			case LAYOUT_JUSTIFY_END:
+				offset = space;
+				break;
+			case LAYOUT_JUSTIFY_CENTER:
+				offset = space / 2;
+				break;
+			case LAYOUT_JUSTIFY_BETWEEN:
+				if(count > 1)
+					between = space / (count - 1);
+				break;
+			case LAYOUT_JUSTIFY_AROUND:
 				between = space / count;
-			start = between / 2;
-			break;
-		case LAYOUT_JUSTIFY_EVENLY:
-			if(count > 0)
+				offset = between / 2;
+				break;
+			case LAYOUT_JUSTIFY_EVENLY:
 				between = space / (count + 1);
-			start = between;
-			break;
-		default:
-			break;
+				offset = between;
+				break;
+			default:
+				break;
+			}
 		}
-	}
 
-	offset = start;
-	list_for_each_entry_safe(pos, n, &(o->children), entry)
-	{
-		if(pos->layoutable)
+		list_for_each_entry(pos, &o->children, entry)
 		{
-			basis = dobject_layout_main_size(pos);
-			margin = dobject_layout_main_margin(pos);
-			ms = basis;
-			if((space >= 0) && (pos->layout.grow > 0))
-				ms += space * (pos->layout.grow / grow);
-			else if((space < 0) && (pos->layout.shrink > 0))
-				ms += space * (pos->layout.shrink * basis / shrink);
-			switch(dobject_layout_get_direction(o))
+			if(pos->layoutable)
 			{
-			case LAYOUT_DIRECTION_ROW:
-				pos->layout.w = ms;
-				pos->layout.x = offset + dobject_layout_main_leading_margin(pos);
-				break;
-			case LAYOUT_DIRECTION_ROW_REVERSE:
-				pos->layout.w = ms;
-				pos->layout.x = dobject_layout_container_main_size(o) - (offset + dobject_layout_main_trailing_margin(pos) + ms);
-				break;
-			case LAYOUT_DIRECTION_COLUMN:
-				pos->layout.h = ms;
-				pos->layout.y = offset + dobject_layout_main_leading_margin(pos);
-				break;
-			case LAYOUT_DIRECTION_COLUMN_REVERSE:
-				pos->layout.h = ms;
-				pos->layout.y = dobject_layout_container_main_size(o) - (offset + dobject_layout_main_trailing_margin(pos) + ms);
-				break;
-			default:
-				break;
-			}
-			offset = offset + ms + margin + between;
-		}
-	}
+				switch(dobject_layout_get_align_self(pos))
+				{
+				case LAYOUT_ALIGN_SELF_AUTO:
+					break;
+				case LAYOUT_ALIGN_SELF_START:
+					align = LAYOUT_ALIGN_START;
+					break;
+				case LAYOUT_ALIGN_SELF_END:
+					align = LAYOUT_ALIGN_END;
+					break;
+				case LAYOUT_ALIGN_SELF_CENTER:
+					align = LAYOUT_ALIGN_CENTER;
+					break;
+				case LAYOUT_ALIGN_SELF_STRETCH:
+					align = LAYOUT_ALIGN_STRETCH;
+					break;
+				default:
+					break;
+				}
 
-	list_for_each_entry_safe(pos, n, &(o->children), entry)
-	{
-		if(pos->layoutable)
-		{
-			switch(dobject_layout_get_align_self(pos))
-			{
-			case LAYOUT_ALIGN_SELF_AUTO:
-				align = dobject_layout_get_align(o);
-				break;
-			case LAYOUT_ALIGN_SELF_START:
-				align = LAYOUT_ALIGN_START;
-				break;
-			case LAYOUT_ALIGN_SELF_END:
-				align = LAYOUT_ALIGN_END;
-				break;
-			case LAYOUT_ALIGN_SELF_CENTER:
-				align = LAYOUT_ALIGN_CENTER;
-				break;
-			case LAYOUT_ALIGN_SELF_STRETCH:
-				align = LAYOUT_ALIGN_STRETCH;
-				break;
-			default:
-				align = dobject_layout_get_align(o);
-				break;
-			}
+				switch(align)
+				{
+				case LAYOUT_ALIGN_START:
+					cs = dobject_layout_cross_size(pos);
+					cp = dobject_layout_cross_leading_margin(pos);
+					break;
+				case LAYOUT_ALIGN_END:
+					cs = dobject_layout_cross_size(pos);
+					cp = ccs - (cs + dobject_layout_cross_trailing_margin(pos));
+					break;
+				case LAYOUT_ALIGN_CENTER:
+					cs = dobject_layout_cross_size(pos);
+					cp = (ccs - (cs + dobject_layout_cross_margin(pos))) / 2 + dobject_layout_cross_leading_margin(pos);
+					break;
+				case LAYOUT_ALIGN_STRETCH:
+					cs = ccs - dobject_layout_cross_margin(pos);
+					cp = dobject_layout_cross_leading_margin(pos);
+					break;
+				default:
+					cs = dobject_layout_cross_size(pos);
+					cp = dobject_layout_cross_leading_margin(pos);
+					break;
+				}
 
-			switch(align)
-			{
-			case LAYOUT_ALIGN_START:
-				cp = dobject_layout_cross_leading_margin(pos);
-				cs = dobject_layout_cross_size(pos);
-				break;
-			case LAYOUT_ALIGN_END:
-				cp = dobject_layout_container_cross_size(o) - (dobject_layout_cross_size(pos) + dobject_layout_cross_trailing_margin(pos));
-				cs = dobject_layout_cross_size(pos);
-				break;
-			case LAYOUT_ALIGN_CENTER:
-				cp = (dobject_layout_container_cross_size(o) - (dobject_layout_cross_size(pos) + dobject_layout_cross_margin(pos))) / 2 + dobject_layout_cross_leading_margin(pos);
-				cs = dobject_layout_cross_size(pos);
-				break;
-			case LAYOUT_ALIGN_STRETCH:
-				cp = dobject_layout_cross_leading_margin(pos);
-				cs = dobject_layout_container_cross_size(o) - dobject_layout_cross_margin(pos);
-				break;
-			default:
-				cp = dobject_layout_cross_leading_margin(pos);
-				cs = dobject_layout_cross_size(pos);
-				break;
-			}
+				ms = basis = dobject_layout_main_size(pos);
+				if((space >= 0) && (pos->layout.grow > 0))
+					ms += space * (pos->layout.grow / grow);
+				else if((space < 0) && (pos->layout.shrink > 0))
+					ms += space * (pos->layout.shrink * basis / shrink);
 
-			switch(dobject_layout_get_direction(o))
-			{
-			case LAYOUT_DIRECTION_ROW:
-			case LAYOUT_DIRECTION_ROW_REVERSE:
-				pos->layout.y = cp;
-				pos->layout.h = cs;
-				break;
-			case LAYOUT_DIRECTION_COLUMN:
-			case LAYOUT_DIRECTION_COLUMN_REVERSE:
-				pos->layout.x = cp;
-				pos->layout.w = cs;
-				break;
-			default:
-				break;
+				switch(direction)
+				{
+				case LAYOUT_DIRECTION_ROW:
+					pos->layout.h = cs;
+					pos->layout.y = cp;
+					pos->layout.w = ms;
+					pos->layout.x = offset + dobject_layout_main_leading_margin(pos);
+					break;
+				case LAYOUT_DIRECTION_ROW_REVERSE:
+					pos->layout.h = cs;
+					pos->layout.y = cp;
+					pos->layout.w = ms;
+					pos->layout.x = cms - (offset + dobject_layout_main_trailing_margin(pos) + ms);
+					break;
+				case LAYOUT_DIRECTION_COLUMN:
+					pos->layout.w = cs;
+					pos->layout.x = cp;
+					pos->layout.h = ms;
+					pos->layout.y = offset + dobject_layout_main_leading_margin(pos);
+					break;
+				case LAYOUT_DIRECTION_COLUMN_REVERSE:
+					pos->layout.w = cs;
+					pos->layout.x = cp;
+					pos->layout.h = ms;
+					pos->layout.y = cms - (offset + dobject_layout_main_trailing_margin(pos) + ms);
+					break;
+				default:
+					break;
+				}
+				offset = offset + ms + dobject_layout_main_margin(pos) + between;
 			}
 		}
 	}
 
-	list_for_each_entry_safe(pos, n, &(o->children), entry)
+	list_for_each_entry(pos, &o->children, entry)
 	{
 		if(pos->layoutable)
 		{
@@ -814,12 +801,12 @@ static int m_dobject_gc(lua_State * L)
 
 static void dobject_mark_with_children(struct ldobject_t * o, int mark)
 {
-	struct ldobject_t * pos, * n;
+	struct ldobject_t * pos;
 
 	if(o)
 	{
 		o->mflag |= mark;
-		list_for_each_entry_safe(pos, n, &(o->children), entry)
+		list_for_each_entry(pos, &o->children, entry)
 		{
 			dobject_mark_with_children(pos, mark);
 		}

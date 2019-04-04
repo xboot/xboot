@@ -12,6 +12,14 @@ extern "C" {
 
 #define MT_DOBJECT	"__mt_dobject__"
 
+enum dobject_type_t {
+	DOBJECT_TYPE_CONTAINER			= 0,
+	DOBJECT_TYPE_IMAGE				= 1,
+	DOBJECT_TYPE_NINEPATCH			= 2,
+	DOBJECT_TYPE_SHAPE				= 3,
+	DOBJECT_TYPE_TEXT				= 4,
+};
+
 enum collider_type_t {
 	COLLIDER_TYPE_NONE				= 0,
 	COLLIDER_TYPE_CIRCLE			= 1,
@@ -25,6 +33,7 @@ struct ldobject_t {
 	struct ldobject_t * parent;
 	struct list_head entry;
 	struct list_head children;
+	enum dobject_type_t dtype;
 
 	double width, height;
 	double x, y;
@@ -46,6 +55,7 @@ struct ldobject_t {
 		double grow;
 		double shrink;
 		double basis;
+		double width, height;
 		double x, y;
 		double w, h;
 	} layout;

@@ -44,13 +44,13 @@ function M:init(option, name)
 	self.touchid = nil
 	self.state = M.STATE_NORMAL
 
+	self:setLayoutDirection("row"):setLayoutJustify("center"):setLayoutAlign("center")
 	self:setPosition(self.opt.x, self.opt.y)
 	self:setSize(self.opt.width, self.opt.height)
 	self:setVisible(self.opt.visible)
 	self:setTouchable(self.opt.touchable)
 	self:setEnable(self.opt.enable)
 	self:setText(self.opt.text)
-	self:setLayoutDirection("row"):setLayoutJustify("center"):setLayoutAlign("center")
 	self:updateVisualState()
 
 	self:addEventListener(Event.MOUSE_DOWN, self.onMouseDown)
@@ -67,7 +67,6 @@ function M:setWidth(width)
 	self.frameNormal:setWidth(width)
 	self.framePressed:setWidth(width)
 	self.frameDisabled:setWidth(width)
-	self:updateVisualState()
 	return self
 end
 
@@ -76,7 +75,6 @@ function M:setHeight(height)
 	self.frameNormal:setHeight(height)
 	self.framePressed:setHeight(height)
 	self.frameDisabled:setHeight(height)
-	self:updateVisualState()
 	return self
 end
 
@@ -85,7 +83,6 @@ function M:setSize(width, height)
 	self.frameNormal:setSize(width, height)
 	self.framePressed:setSize(width, height)
 	self.frameDisabled:setSize(width, height)
-	self:updateVisualState()
 	return self
 end
 

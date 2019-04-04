@@ -27,6 +27,7 @@ struct lninepatch_t {
 	double __sx, __sy;
 };
 
+void ninepatch_stretch(struct lninepatch_t * ninepatch, double width, double height);
 int luaopen_ninepatch(lua_State * L);
 
 #ifdef __cplusplus

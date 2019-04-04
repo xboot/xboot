@@ -67,7 +67,7 @@ static inline int detect_black_pixel(unsigned char * p)
 	return (((p[0] == 0) && (p[1] == 0) && (p[2] == 0) && (p[3] != 0)) ? 1 : 0);
 }
 
-static inline void ninepatch_stretch(struct lninepatch_t * ninepatch, double width, double height)
+void ninepatch_stretch(struct lninepatch_t * ninepatch, double width, double height)
 {
 	int lr = ninepatch->left + ninepatch->right;
 	int tb = ninepatch->top + ninepatch->bottom;
@@ -76,8 +76,8 @@ static inline void ninepatch_stretch(struct lninepatch_t * ninepatch, double wid
 		width = ninepatch->width;
 	if(height < ninepatch->height)
 		height = ninepatch->height;
-	ninepatch->__w = round(width);
-	ninepatch->__h = round(height);
+	ninepatch->__w = width;
+	ninepatch->__h = height;
 	ninepatch->__sx = (ninepatch->__w - lr) / (ninepatch->width - lr);
 	ninepatch->__sy = (ninepatch->__h - tb) / (ninepatch->height - tb);
 }

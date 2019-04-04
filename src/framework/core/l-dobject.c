@@ -317,16 +317,28 @@ static inline double dobject_layout_main_size(struct ldobject_t * o)
 		case LAYOUT_DIRECTION_ROW:
 		case LAYOUT_DIRECTION_ROW_REVERSE:
 			if(basis <= 0.0)
-				basis = o->width;
+			{
+				if(isnan(o->layout.width))
+					o->layout.width = o->width;
+				basis = o->layout.width;
+			}
 			else if(basis <= 1.0)
+			{
 				basis = parent->width * basis;
+			}
 			break;
 		case LAYOUT_DIRECTION_COLUMN:
 		case LAYOUT_DIRECTION_COLUMN_REVERSE:
 			if(basis <= 0.0)
-				basis = o->height;
+			{
+				if(isnan(o->layout.height))
+					o->layout.height = o->height;
+				basis = o->layout.height;
+			}
 			else if(basis <= 1.0)
+			{
 				basis = parent->height * basis;
+			}
 			break;
 		default:
 			break;
@@ -344,15 +356,21 @@ static inline double dobject_layout_cross_size(struct ldobject_t * o)
 		{
 		case LAYOUT_DIRECTION_ROW:
 		case LAYOUT_DIRECTION_ROW_REVERSE:
-			return o->height;
+			if(isnan(o->layout.height))
+				o->layout.height = o->height;
+			return o->layout.height;
 		case LAYOUT_DIRECTION_COLUMN:
 		case LAYOUT_DIRECTION_COLUMN_REVERSE:
-			return o->width;
+			if(isnan(o->layout.width))
+				o->layout.width = o->width;
+			return o->layout.width;
 		default:
 			break;
 		}
 	}
-	return o->height;
+	if(isnan(o->layout.height))
+		o->layout.height = o->height;
+	return o->layout.height;
 }
 
 static inline double dobject_layout_container_main_size(struct ldobject_t * o)
@@ -538,6 +556,15 @@ static void dobject_layout(struct ldobject_t * o)
 					break;
 				}
 				offset = offset + ms + dobject_layout_main_margin(pos) + between;
+
+				pos->layout.x = round(pos->layout.x);
+				pos->layout.y = round(pos->layout.y);
+				pos->layout.w = round(pos->layout.w);
+				pos->layout.h = round(pos->layout.h);
+				if(pos->layout.w < 1)
+					pos->layout.w = 1;
+				if(pos->layout.h < 1)
+					pos->layout.h = 1;
 			}
 		}
 	}
@@ -558,19 +585,49 @@ static void dobject_layout(struct ldobject_t * o)
 				pos->mflag &= ~MFLAG_TRANSLATE;
 			else
 				pos->mflag |= MFLAG_TRANSLATE;
-			if(pos->width != 0.0 && pos->height != 0.0)
+			switch(pos->dtype)
 			{
-				if(pos->layout.w < 1.0)
-					pos->layout.w = 1.0;
-				if(pos->layout.h < 1.0)
-					pos->layout.h = 1.0;
-				pos->scalex = pos->layout.w / pos->width;
-				pos->scaley = pos->layout.h / pos->height;
-				if((pos->scalex == 1.0) && (pos->scaley == 1.0))
-					pos->mflag &= ~MFLAG_SCALE;
-				else
-					pos->mflag |= MFLAG_SCALE;
+			case DOBJECT_TYPE_CONTAINER:
+				pos->scalex = 1.0;
+				pos->scaley = 1.0;
+				pos->width = pos->layout.w;
+				pos->height = pos->layout.h;
+				break;
+			case DOBJECT_TYPE_IMAGE:
+				if(pos->width != 0.0 && pos->height != 0.0)
+				{
+					pos->scalex = pos->layout.w / pos->width;
+					pos->scaley = pos->layout.h / pos->height;
+				}
+				break;
+			case DOBJECT_TYPE_NINEPATCH:
+				pos->scalex = 1.0;
+				pos->scaley = 1.0;
+				pos->width = pos->layout.w;
+				pos->height = pos->layout.h;
+				ninepatch_stretch(pos->priv, pos->width, pos->height);
+				break;
+			case DOBJECT_TYPE_SHAPE:
+				if(pos->width != 0.0 && pos->height != 0.0)
+				{
+					pos->scalex = pos->layout.w / pos->width;
+					pos->scaley = pos->layout.h / pos->height;
+				}
+				break;
+			case DOBJECT_TYPE_TEXT:
+				if(pos->width != 0.0 && pos->height != 0.0)
+				{
+					pos->scalex = pos->layout.w / pos->width;
+					pos->scaley = pos->layout.h / pos->height;
+				}
+				break;
+			default:
+				break;
 			}
+			if((pos->scalex == 1.0) && (pos->scaley == 1.0))
+				pos->mflag &= ~MFLAG_SCALE;
+			else
+				pos->mflag |= MFLAG_SCALE;
 		}
 		dobject_layout(pos);
 	}
@@ -741,6 +798,8 @@ static int l_dobject_new(lua_State * L)
 	o->layout.grow = 0;
 	o->layout.shrink = 1;
 	o->layout.basis = 0;
+	o->layout.width = NAN;
+	o->layout.height = NAN;
 	o->ctype = COLLIDER_TYPE_NONE;
 	o->visible = 1;
 	o->touchable = 1;
@@ -751,26 +810,31 @@ static int l_dobject_new(lua_State * L)
 
 	if(luaL_testudata(L, 3, MT_IMAGE))
 	{
+		o->dtype = DOBJECT_TYPE_IMAGE;
 		o->draw = dobject_draw_image;
 		o->priv = lua_touserdata(L, 3);
 	}
 	else if(luaL_testudata(L, 3, MT_NINEPATCH))
 	{
+		o->dtype = DOBJECT_TYPE_NINEPATCH;
 		o->draw = dobject_draw_ninepatch;
 		o->priv = lua_touserdata(L, 3);
 	}
 	else if(luaL_testudata(L, 3, MT_SHAPE))
 	{
+		o->dtype = DOBJECT_TYPE_SHAPE;
 		o->draw = dobject_draw_shape;
 		o->priv = lua_touserdata(L, 3);
 	}
 	else if(luaL_testudata(L, 3, MT_TEXT))
 	{
+		o->dtype = DOBJECT_TYPE_TEXT;
 		o->draw = dobject_draw_text;
 		o->priv = lua_touserdata(L, 3);
 	}
 	else
 	{
+		o->dtype = DOBJECT_TYPE_CONTAINER;
 		o->draw = NULL;
 		o->priv = NULL;
 	}
@@ -862,6 +926,7 @@ static int m_set_width(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
 	o->width = luaL_checknumber(L, 2);
+	o->layout.width = NAN;
 	o->mflag |= MFLAG_LOCAL_MATRIX;
 	dobject_mark_with_children(o, MFLAG_GLOBAL_MATRIX);
 	dobject_layout((o->parent && o->layoutable) ? o->parent : o);
@@ -879,6 +944,7 @@ static int m_set_height(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
 	o->height = luaL_checknumber(L, 2);
+	o->layout.height = NAN;
 	o->mflag |= MFLAG_LOCAL_MATRIX;
 	dobject_mark_with_children(o, MFLAG_GLOBAL_MATRIX);
 	dobject_layout((o->parent && o->layoutable) ? o->parent : o);
@@ -897,6 +963,8 @@ static int m_set_size(lua_State * L)
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
 	o->width = luaL_checknumber(L, 2);
 	o->height = luaL_checknumber(L, 3);
+	o->layout.width = NAN;
+	o->layout.height = NAN;
 	o->mflag |= MFLAG_LOCAL_MATRIX;
 	dobject_mark_with_children(o, MFLAG_GLOBAL_MATRIX);
 	dobject_layout((o->parent && o->layoutable) ? o->parent : o);

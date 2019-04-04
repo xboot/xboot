@@ -13,7 +13,6 @@ function M:init(w, h)
 	self:setSize(w, h)
 	self:addChild(Game.new(w, h):setLayoutable(true))
 	self:setLayoutDirection("row"):setLayoutJustify("center"):setLayoutAlign("center")
-	self:layout()
 end
 
 function M:setSize(width, height)

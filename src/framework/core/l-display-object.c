@@ -476,11 +476,6 @@ function M:animate(properties, duration, easing)
 	return self
 end
 
-function M:layout()
-	self.__dobj:layout()
-	return self
-end
-
 function M:render(event)
 	self:dispatchEvent(event)
 	self.__dobj:draw()

@@ -140,7 +140,6 @@ function M:updateVisualState()
 		self.buttonMinus:disable()
 		self.buttonPlus:disable()
 	end
-	self:layout()
 end
 
 return M

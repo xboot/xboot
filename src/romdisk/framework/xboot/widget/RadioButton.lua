@@ -371,7 +371,6 @@ function M:updateVisualState()
 			end
 		end
 	end
-	self:layout()
 end
 
 return M

@@ -64,17 +64,6 @@ enum layout_align_self_t {
 	LAYOUT_ALIGN_SELF_STRETCH		= 4,
 };
 
-static inline void dobject_layout_set_enable(struct ldobject_t * o, int enable)
-{
-	o->layout.style &= ~(0x1 << 0);
-	o->layout.style |= (enable ? 1 : 0) << 0;
-}
-
-static inline int dobject_layout_get_enable(struct ldobject_t * o)
-{
-	return (o->layout.style >> 0) & 0x1;
-}
-
 static inline void dobject_layout_set_direction(struct ldobject_t * o, enum layout_direction_t direction)
 {
 	o->layout.style &= ~(0x3 << 2);
@@ -566,6 +555,7 @@ static int l_dobject_new(lua_State * L)
 	o->ctype = COLLIDER_TYPE_NONE;
 	o->visible = 1;
 	o->touchable = 1;
+	o->layoutable = 0;
 	o->mflag = 0;
 	cairo_matrix_init_identity(&o->local_matrix);
 	cairo_matrix_init_identity(&o->global_matrix);
@@ -991,20 +981,6 @@ static int m_get_margin(lua_State * L)
 	return 4;
 }
 
-static int m_set_layout_enable(lua_State * L)
-{
-	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
-	dobject_layout_set_enable(o, lua_toboolean(L, 2));
-	return 0;
-}
-
-static int m_get_layout_enable(lua_State * L)
-{
-	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
-	lua_pushboolean(L, dobject_layout_get_enable(o));
-	return 1;
-}
-
 static int m_set_layout_direction(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
@@ -1411,6 +1387,20 @@ static int m_get_touchable(lua_State * L)
 	return 1;
 }
 
+static int m_set_layoutable(lua_State * L)
+{
+	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
+	o->layoutable = lua_toboolean(L, 2);
+	return 0;
+}
+
+static int m_get_layoutable(lua_State * L)
+{
+	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
+	lua_pushboolean(L, o->layoutable);
+	return 1;
+}
+
 static int m_global_to_local(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
@@ -1611,7 +1601,7 @@ static void dobject_layout(struct ldobject_t * o)
 	count = 0;
 	list_for_each_entry_safe(pos, n, &(o->children), entry)
 	{
-		if(pos->visible && dobject_layout_get_enable(pos))
+		if(pos->visible && pos->layoutable)
 		{
 			basis = dobject_layout_main_size(pos);
 			consumed += basis + dobject_layout_main_margin(pos);
@@ -1658,7 +1648,7 @@ static void dobject_layout(struct ldobject_t * o)
 	offset = start;
 	list_for_each_entry_safe(pos, n, &(o->children), entry)
 	{
-		if(pos->visible && dobject_layout_get_enable(pos))
+		if(pos->visible && pos->layoutable)
 		{
 			basis = dobject_layout_main_size(pos);
 			margin = dobject_layout_main_margin(pos);
@@ -1694,7 +1684,7 @@ static void dobject_layout(struct ldobject_t * o)
 
 	list_for_each_entry_safe(pos, n, &(o->children), entry)
 	{
-		if(pos->visible && dobject_layout_get_enable(pos))
+		if(pos->visible && pos->layoutable)
 		{
 			switch(dobject_layout_get_align_self(pos))
 			{
@@ -1764,7 +1754,7 @@ static void dobject_layout(struct ldobject_t * o)
 	{
 		if(pos->visible)
 		{
-			if(dobject_layout_get_enable(pos))
+			if(pos->layoutable)
 			{
 				pos->mflag = MFLAG_LOCAL_MATRIX | MFLAG_GLOBAL_MATRIX;
 				pos->rotation = 0;
@@ -1937,8 +1927,6 @@ static const luaL_Reg m_dobject[] = {
 	{"getAlpha",			m_get_alpha},
 	{"setMargin",			m_set_margin},
 	{"getMargin",			m_get_margin},
-	{"setLayoutEnable",		m_set_layout_enable},
-	{"getLayoutEnable",		m_get_layout_enable},
 	{"setLayoutDirection",	m_set_layout_direction},
 	{"getLayoutDirection",	m_get_layout_direction},
 	{"setLayoutJustify",	m_set_layout_justify},
@@ -1959,6 +1947,8 @@ static const luaL_Reg m_dobject[] = {
 	{"getVisible",			m_get_visible},
 	{"setTouchable",		m_set_touchable},
 	{"getTouchable",		m_get_touchable},
+	{"setLayoutable",		m_set_layoutable},
+	{"getLayoutable",		m_get_layoutable},
 	{"globalToLocal",		m_global_to_local},
 	{"localToGlobal",		m_local_to_global},
 	{"hitTestPoint",		m_hit_test_point},

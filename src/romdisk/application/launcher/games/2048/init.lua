@@ -11,7 +11,7 @@ function M:init(w, h)
 		:setSource(Pattern.image(assets:loadImage("games/2048/images/bg.png")):setExtend(Pattern.EXTEND_REPEAT))
 		:paint())
 	self:setSize(w, h)
-	self:addChild(Game.new(w, h):setLayoutEnable(true))
+	self:addChild(Game.new(w, h):setLayoutable(true))
 	self:setLayoutDirection("row"):setLayoutJustify("center"):setLayoutAlign("center")
 	self:layout()
 end

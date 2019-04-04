@@ -261,15 +261,6 @@ function M:getMargin()
 	return self.__dobj:getMargin()
 end
 
-function M:setLayoutEnable(enable)
-	self.__dobj:setLayoutEnable(enable)
-	return self
-end
-
-function M:getLayoutEnable()
-	return self.__dobj:getLayoutEnable()
-end
-
 function M:setLayoutDirection(direction)
 	self.__dobj:setLayoutDirection(direction)
 	return self
@@ -358,6 +349,15 @@ end
 
 function M:getTouchable()
 	return self.__dobj:getTouchable()
+end
+
+function M:setLayoutable(layoutable)
+	self.__dobj:setLayoutable(layoutable)
+	return self
+end
+
+function M:getLayoutable()
+	return self.__dobj:getLayoutable()
 end
 
 function M:globalToLocal(x, y)

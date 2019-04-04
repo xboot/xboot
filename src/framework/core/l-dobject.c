@@ -1790,7 +1790,8 @@ static void dobject_layout(struct ldobject_t * o)
 static int m_layout(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
-	dobject_layout(o->parent ? o->parent : o);
+	if(o->visible)
+		dobject_layout((o->parent && o->layoutable) ? o->parent : o);
 	return 0;
 }
 

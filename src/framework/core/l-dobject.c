@@ -633,11 +633,53 @@ static void dobject_layout(struct ldobject_t * o)
 	}
 }
 
+static inline void dobject_draw_background(cairo_t * cr, struct ldobject_t * o)
+{
+	if(o->background.enable)
+	{
+		double x = o->background.border_width / 2;
+		double y = o->background.border_width / 2;
+		double w = o->width - o->background.border_width;
+		double h = o->height - o->background.border_width;
+		double radius = o->background.border_radius;
+		cairo_save(cr);
+		cairo_set_matrix(cr, dobject_global_matrix(o));
+		cairo_set_line_width(cr, o->background.border_width);
+		if(radius > 0.0)
+		{
+			cairo_move_to(cr, x + radius, y);
+			cairo_line_to(cr, x + w - radius, y);
+			cairo_arc(cr, x + w - radius, y + radius, radius, - M_PI / 2, 0);
+			cairo_line_to(cr, x + w, y + h - radius);
+			cairo_arc(cr, x + w - radius, y + h - radius, radius, 0, M_PI / 2);
+			cairo_line_to(cr, x + radius, y + h);
+			cairo_arc(cr, x + radius, y + h - radius, radius, M_PI / 2, M_PI);
+			cairo_arc(cr, x + radius, y + radius, radius, M_PI, M_PI + M_PI / 2);
+		}
+		else
+		{
+			cairo_rectangle(cr, x, y, w, h);
+		}
+		if(o->background.border_color_alpha != 0.0)
+		{
+			cairo_set_source_rgba(cr, o->background.border_color_red, o->background.border_color_green, o->background.border_color_blue, o->background.border_color_alpha);
+			cairo_stroke_preserve(cr);
+		}
+		if(o->background.alpha != 0.0)
+		{
+			cairo_set_source_rgba(cr, o->background.red, o->background.green, o->background.blue, o->background.alpha);
+			cairo_fill(cr);
+		}
+		cairo_restore(cr);
+	}
+}
+
 static void dobject_draw_image(lua_State * L, struct ldobject_t * o)
 {
 	struct display_t * disp = ((struct vmctx_t *)luahelper_vmctx(L))->disp;
 	struct limage_t * img = o->priv;
 	cairo_t * cr = disp->cr;
+	dobject_draw_background(cr, o);
 	cairo_save(cr);
 	cairo_set_matrix(cr, dobject_global_matrix(o));
 	cairo_set_source_surface(cr, img->cs, 0, 0);
@@ -650,6 +692,7 @@ static void dobject_draw_ninepatch(lua_State * L, struct ldobject_t * o)
 	struct display_t * disp = ((struct vmctx_t *)luahelper_vmctx(L))->disp;
 	struct lninepatch_t * ninepatch = o->priv;
 	cairo_t * cr = disp->cr;
+	dobject_draw_background(cr, o);
 	cairo_save(cr);
 	cairo_set_matrix(cr, dobject_global_matrix(o));
 	if(ninepatch->lt)
@@ -746,6 +789,7 @@ static void dobject_draw_shape(lua_State * L, struct ldobject_t * o)
 	struct display_t * disp = ((struct vmctx_t *)luahelper_vmctx(L))->disp;
 	struct lshape_t * shape = o->priv;
 	cairo_t * cr = disp->cr;
+	dobject_draw_background(cr, o);
 	cairo_save(cr);
 	cairo_set_matrix(cr, dobject_global_matrix(o));
 	cairo_set_source_surface(cr, shape->cs, 0, 0);
@@ -759,6 +803,7 @@ static void dobject_draw_text(lua_State * L, struct ldobject_t * o)
 	struct ltext_t * text = o->priv;
 	cairo_matrix_t * m = dobject_global_matrix(o);
 	cairo_t * cr = disp->cr;
+	dobject_draw_background(cr, o);
 	cairo_save(cr);
 	cairo_set_scaled_font(cr, text->font);
 	cairo_move_to(cr, m->x0, m->y0);
@@ -768,6 +813,13 @@ static void dobject_draw_text(lua_State * L, struct ldobject_t * o)
 	cairo_set_source(cr, text->pattern);
 	cairo_fill(cr);
 	cairo_restore(cr);
+}
+
+static void dobject_draw_container(lua_State * L, struct ldobject_t * o)
+{
+	struct display_t * disp = ((struct vmctx_t *)luahelper_vmctx(L))->disp;
+	cairo_t *cr = disp->cr;
+	dobject_draw_background(cr, o);
 }
 
 static int l_dobject_new(lua_State * L)
@@ -800,6 +852,17 @@ static int l_dobject_new(lua_State * L)
 	o->layout.basis = 0;
 	o->layout.width = NAN;
 	o->layout.height = NAN;
+	o->background.enable = 0;
+	o->background.red = 0;
+	o->background.green = 0;
+	o->background.blue = 0;
+	o->background.alpha = 0;
+	o->background.border_width = 0;
+	o->background.border_radius = 0;
+	o->background.border_color_red = 0;
+	o->background.border_color_green = 0;
+	o->background.border_color_blue = 0;
+	o->background.border_color_alpha = 0;
 	o->ctype = COLLIDER_TYPE_NONE;
 	o->visible = 1;
 	o->touchable = 1;
@@ -835,7 +898,7 @@ static int l_dobject_new(lua_State * L)
 	else
 	{
 		o->dtype = DOBJECT_TYPE_CONTAINER;
-		o->draw = NULL;
+		o->draw = dobject_draw_container;
 		o->priv = NULL;
 	}
 
@@ -1501,6 +1564,82 @@ static int m_get_layout_basis(lua_State * L)
 	return 1;
 }
 
+static int m_set_background_color(lua_State * L)
+{
+	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
+	o->background.red = luaL_optnumber(L, 2, 1);
+	o->background.green = luaL_optnumber(L, 3, 1);
+	o->background.blue = luaL_optnumber(L, 4, 1);
+	o->background.alpha = luaL_optnumber(L, 5, 1);
+	if((o->background.alpha == 0.0) && (o->background.border_color_alpha == 0.0))
+		o->background.enable = 0;
+	else
+		o->background.enable = 1;
+	return 0;
+}
+
+static int m_get_background_color(lua_State * L)
+{
+	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
+	lua_pushnumber(L, o->background.red);
+	lua_pushnumber(L, o->background.green);
+	lua_pushnumber(L, o->background.blue);
+	lua_pushnumber(L, o->background.alpha);
+	return 4;
+}
+
+static int m_set_background_border_width(lua_State * L)
+{
+	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
+	o->background.border_width = luaL_optnumber(L, 2, 0);
+	return 0;
+}
+
+static int m_get_background_border_width(lua_State * L)
+{
+	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
+	lua_pushnumber(L, o->background.border_width);
+	return 1;
+}
+
+static int m_set_background_border_radius(lua_State * L)
+{
+	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
+	o->background.border_radius = luaL_optnumber(L, 2, 0);
+	return 0;
+}
+
+static int m_get_background_border_radius(lua_State * L)
+{
+	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
+	lua_pushnumber(L, o->background.border_radius);
+	return 1;
+}
+
+static int m_set_background_border_color(lua_State * L)
+{
+	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
+	o->background.border_color_red = luaL_optnumber(L, 2, 0);
+	o->background.border_color_green = luaL_optnumber(L, 3, 0);
+	o->background.border_color_blue = luaL_optnumber(L, 4, 0);
+	o->background.border_color_alpha = luaL_optnumber(L, 5, 1);
+	if((o->background.alpha == 0.0) && (o->background.border_color_alpha == 0.0))
+		o->background.enable = 0;
+	else
+		o->background.enable = 1;
+	return 0;
+}
+
+static int m_get_background_border_color(lua_State * L)
+{
+	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
+	lua_pushnumber(L, o->background.border_color_red);
+	lua_pushnumber(L, o->background.border_color_green);
+	lua_pushnumber(L, o->background.border_color_blue);
+	lua_pushnumber(L, o->background.border_color_alpha);
+	return 4;
+}
+
 static int m_set_collider(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
@@ -1855,8 +1994,7 @@ static int m_draw(lua_State * L)
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
 	if(o->visible)
 	{
-		if(o->draw)
-			o->draw(L, o);
+		o->draw(L, o);
 		if(disp->showobj)
 		{
 			cairo_t * cr = disp->cr;
@@ -1945,70 +2083,78 @@ static int m_draw(lua_State * L)
 }
 
 static const luaL_Reg m_dobject[] = {
-	{"__gc",				m_dobject_gc},
-	{"addChild",			m_add_child},
-	{"removeChild",			m_remove_child},
-	{"toFront",				m_to_front},
-	{"toBack",				m_to_back},
-	{"setWidth",			m_set_width},
-	{"getWidth",			m_get_width},
-	{"setHeight",			m_set_height},
-	{"getHeight",			m_get_height},
-	{"setSize",				m_set_size},
-	{"getSize",				m_get_size},
-	{"setX",				m_set_x},
-	{"getX",				m_get_x},
-	{"setY",				m_set_y},
-	{"getY",				m_get_y},
-	{"setPosition",			m_set_position},
-	{"getPosition",			m_get_position},
-	{"setRotation",			m_set_rotation},
-	{"getRotation",			m_get_rotation},
-	{"setScaleX",			m_set_scale_x},
-	{"getScaleX",			m_get_scale_x},
-	{"setScaleY",			m_set_scale_y},
-	{"getScaleY",			m_get_scale_y},
-	{"setScale",			m_set_scale},
-	{"getScale",			m_get_scale},
-	{"setSkewX",			m_set_skew_x},
-	{"getSkewX",			m_get_skew_x},
-	{"setSkewY",			m_set_skew_y},
-	{"getSkewY",			m_get_skew_y},
-	{"setSkew",				m_set_skew},
-	{"getSkew",				m_get_skew},
-	{"setAnchor",			m_set_archor},
-	{"getAnchor",			m_get_archor},
-	{"setAlpha",			m_set_alpha},
-	{"getAlpha",			m_get_alpha},
-	{"setMargin",			m_set_margin},
-	{"getMargin",			m_get_margin},
-	{"setLayoutDirection",	m_set_layout_direction},
-	{"getLayoutDirection",	m_get_layout_direction},
-	{"setLayoutJustify",	m_set_layout_justify},
-	{"getLayoutJustify",	m_get_layout_justify},
-	{"setLayoutAlign",		m_set_layout_align},
-	{"getLayoutAlign",		m_get_layout_align},
-	{"setLayoutAlignSelf",	m_set_layout_align_self},
-	{"getLayoutAlignSelf",	m_get_layout_align_self},
-	{"setLayoutGrow",		m_set_layout_grow},
-	{"getLayoutGrow",		m_get_layout_grow},
-	{"setLayoutShrink",		m_set_layout_shrink},
-	{"getLayoutShrink",		m_get_layout_shrink},
-	{"setLayoutBasis",		m_set_layout_basis},
-	{"getLayoutBasis",		m_get_layout_basis},
-	{"setCollider",			m_set_collider},
-	{"getCollider",			m_get_collider},
-	{"setVisible",			m_set_visible},
-	{"getVisible",			m_get_visible},
-	{"setTouchable",		m_set_touchable},
-	{"getTouchable",		m_get_touchable},
-	{"setLayoutable",		m_set_layoutable},
-	{"getLayoutable",		m_get_layoutable},
-	{"globalToLocal",		m_global_to_local},
-	{"localToGlobal",		m_local_to_global},
-	{"hitTestPoint",		m_hit_test_point},
-	{"bounds",				m_bounds},
-	{"draw",				m_draw},
+	{"__gc",						m_dobject_gc},
+	{"addChild",					m_add_child},
+	{"removeChild",					m_remove_child},
+	{"toFront",						m_to_front},
+	{"toBack",						m_to_back},
+	{"setWidth",					m_set_width},
+	{"getWidth",					m_get_width},
+	{"setHeight",					m_set_height},
+	{"getHeight",					m_get_height},
+	{"setSize",						m_set_size},
+	{"getSize",						m_get_size},
+	{"setX",						m_set_x},
+	{"getX",						m_get_x},
+	{"setY",						m_set_y},
+	{"getY",						m_get_y},
+	{"setPosition",					m_set_position},
+	{"getPosition",					m_get_position},
+	{"setRotation",					m_set_rotation},
+	{"getRotation",					m_get_rotation},
+	{"setScaleX",					m_set_scale_x},
+	{"getScaleX",					m_get_scale_x},
+	{"setScaleY",					m_set_scale_y},
+	{"getScaleY",					m_get_scale_y},
+	{"setScale",					m_set_scale},
+	{"getScale",					m_get_scale},
+	{"setSkewX",					m_set_skew_x},
+	{"getSkewX",					m_get_skew_x},
+	{"setSkewY",					m_set_skew_y},
+	{"getSkewY",					m_get_skew_y},
+	{"setSkew",						m_set_skew},
+	{"getSkew",						m_get_skew},
+	{"setAnchor",					m_set_archor},
+	{"getAnchor",					m_get_archor},
+	{"setAlpha",					m_set_alpha},
+	{"getAlpha",					m_get_alpha},
+	{"setMargin",					m_set_margin},
+	{"getMargin",					m_get_margin},
+	{"setLayoutDirection",			m_set_layout_direction},
+	{"getLayoutDirection",			m_get_layout_direction},
+	{"setLayoutJustify",			m_set_layout_justify},
+	{"getLayoutJustify",			m_get_layout_justify},
+	{"setLayoutAlign",				m_set_layout_align},
+	{"getLayoutAlign",				m_get_layout_align},
+	{"setLayoutAlignSelf",			m_set_layout_align_self},
+	{"getLayoutAlignSelf",			m_get_layout_align_self},
+	{"setLayoutGrow",				m_set_layout_grow},
+	{"getLayoutGrow",				m_get_layout_grow},
+	{"setLayoutShrink",				m_set_layout_shrink},
+	{"getLayoutShrink",				m_get_layout_shrink},
+	{"setLayoutBasis",				m_set_layout_basis},
+	{"getLayoutBasis",				m_get_layout_basis},
+	{"setBackgroundColor",			m_set_background_color},
+	{"getBackgroundColor",			m_get_background_color},
+	{"setBackgroundBorderWidth",	m_set_background_border_width},
+	{"getBackgroundBorderWidth",	m_get_background_border_width},
+	{"setBackgroundBorderRadius",	m_set_background_border_radius},
+	{"getBackgroundBorderRadius",	m_get_background_border_radius},
+	{"setBackgroundBorderColor",	m_set_background_border_color},
+	{"getBackgroundBorderColor",	m_get_background_border_color},
+	{"setCollider",					m_set_collider},
+	{"getCollider",					m_get_collider},
+	{"setVisible",					m_set_visible},
+	{"getVisible",					m_get_visible},
+	{"setTouchable",				m_set_touchable},
+	{"getTouchable",				m_get_touchable},
+	{"setLayoutable",				m_set_layoutable},
+	{"getLayoutable",				m_get_layoutable},
+	{"globalToLocal",				m_global_to_local},
+	{"localToGlobal",				m_local_to_global},
+	{"hitTestPoint",				m_hit_test_point},
+	{"bounds",						m_bounds},
+	{"draw",						m_draw},
 	{NULL, NULL}
 };
 

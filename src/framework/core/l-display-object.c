@@ -324,6 +324,42 @@ function M:getLayoutBasis()
 	return self.__dobj:getLayoutBasis()
 end
 
+function M:setBackgroundColor(r, g, b, a)
+	self.__dobj:setBackgroundColor(r, g, b, a)
+	return self
+end
+
+function M:getBackgroundColor()
+	return self.__dobj:getBackgroundColor()
+end
+
+function M:setBackgroundBorderWidth(width)
+	self.__dobj:setBackgroundBorderWidth(width)
+	return self
+end
+
+function M:getBackgroundBorderWidth()
+	return self.__dobj:getBackgroundBorderWidth()
+end
+
+function M:setBackgroundBorderRadius(radius)
+	self.__dobj:setBackgroundBorderRadius(radius)
+	return self
+end
+
+function M:getBackgroundBorderRadius()
+	return self.__dobj:getBackgroundBorderRadius()
+end
+
+function M:setBackgroundBorderColor(r, g, b, a)
+	self.__dobj:setBackgroundBorderColor(r, g, b, a)
+	return self
+end
+
+function M:getBackgroundBorderColor()
+	return self.__dobj:getBackgroundBorderColor()
+end
+
 function M:setCollider(type, ...)
 	self.__dobj:setCollider(type, ...)
 	return self

@@ -228,7 +228,7 @@ u64_t disk_read(struct disk_t * disk, u8_t * buf, u64_t offset, u64_t count)
 	if(!sz || !cnt)
 		return 0;
 
-	capacity = sz * count;
+	capacity = sz * cnt;
 	if(offset >= capacity)
 		return 0;
 
@@ -311,7 +311,7 @@ u64_t disk_write(struct disk_t * disk, u8_t * buf, u64_t offset, u64_t count)
 	if(!sz || !cnt)
 		return 0;
 
-	capacity = sz * count;
+	capacity = sz * cnt;
 	if(offset >= capacity)
 		return 0;
 

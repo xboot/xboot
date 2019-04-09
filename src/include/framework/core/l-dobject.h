@@ -60,20 +60,6 @@ struct ldobject_t {
 		double w, h;
 	} layout;
 
-	struct {
-		int enable;
-		double red;
-		double green;
-		double blue;
-		double alpha;
-		double border_width;
-		double border_radius;
-		double border_color_red;
-		double border_color_green;
-		double border_color_blue;
-		double border_color_alpha;
-	} background;
-
 	enum collider_type_t ctype;
 	union {
 		struct {

@@ -98,7 +98,6 @@ struct ldobject_t {
 
 	int visible;
 	int touchable;
-	int layoutable;
 	int mflag;
 	cairo_matrix_t local_matrix;
 	cairo_matrix_t global_matrix;

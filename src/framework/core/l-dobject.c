@@ -142,6 +142,17 @@ enum layout_align_self_t {
 	LAYOUT_ALIGN_SELF_STRETCH		= 4,
 };
 
+static inline void dobject_layout_set_layoutable(struct ldobject_t * o, int enable)
+{
+	o->layout.style &= ~(0x1 << 0);
+	o->layout.style |= (enable ? 1 : 0) << 0;
+}
+
+static inline int dobject_layout_get_layoutable(struct ldobject_t * o)
+{
+	return (o->layout.style >> 0) & 0x1;
+}
+
 static inline void dobject_layout_set_direction(struct ldobject_t * o, enum layout_direction_t direction)
 {
 	o->layout.style &= ~(0x3 << 2);
@@ -424,7 +435,7 @@ static void dobject_layout(struct ldobject_t * o)
 	count = 0;
 	list_for_each_entry(pos, &o->children, entry)
 	{
-		if(pos->layoutable)
+		if(dobject_layout_get_layoutable(pos))
 		{
 			basis = dobject_layout_main_size(pos);
 			consumed += basis + dobject_layout_main_margin(pos);
@@ -474,7 +485,7 @@ static void dobject_layout(struct ldobject_t * o)
 
 		list_for_each_entry(pos, &o->children, entry)
 		{
-			if(pos->layoutable)
+			if(dobject_layout_get_layoutable(pos))
 			{
 				switch(dobject_layout_get_align_self(pos))
 				{
@@ -571,7 +582,7 @@ static void dobject_layout(struct ldobject_t * o)
 
 	list_for_each_entry(pos, &o->children, entry)
 	{
-		if(pos->layoutable)
+		if(dobject_layout_get_layoutable(pos))
 		{
 			pos->mflag = MFLAG_LOCAL_MATRIX | MFLAG_GLOBAL_MATRIX;
 			pos->rotation = 0;
@@ -803,7 +814,6 @@ static int l_dobject_new(lua_State * L)
 	o->ctype = COLLIDER_TYPE_NONE;
 	o->visible = 1;
 	o->touchable = 1;
-	o->layoutable = 0;
 	o->mflag = 0;
 	cairo_matrix_init_identity(&o->local_matrix);
 	cairo_matrix_init_identity(&o->global_matrix);
@@ -929,7 +939,7 @@ static int m_set_width(lua_State * L)
 	o->layout.width = NAN;
 	o->mflag |= MFLAG_LOCAL_MATRIX;
 	dobject_mark_with_children(o, MFLAG_GLOBAL_MATRIX);
-	dobject_layout((o->parent && o->layoutable) ? o->parent : o);
+	dobject_layout((o->parent && dobject_layout_get_layoutable(o)) ? o->parent : o);
 	return 0;
 }
 
@@ -947,7 +957,7 @@ static int m_set_height(lua_State * L)
 	o->layout.height = NAN;
 	o->mflag |= MFLAG_LOCAL_MATRIX;
 	dobject_mark_with_children(o, MFLAG_GLOBAL_MATRIX);
-	dobject_layout((o->parent && o->layoutable) ? o->parent : o);
+	dobject_layout((o->parent && dobject_layout_get_layoutable(o)) ? o->parent : o);
 	return 0;
 }
 
@@ -967,7 +977,7 @@ static int m_set_size(lua_State * L)
 	o->layout.height = NAN;
 	o->mflag |= MFLAG_LOCAL_MATRIX;
 	dobject_mark_with_children(o, MFLAG_GLOBAL_MATRIX);
-	dobject_layout((o->parent && o->layoutable) ? o->parent : o);
+	dobject_layout((o->parent && dobject_layout_get_layoutable(o)) ? o->parent : o);
 	return 0;
 }
 
@@ -1228,7 +1238,7 @@ static int m_set_margin(lua_State * L)
 	o->margin.top = luaL_optnumber(L, 3, 0);
 	o->margin.right = luaL_optnumber(L, 4, 0);
 	o->margin.bottom = luaL_optnumber(L, 5, 0);
-	dobject_layout((o->parent && o->layoutable) ? o->parent : o);
+	dobject_layout((o->parent && dobject_layout_get_layoutable(o)) ? o->parent : o);
 	return 0;
 }
 
@@ -1240,6 +1250,21 @@ static int m_get_margin(lua_State * L)
 	lua_pushnumber(L, o->margin.right);
 	lua_pushnumber(L, o->margin.bottom);
 	return 4;
+}
+
+static int m_set_layoutable(lua_State * L)
+{
+	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
+	dobject_layout_set_layoutable(o, lua_toboolean(L, 2));
+	dobject_layout((o->parent && dobject_layout_get_layoutable(o)) ? o->parent : o);
+	return 0;
+}
+
+static int m_get_layoutable(lua_State * L)
+{
+	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
+	lua_pushboolean(L, dobject_layout_get_layoutable(o));
+	return 1;
 }
 
 static int m_set_layout_direction(lua_State * L)
@@ -1263,7 +1288,7 @@ static int m_set_layout_direction(lua_State * L)
 	default:
 		break;
 	}
-	dobject_layout((o->parent && o->layoutable) ? o->parent : o);
+	dobject_layout((o->parent && dobject_layout_get_layoutable(o)) ? o->parent : o);
 	return 0;
 }
 
@@ -1318,7 +1343,7 @@ static int m_set_layout_justify(lua_State * L)
 	default:
 		break;
 	}
-	dobject_layout((o->parent && o->layoutable) ? o->parent : o);
+	dobject_layout((o->parent && dobject_layout_get_layoutable(o)) ? o->parent : o);
 	return 0;
 }
 
@@ -1373,7 +1398,7 @@ static int m_set_layout_align(lua_State * L)
 	default:
 		break;
 	}
-	dobject_layout((o->parent && o->layoutable) ? o->parent : o);
+	dobject_layout((o->parent && dobject_layout_get_layoutable(o)) ? o->parent : o);
 	return 0;
 }
 
@@ -1425,7 +1450,7 @@ static int m_set_layout_align_self(lua_State * L)
 	default:
 		break;
 	}
-	dobject_layout((o->parent && o->layoutable) ? o->parent : o);
+	dobject_layout((o->parent && dobject_layout_get_layoutable(o)) ? o->parent : o);
 	return 0;
 }
 
@@ -1460,7 +1485,7 @@ static int m_set_layout_grow(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
 	o->layout.grow = luaL_checknumber(L, 2);
-	dobject_layout((o->parent && o->layoutable) ? o->parent : o);
+	dobject_layout((o->parent && dobject_layout_get_layoutable(o)) ? o->parent : o);
 	return 0;
 }
 
@@ -1475,7 +1500,7 @@ static int m_set_layout_shrink(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
 	o->layout.shrink = luaL_checknumber(L, 2);
-	dobject_layout((o->parent && o->layoutable) ? o->parent : o);
+	dobject_layout((o->parent && dobject_layout_get_layoutable(o)) ? o->parent : o);
 	return 0;
 }
 
@@ -1490,7 +1515,7 @@ static int m_set_layout_basis(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
 	o->layout.basis = luaL_checknumber(L, 2);
-	dobject_layout((o->parent && o->layoutable) ? o->parent : o);
+	dobject_layout((o->parent && dobject_layout_get_layoutable(o)) ? o->parent : o);
 	return 0;
 }
 
@@ -1652,21 +1677,6 @@ static int m_get_touchable(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
 	lua_pushboolean(L, o->touchable);
-	return 1;
-}
-
-static int m_set_layoutable(lua_State * L)
-{
-	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
-	o->layoutable = lua_toboolean(L, 2);
-	dobject_layout((o->parent && o->layoutable) ? o->parent : o);
-	return 0;
-}
-
-static int m_get_layoutable(lua_State * L)
-{
-	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
-	lua_pushboolean(L, o->layoutable);
 	return 1;
 }
 
@@ -1982,6 +1992,8 @@ static const luaL_Reg m_dobject[] = {
 	{"getAlpha",			m_get_alpha},
 	{"setMargin",			m_set_margin},
 	{"getMargin",			m_get_margin},
+	{"setLayoutable",		m_set_layoutable},
+	{"getLayoutable",		m_get_layoutable},
 	{"setLayoutDirection",	m_set_layout_direction},
 	{"getLayoutDirection",	m_get_layout_direction},
 	{"setLayoutJustify",	m_set_layout_justify},
@@ -2002,8 +2014,6 @@ static const luaL_Reg m_dobject[] = {
 	{"getVisible",			m_get_visible},
 	{"setTouchable",		m_set_touchable},
 	{"getTouchable",		m_get_touchable},
-	{"setLayoutable",		m_set_layoutable},
-	{"getLayoutable",		m_get_layoutable},
 	{"globalToLocal",		m_global_to_local},
 	{"localToGlobal",		m_local_to_global},
 	{"hitTestPoint",		m_hit_test_point},

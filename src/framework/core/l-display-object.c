@@ -261,13 +261,22 @@ function M:getMargin()
 	return self.__dobj:getMargin()
 end
 
-function M:setLayoutable(layoutable)
-	self.__dobj:setLayoutable(layoutable)
+function M:setLayoutEnable(enable)
+	self.__dobj:setLayoutEnable(enable)
 	return self
 end
 
-function M:getLayoutable()
-	return self.__dobj:getLayoutable()
+function M:getLayoutEnable()
+	return self.__dobj:getLayoutEnable()
+end
+
+function M:setLayoutSpecial(enable)
+	self.__dobj:setLayoutSpecial(enable)
+	return self
+end
+
+function M:getLayoutSpecial()
+	return self.__dobj:getLayoutSpecial()
 end
 
 function M:setLayoutDirection(direction)

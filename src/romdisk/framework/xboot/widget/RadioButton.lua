@@ -35,12 +35,12 @@ function M:init(option, name)
 	self.opt.textMarginRight = assert(option.textMarginRight or theme.radiobutton.text.margin.right)
 	self.opt.textMarginBottom = assert(option.textMarginBottom or theme.radiobutton.text.margin.bottom)
 
-	self.frameOnNormal = assets:loadDisplay(self.opt.imageOnNormal):setLayoutable(true)
-	self.frameOnPressed = assets:loadDisplay(self.opt.imageOnPressed):setLayoutable(true)
-	self.frameOnDisabled = assets:loadDisplay(self.opt.imageOnDisabled):setLayoutable(true)
-	self.frameOffNormal = assets:loadDisplay(self.opt.imageOffNormal):setLayoutable(true)
-	self.frameOffPressed = assets:loadDisplay(self.opt.imageOffPressed):setLayoutable(true)
-	self.frameOffDisabled = assets:loadDisplay(self.opt.imageOffDisabled):setLayoutable(true)
+	self.frameOnNormal = assets:loadDisplay(self.opt.imageOnNormal):setLayoutEnable(true)
+	self.frameOnPressed = assets:loadDisplay(self.opt.imageOnPressed):setLayoutEnable(true)
+	self.frameOnDisabled = assets:loadDisplay(self.opt.imageOnDisabled):setLayoutEnable(true)
+	self.frameOffNormal = assets:loadDisplay(self.opt.imageOffNormal):setLayoutEnable(true)
+	self.frameOffPressed = assets:loadDisplay(self.opt.imageOffPressed):setLayoutEnable(true)
+	self.frameOffDisabled = assets:loadDisplay(self.opt.imageOffDisabled):setLayoutEnable(true)
 
 	local width, height = self.frameOnNormal:getSize()
 	self.opt.width = width
@@ -107,7 +107,7 @@ function M:setText(text)
 		else
 			self.text = DisplayText.new(assets:loadFont(self.opt.textFontFamily, self.opt.textFontSize), self.opt.textPatternNormal, text)
 			self.text:setMargin(self.opt.textMarginLeft, self.opt.textMarginTop, self.opt.textMarginRight, self.opt.textMarginBottom)
-			self.text:setLayoutable(true)
+			self.text:setLayoutEnable(true)
 		end
 	else
 		self.text = nil

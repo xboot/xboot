@@ -33,9 +33,9 @@ function M:init(option, name)
 	self.opt.textMarginRight = assert(option.textMarginRight or theme.button.text.margin.right)
 	self.opt.textMarginBottom = assert(option.textMarginBottom or theme.button.text.margin.bottom)
 
-	self.frameNormal = assets:loadDisplay(self.opt.imageNormal)
-	self.framePressed = assets:loadDisplay(self.opt.imagePressed)
-	self.frameDisabled = assets:loadDisplay(self.opt.imageDisabled)
+	self.frameNormal = assets:loadDisplay(self.opt.imageNormal):setLayoutSpecial(true):setLayoutEnable(true)
+	self.framePressed = assets:loadDisplay(self.opt.imagePressed):setLayoutSpecial(true):setLayoutEnable(true)
+	self.frameDisabled = assets:loadDisplay(self.opt.imageDisabled):setLayoutSpecial(true):setLayoutEnable(true)
 
 	local width, height = self.frameNormal:getSize()
 	self.opt.width = self.opt.width or width
@@ -93,7 +93,7 @@ function M:setText(text)
 		else
 			self.text = DisplayText.new(assets:loadFont(self.opt.textFontFamily, self.opt.textFontSize), self.opt.textPatternNormal, text)
 			self.text:setMargin(self.opt.textMarginLeft, self.opt.textMarginTop, self.opt.textMarginRight, self.opt.textMarginBottom)
-			self.text:setLayoutable(true)
+			self.text:setLayoutEnable(true)
 		end
 	else
 		self.text = nil

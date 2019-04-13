@@ -314,6 +314,15 @@ static int m_application_get_panel(lua_State * L)
 	return 1;
 }
 
+static int m_application_execute(lua_State * L)
+{
+	struct lapplication_t * app = luaL_checkudata(L, 1, MT_APPLICATION);
+	const char * fb = luaL_optstring(L, 2, NULL);
+	const char * input = luaL_optstring(L, 3, NULL);
+	lua_pushboolean(L, (vmexec(app->path, fb, input) < 0) ? 0 : 1);
+	return 1;
+}
+
 static const luaL_Reg m_application[] = {
 	{"__gc",			m_application_gc},
 	{"getPath",			m_application_get_path},
@@ -324,6 +333,7 @@ static const luaL_Reg m_application[] = {
 	{"getVersion",		m_application_get_version},
 	{"getLogo",			m_application_get_logo},
 	{"getPanel",		m_application_get_panel},
+	{"execute",			m_application_execute},
 	{NULL,	NULL}
 };
 

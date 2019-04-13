@@ -352,11 +352,11 @@ void xfs_close(struct xfs_file_t * file)
 	}
 }
 
-struct xfs_context_t * xfs_alloc(const char * path)
+struct xfs_context_t * xfs_alloc(const char * path, int userdata)
 {
 	struct xfs_context_t * ctx;
 	struct vfs_stat_t st;
-	char userdata[VFS_MAX_PATH];
+	char dir[VFS_MAX_PATH];
 	uint8_t digest[20];
 	char * p;
 
@@ -373,15 +373,18 @@ struct xfs_context_t * xfs_alloc(const char * path)
 
 	xfs_mount(ctx, "/framework", 0);
 	xfs_mount(ctx, path, 0);
-	sha1_hash(path, strlen(path), digest);
-	p = strdup(path);
-	sprintf(userdata, "/private/userdata/%s-%02x%02x%02x%02x%02x%02x%02x%02x", basename(p),
-		digest[0], digest[1], digest[2], digest[3], digest[4], digest[5], digest[6], digest[7]);
-	free(p);
-	if(vfs_stat(userdata, &st) != 0)
-		vfs_mkdir(userdata, 0755);
-	xfs_mount(ctx, userdata, 1);
 
+	if(userdata)
+	{
+		sha1_hash(path, strlen(path), digest);
+		p = strdup(path);
+		sprintf(dir, "/private/userdata/%s-%02x%02x%02x%02x%02x%02x%02x%02x", basename(p),
+			digest[0], digest[1], digest[2], digest[3], digest[4], digest[5], digest[6], digest[7]);
+		free(p);
+		if(vfs_stat(dir, &st) != 0)
+			vfs_mkdir(dir, 0755);
+		xfs_mount(ctx, dir, 1);
+	}
 	return ctx;
 }
 

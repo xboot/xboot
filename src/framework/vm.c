@@ -28,6 +28,7 @@
 
 #include <xfs/xfs.h>
 #include <framework/luahelper.h>
+#include <framework/core/l-application.h>
 #include <framework/core/l-assets.h>
 #include <framework/core/l-class.h>
 #include <framework/core/l-display.h>
@@ -82,6 +83,7 @@ static void luaopen_glblibs(lua_State * L)
 		{ "Timer",					luaopen_timer },
 		{ "Stage",					luaopen_stage },
 		{ "Assets",					luaopen_assets },
+		{ "Application",			luaopen_application },
 		{ NULL,	NULL },
 	};
 	const luaL_Reg * lib;
@@ -319,7 +321,7 @@ static struct vmctx_t * vmctx_alloc(const char * path, const char * fb, const ch
 	if(!ctx)
 		return NULL;
 
-	ctx->xfs = xfs_alloc(path);
+	ctx->xfs = xfs_alloc(path, 1);
 	ctx->disp = display_alloc(fb);
 	ctx->ectx = event_context_alloc(input);
 	return ctx;

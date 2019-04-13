@@ -31,6 +31,24 @@
 extern unsigned char __romdisk_start;
 extern unsigned char __romdisk_end;
 
+static char * trim(char * s)
+{
+	char * e;
+
+	if(s)
+	{
+		while(isspace(*s))
+			s++;
+		if(*s == 0)
+			return s;
+		e = s + strlen(s) - 1;
+		while((e > s) && isspace(*e))
+			e--;
+		*(e + 1) = 0;
+	}
+	return s;
+}
+
 static void subsys_init_romdisk(void)
 {
 	char json[256];
@@ -48,13 +66,10 @@ static void subsys_init_rootfs(void)
 	vfs_mount("romdisk.0", "/", "cpio", MOUNT_RDONLY);
 	vfs_mount(NULL, "/sys", "sys", MOUNT_RDONLY);
 	vfs_mount(NULL, "/tmp", "ram", MOUNT_RW);
-	vfs_mount(NULL, "/storage" , "ram", MOUNT_RW);
-	vfs_mount(NULL, "/private" , "ram", MOUNT_RW);
-	vfs_mkdir("/private/application", 0755);
-	vfs_mkdir("/private/userdata", 0755);
+	vfs_mount(NULL, "/storage", "ram", MOUNT_RW);
 }
 
-static void subsys_init_dt(void)
+static void subsys_init_dtree(void)
 {
 	struct vfs_stat_t st;
 	char path[VFS_MAX_PATH];
@@ -88,10 +103,50 @@ static void subsys_init_dt(void)
 	free(json);
 }
 
+static void subsys_init_private(void)
+{
+	char * mtab = strdup(CONFIG_MOUNT_PRIVATE_DEVICE);
+	char * p, * r, * dev, * type;
+	int mounted = 0;
+
+	if(mtab)
+	{
+		p = mtab;
+		while((r = strsep(&p, ",;|\r\n")) != NULL)
+		{
+			if(strchr(r, ':'))
+			{
+				dev = trim(strsep(&r, ":"));
+				type = trim(r);
+				dev = (dev && strcmp(dev, "") != 0) ? dev : NULL;
+				type = (type && strcmp(type, "") != 0) ? type : NULL;
+				if(dev && type)
+				{
+					if(vfs_mount(dev, "/private", type, MOUNT_RW) >= 0)
+					{
+						LOG("Mount /private using '%s' device with '%s' filesystem", dev, type);
+						mounted = 1;
+						break;
+					}
+				}
+			}
+		}
+		free(mtab);
+	}
+	if(!mounted)
+	{
+		if(vfs_mount(NULL, "/private", "ram", MOUNT_RW) >= 0)
+			LOG("mount /private with 'ram' filesystem");
+	}
+	vfs_mkdir("/private/application", 0755);
+	vfs_mkdir("/private/userdata", 0755);
+}
+
 static __init void subsys_init(void)
 {
 	subsys_init_romdisk();
 	subsys_init_rootfs();
-	subsys_init_dt();
+	subsys_init_dtree();
+	subsys_init_private();
 }
 subsys_initcall(subsys_init);

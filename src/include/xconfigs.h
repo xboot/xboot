@@ -43,6 +43,10 @@ extern "C" {
 #define CONFIG_EVENT_FIFO_LENGTH			(8)
 #endif
 
+#if !defined(CONFIG_MOUNT_PRIVATE_DEVICE)
+#define CONFIG_MOUNT_PRIVATE_DEVICE			""
+#endif
+
 #if !defined(CONFIG_SHELL_TASK)
 #define CONFIG_SHELL_TASK					(1)
 #endif

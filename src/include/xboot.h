@@ -37,6 +37,7 @@ extern "C" {
 #include <io.h>
 #include <bcd.h>
 #include <div.h>
+#include <matrix.h>
 #include <list.h>
 #include <slist.h>
 #include <hmap.h>

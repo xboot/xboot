@@ -6,8 +6,6 @@ extern "C" {
 #endif
 
 #include <list.h>
-#include <cairo.h>
-#include <cairoint.h>
 #include <framework/luahelper.h>
 
 #define MT_DOBJECT	"__mt_dobject__"
@@ -99,8 +97,8 @@ struct ldobject_t {
 	int visible;
 	int touchable;
 	int mflag;
-	cairo_matrix_t local_matrix;
-	cairo_matrix_t global_matrix;
+	struct matrix_t local_matrix;
+	struct matrix_t global_matrix;
 
 	void (*draw)(lua_State * L, struct ldobject_t * o);
 	void * priv;

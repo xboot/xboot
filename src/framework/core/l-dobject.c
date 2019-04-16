@@ -43,9 +43,9 @@ enum {
 	MFLAG_GLOBAL_MATRIX				= (0x1 << 6),
 };
 
-static inline cairo_matrix_t * dobject_local_matrix(struct ldobject_t * o)
+static inline struct matrix_t * dobject_local_matrix(struct ldobject_t * o)
 {
-	cairo_matrix_t * m = &o->local_matrix;
+	struct matrix_t * m = &o->local_matrix;
 	if(o->mflag & MFLAG_LOCAL_MATRIX)
 	{
 		if((o->mflag & (MFLAG_TRANSLATE | MFLAG_ROTATE | MFLAG_SCALE | MFLAG_SKEW | MFLAG_ANCHOR)) == MFLAG_TRANSLATE)
@@ -95,16 +95,16 @@ static inline cairo_matrix_t * dobject_local_matrix(struct ldobject_t * o)
 	return m;
 }
 
-static inline cairo_matrix_t * dobject_global_matrix(struct ldobject_t * o)
+static inline struct matrix_t * dobject_global_matrix(struct ldobject_t * o)
 {
-	cairo_matrix_t * m = &o->global_matrix;
+	struct matrix_t * m = &o->global_matrix;
 	if(o->mflag & MFLAG_GLOBAL_MATRIX)
 	{
-		memcpy(m, dobject_local_matrix(o), sizeof(cairo_matrix_t));
+		memcpy(m, dobject_local_matrix(o), sizeof(struct matrix_t));
 		while(o->parent)
 		{
 			o = o->parent;
-			cairo_matrix_multiply(m, m, dobject_local_matrix(o));
+			matrix_multiply(m, m, dobject_local_matrix(o));
 		}
 		o->mflag &= ~MFLAG_GLOBAL_MATRIX;
 	}
@@ -681,7 +681,7 @@ static void dobject_draw_image(lua_State * L, struct ldobject_t * o)
 	struct limage_t * img = o->priv;
 	cairo_t * cr = disp->cr;
 	cairo_save(cr);
-	cairo_set_matrix(cr, dobject_global_matrix(o));
+	cairo_set_matrix(cr, (cairo_matrix_t *)dobject_global_matrix(o));
 	cairo_set_source_surface(cr, img->cs, 0, 0);
 	cairo_paint_with_alpha(cr, o->alpha);
 	cairo_restore(cr);
@@ -693,7 +693,7 @@ static void dobject_draw_ninepatch(lua_State * L, struct ldobject_t * o)
 	struct lninepatch_t * ninepatch = o->priv;
 	cairo_t * cr = disp->cr;
 	cairo_save(cr);
-	cairo_set_matrix(cr, dobject_global_matrix(o));
+	cairo_set_matrix(cr, (cairo_matrix_t *)dobject_global_matrix(o));
 	if(ninepatch->lt)
 	{
 		cairo_save(cr);
@@ -789,7 +789,7 @@ static void dobject_draw_shape(lua_State * L, struct ldobject_t * o)
 	struct lshape_t * shape = o->priv;
 	cairo_t * cr = disp->cr;
 	cairo_save(cr);
-	cairo_set_matrix(cr, dobject_global_matrix(o));
+	cairo_set_matrix(cr, (cairo_matrix_t *)dobject_global_matrix(o));
 	cairo_set_source_surface(cr, shape->cs, 0, 0);
 	cairo_paint_with_alpha(cr, o->alpha);
 	cairo_restore(cr);
@@ -799,12 +799,12 @@ static void dobject_draw_text(lua_State * L, struct ldobject_t * o)
 {
 	struct display_t * disp = ((struct vmctx_t *)luahelper_vmctx(L))->disp;
 	struct ltext_t * text = o->priv;
-	cairo_matrix_t * m = dobject_global_matrix(o);
+	struct matrix_t * m = dobject_global_matrix(o);
 	cairo_t * cr = disp->cr;
 	cairo_save(cr);
 	cairo_set_scaled_font(cr, text->font);
 	cairo_move_to(cr, m->x0, m->y0);
-	cairo_set_matrix(cr, m);
+	cairo_set_matrix(cr, (cairo_matrix_t *)m);
 	cairo_move_to(cr, 0, text->metric.height);
 	cairo_text_path(cr, text->utf8);
 	cairo_set_source(cr, text->pattern);
@@ -846,8 +846,8 @@ static int l_dobject_new(lua_State * L)
 	o->visible = 1;
 	o->touchable = 1;
 	o->mflag = 0;
-	cairo_matrix_init_identity(&o->local_matrix);
-	cairo_matrix_init_identity(&o->global_matrix);
+	matrix_init_identity(&o->local_matrix);
+	matrix_init_identity(&o->global_matrix);
 
 	if(luaL_testudata(L, 3, MT_IMAGE))
 	{
@@ -1731,7 +1731,7 @@ static int m_global_to_local(lua_State * L)
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
 	double nx, x = luaL_checknumber(L, 2);
 	double ny, y = luaL_checknumber(L, 3);
-	cairo_matrix_t * m = dobject_global_matrix(o);
+	struct matrix_t * m = dobject_global_matrix(o);
 	double id = 1.0 / (m->xx * m->yy - m->xy * m->yx);
 	nx = ((x - m->x0) * m->yy + (m->y0 - y) * m->xy) * id;
 	ny = ((y - m->y0) * m->xx + (m->x0 - x) * m->yx) * id;
@@ -1745,7 +1745,7 @@ static int m_local_to_global(lua_State * L)
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
 	double nx, x = luaL_checknumber(L, 2);
 	double ny, y = luaL_checknumber(L, 3);
-	cairo_matrix_t * m = dobject_global_matrix(o);
+	struct matrix_t * m = dobject_global_matrix(o);
 	nx = m->xx * x + m->xy * y + m->x0;
 	ny = m->yx * x + m->yy * y + m->y0;
 	lua_pushnumber(L, nx);
@@ -1857,7 +1857,7 @@ static int m_hit_test_point(lua_State * L)
 	{
 		double nx, x = luaL_checknumber(L, 2);
 		double ny, y = luaL_checknumber(L, 3);
-		cairo_matrix_t * m = dobject_global_matrix(o);
+		struct matrix_t * m = dobject_global_matrix(o);
 		double id = 1.0 / (m->xx * m->yy - m->xy * m->yx);
 		nx = ((x - m->x0) * m->yy + (m->y0 - y) * m->xy) * id;
 		ny = ((y - m->y0) * m->xx + (m->x0 - x) * m->yx) * id;
@@ -1897,7 +1897,7 @@ static int m_bounds(lua_State * L)
 	double y1 = 0;
 	double x2 = o->width;
 	double y2 = o->height;
-	_cairo_matrix_transform_bounding_box(dobject_global_matrix(o), &x1, &y1, &x2, &y2, NULL);
+	matrix_transform_bounds(dobject_global_matrix(o), &x1, &y1, &x2, &y2);
 	lua_pushnumber(L, x1);
 	lua_pushnumber(L, y1);
 	lua_pushnumber(L, x2 - x1);
@@ -1917,14 +1917,14 @@ static int m_draw(lua_State * L)
 		{
 			cairo_t * cr = disp->cr;
 			cairo_save(cr);
-			cairo_set_matrix(cr, dobject_global_matrix(o));
+			cairo_set_matrix(cr, (cairo_matrix_t *)dobject_global_matrix(o));
 			cairo_set_line_width(cr, 1);
 			cairo_rectangle(cr, 0, 0, o->width, o->height);
 			cairo_set_source_rgba(cr, 1, 0, 0, 0.6);
 			cairo_stroke(cr);
 			if((o->ctype != COLLIDER_TYPE_NONE) && o->touchable)
 			{
-				cairo_matrix_t m;
+				struct matrix_t m;
 				double x, y;
 				double w, h;
 				double r;
@@ -1944,7 +1944,7 @@ static int m_draw(lua_State * L)
 					y = o->hit.ellipse.y;
 					w = o->hit.ellipse.width;
 					h = o->hit.ellipse.height;
-					cairo_get_matrix(cr, &m);
+					cairo_get_matrix(cr, (cairo_matrix_t *)(&m));
 					cairo_translate(cr, x, y);
 					cairo_scale(cr, 1, h / w);
 					cairo_translate(cr, -x, -y);
@@ -1952,7 +1952,7 @@ static int m_draw(lua_State * L)
 					cairo_move_to(cr, x + w, y);
 					cairo_arc(cr, x, y, w, 0, M_PI * 2);
 					cairo_close_path(cr);
-					cairo_set_matrix(cr, &m);
+					cairo_set_matrix(cr, (cairo_matrix_t *)(&m));
 					break;
 				case COLLIDER_TYPE_RECTANGLE:
 					cairo_new_sub_path(cr);

@@ -135,8 +135,8 @@ static int m_pattern_set_filter(lua_State * L)
 static int m_pattern_set_matrix(lua_State * L)
 {
 	struct lpattern_t * pattern = luaL_checkudata(L, 1, MT_PATTERN);
-	cairo_matrix_t * matrix = luaL_checkudata(L, 2, MT_MATRIX);
-	cairo_pattern_set_matrix(pattern->pattern, matrix);
+	struct matrix_t * m = luaL_checkudata(L, 2, MT_MATRIX);
+	cairo_pattern_set_matrix(pattern->pattern, m);
 	lua_settop(L, 1);
 	return 1;
 }

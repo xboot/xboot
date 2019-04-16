@@ -60,15 +60,22 @@ void matrix_multiply(struct matrix_t * m,
 {
 	struct matrix_t t;
 
-	t.xx = m1->xx * m2->xx + m1->yx * m2->xy;
-	t.yx = m1->xx * m2->yx + m1->yx * m2->yy;
+	t.xx = m1->xx * m2->xx;
+	t.yx = 0.0;
+	t.xy = 0.0;
+	t.yy = m1->yy * m2->yy;
+	t.x0 = m1->x0 * m2->xx + m2->x0;
+	t.y0 = m1->y0 * m2->yy + m2->y0;
 
-	t.xy = m1->xy * m2->xx + m1->yy * m2->xy;
-	t.yy = m1->xy * m2->yx + m1->yy * m2->yy;
-
-	t.x0 = m1->x0 * m2->xx + m1->y0 * m2->xy + m2->x0;
-	t.y0 = m1->x0 * m2->yx + m1->y0 * m2->yy + m2->y0;
-
+	if(m1->yx != 0.0 || m1->xy != 0.0 || m2->yx != 0.0 || m2->xy != 0.0)
+	{
+		t.xx += m1->yx * m2->xy;
+		t.yx += m1->xx * m2->yx + m1->yx * m2->yy;
+		t.xy += m1->xy * m2->xx + m1->yy * m2->xy;
+		t.yy += m1->xy * m2->yx;
+		t.x0 += m1->y0 * m2->xy;
+		t.y0 += m1->x0 * m2->yx;
+	}
 	memcpy(m, &t, sizeof(struct matrix_t));
 }
 
@@ -119,26 +126,35 @@ void matrix_invert(struct matrix_t * m)
 
 void matrix_translate(struct matrix_t * m, double tx, double ty)
 {
-	struct matrix_t t;
-
-	matrix_init_translate(&t, tx, ty);
-	matrix_multiply(m, &t, m);
+	m->x0 += m->xx * tx + m->xy * ty;
+	m->y0 += m->yx * tx + m->yy * ty;
 }
 
 void matrix_scale(struct matrix_t * m, double sx, double sy)
 {
-	struct matrix_t t;
-
-	matrix_init_scale(&t, sx, sy);
-	matrix_multiply(m, &t, m);
+	m->xx *= sx;
+	m->yx *= sx;
+	m->xy *= sy;
+	m->yy *= sy;
 }
 
 void matrix_rotate(struct matrix_t * m, double r)
 {
-	struct matrix_t t;
+	double s = sin(r);
+	double c = cos(r);
+	double cxx = c * m->xx;
+	double cyx = c * m->yx;
+	double cxy = c * m->xy;
+	double cyy = c * m->yy;
+	double sxx = s * m->xx;
+	double syx = s * m->yx;
+	double sxy = s * m->xy;
+	double syy = s * m->yy;
 
-	matrix_init_rotate(&t, r);
-	matrix_multiply(m, &t, m);
+	m->xx = cxx + sxy;
+	m->yx = cyx + syy;
+	m->xy = cxy - sxx;
+	m->yy = cyy - syx;
 }
 
 void matrix_transform_distance(const struct matrix_t * m, double * dx, double * dy)

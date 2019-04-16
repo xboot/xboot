@@ -48,13 +48,7 @@ static inline struct matrix_t * dobject_local_matrix(struct ldobject_t * o)
 	struct matrix_t * m = &o->local_matrix;
 	if(o->mflag & MFLAG_LOCAL_MATRIX)
 	{
-		if((o->mflag & (MFLAG_TRANSLATE | MFLAG_ROTATE | MFLAG_SCALE | MFLAG_SKEW | MFLAG_ANCHOR)) == MFLAG_TRANSLATE)
-		{
-			m->xx = 1; m->yx = 0;
-			m->xy = 0; m->yy = 1;
-			m->x0 = o->x; m->y0 = o->y;
-		}
-		else
+		if(o->mflag & (MFLAG_ROTATE | MFLAG_SCALE | MFLAG_SKEW | MFLAG_ANCHOR))
 		{
 			if(o->mflag & (MFLAG_ROTATE | MFLAG_SKEW))
 			{
@@ -90,6 +84,12 @@ static inline struct matrix_t * dobject_local_matrix(struct ldobject_t * o)
 				m->y0 = o->y;
 			}
 		}
+		else
+		{
+			m->xx = 1; m->yx = 0;
+			m->xy = 0; m->yy = 1;
+			m->x0 = o->x; m->y0 = o->y;
+		}
 		o->mflag &= ~MFLAG_LOCAL_MATRIX;
 	}
 	return m;
@@ -97,14 +97,25 @@ static inline struct matrix_t * dobject_local_matrix(struct ldobject_t * o)
 
 static inline struct matrix_t * dobject_global_matrix(struct ldobject_t * o)
 {
-	struct matrix_t * m = &o->global_matrix;
+	struct matrix_t * t, * m = &o->global_matrix;
+	struct ldobject_t * p;
 	if(o->mflag & MFLAG_GLOBAL_MATRIX)
 	{
-		memcpy(m, dobject_local_matrix(o), sizeof(struct matrix_t));
-		while(o->parent)
+		p = o;
+		memcpy(m, dobject_local_matrix(p), sizeof(struct matrix_t));
+		while(p->parent)
 		{
-			o = o->parent;
-			matrix_multiply(m, m, dobject_local_matrix(o));
+			p = p->parent;
+			t = dobject_local_matrix(p);
+			if(p->mflag & (MFLAG_ROTATE | MFLAG_SCALE | MFLAG_SKEW))
+			{
+				matrix_multiply(m, m, t);
+			}
+			else
+			{
+				m->x0 += t->x0;
+				m->y0 += t->y0;
+			}
 		}
 		o->mflag &= ~MFLAG_GLOBAL_MATRIX;
 	}

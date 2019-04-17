@@ -117,8 +117,24 @@ static int m_pattern_add_color_stop(lua_State * L)
 static int m_pattern_set_extend(lua_State * L)
 {
 	struct lpattern_t * pattern = luaL_checkudata(L, 1, MT_PATTERN);
-	cairo_extend_t extend = (cairo_extend_t)luaL_checkinteger(L, 2);
-	cairo_pattern_set_extend(pattern->pattern, extend);
+	const char * type = luaL_optstring(L, 2, "none");
+	switch(shash(type))
+	{
+	case 0x7c9b47f5: /* "none" */
+		cairo_pattern_set_extend(pattern->pattern, CAIRO_EXTEND_NONE);
+		break;
+	case 0x192dec66: /* "repeat" */
+		cairo_pattern_set_extend(pattern->pattern, CAIRO_EXTEND_REPEAT);
+		break;
+	case 0x3e3a6a0a: /* "reflect" */
+		cairo_pattern_set_extend(pattern->pattern, CAIRO_EXTEND_REFLECT);
+		break;
+	case 0x0b889c3a: /* "pad" */
+		cairo_pattern_set_extend(pattern->pattern, CAIRO_EXTEND_PAD);
+		break;
+	default:
+		break;
+	}
 	lua_settop(L, 1);
 	return 1;
 }
@@ -126,8 +142,30 @@ static int m_pattern_set_extend(lua_State * L)
 static int m_pattern_set_filter(lua_State * L)
 {
 	struct lpattern_t * pattern = luaL_checkudata(L, 1, MT_PATTERN);
-	cairo_filter_t filter = (cairo_filter_t)luaL_checkinteger(L, 2);
-	cairo_pattern_set_filter(pattern->pattern, filter);
+	const char * type = luaL_optstring(L, 2, "fast");
+	switch(shash(type))
+	{
+	case 0x7c96aa13: /* "fast" */
+		cairo_pattern_set_filter(pattern->pattern, CAIRO_FILTER_FAST);
+		break;
+	case 0x7c97716e: /* "good" */
+		cairo_pattern_set_filter(pattern->pattern, CAIRO_FILTER_GOOD);
+		break;
+	case 0x7c948993: /* "best" */
+		cairo_pattern_set_filter(pattern->pattern, CAIRO_FILTER_BEST);
+		break;
+	case 0x09fa48d7: /* "nearest" */
+		cairo_pattern_set_filter(pattern->pattern, CAIRO_FILTER_NEAREST);
+		break;
+	case 0x8320f06b: /* "bilinear" */
+		cairo_pattern_set_filter(pattern->pattern, CAIRO_FILTER_BILINEAR);
+		break;
+	case 0xce4e6460: /* "gaussian" */
+		cairo_pattern_set_filter(pattern->pattern, CAIRO_FILTER_GAUSSIAN);
+		break;
+	default:
+		break;
+	}
 	lua_settop(L, 1);
 	return 1;
 }
@@ -154,18 +192,6 @@ static const luaL_Reg m_pattern[] = {
 int luaopen_pattern(lua_State * L)
 {
 	luaL_newlib(L, l_pattern);
-	/* cairo_extend_t */
-	luahelper_set_intfield(L, "EXTEND_NONE",		CAIRO_EXTEND_NONE);
-	luahelper_set_intfield(L, "EXTEND_REPEAT",		CAIRO_EXTEND_REPEAT);
-	luahelper_set_intfield(L, "EXTEND_REFLECT",		CAIRO_EXTEND_REFLECT);
-	luahelper_set_intfield(L, "EXTEND_PAD",			CAIRO_EXTEND_PAD);
-	/* cairo_filter_t */
-	luahelper_set_intfield(L, "FILTER_FAST",		CAIRO_FILTER_FAST);
-	luahelper_set_intfield(L, "FILTER_GOOD",		CAIRO_FILTER_GOOD);
-	luahelper_set_intfield(L, "FILTER_BEST",		CAIRO_FILTER_BEST);
-	luahelper_set_intfield(L, "FILTER_NEAREST",		CAIRO_FILTER_NEAREST);
-	luahelper_set_intfield(L, "FILTER_BILINEAR",	CAIRO_FILTER_BILINEAR);
-	luahelper_set_intfield(L, "FILTER_GAUSSIAN",	CAIRO_FILTER_GAUSSIAN);
 	luahelper_create_metatable(L, MT_PATTERN, m_pattern);
 	return 1;
 }

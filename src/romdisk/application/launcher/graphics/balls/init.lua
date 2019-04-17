@@ -9,7 +9,7 @@ function M:init(w, h)
 	local assets = assets
 
 	self:addChild(DisplayShape.new(w, h)
-		:setSource(Pattern.image(assets:loadImage("graphics/balls/bg.png")):setExtend(Pattern.EXTEND_REPEAT))
+		:setSource(Pattern.image(assets:loadImage("graphics/balls/bg.png")):setExtend("repeat"))
 		:paint())
 
 	self:addChild(Ball.new("graphics/balls/ball1.png", w, h))

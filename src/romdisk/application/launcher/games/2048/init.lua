@@ -8,7 +8,7 @@ function M:init(w, h)
 
 	local assets = assets
 	self:addChild(DisplayShape.new(w, h)
-		:setSource(Pattern.image(assets:loadImage("games/2048/images/bg.png")):setExtend(Pattern.EXTEND_REPEAT))
+		:setSource(Pattern.image(assets:loadImage("games/2048/images/bg.png")):setExtend("repeat"))
 		:paint())
 	self:setSize(w, h)
 	self:addChild(Game.new(w, h):setLayoutEnable(true))

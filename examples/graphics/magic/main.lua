@@ -4,7 +4,7 @@ local M_PI = math.pi
 local sw, sh = stage:getSize()
 
 stage:addChild(DisplayShape.new(sw, sh)
-		:setSource(Pattern.image(assets:loadImage("bg.png")):setExtend(Pattern.EXTEND_REPEAT))
+		:setSource(Pattern.image(assets:loadImage("bg.png")):setExtend("repeat"))
 		:paint())
 
 local a = assets:loadDisplay("planet-earth.png"):setPosition(sw / 2, sh / 2):setScale(0.5):setAnchor(0.5, 0.5)

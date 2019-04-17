@@ -99,6 +99,7 @@ struct ldobject_t {
 	int mflag;
 	struct matrix_t local_matrix;
 	struct matrix_t global_matrix;
+	struct rectangle_t global_bounds;
 
 	void (*draw)(lua_State * L, struct ldobject_t * o);
 	void * priv;

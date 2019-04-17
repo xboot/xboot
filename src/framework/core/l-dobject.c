@@ -41,6 +41,7 @@ enum {
 	MFLAG_ANCHOR					= (0x1 << 4),
 	MFLAG_LOCAL_MATRIX				= (0x1 << 5),
 	MFLAG_GLOBAL_MATRIX				= (0x1 << 6),
+	MFLAG_GLOBAL_BOUNDS				= (0x1 << 7),
 };
 
 static inline struct matrix_t * dobject_local_matrix(struct ldobject_t * o)
@@ -120,6 +121,23 @@ static inline struct matrix_t * dobject_global_matrix(struct ldobject_t * o)
 		o->mflag &= ~MFLAG_GLOBAL_MATRIX;
 	}
 	return m;
+}
+
+static inline struct rectangle_t * dobject_global_bounds(struct ldobject_t * o)
+{
+	struct rectangle_t * r = &o->global_bounds;
+	if(o->mflag & MFLAG_GLOBAL_BOUNDS)
+	{
+		r->x = 0;
+		r->y = 0;
+		r->w = o->width;
+		r->h = o->height;
+		matrix_transform_bounds(dobject_global_matrix(o), &r->x, &r->y, &r->w, &r->h);
+		r->w -= r->x;
+		r->h -= r->y;
+		o->mflag &= ~MFLAG_GLOBAL_BOUNDS;
+	}
+	return r;
 }
 
 enum layout_direction_t {
@@ -626,7 +644,7 @@ static void dobject_layout(struct ldobject_t * o)
 	{
 		if(dobject_layout_get_enable(pos))
 		{
-			pos->mflag = MFLAG_LOCAL_MATRIX | MFLAG_GLOBAL_MATRIX;
+			pos->mflag = MFLAG_LOCAL_MATRIX | MFLAG_GLOBAL_MATRIX | MFLAG_GLOBAL_BOUNDS;
 			pos->rotation = 0;
 			pos->skewx = 0;
 			pos->skewy = 0;
@@ -940,7 +958,7 @@ static int m_add_child(lua_State * L)
 			list_add_tail(&c->entry, &o->children);
 		else
 			list_add(&c->entry, &o->children);
-		dobject_mark_with_children(c, MFLAG_GLOBAL_MATRIX);
+		dobject_mark_with_children(c, MFLAG_GLOBAL_MATRIX | MFLAG_GLOBAL_BOUNDS);
 	}
 	return 0;
 }
@@ -953,7 +971,7 @@ static int m_remove_child(lua_State * L)
 	{
 		c->parent = NULL;
 		list_del_init(&c->entry);
-		dobject_mark_with_children(c, MFLAG_GLOBAL_MATRIX);
+		dobject_mark_with_children(c, MFLAG_GLOBAL_MATRIX | MFLAG_GLOBAL_BOUNDS);
 	}
 	return 0;
 }
@@ -980,7 +998,7 @@ static int m_set_width(lua_State * L)
 	o->width = luaL_checknumber(L, 2);
 	o->layout.width = NAN;
 	o->mflag |= MFLAG_LOCAL_MATRIX;
-	dobject_mark_with_children(o, MFLAG_GLOBAL_MATRIX);
+	dobject_mark_with_children(o, MFLAG_GLOBAL_MATRIX | MFLAG_GLOBAL_BOUNDS);
 	dobject_layout((o->parent && dobject_layout_get_enable(o)) ? o->parent : o);
 	return 0;
 }
@@ -998,7 +1016,7 @@ static int m_set_height(lua_State * L)
 	o->height = luaL_checknumber(L, 2);
 	o->layout.height = NAN;
 	o->mflag |= MFLAG_LOCAL_MATRIX;
-	dobject_mark_with_children(o, MFLAG_GLOBAL_MATRIX);
+	dobject_mark_with_children(o, MFLAG_GLOBAL_MATRIX | MFLAG_GLOBAL_BOUNDS);
 	dobject_layout((o->parent && dobject_layout_get_enable(o)) ? o->parent : o);
 	return 0;
 }
@@ -1018,7 +1036,7 @@ static int m_set_size(lua_State * L)
 	o->layout.width = NAN;
 	o->layout.height = NAN;
 	o->mflag |= MFLAG_LOCAL_MATRIX;
-	dobject_mark_with_children(o, MFLAG_GLOBAL_MATRIX);
+	dobject_mark_with_children(o, MFLAG_GLOBAL_MATRIX | MFLAG_GLOBAL_BOUNDS);
 	dobject_layout((o->parent && dobject_layout_get_enable(o)) ? o->parent : o);
 	return 0;
 }
@@ -1040,7 +1058,7 @@ static int m_set_x(lua_State * L)
 	else
 		o->mflag |= MFLAG_TRANSLATE;
 	o->mflag |= MFLAG_LOCAL_MATRIX;
-	dobject_mark_with_children(o, MFLAG_GLOBAL_MATRIX);
+	dobject_mark_with_children(o, MFLAG_GLOBAL_MATRIX | MFLAG_GLOBAL_BOUNDS);
 	return 0;
 }
 
@@ -1060,7 +1078,7 @@ static int m_set_y(lua_State * L)
 	else
 		o->mflag |= MFLAG_TRANSLATE;
 	o->mflag |= MFLAG_LOCAL_MATRIX;
-	dobject_mark_with_children(o, MFLAG_GLOBAL_MATRIX);
+	dobject_mark_with_children(o, MFLAG_GLOBAL_MATRIX | MFLAG_GLOBAL_BOUNDS);
 	return 0;
 }
 
@@ -1081,7 +1099,7 @@ static int m_set_position(lua_State * L)
 	else
 		o->mflag |= MFLAG_TRANSLATE;
 	o->mflag |= MFLAG_LOCAL_MATRIX;
-	dobject_mark_with_children(o, MFLAG_GLOBAL_MATRIX);
+	dobject_mark_with_children(o, MFLAG_GLOBAL_MATRIX | MFLAG_GLOBAL_BOUNDS);
 	return 0;
 }
 
@@ -1102,7 +1120,7 @@ static int m_set_rotation(lua_State * L)
 	else
 		o->mflag |= MFLAG_ROTATE;
 	o->mflag |= MFLAG_LOCAL_MATRIX;
-	dobject_mark_with_children(o, MFLAG_GLOBAL_MATRIX);
+	dobject_mark_with_children(o, MFLAG_GLOBAL_MATRIX | MFLAG_GLOBAL_BOUNDS);
 	return 0;
 }
 
@@ -1122,7 +1140,7 @@ static int m_set_scale_x(lua_State * L)
 	else
 		o->mflag |= MFLAG_SCALE;
 	o->mflag |= MFLAG_LOCAL_MATRIX;
-	dobject_mark_with_children(o, MFLAG_GLOBAL_MATRIX);
+	dobject_mark_with_children(o, MFLAG_GLOBAL_MATRIX | MFLAG_GLOBAL_BOUNDS);
 	return 0;
 }
 
@@ -1142,7 +1160,7 @@ static int m_set_scale_y(lua_State * L)
 	else
 		o->mflag |= MFLAG_SCALE;
 	o->mflag |= MFLAG_LOCAL_MATRIX;
-	dobject_mark_with_children(o, MFLAG_GLOBAL_MATRIX);
+	dobject_mark_with_children(o, MFLAG_GLOBAL_MATRIX | MFLAG_GLOBAL_BOUNDS);
 	return 0;
 }
 
@@ -1163,7 +1181,7 @@ static int m_set_scale(lua_State * L)
 	else
 		o->mflag |= MFLAG_SCALE;
 	o->mflag |= MFLAG_LOCAL_MATRIX;
-	dobject_mark_with_children(o, MFLAG_GLOBAL_MATRIX);
+	dobject_mark_with_children(o, MFLAG_GLOBAL_MATRIX | MFLAG_GLOBAL_BOUNDS);
 	return 0;
 }
 
@@ -1184,7 +1202,7 @@ static int m_set_skew_x(lua_State * L)
 	else
 		o->mflag |= MFLAG_SKEW;
 	o->mflag |= MFLAG_LOCAL_MATRIX;
-	dobject_mark_with_children(o, MFLAG_GLOBAL_MATRIX);
+	dobject_mark_with_children(o, MFLAG_GLOBAL_MATRIX | MFLAG_GLOBAL_BOUNDS);
 	return 0;
 }
 
@@ -1204,7 +1222,7 @@ static int m_set_skew_y(lua_State * L)
 	else
 		o->mflag |= MFLAG_SKEW;
 	o->mflag |= MFLAG_LOCAL_MATRIX;
-	dobject_mark_with_children(o, MFLAG_GLOBAL_MATRIX);
+	dobject_mark_with_children(o, MFLAG_GLOBAL_MATRIX | MFLAG_GLOBAL_BOUNDS);
 	return 0;
 }
 
@@ -1225,7 +1243,7 @@ static int m_set_skew(lua_State * L)
 	else
 		o->mflag |= MFLAG_SKEW;
 	o->mflag |= MFLAG_LOCAL_MATRIX;
-	dobject_mark_with_children(o, MFLAG_GLOBAL_MATRIX);
+	dobject_mark_with_children(o, MFLAG_GLOBAL_MATRIX | MFLAG_GLOBAL_BOUNDS);
 	return 0;
 }
 
@@ -1247,7 +1265,7 @@ static int m_set_archor(lua_State * L)
 	else
 		o->mflag |= MFLAG_ANCHOR;
 	o->mflag |= MFLAG_LOCAL_MATRIX;
-	dobject_mark_with_children(o, MFLAG_GLOBAL_MATRIX);
+	dobject_mark_with_children(o, MFLAG_GLOBAL_MATRIX | MFLAG_GLOBAL_BOUNDS);
 	return 0;
 }
 
@@ -1904,15 +1922,11 @@ static int m_hit_test_point(lua_State * L)
 static int m_bounds(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
-	double x1 = 0;
-	double y1 = 0;
-	double x2 = o->width;
-	double y2 = o->height;
-	matrix_transform_bounds(dobject_global_matrix(o), &x1, &y1, &x2, &y2);
-	lua_pushnumber(L, x1);
-	lua_pushnumber(L, y1);
-	lua_pushnumber(L, x2 - x1);
-	lua_pushnumber(L, y2 - y1);
+	struct rectangle_t * r = dobject_global_bounds(o);
+	lua_pushnumber(L, r->x);
+	lua_pushnumber(L, r->y);
+	lua_pushnumber(L, r->w);
+	lua_pushnumber(L, r->h);
 	return 4;
 }
 

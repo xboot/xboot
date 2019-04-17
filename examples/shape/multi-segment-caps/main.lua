@@ -10,7 +10,7 @@ local s = DisplayShape.new(stage:getSize())
 	:moveTo(50.0, 175.0)
 	:lineTo(200.0, 175.0)
 	:setLineWidth(30.0)
-	:setLineCap(Shape.LINE_CAP_ROUND)
+	:setLineCap("round")
 	:stroke()
 
 stage:addChild(s)

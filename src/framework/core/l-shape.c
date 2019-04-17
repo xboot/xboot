@@ -137,8 +137,99 @@ static int m_shape_close_path(lua_State * L)
 static int m_shape_set_operator(lua_State * L)
 {
 	struct lshape_t * shape = luaL_checkudata(L, 1, MT_SHAPE);
-	cairo_operator_t op = (cairo_operator_t)luaL_checkinteger(L, 2);
-	cairo_set_operator(shape->cr, op);
+	const char * type = luaL_optstring(L, 2, "over");
+	switch(shash(type))
+	{
+	case 0x0f3b6d8c: /* "clear" */
+		cairo_set_operator(shape->cr, CAIRO_OPERATOR_CLEAR);
+		break;
+	case 0x1c3aff76: /* "source" */
+		cairo_set_operator(shape->cr, CAIRO_OPERATOR_SOURCE);
+		break;
+	case 0x7c9bf101: /* "over" */
+		cairo_set_operator(shape->cr, CAIRO_OPERATOR_OVER);
+		break;
+	case 0x0059783c: /* "in" */
+		cairo_set_operator(shape->cr, CAIRO_OPERATOR_IN);
+		break;
+	case 0x0b889a9d: /* "out" */
+		cairo_set_operator(shape->cr, CAIRO_OPERATOR_OUT);
+		break;
+	case 0x7c943c79: /* "atop" */
+		cairo_set_operator(shape->cr, CAIRO_OPERATOR_ATOP);
+		break;
+	case 0x7c95a255: /* "dest" */
+		cairo_set_operator(shape->cr, CAIRO_OPERATOR_DEST);
+		break;
+	case 0x4f1e8f9e: /* "dest-over" */
+		cairo_set_operator(shape->cr, CAIRO_OPERATOR_DEST_OVER);
+		break;
+	case 0x0979cb99: /* "dest-in" */
+		cairo_set_operator(shape->cr, CAIRO_OPERATOR_DEST_IN);
+		break;
+	case 0x38b3599a: /* "dest-out" */
+		cairo_set_operator(shape->cr, CAIRO_OPERATOR_DEST_OUT);
+		break;
+	case 0x4f16db16: /* "dest-atop" */
+		cairo_set_operator(shape->cr, CAIRO_OPERATOR_DEST_ATOP);
+		break;
+	case 0x0b88c01e: /* "xor" */
+		cairo_set_operator(shape->cr, CAIRO_OPERATOR_XOR);
+		break;
+	case 0x0b885cce: /* "add" */
+		cairo_set_operator(shape->cr, CAIRO_OPERATOR_ADD);
+		break;
+	case 0xdf32bb4e: /* "saturate" */
+		cairo_set_operator(shape->cr, CAIRO_OPERATOR_SATURATE);
+		break;
+	case 0x46746f05: /* "multiply" */
+		cairo_set_operator(shape->cr, CAIRO_OPERATOR_MULTIPLY);
+		break;
+	case 0x1b5ffd45: /* "screen" */
+		cairo_set_operator(shape->cr, CAIRO_OPERATOR_SCREEN);
+		break;
+	case 0x7ee4b5c7: /* "overlay" */
+		cairo_set_operator(shape->cr, CAIRO_OPERATOR_OVERLAY);
+		break;
+	case 0xf83e845a: /* "darken" */
+		cairo_set_operator(shape->cr, CAIRO_OPERATOR_DARKEN);
+		break;
+	case 0x79c1c710: /* "lighten" */
+		cairo_set_operator(shape->cr, CAIRO_OPERATOR_LIGHTEN);
+		break;
+	case 0x8b9b2114: /* "color-dodge" */
+		cairo_set_operator(shape->cr, CAIRO_OPERATOR_COLOR_DODGE);
+		break;
+	case 0x61514968: /* "color-burn" */
+		cairo_set_operator(shape->cr, CAIRO_OPERATOR_COLOR_BURN);
+		break;
+	case 0xb5060029: /* "hard-light" */
+		cairo_set_operator(shape->cr, CAIRO_OPERATOR_HARD_LIGHT);
+		break;
+	case 0xfcd63c26: /* "soft-light" */
+		cairo_set_operator(shape->cr, CAIRO_OPERATOR_SOFT_LIGHT);
+		break;
+	case 0x52a92470: /* "difference" */
+		cairo_set_operator(shape->cr, CAIRO_OPERATOR_DIFFERENCE);
+		break;
+	case 0x6f499bff: /* "exclusion" */
+		cairo_set_operator(shape->cr, CAIRO_OPERATOR_EXCLUSION);
+		break;
+	case 0x5d66597b: /* "hsl-hue" */
+		cairo_set_operator(shape->cr, CAIRO_OPERATOR_HSL_HUE);
+		break;
+	case 0x1f46f0c3: /* "hsl-saturation" */
+		cairo_set_operator(shape->cr, CAIRO_OPERATOR_HSL_SATURATION);
+		break;
+	case 0x50050bf8: /* "hsl-color" */
+		cairo_set_operator(shape->cr, CAIRO_OPERATOR_HSL_COLOR);
+		break;
+	case 0x02d64a96: /* "hsl-luminosity" */
+		cairo_set_operator(shape->cr, CAIRO_OPERATOR_HSL_LUMINOSITY);
+		break;
+	default:
+		break;
+	}
 	return 0;
 }
 
@@ -180,16 +271,51 @@ static int m_shape_set_miter_limit(lua_State * L)
 static int m_shape_set_antialias(lua_State * L)
 {
 	struct lshape_t * shape = luaL_checkudata(L, 1, MT_SHAPE);
-	cairo_antialias_t antialias = (cairo_antialias_t)luaL_checkinteger(L, 2);
-	cairo_set_antialias(shape->cr, antialias);
+	const char * type = luaL_optstring(L, 2, "default");
+	switch(shash(type))
+	{
+	case 0x0885548a: /* "default" */
+		cairo_set_antialias(shape->cr, CAIRO_ANTIALIAS_DEFAULT);
+		break;
+	case 0x7c9b47f5: /* "none" */
+		cairo_set_antialias(shape->cr, CAIRO_ANTIALIAS_NONE);
+		break;
+	case 0x7c977c78: /* "gray" */
+		cairo_set_antialias(shape->cr, CAIRO_ANTIALIAS_GRAY);
+		break;
+	case 0xb8639511: /* "subpixel" */
+		cairo_set_antialias(shape->cr, CAIRO_ANTIALIAS_SUBPIXEL);
+		break;
+	case 0x7c96aa13: /* "fast" */
+		cairo_set_antialias(shape->cr, CAIRO_ANTIALIAS_FAST);
+		break;
+	case 0x7c97716e: /* "good" */
+		cairo_set_antialias(shape->cr, CAIRO_ANTIALIAS_GOOD);
+		break;
+	case 0x7c948993: /* "best" */
+		cairo_set_antialias(shape->cr, CAIRO_ANTIALIAS_BEST);
+		break;
+	default:
+		break;
+	}
 	return 0;
 }
 
 static int m_shape_set_fill_rule(lua_State * L)
 {
 	struct lshape_t * shape = luaL_checkudata(L, 1, MT_SHAPE);
-	cairo_fill_rule_t rule = (cairo_fill_rule_t)luaL_checkinteger(L, 2);
-	cairo_set_fill_rule(shape->cr, rule);
+	const char * type = luaL_optstring(L, 2, "winding");
+	switch(shash(type))
+	{
+	case 0xc8feafb5: /* "winding" */
+		cairo_set_fill_rule(shape->cr, CAIRO_FILL_RULE_WINDING);
+		break;
+	case 0x207e6937: /* "even-odd" */
+		cairo_set_fill_rule(shape->cr, CAIRO_FILL_RULE_EVEN_ODD);
+		break;
+	default:
+		break;
+	}
 	return 0;
 }
 
@@ -204,16 +330,42 @@ static int m_shape_set_line_width(lua_State * L)
 static int m_shape_set_line_cap(lua_State * L)
 {
 	struct lshape_t * shape = luaL_checkudata(L, 1, MT_SHAPE);
-	cairo_line_cap_t cap = (cairo_line_cap_t)luaL_checkinteger(L, 2);
-	cairo_set_line_cap(shape->cr, cap);
+	const char * type = luaL_optstring(L, 2, "butt");
+	switch(shash(type))
+	{
+	case 0x7c94cdc4: /* "butt" */
+		cairo_set_line_cap(shape->cr, CAIRO_LINE_CAP_BUTT);
+		break;
+	case 0x104cc7ed: /* "round" */
+		cairo_set_line_cap(shape->cr, CAIRO_LINE_CAP_ROUND);
+		break;
+	case 0x1c5eea16: /* "square" */
+		cairo_set_line_cap(shape->cr, CAIRO_LINE_CAP_SQUARE);
+		break;
+	default:
+		break;
+	}
 	return 0;
 }
 
 static int m_shape_set_line_join(lua_State * L)
 {
 	struct lshape_t * shape = luaL_checkudata(L, 1, MT_SHAPE);
-	cairo_line_join_t join = (cairo_line_join_t)luaL_checkinteger(L, 2);
-	cairo_set_line_join(shape->cr, join);
+	const char * type = luaL_optstring(L, 2, "miter");
+	switch(shash(type))
+	{
+	case 0x0feefdc6: /* "miter" */
+		cairo_set_line_join(shape->cr, CAIRO_LINE_JOIN_MITER);
+		break;
+	case 0x104cc7ed: /* "round" */
+		cairo_set_line_join(shape->cr, CAIRO_LINE_JOIN_ROUND);
+		break;
+	case 0x0f25c733: /* "bevel" */
+		cairo_set_line_join(shape->cr, CAIRO_LINE_JOIN_BEVEL);
+		break;
+	default:
+		break;
+	}
 	return 0;
 }
 
@@ -470,55 +622,6 @@ static const luaL_Reg m_shape[] = {
 int luaopen_shape(lua_State * L)
 {
 	luaL_newlib(L, l_shape);
-	/* cairo_operator_t */
-	luahelper_set_intfield(L, "OPERATOR_CLEAR",				CAIRO_OPERATOR_CLEAR);
-	luahelper_set_intfield(L, "OPERATOR_SOURCE",			CAIRO_OPERATOR_SOURCE);
-	luahelper_set_intfield(L, "OPERATOR_OVER",				CAIRO_OPERATOR_OVER);
-	luahelper_set_intfield(L, "OPERATOR_IN",				CAIRO_OPERATOR_IN);
-	luahelper_set_intfield(L, "OPERATOR_OUT",				CAIRO_OPERATOR_OUT);
-	luahelper_set_intfield(L, "OPERATOR_ATOP",				CAIRO_OPERATOR_ATOP);
-	luahelper_set_intfield(L, "OPERATOR_DEST",				CAIRO_OPERATOR_DEST);
-	luahelper_set_intfield(L, "OPERATOR_DEST_OVER",			CAIRO_OPERATOR_DEST_OVER);
-	luahelper_set_intfield(L, "OPERATOR_DEST_IN",			CAIRO_OPERATOR_DEST_IN);
-	luahelper_set_intfield(L, "OPERATOR_DEST_OUT",			CAIRO_OPERATOR_DEST_OUT);
-	luahelper_set_intfield(L, "OPERATOR_DEST_ATOP",			CAIRO_OPERATOR_DEST_ATOP);
-	luahelper_set_intfield(L, "OPERATOR_XOR",				CAIRO_OPERATOR_XOR);
-	luahelper_set_intfield(L, "OPERATOR_ADD",				CAIRO_OPERATOR_ADD);
-	luahelper_set_intfield(L, "OPERATOR_SATURATE",			CAIRO_OPERATOR_SATURATE);
-	luahelper_set_intfield(L, "OPERATOR_MULTIPLY",			CAIRO_OPERATOR_MULTIPLY);
-	luahelper_set_intfield(L, "OPERATOR_SCREEN",			CAIRO_OPERATOR_SCREEN);
-	luahelper_set_intfield(L, "OPERATOR_OVERLAY",			CAIRO_OPERATOR_OVERLAY);
-	luahelper_set_intfield(L, "OPERATOR_DARKEN",			CAIRO_OPERATOR_DARKEN);
-	luahelper_set_intfield(L, "OPERATOR_LIGHTEN",			CAIRO_OPERATOR_LIGHTEN);
-	luahelper_set_intfield(L, "OPERATOR_COLOR_DODGE",		CAIRO_OPERATOR_COLOR_DODGE);
-	luahelper_set_intfield(L, "OPERATOR_COLOR_BURN",		CAIRO_OPERATOR_COLOR_BURN);
-	luahelper_set_intfield(L, "OPERATOR_HARD_LIGHT", 		CAIRO_OPERATOR_HARD_LIGHT);
-	luahelper_set_intfield(L, "OPERATOR_SOFT_LIGHT",		CAIRO_OPERATOR_SOFT_LIGHT);
-	luahelper_set_intfield(L, "OPERATOR_DIFFERENCE",		CAIRO_OPERATOR_DIFFERENCE);
-	luahelper_set_intfield(L, "OPERATOR_EXCLUSION", 		CAIRO_OPERATOR_EXCLUSION);
-	luahelper_set_intfield(L, "OPERATOR_HSL_HUE",			CAIRO_OPERATOR_HSL_HUE);
-	luahelper_set_intfield(L, "OPERATOR_HSL_SATURATION",	CAIRO_OPERATOR_HSL_SATURATION);
-	luahelper_set_intfield(L, "OPERATOR_HSL_COLOR",			CAIRO_OPERATOR_HSL_COLOR);
-	luahelper_set_intfield(L, "OPERATOR_HSL_LUMINOSITY",	CAIRO_OPERATOR_HSL_LUMINOSITY);
-	/* cairo_antialias_t */
-	luahelper_set_intfield(L, "ANTIALIAS_DEFAULT",			CAIRO_ANTIALIAS_DEFAULT);
-	luahelper_set_intfield(L, "ANTIALIAS_NONE",				CAIRO_ANTIALIAS_NONE);
-	luahelper_set_intfield(L, "ANTIALIAS_GRAY",				CAIRO_ANTIALIAS_GRAY);
-	luahelper_set_intfield(L, "ANTIALIAS_SUBPIXEL",			CAIRO_ANTIALIAS_SUBPIXEL);
-	luahelper_set_intfield(L, "ANTIALIAS_FAST",				CAIRO_ANTIALIAS_FAST);
-	luahelper_set_intfield(L, "ANTIALIAS_GOOD",				CAIRO_ANTIALIAS_GOOD);
-	luahelper_set_intfield(L, "ANTIALIAS_BEST",				CAIRO_ANTIALIAS_BEST);
-    /* cairo_fill_rule_t */
-	luahelper_set_intfield(L, "FILL_RULE_WINDING",			CAIRO_FILL_RULE_WINDING);
-	luahelper_set_intfield(L, "FILL_RULE_EVEN_ODD",			CAIRO_FILL_RULE_EVEN_ODD);
-	/* cairo_line_cap_t */
-	luahelper_set_intfield(L, "LINE_CAP_BUTT",				CAIRO_LINE_CAP_BUTT);
-	luahelper_set_intfield(L, "LINE_CAP_ROUND",				CAIRO_LINE_CAP_ROUND);
-	luahelper_set_intfield(L, "LINE_CAP_SQUARE",			CAIRO_LINE_CAP_SQUARE);
-	/* cairo_line_join_t */
-	luahelper_set_intfield(L, "LINE_JOIN_MITER", 			CAIRO_LINE_JOIN_MITER);
-	luahelper_set_intfield(L, "LINE_JOIN_ROUND", 			CAIRO_LINE_JOIN_ROUND);
-	luahelper_set_intfield(L, "LINE_JOIN_BEVEL", 			CAIRO_LINE_JOIN_BEVEL);
 	luahelper_create_metatable(L, MT_SHAPE, m_shape);
 	return 1;
 }

@@ -877,6 +877,7 @@ static int l_dobject_new(lua_State * L)
 	o->mflag = 0;
 	matrix_init_identity(&o->local_matrix);
 	matrix_init_identity(&o->global_matrix);
+	rectangle_init(&o->global_bounds, o->x, o->y, o->width, o->height);
 
 	if(luaL_testudata(L, 3, MT_IMAGE))
 	{

@@ -45,4 +45,4 @@ local function onEnterFrame(d, e)
 	bluedot:setX(90 + b * 280)
 end
 
-stage:addEventListener(Event.ENTER_FRAME, onEnterFrame)
+stage:addEventListener("enter-frame", onEnterFrame)

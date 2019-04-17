@@ -12,13 +12,13 @@ function M:init(on, off)
 	self:addChild(self.off)
 	self:updateVisualState(self.ison)
 
-	self:addEventListener(Event.MOUSE_DOWN, self.onMouseDown, self)
-	self:addEventListener(Event.MOUSE_MOVE, self.onMouseMove, self)
-	self:addEventListener(Event.MOUSE_UP, self.onMouseUp, self)
+	self:addEventListener("mouse-down", self.onMouseDown, self)
+	self:addEventListener("mouse-move", self.onMouseMove, self)
+	self:addEventListener("mouse-up", self.onMouseUp, self)
 
-	self:addEventListener(Event.TOUCH_BEGIN, self.onTouchBegin, self)
-	self:addEventListener(Event.TOUCH_MOVE, self.onTouchMove, self)
-	self:addEventListener(Event.TOUCH_END, self.onTouchEnd, self)
+	self:addEventListener("touch-begin", self.onTouchBegin, self)
+	self:addEventListener("touch-move", self.onTouchMove, self)
+	self:addEventListener("touch-end", self.onTouchEnd, self)
 end
 
 function M:onMouseDown(e)

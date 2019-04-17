@@ -9,13 +9,13 @@ function M:init()
 		local img = DisplayImage.new("/romdisk/samples/images/" .. i ..".png", math.random(0, 800 - 100), math.random(0, 480 - 100))
 		img.alpha = 1
 	
-		img:addEventListener(Event.MOUSE_DOWN, self.onMouseDown, img)
-		img:addEventListener(Event.MOUSE_MOVE, self.onMouseMove, img)
-		img:addEventListener(Event.MOUSE_UP, self.onMouseUp, img)
+		img:addEventListener("mouse-down", self.onMouseDown, img)
+		img:addEventListener("mouse-move", self.onMouseMove, img)
+		img:addEventListener("mouse-up", self.onMouseUp, img)
 	
-		img:addEventListener(Event.TOUCH_BEGIN, self.onTouchBegin, img)
-		img:addEventListener(Event.TOUCH_MOVE, self.onTouchMove, img)
-		img:addEventListener(Event.TOUCH_END, self.onTouchEnd, img)
+		img:addEventListener("touch-begin", self.onTouchBegin, img)
+		img:addEventListener("touch-move", self.onTouchMove, img)
+		img:addEventListener("touch-end", self.onTouchEnd, img)
 	
 		self:addChild(img)
 	end

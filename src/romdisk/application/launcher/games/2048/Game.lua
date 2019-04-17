@@ -16,7 +16,7 @@ function M:init(w, h)
 		imageNormal = "games/2048/images/restartNormal.png",
 		imagePressed = "games/2048/images/restartPressed.png",
 		imageDisabled = "games/2048/images/restartDisabled.png"})
-		:addEventListener("Release", function(d, e) d:restart() end, self)
+		:addEventListener("release", function(d, e) d:restart() end, self)
 	self:addChild(button)
 
 	self.score = Score.new(0):setPosition(140, 50)
@@ -35,7 +35,7 @@ function M:init(w, h)
 	end
 	
 	self:restart()
-	self:addEventListener(Event.KEY_DOWN, self.onKeyDown)
+	self:addEventListener("key-down", self.onKeyDown)
 end
 
 function M:setSize(width, height)

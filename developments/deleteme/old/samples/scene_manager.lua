@@ -238,7 +238,7 @@ function M:init(scenes)
 	self.scenes = scenes
 	self.tweening = false
 --	self.transitionEventCatcher = Sprite.new()
-	self:addEventListener(Event.ENTER_FRAME, self.onEnterFrame, self)
+	self:addEventListener("enter-frame", self.onEnterFrame, self)
 end
 
 local stopwatch = Stopwatch.new()

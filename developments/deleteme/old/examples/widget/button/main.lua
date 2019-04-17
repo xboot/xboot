@@ -11,9 +11,9 @@ local btn = Widget.Button.new(up, down)
 btn:setPosition(100, 100)
 stage:addChild(btn)
 
--- Register to "Click" event
+-- Register to "click" event
 local count = 0
-btn:addEventListener("Click", function(d, e)
+btn:addEventListener("click", function(d, e)
 	count = count + 1
 	print("Button clicked " .. count .. " times")
 end, btn)

@@ -454,9 +454,9 @@ function M:animate(properties, duration, easing)
 				d.__stopwatch:reset()
 			end
 		else
-			d:dispatchEvent(Event.new(Event.ANIMATE_COMPLETE))
+			d:dispatchEvent(Event.new("animate-complete"))
 			if not next(d.__tweenlist) then
-				d:removeEventListener(Event.ENTER_FRAME, listener)
+				d:removeEventListener("enter-frame", listener)
 				d.__stopwatch = nil
 			end
 		end
@@ -479,7 +479,7 @@ function M:animate(properties, duration, easing)
 	table.insert(self.__tweenlist, tween)
 
 	if next(self.__tweenlist) and not self.__stopwatch then
-		self:addEventListener(Event.ENTER_FRAME, listener)
+		self:addEventListener("enter-frame", listener)
 		self.__stopwatch = Stopwatch.new()
 	end
 	return self

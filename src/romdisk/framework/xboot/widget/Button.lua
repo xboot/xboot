@@ -53,13 +53,13 @@ function M:init(option, name)
 	self:setText(self.opt.text)
 	self:updateVisualState()
 
-	self:addEventListener(Event.MOUSE_DOWN, self.onMouseDown)
-	self:addEventListener(Event.MOUSE_MOVE, self.onMouseMove)
-	self:addEventListener(Event.MOUSE_UP, self.onMouseUp)
+	self:addEventListener("mouse-down", self.onMouseDown)
+	self:addEventListener("mouse-move", self.onMouseMove)
+	self:addEventListener("mouse-up", self.onMouseUp)
 
-	self:addEventListener(Event.TOUCH_BEGIN, self.onTouchBegin)
-	self:addEventListener(Event.TOUCH_MOVE, self.onTouchMove)
-	self:addEventListener(Event.TOUCH_END, self.onTouchEnd)
+	self:addEventListener("touch-begin", self.onTouchBegin)
+	self:addEventListener("touch-move", self.onTouchMove)
+	self:addEventListener("touch-end", self.onTouchEnd)
 end
 
 function M:setWidth(width)
@@ -132,7 +132,7 @@ function M:onMouseDown(e)
 		self.touchid = -1
 		self.state = self.STATE_PRESSED
 		self:updateVisualState()
-		self:dispatchEvent(Event.new("Press"))
+		self:dispatchEvent(Event.new("press"))
 		e.stop = true
 	end
 end
@@ -143,7 +143,7 @@ function M:onMouseMove(e)
 			self.touchid = nil
 			self.state = self.STATE_NORMAL
 			self:updateVisualState()
-			self:dispatchEvent(Event.new("Release"))
+			self:dispatchEvent(Event.new("release"))
 		end
 		e.stop = true
 	end
@@ -155,8 +155,8 @@ function M:onMouseUp(e)
 			self.touchid = nil
 			self.state = self.STATE_NORMAL
 			self:updateVisualState()
-			self:dispatchEvent(Event.new("Release"))
-			self:dispatchEvent(Event.new("Click"))
+			self:dispatchEvent(Event.new("release"))
+			self:dispatchEvent(Event.new("click"))
 			e.stop = true
 		end
 	end
@@ -167,7 +167,7 @@ function M:onTouchBegin(e)
 		self.touchid = e.id
 		self.state = self.STATE_PRESSED
 		self:updateVisualState()
-		self:dispatchEvent(Event.new("Press"))
+		self:dispatchEvent(Event.new("press"))
 		e.stop = true
 	end
 end
@@ -178,7 +178,7 @@ function M:onTouchMove(e)
 			self.touchid = nil
 			self.state = self.STATE_NORMAL
 			self:updateVisualState()
-			self:dispatchEvent(Event.new("Release"))
+			self:dispatchEvent(Event.new("release"))
 		end
 		e.stop = true
 	end
@@ -190,8 +190,8 @@ function M:onTouchEnd(e)
 			self.touchid = nil
 			self.state = self.STATE_NORMAL
 			self:updateVisualState()
-			self:dispatchEvent(Event.new("Release"))
-			self:dispatchEvent(Event.new("Click"))
+			self:dispatchEvent(Event.new("release"))
+			self:dispatchEvent(Event.new("click"))
 			e.stop = true
 		end
 	end

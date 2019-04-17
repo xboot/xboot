@@ -46,13 +46,13 @@ function M:init(option, name)
 	self:setEnable(self.opt.enable)
 	self:updateVisualState()
 
-	self:addEventListener(Event.MOUSE_DOWN, self.onMouseDown)
-	self:addEventListener(Event.MOUSE_MOVE, self.onMouseMove)
-	self:addEventListener(Event.MOUSE_UP, self.onMouseUp)
+	self:addEventListener("mouse-down", self.onMouseDown)
+	self:addEventListener("mouse-move", self.onMouseMove)
+	self:addEventListener("mouse-up", self.onMouseUp)
 
-	self:addEventListener(Event.TOUCH_BEGIN, self.onTouchBegin)
-	self:addEventListener(Event.TOUCH_MOVE, self.onTouchMove)
-	self:addEventListener(Event.TOUCH_END, self.onTouchEnd)
+	self:addEventListener("touch-begin", self.onTouchBegin)
+	self:addEventListener("touch-move", self.onTouchMove)
+	self:addEventListener("touch-end", self.onTouchEnd)
 end
 
 function M:setSize(width, height)
@@ -112,7 +112,7 @@ function M:onMouseUp(e)
 		self.state = self.STATE_NORMAL
 		self.checked = not self.checked
 		self:updateVisualState()
-		self:dispatchEvent(Event.new("Change", {checked = self.checked}))
+		self:dispatchEvent(Event.new("change", {checked = self.checked}))
 		e.stop = true
 	end
 end
@@ -143,7 +143,7 @@ function M:onTouchEnd(e)
 		self.state = self.STATE_NORMAL
 		self.checked = not self.checked
 		self:updateVisualState()
-		self:dispatchEvent(Event.new("Change", {checked = self.checked}))
+		self:dispatchEvent(Event.new("change", {checked = self.checked}))
 		e.stop = true
 	end
 end

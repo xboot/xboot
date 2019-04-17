@@ -80,6 +80,6 @@ btn:setPosition(300, 100)
 stage:addChild(btn)
 
 -- Register to "btn" event
-btn:addEventListener("Click", function(d, e)
+btn:addEventListener("click", function(d, e)
 	print("Button down")
 end, btn)

@@ -14,7 +14,7 @@ function M:init(texture)
 	self:setX(math.random(0, 800 - 80))
 	self:setY(math.random(0, 480 - 80))
 
-	self:addEventListener(Event.ENTER_FRAME, self.onEnterFrame, self)
+	self:addEventListener("enter-frame", self.onEnterFrame, self)
 end
 
 function M:onEnterFrame(e)

@@ -19,7 +19,7 @@ function M:init()
 	self:setSize(self.imgWoodWidth * 2, self.imgWoodHeight * 2)
 	self.wood = DisplayImage.new(self.imgWood):setAnchor(0.5, 0.5):setPosition(self.imgWoodWidth, self.imgWoodHeight)
 	self:addChild(self.wood)
-	self:addEventListener(Event.ENTER_FRAME, self.onEnterFrame)
+	self:addEventListener("enter-frame", self.onEnterFrame)
 	self.knife = {}
 
 	self.rspeed = math.random(-360, 360) / 90

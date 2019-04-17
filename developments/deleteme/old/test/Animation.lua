@@ -10,7 +10,7 @@ function M:init(list, x, y)
 	self.subframe = 0
 	
 	self:addChild(self.anim[self.frame])
-	self:addEventListener(Event.ENTER_FRAME, self.onEnterFrame, self)
+	self:addEventListener("enter-frame", self.onEnterFrame, self)
 end
 
 function M:onEnterFrame()

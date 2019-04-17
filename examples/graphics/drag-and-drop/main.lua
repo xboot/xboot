@@ -76,12 +76,12 @@ for i = 1, 10 do
 	img.sy = img:getScaleY()
 	img.r = img:getRotation()
 
-	img:addEventListener(Event.MOUSE_DOWN, onMouseDown)
-	img:addEventListener(Event.MOUSE_MOVE, onMouseMove)
-	img:addEventListener(Event.MOUSE_UP, onMouseUp)
-	img:addEventListener(Event.TOUCH_BEGIN, onTouchBegin)
-	img:addEventListener(Event.TOUCH_MOVE, onTouchMove)
-	img:addEventListener(Event.TOUCH_END, onTouchEnd)
+	img:addEventListener("mouse-down", onMouseDown)
+	img:addEventListener("mouse-move", onMouseMove)
+	img:addEventListener("mouse-up", onMouseUp)
+	img:addEventListener("touch-begin", onTouchBegin)
+	img:addEventListener("touch-move", onTouchMove)
+	img:addEventListener("touch-end", onTouchEnd)
 
 	stage:addChild(img)
 end

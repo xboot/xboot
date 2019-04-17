@@ -12,12 +12,12 @@ function M:init(w, h)
 		:paint())
 
 	local cursor = assets:loadDisplay("graphics/cursor/cursor.png")
-		:addEventListener(Event.MOUSE_DOWN, function(d, e) d:setPosition(e.x, e.y) end)
-		:addEventListener(Event.MOUSE_MOVE, function(d, e) d:setPosition(e.x, e.y) end)
-		:addEventListener(Event.MOUSE_UP, function(d, e) d:setPosition(e.x, e.y) end)
-		:addEventListener(Event.TOUCH_BEGIN, function(d, e) d:setPosition(e.x, e.y) end)
-		:addEventListener(Event.TOUCH_MOVE, function(d, e) d:setPosition(e.x, e.y) end)
-		:addEventListener(Event.TOUCH_END, function(d, e) d:setPosition(e.x, e.y) end)
+		:addEventListener("mouse-down", function(d, e) d:setPosition(e.x, e.y) end)
+		:addEventListener("mouse-move", function(d, e) d:setPosition(e.x, e.y) end)
+		:addEventListener("mouse-up", function(d, e) d:setPosition(e.x, e.y) end)
+		:addEventListener("touch-begin", function(d, e) d:setPosition(e.x, e.y) end)
+		:addEventListener("touch-move", function(d, e) d:setPosition(e.x, e.y) end)
+		:addEventListener("touch-end", function(d, e) d:setPosition(e.x, e.y) end)
 	self:addChild(cursor)
 end
 

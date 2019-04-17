@@ -13,7 +13,7 @@ function M:init(w, h)
 		:paint())
 
 	local checkbox = CheckBox.new({x = 100, y = 100})
-		:addEventListener("Change", function(d, e) print("CheckBox changed:", e.checked) end)
+		:addEventListener("change", function(d, e) print("CheckBox changed:", e.checked) end)
 	self:addChild(checkbox)
 end
 

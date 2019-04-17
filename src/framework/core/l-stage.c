@@ -145,12 +145,12 @@ function M:loop()
 	local stopwatch = Stopwatch.new()
 
 	self:addTimer(Timer.new(1 / 60, 0, function(t)
-		self:render(Event.new(Event.ENTER_FRAME))
+		self:render(Event.new("enter-frame"))
 		display:present()
 		collectgarbage("step")
 	end))
 
-	self:addEventListener(Event.KEY_DOWN, function(d, e)
+	self:addEventListener("key-down", function(d, e)
 		if e.key == 10 then self:exit() end
 	end)
 

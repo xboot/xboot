@@ -61,14 +61,14 @@ function M:init(option, name)
 	self:setValue(self.opt.value)
 	self:updateVisualState()
 
-	self.buttonMinus:addEventListener("Click", function(d, e)
+	self.buttonMinus:addEventListener("click", function(d, e)
 		self:setValue(self:getValue() - 1)
-		self:dispatchEvent(Event.new("Change", {value = self.value}))
+		self:dispatchEvent(Event.new("change", {value = self.value}))
 	end)
 	
-	self.buttonPlus:addEventListener("Click", function(d, e)
+	self.buttonPlus:addEventListener("click", function(d, e)
 		self:setValue(self:getValue() + 1)
-		self:dispatchEvent(Event.new("Change", {value = self.value}))
+		self:dispatchEvent(Event.new("change", {value = self.value}))
 	end)
 end
 

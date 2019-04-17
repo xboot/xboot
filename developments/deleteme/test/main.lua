@@ -21,7 +21,7 @@ stage:addChild(w)
 
 -- Create the Button
 local button = Widget.Button.new({x = 200, y = 400, width = 100, height = 50})
-	:addEventListener("Click",
+	:addEventListener("click",
 	function(d, e)
 		print("Button [Click]")
 	end)

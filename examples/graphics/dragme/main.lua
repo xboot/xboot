@@ -66,12 +66,12 @@ for i = 1, 5 do
 		:stroke()
 		:setPosition(math.random(0, sw - 100), math.random(0, sh - 50))
 
-	shape:addEventListener(Event.MOUSE_DOWN, onMouseDown)
-	shape:addEventListener(Event.MOUSE_MOVE, onMouseMove)
-	shape:addEventListener(Event.MOUSE_UP, onMouseUp)
-	shape:addEventListener(Event.TOUCH_BEGIN, onTouchBegin)
-	shape:addEventListener(Event.TOUCH_MOVE, onTouchMove)
-	shape:addEventListener(Event.TOUCH_END, onTouchEnd)
+	shape:addEventListener("mouse-down", onMouseDown)
+	shape:addEventListener("mouse-move", onMouseMove)
+	shape:addEventListener("mouse-up", onMouseUp)
+	shape:addEventListener("touch-begin", onTouchBegin)
+	shape:addEventListener("touch-move", onTouchMove)
+	shape:addEventListener("touch-end", onTouchEnd)
 
 	stage:addChild(shape)
 end

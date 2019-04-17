@@ -31,6 +31,6 @@ local function onTouchEnd(d, e)
 	end
 end
 
-stage:addEventListener(Event.TOUCH_BEGIN, onTouchBegin)
-stage:addEventListener(Event.TOUCH_MOVE, onTouchMove)
-stage:addEventListener(Event.TOUCH_END, onTouchEnd)
+stage:addEventListener("touch-begin", onTouchBegin)
+stage:addEventListener("touch-move", onTouchMove)
+stage:addEventListener("touch-end", onTouchEnd)

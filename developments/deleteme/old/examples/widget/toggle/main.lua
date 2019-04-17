@@ -11,7 +11,7 @@ local tog = Widget.Toggle.new(on, off)
 tog:setPosition(100, 100)
 stage:addChild(tog)
 
--- Register to "Toggle" event
-tog:addEventListener("Toggle", function(d, e)
+-- Register to "toggle" event
+tog:addEventListener("toggle", function(d, e)
 	print("Toggle state ", e.info.state)
 end, tog)

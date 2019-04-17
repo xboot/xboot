@@ -15,14 +15,14 @@ function M:init()
 		imageNormal = "assets/images/clearNormal.png",
 		imagePressed = "assets/images/clearPressed.png",
 		imageDisabled = "assets/images/clearDisabled.png"})
-		:addEventListener("Release", function(d, e) d:clear() end, self)
+		:addEventListener("release", function(d, e) d:clear() end, self)
 	self:addChild(clearbutton)
 
 	local restartbutton = Button.new({x = 225, y = 90,
 		imageNormal = "assets/images/restartNormal.png",
 		imagePressed = "assets/images/restartPressed.png",
 		imageDisabled = "assets/images/restartDisabled.png"})
-		:addEventListener("Release", function(d, e) d:restart() end, self)
+		:addEventListener("release", function(d, e) d:restart() end, self)
 	self:addChild(restartbutton)
 
 	self.score = Score.new(0):setPosition(140, 50)
@@ -41,7 +41,7 @@ function M:init()
 	end
 	
 	self:restart()
-	self:addEventListener(Event.KEY_DOWN, self.onKeyDown)
+	self:addEventListener("key-down", self.onKeyDown)
 end
 
 function M:setSize(width, height)

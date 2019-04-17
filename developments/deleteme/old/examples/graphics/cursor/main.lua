@@ -1,12 +1,12 @@
 local background = DisplayImage.new(Texture.new("background.png"))
 
 local cursor = DisplayImage.new(Texture.new("cursor.png", 0, 0))
-cursor:addEventListener(Event.MOUSE_DOWN, function(d, e) d:setPosition(e.info.x, e.info.y) end, cursor)
-cursor:addEventListener(Event.MOUSE_MOVE, function(d, e) d:setPosition(e.info.x, e.info.y) end, cursor)
-cursor:addEventListener(Event.MOUSE_UP, function(d, e) d:setPosition(e.info.x, e.info.y) end, cursor)
-cursor:addEventListener(Event.TOUCH_BEGIN, function(d, e) d:setPosition(e.info.x, e.info.y) end, cursor)
-cursor:addEventListener(Event.TOUCH_MOVE, function(d, e) d:setPosition(e.info.x, e.info.y) end, cursor)
-cursor:addEventListener(Event.TOUCH_END, function(d, e) d:setPosition(e.info.x, e.info.y) end, cursor)
+cursor:addEventListener("mouse-down", function(d, e) d:setPosition(e.info.x, e.info.y) end, cursor)
+cursor:addEventListener("mouse-move", function(d, e) d:setPosition(e.info.x, e.info.y) end, cursor)
+cursor:addEventListener("mouse-up", function(d, e) d:setPosition(e.info.x, e.info.y) end, cursor)
+cursor:addEventListener("touch-begin", function(d, e) d:setPosition(e.info.x, e.info.y) end, cursor)
+cursor:addEventListener("touch-move", function(d, e) d:setPosition(e.info.x, e.info.y) end, cursor)
+cursor:addEventListener("touch-end", function(d, e) d:setPosition(e.info.x, e.info.y) end, cursor)
 
 stage:addChild(background)
 stage:addChild(cursor)

@@ -1,4 +1,4 @@
-local Toggle = require("Toggle")
+local Toggle = require("toggle")
 local Led = require("Led")
 
 local M = Class(DisplayObject)
@@ -20,7 +20,7 @@ function M:init(led)
 
 	self:addChild(self.uiled)
 	self:addChild(self.uitoggle)
-	self.uitoggle:addEventListener("Toggled", self.onToggled, self)
+	self.uitoggle:addEventListener("toggled", self.onToggled, self)
 end
 
 function M:onToggled(e)

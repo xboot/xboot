@@ -9,13 +9,13 @@ function M:init(on, off, state)
 	self.focus = nil
 	self:updateVisualState(self.state)
 
-	self:addEventListener(Event.MOUSE_DOWN, self.onMouseDown, self)
-	self:addEventListener(Event.MOUSE_MOVE, self.onMouseMove, self)
-	self:addEventListener(Event.MOUSE_UP, self.onMouseUp, self)
+	self:addEventListener("mouse-down", self.onMouseDown, self)
+	self:addEventListener("mouse-move", self.onMouseMove, self)
+	self:addEventListener("mouse-up", self.onMouseUp, self)
 
-	self:addEventListener(Event.TOUCH_BEGIN, self.onTouchBegin, self)
-	self:addEventListener(Event.TOUCH_MOVE, self.onTouchMove, self)
-	self:addEventListener(Event.TOUCH_END, self.onTouchEnd, self)
+	self:addEventListener("touch-begin", self.onTouchBegin, self)
+	self:addEventListener("touch-move", self.onTouchMove, self)
+	self:addEventListener("touch-end", self.onTouchEnd, self)
 end
 
 function M:setState(state)
@@ -34,7 +34,7 @@ function M:onMouseDown(e)
 		self.focus = 0
 		self.state = not self.state
 		self:updateVisualState(self.state)
-		self:dispatchEvent(Event.new("Toggle", {on = self.state}))
+		self:dispatchEvent(Event.new("toggle", {on = self.state}))
 		e:stopPropagation()
 	end
 end
@@ -60,7 +60,7 @@ function M:onTouchBegin(e)
 		self.focus = e.info.id
 		self.state = not self.state
 		self:updateVisualState(self.state)
-		self:dispatchEvent(Event.new("Toggle", {state = self.state}))
+		self:dispatchEvent(Event.new("toggle", {state = self.state}))
 		e:stopPropagation()
 	end
 end

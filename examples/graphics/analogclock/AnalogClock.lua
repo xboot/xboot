@@ -34,11 +34,16 @@ function M:init()
 	self:addChild(second)
 	self:addChild(oval)
 
+	local time = os.date("*t");
+	hour:animate({rotation = time.hour * 360 / 12 + time.min * 360 / (12 * 60) + time.sec * 360 / (12 * 60 * 60)}, 0.5, "cubic-in-out")
+	minute:animate({rotation = time.min * 360 / 60 + time.sec * 360 / (60 * 60)}, 0.5, "cubic-in-out")
+	second:animate({rotation = time.sec * 360 / 60}, 0.5, "cubic-in-out")
+
 	stage:addTimer(Timer.new(1, 0, function(t)
 		local time = os.date("*t");
 		hour:setRotation(time.hour * 360 / 12 + time.min * 360 / (12 * 60) + time.sec * 360 / (12 * 60 * 60))
 		minute:setRotation(time.min * 360 / 60 + time.sec * 360 / (60 * 60))
-		second:animate({rotation = (time.sec ~= 0) and time.sec * 360 / 60 or 60 * 360 / 60}, 0.6, "elastic-in-out")
+		second:setRotation(time.sec * 360 / 60)
 	end))
 end
 

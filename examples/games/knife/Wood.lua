@@ -35,13 +35,10 @@ function M:setSize(width, height)
 end
 
 function M:hitting()
-	local knife = DisplayImage.new(self.imgKnife):setAnchor(0.5, 0):setPosition(self.imgWoodWidth, self.imgWoodHeight):setRotation(360 - self:getRotation())
+	local knife = DisplayImage.new(self.imgKnife):setAnchor(0.5, 0):setPosition(self.imgWoodWidth, self.imgWoodHeight):setRotation(-self:getRotation())
 	for i, v in ipairs(self.knife) do
-		local angle = math.abs(v:getRotation() - knife:getRotation())
-		if angle > 180 then
-			angle = angle - 180
-		end
-		if angle < 10 then
+		local angle = math.abs((v:getRotation() - knife:getRotation()) % 360)
+		if angle < 18 then
 			return true
 		end
 	end

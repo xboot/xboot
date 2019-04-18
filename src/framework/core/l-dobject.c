@@ -55,41 +55,41 @@ static inline struct matrix_t * dobject_local_matrix(struct ldobject_t * o)
 			{
 				double rx = o->rotation + o->skewy;
 				double ry = o->rotation - o->skewx;
-				m->xx = cos(rx);
-				m->yx = sin(rx);
-				m->xy = -sin(ry);
-				m->yy = cos(ry);
+				m->a = cos(rx);
+				m->b = sin(rx);
+				m->c = -sin(ry);
+				m->d = cos(ry);
 				if(o->mflag & MFLAG_SCALE)
 				{
-					m->xx *= o->scalex;
-					m->yx *= o->scalex;
-					m->xy *= o->scaley;
-					m->yy *= o->scaley;
+					m->a *= o->scalex;
+					m->b *= o->scalex;
+					m->c *= o->scaley;
+					m->d *= o->scaley;
 				}
 			}
 			else
 			{
-				m->xx = o->scalex; m->yx = 0;
-				m->xy = 0; m->yy = o->scaley;
+				m->a = o->scalex; m->b = 0;
+				m->c = 0; m->d = o->scaley;
 			}
 			if(o->mflag & MFLAG_ANCHOR)
 			{
 				double anchorx = o->anchorx * o->width;
 				double anchory = o->anchory * o->height;
-				m->x0 = o->x - (anchorx * m->xx + anchory * m->xy);
-				m->y0 = o->y - (anchorx * m->yx + anchory * m->yy);
+				m->tx = o->x - (anchorx * m->a + anchory * m->c);
+				m->ty = o->y - (anchorx * m->b + anchory * m->d);
 			}
 			else
 			{
-				m->x0 = o->x;
-				m->y0 = o->y;
+				m->tx = o->x;
+				m->ty = o->y;
 			}
 		}
 		else
 		{
-			m->xx = 1; m->yx = 0;
-			m->xy = 0; m->yy = 1;
-			m->x0 = o->x; m->y0 = o->y;
+			m->a = 1; m->b = 0;
+			m->c = 0; m->d = 1;
+			m->tx = o->x; m->ty = o->y;
 		}
 		o->mflag &= ~MFLAG_LOCAL_MATRIX;
 	}
@@ -114,8 +114,8 @@ static inline struct matrix_t * dobject_global_matrix(struct ldobject_t * o)
 			}
 			else
 			{
-				m->x0 += t->x0;
-				m->y0 += t->y0;
+				m->tx += t->tx;
+				m->ty += t->ty;
 			}
 		}
 		o->mflag &= ~MFLAG_GLOBAL_MATRIX;
@@ -832,7 +832,7 @@ static void dobject_draw_text(lua_State * L, struct ldobject_t * o)
 	cairo_t * cr = disp->cr;
 	cairo_save(cr);
 	cairo_set_scaled_font(cr, text->font);
-	cairo_move_to(cr, m->x0, m->y0);
+	cairo_move_to(cr, m->tx, m->ty);
 	cairo_set_matrix(cr, (cairo_matrix_t *)m);
 	cairo_move_to(cr, 0, text->metric.height);
 	cairo_text_path(cr, text->utf8);
@@ -1762,9 +1762,9 @@ static int m_global_to_local(lua_State * L)
 	double nx, x = luaL_checknumber(L, 2);
 	double ny, y = luaL_checknumber(L, 3);
 	struct matrix_t * m = dobject_global_matrix(o);
-	double id = 1.0 / (m->xx * m->yy - m->xy * m->yx);
-	nx = ((x - m->x0) * m->yy + (m->y0 - y) * m->xy) * id;
-	ny = ((y - m->y0) * m->xx + (m->x0 - x) * m->yx) * id;
+	double id = 1.0 / (m->a * m->d - m->c * m->b);
+	nx = ((x - m->tx) * m->d + (m->ty - y) * m->c) * id;
+	ny = ((y - m->ty) * m->a + (m->tx - x) * m->b) * id;
 	lua_pushnumber(L, nx);
 	lua_pushnumber(L, ny);
 	return 2;
@@ -1776,8 +1776,8 @@ static int m_local_to_global(lua_State * L)
 	double nx, x = luaL_checknumber(L, 2);
 	double ny, y = luaL_checknumber(L, 3);
 	struct matrix_t * m = dobject_global_matrix(o);
-	nx = m->xx * x + m->xy * y + m->x0;
-	ny = m->yx * x + m->yy * y + m->y0;
+	nx = m->a * x + m->c * y + m->tx;
+	ny = m->b * x + m->d * y + m->ty;
 	lua_pushnumber(L, nx);
 	lua_pushnumber(L, ny);
 	return 2;
@@ -1888,9 +1888,9 @@ static int m_hit_test_point(lua_State * L)
 		double nx, x = luaL_checknumber(L, 2);
 		double ny, y = luaL_checknumber(L, 3);
 		struct matrix_t * m = dobject_global_matrix(o);
-		double id = 1.0 / (m->xx * m->yy - m->xy * m->yx);
-		nx = ((x - m->x0) * m->yy + (m->y0 - y) * m->xy) * id;
-		ny = ((y - m->y0) * m->xx + (m->x0 - x) * m->yx) * id;
+		double id = 1.0 / (m->a * m->d - m->c * m->b);
+		nx = ((x - m->tx) * m->d + (m->ty - y) * m->c) * id;
+		ny = ((y - m->ty) * m->a + (m->tx - x) * m->b) * id;
 		switch(o->ctype)
 		{
 		case COLLIDER_TYPE_NONE:

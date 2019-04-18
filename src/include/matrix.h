@@ -6,17 +6,17 @@ extern "C" {
 #endif
 
 /*
- * | [xx] [yx] [0] |
- * | [xy] [yy] [0] |
- * | [x0] [y0] [1] |
+ * | [a]  [b]  [0] |
+ * | [c]  [d]  [0] |
+ * | [tx] [ty] [1] |
  */
 struct matrix_t {
-    double xx; double yx;
-    double xy; double yy;
-    double x0; double y0;
+    double a; double b;
+    double c; double d;
+    double tx; double ty;
 };
 
-void matrix_init(struct matrix_t * m, double xx, double yx, double xy, double yy, double x0, double y0);
+void matrix_init(struct matrix_t * m, double a, double b, double c, double d, double tx, double ty);
 void matrix_init_identity(struct matrix_t * m);
 void matrix_init_translate(struct matrix_t * m, double tx, double ty);
 void matrix_init_scale(struct matrix_t * m, double sx, double sy);

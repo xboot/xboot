@@ -35,12 +35,12 @@ static int l_matrix_new(lua_State * L)
 
 	if(lua_istable(L, 1) && lua_rawlen(L, 1) == 6)
 	{
-		lua_rawgeti(L, 1, 1); m->xx = lua_tonumber(L, -1); lua_pop(L, 1);
-		lua_rawgeti(L, 1, 2); m->yx = lua_tonumber(L, -1); lua_pop(L, 1);
-		lua_rawgeti(L, 1, 3); m->xy = lua_tonumber(L, -1); lua_pop(L, 1);
-		lua_rawgeti(L, 1, 4); m->yy = lua_tonumber(L, -1); lua_pop(L, 1);
-		lua_rawgeti(L, 1, 5); m->x0 = lua_tonumber(L, -1); lua_pop(L, 1);
-		lua_rawgeti(L, 1, 6); m->y0 = lua_tonumber(L, -1); lua_pop(L, 1);
+		lua_rawgeti(L, 1, 1); m->a = lua_tonumber(L, -1); lua_pop(L, 1);
+		lua_rawgeti(L, 1, 2); m->b = lua_tonumber(L, -1); lua_pop(L, 1);
+		lua_rawgeti(L, 1, 3); m->c = lua_tonumber(L, -1); lua_pop(L, 1);
+		lua_rawgeti(L, 1, 4); m->d = lua_tonumber(L, -1); lua_pop(L, 1);
+		lua_rawgeti(L, 1, 5); m->tx = lua_tonumber(L, -1); lua_pop(L, 1);
+		lua_rawgeti(L, 1, 6); m->ty = lua_tonumber(L, -1); lua_pop(L, 1);
 	}
 	else if(luaL_testudata(L, 1, MT_MATRIX))
 		memcpy(m, lua_touserdata(L, 1), sizeof(struct matrix_t));
@@ -58,7 +58,7 @@ static const luaL_Reg l_matrix[] = {
 static int m_matrix_tostring(lua_State * L)
 {
 	struct matrix_t * m = luaL_checkudata(L, 1, MT_MATRIX);
-	lua_pushfstring(L, "matrix(%f,%f,%f,%f,%f,%f)", m->xx, m->yx, m->xy, m->yy, m->x0, m->y0);
+	lua_pushfstring(L, "matrix(%f,%f,%f,%f,%f,%f)", m->a, m->b, m->c, m->d, m->tx, m->ty);
 	return 1;
 }
 

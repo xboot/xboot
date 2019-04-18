@@ -1128,7 +1128,7 @@ static int m_set_rotation(lua_State * L)
 static int m_get_rotation(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
-	lua_pushnumber(L, fmod(o->rotation / (M_PI / 180.0), 360.0));
+	lua_pushnumber(L, o->rotation * (180.0 / M_PI));
 	return 1;
 }
 
@@ -1210,7 +1210,7 @@ static int m_set_skew_x(lua_State * L)
 static int m_get_skew_x(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
-	lua_pushnumber(L, o->skewx);
+	lua_pushnumber(L, o->skewx * (180.0 / M_PI));
 	return 1;
 }
 
@@ -1230,7 +1230,7 @@ static int m_set_skew_y(lua_State * L)
 static int m_get_skew_y(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
-	lua_pushnumber(L, o->skewy);
+	lua_pushnumber(L, o->skewy * (180.0 / M_PI));
 	return 1;
 }
 
@@ -1251,8 +1251,8 @@ static int m_set_skew(lua_State * L)
 static int m_get_skew(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
-	lua_pushnumber(L, fmod(o->skewx / (M_PI / 180.0), 360.0));
-	lua_pushnumber(L, fmod(o->skewy / (M_PI / 180.0), 360.0));
+	lua_pushnumber(L, o->skewx * (180.0 / M_PI));
+	lua_pushnumber(L, o->skewy * (180.0 / M_PI));
 	return 2;
 }
 

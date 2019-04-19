@@ -493,8 +493,8 @@ function M:dispatch(event)
 	self:dispatchEvent(event)
 end
 
-function M:render()
-	self.__dobj:render()
+function M:render(display)
+	self.__dobj:render(display)
 end
 
 return M

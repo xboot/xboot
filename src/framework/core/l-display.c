@@ -111,13 +111,6 @@ static int m_display_snapshot(lua_State * L)
 	return 1;
 }
 
-static int m_display_present(lua_State * L)
-{
-	struct display_t * disp = luaL_checkudata(L, 1, MT_DISPLAY);
-	display_present(disp);
-	return 0;
-}
-
 static const luaL_Reg m_display[] = {
 	{"getSize",			m_display_get_size},
 	{"getPhysicalSize",	m_display_get_physical_size},
@@ -127,7 +120,6 @@ static const luaL_Reg m_display[] = {
 	{"showobj",			m_display_showobj},
 	{"showfps",			m_display_showfps},
 	{"snapshot",		m_display_snapshot},
-	{"present",			m_display_present},
 	{NULL,				NULL}
 };
 

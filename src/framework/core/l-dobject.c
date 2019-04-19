@@ -31,6 +31,7 @@
 #include <framework/core/l-ninepatch.h>
 #include <framework/core/l-shape.h>
 #include <framework/core/l-text.h>
+#include <framework/core/l-display.h>
 #include <framework/core/l-dobject.h>
 
 enum {
@@ -704,7 +705,7 @@ static void dobject_layout(struct ldobject_t * o)
 	}
 }
 
-static void dobject_draw_image(struct display_t * disp, struct ldobject_t * o)
+static void dobject_draw_image(struct ldobject_t * o, struct display_t * disp)
 {
 	struct limage_t * img = o->priv;
 	cairo_t * cr = disp->cr;
@@ -715,7 +716,7 @@ static void dobject_draw_image(struct display_t * disp, struct ldobject_t * o)
 	cairo_restore(cr);
 }
 
-static void dobject_draw_ninepatch(struct display_t * disp, struct ldobject_t * o)
+static void dobject_draw_ninepatch(struct ldobject_t * o, struct display_t * disp)
 {
 	struct lninepatch_t * ninepatch = o->priv;
 	cairo_t * cr = disp->cr;
@@ -810,7 +811,7 @@ static void dobject_draw_ninepatch(struct display_t * disp, struct ldobject_t * 
 	cairo_restore(cr);
 }
 
-static void dobject_draw_shape(struct display_t * disp, struct ldobject_t * o)
+static void dobject_draw_shape(struct ldobject_t * o, struct display_t * disp)
 {
 	struct lshape_t * shape = o->priv;
 	cairo_t * cr = disp->cr;
@@ -821,7 +822,7 @@ static void dobject_draw_shape(struct display_t * disp, struct ldobject_t * o)
 	cairo_restore(cr);
 }
 
-static void dobject_draw_text(struct display_t * disp, struct ldobject_t * o)
+static void dobject_draw_text(struct ldobject_t * o, struct display_t * disp)
 {
 	struct ltext_t * text = o->priv;
 	struct matrix_t * m = dobject_global_matrix(o);
@@ -1927,14 +1928,14 @@ static int m_bounds(lua_State * L)
 	return 4;
 }
 
-static void dobject_render(struct display_t * disp, struct ldobject_t * o)
+static void dobject_draw(struct ldobject_t * o, struct display_t * disp)
 {
 	struct ldobject_t * pos;
 
 	if(o->visible)
 	{
 		if(o->draw)
-			o->draw(disp, o);
+			o->draw(o, disp);
 		if(disp->showobj)
 		{
 			cairo_t * cr = disp->cr;
@@ -2021,16 +2022,16 @@ static void dobject_render(struct display_t * disp, struct ldobject_t * o)
 
 		list_for_each_entry(pos, &o->children, entry)
 		{
-			dobject_render(disp, pos);
+			dobject_draw(pos, disp);
 		}
 	}
 }
 
 static int m_render(lua_State * L)
 {
-	struct display_t * disp = ((struct vmctx_t *)luahelper_vmctx(L))->disp;
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
-	dobject_render(disp, o);
+	struct display_t * disp = luaL_checkudata(L, 2, MT_DISPLAY);
+	display_present(disp, o, (void (*)(void *, struct display_t *))dobject_draw);
 	return 0;
 }
 

@@ -146,8 +146,7 @@ function M:loop()
 
 	self:addTimer(Timer.new(1 / 60, 0, function(t)
 		self:dispatch(Event.new("enter-frame"))
-		self:render()
-		display:present()
+		self:render(display)
 		collectgarbage("step")
 	end))
 

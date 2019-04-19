@@ -142,7 +142,7 @@ static inline int display_get_showfps(struct display_t * disp)
 
 struct display_t * display_alloc(const char * fb);
 void display_free(struct display_t * disp);
-void display_present(struct display_t * disp);
+void display_present(struct display_t * disp, void * o, void (*draw)(void *, struct display_t *));
 
 #ifdef __cplusplus
 }

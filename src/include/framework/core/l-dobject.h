@@ -102,7 +102,7 @@ struct ldobject_t {
 	struct matrix_t global_matrix;
 	struct rectangle_t global_bounds;
 
-	void (*draw)(struct display_t * disp, struct ldobject_t * o);
+	void (*draw)(struct ldobject_t * o, struct display_t * disp);
 	void * priv;
 };
 

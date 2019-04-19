@@ -191,12 +191,23 @@ void display_free(struct display_t * disp)
 	free(disp);
 }
 
-void display_present(struct display_t * disp)
+void display_present(struct display_t * disp, void * o, void (*draw)(void *, struct display_t *))
 {
 	cairo_t * cr;
 	if(disp)
 	{
 		cr = disp->cr;
+		cairo_reset_clip(cr);
+		cairo_rectangle(cr, 0, 0, display_get_width(disp), display_get_height(disp));
+		cairo_clip(cr);
+		cairo_save(cr);
+		cairo_set_source_rgb(cr, 1, 1, 1);
+		cairo_set_operator(cr, CAIRO_OPERATOR_SOURCE);
+		cairo_paint(cr);
+		cairo_restore(cr);
+
+		draw(o, disp);
+
 		if(disp->showfps)
 		{
 			char buf[32];
@@ -222,10 +233,5 @@ void display_present(struct display_t * disp)
 			cairo_restore(cr);
 		}
 		cairo_xboot_surface_present(disp->cs, NULL, 0);
-		cairo_save(cr);
-		cairo_set_source_rgb(cr, 1, 1, 1);
-		cairo_set_operator(cr, CAIRO_OPERATOR_SOURCE);
-		cairo_paint(cr);
-		cairo_restore(cr);
 	}
 }

@@ -39,31 +39,31 @@ local DisplayNinepatch = DisplayNinepatch
 local M = Class()
 
 function M:init()
-	self.images = {}
-	self.fonts = {}
-	self.themes = {}
+	self.__images = {}
+	self.__fonts = {}
+	self.__themes = {}
 end
 
 function M:loadImage(name)
 	if type(name) == "string" then
-		if not self.images[name] and Xfs.isfile(name) then
-			self.images[name] = Image.new(name)
+		if not self.__images[name] and Xfs.isfile(name) then
+			self.__images[name] = Image.new(name)
 		end
-		return self.images[name]
+		return self.__images[name]
 	end
 	return nil
 end
 
 function M:loadFont(family, size)
 	if type(family) == "string" then
-		if not self.fonts[family] then
-			self.fonts[family] = {}
+		if not self.__fonts[family] then
+			self.__fonts[family] = {}
 		end
 		local size = size or 1
-		if not self.fonts[family][size] and Xfs.isfile(family) then
-			self.fonts[family][size] = Font.new(family, size)
+		if not self.__fonts[family][size] and Xfs.isfile(family) then
+			self.__fonts[family][size] = Font.new(family, size)
 		end
-		return self.fonts[family][size]
+		return self.__fonts[family][size]
 	end
 	return nil
 end
@@ -71,26 +71,26 @@ end
 function M:loadTheme(name)
 	local default = "assets/themes/default"
 	local name = type(name) == "string" and name or default
-	if not self.themes[name] then
+	if not self.__themes[name] then
 		if Xfs.isdir(name) then
-			self.themes[name] = require(name)
+			self.__themes[name] = require(name)
 		end
-		if not self.themes[name] then
+		if not self.__themes[name] then
 			name = "assets/themes/" .. name
 			if Xfs.isdir(name) then
-				self.themes[name] = require(name)
+				self.__themes[name] = require(name)
 			end
-			if not self.themes[name] then
-				if not self.themes[default] then
+			if not self.__themes[name] then
+				if not self.__themes[default] then
 					if Xfs.isdir(default) then
-						self.themes[default] = require(default)
+						self.__themes[default] = require(default)
 					end
 				end
-				return self.themes[default]
+				return self.__themes[default]
 			end
 		end
 	end
-	return self.themes[name]
+	return self.__themes[name]
 end
 
 function M:loadDisplay(name)
@@ -106,9 +106,9 @@ function M:loadDisplay(name)
 end
 
 function M:clear()
-	self.images = {}
-	self.fonts = {}
-	self.themes = {}
+	self.__images = {}
+	self.__fonts = {}
+	self.__themes = {}
 end
 
 return M

@@ -485,23 +485,16 @@ function M:animate(properties, duration, easing)
 	return self
 end
 
-function M:render(event)
-	self:dispatchEvent(event)
-	self.__dobj:draw()
-
-	for i, v in ipairs(self.__children) do
-		v:render(event)
-	end
-end
-
 function M:dispatch(event)
 	local children = self.__children
-
 	for i = #children, 1, -1 do
 		children[i]:dispatch(event)
 	end
-
 	self:dispatchEvent(event)
+end
+
+function M:render()
+	self.__dobj:render()
 end
 
 return M

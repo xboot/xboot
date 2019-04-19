@@ -704,9 +704,8 @@ static void dobject_layout(struct ldobject_t * o)
 	}
 }
 
-static void dobject_draw_image(lua_State * L, struct ldobject_t * o)
+static void dobject_draw_image(struct display_t * disp, struct ldobject_t * o)
 {
-	struct display_t * disp = ((struct vmctx_t *)luahelper_vmctx(L))->disp;
 	struct limage_t * img = o->priv;
 	cairo_t * cr = disp->cr;
 	cairo_save(cr);
@@ -716,9 +715,8 @@ static void dobject_draw_image(lua_State * L, struct ldobject_t * o)
 	cairo_restore(cr);
 }
 
-static void dobject_draw_ninepatch(lua_State * L, struct ldobject_t * o)
+static void dobject_draw_ninepatch(struct display_t * disp, struct ldobject_t * o)
 {
-	struct display_t * disp = ((struct vmctx_t *)luahelper_vmctx(L))->disp;
 	struct lninepatch_t * ninepatch = o->priv;
 	cairo_t * cr = disp->cr;
 	cairo_save(cr);
@@ -812,9 +810,8 @@ static void dobject_draw_ninepatch(lua_State * L, struct ldobject_t * o)
 	cairo_restore(cr);
 }
 
-static void dobject_draw_shape(lua_State * L, struct ldobject_t * o)
+static void dobject_draw_shape(struct display_t * disp, struct ldobject_t * o)
 {
-	struct display_t * disp = ((struct vmctx_t *)luahelper_vmctx(L))->disp;
 	struct lshape_t * shape = o->priv;
 	cairo_t * cr = disp->cr;
 	cairo_save(cr);
@@ -824,9 +821,8 @@ static void dobject_draw_shape(lua_State * L, struct ldobject_t * o)
 	cairo_restore(cr);
 }
 
-static void dobject_draw_text(lua_State * L, struct ldobject_t * o)
+static void dobject_draw_text(struct display_t * disp, struct ldobject_t * o)
 {
-	struct display_t * disp = ((struct vmctx_t *)luahelper_vmctx(L))->disp;
 	struct ltext_t * text = o->priv;
 	struct matrix_t * m = dobject_global_matrix(o);
 	cairo_t * cr = disp->cr;
@@ -1931,14 +1927,14 @@ static int m_bounds(lua_State * L)
 	return 4;
 }
 
-static int m_draw(lua_State * L)
+static void dobject_render(struct display_t * disp, struct ldobject_t * o)
 {
-	struct display_t * disp = ((struct vmctx_t *)luahelper_vmctx(L))->disp;
-	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
+	struct ldobject_t * pos;
+
 	if(o->visible)
 	{
 		if(o->draw)
-			o->draw(L, o);
+			o->draw(disp, o);
 		if(disp->showobj)
 		{
 			cairo_t * cr = disp->cr;
@@ -2022,7 +2018,19 @@ static int m_draw(lua_State * L)
 			}
 			cairo_restore(cr);
 		}
+
+		list_for_each_entry(pos, &o->children, entry)
+		{
+			dobject_render(disp, pos);
+		}
 	}
+}
+
+static int m_render(lua_State * L)
+{
+	struct display_t * disp = ((struct vmctx_t *)luahelper_vmctx(L))->disp;
+	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
+	dobject_render(disp, o);
 	return 0;
 }
 
@@ -2092,7 +2100,7 @@ static const luaL_Reg m_dobject[] = {
 	{"localToGlobal",		m_local_to_global},
 	{"hitTestPoint",		m_hit_test_point},
 	{"bounds",				m_bounds},
-	{"draw",				m_draw},
+	{"render",				m_render},
 	{NULL, NULL}
 };
 

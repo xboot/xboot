@@ -6,6 +6,7 @@ extern "C" {
 #endif
 
 #include <list.h>
+#include <xboot/display.h>
 #include <framework/luahelper.h>
 
 #define MT_DOBJECT	"__mt_dobject__"
@@ -101,7 +102,7 @@ struct ldobject_t {
 	struct matrix_t global_matrix;
 	struct rectangle_t global_bounds;
 
-	void (*draw)(lua_State * L, struct ldobject_t * o);
+	void (*draw)(struct display_t * disp, struct ldobject_t * o);
 	void * priv;
 };
 

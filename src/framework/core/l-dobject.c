@@ -43,6 +43,7 @@ enum {
 	MFLAG_LOCAL_MATRIX				= (0x1 << 5),
 	MFLAG_GLOBAL_MATRIX				= (0x1 << 6),
 	MFLAG_GLOBAL_BOUNDS				= (0x1 << 7),
+	MFLAG_DIRTY						= (0x1 << 8),
 };
 
 static inline struct matrix_t * dobject_local_matrix(struct ldobject_t * o)
@@ -124,21 +125,34 @@ static inline struct matrix_t * dobject_global_matrix(struct ldobject_t * o)
 	return m;
 }
 
-static inline struct rectangle_t * dobject_global_bounds(struct ldobject_t * o)
+static inline struct region_t * dobject_global_bounds(struct ldobject_t * o)
 {
-	struct rectangle_t * r = &o->global_bounds;
+	struct region_t * r = &o->global_bounds;
 	if(o->mflag & MFLAG_GLOBAL_BOUNDS)
 	{
-		r->x = 0;
-		r->y = 0;
-		r->w = o->width;
-		r->h = o->height;
-		matrix_transform_bounds(dobject_global_matrix(o), &r->x, &r->y, &r->w, &r->h);
-		r->w -= r->x;
-		r->h -= r->y;
+		double x1 = 0;
+		double y1 = 0;
+		double x2 = o->width;
+		double y2 = o->height;
+		matrix_transform_bounds(dobject_global_matrix(o), &x1, &y1, &x2, &y2);
+		region_init(r, x1, y1, x2 - x1 + 1, y2 - y1 + 1);
 		o->mflag &= ~MFLAG_GLOBAL_BOUNDS;
 	}
 	return r;
+}
+
+static inline struct region_t * dobject_dirty_bounds(struct ldobject_t * o)
+{
+	return &o->dirty_bounds;
+}
+
+static inline void dobject_mark_dirty(struct ldobject_t * o)
+{
+	if(!(o->mflag & MFLAG_DIRTY))
+	{
+		region_clone(&o->dirty_bounds, dobject_global_bounds(o));
+		o->mflag |= MFLAG_DIRTY;
+	}
 }
 
 enum layout_direction_t {
@@ -185,7 +199,7 @@ static inline int dobject_layout_get_enable(struct ldobject_t * o)
 
 static inline void dobject_layout_set_special(struct ldobject_t * o, int enable)
 {
-	o->layout.style &= ~(0x1 << 01);
+	o->layout.style &= ~(0x1 << 1);
 	o->layout.style |= (enable ? 1 : 0) << 1;
 }
 
@@ -874,7 +888,8 @@ static int l_dobject_new(lua_State * L)
 	o->mflag = 0;
 	matrix_init_identity(&o->local_matrix);
 	matrix_init_identity(&o->global_matrix);
-	rectangle_init(&o->global_bounds, o->x, o->y, o->width, o->height);
+	region_init(&o->global_bounds, o->x, o->y, o->width, o->height);
+	region_init(&o->dirty_bounds, o->x, o->y, o->width, o->height);
 
 	if(luaL_testudata(L, 3, MT_IMAGE))
 	{
@@ -951,6 +966,7 @@ static int m_add_child(lua_State * L)
 	struct ldobject_t * c = luaL_checkudata(L, 2, MT_DOBJECT);
 	if(c->parent != o)
 	{
+		dobject_mark_dirty(c);
 		c->parent = o;
 		if(lua_toboolean(L, 3))
 			list_add_tail(&c->entry, &o->children);
@@ -967,6 +983,7 @@ static int m_remove_child(lua_State * L)
 	struct ldobject_t * c = luaL_checkudata(L, 2, MT_DOBJECT);
 	if(c->parent == o)
 	{
+		dobject_mark_dirty(c);
 		c->parent = NULL;
 		list_del_init(&c->entry);
 		dobject_mark_with_children(c, MFLAG_GLOBAL_MATRIX | MFLAG_GLOBAL_BOUNDS);
@@ -978,7 +995,10 @@ static int m_to_front(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
 	if(o->parent)
+	{
+		dobject_mark_dirty(o);
 		list_move(&o->entry, &o->parent->children);
+	}
 	return 0;
 }
 
@@ -986,18 +1006,26 @@ static int m_to_back(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
 	if(o->parent)
+	{
+		dobject_mark_dirty(o);
 		list_move_tail(&o->entry, &o->parent->children);
+	}
 	return 0;
 }
 
 static int m_set_width(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
-	o->width = luaL_checknumber(L, 2);
-	o->layout.width = NAN;
-	o->mflag |= MFLAG_LOCAL_MATRIX;
-	dobject_mark_with_children(o, MFLAG_GLOBAL_MATRIX | MFLAG_GLOBAL_BOUNDS);
-	dobject_layout((o->parent && dobject_layout_get_enable(o)) ? o->parent : o);
+	double width = luaL_checknumber(L, 2);
+	if(o->width != width)
+	{
+		dobject_mark_dirty(o);
+		o->width = width;
+		o->layout.width = NAN;
+		o->mflag |= MFLAG_LOCAL_MATRIX;
+		dobject_mark_with_children(o, MFLAG_GLOBAL_MATRIX | MFLAG_GLOBAL_BOUNDS);
+		dobject_layout((o->parent && dobject_layout_get_enable(o)) ? o->parent : o);
+	}
 	return 0;
 }
 
@@ -1011,11 +1039,16 @@ static int m_get_width(lua_State * L)
 static int m_set_height(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
-	o->height = luaL_checknumber(L, 2);
-	o->layout.height = NAN;
-	o->mflag |= MFLAG_LOCAL_MATRIX;
-	dobject_mark_with_children(o, MFLAG_GLOBAL_MATRIX | MFLAG_GLOBAL_BOUNDS);
-	dobject_layout((o->parent && dobject_layout_get_enable(o)) ? o->parent : o);
+	double height = luaL_checknumber(L, 2);
+	if(o->height != height)
+	{
+		dobject_mark_dirty(o);
+		o->height = height;
+		o->layout.height = NAN;
+		o->mflag |= MFLAG_LOCAL_MATRIX;
+		dobject_mark_with_children(o, MFLAG_GLOBAL_MATRIX | MFLAG_GLOBAL_BOUNDS);
+		dobject_layout((o->parent && dobject_layout_get_enable(o)) ? o->parent : o);
+	}
 	return 0;
 }
 
@@ -1029,13 +1062,19 @@ static int m_get_height(lua_State * L)
 static int m_set_size(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
-	o->width = luaL_checknumber(L, 2);
-	o->height = luaL_checknumber(L, 3);
-	o->layout.width = NAN;
-	o->layout.height = NAN;
-	o->mflag |= MFLAG_LOCAL_MATRIX;
-	dobject_mark_with_children(o, MFLAG_GLOBAL_MATRIX | MFLAG_GLOBAL_BOUNDS);
-	dobject_layout((o->parent && dobject_layout_get_enable(o)) ? o->parent : o);
+	double width = luaL_checknumber(L, 2);
+	double height = luaL_checknumber(L, 3);
+	if((o->width != width) || (o->height != height))
+	{
+		dobject_mark_dirty(o);
+		o->width = width;
+		o->height = height;
+		o->layout.width = NAN;
+		o->layout.height = NAN;
+		o->mflag |= MFLAG_LOCAL_MATRIX;
+		dobject_mark_with_children(o, MFLAG_GLOBAL_MATRIX | MFLAG_GLOBAL_BOUNDS);
+		dobject_layout((o->parent && dobject_layout_get_enable(o)) ? o->parent : o);
+	}
 	return 0;
 }
 
@@ -1050,13 +1089,18 @@ static int m_get_size(lua_State * L)
 static int m_set_x(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
-	o->x = luaL_checknumber(L, 2);
-	if((o->x == 0.0) && (o->y == 0.0))
-		o->mflag &= ~MFLAG_TRANSLATE;
-	else
-		o->mflag |= MFLAG_TRANSLATE;
-	o->mflag |= MFLAG_LOCAL_MATRIX;
-	dobject_mark_with_children(o, MFLAG_GLOBAL_MATRIX | MFLAG_GLOBAL_BOUNDS);
+	double x = luaL_checknumber(L, 2);
+	if(o->x != x)
+	{
+		dobject_mark_dirty(o);
+		o->x = x;
+		if((o->x == 0.0) && (o->y == 0.0))
+			o->mflag &= ~MFLAG_TRANSLATE;
+		else
+			o->mflag |= MFLAG_TRANSLATE;
+		o->mflag |= MFLAG_LOCAL_MATRIX;
+		dobject_mark_with_children(o, MFLAG_GLOBAL_MATRIX | MFLAG_GLOBAL_BOUNDS);
+	}
 	return 0;
 }
 
@@ -1070,13 +1114,18 @@ static int m_get_x(lua_State * L)
 static int m_set_y(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
-	o->y = luaL_checknumber(L, 2);
-	if((o->x == 0.0) && (o->y == 0.0))
-		o->mflag &= ~MFLAG_TRANSLATE;
-	else
-		o->mflag |= MFLAG_TRANSLATE;
-	o->mflag |= MFLAG_LOCAL_MATRIX;
-	dobject_mark_with_children(o, MFLAG_GLOBAL_MATRIX | MFLAG_GLOBAL_BOUNDS);
+	double y = luaL_checknumber(L, 2);
+	if(o->y != y)
+	{
+		dobject_mark_dirty(o);
+		o->y = y;
+		if((o->x == 0.0) && (o->y == 0.0))
+			o->mflag &= ~MFLAG_TRANSLATE;
+		else
+			o->mflag |= MFLAG_TRANSLATE;
+		o->mflag |= MFLAG_LOCAL_MATRIX;
+		dobject_mark_with_children(o, MFLAG_GLOBAL_MATRIX | MFLAG_GLOBAL_BOUNDS);
+	}
 	return 0;
 }
 
@@ -1090,14 +1139,20 @@ static int m_get_y(lua_State * L)
 static int m_set_position(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
-	o->x = luaL_checknumber(L, 2);
-	o->y = luaL_checknumber(L, 3);
-	if((o->x == 0.0) && (o->y == 0.0))
-		o->mflag &= ~MFLAG_TRANSLATE;
-	else
-		o->mflag |= MFLAG_TRANSLATE;
-	o->mflag |= MFLAG_LOCAL_MATRIX;
-	dobject_mark_with_children(o, MFLAG_GLOBAL_MATRIX | MFLAG_GLOBAL_BOUNDS);
+	double x = luaL_checknumber(L, 2);
+	double y = luaL_checknumber(L, 3);
+	if((o->x != x) || (o->y != y))
+	{
+		dobject_mark_dirty(o);
+		o->x = x;
+		o->y = y;
+		if((o->x == 0.0) && (o->y == 0.0))
+			o->mflag &= ~MFLAG_TRANSLATE;
+		else
+			o->mflag |= MFLAG_TRANSLATE;
+		o->mflag |= MFLAG_LOCAL_MATRIX;
+		dobject_mark_with_children(o, MFLAG_GLOBAL_MATRIX | MFLAG_GLOBAL_BOUNDS);
+	}
 	return 0;
 }
 
@@ -1112,13 +1167,18 @@ static int m_get_position(lua_State * L)
 static int m_set_rotation(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
-	o->rotation = luaL_checknumber(L, 2) * (M_PI / 180.0);
-	if(o->rotation == 0.0)
-		o->mflag &= ~MFLAG_ROTATE;
-	else
-		o->mflag |= MFLAG_ROTATE;
-	o->mflag |= MFLAG_LOCAL_MATRIX;
-	dobject_mark_with_children(o, MFLAG_GLOBAL_MATRIX | MFLAG_GLOBAL_BOUNDS);
+	double rotation = luaL_checknumber(L, 2) * (M_PI / 180.0);
+	if(o->rotation != rotation)
+	{
+		dobject_mark_dirty(o);
+		o->rotation = rotation;
+		if(o->rotation == 0.0)
+			o->mflag &= ~MFLAG_ROTATE;
+		else
+			o->mflag |= MFLAG_ROTATE;
+		o->mflag |= MFLAG_LOCAL_MATRIX;
+		dobject_mark_with_children(o, MFLAG_GLOBAL_MATRIX | MFLAG_GLOBAL_BOUNDS);
+	}
 	return 0;
 }
 
@@ -1132,13 +1192,18 @@ static int m_get_rotation(lua_State * L)
 static int m_set_scale_x(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
-	o->scalex = luaL_checknumber(L, 2);
-	if((o->scalex == 1.0) && (o->scaley == 1.0))
-		o->mflag &= ~MFLAG_SCALE;
-	else
-		o->mflag |= MFLAG_SCALE;
-	o->mflag |= MFLAG_LOCAL_MATRIX;
-	dobject_mark_with_children(o, MFLAG_GLOBAL_MATRIX | MFLAG_GLOBAL_BOUNDS);
+	double scalex = luaL_checknumber(L, 2);
+	if(o->scalex != scalex)
+	{
+		dobject_mark_dirty(o);
+		o->scalex = scalex;
+		if((o->scalex == 1.0) && (o->scaley == 1.0))
+			o->mflag &= ~MFLAG_SCALE;
+		else
+			o->mflag |= MFLAG_SCALE;
+		o->mflag |= MFLAG_LOCAL_MATRIX;
+		dobject_mark_with_children(o, MFLAG_GLOBAL_MATRIX | MFLAG_GLOBAL_BOUNDS);
+	}
 	return 0;
 }
 
@@ -1152,13 +1217,18 @@ static int m_get_scale_x(lua_State * L)
 static int m_set_scale_y(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
-	o->scaley = luaL_checknumber(L, 2);
-	if((o->scalex == 1.0) && (o->scaley == 1.0))
-		o->mflag &= ~MFLAG_SCALE;
-	else
-		o->mflag |= MFLAG_SCALE;
-	o->mflag |= MFLAG_LOCAL_MATRIX;
-	dobject_mark_with_children(o, MFLAG_GLOBAL_MATRIX | MFLAG_GLOBAL_BOUNDS);
+	double scaley = luaL_checknumber(L, 2);
+	if(o->scaley != scaley)
+	{
+		dobject_mark_dirty(o);
+		o->scaley = scaley;
+		if((o->scalex == 1.0) && (o->scaley == 1.0))
+			o->mflag &= ~MFLAG_SCALE;
+		else
+			o->mflag |= MFLAG_SCALE;
+		o->mflag |= MFLAG_LOCAL_MATRIX;
+		dobject_mark_with_children(o, MFLAG_GLOBAL_MATRIX | MFLAG_GLOBAL_BOUNDS);
+	}
 	return 0;
 }
 
@@ -1172,14 +1242,20 @@ static int m_get_scale_y(lua_State * L)
 static int m_set_scale(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
-	o->scalex = luaL_checknumber(L, 2);
-	o->scaley = luaL_checknumber(L, 3);
-	if((o->scalex == 1.0) && (o->scaley == 1.0))
-		o->mflag &= ~MFLAG_SCALE;
-	else
-		o->mflag |= MFLAG_SCALE;
-	o->mflag |= MFLAG_LOCAL_MATRIX;
-	dobject_mark_with_children(o, MFLAG_GLOBAL_MATRIX | MFLAG_GLOBAL_BOUNDS);
+	double scalex = luaL_checknumber(L, 2);
+	double scaley = luaL_checknumber(L, 3);
+	if((o->scalex != scalex) || (o->scaley != scaley))
+	{
+		dobject_mark_dirty(o);
+		o->scalex = scalex;
+		o->scaley = scaley;
+		if((o->scalex == 1.0) && (o->scaley == 1.0))
+			o->mflag &= ~MFLAG_SCALE;
+		else
+			o->mflag |= MFLAG_SCALE;
+		o->mflag |= MFLAG_LOCAL_MATRIX;
+		dobject_mark_with_children(o, MFLAG_GLOBAL_MATRIX | MFLAG_GLOBAL_BOUNDS);
+	}
 	return 0;
 }
 
@@ -1194,13 +1270,18 @@ static int m_get_scale(lua_State * L)
 static int m_set_skew_x(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
-	o->skewx = luaL_checknumber(L, 2) * (M_PI / 180.0);
-	if((o->skewx == 0.0) && (o->skewy == 0.0))
-		o->mflag &= ~MFLAG_SKEW;
-	else
-		o->mflag |= MFLAG_SKEW;
-	o->mflag |= MFLAG_LOCAL_MATRIX;
-	dobject_mark_with_children(o, MFLAG_GLOBAL_MATRIX | MFLAG_GLOBAL_BOUNDS);
+	double skewx = luaL_checknumber(L, 2) * (M_PI / 180.0);
+	if(o->skewx != skewx)
+	{
+		dobject_mark_dirty(o);
+		o->skewx = skewx;
+		if((o->skewx == 0.0) && (o->skewy == 0.0))
+			o->mflag &= ~MFLAG_SKEW;
+		else
+			o->mflag |= MFLAG_SKEW;
+		o->mflag |= MFLAG_LOCAL_MATRIX;
+		dobject_mark_with_children(o, MFLAG_GLOBAL_MATRIX | MFLAG_GLOBAL_BOUNDS);
+	}
 	return 0;
 }
 
@@ -1214,13 +1295,18 @@ static int m_get_skew_x(lua_State * L)
 static int m_set_skew_y(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
-	o->skewy = luaL_checknumber(L, 2) * (M_PI / 180.0);
-	if((o->skewx == 0.0) && (o->skewy == 0.0))
-		o->mflag &= ~MFLAG_SKEW;
-	else
-		o->mflag |= MFLAG_SKEW;
-	o->mflag |= MFLAG_LOCAL_MATRIX;
-	dobject_mark_with_children(o, MFLAG_GLOBAL_MATRIX | MFLAG_GLOBAL_BOUNDS);
+	double skewy = luaL_checknumber(L, 2) * (M_PI / 180.0);
+	if(o->skewy != skewy)
+	{
+		dobject_mark_dirty(o);
+		o->skewy = skewy;
+		if((o->skewx == 0.0) && (o->skewy == 0.0))
+			o->mflag &= ~MFLAG_SKEW;
+		else
+			o->mflag |= MFLAG_SKEW;
+		o->mflag |= MFLAG_LOCAL_MATRIX;
+		dobject_mark_with_children(o, MFLAG_GLOBAL_MATRIX | MFLAG_GLOBAL_BOUNDS);
+	}
 	return 0;
 }
 
@@ -1234,14 +1320,20 @@ static int m_get_skew_y(lua_State * L)
 static int m_set_skew(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
-	o->skewx = luaL_checknumber(L, 2) * (M_PI / 180.0);
-	o->skewy = luaL_checknumber(L, 3) * (M_PI / 180.0);
-	if((o->skewx == 0.0) && (o->skewy == 0.0))
-		o->mflag &= ~MFLAG_SKEW;
-	else
-		o->mflag |= MFLAG_SKEW;
-	o->mflag |= MFLAG_LOCAL_MATRIX;
-	dobject_mark_with_children(o, MFLAG_GLOBAL_MATRIX | MFLAG_GLOBAL_BOUNDS);
+	double skewx = luaL_checknumber(L, 2) * (M_PI / 180.0);
+	double skewy = luaL_checknumber(L, 3) * (M_PI / 180.0);
+	if((o->skewx != skewx) || (o->skewy != skewy))
+	{
+		dobject_mark_dirty(o);
+		o->skewx = skewx;
+		o->skewy = skewy;
+		if((o->skewx == 0.0) && (o->skewy == 0.0))
+			o->mflag &= ~MFLAG_SKEW;
+		else
+			o->mflag |= MFLAG_SKEW;
+		o->mflag |= MFLAG_LOCAL_MATRIX;
+		dobject_mark_with_children(o, MFLAG_GLOBAL_MATRIX | MFLAG_GLOBAL_BOUNDS);
+	}
 	return 0;
 }
 
@@ -1256,14 +1348,20 @@ static int m_get_skew(lua_State * L)
 static int m_set_archor(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
-	o->anchorx = luaL_checknumber(L, 2);
-	o->anchory = luaL_checknumber(L, 3);
-	if((o->anchorx == 0.0) && (o->anchory == 0.0))
-		o->mflag &= ~MFLAG_ANCHOR;
-	else
-		o->mflag |= MFLAG_ANCHOR;
-	o->mflag |= MFLAG_LOCAL_MATRIX;
-	dobject_mark_with_children(o, MFLAG_GLOBAL_MATRIX | MFLAG_GLOBAL_BOUNDS);
+	double anchorx = luaL_checknumber(L, 2);
+	double anchory = luaL_checknumber(L, 3);
+	if((o->anchorx != anchorx) || (o->anchory != anchory))
+	{
+		dobject_mark_dirty(o);
+		o->anchorx = anchorx;
+		o->anchory = anchory;
+		if((o->anchorx == 0.0) && (o->anchory == 0.0))
+			o->mflag &= ~MFLAG_ANCHOR;
+		else
+			o->mflag |= MFLAG_ANCHOR;
+		o->mflag |= MFLAG_LOCAL_MATRIX;
+		dobject_mark_with_children(o, MFLAG_GLOBAL_MATRIX | MFLAG_GLOBAL_BOUNDS);
+	}
 	return 0;
 }
 
@@ -1278,7 +1376,12 @@ static int m_get_archor(lua_State * L)
 static int m_set_alpha(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
-	o->alpha = luaL_checknumber(L, 2);
+	double alpha = luaL_checknumber(L, 2);
+	if(o->alpha != alpha)
+	{
+		dobject_mark_dirty(o);
+		o->alpha = alpha;
+	}
 	return 0;
 }
 
@@ -1728,7 +1831,12 @@ static int m_get_collider(lua_State * L)
 static int m_set_visible(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
-	o->visible = lua_toboolean(L, 2);
+	double visible = lua_toboolean(L, 2);
+	if(o->visible != visible)
+	{
+		dobject_mark_dirty(o);
+		o->visible = visible;
+	}
 	return 0;
 }
 
@@ -1917,10 +2025,17 @@ static int m_hit_test_point(lua_State * L)
 	return 1;
 }
 
-static int m_bounds(lua_State * L)
+static int m_mark_dirty(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
-	struct rectangle_t * r = dobject_global_bounds(o);
+	dobject_mark_dirty(o);
+	return 0;
+}
+
+static int m_get_bounds(lua_State * L)
+{
+	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
+	struct region_t * r = dobject_global_bounds(o);
 	lua_pushnumber(L, r->x);
 	lua_pushnumber(L, r->y);
 	lua_pushnumber(L, r->w);
@@ -1928,7 +2043,24 @@ static int m_bounds(lua_State * L)
 	return 4;
 }
 
-static void dobject_draw(struct ldobject_t * o, struct display_t * disp)
+static void display_region_fill(struct display_t * disp, struct ldobject_t * o)
+{
+	struct ldobject_t * pos;
+
+	if(o->mflag & MFLAG_DIRTY)
+	{
+		display_region_add(disp, dobject_global_bounds(o));
+		display_region_add(disp, dobject_dirty_bounds(o));
+		o->mflag &= ~MFLAG_DIRTY;
+	}
+
+	list_for_each_entry(pos, &o->children, entry)
+	{
+		display_region_fill(disp, pos);
+	}
+}
+
+static void display_draw(struct display_t * disp, struct ldobject_t * o)
 {
 	struct ldobject_t * pos;
 
@@ -1942,7 +2074,7 @@ static void dobject_draw(struct ldobject_t * o, struct display_t * disp)
 			cairo_save(cr);
 			cairo_set_matrix(cr, (cairo_matrix_t *)dobject_global_matrix(o));
 			cairo_set_line_width(cr, 1);
-			cairo_rectangle(cr, 0, 0, o->width, o->height);
+			cairo_rectangle(cr, 1, 1, o->width - 2, o->height - 2);
 			cairo_set_source_rgba(cr, 1, 0, 0, 0.6);
 			cairo_stroke(cr);
 			if((o->ctype != COLLIDER_TYPE_NONE) && o->touchable)
@@ -2022,7 +2154,7 @@ static void dobject_draw(struct ldobject_t * o, struct display_t * disp)
 
 		list_for_each_entry(pos, &o->children, entry)
 		{
-			dobject_draw(pos, disp);
+			display_draw(disp, pos);
 		}
 	}
 }
@@ -2031,7 +2163,9 @@ static int m_render(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
 	struct display_t * disp = luaL_checkudata(L, 2, MT_DISPLAY);
-	display_present(disp, o, (void (*)(void *, struct display_t *))dobject_draw);
+	display_region_clear(disp);
+	display_region_fill(disp, o);
+	display_present(disp, (void *)o, (void (*)(struct display_t *, void *))display_draw);
 	return 0;
 }
 
@@ -2100,7 +2234,8 @@ static const luaL_Reg m_dobject[] = {
 	{"globalToLocal",		m_global_to_local},
 	{"localToGlobal",		m_local_to_global},
 	{"hitTestPoint",		m_hit_test_point},
-	{"bounds",				m_bounds},
+	{"markDirty",			m_mark_dirty},
+	{"getBounds",			m_get_bounds},
 	{"render",				m_render},
 	{NULL, NULL}
 };

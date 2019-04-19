@@ -100,7 +100,8 @@ struct ldobject_t {
 	int mflag;
 	struct matrix_t local_matrix;
 	struct matrix_t global_matrix;
-	struct rectangle_t global_bounds;
+	struct region_t global_bounds;
+	struct region_t dirty_bounds;
 
 	void (*draw)(struct ldobject_t * o, struct display_t * disp);
 	void * priv;

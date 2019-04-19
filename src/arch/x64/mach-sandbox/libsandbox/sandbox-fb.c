@@ -139,23 +139,23 @@ int sandbox_fb_surface_destroy(void * context, struct sandbox_fb_surface_t * sur
 	return 1;
 }
 
-int sandbox_fb_surface_present(void * context, struct sandbox_fb_surface_t * surface, struct sandbox_fb_dirty_rect_t * rect, int nrect)
+int sandbox_fb_surface_present(void * context, struct sandbox_fb_surface_t * surface, struct sandbox_fb_region_t * region, int n)
 {
 	struct sandbox_fb_context_t * ctx = (struct sandbox_fb_context_t *)context;
 	unsigned char * p, * q;
 	int stride, bytes, height, line;
 	int i, j;
 
-	if(rect && (nrect > 0))
+	if(region && (n > 0))
 	{
 		stride = ctx->fi.line_length;
 		bytes = ctx->vi.bits_per_pixel / 8;
-		for(i = 0; i < nrect; i++)
+		for(i = 0; i < n; i++)
 		{
-			height = rect[i].h;
-			line = rect[i].w * bytes;
-			p = (unsigned char *)surface->pixels + rect[i].y * stride + rect[i].x * bytes;
-			q = (unsigned char *)ctx->vram + rect[i].y * stride + rect[i].x * bytes;
+			height = region[i].h;
+			line = region[i].w * bytes;
+			p = (unsigned char *)surface->pixels + region[i].y * stride + region[i].x * bytes;
+			q = (unsigned char *)ctx->vram + region[i].y * stride + region[i].x * bytes;
 			for(j = 0; j < height; j++, p += stride, q += stride)
 				memcpy(q, p, line);
 		}

@@ -118,10 +118,10 @@ cairo_surface_t * cairo_xboot_surface_create(struct framebuffer_t * fb)
 	return cxs->cs;
 }
 
-void cairo_xboot_surface_present(cairo_surface_t * surface, struct dirty_rect_t * rect, int nrect)
+void cairo_xboot_surface_present(cairo_surface_t * surface, struct region_t * region, int n)
 {
 	struct cairo_xboot_surface_t * cxs = (struct cairo_xboot_surface_t *)cairo_surface_get_user_data(surface, NULL);
 
 	if(cxs)
-		cxs->fb->present(cxs->fb, cxs->render, rect, nrect);
+		cxs->fb->present(cxs->fb, cxs->render, region, n);
 }

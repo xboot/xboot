@@ -126,20 +126,20 @@ int sandbox_fb_sdl_surface_destroy(void * context, struct sandbox_fb_surface_t *
 	return 1;
 }
 
-int sandbox_fb_sdl_surface_present(void * context, struct sandbox_fb_surface_t * surface, struct sandbox_fb_dirty_rect_t * rect, int nrect)
+int sandbox_fb_sdl_surface_present(void * context, struct sandbox_fb_surface_t * surface, struct sandbox_fb_region_t * region, int n)
 {
 	struct sandbox_fb_sdl_context_t * ctx = (struct sandbox_fb_sdl_context_t *)context;
 	SDL_Rect r;
 	int i;
 
-	if(rect && (nrect > 0))
+	if(region && (n > 0))
 	{
-		for(i = 0; i < nrect; i++)
+		for(i = 0; i < n; i++)
 		{
-			r.x = rect[i].x;
-			r.y = rect[i].y;
-			r.w = rect[i].w;
-			r.h = rect[i].h;
+			r.x = region[i].x;
+			r.y = region[i].y;
+			r.w = region[i].w;
+			r.h = region[i].h;
 			SDL_BlitSurface(surface->priv, &r, ctx->screen, &r);
 		}
 	}

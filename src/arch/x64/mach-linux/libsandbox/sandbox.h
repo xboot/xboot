@@ -63,9 +63,10 @@ struct sandbox_fb_surface_t {
 	void * priv;
 };
 
-struct sandbox_fb_dirty_rect_t {
-	uint32_t x, y;
-	uint32_t w, h;
+struct sandbox_fb_region_t {
+	int x, y;
+	int w, h;
+	int area;
 };
 
 /* Framebuffer device */
@@ -78,7 +79,7 @@ int sandbox_fb_get_pheight(void * context);
 int sandbox_fb_get_bpp(void * context);
 int sandbox_fb_surface_create(void * context, struct sandbox_fb_surface_t * surface);
 int sandbox_fb_surface_destroy(void * context, struct sandbox_fb_surface_t * surface);
-int sandbox_fb_surface_present(void * context, struct sandbox_fb_surface_t * surface, struct sandbox_fb_dirty_rect_t * rect, int nrect);
+int sandbox_fb_surface_present(void * context, struct sandbox_fb_surface_t * surface, struct sandbox_fb_region_t * region, int n);
 void sandbox_fb_set_backlight(void * context, int brightness);
 int sandbox_fb_get_backlight(void * context);
 

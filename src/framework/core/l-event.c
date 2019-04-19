@@ -113,13 +113,13 @@ static int l_event_pump(lua_State * L)
 		return 1;
 
 	case EVENT_TYPE_MOUSE_DOWN:
-		display_set_cursor(disp, e.e.mouse_down.x, e.e.mouse_down.y);
-		if(!display_get_showcur(disp))
+		display_cursor_set_position(disp, e.e.mouse_down.x, e.e.mouse_down.y);
+		if(!display_cursor_get_show(disp))
 		{
 			range[0] = display_get_width(disp);
 			range[1] = display_get_height(disp);
 			input_ioctl((struct input_t *)e.device, INPUT_IOCTL_MOUSE_SET_RANGE, &range[0]);
-			display_set_showcur(disp, 1);
+			display_cursor_set_show(disp, 1);
 		}
 		lua_newtable(L);
 		lua_pushstring(L, ((struct input_t *)e.device)->name);
@@ -137,13 +137,13 @@ static int l_event_pump(lua_State * L)
 		return 1;
 
 	case EVENT_TYPE_MOUSE_MOVE:
-		display_set_cursor(disp, e.e.mouse_move.x, e.e.mouse_move.y);
-		if(!display_get_showcur(disp))
+		display_cursor_set_position(disp, e.e.mouse_move.x, e.e.mouse_move.y);
+		if(!display_cursor_get_show(disp))
 		{
 			range[0] = display_get_width(disp);
 			range[1] = display_get_height(disp);
 			input_ioctl((struct input_t *)e.device, INPUT_IOCTL_MOUSE_SET_RANGE, &range[0]);
-			display_set_showcur(disp, 1);
+			display_cursor_set_show(disp, 1);
 		}
 		lua_newtable(L);
 		lua_pushstring(L, ((struct input_t *)e.device)->name);
@@ -159,13 +159,13 @@ static int l_event_pump(lua_State * L)
 		return 1;
 
 	case EVENT_TYPE_MOUSE_UP:
-		display_set_cursor(disp, e.e.mouse_up.x, e.e.mouse_up.y);
-		if(!display_get_showcur(disp))
+		display_cursor_set_position(disp, e.e.mouse_up.x, e.e.mouse_up.y);
+		if(!display_cursor_get_show(disp))
 		{
 			range[0] = display_get_width(disp);
 			range[1] = display_get_height(disp);
 			input_ioctl((struct input_t *)e.device, INPUT_IOCTL_MOUSE_SET_RANGE, &range[0]);
-			display_set_showcur(disp, 1);
+			display_cursor_set_show(disp, 1);
 		}
 		lua_newtable(L);
 		lua_pushstring(L, ((struct input_t *)e.device)->name);
@@ -183,12 +183,12 @@ static int l_event_pump(lua_State * L)
 		return 1;
 
 	case EVENT_TYPE_MOUSE_WHEEL:
-		if(!display_get_showcur(disp))
+		if(!display_cursor_get_show(disp))
 		{
 			range[0] = display_get_width(disp);
 			range[1] = display_get_height(disp);
 			input_ioctl((struct input_t *)e.device, INPUT_IOCTL_MOUSE_SET_RANGE, &range[0]);
-			display_set_showcur(disp, 1);
+			display_cursor_set_show(disp, 1);
 		}
 		lua_newtable(L);
 		lua_pushstring(L, ((struct input_t *)e.device)->name);
@@ -204,7 +204,7 @@ static int l_event_pump(lua_State * L)
 		return 1;
 
 	case EVENT_TYPE_TOUCH_BEGIN:
-		display_set_showcur(disp, 0);
+		display_cursor_set_show(disp, 0);
 		lua_newtable(L);
 		lua_pushstring(L, ((struct input_t *)e.device)->name);
 		lua_setfield(L, -2, "device");
@@ -221,7 +221,7 @@ static int l_event_pump(lua_State * L)
 		return 1;
 
 	case EVENT_TYPE_TOUCH_MOVE:
-		display_set_showcur(disp, 0);
+		display_cursor_set_show(disp, 0);
 		lua_newtable(L);
 		lua_pushstring(L, ((struct input_t *)e.device)->name);
 		lua_setfield(L, -2, "device");
@@ -238,7 +238,7 @@ static int l_event_pump(lua_State * L)
 		return 1;
 
 	case EVENT_TYPE_TOUCH_END:
-		display_set_showcur(disp, 0);
+		display_cursor_set_show(disp, 0);
 		lua_newtable(L);
 		lua_pushstring(L, ((struct input_t *)e.device)->name);
 		lua_setfield(L, -2, "device");

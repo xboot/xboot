@@ -36,6 +36,7 @@ function M:init()
 	self.__timerlist = {}
 	self.__display = Display.new()
 	self.super:init(self.__display:getSize())
+	self:markDirty()
 end
 
 function M:exit()
@@ -105,16 +106,12 @@ function M:schedTimer(dt)
 	end
 end
 
-function M:getSize()
-	return self.__display:getSize()
-end
-
 function M:getPhysicalSize()
 	return self.__display:getPhysicalSize()
 end
 
-function M:getBpp()
-	return self.__display:getBpp()
+function M:getBitsPerPixel()
+	return self.__display:getBitsPerPixel()
 end
 
 function M:setBacklight(brightness)
@@ -125,13 +122,13 @@ function M:getBacklight()
 	return self.__display:getBacklight()
 end
 
-function M:showobj(value)
-	self.__display:showobj(value)
+function M:showfps(show)
+	self.__display:showfps(show)
 	return self
 end
 
-function M:showfps(value)
-	self.__display:showfps(value)
+function M:showobj(show)
+	self.__display:showobj(show)
 	return self
 end
 

@@ -82,17 +82,17 @@ static int m_display_get_backlight(lua_State * L)
 	return 1;
 }
 
+static int m_display_showfps(lua_State * L)
+{
+	struct display_t * disp = luaL_checkudata(L, 1, MT_DISPLAY);
+	display_fps_set_show(disp, lua_toboolean(L, 2));
+	return 0;
+}
+
 static int m_display_showobj(lua_State * L)
 {
 	struct display_t * disp = luaL_checkudata(L, 1, MT_DISPLAY);
 	display_set_showobj(disp, lua_toboolean(L, 2));
-	return 0;
-}
-
-static int m_display_showfps(lua_State * L)
-{
-	struct display_t * disp = luaL_checkudata(L, 1, MT_DISPLAY);
-	display_set_showfps(disp, lua_toboolean(L, 2));
 	return 0;
 }
 
@@ -117,8 +117,8 @@ static const luaL_Reg m_display[] = {
 	{"getBitsPerPixel",	m_display_get_bits_per_pixel},
 	{"setBacklight",	m_display_set_backlight},
 	{"getBacklight",	m_display_get_backlight},
-	{"showobj",			m_display_showobj},
 	{"showfps",			m_display_showfps},
+	{"showobj",			m_display_showobj},
 	{"snapshot",		m_display_snapshot},
 	{NULL,				NULL}
 };

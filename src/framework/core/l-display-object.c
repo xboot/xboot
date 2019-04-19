@@ -381,8 +381,12 @@ function M:hitTestPoint(x, y)
 	return self.__dobj:hitTestPoint(x, y)
 end
 
+function M:markDirty()
+	return self.__dobj:markDirty()
+end
+
 function M:getBounds()
-	return self.__dobj:bounds()
+	return self.__dobj:getBounds()
 end
 
 function M:animate(properties, duration, easing)

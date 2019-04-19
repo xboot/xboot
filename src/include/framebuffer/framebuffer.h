@@ -17,20 +17,15 @@ enum pixel_format_t
 	PIXEL_FORMAT_RGB30		= 5,
 };
 
-struct dirty_rect_t {
-	uint32_t x, y;
-	uint32_t w, h;
-};
-
 struct render_t {
 	/* The width of render */
-	uint32_t width;
+	int width;
 
 	/* The height of render */
-	uint32_t height;
+	int height;
 
 	/* The pitch of one scan line */
-	uint32_t pitch;
+	int pitch;
 
 	/* Pixel format */
 	enum pixel_format_t format;
@@ -72,7 +67,7 @@ struct framebuffer_t
 	void (*destroy)(struct framebuffer_t * fb, struct render_t * render);
 
 	/* Present a render */
-	void (*present)(struct framebuffer_t * fb, struct render_t * render, struct dirty_rect_t * rect, int nrect);
+	void (*present)(struct framebuffer_t * fb, struct render_t * render, struct region_t * region, int n);
 
 	/* Private data */
 	void * priv;
@@ -90,7 +85,7 @@ int framebuffer_get_pheight(struct framebuffer_t * fb);
 int framebuffer_get_bpp(struct framebuffer_t * fb);
 struct render_t * framebuffer_create_render(struct framebuffer_t * fb);
 void framebuffer_destroy_render(struct framebuffer_t * fb, struct render_t * render);
-void framebuffer_present_render(struct framebuffer_t * fb, struct render_t * render, struct dirty_rect_t * rect, int nrect);
+void framebuffer_present_render(struct framebuffer_t * fb, struct render_t * render, struct region_t * region, int n);
 void framebuffer_set_backlight(struct framebuffer_t * fb, int brightness);
 int framebuffer_get_backlight(struct framebuffer_t * fb);
 

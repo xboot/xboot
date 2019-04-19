@@ -76,7 +76,7 @@ static void fb_dummy_destroy(struct framebuffer_t * fb, struct render_t * render
 	}
 }
 
-static void fb_dummy_present(struct framebuffer_t * fb, struct render_t * render, struct dirty_rect_t * rect, int nrect)
+static void fb_dummy_present(struct framebuffer_t * fb, struct render_t * render, struct region_t * region, int n)
 {
 }
 
@@ -95,13 +95,13 @@ static struct framebuffer_t fb_dummy = {
 	.priv		= NULL,
 };
 
-static struct dirty_region_t * dirty_region_alloc(int size)
+static inline struct region_list_t * region_list_alloc(int size)
 {
-	struct dirty_region_t * dr;
+	struct region_list_t * rl;
 	struct region_t * r;
 
-	if(size < 16)
-		size = 16;
+	if(size < 256)
+		size = 256;
 	if(size & (size - 1))
 		size = roundup_pow_of_two(size);
 
@@ -109,40 +109,71 @@ static struct dirty_region_t * dirty_region_alloc(int size)
 	if(!r)
 		return NULL;
 
-	dr = malloc(sizeof(struct dirty_region_t));
-	if(!dr)
+	rl = malloc(sizeof(struct region_list_t));
+	if(!rl)
 	{
 		free(r);
 		return NULL;
 	}
 
-	dr->region = r;
-	dr->count = 0;
-	dr->size = size;
-	return dr;
+	rl->region = r;
+	rl->count = 0;
+	rl->size = size;
+	return rl;
 }
 
-static void dirty_region_free(struct dirty_region_t * dr)
+static inline void region_list_free(struct region_list_t * rl)
 {
-	if(dr)
+	if(rl)
 	{
-		free(dr->region);
-		free(dr);
+		free(rl->region);
+		free(rl);
 	}
 }
 
-static void dirty_region_add(struct dirty_region_t * dr, double x, double y, double w, double h)
+static inline void region_list_add(struct region_list_t * rl, struct region_t * r)
 {
-	if(dr->count >= dr->size)
+	struct region_t region, * p;
+	int area = 0, index = -1;
+	int i;
+
+	for(i = 0; i < rl->count; ++i)
 	{
-		dr->size <<= 1;
-		dr->region = realloc(dr->region, dr->size * sizeof(struct region_t));
+		p = &rl->region[i];
+		if(region_contains(p, r))
+		{
+			return;
+		}
+		else if(region_intersect(&region, p, r))
+		{
+			if(region.area > area)
+			{
+				area = region.area;
+				index = i;
+			}
+		}
 	}
-	dr->region[dr->count].x = x;
-	dr->region[dr->count].y = y;
-	dr->region[dr->count].w = w;
-	dr->region[dr->count].h = h;
-	dr->count++;
+
+	if(index >= 0)
+	{
+		p = &rl->region[index];
+		region_union(p, p, r);
+	}
+	else
+	{
+		if(rl->count >= rl->size)
+		{
+			rl->size <<= 1;
+			rl->region = realloc(rl->region, rl->size * sizeof(struct region_t));
+		}
+		region_clone(&rl->region[rl->count], r);
+		rl->count++;
+	}
+}
+
+static inline void region_list_clear(struct region_list_t * rl)
+{
+	rl->count = 0;
 }
 
 struct display_t * display_alloc(const char * fb)
@@ -163,18 +194,23 @@ struct display_t * display_alloc(const char * fb)
 		return NULL;
 
 	disp->fb = dev;
-	disp->dr = dirty_region_alloc(0);
-	disp->cursor = cairo_image_surface_create_from_png("/framework/assets/images/cursor.png");
+	disp->rl = region_list_alloc(0);
 	disp->cs = cairo_xboot_surface_create(disp->fb);
 	disp->cr = cairo_create(disp->cs);
-	disp->xpos = 0;
-	disp->ypos = 0;
-	disp->showcur = 0;
+	disp->cursor.cs = cairo_image_surface_create_from_png("/framework/assets/images/cursor.png");
+	disp->cursor.width = cairo_image_surface_get_width(disp->cursor.cs);
+	disp->cursor.height = cairo_image_surface_get_height(disp->cursor.cs);
+	disp->cursor.ox = 0;
+	disp->cursor.oy = 0;
+	disp->cursor.nx = 0;
+	disp->cursor.ny = 0;
+	disp->cursor.dirty = 0;
+	disp->cursor.show = 0;
+	disp->fps.rate = 60;
+	disp->fps.frame = 0;
+	disp->fps.stamp = ktime_get();
+	disp->fps.show = 0;
 	disp->showobj = 0;
-	disp->showfps = 0;
-	disp->fps = 60;
-	disp->frame = 0;
-	disp->stamp = ktime_get();
 
 	return disp;
 }
@@ -185,53 +221,95 @@ void display_free(struct display_t * disp)
 		return;
 
 	cairo_destroy(disp->cr);
-	cairo_surface_destroy(disp->cursor);
+	cairo_surface_destroy(disp->cursor.cs);
 	cairo_surface_destroy(disp->cs);
-	dirty_region_free(disp->dr);
+	region_list_free(disp->rl);
 	free(disp);
 }
 
-void display_present(struct display_t * disp, void * o, void (*draw)(void *, struct display_t *))
+void display_region_add(struct display_t * disp, struct region_t * r)
+{
+	if(disp)
+		region_list_add(disp->rl, r);
+}
+
+void display_region_clear(struct display_t * disp)
+{
+	if(disp)
+		region_list_clear(disp->rl);
+}
+
+void display_present(struct display_t * disp, void * o, void (*draw)(struct display_t *, void *))
 {
 	cairo_t * cr;
+	struct region_t rn, ro, * r;
+	char fps[32];
+	int count;
+	int i;
+
 	if(disp)
 	{
-		cr = disp->cr;
-		cairo_reset_clip(cr);
-		cairo_rectangle(cr, 0, 0, display_get_width(disp), display_get_height(disp));
-		cairo_clip(cr);
-		cairo_save(cr);
-		cairo_set_source_rgb(cr, 1, 1, 1);
-		cairo_set_operator(cr, CAIRO_OPERATOR_SOURCE);
-		cairo_paint(cr);
-		cairo_restore(cr);
-
-		draw(o, disp);
-
-		if(disp->showfps)
+		if(disp->cursor.show && disp->cursor.dirty)
 		{
-			char buf[32];
-			ktime_t now = ktime_get();
-			s64_t delta = ktime_ms_delta(now, disp->stamp);
-			if(delta > 0)
-				disp->fps = ((double)1000.0 / (double)delta) * 0.618 + disp->fps * 0.382;
-			disp->frame++;
-			disp->stamp = now;
-			cairo_save(cr);
-			cairo_set_font_size(cr, 24);
-			cairo_set_source_rgb(cr, 0.4, 0.4, 0.4);
-			cairo_move_to(cr, 0, 24);
-			snprintf(buf, sizeof(buf), "%.2f %ld", disp->fps, disp->frame);
-			cairo_show_text(cr, buf);
-			cairo_restore(cr);
+			region_init(&rn, disp->cursor.nx, disp->cursor.ny, disp->cursor.width, disp->cursor.height);
+			region_init(&ro, disp->cursor.ox, disp->cursor.oy, disp->cursor.width, disp->cursor.height);
+			display_region_add(disp, &rn);
+			display_region_add(disp, &ro);
+			disp->cursor.dirty = 0;
 		}
-		if(disp->showcur)
+
+		if(disp->fps.show)
 		{
+			ktime_t now = ktime_get();
+			s64_t delta = ktime_ms_delta(now, disp->fps.stamp);
+			if(delta > 0)
+				disp->fps.rate = ((double)1000.0 / (double)delta) * 0.618 + disp->fps.rate * 0.382;
+			disp->fps.frame++;
+			disp->fps.stamp = now;
+			int len = snprintf(fps, sizeof(fps), "%.2f %ld", disp->fps.rate, disp->fps.frame);
+			region_init(&rn, 0, 0, len * (24 / 2), 24);
+			display_region_add(disp, &rn);
+		}
+
+		if((count = disp->rl->count) > 0)
+		{
+			cr = disp->cr;
+
+			cairo_reset_clip(cr);
+			for(i = 0; i < count; i++)
+			{
+				r = &disp->rl->region[i];
+				cairo_rectangle(cr, r->x, r->y, r->w, r->h);
+			}
+			cairo_clip(cr);
 			cairo_save(cr);
-			cairo_set_source_surface(cr, disp->cursor, disp->xpos - 2, disp->ypos - 2);
+			cairo_set_source_rgb(cr, 1, 1, 1);
+			cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
 			cairo_paint(cr);
 			cairo_restore(cr);
+
+			if(draw)
+				draw(disp, o);
+
+			if(disp->cursor.show)
+			{
+				cairo_save(cr);
+				cairo_set_source_surface(cr, disp->cursor.cs, disp->cursor.nx, disp->cursor.ny);
+				cairo_paint(cr);
+				cairo_restore(cr);
+			}
+
+			if(disp->fps.show)
+			{
+				cairo_save(cr);
+				cairo_set_font_size(cr, 24);
+				cairo_set_source_rgb(cr, 0.4, 0.4, 0.4);
+				cairo_move_to(cr, 0, 24);
+				cairo_show_text(cr, fps);
+				cairo_restore(cr);
+			}
+
+			cairo_xboot_surface_present(disp->cs, disp->rl->region, count);
 		}
-		cairo_xboot_surface_present(disp->cs, NULL, 0);
 	}
 }

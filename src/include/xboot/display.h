@@ -7,12 +7,7 @@ extern "C" {
 
 #include <cairo-xboot.h>
 
-struct region_t {
-	double x, y;
-	double w, h;
-};
-
-struct dirty_region_t {
+struct region_list_t {
 	struct region_t * region;
 	int count;
 	int size;
@@ -21,18 +16,27 @@ struct dirty_region_t {
 struct display_t
 {
 	struct framebuffer_t * fb;
-	struct dirty_region_t * dr;
-	cairo_surface_t * cursor;
+	struct region_list_t * rl;
 	cairo_surface_t * cs;
 	cairo_t * cr;
 
-	int xpos, ypos;
-	int showcur;
+	struct {
+		cairo_surface_t * cs;
+		int width, height;
+		int ox, oy;
+		int nx, ny;
+		int dirty;
+		int show;
+	} cursor;
+
+	struct {
+		double rate;
+		uint64_t frame;
+		ktime_t stamp;
+		int show;
+	} fps;
+
 	int showobj;
-	int showfps;
-	double fps;
-	uint64_t frame;
-	ktime_t stamp;
 };
 
 static inline int display_get_width(struct display_t * disp)
@@ -83,35 +87,56 @@ static inline int display_get_backlight(struct display_t * disp)
 	return 0;
 }
 
-static inline void display_set_cursor(struct display_t * disp, int x, int y)
+static inline void display_cursor_set_position(struct display_t * disp, int x, int y)
 {
 	if(disp)
 	{
-		disp->xpos = x;
-		disp->ypos = y;
+		if(!disp->cursor.dirty)
+		{
+			disp->cursor.ox = disp->cursor.nx;
+			disp->cursor.oy = disp->cursor.ny;
+			disp->cursor.dirty = 1;
+		}
+		disp->cursor.nx = x;
+		disp->cursor.ny = y;
 	}
 }
 
-static inline void display_get_cursor(struct display_t * disp, int * x, int * y)
+static inline void display_cursor_get_position(struct display_t * disp, int * x, int * y)
 {
 	if(disp)
 	{
 		if(x)
-			*x = disp->xpos;
+			*x = disp->cursor.nx;
 		if(y)
-			*y = disp->ypos;
+			*y = disp->cursor.ny;
 	}
 }
 
-static inline void display_set_showcur(struct display_t * disp, int show)
+static inline void display_cursor_set_show(struct display_t * disp, int show)
 {
 	if(disp)
-		disp->showcur = show ? 1 : 0;
+		disp->cursor.show = show ? 1 : 0;
 }
 
-static inline int display_get_showcur(struct display_t * disp)
+static inline int display_cursor_get_show(struct display_t * disp)
 {
-	return disp ? disp->showcur : 0;
+	return disp ? disp->cursor.show : 0;
+}
+
+static inline void display_fps_set_show(struct display_t * disp, int show)
+{
+	if(disp)
+	{
+		if(show && !disp->fps.show)
+			disp->fps.stamp = ktime_get();
+		disp->fps.show = show ? 1 : 0;
+	}
+}
+
+static inline int display_fps_get_show(struct display_t * disp)
+{
+	return disp ? disp->fps.show : 0;
 }
 
 static inline void display_set_showobj(struct display_t * disp, int show)
@@ -125,24 +150,11 @@ static inline int display_get_showobj(struct display_t * disp)
 	return disp ? disp->showobj : 0;
 }
 
-static inline void display_set_showfps(struct display_t * disp, int show)
-{
-	if(disp)
-	{
-		if(show && !disp->showfps)
-			disp->stamp = ktime_get();
-		disp->showfps = show ? 1 : 0;
-	}
-}
-
-static inline int display_get_showfps(struct display_t * disp)
-{
-	return disp ? disp->showfps : 0;
-}
-
 struct display_t * display_alloc(const char * fb);
 void display_free(struct display_t * disp);
-void display_present(struct display_t * disp, void * o, void (*draw)(void *, struct display_t *));
+void display_region_add(struct display_t * disp, struct region_t * r);
+void display_region_clear(struct display_t * disp);
+void display_present(struct display_t * disp, void * o, void (*draw)(struct display_t *, void *));
 
 #ifdef __cplusplus
 }

@@ -106,8 +106,10 @@ function M:schedTimer(dt)
 	end
 end
 
-function M:getPhysicalSize()
-	return self.__display:getPhysicalSize()
+function M:getDotsPerInch()
+	local w, h = self.__display:getSize()
+	local pw, ph = self.__display:getPhysicalSize()
+	return w * 25.4 / pw, h * 25.4 / ph
 end
 
 function M:getBitsPerPixel()

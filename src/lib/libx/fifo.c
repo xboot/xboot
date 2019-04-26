@@ -11,18 +11,6 @@
 #include <fifo.h>
 #include <xboot/module.h>
 
-#define min(x,y) ({			\
-	typeof(x) _x = (x);		\
-	typeof(y) _y = (y);		\
-	(void)(&_x == &_y);		\
-	_x < _y ? _x : _y; })
-
-#define max(x,y) ({			\
-	typeof(x) _x = (x);		\
-	typeof(y) _y = (y);		\
-	(void)(&_x == &_y);		\
-	_x > _y ? _x : _y; })
-
 void __fifo_reset(struct fifo_t * f)
 {
 	f->in = f->out = 0;

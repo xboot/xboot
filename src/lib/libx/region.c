@@ -4,18 +4,6 @@
 
 #include <region.h>
 
-#define min(x,y) ({			\
-	typeof(x) _x = (x);		\
-	typeof(y) _y = (y);		\
-	(void)(&_x == &_y);		\
-	_x < _y ? _x : _y; })
-
-#define max(x,y) ({			\
-	typeof(x) _x = (x);		\
-	typeof(y) _y = (y);		\
-	(void)(&_x == &_y);		\
-	_x > _y ? _x : _y; })
-
 int region_intersect(struct region_t * r, struct region_t * a, struct region_t * b)
 {
 	int x0 = max(a->x, b->x);

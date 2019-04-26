@@ -6,12 +6,12 @@ extern "C" {
 #endif
 
 #if defined(__cplusplus)
-#define NULL	(0)
+#define NULL		(0)
 #else
-#define NULL	((void *)0)
+#define NULL		((void *)0)
 #endif
 
-#if (__GNUC__ >= 4)
+#if (defined(__GNUC__) && (__GNUC__ >= 4))
 #define offsetof(type, member)	__builtin_offsetof(type, member)
 #else
 #define offsetof(type, field)	((size_t)(&((type *)0)->field))
@@ -25,7 +25,10 @@ extern "C" {
 #define unlikely(expr)	(!!(expr))
 #endif
 
-#define X(...)	("" #__VA_ARGS__ "")
+#define min(x,y)	({typeof(x) _x = (x); typeof(y) _y = (y); (void)(&_x == &_y); _x < _y ? _x : _y;})
+#define max(x,y)	({typeof(x) _x = (x); typeof(y) _y = (y); (void)(&_x == &_y); _x > _y ? _x : _y;})
+
+#define X(...)		("" #__VA_ARGS__ "")
 
 enum {
 	FALSE		= 0,

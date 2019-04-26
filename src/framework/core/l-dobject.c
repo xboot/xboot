@@ -981,9 +981,21 @@ static int m_remove_child(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
 	struct ldobject_t * c = luaL_checkudata(L, 2, MT_DOBJECT);
+	struct region_t * r;
 	if(c->parent == o)
 	{
 		dobject_mark_dirty(c);
+		r = dobject_dirty_bounds(o);
+		if(!(o->mflag & MFLAG_DIRTY))
+		{
+			region_clone(r, dobject_dirty_bounds(c));
+			o->mflag |= MFLAG_DIRTY;
+		}
+		else
+		{
+			region_union(r, r, dobject_dirty_bounds(c));
+		}
+		c->mflag &= ~MFLAG_DIRTY;
 		c->parent = NULL;
 		list_del_init(&c->entry);
 		dobject_mark_with_children(c, MFLAG_GLOBAL_MATRIX | MFLAG_GLOBAL_BOUNDS);

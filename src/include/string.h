@@ -6,7 +6,6 @@ extern "C" {
 #endif
 
 #include <types.h>
-#include <stddef.h>
 
 /*
  * String manipulation

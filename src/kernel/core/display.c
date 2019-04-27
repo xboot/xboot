@@ -100,8 +100,8 @@ static inline struct region_list_t * region_list_alloc(int size)
 	struct region_list_t * rl;
 	struct region_t * r;
 
-	if(size < 256)
-		size = 256;
+	if(size < 8)
+		size = 8;
 	if(size & (size - 1))
 		size = roundup_pow_of_two(size);
 
@@ -134,22 +134,49 @@ static inline void region_list_free(struct region_list_t * rl)
 static inline void region_list_add(struct region_list_t * rl, struct region_t * r)
 {
 	struct region_t region, * p;
-	int area = 0, index = -1;
+	int area = INT_MAX, index = -1;
+	int count = rl->count;
 	int i;
 
-	for(i = 0; i < rl->count; ++i)
+	if(count < 8)
 	{
-		p = &rl->region[i];
-		if(region_contains(p, r))
+		for(i = 0; i < count; ++i)
 		{
-			return;
-		}
-		else if(region_intersect(&region, p, r))
-		{
-			if(region.area > area)
+			p = &rl->region[i];
+			if(region_intersect(&region, p, r))
 			{
-				area = region.area;
-				index = i;
+				if(region.area >= r->area)
+				{
+					return;
+				}
+				else
+				{
+					region_union(&region, p, r);
+					if(region.area < area)
+					{
+						area = region.area;
+						index = i;
+					}
+				}
+			}
+		}
+	}
+	else
+	{
+		for(i = 0; i < count; ++i)
+		{
+			p = &rl->region[i];
+			if(region_union(&region, p, r))
+			{
+				if(region.area <= p->area)
+				{
+					return;
+				}
+				else if(region.area < area)
+				{
+					area = region.area;
+					index = i;
+				}
 			}
 		}
 	}
@@ -290,6 +317,21 @@ void display_present(struct display_t * disp, void * o, void (*draw)(struct disp
 
 			if(draw)
 				draw(disp, o);
+
+			#if 0
+			{
+				static int flag = 0;
+				cairo_save(cr);
+				flag = !flag;
+				if(flag)
+					cairo_set_source_rgba(cr, 1, 0, 0, 0.7);
+				else
+					cairo_set_source_rgba(cr, 0, 1, 0, 0.7);
+				cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
+				cairo_paint(cr);
+				cairo_restore(cr);
+			}
+			#endif
 
 			if(disp->cursor.show)
 			{

@@ -35,7 +35,7 @@ struct fb_bcm2837_pdata_t {
 	int height;
 	int pwidth;
 	int pheight;
-	int bpp;
+	int bytes;
 	void * vram;
 	int brightness;
 };
@@ -59,7 +59,7 @@ static struct render_t * fb_create(struct framebuffer_t * fb)
 	void * pixels;
 	size_t pixlen;
 
-	pixlen = pdat->width * pdat->height * (pdat->bpp / 8);
+	pixlen = pdat->width * pdat->height * pdat->bytes;
 	pixels = memalign(4, pixlen);
 	if(!pixels)
 		return NULL;
@@ -73,7 +73,8 @@ static struct render_t * fb_create(struct framebuffer_t * fb)
 
 	render->width = pdat->width;
 	render->height = pdat->height;
-	render->pitch = (pdat->width * (pdat->bpp / 8) + 0x3) & ~0x3;
+	render->pitch = (pdat->width * pdat->bytes + 0x3) & ~0x3;
+	render->bytes = pdat->bytes;
 	render->format = PIXEL_FORMAT_ARGB32;
 	render->pixels = pixels;
 	render->pixlen = pixlen;
@@ -123,8 +124,8 @@ static struct device_t * fb_bcm2837_probe(struct driver_t * drv, struct dtnode_t
 	pdat->height = dt_read_int(n, "height", 480);
 	pdat->pwidth = dt_read_int(n, "physical-width", 216);
 	pdat->pheight = dt_read_int(n, "physical-height", 135);
-	pdat->bpp = dt_read_int(n, "bits-per-pixel", 32);
-	pdat->vram = bcm2837_mbox_fb_alloc(pdat->width, pdat->height, pdat->bpp, 1);
+	pdat->bytes = dt_read_int(n, "bytes-per-pixel", 32);
+	pdat->vram = bcm2837_mbox_fb_alloc(pdat->width, pdat->height, pdat->bytes * 8, 1);
 	pdat->brightness = 0;
 
 	fb->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
@@ -132,7 +133,7 @@ static struct device_t * fb_bcm2837_probe(struct driver_t * drv, struct dtnode_t
 	fb->height = pdat->height;
 	fb->pwidth = pdat->pwidth;
 	fb->pheight = pdat->pheight;
-	fb->bpp = pdat->bpp;
+	fb->bytes = pdat->bytes;
 	fb->setbl = fb_setbl;
 	fb->getbl = fb_getbl;
 	fb->create = fb_create;

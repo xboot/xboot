@@ -90,11 +90,11 @@ int sandbox_fb_sdl_get_pheight(void * context)
 	return 0;
 }
 
-int sandbox_fb_sdl_get_bpp(void * context)
+int sandbox_fb_sdl_get_bytes(void * context)
 {
 	struct sandbox_fb_sdl_context_t * ctx = (struct sandbox_fb_sdl_context_t *)context;
 	if(ctx)
-		return 32;
+		return 4;
 	return 0;
 }
 
@@ -113,6 +113,7 @@ int sandbox_fb_sdl_surface_create(void * context, struct sandbox_fb_surface_t * 
 	surface->width = face->w;
 	surface->height = face->h;
 	surface->pitch = face->pitch;
+	surface->bytes = bpp / 8;
 	surface->pixels = face->pixels;
 	surface->priv = face;
 
@@ -132,7 +133,7 @@ int sandbox_fb_sdl_surface_present(void * context, struct sandbox_fb_surface_t *
 	SDL_Rect r;
 	int i;
 
-	if(region && (n > 0))
+	if(n > 0)
 	{
 		for(i = 0; i < n; i++)
 		{

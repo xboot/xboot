@@ -224,7 +224,7 @@ static void gic500_dist_init(virtual_addr_t virt)
 	 * Set all global interrupts to the boot CPU only. ARE must be
 	 * enabled.
 	 */
-	affinity = gic_mpidr_to_affinity(arm64_smp_processor_id());
+	affinity = gic_mpidr_to_affinity(smp_processor_id());
 	for(i = 32; i < irq_nr; i++)
 		write64(virt + GICD_IROUTER + i * 8, affinity);
 }

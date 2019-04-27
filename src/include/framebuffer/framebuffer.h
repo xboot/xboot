@@ -27,6 +27,9 @@ struct render_t {
 	/* The pitch of one scan line */
 	int pitch;
 
+	/* The bytes per pixel */
+	int bytes;
+
 	/* Pixel format */
 	enum pixel_format_t format;
 
@@ -51,8 +54,8 @@ struct framebuffer_t
 	/* The physical size in millimeter */
 	int pwidth, pheight;
 
-	/* The bit per pixel */
-	int bpp;
+	/* The bytes per pixel */
+	int bytes;
 
 	/* Set backlight brightness */
 	void (*setbl)(struct framebuffer_t * fb, int brightness);
@@ -73,6 +76,21 @@ struct framebuffer_t
 	void * priv;
 };
 
+static inline void blit_render(void * vram, struct render_t * render, struct region_t * r)
+{
+	unsigned char * p, * q;
+	int pitch = render->pitch;
+	int offset = r->y * pitch + r->x * render->bytes;
+	int line = r->w * render->bytes;
+	int height = r->h;
+	int i;
+
+	p = (unsigned char *)vram + offset;
+	q = (unsigned char *)render->pixels + offset;
+	for(i = 0; i < height; i++, p += pitch, q += pitch)
+		memcpy(p, q, line);
+}
+
 struct framebuffer_t * search_framebuffer(const char * name);
 struct framebuffer_t * search_first_framebuffer(void);
 bool_t register_framebuffer(struct device_t ** device, struct framebuffer_t * fb);
@@ -82,7 +100,7 @@ int framebuffer_get_width(struct framebuffer_t * fb);
 int framebuffer_get_height(struct framebuffer_t * fb);
 int framebuffer_get_pwidth(struct framebuffer_t * fb);
 int framebuffer_get_pheight(struct framebuffer_t * fb);
-int framebuffer_get_bpp(struct framebuffer_t * fb);
+int framebuffer_get_bytes(struct framebuffer_t * fb);
 struct render_t * framebuffer_create_render(struct framebuffer_t * fb);
 void framebuffer_destroy_render(struct framebuffer_t * fb, struct render_t * render);
 void framebuffer_present_render(struct framebuffer_t * fb, struct render_t * render, struct region_t * region, int n);

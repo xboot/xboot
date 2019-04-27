@@ -44,7 +44,7 @@ static struct render_t * fb_dummy_create(struct framebuffer_t * fb)
 	void * pixels;
 	size_t pixlen;
 
-	pixlen = fb->width * fb->height * (fb->bpp / 8);
+	pixlen = fb->width * fb->height * fb->bytes;
 	pixels = memalign(4, pixlen);
 	if(!pixels)
 		return NULL;
@@ -58,7 +58,8 @@ static struct render_t * fb_dummy_create(struct framebuffer_t * fb)
 
 	render->width = fb->width;
 	render->height = fb->height;
-	render->pitch = (fb->width * (fb->bpp / 8) + 0x3) & ~0x3;
+	render->pitch = (fb->width * fb->bytes + 0x3) & ~0x3;
+	render->bytes = fb->bytes;
 	render->format = PIXEL_FORMAT_ARGB32;
 	render->pixels = pixels;
 	render->pixlen = pixlen;
@@ -86,7 +87,7 @@ static struct framebuffer_t fb_dummy = {
 	.height		= 480,
 	.pwidth		= 216,
 	.pheight	= 135,
-	.bpp		= 32,
+	.bytes		= 4,
 	.setbl		= fb_dummy_setbl,
 	.getbl		= fb_dummy_getbl,
 	.create		= fb_dummy_create,
@@ -256,8 +257,13 @@ void display_free(struct display_t * disp)
 
 void display_region_add(struct display_t * disp, struct region_t * r)
 {
+	struct region_t region;
 	if(disp)
-		region_list_add(disp->rl, r);
+	{
+		region_init(&region, 0, 0, disp->fb->width, disp->fb->height);
+		if(region_intersect(&region, &region, r))
+			region_list_add(disp->rl, &region);
+	}
 }
 
 void display_region_clear(struct display_t * disp)

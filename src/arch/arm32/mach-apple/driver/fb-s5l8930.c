@@ -42,7 +42,7 @@ struct fb_s5l8930_pdata_t {
 	int height;
 	int pwidth;
 	int pheight;
-	int bpp;
+	int bytes;
 	int hfp;
 	int hbp;
 	int hsl;
@@ -74,7 +74,7 @@ static struct render_t * fb_create(struct framebuffer_t * fb)
 	void * pixels;
 	size_t pixlen;
 
-	pixlen = pdat->width * pdat->height * (pdat->bpp / 8);
+	pixlen = pdat->width * pdat->height * pdat->bytes;
 	pixels = memalign(4, pixlen);
 	if(!pixels)
 		return NULL;
@@ -88,7 +88,8 @@ static struct render_t * fb_create(struct framebuffer_t * fb)
 
 	render->width = pdat->width;
 	render->height = pdat->height;
-	render->pitch = (pdat->width * (pdat->bpp / 8) + 0x3) & ~0x3;
+	render->pitch = (pdat->width * pdat->bytes + 0x3) & ~0x3;
+	render->bytes = pdat->bytes;
 	render->format = PIXEL_FORMAT_ARGB32;
 	render->pixels = pixels;
 	render->pixlen = pixlen;
@@ -142,7 +143,7 @@ static struct device_t * fb_s5l8930_probe(struct driver_t * drv, struct dtnode_t
 	pdat->height = dt_read_int(n, "height", 960);
 	pdat->pwidth = dt_read_int(n, "physical-width", 216);
 	pdat->pheight = dt_read_int(n, "physical-height", 135);
-	pdat->bpp = dt_read_int(n, "bits-per-pixel", 32);
+	pdat->bytes = dt_read_int(n, "bytes-per-pixel", 4);
 	pdat->hfp = dt_read_int(n, "hfront-porch", 1);
 	pdat->hbp = dt_read_int(n, "hback-porch", 1);
 	pdat->hsl = dt_read_int(n, "hsync-len", 1);
@@ -150,8 +151,8 @@ static struct device_t * fb_s5l8930_probe(struct driver_t * drv, struct dtnode_t
 	pdat->vbp = dt_read_int(n, "vback-porch", 1);
 	pdat->vsl = dt_read_int(n, "vsync-len", 1);
 	pdat->index = 0;
-	pdat->vram[0] = dma_alloc_noncoherent(pdat->width * pdat->height * pdat->bpp / 8);
-	pdat->vram[1] = dma_alloc_noncoherent(pdat->width * pdat->height * pdat->bpp / 8);
+	pdat->vram[0] = dma_alloc_noncoherent(pdat->width * pdat->height * pdat->bytes);
+	pdat->vram[1] = dma_alloc_noncoherent(pdat->width * pdat->height * pdat->bytes);
 	pdat->backlight = search_led(dt_read_string(n, "backlight", NULL));
 
 	fb->name = alloc_device_name(dt_read_name(n), -1);
@@ -159,7 +160,7 @@ static struct device_t * fb_s5l8930_probe(struct driver_t * drv, struct dtnode_t
 	fb->height = pdat->height;
 	fb->pwidth = pdat->pwidth;
 	fb->pheight = pdat->pheight;
-	fb->bpp = pdat->bpp;
+	fb->bytes = pdat->bytes;
 	fb->setbl = fb_setbl;
 	fb->getbl = fb_getbl;
 	fb->create = fb_create;

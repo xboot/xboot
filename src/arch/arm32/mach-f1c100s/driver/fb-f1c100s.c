@@ -249,6 +249,7 @@ static struct render_t * fb_create(struct framebuffer_t * fb)
 	render->width = pdat->width;
 	render->height = pdat->height;
 	render->pitch = (pdat->width * pdat->bytes_per_pixel + 0x3) & ~0x3;
+	render->bytes = pdat->bytes_per_pixel;
 	render->format = PIXEL_FORMAT_ARGB32;
 	render->pixels = pixels;
 	render->pixlen = pixlen;
@@ -269,13 +270,25 @@ static void fb_destroy(struct framebuffer_t * fb, struct render_t * render)
 static void fb_present(struct framebuffer_t * fb, struct render_t * render, struct region_t * region, int n)
 {
 	struct fb_f1c100s_pdata_t * pdat = (struct fb_f1c100s_pdata_t *)fb->priv;
+	int i;
 
-	if(render && render->pixels)
+	if(n > 0)
 	{
+		for(i = 0; i < n; i++)
+			blit_render(pdat->vram[pdat->index], render, &region[i]);
+		dma_cache_sync(pdat->vram[pdat->index], render->pixlen, DMA_TO_DEVICE);
+		f1c100s_debe_set_address(pdat, pdat->vram[pdat->index]);
 		pdat->index = (pdat->index + 1) & 0x1;
+		for(i = 0; i < n; i++)
+			blit_render(pdat->vram[pdat->index], render, &region[i]);
+	}
+	else
+	{
 		memcpy(pdat->vram[pdat->index], render->pixels, render->pixlen);
 		dma_cache_sync(pdat->vram[pdat->index], render->pixlen, DMA_TO_DEVICE);
 		f1c100s_debe_set_address(pdat, pdat->vram[pdat->index]);
+		pdat->index = (pdat->index + 1) & 0x1;
+		memcpy(pdat->vram[pdat->index], render->pixels, render->pixlen);
 	}
 }
 
@@ -340,7 +353,7 @@ static struct device_t * fb_f1c100s_probe(struct driver_t * drv, struct dtnode_t
 	fb->height = pdat->height;
 	fb->pwidth = pdat->pwidth;
 	fb->pheight = pdat->pheight;
-	fb->bpp = pdat->bytes_per_pixel * 8;
+	fb->bytes = pdat->bytes_per_pixel;
 	fb->setbl = fb_setbl;
 	fb->getbl = fb_getbl;
 	fb->create = fb_create;

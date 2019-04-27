@@ -59,10 +59,10 @@ static int m_display_get_physical_size(lua_State * L)
 	return 2;
 }
 
-static int m_display_get_bits_per_pixel(lua_State * L)
+static int m_display_get_bytes_per_pixel(lua_State * L)
 {
 	struct display_t * disp = luaL_checkudata(L, 1, MT_DISPLAY);
-	lua_pushnumber(L, display_get_bpp(disp));
+	lua_pushnumber(L, display_get_bytes(disp));
 	return 1;
 }
 
@@ -112,15 +112,15 @@ static int m_display_snapshot(lua_State * L)
 }
 
 static const luaL_Reg m_display[] = {
-	{"getSize",			m_display_get_size},
-	{"getPhysicalSize",	m_display_get_physical_size},
-	{"getBitsPerPixel",	m_display_get_bits_per_pixel},
-	{"setBacklight",	m_display_set_backlight},
-	{"getBacklight",	m_display_get_backlight},
-	{"showfps",			m_display_showfps},
-	{"showobj",			m_display_showobj},
-	{"snapshot",		m_display_snapshot},
-	{NULL,				NULL}
+	{"getSize",				m_display_get_size},
+	{"getPhysicalSize",		m_display_get_physical_size},
+	{"getBytesPerPixel",	m_display_get_bytes_per_pixel},
+	{"setBacklight",		m_display_set_backlight},
+	{"getBacklight",		m_display_get_backlight},
+	{"showfps",				m_display_showfps},
+	{"showobj",				m_display_showobj},
+	{"snapshot",			m_display_snapshot},
+	{NULL, NULL}
 };
 
 int luaopen_display(lua_State * L)

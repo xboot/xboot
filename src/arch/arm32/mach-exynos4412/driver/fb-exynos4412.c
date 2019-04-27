@@ -91,8 +91,7 @@ struct fb_exynos4412_pdata_t
 	int height;
 	int pwidth;
 	int pheight;
-	int bits_per_pixel;
-	int bytes_per_pixel;
+	int bytes;
 	int index;
 	void * vram[2];
 
@@ -242,7 +241,7 @@ static void exynos4412_fb_set_buffer_address(struct fb_exynos4412_pdata_t * pdat
 	u32_t shw;
 
 	start = (u32_t)(vram);
-	end = (u32_t)((start + pdat->width * (pdat->height * pdat->bytes_per_pixel)) & 0x00ffffff);
+	end = (u32_t)((start + pdat->width * (pdat->height * pdat->bytes)) & 0x00ffffff);
 
 	shw = read32(pdat->virt + SHADOWCON);
 	shw |= SHADOWCON_PROTECT(id);
@@ -283,7 +282,7 @@ static void exynos4412_fb_set_buffer_size(struct fb_exynos4412_pdata_t * pdat, i
 {
 	u32_t cfg = 0;
 
-	cfg = VIDADDR_PAGEWIDTH(pdat->width * pdat->bytes_per_pixel);
+	cfg = VIDADDR_PAGEWIDTH(pdat->width * pdat->bytes);
 	cfg |= VIDADDR_OFFSIZE(0);
 
 	switch(id)
@@ -531,7 +530,7 @@ static struct render_t * fb_create(struct framebuffer_t * fb)
 	void * pixels;
 	size_t pixlen;
 
-	pixlen = pdat->width * pdat->height * pdat->bytes_per_pixel;
+	pixlen = pdat->width * pdat->height * pdat->bytes;
 	pixels = memalign(4, pixlen);
 	if(!pixels)
 		return NULL;
@@ -545,7 +544,8 @@ static struct render_t * fb_create(struct framebuffer_t * fb)
 
 	render->width = pdat->width;
 	render->height = pdat->height;
-	render->pitch = (pdat->width * pdat->bytes_per_pixel + 0x3) & ~0x3;
+	render->pitch = (pdat->width * pdat->bytes + 0x3) & ~0x3;
+	render->bytes = pdat->bytes;
 	render->format = PIXEL_FORMAT_ARGB32;
 	render->pixels = pixels;
 	render->pixlen = pixlen;
@@ -604,11 +604,10 @@ static struct device_t * fb_exynos4412_probe(struct driver_t * drv, struct dtnod
 	pdat->height = dt_read_int(n, "height", 600);
 	pdat->pwidth = dt_read_int(n, "physical-width", 216);
 	pdat->pheight = dt_read_int(n, "physical-height", 135);
-	pdat->bits_per_pixel = dt_read_int(n, "bits-per-pixel", 32);
-	pdat->bytes_per_pixel = dt_read_int(n, "bytes-per-pixel", 4);
+	pdat->bytes = dt_read_int(n, "bytes-per-pixel", 4);
 	pdat->index = 0;
-	pdat->vram[0] = dma_alloc_noncoherent(pdat->width * pdat->height * pdat->bytes_per_pixel);
-	pdat->vram[1] = dma_alloc_noncoherent(pdat->width * pdat->height * pdat->bytes_per_pixel);
+	pdat->vram[0] = dma_alloc_noncoherent(pdat->width * pdat->height * pdat->bytes);
+	pdat->vram[1] = dma_alloc_noncoherent(pdat->width * pdat->height * pdat->bytes);
 
 	pdat->output = EXYNOS4412_FB_OUTPUT_RGB;
 	pdat->rgb_mode = EXYNOS4412_FB_MODE_RGB_P;
@@ -633,7 +632,7 @@ static struct device_t * fb_exynos4412_probe(struct driver_t * drv, struct dtnod
 	fb->height = pdat->height;
 	fb->pwidth = pdat->pwidth;
 	fb->pheight = pdat->pheight;
-	fb->bpp = pdat->bytes_per_pixel * 8;
+	fb->bytes = pdat->bytes;
 	fb->setbl = fb_setbl;
 	fb->getbl = fb_getbl;
 	fb->create = fb_create;

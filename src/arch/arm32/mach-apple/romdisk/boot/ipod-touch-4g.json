@@ -175,7 +175,7 @@
 		"height": 960,
 		"dots-per-inch-x": 326,
 		"dots-per-inch-y": 326,
-		"bits-per-pixel": 32,
+		"bytes-per-pixel": 4,
 		"hfront-porch": 1,
 		"hback-porch": 1,
 		"hsync-len": 1,

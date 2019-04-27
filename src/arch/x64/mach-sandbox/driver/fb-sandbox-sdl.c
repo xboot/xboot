@@ -36,7 +36,7 @@ struct fb_sandbox_sdl_pdata_t
 	int height;
 	int pwidth;
 	int pheight;
-	int bpp;
+	int bytes;
 	void * priv;
 };
 
@@ -79,6 +79,7 @@ static struct render_t * fb_create(struct framebuffer_t * fb)
 	render->width = surface->width;
 	render->height = surface->height;
 	render->pitch = surface->pitch;
+	render->bytes = surface->bytes;
 	render->format = PIXEL_FORMAT_ARGB32;
 	render->pixels = surface->pixels;
 	render->pixlen = surface->height * surface->pitch;
@@ -114,19 +115,11 @@ static struct device_t * fb_sandbox_sdl_probe(struct driver_t * drv, struct dtno
 	int height = dt_read_int(n, "height", 480);
 	char title[64];
 	void * ctx;
-	int bpp;
 
 	sprintf(title, "Xboot Runtime Environment - V%s", xboot_version_string());
 	ctx = sandbox_fb_sdl_open(title, width, height);
 	if(!ctx)
 		return NULL;
-
-	bpp = sandbox_fb_sdl_get_bpp(ctx);
-	if(bpp != 32)
-	{
-		sandbox_fb_sdl_close(ctx);
-		return NULL;
-	}
 
 	pdat = malloc(sizeof(struct fb_sandbox_sdl_pdata_t));
 	if(!pdat)
@@ -144,14 +137,14 @@ static struct device_t * fb_sandbox_sdl_probe(struct driver_t * drv, struct dtno
 	pdat->height = sandbox_fb_sdl_get_height(pdat->priv);
 	pdat->pwidth = dt_read_int(n, "physical-width", sandbox_fb_get_pwidth(pdat->priv));
 	pdat->pheight = dt_read_int(n, "physical-height", sandbox_fb_get_pheight(pdat->priv));
-	pdat->bpp = bpp;
+	pdat->bytes = sandbox_fb_sdl_get_bytes(ctx);
 
 	fb->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	fb->width = pdat->width;
 	fb->height = pdat->height;
 	fb->pwidth = pdat->pwidth;
 	fb->pheight = pdat->pheight;
-	fb->bpp = pdat->bpp;
+	fb->bytes = pdat->bytes;
 	fb->setbl = fb_setbl;
 	fb->getbl = fb_getbl;
 	fb->create = fb_create;

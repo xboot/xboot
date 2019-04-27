@@ -67,10 +67,10 @@ static inline int display_get_pheight(struct display_t * disp)
 	return 0;
 }
 
-static inline int display_get_bpp(struct display_t * disp)
+static inline int display_get_bytes(struct display_t * disp)
 {
 	if(disp)
-		return framebuffer_get_bpp(disp->fb);
+		return framebuffer_get_bytes(disp->fb);
 	return 0;
 }
 

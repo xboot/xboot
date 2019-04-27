@@ -110,7 +110,7 @@
 		"height": 480,
 		"physical-width": 216,
 		"physical-height": 135,
-		"bits-per-pixel": 32
+		"bytes-per-pixel": 4
 	},
 
 	"console-uart@0": {

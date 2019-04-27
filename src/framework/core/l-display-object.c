@@ -98,10 +98,15 @@ end
 function M:toFront()
 	local parent = self.__parent
 	if parent then
-		parent:removeChild(self)
-		table.insert(parent.__children, self)
-		self.__parent = parent
-		parent.__dobj:addChild(self.__dobj, true)
+		local children = parent.__children
+		for i, v in ipairs(children) do
+			if v == self then
+				table.remove(children, i)
+				table.insert(children, self)
+				break
+			end
+		end
+		self.__dobj:toFront()
 	end
 	return self
 end
@@ -109,10 +114,15 @@ end
 function M:toBack()
 	local parent = self.__parent
 	if parent then
-		parent:removeChild(self)
-		table.insert(parent.__children, 1, self)
-		self.__parent = parent
-		parent.__dobj:addChild(self.__dobj, false)
+		local children = parent.__children
+		for i, v in ipairs(children) do
+			if v == self then
+				table.remove(children, i)
+				table.insert(children, 1, self)
+				break
+			end
+		end
+		self.__dobj:toBack()
 	end
 	return self
 end

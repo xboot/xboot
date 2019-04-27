@@ -1006,10 +1006,10 @@ static int m_remove_child(lua_State * L)
 static int m_to_front(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
-	if(o->parent)
+	if(o->parent && !list_is_last(&o->entry, &o->parent->children))
 	{
 		dobject_mark_dirty(o);
-		list_move(&o->entry, &o->parent->children);
+		list_move_tail(&o->entry, &o->parent->children);
 	}
 	return 0;
 }
@@ -1017,10 +1017,10 @@ static int m_to_front(lua_State * L)
 static int m_to_back(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
-	if(o->parent)
+	if(o->parent && !list_is_first(&o->entry, &o->parent->children))
 	{
 		dobject_mark_dirty(o);
-		list_move_tail(&o->entry, &o->parent->children);
+		list_move(&o->entry, &o->parent->children);
 	}
 	return 0;
 }

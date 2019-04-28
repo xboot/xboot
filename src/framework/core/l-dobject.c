@@ -659,57 +659,96 @@ static void dobject_layout(struct ldobject_t * o)
 	{
 		if(dobject_layout_get_enable(pos))
 		{
-			pos->mflag = MFLAG_LOCAL_MATRIX | MFLAG_GLOBAL_MATRIX | MFLAG_GLOBAL_BOUNDS;
-			pos->rotation = 0;
-			pos->skewx = 0;
-			pos->skewy = 0;
-			pos->anchorx = 0;
-			pos->anchory = 0;
+			double width, height;
+			double scalex, scaley;
+
+			switch(pos->dtype)
+			{
+			case DOBJECT_TYPE_CONTAINER:
+				width = pos->layout.w;
+				height = pos->layout.h;
+				scalex = 1.0;
+				scaley = 1.0;
+				break;
+			case DOBJECT_TYPE_IMAGE:
+				width = pos->width;
+				height = pos->height;
+				if(width != 0.0 && height != 0.0)
+				{
+					scalex = pos->layout.w / width;
+					scaley = pos->layout.h / height;
+				}
+				else
+				{
+					scalex = pos->scalex;
+					scaley = pos->scaley;
+				}
+				break;
+			case DOBJECT_TYPE_NINEPATCH:
+				width = pos->layout.w;
+				height = pos->layout.h;
+				scalex = 1.0;
+				scaley = 1.0;
+				ninepatch_stretch(pos->priv, width, height);
+				break;
+			case DOBJECT_TYPE_SHAPE:
+				width = pos->width;
+				height = pos->height;
+				if(width != 0.0 && height != 0.0)
+				{
+					scalex = pos->layout.w / width;
+					scaley = pos->layout.h / height;
+				}
+				else
+				{
+					scalex = pos->scalex;
+					scaley = pos->scaley;
+				}
+				break;
+			case DOBJECT_TYPE_TEXT:
+				width = pos->width;
+				height = pos->height;
+				if(width != 0.0 && height != 0.0)
+				{
+					scalex = pos->layout.w / width;
+					scaley = pos->layout.h / height;
+				}
+				else
+				{
+					scalex = pos->scalex;
+					scaley = pos->scaley;
+				}
+				break;
+			default:
+				width = pos->width;
+				height = pos->height;
+				scalex = pos->scalex;
+				scaley = pos->scaley;
+				break;
+			}
+
+			if(pos->width != width || pos->height != height || pos->x != pos->layout.x || pos->y != pos->layout.y || pos->rotation != 0 ||
+				pos->scalex != scalex || pos->scaley != scaley || pos->skewx != 0 || pos->skewy != 0 || pos->anchorx != 0 || pos->anchory != 0)
+			{
+				dobject_mark_dirty(pos);
+			}
+			pos->width = width;
+			pos->height = height;
 			pos->x = pos->layout.x;
 			pos->y = pos->layout.y;
+			pos->rotation = 0.0;
+			pos->scalex = scalex;
+			pos->scaley = scaley;
+			pos->skewx = 0.0;
+			pos->skewy = 0.0;
+			pos->anchorx = 0.0;
+			pos->anchory = 0.0;
+			pos->mflag &= ~(MFLAG_TRANSLATE | MFLAG_ROTATE | MFLAG_SCALE | MFLAG_SKEW | MFLAG_ANCHOR | MFLAG_LOCAL_MATRIX | MFLAG_GLOBAL_MATRIX | MFLAG_GLOBAL_BOUNDS);
+			pos->mflag |= MFLAG_LOCAL_MATRIX | MFLAG_GLOBAL_MATRIX | MFLAG_GLOBAL_BOUNDS;
 			if((pos->x == 0.0) && (pos->y == 0.0))
 				pos->mflag &= ~MFLAG_TRANSLATE;
 			else
 				pos->mflag |= MFLAG_TRANSLATE;
-			switch(pos->dtype)
-			{
-			case DOBJECT_TYPE_CONTAINER:
-				pos->scalex = 1.0;
-				pos->scaley = 1.0;
-				pos->width = pos->layout.w;
-				pos->height = pos->layout.h;
-				break;
-			case DOBJECT_TYPE_IMAGE:
-				if(pos->width != 0.0 && pos->height != 0.0)
-				{
-					pos->scalex = pos->layout.w / pos->width;
-					pos->scaley = pos->layout.h / pos->height;
-				}
-				break;
-			case DOBJECT_TYPE_NINEPATCH:
-				pos->scalex = 1.0;
-				pos->scaley = 1.0;
-				pos->width = pos->layout.w;
-				pos->height = pos->layout.h;
-				ninepatch_stretch(pos->priv, pos->width, pos->height);
-				break;
-			case DOBJECT_TYPE_SHAPE:
-				if(pos->width != 0.0 && pos->height != 0.0)
-				{
-					pos->scalex = pos->layout.w / pos->width;
-					pos->scaley = pos->layout.h / pos->height;
-				}
-				break;
-			case DOBJECT_TYPE_TEXT:
-				if(pos->width != 0.0 && pos->height != 0.0)
-				{
-					pos->scalex = pos->layout.w / pos->width;
-					pos->scaley = pos->layout.h / pos->height;
-				}
-				break;
-			default:
-				break;
-			}
 			if((pos->scalex == 1.0) && (pos->scaley == 1.0))
 				pos->mflag &= ~MFLAG_SCALE;
 			else

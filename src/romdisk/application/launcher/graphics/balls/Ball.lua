@@ -1,7 +1,7 @@
 local M = Class(DisplayObject)
 
 function M:init(image, w, h)
-	self.super:init()
+	self.super:init(w, h)
 
 	local assets = assets
 

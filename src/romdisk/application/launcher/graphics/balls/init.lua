@@ -4,7 +4,7 @@ local Pattern = Pattern
 local M = Class(DisplayObject)
 
 function M:init(w, h)
-	self.super:init()
+	self.super:init(w, h)
 
 	local assets = assets
 

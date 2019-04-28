@@ -966,12 +966,19 @@ static int m_add_child(lua_State * L)
 	struct ldobject_t * c = luaL_checkudata(L, 2, MT_DOBJECT);
 	if(c->parent != o)
 	{
-		dobject_mark_dirty(c);
-		c->parent = o;
-		if(lua_toboolean(L, 3))
+		if(c->parent)
+		{
+			dobject_mark_dirty(c);
+			c->parent = o;
 			list_add_tail(&c->entry, &o->children);
+		}
 		else
-			list_add(&c->entry, &o->children);
+		{
+			c->parent = o;
+			list_add_tail(&c->entry, &o->children);
+			c->mflag &= ~MFLAG_DIRTY;
+			dobject_mark_dirty(c);
+		}
 		dobject_mark_with_children(c, MFLAG_GLOBAL_MATRIX | MFLAG_GLOBAL_BOUNDS);
 	}
 	return 0;

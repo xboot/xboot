@@ -56,10 +56,17 @@ end
 
 function M:addChild(child)
 	if child and child ~= self and child.__parent ~= self then
-		child:removeSelf()
+		if child.__parent ~= nil then
+			for i, v in ipairs(child.__parent) do
+				if v == child then
+					table.remove(self.__children, i)
+					break
+				end
+			end
+		end
 		table.insert(self.__children, child)
 		child.__parent = self
-		self.__dobj:addChild(child.__dobj, true)
+		self.__dobj:addChild(child.__dobj)
 	end
 	return self
 end
@@ -70,10 +77,10 @@ function M:removeChild(child)
 			if v == child then
 				table.remove(self.__children, i)
 				v.__parent = nil
-				self.__dobj:removeChild(v.__dobj)
-				break;
+				break
 			end
 		end
+		self.__dobj:removeChild(child.__dobj)
 	end
 	return self
 end

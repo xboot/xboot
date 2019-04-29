@@ -96,114 +96,6 @@ static struct framebuffer_t fb_dummy = {
 	.priv		= NULL,
 };
 
-static inline struct region_list_t * region_list_alloc(int size)
-{
-	struct region_list_t * rl;
-	struct region_t * r;
-
-	if(size < 2)
-		size = 2;
-	if(size & (size - 1))
-		size = roundup_pow_of_two(size);
-
-	r = malloc(size * sizeof(struct region_t));
-	if(!r)
-		return NULL;
-
-	rl = malloc(sizeof(struct region_list_t));
-	if(!rl)
-	{
-		free(r);
-		return NULL;
-	}
-
-	rl->region = r;
-	rl->count = 0;
-	rl->size = size;
-	return rl;
-}
-
-static inline void region_list_free(struct region_list_t * rl)
-{
-	if(rl)
-	{
-		free(rl->region);
-		free(rl);
-	}
-}
-
-static inline void region_list_add(struct region_list_t * rl, struct region_t * r)
-{
-	struct region_t region, * p;
-	int area = INT_MAX, index = -1;
-	int count = rl->count;
-	int i;
-
-	if(count < CONFIG_DISPLAY_REGION_SIZE)
-	{
-		for(i = 0; i < count; ++i)
-		{
-			p = &rl->region[i];
-			if(region_intersect(&region, p, r))
-			{
-				if(region.area >= r->area)
-				{
-					return;
-				}
-				else
-				{
-					region_union(&region, p, r);
-					if(region.area < area)
-					{
-						area = region.area;
-						index = i;
-					}
-				}
-			}
-		}
-	}
-	else
-	{
-		for(i = 0; i < count; ++i)
-		{
-			p = &rl->region[i];
-			if(region_union(&region, p, r))
-			{
-				if(region.area <= p->area)
-				{
-					return;
-				}
-				else if(region.area < area)
-				{
-					area = region.area;
-					index = i;
-				}
-			}
-		}
-	}
-
-	if(index >= 0)
-	{
-		p = &rl->region[index];
-		region_union(p, p, r);
-	}
-	else
-	{
-		if(rl->count >= rl->size)
-		{
-			rl->size <<= 1;
-			rl->region = realloc(rl->region, rl->size * sizeof(struct region_t));
-		}
-		region_clone(&rl->region[rl->count], r);
-		rl->count++;
-	}
-}
-
-static inline void region_list_clear(struct region_list_t * rl)
-{
-	rl->count = 0;
-}
-
 struct display_t * display_alloc(const char * fb)
 {
 	struct display_t * disp;
@@ -255,7 +147,7 @@ void display_free(struct display_t * disp)
 	free(disp);
 }
 
-void display_region_add(struct display_t * disp, struct region_t * r)
+void display_region_list_add(struct display_t * disp, struct region_t * r)
 {
 	struct region_t region;
 	if(disp)
@@ -266,7 +158,7 @@ void display_region_add(struct display_t * disp, struct region_t * r)
 	}
 }
 
-void display_region_clear(struct display_t * disp)
+void display_region_list_clear(struct display_t * disp)
 {
 	if(disp)
 		region_list_clear(disp->rl);
@@ -286,8 +178,8 @@ void display_present(struct display_t * disp, void * o, void (*draw)(struct disp
 		{
 			region_init(&rn, disp->cursor.nx, disp->cursor.ny, disp->cursor.width, disp->cursor.height);
 			region_init(&ro, disp->cursor.ox, disp->cursor.oy, disp->cursor.width, disp->cursor.height);
-			display_region_add(disp, &rn);
-			display_region_add(disp, &ro);
+			display_region_list_add(disp, &rn);
+			display_region_list_add(disp, &ro);
 			disp->cursor.dirty = 0;
 		}
 
@@ -301,7 +193,7 @@ void display_present(struct display_t * disp, void * o, void (*draw)(struct disp
 			disp->fps.stamp = now;
 			int len = snprintf(fps, sizeof(fps), "%.2f %ld", disp->fps.rate, disp->fps.frame);
 			region_init(&rn, 0, 0, len * (24 / 2), 24);
-			display_region_add(disp, &rn);
+			display_region_list_add(disp, &rn);
 		}
 
 		if((count = disp->rl->count) > 0)

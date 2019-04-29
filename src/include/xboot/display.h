@@ -7,12 +7,6 @@ extern "C" {
 
 #include <cairo-xboot.h>
 
-struct region_list_t {
-	struct region_t * region;
-	int count;
-	int size;
-};
-
 struct display_t
 {
 	struct framebuffer_t * fb;
@@ -152,8 +146,8 @@ static inline int display_get_showobj(struct display_t * disp)
 
 struct display_t * display_alloc(const char * fb);
 void display_free(struct display_t * disp);
-void display_region_add(struct display_t * disp, struct region_t * r);
-void display_region_clear(struct display_t * disp);
+void display_region_list_add(struct display_t * disp, struct region_t * r);
+void display_region_list_clear(struct display_t * disp);
 void display_present(struct display_t * disp, void * o, void (*draw)(struct display_t *, void *));
 
 #ifdef __cplusplus

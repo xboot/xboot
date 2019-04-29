@@ -2101,20 +2101,20 @@ static int m_get_bounds(lua_State * L)
 	return 4;
 }
 
-static void display_region_fill(struct display_t * disp, struct ldobject_t * o)
+static void display_region_list_fill(struct display_t * disp, struct ldobject_t * o)
 {
 	struct ldobject_t * pos;
 
 	if(o->mflag & MFLAG_DIRTY)
 	{
-		display_region_add(disp, dobject_global_bounds(o));
-		display_region_add(disp, dobject_dirty_bounds(o));
+		display_region_list_add(disp, dobject_global_bounds(o));
+		display_region_list_add(disp, dobject_dirty_bounds(o));
 		o->mflag &= ~MFLAG_DIRTY;
 	}
 
 	list_for_each_entry(pos, &o->children, entry)
 	{
-		display_region_fill(disp, pos);
+		display_region_list_fill(disp, pos);
 	}
 }
 
@@ -2221,8 +2221,8 @@ static int m_render(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
 	struct display_t * disp = luaL_checkudata(L, 2, MT_DISPLAY);
-	display_region_clear(disp);
-	display_region_fill(disp, o);
+	display_region_list_clear(disp);
+	display_region_list_fill(disp, o);
 	display_present(disp, (void *)o, (void (*)(struct display_t *, void *))display_draw);
 	return 0;
 }

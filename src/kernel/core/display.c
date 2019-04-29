@@ -101,8 +101,8 @@ static inline struct region_list_t * region_list_alloc(int size)
 	struct region_list_t * rl;
 	struct region_t * r;
 
-	if(size < 8)
-		size = 8;
+	if(size < 2)
+		size = 2;
 	if(size & (size - 1))
 		size = roundup_pow_of_two(size);
 
@@ -139,7 +139,7 @@ static inline void region_list_add(struct region_list_t * rl, struct region_t * 
 	int count = rl->count;
 	int i;
 
-	if(count < 8)
+	if(count < CONFIG_DISPLAY_REGION_SIZE)
 	{
 		for(i = 0; i < count; ++i)
 		{
@@ -222,7 +222,7 @@ struct display_t * display_alloc(const char * fb)
 		return NULL;
 
 	disp->fb = dev;
-	disp->rl = region_list_alloc(0);
+	disp->rl = region_list_alloc(CONFIG_DISPLAY_REGION_SIZE);
 	disp->cs = cairo_xboot_surface_create(disp->fb);
 	disp->cr = cairo_create(disp->cs);
 	disp->cursor.cs = cairo_image_surface_create_from_png("/framework/assets/images/cursor.png");

@@ -31,16 +31,20 @@ extern "C" {
 #define CONFIG_PROFILER_HASH_SIZE			(257)
 #endif
 
-#if !defined(CONFIG_KVDB_MAX_HASH_SIZE)
-#define CONFIG_KVDB_MAX_HASH_SIZE			(4099)
+#if !defined(CONFIG_KVDB_HASH_SIZE)
+#define CONFIG_KVDB_HASH_SIZE				(4099)
 #endif
 
 #if !defined(CONFIG_MAX_BRIGHTNESS)
 #define CONFIG_MAX_BRIGHTNESS				(1000)
 #endif
 
-#if !defined(CONFIG_EVENT_FIFO_LENGTH)
-#define CONFIG_EVENT_FIFO_LENGTH			(8)
+#if !defined(CONFIG_DISPLAY_REGION_SIZE)
+#define CONFIG_DISPLAY_REGION_SIZE			(8)
+#endif
+
+#if !defined(CONFIG_EVENT_FIFO_SIZE)
+#define CONFIG_EVENT_FIFO_SIZE				(8)
 #endif
 
 #if !defined(CONFIG_MOUNT_PRIVATE_DEVICE)

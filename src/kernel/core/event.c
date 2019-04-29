@@ -49,7 +49,7 @@ struct event_context_t * event_context_alloc(const char * input)
 	if(!ectx)
 		return NULL;
 
-	ectx->fifo = fifo_alloc(sizeof(struct event_t) * CONFIG_EVENT_FIFO_LENGTH);
+	ectx->fifo = fifo_alloc(sizeof(struct event_t) * CONFIG_EVENT_FIFO_SIZE);
 	if(!ectx->fifo)
 	{
 		free(ectx);

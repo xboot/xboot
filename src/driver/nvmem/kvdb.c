@@ -147,8 +147,8 @@ struct kvdb_t * kvdb_alloc(int size)
 
 	db->max_size = size;
 	db->hash_size = (db->max_size >> 3) + 1;
-	if(db->hash_size > CONFIG_KVDB_MAX_HASH_SIZE)
-		db->hash_size = CONFIG_KVDB_MAX_HASH_SIZE;
+	if(db->hash_size > CONFIG_KVDB_HASH_SIZE)
+		db->hash_size = CONFIG_KVDB_HASH_SIZE;
 	db->store_size = 1;
 	db->hash = malloc(sizeof(struct hlist_head) * db->hash_size);
 	if(!db->hash)

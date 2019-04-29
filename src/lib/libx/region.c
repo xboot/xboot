@@ -14,8 +14,8 @@ struct region_list_t * region_list_alloc(unsigned int size)
 	struct region_list_t * rl;
 	struct region_t * r;
 
-	if(size < 2)
-		size = 2;
+	if(size < 16)
+		size = 16;
 	if(size & (size - 1))
 		size = roundup_pow_of_two(size);
 
@@ -45,6 +45,52 @@ void region_list_free(struct region_list_t * rl)
 	}
 }
 
+static inline void region_list_resize(struct region_list_t * rl, unsigned int size)
+{
+	if(rl && (rl->size != size))
+	{
+		if(size < 16)
+			size = 16;
+		if(size & (size - 1))
+			size = roundup_pow_of_two(size);
+		rl->size = size;
+		rl->region = realloc(rl->region, rl->size * sizeof(struct region_t));
+	}
+}
+
+void region_list_clone(struct region_list_t * rl, struct region_list_t * a)
+{
+	int count;
+
+	if(rl)
+	{
+		if(!a)
+			rl->count = 0;
+		else
+		{
+			if(rl->size < a->size)
+				region_list_resize(rl, a->size);
+			if((count = a->count) > 0)
+				memcpy(rl->region, a->region, sizeof(struct region_t) * count);
+			rl->count = count;
+		}
+	}
+}
+
+void region_list_merge(struct region_list_t * rl, struct region_list_t * a)
+{
+	int count;
+	int i;
+
+	if(rl && a && ((count = a->count) > 0))
+	{
+		if(rl->size < a->size)
+			region_list_resize(rl, a->size);
+		for(i = 0; i < count; i++)
+			region_list_add(rl, &a->region[i]);
+	}
+}
+
 void region_list_add(struct region_list_t * rl, struct region_t * r)
 {
 	struct region_t region, * p;
@@ -55,7 +101,7 @@ void region_list_add(struct region_list_t * rl, struct region_t * r)
 	if(!rl || !r)
 		return;
 
-	if(rl->count < rl->size)
+	if(rl->count < 8)
 	{
 		for(i = 0; i < rl->count; i++)
 		{
@@ -105,11 +151,8 @@ void region_list_add(struct region_list_t * rl, struct region_t * r)
 	}
 	else
 	{
-		if(rl->count >= rl->size)
-		{
-			rl->size <<= 1;
-			rl->region = realloc(rl->region, rl->size * sizeof(struct region_t));
-		}
+		if(rl->size < rl->count)
+			region_list_resize(rl, rl->size << 1);
 		region_clone(&rl->region[rl->count], r);
 		rl->count++;
 	}

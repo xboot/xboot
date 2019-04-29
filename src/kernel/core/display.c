@@ -114,7 +114,7 @@ struct display_t * display_alloc(const char * fb)
 		return NULL;
 
 	disp->fb = dev;
-	disp->rl = region_list_alloc(CONFIG_DISPLAY_REGION_SIZE);
+	disp->rl = region_list_alloc(0);
 	disp->cs = cairo_xboot_surface_create(disp->fb);
 	disp->cr = cairo_create(disp->cs);
 	disp->cursor.cs = cairo_image_surface_create_from_png("/framework/assets/images/cursor.png");

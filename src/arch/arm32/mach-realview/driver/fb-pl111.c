@@ -62,6 +62,7 @@ struct fb_pl111_pdata_t {
 	int vsl;
 	int index;
 	void * vram[2];
+	struct region_list_t * nrl, * orl;
 	struct led_t * backlight;
 	int brightness;
 };
@@ -121,25 +122,21 @@ static void fb_destroy(struct framebuffer_t * fb, struct render_t * render)
 static void fb_present(struct framebuffer_t * fb, struct render_t * render, struct region_list_t * rl)
 {
 	struct fb_pl111_pdata_t * pdat = (struct fb_pl111_pdata_t *)fb->priv;
+	struct region_list_t * nrl = pdat->nrl;
 
-	if(rl && (rl->count > 0))
-	{
-		present_render(pdat->vram[pdat->index], render, rl);
-		dma_cache_sync(pdat->vram[pdat->index], render->pixlen, DMA_TO_DEVICE);
-		write32(pdat->virt + CLCD_UBAS, ((u32_t)pdat->vram[pdat->index]));
-		write32(pdat->virt + CLCD_LBAS, ((u32_t)pdat->vram[pdat->index] + pdat->width * pdat->height * pdat->bytes));
-		pdat->index = (pdat->index + 1) & 0x1;
-		present_render(pdat->vram[pdat->index], render, rl);
-	}
+	region_list_clear(nrl);
+	region_list_merge(nrl, pdat->orl);
+	region_list_merge(nrl, rl);
+	region_list_clone(pdat->orl, rl);
+
+	pdat->index = (pdat->index + 1) & 0x1;
+	if(nrl->count > 0)
+		present_render(pdat->vram[pdat->index], render, nrl);
 	else
-	{
 		memcpy(pdat->vram[pdat->index], render->pixels, render->pixlen);
-		dma_cache_sync(pdat->vram[pdat->index], render->pixlen, DMA_TO_DEVICE);
-		write32(pdat->virt + CLCD_UBAS, ((u32_t)pdat->vram[pdat->index]));
-		write32(pdat->virt + CLCD_LBAS, ((u32_t)pdat->vram[pdat->index] + pdat->width * pdat->height * pdat->bytes));
-		pdat->index = (pdat->index + 1) & 0x1;
-		memcpy(pdat->vram[pdat->index], render->pixels, render->pixlen);
-	}
+	dma_cache_sync(pdat->vram[pdat->index], render->pixlen, DMA_TO_DEVICE);
+	write32(pdat->virt + CLCD_UBAS, ((u32_t)pdat->vram[pdat->index]));
+	write32(pdat->virt + CLCD_LBAS, ((u32_t)pdat->vram[pdat->index] + pdat->width * pdat->height * pdat->bytes));
 }
 
 static struct device_t * fb_pl111_probe(struct driver_t * drv, struct dtnode_t * n)
@@ -182,6 +179,8 @@ static struct device_t * fb_pl111_probe(struct driver_t * drv, struct dtnode_t *
 	pdat->index = 0;
 	pdat->vram[0] = dma_alloc_noncoherent(pdat->width * pdat->height * pdat->bytes);
 	pdat->vram[1] = dma_alloc_noncoherent(pdat->width * pdat->height * pdat->bytes);
+	pdat->nrl = region_list_alloc(0);
+	pdat->orl = region_list_alloc(0);
 	pdat->backlight = search_led(dt_read_string(n, "backlight", NULL));
 
 	fb->name = alloc_device_name(dt_read_name(n), -1);
@@ -209,6 +208,8 @@ static struct device_t * fb_pl111_probe(struct driver_t * drv, struct dtnode_t *
 	{
 		dma_free_noncoherent(pdat->vram[0]);
 		dma_free_noncoherent(pdat->vram[1]);
+		region_list_free(pdat->nrl);
+		region_list_free(pdat->orl);
 
 		free_device_name(fb->name);
 		free(fb->priv);
@@ -229,6 +230,8 @@ static void fb_pl111_remove(struct device_t * dev)
 	{
 		dma_free_noncoherent(pdat->vram[0]);
 		dma_free_noncoherent(pdat->vram[1]);
+		region_list_free(pdat->nrl);
+		region_list_free(pdat->orl);
 
 		free_device_name(fb->name);
 		free(fb->priv);

@@ -118,21 +118,18 @@ static void fb_destroy(struct framebuffer_t * fb, struct render_t * render)
 	}
 }
 
-static void fb_present(struct framebuffer_t * fb, struct render_t * render, struct region_t * region, int n)
+static void fb_present(struct framebuffer_t * fb, struct render_t * render, struct region_list_t * rl)
 {
 	struct fb_pl111_pdata_t * pdat = (struct fb_pl111_pdata_t *)fb->priv;
-	int i;
 
-	if(n > 0)
+	if(rl && (rl->count > 0))
 	{
-		for(i = 0; i < n; i++)
-			blit_render(pdat->vram[pdat->index], render, &region[i]);
+		present_render(pdat->vram[pdat->index], render, rl);
 		dma_cache_sync(pdat->vram[pdat->index], render->pixlen, DMA_TO_DEVICE);
 		write32(pdat->virt + CLCD_UBAS, ((u32_t)pdat->vram[pdat->index]));
 		write32(pdat->virt + CLCD_LBAS, ((u32_t)pdat->vram[pdat->index] + pdat->width * pdat->height * pdat->bytes));
 		pdat->index = (pdat->index + 1) & 0x1;
-		for(i = 0; i < n; i++)
-			blit_render(pdat->vram[pdat->index], render, &region[i]);
+		present_render(pdat->vram[pdat->index], render, rl);
 	}
 	else
 	{

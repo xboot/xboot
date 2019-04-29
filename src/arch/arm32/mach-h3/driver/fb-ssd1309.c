@@ -203,7 +203,7 @@ static void fb_destroy(struct framebuffer_t * fb, struct render_t * render)
 	}
 }
 
-static void fb_present(struct framebuffer_t * fb, struct render_t * render, struct region_t * region, int n)
+static void fb_present(struct framebuffer_t * fb, struct render_t * render, struct region_list_t * rl)
 {
 	struct fb_ssd1309_pdata_t * pdat = (struct fb_ssd1309_pdata_t *)fb->priv;
 	int x, y, i, o;

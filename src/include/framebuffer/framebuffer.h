@@ -70,25 +70,33 @@ struct framebuffer_t
 	void (*destroy)(struct framebuffer_t * fb, struct render_t * render);
 
 	/* Present a render */
-	void (*present)(struct framebuffer_t * fb, struct render_t * render, struct region_t * region, int n);
+	void (*present)(struct framebuffer_t * fb, struct render_t * render, struct region_list_t * rl);
 
 	/* Private data */
 	void * priv;
 };
 
-static inline void blit_render(void * vram, struct render_t * render, struct region_t * r)
+static inline void present_render(void * vram, struct render_t * render, struct region_list_t * rl)
 {
+	struct region_t * r;
 	unsigned char * p, * q;
+	int count = rl->count;
 	int pitch = render->pitch;
-	int offset = r->y * pitch + r->x * render->bytes;
-	int line = r->w * render->bytes;
-	int height = r->h;
-	int i;
+	int offset, line, height;
+	int i, j;
 
-	p = (unsigned char *)vram + offset;
-	q = (unsigned char *)render->pixels + offset;
-	for(i = 0; i < height; i++, p += pitch, q += pitch)
-		memcpy(p, q, line);
+	for(i = 0; i < count; i++)
+	{
+		r = &rl->region[i];
+		offset = r->y * pitch + r->x * render->bytes;
+		line = r->w * render->bytes;
+		height = r->h;
+
+		p = (unsigned char *)vram + offset;
+		q = (unsigned char *)render->pixels + offset;
+		for(j = 0; j < height; j++, p += pitch, q += pitch)
+			memcpy(p, q, line);
+	}
 }
 
 struct framebuffer_t * search_framebuffer(const char * name);
@@ -103,7 +111,7 @@ int framebuffer_get_pheight(struct framebuffer_t * fb);
 int framebuffer_get_bytes(struct framebuffer_t * fb);
 struct render_t * framebuffer_create_render(struct framebuffer_t * fb);
 void framebuffer_destroy_render(struct framebuffer_t * fb, struct render_t * render);
-void framebuffer_present_render(struct framebuffer_t * fb, struct render_t * render, struct region_t * region, int n);
+void framebuffer_present_render(struct framebuffer_t * fb, struct render_t * render, struct region_list_t * rl);
 void framebuffer_set_backlight(struct framebuffer_t * fb, int brightness);
 int framebuffer_get_backlight(struct framebuffer_t * fb);
 

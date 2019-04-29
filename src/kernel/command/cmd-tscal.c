@@ -195,7 +195,7 @@ static int do_tscal(int argc, char ** argv)
 	index = 0;
 
 	cairo_draw_point(cr, cal.xfb[index], cal.yfb[index]);
-	cairo_xboot_surface_present(cs, NULL, 0);
+	cairo_xboot_surface_present(cs, NULL);
 	ectx = event_context_alloc(NULL);
 
 	while(1)
@@ -226,12 +226,12 @@ static int do_tscal(int argc, char ** argv)
 						sprintf(buffer, "%s", "calibration failed");
 					}
 					cairo_draw_string(cr, 50, height / 2, buffer);
-					cairo_xboot_surface_present(cs, NULL, 0);
+					cairo_xboot_surface_present(cs, NULL);
 					printf("%s\r\n", buffer);
 					break;
 				}
 				cairo_draw_point(cr, cal.xfb[index], cal.yfb[index]);
-				cairo_xboot_surface_present(cs, NULL, 0);
+				cairo_xboot_surface_present(cs, NULL);
 			}
 		}
 	}

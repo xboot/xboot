@@ -140,22 +140,25 @@ int sandbox_fb_surface_destroy(void * context, struct sandbox_fb_surface_t * sur
 	return 1;
 }
 
-int sandbox_fb_surface_present(void * context, struct sandbox_fb_surface_t * surface, struct sandbox_fb_region_t * region, int n)
+int sandbox_fb_surface_present(void * context, struct sandbox_fb_surface_t * surface, struct sandbox_fb_region_list_t * rl)
 {
 	struct sandbox_fb_context_t * ctx = (struct sandbox_fb_context_t *)context;
+	struct sandbox_fb_region_t * r;
 	unsigned char * p, * q;
 	int pitch = ctx->fi.line_length;
 	int bytes = ctx->vi.bits_per_pixel >> 3;
 	int offset, line, height;
 	int i, j;
 
-	if(n > 0)
+	if(rl && (rl->count > 0))
 	{
-		for(i = 0; i < n; i++)
+		for(i = 0; i < rl->count; i++)
 		{
-			offset = region[i].y * pitch + region[i].x * bytes;
-			line = region[i].w * bytes;
-			height = region[i].h;
+			r = &rl->region[i];
+			offset = r->y * pitch + r->x * bytes;
+			line = r->w * bytes;
+			height = r->h;
+
 			p = (unsigned char *)ctx->vram + offset;
 			q = (unsigned char *)surface->pixels + offset;
 			for(j = 0; j < height; j++, p += pitch, q += pitch)

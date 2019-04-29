@@ -100,10 +100,10 @@ static void fb_destroy(struct framebuffer_t * fb, struct render_t * render)
 	}
 }
 
-static void fb_present(struct framebuffer_t * fb, struct render_t * render, struct region_t * region, int n)
+static void fb_present(struct framebuffer_t * fb, struct render_t * render, struct region_list_t * rl)
 {
 	struct fb_sandbox_pdata_t * pdat = (struct fb_sandbox_pdata_t *)fb->priv;
-	sandbox_fb_surface_present(pdat->priv, render->priv, (struct sandbox_fb_region_t *)region, n);
+	sandbox_fb_surface_present(pdat->priv, render->priv, (struct sandbox_fb_region_list_t *)rl);
 }
 
 static struct device_t * fb_sandbox_probe(struct driver_t * drv, struct dtnode_t * n)

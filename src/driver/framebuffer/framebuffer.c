@@ -219,10 +219,10 @@ void framebuffer_destroy_render(struct framebuffer_t * fb, struct render_t * ren
 		fb->destroy(fb, render);
 }
 
-void framebuffer_present_render(struct framebuffer_t * fb, struct render_t * render, struct region_t * region, int n)
+void framebuffer_present_render(struct framebuffer_t * fb, struct render_t * render, struct region_list_t * rl)
 {
 	if(fb && fb->present)
-		fb->present(fb, render, region, n);
+		fb->present(fb, render, rl);
 }
 
 void framebuffer_set_backlight(struct framebuffer_t * fb, int brightness)

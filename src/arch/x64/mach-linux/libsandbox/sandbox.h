@@ -70,6 +70,12 @@ struct sandbox_fb_region_t {
 	int area;
 };
 
+struct sandbox_fb_region_list_t {
+	struct sandbox_fb_region_t * region;
+	unsigned int size;
+	unsigned int count;
+};
+
 /* Framebuffer device */
 void * sandbox_fb_open(const char * dev);
 void sandbox_fb_close(void * context);
@@ -80,7 +86,7 @@ int sandbox_fb_get_pheight(void * context);
 int sandbox_fb_get_bytes(void * context);
 int sandbox_fb_surface_create(void * context, struct sandbox_fb_surface_t * surface);
 int sandbox_fb_surface_destroy(void * context, struct sandbox_fb_surface_t * surface);
-int sandbox_fb_surface_present(void * context, struct sandbox_fb_surface_t * surface, struct sandbox_fb_region_t * region, int n);
+int sandbox_fb_surface_present(void * context, struct sandbox_fb_surface_t * surface, struct sandbox_fb_region_list_t * rl);
 void sandbox_fb_set_backlight(void * context, int brightness);
 int sandbox_fb_get_backlight(void * context);
 

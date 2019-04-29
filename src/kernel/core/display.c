@@ -77,7 +77,7 @@ static void fb_dummy_destroy(struct framebuffer_t * fb, struct render_t * render
 	}
 }
 
-static void fb_dummy_present(struct framebuffer_t * fb, struct render_t * render, struct region_t * region, int n)
+static void fb_dummy_present(struct framebuffer_t * fb, struct render_t * render, struct region_list_t * rl)
 {
 }
 
@@ -249,7 +249,7 @@ void display_present(struct display_t * disp, void * o, void (*draw)(struct disp
 				cairo_restore(cr);
 			}
 
-			cairo_xboot_surface_present(disp->cs, disp->rl->region, count);
+			cairo_xboot_surface_present(disp->cs, disp->rl);
 		}
 	}
 }

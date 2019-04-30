@@ -269,6 +269,15 @@ function M:getAlpha()
 	return self.__dobj:getAlpha()
 end
 
+function M:setBackgroundColor(r, g, b, a)
+	self.__dobj:setBackgroundColor(r, g, b, a)
+	return self
+end
+
+function M:getBackgroundColor()
+	return self.__dobj:getBackgroundColor()
+end
+
 function M:setMargin(left, top, right, bottom)
 	self.__dobj:setMargin(left, top, right, bottom)
 	return self

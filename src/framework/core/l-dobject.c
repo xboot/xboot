@@ -891,6 +891,20 @@ static void dobject_draw_text(struct ldobject_t * o, struct display_t * disp)
 	cairo_restore(cr);
 }
 
+static void dobject_draw_container(struct ldobject_t * o, struct display_t * disp)
+{
+	if(o->background.alpha != 0.0)
+	{
+		cairo_t * cr = disp->cr;
+		cairo_save(cr);
+		cairo_set_matrix(cr, (cairo_matrix_t *)dobject_global_matrix(o));
+		cairo_rectangle(cr, 0, 0, o->width, o->height);
+		cairo_set_source_rgba(cr, o->background.red, o->background.green, o->background.blue, o->background.alpha);
+		cairo_fill(cr);
+		cairo_restore(cr);
+	}
+}
+
 static int l_dobject_new(lua_State * L)
 {
 	struct ldobject_t * o = lua_newuserdata(L, sizeof(struct ldobject_t));
@@ -911,6 +925,10 @@ static int l_dobject_new(lua_State * L)
 	o->anchorx = 0;
 	o->anchory = 0;
 	o->alpha = 1;
+	o->background.red = 0;
+	o->background.green = 0;
+	o->background.blue = 0;
+	o->background.alpha = 0;
 	o->margin.left = 0;
 	o->margin.top = 0;
 	o->margin.right = 0;
@@ -957,7 +975,7 @@ static int l_dobject_new(lua_State * L)
 	else
 	{
 		o->dtype = DOBJECT_TYPE_CONTAINER;
-		o->draw = NULL;
+		o->draw = dobject_draw_container;
 		o->priv = NULL;
 	}
 
@@ -1448,6 +1466,26 @@ static int m_get_alpha(lua_State * L)
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
 	lua_pushnumber(L, o->alpha);
 	return 1;
+}
+
+static int m_set_background_color(lua_State * L)
+{
+	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
+	o->background.red = luaL_optnumber(L, 2, 1);
+	o->background.green = luaL_optnumber(L, 3, 1);
+	o->background.blue = luaL_optnumber(L, 4, 1);
+	o->background.alpha = luaL_optnumber(L, 5, 1);
+	return 0;
+}
+
+static int m_get_background_color(lua_State * L)
+{
+	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
+	lua_pushnumber(L, o->background.red);
+	lua_pushnumber(L, o->background.green);
+	lua_pushnumber(L, o->background.blue);
+	lua_pushnumber(L, o->background.alpha);
+	return 4;
 }
 
 static int m_set_margin(lua_State * L)
@@ -2124,8 +2162,7 @@ static void display_draw(struct display_t * disp, struct ldobject_t * o)
 
 	if(o->visible)
 	{
-		if(o->draw)
-			o->draw(o, disp);
+		o->draw(o, disp);
 		if(disp->showobj)
 		{
 			cairo_t * cr = disp->cr;
@@ -2263,6 +2300,8 @@ static const luaL_Reg m_dobject[] = {
 	{"getAnchor",			m_get_archor},
 	{"setAlpha",			m_set_alpha},
 	{"getAlpha",			m_get_alpha},
+	{"setBackgroundColor",	m_set_background_color},
+	{"getBackgroundColor",	m_get_background_color},
 	{"setMargin",			m_set_margin},
 	{"getMargin",			m_get_margin},
 	{"setLayoutEnable",		m_set_layout_enable},

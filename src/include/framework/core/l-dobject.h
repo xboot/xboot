@@ -43,6 +43,13 @@ struct ldobject_t {
 	double alpha;
 
 	struct {
+		double red;
+		double green;
+		double blue;
+		double alpha;
+	} background;
+
+	struct {
 		double left;
 		double top;
 		double right;

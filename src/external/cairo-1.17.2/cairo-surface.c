@@ -2952,6 +2952,7 @@ _cairo_surface_tag (cairo_surface_t	        *surface,
     status = surface->backend->tag (surface, begin, tag_name, attributes,
 				    source, stroke_style,
 				    ctm, ctm_inverse, clip);
+    surface->is_clear = FALSE;
 
     return _cairo_surface_set_error (surface, status);
 }

@@ -777,8 +777,8 @@ _cairo_analysis_surface_tag (void	                *abstract_surface,
 					   ctm,
 					   ctm_inverse,
 					   clip);
-	if (_cairo_int_status_is_error (backend_status))
-	    return backend_status;
+        if (backend_status == CAIRO_INT_STATUS_SUCCESS)
+            surface->has_supported = TRUE;
     }
 
     return backend_status;

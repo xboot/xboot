@@ -405,8 +405,8 @@ typedef enum _cairo_content {
  *   with red in the upper 5 bits, then green in the middle
  *   6 bits, and blue in the lower 5 bits. (Since 1.2)
  * @CAIRO_FORMAT_RGB30: like RGB24 but with 10bpc. (Since 1.12)
- * @CAIRO_FORMAT_RGB96F: 3 floats, R, G, B. (Since 1.16)
- * @CAIRO_FORMAT_RGBA128F: 4 floats, R, G, B, A. (Since 1.16)
+ * @CAIRO_FORMAT_RGB96F: 3 floats, R, G, B. (Since 1.17.2)
+ * @CAIRO_FORMAT_RGBA128F: 4 floats, R, G, B, A. (Since 1.17.2)
  *
  * #cairo_format_t is used to identify the memory format of
  * image data.

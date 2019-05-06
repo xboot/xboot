@@ -780,7 +780,7 @@ static const cairo_surface_backend_t cairo_paginated_surface_backend = {
     _cairo_paginated_context_create,
 
     _cairo_paginated_surface_create_similar,
-    NULL, /* create siimlar image */
+    NULL, /* create similar image */
     NULL, /* map to image */
     NULL, /* unmap image */
 

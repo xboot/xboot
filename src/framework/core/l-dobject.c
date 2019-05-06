@@ -852,8 +852,8 @@ static void dobject_draw_ninepatch(struct ldobject_t * o, struct display_t * dis
 		cairo_save(cr);
 		cairo_translate(cr, 0, ninepatch->__h - ninepatch->bottom);
 		cairo_set_source_surface(cr, ninepatch->lb, 0, 0);
-		cairo_paint_with_alpha(cr, o->alpha);
 		cairo_pattern_set_filter(cairo_get_source(cr), CAIRO_FILTER_FAST);
+		cairo_paint_with_alpha(cr, o->alpha);
 		cairo_restore(cr);
 	}
 	if(ninepatch->mb)
@@ -871,8 +871,8 @@ static void dobject_draw_ninepatch(struct ldobject_t * o, struct display_t * dis
 		cairo_save(cr);
 		cairo_translate(cr, ninepatch->__w - ninepatch->right, ninepatch->__h - ninepatch->bottom);
 		cairo_set_source_surface(cr, ninepatch->rb, 0, 0);
-		cairo_paint_with_alpha(cr, o->alpha);
 		cairo_pattern_set_filter(cairo_get_source(cr), CAIRO_FILTER_FAST);
+		cairo_paint_with_alpha(cr, o->alpha);
 		cairo_restore(cr);
 	}
 	cairo_restore(cr);

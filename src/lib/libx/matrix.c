@@ -55,8 +55,8 @@ void matrix_init_rotate(struct matrix_t * m, double r)
  * | [m->tx] [m->ty] [1] |   | [m1->tx] [m1->ty] [1] |   | [m2->tx] [m2->ty] [1] |
  */
 void matrix_multiply(struct matrix_t * m,
-		const struct matrix_t * m1,
-		const struct matrix_t * m2)
+		struct matrix_t * m1,
+		struct matrix_t * m2)
 {
 	struct matrix_t t;
 
@@ -157,24 +157,23 @@ void matrix_rotate(struct matrix_t * m, double r)
 	m->d = cd - sb;
 }
 
-void matrix_transform_distance(const struct matrix_t * m, double * dx, double * dy)
+void matrix_transform_distance(struct matrix_t * m, double * dx, double * dy)
 {
-	double nx, ny;
-
-	nx = (m->a * (*dx) + m->c * (*dy));
-	ny = (m->b * (*dx) + m->d * (*dy));
+	double nx = m->a * (*dx) + m->c * (*dy);
+	double ny = m->b * (*dx) + m->d * (*dy);
 	*dx = nx;
 	*dy = ny;
 }
 
-void matrix_transform_point(const struct matrix_t * m, double * x, double * y)
+void matrix_transform_point(struct matrix_t * m, double * x, double * y)
 {
-	matrix_transform_distance(m, x, y);
-	*x += m->tx;
-	*y += m->ty;
+	double nx = m->a * (*x) + m->c * (*y) + m->tx;
+	double ny = m->b * (*x) + m->d * (*y) + m->ty;
+	*x = nx;
+	*y = ny;
 }
 
-void matrix_transform_bounds(const struct matrix_t * m, double * x1, double * y1, double * x2, double * y2)
+void matrix_transform_bounds(struct matrix_t * m, double * x1, double * y1, double * x2, double * y2)
 {
 	double qx[4], qy[4];
 	double minx, maxx;

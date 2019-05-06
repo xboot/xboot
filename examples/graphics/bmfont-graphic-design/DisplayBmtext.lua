@@ -51,6 +51,7 @@ function M:setText(text)
 			x = x + c.xadvance
 		end
 	end
+	self:setSize(x, 50)
 	return self
 end
 

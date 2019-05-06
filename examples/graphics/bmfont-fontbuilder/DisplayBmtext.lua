@@ -61,6 +61,7 @@ function M:setText(text)
 			x = x + char.width
 		end
 	end
+	self:setSize(x, self.font.metrics.height - self.font.metrics.descender)
 end
 
 return M

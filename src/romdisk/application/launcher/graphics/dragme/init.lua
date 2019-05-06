@@ -43,10 +43,10 @@ end
 
 function M:onMouseMove(e)
 	if self.touchid == -1 then	
-		local dx = e.x - self.x0
-		local dy = e.y - self.y0
-		self:setX(self:getX() + dx)
-		self:setY(self:getY() + dy)
+		local x1, y1 = self:globalToLocal(self.x0, self.y0)
+		local x2, y2 = self:globalToLocal(e.x, e.y)
+		self:setX(self:getX() + x2 - x1)
+		self:setY(self:getY() + y2 - y1)
 		self.x0 = e.x
 		self.y0 = e.y
 		e.stop = true
@@ -71,10 +71,10 @@ end
 
 function M:onTouchMove(e)
 	if self.touchid == e.id then
-		local dx = e.x - self.x0
-		local dy = e.y - self.y0
-		self:setX(self:getX() + dx)
-		self:setY(self:getY() + dy)
+		local x1, y1 = self:globalToLocal(self.x0, self.y0)
+		local x2, y2 = self:globalToLocal(e.x, e.y)
+		self:setX(self:getX() + x2 - x1)
+		self:setY(self:getY() + y2 - y1)
 		self.x0 = e.x
 		self.y0 = e.y
 		e.stop = true

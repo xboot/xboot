@@ -19,6 +19,7 @@ function M:init(maxWidth, maxHeight)
 	self:setY(math.random(self.imgHeight / 2, self.maxHeight - self.imgHeight / 2))
 	self:setSize(self.imgWidth, self.imgHeight)
 	self:addChild(self.image)
+	self:setAnchor(0.5, 0.5)
 	self:addEventListener("enter-frame", self.onEnterFrame)
 end
 

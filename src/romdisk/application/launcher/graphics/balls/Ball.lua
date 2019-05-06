@@ -1,22 +1,31 @@
 local M = Class(DisplayObject)
 
-function M:init(image, w, h)
-	self.super:init(w, h)
+function M:init(image, maxWidth, maxHeight)
+	self.super:init()
 
-	local assets = assets
-
-	self.maxWidth = w
-	self.maxHeight = h
+	self.image = assets:loadDisplay(image)
+	local w, h = self.image:getSize()
+	self.imgWidth = w
+	self.imgHeight = h
+	self.maxWidth = maxWidth
+	self.maxHeight = maxHeight
 	self.xdirection = 1
 	self.ydirection = 1
-	self.xspeed = math.random(40, 100) / 10
-	self.yspeed = math.random(40, 100) / 10
-	self.rspeed = math.random(-360, 360) * math.pi / 180 * 2
+	self.xspeed = math.random() * 2 + 1
+	self.yspeed = math.random() * 2 + 1
+	self.rspeed = math.random(0, 360) * math.pi / 180
 
-	self:setX(math.random(40, self.maxWidth - 40))
-	self:setY(math.random(40, self.maxHeight - 40))
-	self:addChild(assets:loadDisplay(image):setAnchor(0.5, 0.5))
+	self:setX(math.random(self.imgWidth / 2, self.maxWidth - self.imgWidth / 2))
+	self:setY(math.random(self.imgHeight / 2, self.maxHeight - self.imgHeight / 2))
+	self:setSize(self.imgWidth, self.imgHeight)
+	self:addChild(self.image)
+	self:setAnchor(0.5, 0.5)
 	self:addEventListener("enter-frame", self.onEnterFrame)
+end
+
+function M:setSize(width, height)
+	self.super:setSize(width, height)
+	return self
 end
 
 function M:onEnterFrame(e)
@@ -26,19 +35,19 @@ function M:onEnterFrame(e)
 	x = x + (self.xspeed * self.xdirection)
 	y = y + (self.yspeed * self.ydirection)
 
-	if x < 40 then
+	if x < self.imgWidth / 2 then
 		self.xdirection = 1
 	end
 
-	if x > self.maxWidth - 40 then
+	if x > self.maxWidth - self.imgWidth / 2 then
 		self.xdirection = -1
 	end
 
-	if y < 40 then
+	if y < self.imgHeight / 2 then
 		self.ydirection = 1
 	end
 
-	if y > self.maxHeight - 40 then
+	if y > self.maxHeight - self.imgHeight / 2 then
 		self.ydirection = -1
 	end
 

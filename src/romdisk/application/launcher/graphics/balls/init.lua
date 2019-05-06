@@ -6,8 +6,6 @@ local M = Class(DisplayObject)
 function M:init(w, h)
 	self.super:init(w, h)
 
-	local assets = assets
-
 	self:addChild(DisplayShape.new(w, h)
 		:setSource(Pattern.image(assets:loadImage("graphics/balls/bg.png")):setExtend("repeat"))
 		:paint())

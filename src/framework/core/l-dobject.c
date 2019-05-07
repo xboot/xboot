@@ -277,15 +277,15 @@ static inline double dobject_layout_main_leading_margin(struct ldobject_t * o)
 		{
 		case LAYOUT_DIRECTION_ROW:
 		case LAYOUT_DIRECTION_ROW_REVERSE:
-			return o->margin.left;
+			return o->layout.margin.left;
 		case LAYOUT_DIRECTION_COLUMN:
 		case LAYOUT_DIRECTION_COLUMN_REVERSE:
-			return o->margin.top;
+			return o->layout.margin.top;
 		default:
 			break;
 		}
 	}
-	return o->margin.left;
+	return o->layout.margin.left;
 }
 
 static inline double dobject_layout_cross_leading_margin(struct ldobject_t * o)
@@ -297,15 +297,15 @@ static inline double dobject_layout_cross_leading_margin(struct ldobject_t * o)
 		{
 		case LAYOUT_DIRECTION_ROW:
 		case LAYOUT_DIRECTION_ROW_REVERSE:
-			return o->margin.top;
+			return o->layout.margin.top;
 		case LAYOUT_DIRECTION_COLUMN:
 		case LAYOUT_DIRECTION_COLUMN_REVERSE:
-			return o->margin.left;
+			return o->layout.margin.left;
 		default:
 			break;
 		}
 	}
-	return o->margin.top;
+	return o->layout.margin.top;
 }
 
 static inline double dobject_layout_main_trailing_margin(struct ldobject_t * o)
@@ -317,15 +317,15 @@ static inline double dobject_layout_main_trailing_margin(struct ldobject_t * o)
 		{
 		case LAYOUT_DIRECTION_ROW:
 		case LAYOUT_DIRECTION_ROW_REVERSE:
-			return o->margin.right;
+			return o->layout.margin.right;
 		case LAYOUT_DIRECTION_COLUMN:
 		case LAYOUT_DIRECTION_COLUMN_REVERSE:
-			return o->margin.bottom;
+			return o->layout.margin.bottom;
 		default:
 			break;
 		}
 	}
-	return o->margin.right;
+	return o->layout.margin.right;
 }
 
 static inline double dobject_layout_cross_trailing_margin(struct ldobject_t * o)
@@ -337,15 +337,15 @@ static inline double dobject_layout_cross_trailing_margin(struct ldobject_t * o)
 		{
 		case LAYOUT_DIRECTION_ROW:
 		case LAYOUT_DIRECTION_ROW_REVERSE:
-			return o->margin.bottom;
+			return o->layout.margin.bottom;
 		case LAYOUT_DIRECTION_COLUMN:
 		case LAYOUT_DIRECTION_COLUMN_REVERSE:
-			return o->margin.right;
+			return o->layout.margin.right;
 		default:
 			break;
 		}
 	}
-	return o->margin.bottom;
+	return o->layout.margin.bottom;
 }
 
 static inline double dobject_layout_main_margin(struct ldobject_t * o)
@@ -357,15 +357,15 @@ static inline double dobject_layout_main_margin(struct ldobject_t * o)
 		{
 		case LAYOUT_DIRECTION_ROW:
 		case LAYOUT_DIRECTION_ROW_REVERSE:
-			return o->margin.left + o->margin.right;
+			return o->layout.margin.left + o->layout.margin.right;
 		case LAYOUT_DIRECTION_COLUMN:
 		case LAYOUT_DIRECTION_COLUMN_REVERSE:
-			return o->margin.top + o->margin.bottom;
+			return o->layout.margin.top + o->layout.margin.bottom;
 		default:
 			break;
 		}
 	}
-	return o->margin.left + o->margin.right;
+	return o->layout.margin.left + o->layout.margin.right;
 }
 
 static inline double dobject_layout_cross_margin(struct ldobject_t * o)
@@ -377,15 +377,15 @@ static inline double dobject_layout_cross_margin(struct ldobject_t * o)
 		{
 		case LAYOUT_DIRECTION_ROW:
 		case LAYOUT_DIRECTION_ROW_REVERSE:
-			return o->margin.top + o->margin.bottom;
+			return o->layout.margin.top + o->layout.margin.bottom;
 		case LAYOUT_DIRECTION_COLUMN:
 		case LAYOUT_DIRECTION_COLUMN_REVERSE:
-			return o->margin.left + o->margin.right;
+			return o->layout.margin.left + o->layout.margin.right;
 		default:
 			break;
 		}
 	}
-	return o->margin.top + o->margin.bottom;
+	return o->layout.margin.top + o->layout.margin.bottom;
 }
 
 static inline double dobject_layout_main_size(struct ldobject_t * o)
@@ -945,16 +945,16 @@ static int l_dobject_new(lua_State * L)
 	o->background.green = 0;
 	o->background.blue = 0;
 	o->background.alpha = 0;
-	o->margin.left = 0;
-	o->margin.top = 0;
-	o->margin.right = 0;
-	o->margin.bottom = 0;
 	o->layout.style = 0;
 	o->layout.grow = 0;
 	o->layout.shrink = 1;
 	o->layout.basis = 0;
 	o->layout.width = NAN;
 	o->layout.height = NAN;
+	o->layout.margin.left = 0;
+	o->layout.margin.top = 0;
+	o->layout.margin.right = 0;
+	o->layout.margin.bottom = 0;
 	o->ctype = COLLIDER_TYPE_NONE;
 	o->visible = 1;
 	o->touchable = 1;
@@ -1490,27 +1490,6 @@ static int m_get_background_color(lua_State * L)
 	return 4;
 }
 
-static int m_set_margin(lua_State * L)
-{
-	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
-	o->margin.left = luaL_optnumber(L, 2, 0);
-	o->margin.top = luaL_optnumber(L, 3, 0);
-	o->margin.right = luaL_optnumber(L, 4, 0);
-	o->margin.bottom = luaL_optnumber(L, 5, 0);
-	dobject_layout((o->parent && dobject_layout_get_enable(o)) ? o->parent : o);
-	return 0;
-}
-
-static int m_get_margin(lua_State * L)
-{
-	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
-	lua_pushnumber(L, o->margin.left);
-	lua_pushnumber(L, o->margin.top);
-	lua_pushnumber(L, o->margin.right);
-	lua_pushnumber(L, o->margin.bottom);
-	return 4;
-}
-
 static int m_set_layout_enable(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
@@ -1798,6 +1777,27 @@ static int m_get_layout_basis(lua_State * L)
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
 	lua_pushnumber(L, o->layout.basis);
 	return 1;
+}
+
+static int m_set_layout_margin(lua_State * L)
+{
+	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
+	o->layout.margin.left = luaL_optnumber(L, 2, 0);
+	o->layout.margin.top = luaL_optnumber(L, 3, 0);
+	o->layout.margin.right = luaL_optnumber(L, 4, 0);
+	o->layout.margin.bottom = luaL_optnumber(L, 5, 0);
+	dobject_layout((o->parent && dobject_layout_get_enable(o)) ? o->parent : o);
+	return 0;
+}
+
+static int m_get_layout_margin(lua_State * L)
+{
+	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
+	lua_pushnumber(L, o->layout.margin.left);
+	lua_pushnumber(L, o->layout.margin.top);
+	lua_pushnumber(L, o->layout.margin.right);
+	lua_pushnumber(L, o->layout.margin.bottom);
+	return 4;
 }
 
 static int m_set_collider(lua_State * L)
@@ -2312,8 +2312,6 @@ static const luaL_Reg m_dobject[] = {
 	{"getAlpha",			m_get_alpha},
 	{"setBackgroundColor",	m_set_background_color},
 	{"getBackgroundColor",	m_get_background_color},
-	{"setMargin",			m_set_margin},
-	{"getMargin",			m_get_margin},
 	{"setLayoutEnable",		m_set_layout_enable},
 	{"getLayoutEnable",		m_get_layout_enable},
 	{"setLayoutSpecial",	m_set_layout_special},
@@ -2332,6 +2330,8 @@ static const luaL_Reg m_dobject[] = {
 	{"getLayoutShrink",		m_get_layout_shrink},
 	{"setLayoutBasis",		m_set_layout_basis},
 	{"getLayoutBasis",		m_get_layout_basis},
+	{"setLayoutMargin",		m_set_layout_margin},
+	{"getLayoutMargin",		m_get_layout_margin},
 	{"setCollider",			m_set_collider},
 	{"getCollider",			m_get_collider},
 	{"setVisible",			m_set_visible},

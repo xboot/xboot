@@ -92,7 +92,7 @@ function M:setText(text)
 			self.text:setText(text)
 		else
 			self.text = DisplayText.new(assets:loadFont(self.opt.textFontFamily, self.opt.textFontSize), self.opt.textPatternNormal, text)
-			self.text:setMargin(self.opt.textMarginLeft, self.opt.textMarginTop, self.opt.textMarginRight, self.opt.textMarginBottom)
+			self.text:setLayoutMargin(self.opt.textMarginLeft, self.opt.textMarginTop, self.opt.textMarginRight, self.opt.textMarginBottom)
 			self.text:setLayoutEnable(true)
 		end
 	else

@@ -50,18 +50,18 @@ struct ldobject_t {
 	} background;
 
 	struct {
-		double left;
-		double top;
-		double right;
-		double bottom;
-	} margin;
-
-	struct {
 		int style;
 		double grow;
 		double shrink;
 		double basis;
 		double width, height;
+		struct {
+			double left;
+			double top;
+			double right;
+			double bottom;
+		} margin;
+
 		double x, y;
 		double w, h;
 	} layout;

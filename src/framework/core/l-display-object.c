@@ -278,15 +278,6 @@ function M:getBackgroundColor()
 	return self.__dobj:getBackgroundColor()
 end
 
-function M:setMargin(left, top, right, bottom)
-	self.__dobj:setMargin(left, top, right, bottom)
-	return self
-end
-
-function M:getMargin()
-	return self.__dobj:getMargin()
-end
-
 function M:setLayoutEnable(enable)
 	self.__dobj:setLayoutEnable(enable)
 	return self
@@ -366,6 +357,15 @@ end
 
 function M:getLayoutBasis()
 	return self.__dobj:getLayoutBasis()
+end
+
+function M:setLayoutMargin(left, top, right, bottom)
+	self.__dobj:setLayoutMargin(left, top, right, bottom)
+	return self
+end
+
+function M:getLayoutMargin()
+	return self.__dobj:getLayoutMargin()
 end
 
 function M:setCollider(type, ...)

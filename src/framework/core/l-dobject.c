@@ -760,16 +760,9 @@ static void dobject_layout(struct ldobject_t * o)
 
 static void dobject_draw_image(struct ldobject_t * o, struct display_t * disp)
 {
-	struct ldobject_t * parent = o->parent;
 	struct limage_t * img = o->priv;
 	cairo_t * cr = disp->cr;
 	cairo_save(cr);
-	if(parent && (parent->dtype == DOBJECT_TYPE_CONTAINER))
-	{
-		cairo_set_matrix(cr, (cairo_matrix_t *)dobject_global_matrix(parent));
-		cairo_rectangle(cr, 0, 0, parent->width, parent->height);
-		cairo_clip(cr);
-	}
 	cairo_set_matrix(cr, (cairo_matrix_t *)dobject_global_matrix(o));
 	cairo_set_source_surface(cr, img->cs, 0, 0);
 	cairo_paint_with_alpha(cr, o->alpha);
@@ -778,16 +771,9 @@ static void dobject_draw_image(struct ldobject_t * o, struct display_t * disp)
 
 static void dobject_draw_ninepatch(struct ldobject_t * o, struct display_t * disp)
 {
-	struct ldobject_t * parent = o->parent;
 	struct lninepatch_t * ninepatch = o->priv;
 	cairo_t * cr = disp->cr;
 	cairo_save(cr);
-	if(parent && (parent->dtype == DOBJECT_TYPE_CONTAINER))
-	{
-		cairo_set_matrix(cr, (cairo_matrix_t *)dobject_global_matrix(parent));
-		cairo_rectangle(cr, 0, 0, parent->width, parent->height);
-		cairo_clip(cr);
-	}
 	cairo_set_matrix(cr, (cairo_matrix_t *)dobject_global_matrix(o));
 	if(ninepatch->lt)
 	{
@@ -880,16 +866,9 @@ static void dobject_draw_ninepatch(struct ldobject_t * o, struct display_t * dis
 
 static void dobject_draw_shape(struct ldobject_t * o, struct display_t * disp)
 {
-	struct ldobject_t * parent = o->parent;
 	struct lshape_t * shape = o->priv;
 	cairo_t * cr = disp->cr;
 	cairo_save(cr);
-	if(parent && (parent->dtype == DOBJECT_TYPE_CONTAINER))
-	{
-		cairo_set_matrix(cr, (cairo_matrix_t *)dobject_global_matrix(parent));
-		cairo_rectangle(cr, 0, 0, parent->width, parent->height);
-		cairo_clip(cr);
-	}
 	cairo_set_matrix(cr, (cairo_matrix_t *)dobject_global_matrix(o));
 	cairo_set_source_surface(cr, shape->cs, 0, 0);
 	cairo_paint_with_alpha(cr, o->alpha);
@@ -898,17 +877,10 @@ static void dobject_draw_shape(struct ldobject_t * o, struct display_t * disp)
 
 static void dobject_draw_text(struct ldobject_t * o, struct display_t * disp)
 {
-	struct ldobject_t * parent = o->parent;
 	struct ltext_t * text = o->priv;
 	struct matrix_t * m = dobject_global_matrix(o);
 	cairo_t * cr = disp->cr;
 	cairo_save(cr);
-	if(parent && (parent->dtype == DOBJECT_TYPE_CONTAINER))
-	{
-		cairo_set_matrix(cr, (cairo_matrix_t *)dobject_global_matrix(parent));
-		cairo_rectangle(cr, 0, 0, parent->width, parent->height);
-		cairo_clip(cr);
-	}
 	cairo_set_scaled_font(cr, text->font);
 	cairo_move_to(cr, m->tx, m->ty);
 	cairo_set_matrix(cr, (cairo_matrix_t *)m);
@@ -923,20 +895,12 @@ static void dobject_draw_container(struct ldobject_t * o, struct display_t * dis
 {
 	if(o->background.alpha != 0.0)
 	{
-		struct ldobject_t * parent = o->parent;
 		cairo_t * cr = disp->cr;
 		cairo_save(cr);
-		if(parent && (parent->dtype == DOBJECT_TYPE_CONTAINER))
-		{
-			cairo_set_matrix(cr, (cairo_matrix_t *)dobject_global_matrix(parent));
-			cairo_rectangle(cr, 0, 0, parent->width, parent->height);
-			cairo_clip(cr);
-		}
 		cairo_set_matrix(cr, (cairo_matrix_t *)dobject_global_matrix(o));
 		cairo_rectangle(cr, 0, 0, o->width, o->height);
-		cairo_clip(cr);
 		cairo_set_source_rgba(cr, o->background.red, o->background.green, o->background.blue, o->background.alpha);
-		cairo_paint_with_alpha(cr, o->alpha);
+		cairo_fill(cr);
 		cairo_restore(cr);
 	}
 }
@@ -2198,10 +2162,18 @@ static void display_draw(struct display_t * disp, struct ldobject_t * o)
 
 	if(o->visible)
 	{
+		struct ldobject_t * parent = o->parent;
+		cairo_t * cr = disp->cr;
+		cairo_save(cr);
+		if(parent && (parent->dtype == DOBJECT_TYPE_CONTAINER))
+		{
+			cairo_set_matrix(cr, (cairo_matrix_t *)dobject_global_matrix(parent));
+			cairo_rectangle(cr, 0, 0, parent->width, parent->height);
+			cairo_clip(cr);
+		}
 		o->draw(o, disp);
 		if(disp->showobj)
 		{
-			cairo_t * cr = disp->cr;
 			cairo_save(cr);
 			cairo_set_matrix(cr, (cairo_matrix_t *)dobject_global_matrix(o));
 			cairo_set_line_width(cr, 1);
@@ -2282,11 +2254,11 @@ static void display_draw(struct display_t * disp, struct ldobject_t * o)
 			}
 			cairo_restore(cr);
 		}
-
 		list_for_each_entry(pos, &o->children, entry)
 		{
 			display_draw(disp, pos);
 		}
+		cairo_restore(cr);
 	}
 }
 

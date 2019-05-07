@@ -1102,7 +1102,6 @@ static int m_set_width(lua_State * L)
 		o->layout.width = NAN;
 		dobject_mark(o, MFLAG_LOCAL_MATRIX);
 		dobject_mark_children(o, MFLAG_GLOBAL_MATRIX | MFLAG_GLOBAL_BOUNDS);
-		dobject_layout((o->parent && dobject_layout_get_enable(o)) ? o->parent : o);
 	}
 	return 0;
 }
@@ -1125,7 +1124,6 @@ static int m_set_height(lua_State * L)
 		o->layout.height = NAN;
 		dobject_mark(o, MFLAG_LOCAL_MATRIX);
 		dobject_mark_children(o, MFLAG_GLOBAL_MATRIX | MFLAG_GLOBAL_BOUNDS);
-		dobject_layout((o->parent && dobject_layout_get_enable(o)) ? o->parent : o);
 	}
 	return 0;
 }
@@ -1151,7 +1149,6 @@ static int m_set_size(lua_State * L)
 		o->layout.height = NAN;
 		dobject_mark(o, MFLAG_LOCAL_MATRIX);
 		dobject_mark_children(o, MFLAG_GLOBAL_MATRIX | MFLAG_GLOBAL_BOUNDS);
-		dobject_layout((o->parent && dobject_layout_get_enable(o)) ? o->parent : o);
 	}
 	return 0;
 }
@@ -1473,10 +1470,18 @@ static int m_get_alpha(lua_State * L)
 static int m_set_background_color(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
-	o->background.red = luaL_optnumber(L, 2, 1);
-	o->background.green = luaL_optnumber(L, 3, 1);
-	o->background.blue = luaL_optnumber(L, 4, 1);
-	o->background.alpha = luaL_optnumber(L, 5, 1);
+	double red = luaL_optnumber(L, 2, 1);
+	double green = luaL_optnumber(L, 3, 1);
+	double blue = luaL_optnumber(L, 4, 1);
+	double alpha = luaL_optnumber(L, 5, 1);
+	if((o->background.red != red) || (o->background.green != green) || (o->background.blue != blue) || (o->background.alpha != alpha))
+	{
+		dobject_mark_dirty(o);
+		o->background.red = red;
+		o->background.green = green;
+		o->background.blue = blue;
+		o->background.alpha = alpha;
+	}
 	return 0;
 }
 
@@ -1494,7 +1499,6 @@ static int m_set_layout_enable(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
 	dobject_layout_set_enable(o, lua_toboolean(L, 2));
-	dobject_layout((o->parent && dobject_layout_get_enable(o)) ? o->parent : o);
 	return 0;
 }
 
@@ -1509,7 +1513,6 @@ static int m_set_layout_special(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
 	dobject_layout_set_special(o, lua_toboolean(L, 2));
-	dobject_layout((o->parent && dobject_layout_get_enable(o)) ? o->parent : o);
 	return 0;
 }
 
@@ -1541,7 +1544,6 @@ static int m_set_layout_direction(lua_State * L)
 	default:
 		break;
 	}
-	dobject_layout((o->parent && dobject_layout_get_enable(o)) ? o->parent : o);
 	return 0;
 }
 
@@ -1596,7 +1598,6 @@ static int m_set_layout_justify(lua_State * L)
 	default:
 		break;
 	}
-	dobject_layout((o->parent && dobject_layout_get_enable(o)) ? o->parent : o);
 	return 0;
 }
 
@@ -1651,7 +1652,6 @@ static int m_set_layout_align(lua_State * L)
 	default:
 		break;
 	}
-	dobject_layout((o->parent && dobject_layout_get_enable(o)) ? o->parent : o);
 	return 0;
 }
 
@@ -1703,7 +1703,6 @@ static int m_set_layout_align_self(lua_State * L)
 	default:
 		break;
 	}
-	dobject_layout((o->parent && dobject_layout_get_enable(o)) ? o->parent : o);
 	return 0;
 }
 
@@ -1738,7 +1737,6 @@ static int m_set_layout_grow(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
 	o->layout.grow = luaL_checknumber(L, 2);
-	dobject_layout((o->parent && dobject_layout_get_enable(o)) ? o->parent : o);
 	return 0;
 }
 
@@ -1753,7 +1751,6 @@ static int m_set_layout_shrink(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
 	o->layout.shrink = luaL_checknumber(L, 2);
-	dobject_layout((o->parent && dobject_layout_get_enable(o)) ? o->parent : o);
 	return 0;
 }
 
@@ -1768,7 +1765,6 @@ static int m_set_layout_basis(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
 	o->layout.basis = luaL_checknumber(L, 2);
-	dobject_layout((o->parent && dobject_layout_get_enable(o)) ? o->parent : o);
 	return 0;
 }
 
@@ -1786,7 +1782,6 @@ static int m_set_layout_margin(lua_State * L)
 	o->layout.margin.top = luaL_optnumber(L, 3, 0);
 	o->layout.margin.right = luaL_optnumber(L, 4, 0);
 	o->layout.margin.bottom = luaL_optnumber(L, 5, 0);
-	dobject_layout((o->parent && dobject_layout_get_enable(o)) ? o->parent : o);
 	return 0;
 }
 
@@ -2268,6 +2263,7 @@ static int m_render(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
 	struct display_t * disp = luaL_checkudata(L, 2, MT_DISPLAY);
+	dobject_layout(o);
 	display_region_list_clear(disp);
 	display_region_list_fill(disp, o);
 	display_present(disp, (void *)o, (void (*)(struct display_t *, void *))display_draw);

@@ -923,12 +923,20 @@ static void dobject_draw_container(struct ldobject_t * o, struct display_t * dis
 {
 	if(o->background.alpha != 0.0)
 	{
+		struct ldobject_t * parent = o->parent;
 		cairo_t * cr = disp->cr;
 		cairo_save(cr);
+		if(parent && (parent->dtype == DOBJECT_TYPE_CONTAINER))
+		{
+			cairo_set_matrix(cr, (cairo_matrix_t *)dobject_global_matrix(parent));
+			cairo_rectangle(cr, 0, 0, parent->width, parent->height);
+			cairo_clip(cr);
+		}
 		cairo_set_matrix(cr, (cairo_matrix_t *)dobject_global_matrix(o));
 		cairo_rectangle(cr, 0, 0, o->width, o->height);
+		cairo_clip(cr);
 		cairo_set_source_rgba(cr, o->background.red, o->background.green, o->background.blue, o->background.alpha);
-		cairo_fill(cr);
+		cairo_paint_with_alpha(cr, o->alpha);
 		cairo_restore(cr);
 	}
 }

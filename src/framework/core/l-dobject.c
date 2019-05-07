@@ -135,7 +135,7 @@ static inline struct region_t * dobject_global_bounds(struct ldobject_t * o)
 		double x2 = o->width;
 		double y2 = o->height;
 		matrix_transform_bounds(dobject_global_matrix(o), &x1, &y1, &x2, &y2);
-		region_init(r, x1, y1, x2 - x1 + 1, y2 - y1 + 1);
+		region_init(r, floor(x1), floor(y1), ceil(x2 - x1 + 1), ceil(y2 - y1 + 1));
 		o->mflag &= ~MFLAG_GLOBAL_BOUNDS;
 	}
 	return r;

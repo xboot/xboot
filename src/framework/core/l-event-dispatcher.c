@@ -33,12 +33,12 @@ local table = table
 local M = Class()
 
 function M:init()
-	self.__elms = {}
+	self._elms = {}
 end
 
 function M:hasEventListener(type, listener, data)
 	local data = data or self
-	local elm = self.__elms[type]
+	local elm = self._elms[type]
 
 	if not elm or #elm == 0 then
 		return false
@@ -60,11 +60,11 @@ function M:addEventListener(type, listener, data)
 		return self
 	end
 
-	if not self.__elms[type] then
-		self.__elms[type] = {}
+	if not self._elms[type] then
+		self._elms[type] = {}
 	end
 
-	local elm = self.__elms[type]
+	local elm = self._elms[type]
 	local el = {type = type, listener = listener, data = data}
 	table.insert(elm, el)
 
@@ -73,7 +73,7 @@ end
 
 function M:removeEventListener(type, listener, data)
 	local data = data or self
-	local elm = self.__elms[type]
+	local elm = self._elms[type]
 
 	if not elm or #elm == 0 then
 		return self
@@ -94,7 +94,7 @@ function M:dispatchEvent(event)
 		return self
 	end
 
-	local elm = self.__elms[event.type]
+	local elm = self._elms[event.type]
 
 	if not elm or #elm == 0 then
 		return self

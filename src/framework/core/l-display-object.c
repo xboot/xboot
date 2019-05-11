@@ -38,64 +38,64 @@ local M = Class(EventDispatcher)
 
 function M:init(width, height, content)
 	self.super:init()
-	self.__parent = nil
-	self.__children = {}
-	self.__dobj = Dobject.new(width, height, content)
+	self._parent = nil
+	self._children = {}
+	self._dobj = Dobject.new(width, height, content)
 end
 
 function M:getParent()
-	return self.__parent
+	return self._parent
 end
 
 function M:contains(child)
-	if child and child.__parent == self then
+	if child and child._parent == self then
 		return true
 	end
 	return false
 end
 
 function M:addChild(child)
-	if child and child ~= self and child.__parent ~= self then
-		if child.__parent ~= nil then
-			for i, v in ipairs(child.__parent) do
+	if child and child ~= self and child._parent ~= self then
+		if child._parent ~= nil then
+			for i, v in ipairs(child._parent) do
 				if v == child then
-					table.remove(self.__children, i)
+					table.remove(self._children, i)
 					break
 				end
 			end
 		end
-		table.insert(self.__children, child)
-		child.__parent = self
-		self.__dobj:addChild(child.__dobj)
+		table.insert(self._children, child)
+		child._parent = self
+		self._dobj:addChild(child._dobj)
 	end
 	return self
 end
 
 function M:removeChild(child)
 	if child and child ~= self then
-		for i, v in ipairs(self.__children) do
+		for i, v in ipairs(self._children) do
 			if v == child then
-				table.remove(self.__children, i)
-				v.__parent = nil
+				table.remove(self._children, i)
+				v._parent = nil
 				break
 			end
 		end
-		self.__dobj:removeChild(child.__dobj)
+		self._dobj:removeChild(child._dobj)
 	end
 	return self
 end
 
 function M:removeChildren()
-	for i, v in ipairs(self.__children) do
-		v.__parent = nil
-		self.__dobj:removeChild(v.__dobj)
+	for i, v in ipairs(self._children) do
+		v._parent = nil
+		self._dobj:removeChild(v._dobj)
 	end
-	self.__children = {}
+	self._children = {}
 	return self
 end
 
 function M:removeSelf()
-	local parent = self.__parent
+	local parent = self._parent
 	if parent then
 		parent:removeChild(self)
 	end
@@ -103,9 +103,9 @@ function M:removeSelf()
 end
 
 function M:toFront()
-	local parent = self.__parent
+	local parent = self._parent
 	if parent then
-		local children = parent.__children
+		local children = parent._children
 		for i, v in ipairs(children) do
 			if v == self then
 				table.remove(children, i)
@@ -113,15 +113,15 @@ function M:toFront()
 				break
 			end
 		end
-		self.__dobj:toFront()
+		self._dobj:toFront()
 	end
 	return self
 end
 
 function M:toBack()
-	local parent = self.__parent
+	local parent = self._parent
 	if parent then
-		local children = parent.__children
+		local children = parent._children
 		for i, v in ipairs(children) do
 			if v == self then
 				table.remove(children, i)
@@ -129,296 +129,296 @@ function M:toBack()
 				break
 			end
 		end
-		self.__dobj:toBack()
+		self._dobj:toBack()
 	end
 	return self
 end
 
 function M:setWidth(width)
-	self.__dobj:setWidth(width)
+	self._dobj:setWidth(width)
 	return self
 end
 
 function M:getWidth()
-	return self.__dobj:getWidth()
+	return self._dobj:getWidth()
 end
 
 function M:setHeight(height)
-	self.__dobj:setHeight(height)
+	self._dobj:setHeight(height)
 	return self
 end
 
 function M:getHeight()
-	return self.__dobj:getHeight()
+	return self._dobj:getHeight()
 end
 
 function M:setSize(width, height)
-	self.__dobj:setSize(width, height)
+	self._dobj:setSize(width, height)
 	return self
 end
 
 function M:getSize()
-	return self.__dobj:getSize()
+	return self._dobj:getSize()
 end
 
 function M:setX(x)
-	self.__dobj:setX(x)
+	self._dobj:setX(x)
 	return self
 end
 
 function M:getX()
-	return self.__dobj:getX()
+	return self._dobj:getX()
 end
 
 function M:setY(y)
-	self.__dobj:setY(y)
+	self._dobj:setY(y)
 	return self
 end
 
 function M:getY()
-	return self.__dobj:getY()
+	return self._dobj:getY()
 end
 
 function M:setPosition(x, y)
-	self.__dobj:setPosition(x, y)
+	self._dobj:setPosition(x, y)
 	return self
 end
 
 function M:getPosition()
-	return self.__dobj:getPosition()
+	return self._dobj:getPosition()
 end
 
 function M:setRotation(rotation)
-	self.__dobj:setRotation(rotation)
+	self._dobj:setRotation(rotation)
 	return self
 end
 
 function M:getRotation()
-	return self.__dobj:getRotation()
+	return self._dobj:getRotation()
 end
 
 function M:setScaleX(x)
-	self.__dobj:setScaleX(x)
+	self._dobj:setScaleX(x)
 	return self
 end
 
 function M:getScaleX()
-	return self.__dobj:getScaleX()
+	return self._dobj:getScaleX()
 end
 
 function M:setScaleY(y)
-	self.__dobj:setScaleY(y)
+	self._dobj:setScaleY(y)
 	return self
 end
 
 function M:getScaleY()
-	return self.__dobj:getScaleY()
+	return self._dobj:getScaleY()
 end
 
 function M:setScale(x, y)
-	self.__dobj:setScale(x, y or x)
+	self._dobj:setScale(x, y or x)
 	return self
 end
 
 function M:getScale()
-	return self.__dobj:getScale()
+	return self._dobj:getScale()
 end
 
 function M:setSkewX(x)
-	self.__dobj:setSkewX(x)
+	self._dobj:setSkewX(x)
 	return self
 end
 
 function M:getSkewX()
-	return self.__dobj:getSkewX()
+	return self._dobj:getSkewX()
 end
 
 function M:setSkewY(y)
-	self.__dobj:setSkewY(y)
+	self._dobj:setSkewY(y)
 	return self
 end
 
 function M:getSkewY()
-	return self.__dobj:getSkewY()
+	return self._dobj:getSkewY()
 end
 
 function M:setSkew(x, y)
-	self.__dobj:setSkew(x, y or x)
+	self._dobj:setSkew(x, y or x)
 	return self
 end
 
 function M:getSkew()
-	return self.__dobj:getSkew()
+	return self._dobj:getSkew()
 end
 
 function M:setAnchor(x, y)
-	self.__dobj:setAnchor(x, y or x)
+	self._dobj:setAnchor(x, y or x)
 	return self
 end
 
 function M:getAnchor()
-	return self.__dobj:getAnchor()
+	return self._dobj:getAnchor()
 end
 
 function M:setAlpha(alpha)
-	self.__dobj:setAlpha(alpha)
+	self._dobj:setAlpha(alpha)
 	return self
 end
 
 function M:getAlpha()
-	return self.__dobj:getAlpha()
+	return self._dobj:getAlpha()
 end
 
 function M:setBackgroundColor(r, g, b, a)
-	self.__dobj:setBackgroundColor(r, g, b, a)
+	self._dobj:setBackgroundColor(r, g, b, a)
 	return self
 end
 
 function M:getBackgroundColor()
-	return self.__dobj:getBackgroundColor()
+	return self._dobj:getBackgroundColor()
 end
 
 function M:setLayoutEnable(enable)
-	self.__dobj:setLayoutEnable(enable)
+	self._dobj:setLayoutEnable(enable)
 	return self
 end
 
 function M:getLayoutEnable()
-	return self.__dobj:getLayoutEnable()
+	return self._dobj:getLayoutEnable()
 end
 
 function M:setLayoutSpecial(enable)
-	self.__dobj:setLayoutSpecial(enable)
+	self._dobj:setLayoutSpecial(enable)
 	return self
 end
 
 function M:getLayoutSpecial()
-	return self.__dobj:getLayoutSpecial()
+	return self._dobj:getLayoutSpecial()
 end
 
 function M:setLayoutDirection(direction)
-	self.__dobj:setLayoutDirection(direction)
+	self._dobj:setLayoutDirection(direction)
 	return self
 end
 
 function M:getLayoutDirection()
-	return self.__dobj:getLayoutDirection()
+	return self._dobj:getLayoutDirection()
 end
 
 function M:setLayoutJustify(justify)
-	self.__dobj:setLayoutJustify(justify)
+	self._dobj:setLayoutJustify(justify)
 	return self
 end
 
 function M:getLayoutJustify()
-	return self.__dobj:getLayoutJustify()
+	return self._dobj:getLayoutJustify()
 end
 
 function M:setLayoutAlign(align)
-	self.__dobj:setLayoutAlign(align)
+	self._dobj:setLayoutAlign(align)
 	return self
 end
 
 function M:getLayoutAlign()
-	return self.__dobj:getLayoutAlign()
+	return self._dobj:getLayoutAlign()
 end
 
 function M:setLayoutAlignSelf(align)
-	self.__dobj:setLayoutAlignSelf(align)
+	self._dobj:setLayoutAlignSelf(align)
 	return self
 end
 
 function M:getLayoutAlignSelf()
-	return self.__dobj:getLayoutAlignSelf()
+	return self._dobj:getLayoutAlignSelf()
 end
 
 function M:setLayoutGrow(grow)
-	self.__dobj:setLayoutGrow(grow)
+	self._dobj:setLayoutGrow(grow)
 	return self
 end
 
 function M:getLayoutGrow()
-	return self.__dobj:getLayoutGrow()
+	return self._dobj:getLayoutGrow()
 end
 
 function M:setLayoutShrink(shrink)
-	self.__dobj:setLayoutShrink(shrink)
+	self._dobj:setLayoutShrink(shrink)
 	return self
 end
 
 function M:getLayoutShrink()
-	return self.__dobj:getLayoutShrink()
+	return self._dobj:getLayoutShrink()
 end
 
 function M:setLayoutBasis(basis)
-	self.__dobj:setLayoutBasis(basis)
+	self._dobj:setLayoutBasis(basis)
 	return self
 end
 
 function M:getLayoutBasis()
-	return self.__dobj:getLayoutBasis()
+	return self._dobj:getLayoutBasis()
 end
 
 function M:setLayoutMargin(left, top, right, bottom)
-	self.__dobj:setLayoutMargin(left, top, right, bottom)
+	self._dobj:setLayoutMargin(left, top, right, bottom)
 	return self
 end
 
 function M:getLayoutMargin()
-	return self.__dobj:getLayoutMargin()
+	return self._dobj:getLayoutMargin()
 end
 
 function M:setCollider(type, ...)
-	self.__dobj:setCollider(type, ...)
+	self._dobj:setCollider(type, ...)
 	return self
 end
 
 function M:getCollider()
-	return self.__dobj:getCollider()
+	return self._dobj:getCollider()
 end
 
 function M:setVisible(visible)
-	self.__dobj:setVisible(visible)
+	self._dobj:setVisible(visible)
 	return self
 end
 
 function M:getVisible()
-	return self.__dobj:getVisible()
+	return self._dobj:getVisible()
 end
 
 function M:setTouchable(touchable)
-	self.__dobj:setTouchable(touchable)
+	self._dobj:setTouchable(touchable)
 	return self
 end
 
 function M:getTouchable()
-	return self.__dobj:getTouchable()
+	return self._dobj:getTouchable()
 end
 
 function M:globalToLocal(x, y)
-	return self.__dobj:globalToLocal(x, y)
+	return self._dobj:globalToLocal(x, y)
 end
 
 function M:localToGlobal(x, y)
-	return self.__dobj:localToGlobal(x, y)
+	return self._dobj:localToGlobal(x, y)
 end
 
 function M:hitTestPoint(x, y)
-	return self.__dobj:hitTestPoint(x, y)
+	return self._dobj:hitTestPoint(x, y)
 end
 
 function M:markDirty()
-	return self.__dobj:markDirty()
+	return self._dobj:markDirty()
 end
 
 function M:getBounds()
-	return self.__dobj:getBounds()
+	return self._dobj:getBounds()
 end
 
 function M:animate(properties, duration, easing)
 	local function listener(d, e)
-		if next(d.__tweenlist) then
-			local tween = d.__tweenlist[1]
+		if next(d._tweenlist) then
+			local tween = d._tweenlist[1]
 			if not tween.easinglist then
 				tween.easinglist = {}
 				for k, v in pairs(tween.properties) do
@@ -450,7 +450,7 @@ function M:animate(properties, duration, easing)
 				end
 			end
 
-			local elapsed = d.__stopwatch:elapsed()
+			local elapsed = d._stopwatch:elapsed()
 			if elapsed > tween.duration then
 				elapsed = tween.duration
 			end
@@ -480,14 +480,14 @@ function M:animate(properties, duration, easing)
 			end
 
 			if elapsed >= tween.duration then
-				table.remove(d.__tweenlist, 1)
-				d.__stopwatch:reset()
+				table.remove(d._tweenlist, 1)
+				d._stopwatch:reset()
 			end
 		else
 			d:dispatchEvent(Event.new("animate-complete"))
-			if not next(d.__tweenlist) then
+			if not next(d._tweenlist) then
 				d:removeEventListener("enter-frame", listener)
-				d.__stopwatch = nil
+				d._stopwatch = nil
 			end
 		end
 	end
@@ -498,25 +498,25 @@ function M:animate(properties, duration, easing)
 	if duration and duration <= 0 then
 		return self
 	end
-	if not self.__tweenlist then
-		self.__tweenlist = {}
+	if not self._tweenlist then
+		self._tweenlist = {}
 	end
 
 	local tween = {properties = {}, duration = duration or 1, easing = easing}
 	for k, v in pairs(properties) do
 		tween.properties[k] = v
 	end
-	table.insert(self.__tweenlist, tween)
+	table.insert(self._tweenlist, tween)
 
-	if next(self.__tweenlist) and not self.__stopwatch then
+	if next(self._tweenlist) and not self._stopwatch then
 		self:addEventListener("enter-frame", listener)
-		self.__stopwatch = Stopwatch.new()
+		self._stopwatch = Stopwatch.new()
 	end
 	return self
 end
 
 function M:dispatch(event)
-	local children = self.__children
+	local children = self._children
 	for i = #children, 1, -1 do
 		children[i]:dispatch(event)
 	end
@@ -524,7 +524,7 @@ function M:dispatch(event)
 end
 
 function M:render(display)
-	self.__dobj:render(display)
+	self._dobj:render(display)
 end
 
 return M

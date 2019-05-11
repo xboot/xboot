@@ -32,20 +32,20 @@ static const char stage_lua[] = X(
 local M = Class(DisplayObject)
 
 function M:init()
-	self.__exiting = false
-	self.__timerlist = {}
-	self.__display = Display.new()
-	self.super:init(self.__display:getSize())
+	self._exiting = false
+	self._timerlist = {}
+	self._display = Display.new()
+	self.super:init(self._display:getSize())
 	self:markDirty()
 end
 
 function M:exit()
-	self.__exiting = true
+	self._exiting = true
 	return self
 end
 
 function M:hasTimer(timer)
-	local tl = self.__timerlist
+	local tl = self._timerlist
 
 	if not tl or #tl == 0 then
 		return false
@@ -66,12 +66,12 @@ function M:addTimer(timer)
 	end
 
 	timer:start()
-	table.insert(self.__timerlist, timer)
+	table.insert(self._timerlist, timer)
 	return true
 end
 
 function M:removeTimer(timer)
-	local tl = self.__timerlist
+	local tl = self._timerlist
 
 	if not tl or #tl == 0 then
 		return false
@@ -89,16 +89,16 @@ function M:removeTimer(timer)
 end
 
 function M:schedTimer(dt)
-	for i, v in ipairs(self.__timerlist) do
-		if v.__running then
-			v.__runtime = v.__runtime + dt
+	for i, v in ipairs(self._timerlist) do
+		if v._running then
+			v._runtime = v._runtime + dt
 
-			if v.__runtime >= v.__delay then
-				v.__runcount = v.__runcount + 1
-				v.__listener(v)
-				v.__runtime = 0
+			if v._runtime >= v._delay then
+				v._runcount = v._runcount + 1
+				v._listener(v)
+				v._runtime = 0
 
-				if v.__iteration ~= 0 and v.__runcount >= v.__iteration then
+				if v._iteration ~= 0 and v._runcount >= v._iteration then
 					self:removeTimer(v)
 				end
 			end
@@ -107,45 +107,45 @@ function M:schedTimer(dt)
 end
 
 function M:getDotsPerInch()
-	local w, h = self.__display:getSize()
-	local pw, ph = self.__display:getPhysicalSize()
+	local w, h = self._display:getSize()
+	local pw, ph = self._display:getPhysicalSize()
 	return w * 25.4 / pw, h * 25.4 / ph
 end
 
 function M:getBytesPerPixel()
-	return self.__display:getBytesPerPixel()
+	return self._display:getBytesPerPixel()
 end
 
 function M:setBacklight(brightness)
-	return self.__display:setBacklight(brightness)
+	return self._display:setBacklight(brightness)
 end
 
 function M:getBacklight()
-	return self.__display:getBacklight()
+	return self._display:getBacklight()
 end
 
 function M:showfps(show)
-	self.__display:showfps(show)
+	self._display:showfps(show)
 	return self
 end
 
 function M:showobj(show)
-	self.__display:showobj(show)
+	self._display:showobj(show)
 	return self
 end
 
 function M:snapshot()
-	return self.__display:snapshot()
+	return self._display:snapshot()
 end
 
 function M:loop()
 	local Event = Event
-	local __display = self.__display
+	local _display = self._display
 	local stopwatch = Stopwatch.new()
 
 	self:addTimer(Timer.new(1 / 60, 0, function(t)
 		self:dispatch(Event.new("enter-frame"))
-		self:render(__display)
+		self:render(_display)
 		collectgarbage("step")
 	end))
 
@@ -153,7 +153,7 @@ function M:loop()
 		if e.key == 10 then self:exit() end
 	end)
 
-	while not self.__exiting do
+	while not self._exiting do
 		local e = Event.pump()
 		if e ~= nil then
 			self:dispatch(e)

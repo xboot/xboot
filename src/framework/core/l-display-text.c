@@ -32,11 +32,11 @@ static const char display_text_lua[] = X(
 local M = Class(DisplayObject)
 
 function M:init(font, pattern, text)
-	self.__font = font
-	self.__pattern = pattern or Pattern.color()
-	self.__text = Text.new(self.__font, self.__pattern, text or "")
-	local width, height = self.__text:getSize()
-	self.super:init(width, height, self.__text)
+	self._font = font
+	self._pattern = pattern or Pattern.color()
+	self._text = Text.new(self._font, self._pattern, text or "")
+	local width, height = self._text:getSize()
+	self.super:init(width, height, self._text)
 end
 
 function M:setWidth(width)
@@ -53,22 +53,22 @@ end
 
 function M:setFont(font)
 	if font then
-		self.__font = font
-		self.__text:setFont(font)
-		self.super:setSize(self.__text:getSize())
+		self._font = font
+		self._text:setFont(font)
+		self.super:setSize(self._text:getSize())
 	end
 	return self
 end
 
 function M:setPattern(pattern)
-	self.__pattern = pattern or Pattern.color()
-	self.__text:setPattern(self.__pattern)
+	self._pattern = pattern or Pattern.color()
+	self._text:setPattern(self._pattern)
 	return self
 end
 
 function M:setText(text)
-	self.__text:setText(text or "")
-	self.super:setSize(self.__text:getSize())
+	self._text:setText(text or "")
+	self.super:setSize(self._text:getSize())
 	return self
 end
 

@@ -34,7 +34,7 @@ local M = Class(DisplayObject)
 function M:init(ninepatch)
 	if ninepatch then
 		local w, h = ninepatch:getSize()
-		self.__ninepatch = ninepatch
+		self._ninepatch = ninepatch
 		self.super:init(w, h, ninepatch)
 	else
 		self.super:init()
@@ -42,24 +42,24 @@ function M:init(ninepatch)
 end
 
 function M:setWidth(width)
-	if self.__ninepatch then
-		self.__ninepatch:setWidth(width)
+	if self._ninepatch then
+		self._ninepatch:setWidth(width)
 	end
 	self.super:setWidth(width)
 	return self
 end
 
 function M:setHeight(height)
-	if self.__ninepatch then
-		self.__ninepatch:setHeight(height)
+	if self._ninepatch then
+		self._ninepatch:setHeight(height)
 	end
 	self.super:setHeight(height)
 	return self
 end
 
 function M:setSize(width, height)
-	if self.__ninepatch then
-		self.__ninepatch:setSize(width, height)
+	if self._ninepatch then
+		self._ninepatch:setSize(width, height)
 	end
 	self.super:setSize(width, height)
 	return self

@@ -35,6 +35,7 @@
 #include <framework/core/l-display-image.h>
 #include <framework/core/l-display-ninepatch.h>
 #include <framework/core/l-display-object.h>
+#include <framework/core/l-display-scroll.h>
 #include <framework/core/l-display-shape.h>
 #include <framework/core/l-display-text.h>
 #include <framework/core/l-dobject.h>
@@ -76,6 +77,7 @@ static void luaopen_glblibs(lua_State * L)
 		{ "Event",					luaopen_event },
 		{ "EventDispatcher",		luaopen_event_dispatcher },
 		{ "DisplayObject",			luaopen_display_object },
+		{ "DisplayScroll",			luaopen_display_scroll },
 		{ "DisplayImage",			luaopen_display_image },
 		{ "DisplayNinepatch",		luaopen_display_ninepatch },
 		{ "DisplayShape",			luaopen_display_shape },

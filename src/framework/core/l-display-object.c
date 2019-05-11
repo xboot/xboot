@@ -516,11 +516,11 @@ function M:animate(properties, duration, easing)
 end
 
 function M:dispatch(event)
+	self:dispatchEvent(event)
 	local children = self._children
 	for i = #children, 1, -1 do
 		children[i]:dispatch(event)
 	end
-	self:dispatchEvent(event)
 end
 
 function M:render(display)

@@ -42,7 +42,7 @@ function M:onMouseDown(e)
 end
 
 function M:onMouseMove(e)
-	if self.touchid == -1 then	
+	if self.touchid == -1 then
 		local x1, y1 = self:globalToLocal(self.x0, self.y0)
 		local x2, y2 = self:globalToLocal(e.x, e.y)
 		self:setX(self:getX() + x2 - x1)

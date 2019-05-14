@@ -36,7 +36,7 @@ function M:init(w, h, vertial, friction)
 	self._vertial = vertial == nil and true or vertial
 	self._friction = friction or 0.92
 	self._sensitivity = 1
-	self._threshold = 0.5
+	self._threshold = 0.001
 	self._width = 0
 	self._height = 0
 	self._offset = 0
@@ -146,7 +146,7 @@ function M:onMouseDown(e)
 		else
 			self._offset = self._view:getY()
 		end
-		if math.abs(self._speed) >= self._threshold then
+		if math.abs(self._speed) >= self._threshold * 10000 then
 			e.stop = true
 		else
 			e.stop = false
@@ -171,7 +171,7 @@ function M:onMouseMove(e)
 			end
 			self._view:setY(self._offset + (y2 - y1) * s)
 		end
-		e.stop = true
+		e.stop = false
 		self._speed = 0
 	end
 end
@@ -219,7 +219,7 @@ function M:onTouchBegin(e)
 		else
 			self._offset = self._view:getY()
 		end
-		if math.abs(self._speed) >= self._threshold then
+		if math.abs(self._speed) >= self._threshold * 10000 then
 			e.stop = true
 		else
 			e.stop = false
@@ -244,7 +244,7 @@ function M:onTouchMove(e)
 			end
 			self._view:setY(self._offset + (y2 - y1) * s)
 		end
-		e.stop = true
+		e.stop = false
 		self._speed = 0
 	end
 end

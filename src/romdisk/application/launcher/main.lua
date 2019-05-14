@@ -1,38 +1,34 @@
-local Button = require "xboot.widget.Button"
-local TestCase = require("TestCase")
+local AppItem = require "AppItem"
 
-local sw, sh= stage:getSize()
+local function spairs(t, order)
+    local keys = {}
+    for k in pairs(t) do keys[#keys + 1] = k end
 
-local testcases = TestCase.new(sw, sh, {
-	require("games.2048"),
-	require("graphics.balls"),
-	require("graphics.cursor"),
-	require("graphics.dragme"),
-	require("widgets.button"),
-	require("widgets.checkbox"),
-	require("widgets.radiobutton"),
-})
-stage:addChild(testcases)
+    if order then
+        table.sort(keys, function(a, b) return order(t, a, b) end)
+    else
+        table.sort(keys)
+    end
 
-local prevbtn = Button.new({x = 50, y = sh - 100, width = 100, height = 50})
-	:addEventListener("click", function(d, e) testcases:prev() end)
-stage:addChild(prevbtn)
+    local i = 0
+    return function()
+        i = i + 1
+        if keys[i] then
+            return keys[i], t[keys[i]]
+        end
+    end
+end
 
-local nextbtn = Button.new({x = sw - 150, y = sh - 100, width = 100, height = 50})
-	:addEventListener("click", function(d, e) testcases:next() end)
-stage:addChild(nextbtn)
+local sw, sh = stage:getSize()
+local sv = DisplayScroll.new(sw, sh / 2, false, 0.92):setPosition(0, sh / 4)
 
-stage:addEventListener("key-down", function(d, e)
-	local key = e.key
-	if key == 2 or key == 4 or key == 6 then
-		testcases:prev()
-	elseif key == 3 or key == 5 or key == 7 then
-		testcases:next()
-	else
-		return
-	end
-	e.stop = true
-end)
+for k, v in spairs(Application.list()) do
+	local item = AppItem.new(v)
+		:setLayoutMargin(1, 0, 1, 0)
+		:addEventListener("click", function(d, e) d:execute() end)
+	sv:addItem(item)
+end
+stage:addChild(sv)
 
 stage:showfps(true)
-
+stage:showobj(false)

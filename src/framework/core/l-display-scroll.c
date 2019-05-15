@@ -275,26 +275,42 @@ function M:onEnterFrame(e)
 		if not self._vertial then
 			self._speed = self._speed * self._friction
 			self._view:setX(self._view:getX() + self._speed)
-			if self._view:getX() > 0 then
-				self._view:animate({x = 0}, 0.1, "circ-out")
-				self:removeEventListener("enter-frame", self.onEnterFrame)
-				self._speed = 0
-			elseif self._view:getX() + self._view:getWidth() < self:getWidth() then
-				self._view:animate({x = self:getWidth() - self._view:getWidth()}, 0.1, "circ-out")
-				self:removeEventListener("enter-frame", self.onEnterFrame)
-				self._speed = 0
+			if self._view:getWidth() < self:getWidth() then
+				if self._view:getX() ~= 0 then
+					self._view:animate({x = 0}, 0.1, "circ-out")
+					self:removeEventListener("enter-frame", self.onEnterFrame)
+					self._speed = 0
+				end
+			else
+				if self._view:getX() > 0 then
+					self._view:animate({x = 0}, 0.1, "circ-out")
+					self:removeEventListener("enter-frame", self.onEnterFrame)
+					self._speed = 0
+				elseif self._view:getX() + self._view:getWidth() < self:getWidth() then
+					self._view:animate({x = self:getWidth() - self._view:getWidth()}, 0.1, "circ-out")
+					self:removeEventListener("enter-frame", self.onEnterFrame)
+					self._speed = 0
+				end
 			end
 		else
 			self._speed = self._speed * self._friction
 			self._view:setY(self._view:getY() + self._speed)
-			if self._view:getY() > 0 then
-				self._view:animate({y = 0}, 0.1, "circ-out")
-				self:removeEventListener("enter-frame", self.onEnterFrame)
-				self._speed = 0
-			elseif self._view:getY() + self._view:getHeight() < self:getHeight() then
-				self._view:animate({y = self:getHeight() - self._view:getHeight()}, 0.1, "circ-out")
-				self:removeEventListener("enter-frame", self.onEnterFrame)
-				self._speed = 0
+			if self._view:getHeight() < self:getHeight() then
+				if self._view:getY() ~= 0 then
+					self._view:animate({y = 0}, 0.1, "circ-out")
+					self:removeEventListener("enter-frame", self.onEnterFrame)
+					self._speed = 0
+				end
+			else
+				if self._view:getY() > 0 then
+					self._view:animate({y = 0}, 0.1, "circ-out")
+					self:removeEventListener("enter-frame", self.onEnterFrame)
+					self._speed = 0
+				elseif self._view:getY() + self._view:getHeight() < self:getHeight() then
+					self._view:animate({y = self:getHeight() - self._view:getHeight()}, 0.1, "circ-out")
+					self:removeEventListener("enter-frame", self.onEnterFrame)
+					self._speed = 0
+				end
 			end
 		end
 	else

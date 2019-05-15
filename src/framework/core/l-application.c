@@ -152,7 +152,7 @@ static int application_detect(struct lapplication_t * app, const char * path)
 
 static int l_application_new(lua_State * L)
 {
-	const char * path = luaL_checkstring(L, 1);
+	const char * path = luaL_optstring(L, 1, task_self()->name);
 	struct lapplication_t * app = lua_newuserdata(L, sizeof(struct lapplication_t));
 	if(!application_detect(app, path))
 		return 0;
@@ -162,7 +162,7 @@ static int l_application_new(lua_State * L)
 
 static int l_application_list(lua_State * L)
 {
-	struct lapplication_t * app;
+	struct lapplication_t app, * p;
 	struct vfs_stat_t st;
 	struct vfs_dirent_t dir;
 	struct slist_t * sl, * e;
@@ -202,11 +202,13 @@ static int l_application_list(lua_State * L)
 	lua_newtable(L);
 	slist_for_each_entry(e, sl)
 	{
-		app = lua_newuserdata(L, sizeof(struct lapplication_t));
-		if(!application_detect(app, e->key))
-			continue;
-		luaL_setmetatable(L, MT_APPLICATION);
-		lua_setfield(L, -2, e->key);
+		if(application_detect(&app, e->key))
+		{
+			p = lua_newuserdata(L, sizeof(struct lapplication_t));
+			memcpy(p, &app, sizeof(struct lapplication_t));
+			luaL_setmetatable(L, MT_APPLICATION);
+			lua_setfield(L, -2, e->key);
+		}
 	}
 	slist_free(sl);
 	return 1;

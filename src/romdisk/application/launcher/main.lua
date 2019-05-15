@@ -21,12 +21,15 @@ end
 
 local sw, sh = stage:getSize()
 local sv = DisplayScroll.new(sw, sh / 2, false, 0.92):setPosition(0, sh / 4)
+local app = Application.new()
 
 for k, v in spairs(Application.list()) do
-	local item = AppItem.new(v)
-		:setLayoutMargin(1, 0, 1, 0)
-		:addEventListener("click", function(d, e) d:execute() end)
-	sv:addItem(item)
+    if app:getPath() ~= k then
+        local item = AppItem.new(v)
+            :setLayoutMargin(1, 0, 1, 0)
+            :addEventListener("click", function(d, e) d:execute() end)
+        sv:addItem(item)
+    end
 end
 stage:addChild(sv)
 

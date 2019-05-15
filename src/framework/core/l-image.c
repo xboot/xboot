@@ -233,9 +233,8 @@ static int m_image_clone(lua_State * L)
 	int w = luaL_optinteger(L, 4, cairo_image_surface_get_width(img->cs));
 	int h = luaL_optinteger(L, 5, cairo_image_surface_get_height(img->cs));
 	int r = luaL_optinteger(L, 6, 0);
-	cairo_format_t format = cairo_image_surface_get_format(img->cs);
 	struct limage_t * subimg = lua_newuserdata(L, sizeof(struct limage_t));
-	subimg->cs = cairo_surface_create_similar_image(img->cs, format, w, h);
+	subimg->cs = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, w, h);
 	cairo_t * cr = cairo_create(subimg->cs);
 	if(r > 0)
 	{
@@ -267,13 +266,13 @@ static int m_image_shadow(lua_State * L)
 	double alpha = luaL_optnumber(L, 6, 1);
 	int w = cairo_image_surface_get_width(img->cs);
 	int h = cairo_image_surface_get_height(img->cs);
-	cairo_format_t format = cairo_image_surface_get_format(img->cs);
 	int extra = radius + radius;
 	int width = w + extra + extra;
 	int height = h + extra + extra;
 	struct limage_t * subimg = lua_newuserdata(L, sizeof(struct limage_t));
-	subimg->cs = cairo_surface_create_similar_image(img->cs, format, width, height);
+	subimg->cs = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, width, height);
 	cairo_surface_t * cs = subimg->cs;
+	cairo_format_t format = cairo_image_surface_get_format(cs);
 	unsigned char * pixel = cairo_image_surface_get_data(cs);
 	cairo_t * cr = cairo_create(cs);
 	cairo_pattern_t * pattern = cairo_pattern_create_rgba(red, green, blue, alpha);

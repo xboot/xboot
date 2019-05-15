@@ -232,10 +232,24 @@ static int m_image_clone(lua_State * L)
 	int y = luaL_optinteger(L, 3, 0);
 	int w = luaL_optinteger(L, 4, cairo_image_surface_get_width(img->cs));
 	int h = luaL_optinteger(L, 5, cairo_image_surface_get_height(img->cs));
+	int r = luaL_optinteger(L, 6, 0);
 	cairo_format_t format = cairo_image_surface_get_format(img->cs);
 	struct limage_t * subimg = lua_newuserdata(L, sizeof(struct limage_t));
 	subimg->cs = cairo_surface_create_similar_image(img->cs, format, w, h);
 	cairo_t * cr = cairo_create(subimg->cs);
+	if(r > 0)
+	{
+		cairo_move_to(cr, r, 0);
+		cairo_line_to(cr, w - r, 0);
+		cairo_arc(cr, w - r, r, r, - M_PI / 2, 0);
+		cairo_line_to(cr, w, h - r);
+		cairo_arc(cr, w - r, h - r, r, 0, M_PI / 2);
+		cairo_line_to(cr, r, h);
+		cairo_arc(cr, r, h - r, r, M_PI / 2, M_PI);
+		cairo_line_to(cr, 0, r);
+		cairo_arc(cr, r, r, r, M_PI, M_PI + M_PI / 2);
+		cairo_clip(cr);
+	}
 	cairo_set_source_surface(cr, img->cs, -x, -y);
 	cairo_paint(cr);
 	cairo_destroy(cr);

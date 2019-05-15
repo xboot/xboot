@@ -480,6 +480,7 @@ static int m_shape_rounded_rectangle(lua_State * L)
 	cairo_arc(cr, x + width - radius, y + height - radius, radius, 0, M_PI / 2);
 	cairo_line_to(cr, x + radius, y + height);
 	cairo_arc(cr, x + radius, y + height - radius, radius, M_PI / 2, M_PI);
+	cairo_line_to(cr, x, y + radius);
 	cairo_arc(cr, x + radius, y + radius, radius, M_PI, M_PI + M_PI / 2);
 	return 0;
 }

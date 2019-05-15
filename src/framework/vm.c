@@ -252,9 +252,45 @@ static int l_xboot_version(lua_State * L)
 	return 1;
 }
 
+static int l_xboot_banner(lua_State * L)
+{
+	struct machine_t * mach = get_machine();
+	char buf[SZ_4K];
+	sprintf(buf, "%s - [%s][%s]", xboot_banner_string(), mach->name, mach->desc);
+	lua_pushstring(L, buf);
+	return 1;
+}
+
+static int l_xboot_shutdown(lua_State * L)
+{
+	machine_shutdown();
+	return 0;
+}
+
+static int l_xboot_reboot(lua_State * L)
+{
+	machine_reboot();
+	return 0;
+}
+
+static int l_xboot_sleep(lua_State * L)
+{
+	machine_sleep();
+	return 0;
+}
+
 static int l_xboot_uniqueid(lua_State * L)
 {
 	lua_pushstring(L, machine_uniqueid());
+	return 1;
+}
+
+static int l_xboot_keygen(lua_State * L)
+{
+	const char * msg = luaL_optstring(L, 1, "");
+	char key[SZ_4K];
+	int len = machine_keygen(msg, key);
+	lua_pushlstring(L, key, len);
 	return 1;
 }
 
@@ -278,8 +314,18 @@ static int pmain(lua_State * L)
 	}
 	lua_pushcfunction(L, l_xboot_version);
 	lua_setfield(L, -2, "version");
+	lua_pushcfunction(L, l_xboot_banner);
+	lua_setfield(L, -2, "banner");
+	lua_pushcfunction(L, l_xboot_shutdown);
+	lua_setfield(L, -2, "shutdown");
+	lua_pushcfunction(L, l_xboot_reboot);
+	lua_setfield(L, -2, "reboot");
+	lua_pushcfunction(L, l_xboot_sleep);
+	lua_setfield(L, -2, "sleep");
 	lua_pushcfunction(L, l_xboot_uniqueid);
 	lua_setfield(L, -2, "uniqueid");
+	lua_pushcfunction(L, l_xboot_keygen);
+	lua_setfield(L, -2, "keygen");
 
 	luaopen_boot(L);
 	return 0;

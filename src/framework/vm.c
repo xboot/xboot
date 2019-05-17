@@ -43,6 +43,7 @@
 #include <framework/core/l-event.h>
 #include <framework/core/l-event-dispatcher.h>
 #include <framework/core/l-font.h>
+#include <framework/core/l-i18n.h>
 #include <framework/core/l-image.h>
 #include <framework/core/l-matrix.h>
 #include <framework/core/l-ninepatch.h>
@@ -63,6 +64,7 @@ static void luaopen_glblibs(lua_State * L)
 	const luaL_Reg glblibs[] = {
 		{ "Class",					luaopen_class },
 		{ "Xfs",					luaopen_xfs },
+		{ "I18n",					luaopen_i18n },
 		{ "Display",				luaopen_display },
 		{ "Easing",					luaopen_easing },
 		{ "Stopwatch",				luaopen_stopwatch },
@@ -143,6 +145,7 @@ static void luaopen_prelibs(lua_State * L)
 static const char boot_lua[] = X(
 	stage = Stage.new()
 	assets = Assets.new()
+	T = I18n.new("en-US")
 	if require("main") then
 		stage:loop()
 	end

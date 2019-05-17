@@ -155,20 +155,20 @@ static const char boot_lua[] = X(
 
 static int luaopen_boot(lua_State * L)
 {
-	if(luaL_loadbuffer(L, boot_lua, sizeof(boot_lua)-1, "Boot.lua") == LUA_OK)
+	if(luaL_loadbuffer(L, boot_lua, sizeof(boot_lua) - 1, "Boot.lua") == LUA_OK)
 		lua_call(L, 0, 0);
 	return 0;
 }
 
-struct __reader_data_t
+struct reader_data_t
 {
 	struct xfs_file_t * file;
 	char buffer[LUAL_BUFFERSIZE];
 };
 
-static const char * __reader(lua_State * L, void * data, size_t * size)
+static const char * reader(lua_State * L, void * data, size_t * size)
 {
-	struct __reader_data_t * rd = (struct __reader_data_t *)data;
+	struct reader_data_t * rd = (struct reader_data_t *)data;
 	s64_t ret;
 
 	ret = xfs_read(rd->file, rd->buffer, LUAL_BUFFERSIZE);
@@ -182,32 +182,39 @@ static const char * __reader(lua_State * L, void * data, size_t * size)
 	return rd->buffer;
 }
 
-static int __loadfile(lua_State * L)
+static int l_loadfile(lua_State * L)
 {
 	struct xfs_context_t * ctx = ((struct vmctx_t *)luahelper_vmctx(L))->xfs;
 	const char * filename = luaL_checkstring(L, 1);
-	struct __reader_data_t * rd;
+	struct reader_data_t * rd;
 
-	rd = malloc(sizeof(struct __reader_data_t));
+	rd = malloc(sizeof(struct reader_data_t));
 	if(!rd)
-		return lua_error(L);
+	{
+		lua_pushnil(L);
+		lua_pushfstring(L, "cannot malloc memory", filename);
+		return 2;
+	}
 
 	rd->file = xfs_open_read(ctx, filename);
 	if(!rd->file)
 	{
 		free(rd);
-		return lua_error(L);
+		lua_pushnil(L);
+		lua_pushfstring(L, "cannot open %s", filename);
+		return 2;
 	}
 
-	if(lua_load(L, __reader, rd, filename, NULL))
+	if(lua_load(L, reader, rd, filename, NULL))
 	{
 		free(rd);
-		return lua_error(L);
+		lua_pushnil(L);
+		lua_pushfstring(L, "cannot read %s", filename);
+		return 2;
 	}
 
 	xfs_close(rd->file);
 	free(rd);
-
 	return 1;
 }
 
@@ -238,7 +245,7 @@ static int l_search_package_lua(lua_State * L)
 	if(xfs_isfile(ctx, buf))
 	{
 		lua_pop(L, 1);
-		lua_pushcfunction(L, __loadfile);
+		lua_pushcfunction(L, l_loadfile);
 		lua_pushstring(L, buf);
 		lua_call(L, 1, 1);
 	}
@@ -304,6 +311,10 @@ static int pmain(lua_State * L)
 	luaL_openlibs(L);
 	luaopen_glblibs(L);
 	luaopen_prelibs(L);
+
+	lua_pushcfunction(L, l_loadfile);
+	lua_pushvalue(L, -1);
+	lua_setglobal(L, "loadfile");
 
 	luahelper_package_searcher(L, l_search_package_lua, 2);
 	luahelper_package_path(L, "./?/init.lua;./?.lua");

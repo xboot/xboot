@@ -218,6 +218,20 @@ static int l_loadfile(lua_State * L)
 	return 1;
 }
 
+static int dofilecont(lua_State * L, int d1, lua_KContext d2)
+{
+	return lua_gettop(L) - 1;
+}
+
+static int l_dofile(lua_State * L)
+{
+	lua_settop(L, 1);
+	if(l_loadfile(L) != 1)
+		return lua_error(L);
+	lua_callk(L, 0, LUA_MULTRET, 0, dofilecont);
+	return dofilecont(L, 0, 0);
+}
+
 static int l_search_package_lua(lua_State * L)
 {
 	struct xfs_context_t * ctx = ((struct vmctx_t *)luahelper_vmctx(L))->xfs;
@@ -315,6 +329,10 @@ static int pmain(lua_State * L)
 	lua_pushcfunction(L, l_loadfile);
 	lua_pushvalue(L, -1);
 	lua_setglobal(L, "loadfile");
+
+	lua_pushcfunction(L, l_dofile);
+	lua_pushvalue(L, -1);
+	lua_setglobal(L, "dofile");
 
 	luahelper_package_searcher(L, l_search_package_lua, 2);
 	luahelper_package_path(L, "./?/init.lua;./?.lua");

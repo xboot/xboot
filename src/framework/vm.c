@@ -185,7 +185,7 @@ static const char * reader(lua_State * L, void * data, size_t * size)
 static int l_loadfile(lua_State * L)
 {
 	struct xfs_context_t * ctx = ((struct vmctx_t *)luahelper_vmctx(L))->xfs;
-	const char * filename = luaL_checkstring(L, 1);
+	const char * filename = luaL_optstring(L, 1, NULL);
 	struct reader_data_t * rd;
 
 	rd = malloc(sizeof(struct reader_data_t));

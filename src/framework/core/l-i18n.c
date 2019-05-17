@@ -49,7 +49,9 @@ function M:init(lang)
 		local o = loadlang("assets/i18n/" .. lang .. ".lua")
 		if type(o) == "table" then
 			for k, v in pairs(o) do
-				self._language[k] = v
+				if v then
+					self._language[k] = v
+				end
 			end
 		end
 	end

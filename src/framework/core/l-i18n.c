@@ -32,13 +32,9 @@ static const char i18n_lua[] = X(
 local M = Class()
 
 local function loadlang(path)
-	local f = Xfs.open(path, "r")
-	if f then
-		local s = f:read("*a")
-		f:close()
-		if s then
-			return assert(load(s))()
-		end
+	local f = loadfile(path)
+	if f and type(f) == "function" then
+		return f()
 	end
 end
 

@@ -56,6 +56,10 @@ end
 
 local sw, sh = stage:getSize()
 
+stage:addChild(DisplayShape.new(sw, sh)
+	:setSource(Pattern.image(assets:loadImage("assets/images/bg.png")):setExtend("repeat"))
+	:paint())
+
 for i = 1, 5 do
 	local shape = DisplayShape.new(100, 50)
 		:setLineWidth(6)
@@ -76,4 +80,5 @@ for i = 1, 5 do
 	stage:addChild(shape)
 end
 
-stage:showfps(true)
+stage:showfps(false)
+stage:showobj(false)

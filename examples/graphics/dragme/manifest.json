@@ -1,0 +1,19 @@
+{
+	"name": "Dragme",
+	"description": "Drag rectangles using multifingers.",
+
+	"zh-CN": {
+		"name": "拽我",
+		"description": "多指拖拽矩形框。"
+	},
+
+	"zh-HK": {
+		"name": "拽我",
+		"description": "多指拖拽矩形框。"
+	},
+
+	"zh-TW": {
+		"name": "拽我",
+		"description": "多指拖拽矩形框。"
+	}
+}

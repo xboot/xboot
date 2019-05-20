@@ -135,9 +135,9 @@ static int application_detect(struct lapplication_t * app, const char * path)
 			free(p);
 		}
 
-		app->logo = cairo_image_surface_create_from_png_xfs(ctx, "logo.png");
-		if(cairo_surface_status(app->logo) != CAIRO_STATUS_SUCCESS)
-			app->logo = NULL;
+		app->icon = cairo_image_surface_create_from_png_xfs(ctx, "icon.png");
+		if(cairo_surface_status(app->icon) != CAIRO_STATUS_SUCCESS)
+			app->icon = NULL;
 
 		app->panel = cairo_image_surface_create_from_png_xfs(ctx, "panel.png");
 		if(cairo_surface_status(app->panel) != CAIRO_STATUS_SUCCESS)
@@ -233,8 +233,8 @@ static int m_application_gc(lua_State * L)
 		free(app->author);
 	if(app->website)
 		free(app->website);
-	if(app->logo)
-		cairo_surface_destroy(app->logo);
+	if(app->icon)
+		cairo_surface_destroy(app->icon);
 	if(app->panel)
 		cairo_surface_destroy(app->panel);
 	return 0;
@@ -282,17 +282,17 @@ static int m_application_get_version(lua_State * L)
 	return 1;
 }
 
-static int m_application_get_logo(lua_State * L)
+static int m_application_get_icon(lua_State * L)
 {
 	struct lapplication_t * app = luaL_checkudata(L, 1, MT_APPLICATION);
-	if(!app->logo)
+	if(!app->icon)
 		return 0;
 	struct limage_t * img = lua_newuserdata(L, sizeof(struct limage_t));
-	int w = cairo_image_surface_get_width(app->logo);
-	int h = cairo_image_surface_get_height(app->logo);
-	img->cs = cairo_surface_create_similar(app->logo, cairo_surface_get_content(app->logo), w, h);
+	int w = cairo_image_surface_get_width(app->icon);
+	int h = cairo_image_surface_get_height(app->icon);
+	img->cs = cairo_surface_create_similar(app->icon, cairo_surface_get_content(app->icon), w, h);
 	cairo_t * cr = cairo_create(img->cs);
-	cairo_set_source_surface(cr, app->logo, 0, 0);
+	cairo_set_source_surface(cr, app->icon, 0, 0);
 	cairo_paint(cr);
 	cairo_destroy(cr);
 	luaL_setmetatable(L, MT_IMAGE);
@@ -333,7 +333,7 @@ static const luaL_Reg m_application[] = {
 	{"getAuthor",		m_application_get_author},
 	{"getWebsite",		m_application_get_website},
 	{"getVersion",		m_application_get_version},
-	{"getLogo",			m_application_get_logo},
+	{"getIcon",			m_application_get_icon},
 	{"getPanel",		m_application_get_panel},
 	{"execute",			m_application_execute},
 	{NULL,	NULL}

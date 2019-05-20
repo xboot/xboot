@@ -6,7 +6,7 @@ M._STATE_PRESSED = "PRESSED"
 function M:init(app)
 	self.super:init(128, 256)
 	self._app = app
-	local logo = app:getLogo() or assets:loadImage("assets/images/default-logo.png")
+	local icon = app:getIcon() or assets:loadImage("assets/images/default-icon.png")
 	local panel = app:getPanel() or assets:loadImage("assets/images/default-panel.png")
 	self._panelNormal = DisplayImage.new(panel)
 	self._panelPressed = DisplayImage.new(panel:clone():sepia())

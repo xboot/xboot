@@ -551,6 +551,14 @@ static int m_shape_clip_preserve(lua_State * L)
 	return 0;
 }
 
+static int m_shape_mask(lua_State * L)
+{
+	struct lshape_t * shape = luaL_checkudata(L, 1, MT_SHAPE);
+	struct lpattern_t * pattern = luaL_checkudata(L, 2, MT_PATTERN);
+	cairo_mask(shape->cr, pattern->pattern);
+	return 0;
+}
+
 static int m_shape_paint(lua_State * L)
 {
 	struct lshape_t * shape = luaL_checkudata(L, 1, MT_SHAPE);
@@ -614,6 +622,7 @@ static const luaL_Reg m_shape[] = {
 	{"fillPreserve",		m_shape_fill_preserve},
 	{"clip",				m_shape_clip},
 	{"clipPreserve",		m_shape_clip_preserve},
+	{"mask",				m_shape_mask},
 	{"paint",				m_shape_paint},
 	{"snapshot",			m_shape_snapshot},
 	{NULL,					NULL}

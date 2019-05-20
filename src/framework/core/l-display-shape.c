@@ -223,6 +223,11 @@ function M:clipPreserve()
 	return self
 end
 
+function M:mask(pattern)
+	self._shape:mask(pattern)
+	return self
+end
+
 function M:paint(alpha)
 	self._shape:paint(alpha)
 	return self

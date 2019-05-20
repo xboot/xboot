@@ -24,11 +24,6 @@ function M:init(app)
 end
 
 function M:execute()
-	print(self._app:getPath())
-	print(self._app:getDescription())
-	print(self._app:getAuthor())
-	print(self._app:getWebsite())
-	print(self._app:getVersion())
 	self._app:execute()
 end
 

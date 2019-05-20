@@ -102,24 +102,6 @@ static int application_detect(struct lapplication_t * app, const char * path)
 							if(t && (t->type == JSON_STRING))
 								app->desc = strdup(t->u.string.ptr);
 						}
-						else if(strcmp(p, "author") == 0)
-						{
-							t = v->u.object.values[i].value;
-							if(t && (t->type == JSON_STRING))
-								app->author = strdup(t->u.string.ptr);
-						}
-						else if(strcmp(p, "website") == 0)
-						{
-							t = v->u.object.values[i].value;
-							if(t && (t->type == JSON_STRING))
-								app->website = strdup(t->u.string.ptr);
-						}
-						else if(strcmp(p, "version") == 0)
-						{
-							t = v->u.object.values[i].value;
-							if(t && (t->type == JSON_STRING))
-								app->version = strdup(t->u.string.ptr);
-						}
 					}
 				}
 				json_free(v);
@@ -229,10 +211,6 @@ static int m_application_gc(lua_State * L)
 		free(app->name);
 	if(app->desc)
 		free(app->desc);
-	if(app->author)
-		free(app->author);
-	if(app->website)
-		free(app->website);
 	if(app->icon)
 		cairo_surface_destroy(app->icon);
 	if(app->panel)
@@ -258,27 +236,6 @@ static int m_application_get_description(lua_State * L)
 {
 	struct lapplication_t * app = luaL_checkudata(L, 1, MT_APPLICATION);
 	lua_pushstring(L, app->desc);
-	return 1;
-}
-
-static int m_application_get_author(lua_State * L)
-{
-	struct lapplication_t * app = luaL_checkudata(L, 1, MT_APPLICATION);
-	lua_pushstring(L, app->author);
-	return 1;
-}
-
-static int m_application_get_website(lua_State * L)
-{
-	struct lapplication_t * app = luaL_checkudata(L, 1, MT_APPLICATION);
-	lua_pushstring(L, app->website);
-	return 1;
-}
-
-static int m_application_get_version(lua_State * L)
-{
-	struct lapplication_t * app = luaL_checkudata(L, 1, MT_APPLICATION);
-	lua_pushstring(L, app->version);
 	return 1;
 }
 
@@ -330,9 +287,6 @@ static const luaL_Reg m_application[] = {
 	{"getPath",			m_application_get_path},
 	{"getName",			m_application_get_name},
 	{"getDescription",	m_application_get_description},
-	{"getAuthor",		m_application_get_author},
-	{"getWebsite",		m_application_get_website},
-	{"getVersion",		m_application_get_version},
 	{"getIcon",			m_application_get_icon},
 	{"getPanel",		m_application_get_panel},
 	{"execute",			m_application_execute},

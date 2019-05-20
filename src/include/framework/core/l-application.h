@@ -15,9 +15,6 @@ struct lapplication_t {
 	char * path;
 	char * name;
 	char * desc;
-	char * author;
-	char * website;
-	char * version;
 	cairo_surface_t * icon;
 	cairo_surface_t * panel;
 };

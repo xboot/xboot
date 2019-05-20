@@ -24,7 +24,10 @@ function M:init(app)
 end
 
 function M:execute()
-	self._app:execute()
+	print(self._app:getPath())
+	print(self._app:getName())
+	print(self._app:getDescription())
+--	self._app:execute()
 end
 
 function M:onMouseDown(e)

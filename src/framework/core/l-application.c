@@ -63,14 +63,14 @@ static cairo_surface_t * cairo_image_surface_create_from_png_xfs(struct xfs_cont
 	return cs;
 }
 
-static int application_detect(struct lapplication_t * app, const char * path)
+static int application_detect(struct lapplication_t * app, const char * path, const char * lang)
 {
 	struct xfs_context_t * ctx;
 	struct xfs_file_t * file;
-	struct json_value_t * v, * t;
+	struct json_value_t * v, * w, * t;
 	char * json, * p;
 	size_t len;
-	int i;
+	int i, j;
 
 	ctx = xfs_alloc(path, 0);
 	if(ctx && xfs_isfile(ctx, "main.lua"))
@@ -89,18 +89,57 @@ static int application_detect(struct lapplication_t * app, const char * path)
 				{
 					for(i = 0; i < v->u.object.length; i++)
 					{
-						p = v->u.object.values[i].name;
-						if(strcmp(p, "name") == 0)
+						if(v->u.object.values[i].value->type == JSON_OBJECT)
 						{
-							t = v->u.object.values[i].value;
-							if(t && (t->type == JSON_STRING))
-								app->name = strdup(t->u.string.ptr);
+							if(strcmp(v->u.object.values[i].name, lang) == 0)
+							{
+								w = v->u.object.values[i].value;
+								if(w && (w->type == JSON_OBJECT))
+								{
+									for(j = 0; j < w->u.object.length; j++)
+									{
+										if(w->u.object.values[j].value->type == JSON_STRING)
+										{
+											p = w->u.object.values[j].name;
+											if(strcmp(p, "name") == 0)
+											{
+												t = w->u.object.values[j].value;
+												if(t && (t->type == JSON_STRING))
+													app->name = strdup(t->u.string.ptr);
+											}
+											else if(strcmp(p, "description") == 0)
+											{
+												t = w->u.object.values[j].value;
+												if(t && (t->type == JSON_STRING))
+													app->desc = strdup(t->u.string.ptr);
+											}
+										}
+									}
+								}
+							}
 						}
-						else if(strcmp(p, "description") == 0)
+					}
+
+					if(!app->name && !app->desc)
+					{
+						for(i = 0; i < v->u.object.length; i++)
 						{
-							t = v->u.object.values[i].value;
-							if(t && (t->type == JSON_STRING))
-								app->desc = strdup(t->u.string.ptr);
+							if(v->u.object.values[i].value->type == JSON_STRING)
+							{
+								p = v->u.object.values[i].name;
+								if(strcmp(p, "name") == 0)
+								{
+									t = v->u.object.values[i].value;
+									if(t && (t->type == JSON_STRING))
+										app->name = strdup(t->u.string.ptr);
+								}
+								else if(strcmp(p, "description") == 0)
+								{
+									t = v->u.object.values[i].value;
+									if(t && (t->type == JSON_STRING))
+										app->desc = strdup(t->u.string.ptr);
+								}
+							}
 						}
 					}
 				}
@@ -135,8 +174,9 @@ static int application_detect(struct lapplication_t * app, const char * path)
 static int l_application_new(lua_State * L)
 {
 	const char * path = luaL_optstring(L, 1, task_self()->name);
+	const char * lang = luaL_optstring(L, 2, "en-US");
 	struct lapplication_t * app = lua_newuserdata(L, sizeof(struct lapplication_t));
-	if(!application_detect(app, path))
+	if(!application_detect(app, path, lang))
 		return 0;
 	luaL_setmetatable(L, MT_APPLICATION);
 	return 1;
@@ -144,6 +184,7 @@ static int l_application_new(lua_State * L)
 
 static int l_application_list(lua_State * L)
 {
+	const char * lang = luaL_optstring(L, 1, "en-US");
 	struct lapplication_t app, * p;
 	struct vfs_stat_t st;
 	struct vfs_dirent_t dir;
@@ -184,7 +225,7 @@ static int l_application_list(lua_State * L)
 	lua_newtable(L);
 	slist_for_each_entry(e, sl)
 	{
-		if(application_detect(&app, e->key))
+		if(application_detect(&app, e->key, lang))
 		{
 			p = lua_newuserdata(L, sizeof(struct lapplication_t));
 			memcpy(p, &app, sizeof(struct lapplication_t));

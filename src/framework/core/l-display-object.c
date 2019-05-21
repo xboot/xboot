@@ -450,7 +450,7 @@ function M:animate(properties, duration, easing)
 				end
 			end
 
-			local elapsed = d._stopwatch:elapsed()
+			local elapsed = d._awatch:elapsed()
 			if elapsed > tween.duration then
 				elapsed = tween.duration
 			end
@@ -481,13 +481,13 @@ function M:animate(properties, duration, easing)
 
 			if elapsed >= tween.duration then
 				table.remove(d._tweenlist, 1)
-				d._stopwatch:reset()
+				d._awatch:reset()
 			end
 		else
 			d:dispatchEvent(Event.new("animate-complete"))
 			if not next(d._tweenlist) then
 				d:removeEventListener("enter-frame", listener)
-				d._stopwatch = nil
+				d._awatch = nil
 			end
 		end
 	end
@@ -508,9 +508,94 @@ function M:animate(properties, duration, easing)
 	end
 	table.insert(self._tweenlist, tween)
 
-	if next(self._tweenlist) and not self._stopwatch then
+	if next(self._tweenlist) and not self._awatch then
 		self:addEventListener("enter-frame", listener)
-		self._stopwatch = Stopwatch.new()
+		self._awatch = Stopwatch.new()
+	end
+	return self
+end
+
+function M:spring(properties, velocity, stiffness, damping)
+	local function listener(d, e)
+		if d._spring and type(d._spring) == "table" and next(d._spring) then
+			local complete = true
+			local delta = d._swatch:elapsed()
+			d._swatch:reset()
+
+			for k, v in pairs(d._spring) do
+				local flag, ns, nv = v(delta)
+				if flag then
+					if k == "x" then
+						d:setX(ns)
+					elseif k == "y" then
+						d:setY(ns)
+					elseif k == "rotation" then
+						d:setRotation(ns)
+					elseif k == "scalex" then
+						d:setScaleX(ns)
+					elseif k == "scaley" then
+						d:setScaleY(ns)
+					elseif k == "skewx" then
+						d:setSkewX(ns)
+					elseif k == "skewy" then
+						d:setSkewY(ns)
+					elseif k == "alpha" then
+						d:setAlpha(ns)
+					elseif k == "width" then
+						d:setWidth(ns)
+					elseif k == "height" then
+						d:setHeight(ns)
+					end
+					complete = false
+				end
+			end
+			if complete then
+				d:removeEventListener("enter-frame", listener)
+				d:dispatchEvent(Event.new("animate-complete"))
+				d._spring = nil
+				d._swatch = nil
+			end
+		else
+			d:removeEventListener("enter-frame", listener)
+			d._spring = nil
+			d._swatch = nil
+		end
+	end
+
+	self._spring = nil
+	if properties and type(properties) == "table" and next(properties) then
+		self._spring = {}
+		for k, v in pairs(properties) do
+			local s = nil
+			if k == "x" then
+				s = self:getX()
+			elseif k == "y" then
+				s = self:getY()
+			elseif k == "rotation" then
+				s = self:getRotation()
+			elseif k == "scalex" then
+				s = self:getScaleX()
+			elseif k == "scaley" then
+				s = self:getScaleY()
+			elseif k == "skewx" then
+				s = self:getSkewX()
+			elseif k == "skewy" then
+				s = self:getSkewY()
+			elseif k == "alpha" then
+				s = self:getAlpha()
+			elseif k == "width" then
+				s = self:getWidth()
+			elseif k == "height" then
+				s = self:getHeight()
+			end
+			if s ~= nil then
+				self._spring[k] = Spring.new(s, v, velocity, stiffness, damping)
+			end
+		end
+		if next(self._spring) and not self._swatch then
+			self:addEventListener("enter-frame", listener)
+			self._swatch = Stopwatch.new()
+		end
 	end
 	return self
 end

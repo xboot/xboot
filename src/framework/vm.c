@@ -50,6 +50,7 @@
 #include <framework/core/l-pattern.h>
 #include <framework/core/l-printr.h>
 #include <framework/core/l-shape.h>
+#include <framework/core/l-spring.h>
 #include <framework/core/l-stage.h>
 #include <framework/core/l-stopwatch.h>
 #include <framework/core/l-text.h>
@@ -69,6 +70,7 @@ static void luaopen_glblibs(lua_State * L)
 		{ "I18n",					luaopen_i18n },
 		{ "Display",				luaopen_display },
 		{ "Easing",					luaopen_easing },
+		{ "Spring",					luaopen_spring },
 		{ "Stopwatch",				luaopen_stopwatch },
 		{ "Matrix",					luaopen_matrix },
 		{ "Image",					luaopen_image },

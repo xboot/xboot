@@ -43,7 +43,6 @@ struct lspring_t {
 	double velocity;
 	double stiffness;
 	double damping;
-	double precision;
 };
 
 static int l_new(lua_State * L)
@@ -53,14 +52,12 @@ static int l_new(lua_State * L)
 	double velocity = luaL_optnumber(L, 3, 0);
 	double stiffness = luaL_optnumber(L, 4, 170);
 	double damping = luaL_optnumber(L, 5, 26);
-	double precision = luaL_optnumber(L, 6, 0.01);
 	struct lspring_t * s = lua_newuserdata(L, sizeof(struct lspring_t));
 	s->start = start;
 	s->stop = stop;
 	s->velocity = velocity;
 	s->stiffness = stiffness;
 	s->damping = damping;
-	s->precision = precision;
 	luaL_setmetatable(L, MT_SPRING);
 	return 1;
 }
@@ -76,22 +73,20 @@ static int m_spring_call(lua_State * L)
 	double delta = luaL_checknumber(L, 2);
 	double nv = s->velocity + (s->stiffness * (s->stop - s->start) - s->damping * s->velocity) * delta;
 	double ns = s->start + nv * delta;
-	if((abs(nv) < s->precision) && (abs(ns - s->stop) < s->precision))
+	if((abs(nv) < 0.001) && (abs(ns - s->stop) < 0.001))
 	{
 		s->start = s->stop;
 		s->velocity = 0;
-		lua_pushnumber(L, s->start);
-		lua_pushnumber(L, s->velocity);
 		lua_pushboolean(L, 0);
 	}
 	else
 	{
 		s->start = ns;
 		s->velocity = nv;
-		lua_pushnumber(L, s->start);
-		lua_pushnumber(L, s->velocity);
 		lua_pushboolean(L, 1);
 	}
+	lua_pushnumber(L, s->start);
+	lua_pushnumber(L, s->velocity);
 	return 3;
 }
 

@@ -477,13 +477,17 @@ static double cubic_bezier(struct leasing_t * e, double t)
 
 static int l_new(lua_State * L)
 {
-	struct leasing_t * e = lua_newuserdata(L, sizeof(struct leasing_t));
-	e->b = luaL_optnumber(L, 1, 0);
-	e->c = luaL_optnumber(L, 2, 1);
-	e->d = luaL_optnumber(L, 3, 1);
+	double b = luaL_optnumber(L, 1, 0);
+	double c = luaL_optnumber(L, 2, 1);
+	double d = luaL_optnumber(L, 3, 1);
+	struct leasing_t * e;
 	if(lua_isstring(L, 4))
 	{
 		const char * type = luaL_optstring(L, 4, "linear");
+		e = lua_newuserdata(L, sizeof(struct leasing_t));
+		e->b = b;
+		e->c = c;
+		e->d = d;
 		switch(shash(type))
 		{
 		case 0x0b7641e0: /* "linear" */
@@ -592,6 +596,10 @@ static int l_new(lua_State * L)
 		lua_rawgeti(L, 4, 2); y1 = lua_tonumber(L, -1); lua_pop(L, 1);
 		lua_rawgeti(L, 4, 3); x2 = lua_tonumber(L, -1); lua_pop(L, 1);
 		lua_rawgeti(L, 4, 4); y2 = lua_tonumber(L, -1); lua_pop(L, 1);
+		e = lua_newuserdata(L, sizeof(struct leasing_t));
+		e->b = b;
+		e->c = c;
+		e->d = d;
 		e->cx = 3.0 * x1;
 		e->bx = 3.0 * (x2 - x1) - e->cx;
 		e->ax = 1.0 - e->cx - e->bx;
@@ -614,6 +622,10 @@ static int l_new(lua_State * L)
 	}
 	else
 	{
+		e = lua_newuserdata(L, sizeof(struct leasing_t));
+		e->b = b;
+		e->c = c;
+		e->d = d;
 		e->func = linear;
 	}
 	luaL_setmetatable(L, MT_EASING);

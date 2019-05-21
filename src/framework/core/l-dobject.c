@@ -923,14 +923,48 @@ static void dobject_draw_container(struct ldobject_t * o, struct display_t * dis
 
 static int l_dobject_new(lua_State * L)
 {
+	enum dobject_type_t dtype;
+	void (*draw)(struct ldobject_t *, struct display_t *);
+	void * userdata;
+	double width = luaL_optnumber(L, 1, 0);
+	double height = luaL_optnumber(L, 2, 0);
+	if(luaL_testudata(L, 3, MT_IMAGE))
+	{
+		dtype = DOBJECT_TYPE_IMAGE;
+		draw = dobject_draw_image;
+		userdata = lua_touserdata(L, 3);
+	}
+	else if(luaL_testudata(L, 3, MT_NINEPATCH))
+	{
+		dtype = DOBJECT_TYPE_NINEPATCH;
+		draw = dobject_draw_ninepatch;
+		userdata = lua_touserdata(L, 3);
+	}
+	else if(luaL_testudata(L, 3, MT_SHAPE))
+	{
+		dtype = DOBJECT_TYPE_SHAPE;
+		draw = dobject_draw_shape;
+		userdata = lua_touserdata(L, 3);
+	}
+	else if(luaL_testudata(L, 3, MT_TEXT))
+	{
+		dtype = DOBJECT_TYPE_TEXT;
+		draw = dobject_draw_text;
+		userdata = lua_touserdata(L, 3);
+	}
+	else
+	{
+		dtype = DOBJECT_TYPE_CONTAINER;
+		draw = dobject_draw_container;
+		userdata = NULL;
+	}
 	struct ldobject_t * o = lua_newuserdata(L, sizeof(struct ldobject_t));
 
 	o->parent = NULL;
 	init_list_head(&o->entry);
 	init_list_head(&o->children);
-
-	o->width = luaL_optnumber(L, 1, 0);
-	o->height = luaL_optnumber(L, 2, 0);
+	o->width = width;
+	o->height = height;
 	o->x = 0;
 	o->y = 0;
 	o->rotation = 0;
@@ -963,37 +997,9 @@ static int l_dobject_new(lua_State * L)
 	matrix_init_identity(&o->global_matrix);
 	region_init(&o->global_bounds, o->x, o->y, o->width, o->height);
 	region_init(&o->dirty_bounds, o->x, o->y, o->width, o->height);
-
-	if(luaL_testudata(L, 3, MT_IMAGE))
-	{
-		o->dtype = DOBJECT_TYPE_IMAGE;
-		o->draw = dobject_draw_image;
-		o->priv = lua_touserdata(L, 3);
-	}
-	else if(luaL_testudata(L, 3, MT_NINEPATCH))
-	{
-		o->dtype = DOBJECT_TYPE_NINEPATCH;
-		o->draw = dobject_draw_ninepatch;
-		o->priv = lua_touserdata(L, 3);
-	}
-	else if(luaL_testudata(L, 3, MT_SHAPE))
-	{
-		o->dtype = DOBJECT_TYPE_SHAPE;
-		o->draw = dobject_draw_shape;
-		o->priv = lua_touserdata(L, 3);
-	}
-	else if(luaL_testudata(L, 3, MT_TEXT))
-	{
-		o->dtype = DOBJECT_TYPE_TEXT;
-		o->draw = dobject_draw_text;
-		o->priv = lua_touserdata(L, 3);
-	}
-	else
-	{
-		o->dtype = DOBJECT_TYPE_CONTAINER;
-		o->draw = dobject_draw_container;
-		o->priv = NULL;
-	}
+	o->dtype = dtype;
+	o->draw = draw;
+	o->priv = userdata;
 
 	luaL_setmetatable(L, MT_DOBJECT);
 	return 1;

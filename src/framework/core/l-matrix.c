@@ -31,21 +31,30 @@
 
 static int l_matrix_new(lua_State * L)
 {
-	struct matrix_t * m = lua_newuserdata(L, sizeof(struct matrix_t));
-
+	struct matrix_t * m;
 	if(lua_istable(L, 1) && lua_rawlen(L, 1) == 6)
 	{
-		lua_rawgeti(L, 1, 1); m->a = lua_tonumber(L, -1); lua_pop(L, 1);
-		lua_rawgeti(L, 1, 2); m->b = lua_tonumber(L, -1); lua_pop(L, 1);
-		lua_rawgeti(L, 1, 3); m->c = lua_tonumber(L, -1); lua_pop(L, 1);
-		lua_rawgeti(L, 1, 4); m->d = lua_tonumber(L, -1); lua_pop(L, 1);
-		lua_rawgeti(L, 1, 5); m->tx = lua_tonumber(L, -1); lua_pop(L, 1);
-		lua_rawgeti(L, 1, 6); m->ty = lua_tonumber(L, -1); lua_pop(L, 1);
+		struct matrix_t t;
+		lua_rawgeti(L, 1, 1); t.a = lua_tonumber(L, -1); lua_pop(L, 1);
+		lua_rawgeti(L, 1, 2); t.b = lua_tonumber(L, -1); lua_pop(L, 1);
+		lua_rawgeti(L, 1, 3); t.c = lua_tonumber(L, -1); lua_pop(L, 1);
+		lua_rawgeti(L, 1, 4); t.d = lua_tonumber(L, -1); lua_pop(L, 1);
+		lua_rawgeti(L, 1, 5); t.tx = lua_tonumber(L, -1); lua_pop(L, 1);
+		lua_rawgeti(L, 1, 6); t.ty = lua_tonumber(L, -1); lua_pop(L, 1);
+		m = lua_newuserdata(L, sizeof(struct matrix_t));
+		memcpy(m, &t, sizeof(struct matrix_t));
 	}
 	else if(luaL_testudata(L, 1, MT_MATRIX))
-		memcpy(m, lua_touserdata(L, 1), sizeof(struct matrix_t));
+	{
+		struct matrix_t * p = lua_touserdata(L, 1);
+		m = lua_newuserdata(L, sizeof(struct matrix_t));
+		memcpy(m, p, sizeof(struct matrix_t));
+	}
 	else
+	{
+		m = lua_newuserdata(L, sizeof(struct matrix_t));
 		matrix_init_identity(m);
+	}
 	luaL_setmetatable(L, MT_MATRIX);
 	return 1;
 }
@@ -113,7 +122,7 @@ static int m_matrix_scale(lua_State * L)
 
 static int m_matrix_distance(lua_State * L)
 {
-	const struct matrix_t * m = luaL_checkudata(L, 1, MT_MATRIX);
+	struct matrix_t * m = luaL_checkudata(L, 1, MT_MATRIX);
 	double dx = luaL_checknumber(L, 2);
 	double dy = luaL_checknumber(L, 3);
 	matrix_transform_distance(m, &dx, &dy);
@@ -124,7 +133,7 @@ static int m_matrix_distance(lua_State * L)
 
 static int m_matrix_point(lua_State * L)
 {
-	const struct matrix_t * m = luaL_checkudata(L, 1, MT_MATRIX);
+	struct matrix_t * m = luaL_checkudata(L, 1, MT_MATRIX);
 	double x = luaL_checknumber(L, 2);
 	double y = luaL_checknumber(L, 3);
 	matrix_transform_point(m, &x, &y);
@@ -135,7 +144,7 @@ static int m_matrix_point(lua_State * L)
 
 static int m_matrix_bounds(lua_State * L)
 {
-	const struct matrix_t * m = luaL_checkudata(L, 1, MT_MATRIX);
+	struct matrix_t * m = luaL_checkudata(L, 1, MT_MATRIX);
 	double x1, y1;
 	double x2, y2;
 	matrix_transform_bounds(m, &x1, &y1, &x2, &y2);

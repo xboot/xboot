@@ -305,6 +305,32 @@ static int m_image_shadow(lua_State * L)
 	return 1;
 }
 
+static int m_image_clear(lua_State * L)
+{
+	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
+	cairo_t * cr = cairo_create(img->cs);
+	cairo_set_operator(cr, CAIRO_OPERATOR_CLEAR);
+	cairo_paint(cr);
+	cairo_destroy(cr);
+	lua_settop(L, 1);
+	return 1;
+}
+
+static int m_image_mask(lua_State * L)
+{
+	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
+	struct limage_t * other = luaL_checkudata(L, 2, MT_IMAGE);
+	cairo_t * cr = cairo_create(img->cs);
+	cairo_set_source_surface(cr, other->cs, 0, 0);
+	if(luaL_testudata(L, 3, MT_IMAGE))
+		cairo_mask_surface(cr, ((struct limage_t *)lua_touserdata(L, 3))->cs, 0, 0);
+	else
+		cairo_paint(cr);
+	cairo_destroy(cr);
+	lua_settop(L, 1);
+	return 1;
+}
+
 static int m_image_grayscale(lua_State * L)
 {
 	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
@@ -1064,6 +1090,8 @@ static const luaL_Reg m_image[] = {
 	{"getSize",		m_image_get_size},
 	{"clone",		m_image_clone},
 	{"shadow",		m_image_shadow},
+	{"clear",		m_image_clear},
+	{"mask",		m_image_mask},
 	{"grayscale",	m_image_grayscale},
 	{"sepia",		m_image_sepia},
 	{"invert",		m_image_invert},

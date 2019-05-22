@@ -288,11 +288,9 @@ static int m_image_shadow(lua_State * L)
 		case CAIRO_FORMAT_ARGB32:
 		case CAIRO_FORMAT_RGB24:
 			expblur(pixel, width, height, 4, radius);
-			cairo_surface_mark_dirty(cs);
 			break;
 		case CAIRO_FORMAT_A8:
 			expblur(pixel, width, height, 1, radius);
-			cairo_surface_mark_dirty(cs);
 			break;
 		case CAIRO_FORMAT_A1:
 		case CAIRO_FORMAT_RGB16_565:
@@ -336,7 +334,6 @@ static int m_image_grayscale(lua_State * L)
 				p[2] = gray;
 			}
 		}
-		cairo_surface_mark_dirty(cs);
 		break;
 	case CAIRO_FORMAT_A8:
 	case CAIRO_FORMAT_A1:
@@ -382,7 +379,6 @@ static int m_image_sepia(lua_State * L)
 				p[2] = MIN(tr, 255);
 			}
 		}
-		cairo_surface_mark_dirty(cs);
 		break;
 	case CAIRO_FORMAT_A8:
 	case CAIRO_FORMAT_A1:
@@ -420,7 +416,6 @@ static int m_image_invert(lua_State * L)
 				p[2] = 255 - p[2];
 			}
 		}
-		cairo_surface_mark_dirty(cs);
 		break;
 	case CAIRO_FORMAT_A8:
 		for(y = 0; y < height; y++, q += stride)
@@ -430,7 +425,6 @@ static int m_image_invert(lua_State * L)
 				p[0] = 255 - p[0];
 			}
 		}
-		cairo_surface_mark_dirty(cs);
 		break;
 	case CAIRO_FORMAT_A1:
 	case CAIRO_FORMAT_RGB16_565:
@@ -514,7 +508,6 @@ static int m_image_threshold(lua_State * L)
 		default:
 			break;
 		}
-		cairo_surface_mark_dirty(cs);
 		break;
 	case CAIRO_FORMAT_A8:
 		switch(t)
@@ -567,7 +560,6 @@ static int m_image_threshold(lua_State * L)
 		default:
 			break;
 		}
-		cairo_surface_mark_dirty(cs);
 		break;
 	case CAIRO_FORMAT_A1:
 	case CAIRO_FORMAT_RGB16_565:
@@ -726,7 +718,6 @@ static int m_image_colorize(lua_State * L)
 				p[2] = cm[p[2]][2];
 			}
 		}
-		cairo_surface_mark_dirty(cs);
 		break;
 	case CAIRO_FORMAT_A8:
 	case CAIRO_FORMAT_A1:
@@ -771,7 +762,6 @@ static int m_image_gamma(lua_State * L)
 				p[2] = lut[p[2]];
 			}
 		}
-		cairo_surface_mark_dirty(cs);
 		break;
 	case CAIRO_FORMAT_A8:
 		for(y = 0; y < height; y++, q += stride)
@@ -781,7 +771,6 @@ static int m_image_gamma(lua_State * L)
 				p[0] = lut[p[0]];
 			}
 		}
-		cairo_surface_mark_dirty(cs);
 		break;
 	case CAIRO_FORMAT_A1:
 	case CAIRO_FORMAT_RGB16_565:
@@ -841,7 +830,6 @@ static int m_image_hue(lua_State * L)
 				p[2] = CLAMP(tr, 0, 255);
 			}
 		}
-		cairo_surface_mark_dirty(cs);
 		break;
 	case CAIRO_FORMAT_A8:
 	case CAIRO_FORMAT_A1:
@@ -907,7 +895,6 @@ static int m_image_saturate(lua_State * L)
 				p[2] = CLAMP(r, 0, 255);
 			}
 		}
-		cairo_surface_mark_dirty(cs);
 		break;
 	case CAIRO_FORMAT_A8:
 	case CAIRO_FORMAT_A1:
@@ -955,7 +942,6 @@ static int m_image_brightness(lua_State * L)
 				p[2] = CLAMP(tr, 0, 255);
 			}
 		}
-		cairo_surface_mark_dirty(cs);
 		break;
 	case CAIRO_FORMAT_A8:
 		for(y = 0; y < height; y++, q += stride)
@@ -967,7 +953,6 @@ static int m_image_brightness(lua_State * L)
 				p[0] = CLAMP(ta, 0, 255);
 			}
 		}
-		cairo_surface_mark_dirty(cs);
 		break;
 	case CAIRO_FORMAT_A1:
 	case CAIRO_FORMAT_RGB16_565:
@@ -1014,7 +999,6 @@ static int m_image_contrast(lua_State * L)
 				p[2] = CLAMP(tr, 0, 255 << 7) >> 7;
 			}
 		}
-		cairo_surface_mark_dirty(cs);
 		break;
 	case CAIRO_FORMAT_A8:
 		for(y = 0; y < height; y++, q += stride)
@@ -1026,7 +1010,6 @@ static int m_image_contrast(lua_State * L)
 				p[0] = CLAMP(ta, 0, 255 << 7) >> 7;
 			}
 		}
-		cairo_surface_mark_dirty(cs);
 		break;
 	case CAIRO_FORMAT_A1:
 	case CAIRO_FORMAT_RGB16_565:
@@ -1056,11 +1039,9 @@ static int m_image_blur(lua_State * L)
 		case CAIRO_FORMAT_ARGB32:
 		case CAIRO_FORMAT_RGB24:
 			expblur(pixel, width, height, 4, radius);
-			cairo_surface_mark_dirty(cs);
 			break;
 		case CAIRO_FORMAT_A8:
 			expblur(pixel, width, height, 1, radius);
-			cairo_surface_mark_dirty(cs);
 			break;
 		case CAIRO_FORMAT_A1:
 		case CAIRO_FORMAT_RGB16_565:

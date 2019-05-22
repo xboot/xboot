@@ -1,0 +1,19 @@
+{
+	"name": "Glass Cleaning",
+	"description": "Clean the water drops from the glass.",
+
+	"zh-CN": {
+		"name": "擦玻璃",
+		"description": "擦除玻璃上的水珠。"
+	},
+
+	"zh-HK": {
+		"name": "擦玻璃",
+		"description": "擦除玻璃上的水珠。"
+	},
+
+	"zh-TW": {
+		"name": "擦玻璃",
+		"description": "擦除玻璃上的水珠。"
+	}
+}

@@ -1,0 +1,19 @@
+{
+	"name": "Sun",
+	"description": "Drag the sun to the grandfather, like a spring.",
+
+	"zh-CN": {
+		"name": "太阳公公",
+		"description": "拖拽太阳公公，像弹簧一样。"
+	},
+
+	"zh-HK": {
+		"name": "太陽公公",
+		"description": "拖拽太陽公公，像彈簧一樣。"
+	},
+
+	"zh-TW": {
+		"name": "太陽公公",
+		"description": "拖拽太陽公公，像彈簧一樣。"
+	}
+}

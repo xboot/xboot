@@ -40,5 +40,3 @@ local function onEnterFrame(d, e)
 end
 
 stage:addEventListener("enter-frame", onEnterFrame)
-stage:showfps(true)
-

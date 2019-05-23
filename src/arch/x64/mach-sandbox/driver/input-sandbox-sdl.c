@@ -28,6 +28,7 @@
 
 #include <xboot.h>
 #include <input/input.h>
+#include <xboot/window.h>
 #include <sandbox.h>
 
 struct input_sandbox_sdl_pdata_t {

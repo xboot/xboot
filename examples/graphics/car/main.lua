@@ -42,4 +42,3 @@ stage:addChild(car7)
 stage:addChild(car8)
 stage:addChild(car9)
 
-stage:showfps(true)

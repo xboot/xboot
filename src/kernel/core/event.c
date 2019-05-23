@@ -28,104 +28,8 @@
 
 #include <xboot.h>
 #include <input/input.h>
+#include <xboot/window.h>
 #include <xboot/event.h>
-
-static struct event_context_t __event_context = {
-	.entry = {
-		.next	= &(__event_context.entry),
-		.prev	= &(__event_context.entry),
-	},
-};
-static spinlock_t __event_context_lock = SPIN_LOCK_INIT();
-
-struct event_context_t * event_context_alloc(const char * input)
-{
-	struct event_context_t * ectx;
-	struct input_t * dev;
-	char *r, * p = (char *)input;
-	irq_flags_t flags;
-
-	ectx = malloc(sizeof(struct event_context_t));
-	if(!ectx)
-		return NULL;
-
-	ectx->fifo = fifo_alloc(sizeof(struct event_t) * CONFIG_EVENT_FIFO_SIZE);
-	if(!ectx->fifo)
-	{
-		free(ectx);
-		return NULL;
-	}
-
-	if(p)
-	{
-		ectx->map = hmap_alloc(0);
-		while((r = strsep(&p, ",;:|")) != NULL)
-		{
-			dev = search_input(r);
-			if(dev)
-				hmap_add(ectx->map, r, dev);
-		}
-	}
-	else
-	{
-		ectx->map = NULL;
-	}
-
-	spin_lock_irqsave(&__event_context_lock, flags);
-	list_add_tail(&ectx->entry, &__event_context.entry);
-	spin_unlock_irqrestore(&__event_context_lock, flags);
-
-	return ectx;
-}
-
-void event_context_free(struct event_context_t * ectx)
-{
-	struct event_context_t * pos, * n;
-	irq_flags_t flags;
-
-	if(!ectx)
-		return;
-
-	list_for_each_entry_safe(pos, n, &__event_context.entry, entry)
-	{
-		if(pos == ectx)
-		{
-			spin_lock_irqsave(&__event_context_lock, flags);
-			list_del(&pos->entry);
-			spin_unlock_irqrestore(&__event_context_lock, flags);
-
-			if(pos->fifo)
-				fifo_free(pos->fifo);
-			if(pos->map)
-				hmap_free(pos->map);
-			free(pos);
-		}
-	}
-}
-
-void push_event(struct event_t * e)
-{
-	struct event_context_t * pos, * n;
-
-	if(e)
-	{
-		e->timestamp = ktime_get();
-		list_for_each_entry_safe(pos, n, &__event_context.entry, entry)
-		{
-			if(pos->map)
-			{
-				if(hmap_search(pos->map, ((struct input_t *)e->device)->name) == e->device)
-				{
-					fifo_put(pos->fifo, (unsigned char *)e, sizeof(struct event_t));
-				}
-			}
-			else
-			{
-				fifo_put(pos->fifo, (unsigned char *)e, sizeof(struct event_t));
-			}
-		}
-	}
-}
 
 void push_event_key_down(void * device, u32_t key)
 {
@@ -309,11 +213,4 @@ void push_event_joystick_button_up(void * device, u32_t button)
 	e.type = EVENT_TYPE_JOYSTICK_BUTTONUP;
 	e.e.joystick_button_down.button = button;
 	push_event(&e);
-}
-
-int pump_event(struct event_context_t * ectx, struct event_t * e)
-{
-	if(ectx && e)
-		return (fifo_get(ectx->fifo, (unsigned char *)e, sizeof(struct event_t)) == sizeof(struct event_t)) ? 1 : 0;
-	return 0;
 }

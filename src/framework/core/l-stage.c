@@ -34,8 +34,8 @@ local M = Class(DisplayObject)
 function M:init()
 	self._exiting = false
 	self._timerlist = {}
-	self._display = Display.new()
-	self.super:init(self._display:getSize())
+	self._window = Window.new()
+	self.super:init(self._window:getSize())
 	self:markDirty()
 end
 
@@ -107,45 +107,40 @@ function M:schedTimer(dt)
 end
 
 function M:getDotsPerInch()
-	local w, h = self._display:getSize()
-	local pw, ph = self._display:getPhysicalSize()
+	local w, h = self._window:getSize()
+	local pw, ph = self._window:getPhysicalSize()
 	return w * 25.4 / pw, h * 25.4 / ph
 end
 
 function M:getBytesPerPixel()
-	return self._display:getBytesPerPixel()
+	return self._window:getBytesPerPixel()
 end
 
 function M:setBacklight(brightness)
-	return self._display:setBacklight(brightness)
+	return self._window:setBacklight(brightness)
 end
 
 function M:getBacklight()
-	return self._display:getBacklight()
-end
-
-function M:showfps(show)
-	self._display:showfps(show)
-	return self
+	return self._window:getBacklight()
 end
 
 function M:showobj(show)
-	self._display:showobj(show)
+	self._window:showobj(show)
 	return self
 end
 
 function M:snapshot()
-	return self._display:snapshot()
+	return self._window:snapshot()
 end
 
 function M:loop()
 	local Event = Event
-	local _display = self._display
+	local window = self._window
 	local stopwatch = Stopwatch.new()
 
 	self:addTimer(Timer.new(1 / 60, 0, function(t)
 		self:dispatch(Event.new("enter-frame"))
-		self:render(_display)
+		self:render(window)
 		collectgarbage("step")
 	end))
 

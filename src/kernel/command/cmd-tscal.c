@@ -34,6 +34,7 @@
 #include <input/keyboard.h>
 #include <command/command.h>
 
+#if 0
 static void usage(void)
 {
 	printf("usage:\r\n");
@@ -261,3 +262,4 @@ static __exit void tscal_cmd_exit(void)
 
 command_initcall(tscal_cmd_init);
 command_exitcall(tscal_cmd_exit);
+#endif

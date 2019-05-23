@@ -9,4 +9,3 @@ local cursor = assets:loadDisplay("cursor.png")
 	:addEventListener("touch-end", function(d, e) d:setPosition(e.x, e.y) end)
 
 stage:addChild(cursor)
-stage:showfps(true)

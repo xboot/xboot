@@ -31,7 +31,6 @@
 #include <framework/core/l-application.h>
 #include <framework/core/l-assets.h>
 #include <framework/core/l-class.h>
-#include <framework/core/l-display.h>
 #include <framework/core/l-display-image.h>
 #include <framework/core/l-display-ninepatch.h>
 #include <framework/core/l-display-object.h>
@@ -55,6 +54,7 @@
 #include <framework/core/l-stopwatch.h>
 #include <framework/core/l-text.h>
 #include <framework/core/l-timer.h>
+#include <framework/core/l-window.h>
 #include <framework/core/l-xfs.h>
 #include <framework/codec/l-base64.h>
 #include <framework/codec/l-json.h>
@@ -67,8 +67,8 @@ static void luaopen_glblibs(lua_State * L)
 		{ "Class",					luaopen_class },
 		{ "Printr",					luaopen_printr },
 		{ "Xfs",					luaopen_xfs },
+		{ "Window",					luaopen_window },
 		{ "I18n",					luaopen_i18n },
-		{ "Display",				luaopen_display },
 		{ "Easing",					luaopen_easing },
 		{ "Spring",					luaopen_spring },
 		{ "Stopwatch",				luaopen_stopwatch },
@@ -406,8 +406,7 @@ static struct vmctx_t * vmctx_alloc(const char * path, const char * fb, const ch
 		return NULL;
 
 	ctx->xfs = xfs_alloc(path, 1);
-	ctx->disp = display_alloc(fb);
-	ctx->ectx = event_context_alloc(input);
+	ctx->w = window_alloc(fb, input);
 	return ctx;
 }
 
@@ -417,8 +416,7 @@ static void vmctx_free(struct vmctx_t * ctx)
 		return;
 
 	xfs_free(ctx->xfs);
-	display_free(ctx->disp);
-	event_context_free(ctx->ectx);
+	window_free(ctx->w);
 	free(ctx);
 }
 

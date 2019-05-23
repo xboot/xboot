@@ -33,5 +33,3 @@ for k, v in spairs(Application.list()) do
 end
 stage:addChild(sv)
 
-stage:showfps(true)
-stage:showobj(false)

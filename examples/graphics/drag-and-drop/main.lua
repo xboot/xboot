@@ -86,5 +86,3 @@ for i = 1, 10 do
 	stage:addChild(img)
 end
 
-stage:showfps(true)
-

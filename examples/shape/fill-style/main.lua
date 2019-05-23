@@ -25,5 +25,3 @@ local s = DisplayShape.new(stage:getSize())
 	:setSourceColor(0, 0, 0)
 	:stroke()
 
-stage:addChild(s)
-stage:showfps(true)

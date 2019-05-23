@@ -15,4 +15,3 @@ local s = DisplayShape.new(stage:getSize())
     :stroke()
 
 stage:addChild(s)
-stage:showfps(true)

@@ -6,14 +6,12 @@ extern "C" {
 #endif
 
 #include <xfs/xfs.h>
-#include <xboot/display.h>
-#include <xboot/event.h>
+#include <xboot/window.h>
 
 struct vmctx_t
 {
 	struct xfs_context_t * xfs;
-	struct display_t * disp;
-	struct event_context_t * ectx;
+	struct window_t * w;
 };
 
 int vmexec(const char * path, const char * fb, const char * input);

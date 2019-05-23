@@ -19,4 +19,3 @@ stage:addTimer(Timer.new(1, 0, function(t)
 	bmtext:animate({x = math.random(0, sw - w), y = math.random(0, sh - h), scalex = s, scaley = s}, 1, "circ-out")
 end))
 
-stage:showfps(true)

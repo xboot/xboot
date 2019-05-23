@@ -23,5 +23,3 @@ local s2 = DisplayShape.new(stage:getSize())
 stage:addChild(s1)
 stage:addChild(s2)
 
-stage:showfps(true)
-

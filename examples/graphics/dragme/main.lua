@@ -80,5 +80,3 @@ for i = 1, 5 do
 	stage:addChild(shape)
 end
 
-stage:showfps(false)
-stage:showobj(false)

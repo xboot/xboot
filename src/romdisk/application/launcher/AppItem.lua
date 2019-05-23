@@ -8,8 +8,9 @@ function M:init(app)
 	self._app = app
 	local icon = app:getIcon() or assets:loadImage("assets/images/default-icon.png")
 	local panel = app:getPanel() or assets:loadImage("assets/images/default-panel.png")
-	self._panelNormal = DisplayImage.new(panel)
-	self._panelPressed = DisplayImage.new(panel:clone():sepia())
+	local w, h = panel:getSize()
+	self._panelNormal = DisplayImage.new(panel:clone(0, 0, w, h, 60))
+	self._panelPressed = DisplayImage.new(panel:clone(0, 0, w, h, 60):sepia())
 
 	self._touchid = nil
 	self._state = M._STATE_NORMAL
@@ -24,10 +25,7 @@ function M:init(app)
 end
 
 function M:execute()
-	print(self._app:getPath())
-	print(self._app:getName())
-	print(self._app:getDescription())
---	self._app:execute()
+	self._app:execute()
 end
 
 function M:onMouseDown(e)

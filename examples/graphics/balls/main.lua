@@ -8,4 +8,3 @@ end
 
 stage:addEventListener("mouse-up", function(d, e) stage:addChild(Ball.new(maxWidth, maxHeight):setPosition(e.x, e.y)) end)
 	:addEventListener("touch-end", function(d, e) stage:addChild(Ball.new(maxWidth, maxHeight):setPosition(e.x, e.y)) end)
-stage:showfps(true)

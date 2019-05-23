@@ -6,5 +6,3 @@ stage:addChild(DisplayShape.new(sw, sh)
 	:paint())
 stage:addChild(Sun.new(sw / 2, sh / 4))
 
-stage:showfps(false)
-stage:showobj(false)

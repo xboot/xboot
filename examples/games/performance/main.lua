@@ -16,4 +16,3 @@ stage:addEventListener("mouse-up", function(d, e)
 			stage:addChild(Ball.new(maxWidth, maxHeight):setPosition(e.x, e.y):setAnchor(0.5, 0.5))
 		end
 	end)
-stage:showfps(true)

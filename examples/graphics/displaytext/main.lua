@@ -16,4 +16,3 @@ stage:addTimer(Timer.new(1, 0, function(t)
 	txt:animate({rotation = s}, 1, "circ-out")
 end))
 
-stage:showfps(true)

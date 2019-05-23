@@ -31,7 +31,7 @@
 #include <framework/core/l-ninepatch.h>
 #include <framework/core/l-shape.h>
 #include <framework/core/l-text.h>
-#include <framework/core/l-display.h>
+#include <framework/core/l-window.h>
 #include <framework/core/l-dobject.h>
 
 enum {
@@ -774,10 +774,10 @@ static void dobject_layout(struct ldobject_t * o)
 	}
 }
 
-static void dobject_draw_image(struct ldobject_t * o, struct display_t * disp)
+static void dobject_draw_image(struct ldobject_t * o, struct window_t * w)
 {
 	struct limage_t * img = o->priv;
-	cairo_t * cr = disp->cr;
+	cairo_t * cr = w->cr;
 	cairo_save(cr);
 	cairo_set_matrix(cr, (cairo_matrix_t *)dobject_global_matrix(o));
 	cairo_set_source_surface(cr, img->cs, 0, 0);
@@ -785,10 +785,10 @@ static void dobject_draw_image(struct ldobject_t * o, struct display_t * disp)
 	cairo_restore(cr);
 }
 
-static void dobject_draw_ninepatch(struct ldobject_t * o, struct display_t * disp)
+static void dobject_draw_ninepatch(struct ldobject_t * o, struct window_t * w)
 {
 	struct lninepatch_t * ninepatch = o->priv;
-	cairo_t * cr = disp->cr;
+	cairo_t * cr = w->cr;
 	cairo_save(cr);
 	cairo_set_matrix(cr, (cairo_matrix_t *)dobject_global_matrix(o));
 	if(ninepatch->lt)
@@ -880,10 +880,10 @@ static void dobject_draw_ninepatch(struct ldobject_t * o, struct display_t * dis
 	cairo_restore(cr);
 }
 
-static void dobject_draw_shape(struct ldobject_t * o, struct display_t * disp)
+static void dobject_draw_shape(struct ldobject_t * o, struct window_t * w)
 {
 	struct lshape_t * shape = o->priv;
-	cairo_t * cr = disp->cr;
+	cairo_t * cr = w->cr;
 	cairo_save(cr);
 	cairo_set_matrix(cr, (cairo_matrix_t *)dobject_global_matrix(o));
 	cairo_set_source_surface(cr, shape->cs, 0, 0);
@@ -891,11 +891,11 @@ static void dobject_draw_shape(struct ldobject_t * o, struct display_t * disp)
 	cairo_restore(cr);
 }
 
-static void dobject_draw_text(struct ldobject_t * o, struct display_t * disp)
+static void dobject_draw_text(struct ldobject_t * o, struct window_t * w)
 {
 	struct ltext_t * text = o->priv;
 	struct matrix_t * m = dobject_global_matrix(o);
-	cairo_t * cr = disp->cr;
+	cairo_t * cr = w->cr;
 	cairo_save(cr);
 	cairo_set_scaled_font(cr, text->font);
 	cairo_move_to(cr, m->tx, m->ty);
@@ -907,11 +907,11 @@ static void dobject_draw_text(struct ldobject_t * o, struct display_t * disp)
 	cairo_restore(cr);
 }
 
-static void dobject_draw_container(struct ldobject_t * o, struct display_t * disp)
+static void dobject_draw_container(struct ldobject_t * o, struct window_t * w)
 {
 	if(o->background.alpha != 0.0)
 	{
-		cairo_t * cr = disp->cr;
+		cairo_t * cr = w->cr;
 		cairo_save(cr);
 		cairo_set_matrix(cr, (cairo_matrix_t *)dobject_global_matrix(o));
 		cairo_rectangle(cr, 0, 0, o->width, o->height);
@@ -924,7 +924,7 @@ static void dobject_draw_container(struct ldobject_t * o, struct display_t * dis
 static int l_dobject_new(lua_State * L)
 {
 	enum dobject_type_t dtype;
-	void (*draw)(struct ldobject_t *, struct display_t *);
+	void (*draw)(struct ldobject_t *, struct window_t *);
 	void * userdata;
 	double width = luaL_optnumber(L, 1, 0);
 	double height = luaL_optnumber(L, 2, 0);
@@ -2142,31 +2142,31 @@ static int m_get_bounds(lua_State * L)
 	return 4;
 }
 
-static void display_region_list_fill(struct display_t * disp, struct ldobject_t * o)
+static void window_region_list_fill(struct window_t * w, struct ldobject_t * o)
 {
 	struct ldobject_t * pos;
 
 	if(o->mflag & MFLAG_DIRTY)
 	{
-		display_region_list_add(disp, dobject_global_bounds(o));
-		display_region_list_add(disp, dobject_dirty_bounds(o));
+		window_region_list_add(w, dobject_global_bounds(o));
+		window_region_list_add(w, dobject_dirty_bounds(o));
 		o->mflag &= ~MFLAG_DIRTY;
 	}
 
 	list_for_each_entry(pos, &o->children, entry)
 	{
-		display_region_list_fill(disp, pos);
+		window_region_list_fill(w, pos);
 	}
 }
 
-static void display_draw(struct display_t * disp, struct ldobject_t * o)
+static void display_draw(struct window_t * w, struct ldobject_t * o)
 {
 	struct ldobject_t * pos;
 
 	if(o->visible)
 	{
 		struct ldobject_t * parent = o->parent;
-		cairo_t * cr = disp->cr;
+		cairo_t * cr = w->cr;
 		cairo_save(cr);
 		if(parent && (parent->dtype == DOBJECT_TYPE_CONTAINER))
 		{
@@ -2174,8 +2174,8 @@ static void display_draw(struct display_t * disp, struct ldobject_t * o)
 			cairo_rectangle(cr, 0, 0, parent->width, parent->height);
 			cairo_clip(cr);
 		}
-		o->draw(o, disp);
-		if(disp->showobj)
+		o->draw(o, w);
+		if(w->showobj)
 		{
 			cairo_save(cr);
 			cairo_set_matrix(cr, (cairo_matrix_t *)dobject_global_matrix(o));
@@ -2259,7 +2259,7 @@ static void display_draw(struct display_t * disp, struct ldobject_t * o)
 		}
 		list_for_each_entry(pos, &o->children, entry)
 		{
-			display_draw(disp, pos);
+			display_draw(w, pos);
 		}
 		cairo_restore(cr);
 	}
@@ -2268,11 +2268,14 @@ static void display_draw(struct display_t * disp, struct ldobject_t * o)
 static int m_render(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
-	struct display_t * disp = luaL_checkudata(L, 2, MT_DISPLAY);
-	dobject_layout(o);
-	display_region_list_clear(disp);
-	display_region_list_fill(disp, o);
-	display_present(disp, (void *)o, (void (*)(struct display_t *, void *))display_draw);
+	struct window_t * w = luaL_checkudata(L, 2, MT_WINDOW);
+	if(window_is_active(w))
+	{
+		dobject_layout(o);
+		window_region_list_clear(w);
+		window_region_list_fill(w, o);
+		window_present(w, (void *)o, (void (*)(struct window_t *, void *))display_draw);
+	}
 	return 0;
 }
 

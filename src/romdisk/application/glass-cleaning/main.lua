@@ -62,5 +62,3 @@ mask:addEventListener("touch-begin", onTouchBegin)
 mask:addEventListener("touch-move", onTouchMove)
 mask:addEventListener("touch-end", onTouchEnd)
 
-stage:showfps(true)
-stage:showobj(false)

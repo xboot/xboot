@@ -145,16 +145,6 @@ struct event_t {
 	} e;
 };
 
-struct event_context_t {
-	struct fifo_t * fifo;
-	struct hmap_t * map;
-	struct list_head entry;
-};
-
-struct event_context_t * event_context_alloc(const char * input);
-void event_context_free(struct event_context_t * ectx);
-
-void push_event(struct event_t * e);
 void push_event_key_down(void * device, u32_t key);
 void push_event_key_up(void * device, u32_t key);
 void push_event_rotary_turn(void * device, s32_t v);
@@ -172,7 +162,6 @@ void push_event_joystick_left_trigger(void * device, s32_t v);
 void push_event_joystick_right_trigger(void * device, s32_t v);
 void push_event_joystick_button_down(void * device, u32_t button);
 void push_event_joystick_button_up(void * device, u32_t button);
-int pump_event(struct event_context_t * ectx, struct event_t * e);
 
 #ifdef __cplusplus
 }

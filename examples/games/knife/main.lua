@@ -40,4 +40,3 @@ stage:addChild(knife)
 stage:addChild(dropknife)
 stage:addChild(wood)
 
-stage:showfps(true)

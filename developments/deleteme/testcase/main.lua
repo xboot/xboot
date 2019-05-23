@@ -34,5 +34,3 @@ stage:addEventListener("key-down", function(d, e)
 	e.stop = true
 end)
 
-stage:showfps(true)
-

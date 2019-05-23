@@ -16,4 +16,3 @@ stage:addTimer(Timer.new(1, 0, function(t)
 end))
 
 stage:addChild(snowman)
-stage:showfps(true)

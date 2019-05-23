@@ -173,7 +173,7 @@ static int application_detect(struct lapplication_t * app, const char * path, co
 
 static int l_application_new(lua_State * L)
 {
-	const char * path = luaL_optstring(L, 1, task_self()->name);
+	const char * path = ((struct vmctx_t *)luahelper_vmctx(L))->path;
 	const char * lang = luaL_optstring(L, 2, "en-US");
 	struct lapplication_t * app = lua_newuserdata(L, sizeof(struct lapplication_t));
 	if(!application_detect(app, path, lang))

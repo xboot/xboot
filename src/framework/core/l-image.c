@@ -316,7 +316,7 @@ static int m_image_clear(lua_State * L)
 	return 1;
 }
 
-static int m_image_mask(lua_State * L)
+static int m_image_paste(lua_State * L)
 {
 	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
 	struct limage_t * other = luaL_checkudata(L, 2, MT_IMAGE);
@@ -1091,7 +1091,7 @@ static const luaL_Reg m_image[] = {
 	{"clone",		m_image_clone},
 	{"shadow",		m_image_shadow},
 	{"clear",		m_image_clear},
-	{"mask",		m_image_mask},
+	{"paste",		m_image_paste},
 	{"grayscale",	m_image_grayscale},
 	{"sepia",		m_image_sepia},
 	{"invert",		m_image_invert},

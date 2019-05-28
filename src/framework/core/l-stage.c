@@ -145,7 +145,7 @@ function M:loop()
 	end))
 
 	self:addEventListener("key-down", function(d, e)
-		if e.key == 10 then self:exit() end
+		if e.key == 12 then self:exit() end
 	end)
 
 	while not self._exiting do

@@ -208,7 +208,7 @@ static int do_tscal(int argc, char ** argv)
 		{
 			if(e.type == EVENT_TYPE_KEY_UP)
 			{
-				if(e.e.key_up.key == KEY_EXIT)
+				if(e.e.key_up.key == KEY_BACK)
 					break;
 			}
 			else if(e.type == EVENT_TYPE_TOUCH_END)

@@ -72,29 +72,35 @@ static unsigned int keycode_map(SDL_Keycode code)
 	case SDLK_TAB:
 		key = 9;
 		break;
-	case SDLK_ESCAPE:
+	case SDLK_HOME:
 		key = 10;
 		break;
-	case SDLK_RETURN:
+	case SDLK_END:
 		key = 11;
 		break;
-	case SDLK_LCTRL:
+	case SDLK_ESCAPE:
 		key = 12;
 		break;
-	case SDLK_RCTRL:
+	case SDLK_RETURN:
 		key = 13;
 		break;
-	case SDLK_LALT:
+	case SDLK_LCTRL:
 		key = 14;
 		break;
-	case SDLK_RALT:
+	case SDLK_RCTRL:
 		key = 15;
 		break;
-	case SDLK_LSHIFT:
+	case SDLK_LALT:
 		key = 16;
 		break;
-	case SDLK_RSHIFT:
+	case SDLK_RALT:
 		key = 17;
+		break;
+	case SDLK_LSHIFT:
+		key = 18;
+		break;
+	case SDLK_RSHIFT:
+		key = 19;
 		break;
 	default:
 		key = code;

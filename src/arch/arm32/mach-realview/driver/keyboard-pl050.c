@@ -140,7 +140,7 @@ static const struct keymap map[] = {
 	{0x5a,	KEY_ENTER,					KEY_ENTER,					KEY_ENTER},
 	{0x6c,	KEY_VOLUME_DOWN,			KEY_VOLUME_DOWN,			KEY_VOLUME_DOWN},
 	{0x69,	KEY_VOLUME_UP,				KEY_VOLUME_UP,				KEY_VOLUME_UP},
-	{0x76,	KEY_EXIT,					KEY_EXIT,					KEY_EXIT},
+	{0x76,	KEY_BACK,					KEY_BACK,					KEY_BACK},
 	{0x37,	KEY_POWER,					KEY_POWER,					KEY_POWER},
 };
 

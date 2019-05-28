@@ -64,9 +64,6 @@ static int do_event(int argc, char ** argv)
 			case EVENT_TYPE_ROTARY_TURN:
 				printf("[%s]: [RotaryTurn] [%d]\r\n", input->name, e.e.rotary_turn.v);
 				break;
-			case EVENT_TYPE_ROTARY_SWITCH:
-				printf("[%s]: [RotarySwitch] [%d]\r\n", input->name, e.e.rotary_switch.v);
-				break;
 			case EVENT_TYPE_MOUSE_DOWN:
 				printf("[%s]: [MouseDown] [%d][%d][0x%x]\r\n", input->name, e.e.mouse_down.x, e.e.mouse_down.y, e.e.mouse_down.button);
 				break;

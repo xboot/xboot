@@ -14,7 +14,6 @@ enum event_type_t {
 	EVENT_TYPE_KEY_UP					= 0x0101,
 
 	EVENT_TYPE_ROTARY_TURN				= 0x0200,
-	EVENT_TYPE_ROTARY_SWITCH			= 0x0201,
 
 	EVENT_TYPE_MOUSE_DOWN				= 0x0300,
 	EVENT_TYPE_MOUSE_MOVE				= 0x0301,
@@ -78,10 +77,6 @@ struct event_t {
 		struct {
 			s32_t v;
 		} rotary_turn;
-
-		struct {
-			u32_t v;
-		} rotary_switch;
 
 		/* Mouse */
 		struct {
@@ -148,7 +143,6 @@ struct event_t {
 void push_event_key_down(void * device, u32_t key);
 void push_event_key_up(void * device, u32_t key);
 void push_event_rotary_turn(void * device, s32_t v);
-void push_event_rotary_switch(void * device, s32_t v);
 void push_event_mouse_button_down(void * device, s32_t x, s32_t y, u32_t button);
 void push_event_mouse_button_up(void * device, s32_t x, s32_t y, u32_t button);
 void push_event_mouse_move(void * device, s32_t x, s32_t y);

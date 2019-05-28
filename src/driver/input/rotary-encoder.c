@@ -57,14 +57,10 @@ struct rotary_encoder_pdata_t {
 	int acfg;
 	int b;
 	int bcfg;
-	int c;
-	int ccfg;
 	int irqa;
 	int irqb;
-	int irqc;
 	int inva;
 	int invb;
-	int invc;
 	int state;
 	int dir;
 };
@@ -168,23 +164,6 @@ static void rotary_encoder_quarter_period_irq(void * data)
 	push_event_rotary_turn(input, pdat->dir ? 1 : -1);
 }
 
-static void rotary_encoder_c_irq(void * data)
-{
-	struct input_t * input = (struct input_t *)data;
-	struct rotary_encoder_pdata_t * pdat = (struct rotary_encoder_pdata_t *)input->priv;
-	int c1, c2, c3;
-
-	do {
-		c1 = !!gpio_get_value(pdat->c);
-		mdelay(1);
-		c2 = !!gpio_get_value(pdat->c);
-		mdelay(1);
-		c3 = !!gpio_get_value(pdat->c);
-	} while((c1 != c2) || (c1 != c3));
-
-	push_event_rotary_switch(input, (c1 ^ pdat->invc) ? 0 : 1);
-}
-
 static int rotary_encoder_ioctl(struct input_t * input, int cmd, void * arg)
 {
 	return -1;
@@ -218,14 +197,10 @@ static struct device_t * rotary_encoder_probe(struct driver_t * drv, struct dtno
 	pdat->acfg = dt_read_int(n, "a-gpio-config", -1);
 	pdat->b = b;
 	pdat->bcfg = dt_read_int(n, "b-gpio-config", -1);
-	pdat->c = dt_read_int(n, "c-gpio", -1);
-	pdat->ccfg = dt_read_int(n, "c-gpio-config", -1);
 	pdat->irqa = gpio_to_irq(pdat->a);
 	pdat->irqb = gpio_to_irq(pdat->b);
-	pdat->irqc = gpio_to_irq(pdat->c);
 	pdat->inva = dt_read_bool(n, "a-inverted", 0);
 	pdat->invb = dt_read_bool(n, "b-inverted", 0);
-	pdat->invc = dt_read_bool(n, "c-inverted", 0);
 
 	input->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	input->ioctl = rotary_encoder_ioctl;
@@ -268,21 +243,10 @@ static struct device_t * rotary_encoder_probe(struct driver_t * drv, struct dtno
 		break;
 	}
 
-	if(gpio_is_valid(pdat->c) && irq_is_valid(pdat->irqc))
-	{
-		if(pdat->ccfg >= 0)
-			gpio_set_cfg(pdat->c, pdat->ccfg);
-		gpio_set_pull(pdat->c, pdat->invc ? GPIO_PULL_DOWN : GPIO_PULL_UP);
-		gpio_direction_input(pdat->c);
-		request_irq(pdat->irqc, rotary_encoder_c_irq, IRQ_TYPE_EDGE_BOTH, input);
-	}
-
 	if(!register_input(&dev, input))
 	{
 		free_irq(pdat->irqa);
 		free_irq(pdat->irqb);
-		if(gpio_is_valid(pdat->c) && irq_is_valid(pdat->irqc))
-			free_irq(pdat->irqc);
 
 		free_device_name(input->name);
 		free(input->priv);
@@ -303,8 +267,6 @@ static void rotary_encoder_remove(struct device_t * dev)
 	{
 		free_irq(pdat->irqa);
 		free_irq(pdat->irqb);
-		if(gpio_is_valid(pdat->c) && irq_is_valid(pdat->irqc))
-			free_irq(pdat->irqc);
 
 		free_device_name(input->name);
 		free(input->priv);
@@ -319,8 +281,6 @@ static void rotary_encoder_suspend(struct device_t * dev)
 
 	disable_irq(pdat->irqa);
 	disable_irq(pdat->irqb);
-	if(gpio_is_valid(pdat->c) && irq_is_valid(pdat->irqc))
-		disable_irq(pdat->irqc);
 }
 
 static void rotary_encoder_resume(struct device_t * dev)
@@ -330,8 +290,6 @@ static void rotary_encoder_resume(struct device_t * dev)
 
 	enable_irq(pdat->irqa);
 	enable_irq(pdat->irqb);
-	if(gpio_is_valid(pdat->c) && irq_is_valid(pdat->irqc))
-		enable_irq(pdat->irqc);
 }
 
 static struct driver_t rotary_encoder = {

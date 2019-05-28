@@ -61,16 +61,6 @@ void push_event_rotary_turn(void * device, s32_t v)
 	push_event(&e);
 }
 
-void push_event_rotary_switch(void * device, s32_t v)
-{
-	struct event_t e;
-
-	e.device = device;
-	e.type = EVENT_TYPE_ROTARY_SWITCH;
-	e.e.rotary_switch.v = v;
-	push_event(&e);
-}
-
 void push_event_mouse_button_down(void * device, s32_t x, s32_t y, u32_t button)
 {
 	struct event_t e;

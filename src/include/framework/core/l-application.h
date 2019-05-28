@@ -16,7 +16,6 @@ struct lapplication_t {
 	char * name;
 	char * desc;
 	cairo_surface_t * icon;
-	cairo_surface_t * panel;
 };
 
 int luaopen_application(lua_State * L);

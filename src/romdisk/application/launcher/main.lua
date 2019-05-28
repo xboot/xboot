@@ -20,7 +20,7 @@ local function spairs(t, order)
 end
 
 local sw, sh = stage:getSize()
-local sv = DisplayScroll.new(sw, 256, false, 0.92):setPosition(0, sh / 4)
+local sv = DisplayScroll.new(sw, 128, false, 0.92):setPosition(0, sh / 4)
 local app = Application.new()
 
 for k, v in spairs(Application.list()) do

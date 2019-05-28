@@ -4,13 +4,12 @@ M._STATE_NORMAL = "NORMAL"
 M._STATE_PRESSED = "PRESSED"
 
 function M:init(app)
-	self.super:init(128, 256)
+	self.super:init(128, 128)
 	self._app = app
 	local icon = app:getIcon() or assets:loadImage("assets/images/default-icon.png")
-	local panel = app:getPanel() or assets:loadImage("assets/images/default-panel.png")
-	local w, h = panel:getSize()
-	self._panelNormal = DisplayImage.new(panel:clone(0, 0, w, h, 60))
-	self._panelPressed = DisplayImage.new(panel:clone(0, 0, w, h, 60):sepia())
+	local w, h = icon:getSize()
+	self._panelNormal = DisplayImage.new(icon:clone(0, 0, w, h, 32))
+	self._panelPressed = DisplayImage.new(icon:clone(0, 0, w, h, 32):sepia())
 
 	self._touchid = nil
 	self._state = M._STATE_NORMAL

@@ -160,10 +160,6 @@ static int application_detect(struct lapplication_t * app, const char * path, co
 		if(cairo_surface_status(app->icon) != CAIRO_STATUS_SUCCESS)
 			app->icon = NULL;
 
-		app->panel = cairo_image_surface_create_from_png_xfs(ctx, "panel.png");
-		if(cairo_surface_status(app->panel) != CAIRO_STATUS_SUCCESS)
-			app->panel = NULL;
-
 		xfs_free(ctx);
 		return 1;
 	}
@@ -254,8 +250,6 @@ static int m_application_gc(lua_State * L)
 		free(app->desc);
 	if(app->icon)
 		cairo_surface_destroy(app->icon);
-	if(app->panel)
-		cairo_surface_destroy(app->panel);
 	return 0;
 }
 
@@ -297,23 +291,6 @@ static int m_application_get_icon(lua_State * L)
 	return 1;
 }
 
-static int m_application_get_panel(lua_State * L)
-{
-	struct lapplication_t * app = luaL_checkudata(L, 1, MT_APPLICATION);
-	if(!app->panel)
-		return 0;
-	struct limage_t * img = lua_newuserdata(L, sizeof(struct limage_t));
-	int w = cairo_image_surface_get_width(app->panel);
-	int h = cairo_image_surface_get_height(app->panel);
-	img->cs = cairo_surface_create_similar(app->panel, cairo_surface_get_content(app->panel), w, h);
-	cairo_t * cr = cairo_create(img->cs);
-	cairo_set_source_surface(cr, app->panel, 0, 0);
-	cairo_paint(cr);
-	cairo_destroy(cr);
-	luaL_setmetatable(L, MT_IMAGE);
-	return 1;
-}
-
 static int m_application_execute(lua_State * L)
 {
 	struct lapplication_t * app = luaL_checkudata(L, 1, MT_APPLICATION);
@@ -329,7 +306,6 @@ static const luaL_Reg m_application[] = {
 	{"getName",			m_application_get_name},
 	{"getDescription",	m_application_get_description},
 	{"getIcon",			m_application_get_icon},
-	{"getPanel",		m_application_get_panel},
 	{"execute",			m_application_execute},
 	{NULL,	NULL}
 };

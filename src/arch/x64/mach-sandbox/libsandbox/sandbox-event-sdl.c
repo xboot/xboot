@@ -45,65 +45,42 @@ static unsigned int keycode_map(SDL_Keycode code)
 
 	switch(code)
 	{
-	case SDLK_POWER:
-		key = 1;
-		break;
-	case SDLK_UP:
-		key = 2;
-		break;
-	case SDLK_DOWN:
-		key = 3;
-		break;
-	case SDLK_LEFT:
-		key = 4;
-		break;
-	case SDLK_RIGHT:
-		key = 5;
-		break;
-	case SDLK_VOLUMEUP:
-		key = 6;
-		break;
-	case SDLK_VOLUMEDOWN:
-		key = 7;
-		break;
-	case SDLK_MUTE:
-		key = 8;
-		break;
-	case SDLK_TAB:
-		key = 9;
-		break;
-	case SDLK_HOME:
-		key = 10;
-		break;
-	case SDLK_END:
-		key = 11;
-		break;
-	case SDLK_ESCAPE:
-		key = 12;
-		break;
-	case SDLK_RETURN:
-		key = 13;
-		break;
-	case SDLK_LCTRL:
-		key = 14;
-		break;
-	case SDLK_RCTRL:
-		key = 15;
-		break;
-	case SDLK_LALT:
-		key = 16;
-		break;
-	case SDLK_RALT:
-		key = 17;
-		break;
-	case SDLK_LSHIFT:
-		key = 18;
-		break;
-	case SDLK_RSHIFT:
-		key = 19;
-		break;
+	case SDLK_POWER:      key = 1; break;
+	case SDLK_UP:         key = 2; break;
+	case SDLK_DOWN:       key = 3; break;
+	case SDLK_LEFT:       key = 4; break;
+	case SDLK_RIGHT:      key = 5; break;
+	case SDLK_VOLUMEUP:   key = 6; break;
+	case SDLK_VOLUMEDOWN: key = 7; break;
+	case SDLK_MUTE:       key = 8; break;
+	case SDLK_TAB:        key = 9; break;
+	case SDLK_HOME:       key = 10; break;
+	case SDLK_END:        key = 11; break;
+	case SDLK_ESCAPE:     key = 12; break;
+	case SDLK_RETURN:     key = 13; break;
+	case SDLK_LCTRL:      key = 14; break;
+	case SDLK_RCTRL:      key = 15; break;
+	case SDLK_LALT:       key = 16; break;
+	case SDLK_RALT:       key = 17; break;
+	case SDLK_LSHIFT:     key = 18; break;
+	case SDLK_RSHIFT:     key = 19; break;
+
+	case SDLK_F1:  key = 20; break;
+	case SDLK_F2:  key = 21; break;
+	case SDLK_F3:  key = 22; break;
+	case SDLK_F4:  key = 23; break;
+	case SDLK_F5:  key = 24; break;
+	case SDLK_F6:  key = 25; break;
+	case SDLK_F7:  key = 26; break;
+	case SDLK_F8:  key = 27; break;
+	case SDLK_F9:  key = 28; break;
+	case SDLK_F10: key = 29; break;
+	case SDLK_F11: key = 30; break;
+	case SDLK_F12: key = 31; break;
+
 	default:
 		key = code;
+		break;
 	}
 	return key;
 }

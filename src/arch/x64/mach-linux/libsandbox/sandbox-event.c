@@ -217,8 +217,42 @@ static unsigned int keycode_map(int code)
 
 	switch(code)
 	{
+	case 116: key = 1; break;
+	case 103: key = 2; break;
+	case 108: key = 3; break;
+	case 105: key = 4; break;
+	case 106: key = 5; break;
+	case 115: key = 6; break;
+	case 114: key = 7; break;
+	case 113: key = 8; break;
+	case 15:  key = 9; break;
+	case 102: key = 10; break;
+	case 107: key = 11; break;
+	case 1:   key = 12; break;
+	case 28:  key = 13; break;
+	case 29:  key = 14; break;
+	case 97:  key = 15; break;
+	case 56:  key = 16; break;
+	case 100: key = 17; break;
+	case 42:  key = 18; break;
+	case 54:  key = 19; break;
+
+	case 59:  key = 20; break;
+	case 60:  key = 21; break;
+	case 61:  key = 22; break;
+	case 62:  key = 23; break;
+	case 63:  key = 24; break;
+	case 64:  key = 25; break;
+	case 65:  key = 26; break;
+	case 66:  key = 27; break;
+	case 67:  key = 28; break;
+	case 68:  key = 29; break;
+	case 87:  key = 30; break;
+	case 88:  key = 31; break;
+
 	default:
 		key = code;
+		break;
 	}
 	return key;
 }

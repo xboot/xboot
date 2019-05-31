@@ -1,42 +1,33 @@
+local DisplayPager = require "DisplayPager"
 local AppItem = require "AppItem"
-
-local function spairs(t, order)
-    local keys = {}
-    for k in pairs(t) do keys[#keys + 1] = k end
-
-    if order then
-        table.sort(keys, function(a, b) return order(t, a, b) end)
-    else
-        table.sort(keys)
-    end
-
-    local i = 0
-    return function()
-        i = i + 1
-        if keys[i] then
-            return keys[i], t[keys[i]]
-        end
-    end
-end
+local AppPage = require "AppPage"
 
 local sw, sh = stage:getSize()
-local sv = DisplayScroll.new(sw, 128, false, 0.92):setPosition(0, sh / 4)
-local app = Application.new()
+local pager = DisplayPager.new(sw, sh, false)
+local launcher = Application.new()
 
-for k, v in spairs(Application.list()) do
-    if app:getPath() ~= k then
-        local item = AppItem.new(v)
-            :setLayoutMargin(1, 0, 1, 0)
-            :addEventListener("click", function(d, e)
-                d:execute()
-                local path = d._app:getPath()
-                for k, v in pairs(Window.list()) do
-                    if k == path then
-                        v:toFront()
-                    end
-                end
-            end)
-        sv:addItem(item)
+local pages = {}
+local c = 0
+for k, v in pairs(Application.list()) do
+    if launcher:getPath() ~= k then
+        local index = c // 8 + 1
+        if not pages[index] then
+            pages[index] = DisplayObject.new(sw, sh)
+            pager:addPage(pages[index])
+        end
+        
+        local page = AppItem.new(v)
+        local i = c % 8
+        if i < 4 then
+            page:setPosition(i * (128 + 25.6) + 25.6, 74.6)
+        else
+            i = i % 4
+            page:setPosition(i * (128 + 25.6) + 25.6, 277)
+        end
+        pages[index]:addChild(page)
+        c = c + 1
     end
 end
-stage:addChild(sv)
+
+stage:addChild(pager)
+stage:showobj(false)

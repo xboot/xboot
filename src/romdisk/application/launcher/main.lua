@@ -15,8 +15,17 @@ for k, v in pairs(Application.list()) do
             pages[index] = DisplayObject.new(sw, sh)
             pager:addPage(pages[index])
         end
-        
         local page = AppItem.new(v)
+            :addEventListener("click", function(d, e)
+                d:execute()
+                local path = d._app:getPath()
+                for k, v in pairs(Window.list()) do
+                    if k == path then
+                        v:toFront()
+                    end
+                end
+            end)
+
         local i = c % 8
         if i < 4 then
             page:setPosition(i * (128 + 25.6) + 25.6, 74.6)

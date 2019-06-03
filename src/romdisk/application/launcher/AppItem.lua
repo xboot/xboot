@@ -27,6 +27,14 @@ function M:getPath()
 	return self._app:getPath()
 end
 
+function M:getName()
+	return self._app:getName()
+end
+
+function M:getDescription()
+	return self._app:getDescription()
+end
+
 function M:execute()
 	self._app:execute()
 end

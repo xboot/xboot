@@ -23,6 +23,10 @@ function M:init(app)
 	self:addEventListener("touch-end", self.onTouchEnd)
 end
 
+function M:getPath()
+	return self._app:getPath()
+end
+
 function M:execute()
 	self._app:execute()
 end

@@ -127,6 +127,13 @@ static int m_window_snapshot(lua_State * L)
 	return 1;
 }
 
+static int m_window_ashome(lua_State * L)
+{
+	struct window_t * w = luaL_checkudata(L, 1, MT_WINDOW);
+	window_set_ashome(w, lua_toboolean(L, 2));
+	return 0;
+}
+
 static int m_window_showobj(lua_State * L)
 {
 	struct window_t * w = luaL_checkudata(L, 1, MT_WINDOW);
@@ -143,7 +150,8 @@ static const luaL_Reg m_window[] = {
 	{"toFront",				m_window_to_front},
 	{"toBack",				m_window_to_back},
 	{"snapshot",			m_window_snapshot},
-	{"showobj",				m_window_showobj},
+	{"asHome",				m_window_ashome},
+	{"showObj",				m_window_showobj},
 	{NULL, NULL}
 };
 

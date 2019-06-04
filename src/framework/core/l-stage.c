@@ -124,13 +124,18 @@ function M:getBacklight()
 	return self._window:getBacklight()
 end
 
-function M:showobj(show)
-	self._window:showobj(show)
+function M:snapshot()
+	return self._window:snapshot()
+end
+
+function M:asHome(enable)
+	self._window:asHome(enable)
 	return self
 end
 
-function M:snapshot()
-	return self._window:snapshot()
+function M:showObj(enable)
+	self._window:showObj(enable)
+	return self
 end
 
 function M:loop()

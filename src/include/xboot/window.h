@@ -33,6 +33,7 @@ struct window_t {
 	cairo_t * cr;
 	struct hmap_t * map;
 	int width, height;
+	int ashome;
 	int showobj;
 	void * priv;
 };
@@ -92,10 +93,21 @@ static inline int window_get_backlight(struct window_t * w)
 	return 0;
 }
 
-static inline void window_set_showobj(struct window_t * w, int show)
+static inline void window_set_ashome(struct window_t * w, int enable)
 {
 	if(w)
-		w->showobj = show ? 1 : 0;
+		w->ashome = enable ? 1 : 0;
+}
+
+static inline int window_get_ashome(struct window_t * w)
+{
+	return w ? w->ashome : 0;
+}
+
+static inline void window_set_showobj(struct window_t * w, int enable)
+{
+	if(w)
+		w->showobj = enable ? 1 : 0;
 }
 
 static inline int window_get_showobj(struct window_t * w)

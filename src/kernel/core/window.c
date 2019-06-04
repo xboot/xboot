@@ -28,6 +28,7 @@
 
 #include <xboot.h>
 #include <input/input.h>
+#include <input/keyboard.h>
 #include <xboot/window.h>
 
 static void fb_dummy_setbl(struct framebuffer_t * fb, int brightness)
@@ -206,6 +207,7 @@ struct window_t * window_alloc(const char * fb, const char * input, void * data)
 	w->cr = cairo_create(w->cs);
 	w->width = framebuffer_get_width(w->wm->fb);
 	w->height = framebuffer_get_height(w->wm->fb);
+	w->ashome = 0;
 	w->showobj = 0;
 	w->priv = data;
 	if(p)
@@ -372,6 +374,7 @@ int window_pump_event(struct window_t * w, struct event_t * e)
 void push_event(struct event_t * e)
 {
 	struct window_manager_t * pos, * n;
+	struct window_t * wpos, * wn;
 
 	if(e)
 	{
@@ -380,6 +383,21 @@ void push_event(struct event_t * e)
 		{
 			switch(e->type)
 			{
+			case EVENT_TYPE_KEY_DOWN:
+				if(e->e.key_up.key == KEY_HOME)
+				{
+					list_for_each_entry_safe(wpos, wn, &pos->window, list)
+					{
+						if(wpos->ashome)
+						{
+							window_to_front(wpos);
+							break;
+						}
+					}
+				}
+				break;
+			case EVENT_TYPE_KEY_UP:
+				break;
 			case EVENT_TYPE_MOUSE_DOWN:
 				if(!pos->cursor.dirty)
 				{

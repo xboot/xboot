@@ -112,6 +112,14 @@ function M:removePage(page)
 	return self
 end
 
+function M:clear()
+	self:removeChildren()
+	self._pagers = {}
+	self._index = 0
+	self._page = nil
+	return self
+end
+
 function M:onMouseDown(e)
 	if not self._springing and self._page and self:hitTestPoint(e.x, e.y) then
 		self._touchid = -1

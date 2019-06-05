@@ -149,13 +149,6 @@ function M:loop()
 		collectgarbage("step")
 	end))
 
-	self:addEventListener("key-down", function(d, e)
-		if e.key == 12 then self:exit() end
-	end)
-	self:addEventListener("mouse-up", function(d, e)
-		if e.button == 2 then self:exit() end
-	end)
-
 	while not self._exiting do
 		local e = Event.pump()
 		if e ~= nil then

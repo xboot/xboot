@@ -242,7 +242,7 @@ struct window_t * window_alloc(const char * fb, const char * input, void * data)
 		}
 	}
 	spin_lock(&wm->lock);
-	list_add(&w->list, &wm->window);
+	list_add_tail(&w->list, &wm->window);
 	wm->wcount++;
 	wm->refresh = 1;
 	spin_unlock(&wm->lock);

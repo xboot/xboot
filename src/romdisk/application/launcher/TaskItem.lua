@@ -37,11 +37,9 @@ end
 
 function M:onMouseMove(e)
 	if self._state == self._STATE_PRESSED and self._touchid == -1 then
-		if not self:hitTestPoint(e.x, e.y) then
-			self._touchid = nil
-			self._state = self._STATE_NORMAL
-			self:updateVisualState()
-		end
+		self._touchid = nil
+		self._state = self._STATE_NORMAL
+		self:updateVisualState()
 		e.stop = true
 	end
 end
@@ -69,11 +67,9 @@ end
 
 function M:onTouchMove(e)
 	if self._state == self._STATE_PRESSED and self._touchid == e.id then
-		if not self:hitTestPoint(e.x, e.y) then
-			self._touchid = nil
-			self._state = self._STATE_NORMAL
-			self:updateVisualState()
-		end
+		self._touchid = nil
+		self._state = self._STATE_NORMAL
+		self:updateVisualState()
 		e.stop = true
 	end
 end

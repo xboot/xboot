@@ -4,7 +4,8 @@ M._STATE_NORMAL = "NORMAL"
 M._STATE_PRESSED = "PRESSED"
 
 function M:init(width, height, task)
-	local image = task:snapshot():clone(0, 0, width, height)
+	local w, h = task:getSize()
+	local image = task:snapshot():clone(Matrix.new({width / w, 0, 0, height / h, 0, 0}))
 	self.super:init(width, height)
 	self._task = task
 	self._panelNormal = DisplayImage.new(image:clone(0, 0, width, height, 32))

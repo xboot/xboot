@@ -27,6 +27,7 @@
  */
 
 #include <xboot.h>
+#include <framework/core/l-matrix.h>
 #include <framework/core/l-image.h>
 
 #ifndef MIN
@@ -228,31 +229,51 @@ static int m_image_get_size(lua_State * L)
 static int m_image_clone(lua_State * L)
 {
 	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
-	int x = luaL_optinteger(L, 2, 0);
-	int y = luaL_optinteger(L, 3, 0);
-	int w = luaL_optinteger(L, 4, cairo_image_surface_get_width(img->cs));
-	int h = luaL_optinteger(L, 5, cairo_image_surface_get_height(img->cs));
-	int r = luaL_optinteger(L, 6, 0);
-	struct limage_t * subimg = lua_newuserdata(L, sizeof(struct limage_t));
-	subimg->cs = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, w, h);
-	cairo_t * cr = cairo_create(subimg->cs);
-	if(r > 0)
+	if(luaL_testudata(L, 2, MT_MATRIX))
 	{
-		cairo_move_to(cr, r, 0);
-		cairo_line_to(cr, w - r, 0);
-		cairo_arc(cr, w - r, r, r, - M_PI / 2, 0);
-		cairo_line_to(cr, w, h - r);
-		cairo_arc(cr, w - r, h - r, r, 0, M_PI / 2);
-		cairo_line_to(cr, r, h);
-		cairo_arc(cr, r, h - r, r, M_PI / 2, M_PI);
-		cairo_line_to(cr, 0, r);
-		cairo_arc(cr, r, r, r, M_PI, M_PI + M_PI / 2);
-		cairo_clip(cr);
+		struct matrix_t * m = lua_touserdata(L, 2);
+		struct limage_t * subimg = lua_newuserdata(L, sizeof(struct limage_t));
+		double x1 = 0;
+		double y1 = 0;
+		double x2 = cairo_image_surface_get_width(img->cs);
+		double y2 = cairo_image_surface_get_height(img->cs);
+		matrix_transform_bounds(m, &x1, &y1, &x2, &y2);
+		subimg->cs = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, x2 - x1, y2 - y1);
+		cairo_t * cr = cairo_create(subimg->cs);
+		cairo_set_matrix(cr, (cairo_matrix_t *)m);
+		cairo_set_source_surface(cr, img->cs, 0, 0);
+		cairo_paint(cr);
+		cairo_destroy(cr);
+		luaL_setmetatable(L, MT_IMAGE);
 	}
-	cairo_set_source_surface(cr, img->cs, -x, -y);
-	cairo_paint(cr);
-	cairo_destroy(cr);
-	luaL_setmetatable(L, MT_IMAGE);
+	else
+	{
+		int x = luaL_optinteger(L, 2, 0);
+		int y = luaL_optinteger(L, 3, 0);
+		int w = luaL_optinteger(L, 4, cairo_image_surface_get_width(img->cs));
+		int h = luaL_optinteger(L, 5, cairo_image_surface_get_height(img->cs));
+		int r = luaL_optinteger(L, 6, 0);
+		struct limage_t * subimg = lua_newuserdata(L, sizeof(struct limage_t));
+		subimg->cs = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, w, h);
+		cairo_t * cr = cairo_create(subimg->cs);
+		if(r > 0)
+		{
+			cairo_move_to(cr, r, 0);
+			cairo_line_to(cr, w - r, 0);
+			cairo_arc(cr, w - r, r, r, - M_PI / 2, 0);
+			cairo_line_to(cr, w, h - r);
+			cairo_arc(cr, w - r, h - r, r, 0, M_PI / 2);
+			cairo_line_to(cr, r, h);
+			cairo_arc(cr, r, h - r, r, M_PI / 2, M_PI);
+			cairo_line_to(cr, 0, r);
+			cairo_arc(cr, r, r, r, M_PI, M_PI + M_PI / 2);
+			cairo_clip(cr);
+		}
+		cairo_set_source_surface(cr, img->cs, -x, -y);
+		cairo_paint(cr);
+		cairo_destroy(cr);
+		luaL_setmetatable(L, MT_IMAGE);
+	}
 	return 1;
 }
 

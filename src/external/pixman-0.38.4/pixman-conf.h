@@ -28,8 +28,9 @@
 #endif
 
 #ifdef __ARM64__
-# undef USE_ARM_SIMD
-# undef USE_ARM_NEON
+#ifdef __ARM64_NEON__
+# define USE_ARM_A64_NEON
+#endif
 #endif
 
 #ifdef __X64__

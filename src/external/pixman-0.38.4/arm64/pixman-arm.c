@@ -28,12 +28,8 @@
 pixman_implementation_t *
 _pixman_arm64_get_implementations (pixman_implementation_t *imp)
 {
-#ifdef USE_ARM_SIMD
-	imp = _pixman_implementation_create_arm_simd (imp);
-#endif
-
-#ifdef USE_ARM_NEON
-	imp = _pixman_implementation_create_arm_neon (imp);
+#ifdef USE_ARM_A64_NEON
+	imp = _pixman_implementation_create_arm_neon(imp);
 #endif
 
     return imp;

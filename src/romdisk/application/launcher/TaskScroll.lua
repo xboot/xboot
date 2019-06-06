@@ -28,6 +28,7 @@ function M:reload()
         if launcher:getPath() ~= k then
             local task = TaskItem.new(sw / 2, sh, v)
 				:addEventListener("click", function(d, e)
+					self:dispatchEvent(Event.new("execute"))
 					d:execute()
 				end)
             self:addItem(task)

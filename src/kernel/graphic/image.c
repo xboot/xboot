@@ -28,3 +28,49 @@
 
 #include <xboot.h>
 #include <graphic/image.h>
+
+extern struct image_operate_t image_operate_cairo;
+
+struct image_t * image_alloc(int width, int height)
+{
+	struct image_t * img;
+	void * pixels;
+
+	if(width < 0 || height < 0)
+		return NULL;
+
+	img = malloc(sizeof(struct image_t));
+	if(!img)
+		return NULL;
+
+	pixels = memalign(4, height * (width << 2));
+	if(!pixels)
+	{
+		free(img);
+		return NULL;
+	}
+
+	img->width = width;
+	img->height = height;
+	img->stride = width << 2;
+	img->pixels = pixels;
+	img->op = &image_operate_cairo;
+	img->priv = img->op->create(img);
+	if(!img->priv)
+	{
+		free(img);
+		free(pixels);
+		return NULL;
+	}
+	return img;
+}
+
+void image_free(struct image_t * img)
+{
+	if(img)
+	{
+		img->op->destroy(img->priv);
+		free(img->pixels);
+		free(img);
+	}
+}

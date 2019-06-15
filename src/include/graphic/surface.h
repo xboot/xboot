@@ -189,6 +189,8 @@ static inline void surface_shape_restore(struct surface_t * s)
 }
 
 struct surface_t * surface_alloc(int width, int height);
+struct surface_t * surface_alloc_from_jpeg(const char * filename);
+struct surface_t * surface_alloc_from_jpeg_data(void * buffer, int length);
 void surface_free(struct surface_t * s);
 
 #ifdef __cplusplus

@@ -27,6 +27,8 @@
  */
 
 #include <xboot.h>
+#include <png.h>
+#include <jpeglib.h>
 #include <graphic/surface.h>
 
 extern struct surface_operate_t surface_operate_cairo;
@@ -62,6 +64,82 @@ struct surface_t * surface_alloc(int width, int height)
 		free(pixels);
 		return NULL;
 	}
+	return s;
+}
+
+struct surface_t * surface_alloc_from_jpeg(const char * filename)
+{
+	struct jpeg_decompress_struct cinfo;
+	struct jpeg_error_mgr jerr;
+	struct surface_t * s;
+	FILE * file;
+	JSAMPARRAY buf;
+	unsigned char * p;
+	int scanline, offset, i;
+
+	if((file = fopen(filename, "rb")) == NULL)
+		return NULL;
+	cinfo.err = jpeg_std_error(&jerr);
+	jpeg_create_decompress(&cinfo);
+	jpeg_stdio_src(&cinfo, file);
+	jpeg_read_header(&cinfo, 1);
+	jpeg_start_decompress(&cinfo);
+	buf = (*cinfo.mem->alloc_sarray)((j_common_ptr)&cinfo, JPOOL_IMAGE, cinfo.output_width * cinfo.output_components, 1);
+	s = surface_alloc(cinfo.image_width, cinfo.image_height);
+	p = surface_get_pixels(s);
+	while(cinfo.output_scanline < cinfo.output_height)
+	{
+		scanline = cinfo.output_scanline * surface_get_stride(s);
+		jpeg_read_scanlines(&cinfo, buf, 1);
+		for(i = 0; i < cinfo.output_width; i++)
+		{
+			offset = scanline + (i * 4);
+			p[offset + 3] = 255;
+			p[offset + 2] = buf[0][(i * 3) + 0];
+			p[offset + 1] = buf[0][(i * 3) + 1];
+			p[offset] = buf[0][(i * 3) + 2];
+		}
+	}
+	jpeg_finish_decompress(&cinfo);
+	jpeg_destroy_decompress(&cinfo);
+	fclose(file);
+
+	return s;
+}
+
+struct surface_t * surface_alloc_from_jpeg_data(void * buffer, int length)
+{
+	struct jpeg_decompress_struct cinfo;
+	struct jpeg_error_mgr jerr;
+	struct surface_t * s;
+	JSAMPARRAY buf;
+	unsigned char * p;
+	int scanline, offset, i;
+
+	cinfo.err = jpeg_std_error(&jerr);
+	jpeg_create_decompress(&cinfo);
+	jpeg_mem_src(&cinfo, buffer, length);
+	jpeg_read_header(&cinfo, 1);
+	jpeg_start_decompress(&cinfo);
+	buf = (*cinfo.mem->alloc_sarray)((j_common_ptr)&cinfo, JPOOL_IMAGE, cinfo.output_width * cinfo.output_components, 1);
+	s = surface_alloc(cinfo.image_width, cinfo.image_height);
+	p = surface_get_pixels(s);
+	while(cinfo.output_scanline < cinfo.output_height)
+	{
+		scanline = cinfo.output_scanline * surface_get_stride(s);
+		jpeg_read_scanlines(&cinfo, buf, 1);
+		for(i = 0; i < cinfo.output_width; i++)
+		{
+			offset = scanline + (i * 4);
+			p[offset + 3] = 255;
+			p[offset + 2] = buf[0][(i * 3) + 0];
+			p[offset + 1] = buf[0][(i * 3) + 1];
+			p[offset] = buf[0][(i * 3) + 2];
+		}
+	}
+	jpeg_finish_decompress(&cinfo);
+	jpeg_destroy_decompress(&cinfo);
+
 	return s;
 }
 

@@ -1,5 +1,5 @@
-#ifndef __NEW_VFS_H__
-#define __NEW_VFS_H__
+#ifndef __VFS_H__
+#define __VFS_H__
 
 #ifdef __cplusplus
 extern "C" {
@@ -224,4 +224,4 @@ void do_init_vfs(void);
 }
 #endif
 
-#endif /* __NEW_VFS_H__ */
+#endif /* __VFS_H__ */

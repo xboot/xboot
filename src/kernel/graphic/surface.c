@@ -1,5 +1,5 @@
 /*
- * kernel/graphic/image.c
+ * kernel/graphic/surface.c
  *
  * Copyright(c) 2007-2019 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -27,50 +27,50 @@
  */
 
 #include <xboot.h>
-#include <graphic/image.h>
+#include <graphic/surface.h>
 
-extern struct image_operate_t image_operate_cairo;
+extern struct surface_operate_t surface_operate_cairo;
 
-struct image_t * image_alloc(int width, int height)
+struct surface_t * surface_alloc(int width, int height)
 {
-	struct image_t * img;
+	struct surface_t * s;
 	void * pixels;
 
 	if(width < 0 || height < 0)
 		return NULL;
 
-	img = malloc(sizeof(struct image_t));
-	if(!img)
+	s = malloc(sizeof(struct surface_t));
+	if(!s)
 		return NULL;
 
 	pixels = memalign(4, height * (width << 2));
 	if(!pixels)
 	{
-		free(img);
+		free(s);
 		return NULL;
 	}
 
-	img->width = width;
-	img->height = height;
-	img->stride = width << 2;
-	img->pixels = pixels;
-	img->op = &image_operate_cairo;
-	img->priv = img->op->create(img);
-	if(!img->priv)
+	s->width = width;
+	s->height = height;
+	s->stride = width << 2;
+	s->pixels = pixels;
+	s->op = &surface_operate_cairo;
+	s->priv = s->op->create(s);
+	if(!s->priv)
 	{
-		free(img);
+		free(s);
 		free(pixels);
 		return NULL;
 	}
-	return img;
+	return s;
 }
 
-void image_free(struct image_t * img)
+void surface_free(struct surface_t * s)
 {
-	if(img)
+	if(s)
 	{
-		img->op->destroy(img->priv);
-		free(img->pixels);
-		free(img);
+		s->op->destroy(s->priv);
+		free(s->pixels);
+		free(s);
 	}
 }

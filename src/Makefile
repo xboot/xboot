@@ -171,8 +171,8 @@ SRCDIRS		+=	external/lz4-1.8.2
 INCDIRS		+= 	external/zlib-1.2.11
 SRCDIRS		+=	external/zlib-1.2.11
 
-INCDIRS		+= 	external/libpng-1.6.32
-SRCDIRS		+=	external/libpng-1.6.32
+INCDIRS		+= 	external/libpng-1.6.37
+SRCDIRS		+=	external/libpng-1.6.37
 
 INCDIRS		+= 	external/lua-5.3.5
 SRCDIRS		+=	external/lua-5.3.5

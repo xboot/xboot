@@ -33,6 +33,11 @@
 
 extern struct surface_operate_t surface_operate_cairo;
 
+inline __attribute__((always_inline)) struct surface_operate_t * surface_operate_get(void)
+{
+	return &surface_operate_cairo;
+}
+
 struct surface_t * surface_alloc(int width, int height)
 {
 	struct surface_t * s;
@@ -56,7 +61,7 @@ struct surface_t * surface_alloc(int width, int height)
 	s->height = height;
 	s->stride = width << 2;
 	s->pixels = pixels;
-	s->op = &surface_operate_cairo;
+	s->op = surface_operate_get();
 	s->priv = s->op->create(s);
 	if(!s->priv)
 	{

@@ -49,44 +49,54 @@ struct surface_operate_t
 
 	void (*shape_save)(struct surface_t * s);
 	void (*shape_restore)(struct surface_t * s);
-#if 0
-	void (*push_group)(struct surface_t * s);
-	void (*pop_group)(struct surface_t * s);
-	void (*pop_group_to_source)(struct surface_t * s);
-	void (*new_path)(struct surface_t * s);
-	void (*new_sub_path)(struct surface_t * s);
-	void (*close_path)(struct surface_t * s);
-	void (*set_operator)(struct surface_t * s, const char * type);
-	void (*set_source)(struct surface_t * s); //todo
-	void (*set_source_color)(struct surface_t * s, double r, double g, double b, double a);
-	void (*set_tolerance)(struct surface_t * s, double tolerance);
-	void (*set_miter_limit)(struct surface_t * s, double limit);
-	void (*set_antialias)(struct surface_t * s, const char * type);
-	void (*set_fill_rule)(struct surface_t * s, const char * type);
-	void (*set_line_width)(struct surface_t * s, double width);
-	void (*set_line_cap)(struct surface_t * s, const char * type);
-	void (*set_line_join)(struct surface_t * s, const char * type);
-	void (*set_dash)(struct surface_t * s, const double * dashes, int ndashes, double offset);
-	void (*move_to)(struct surface_t * s, double x, double y);
-	void (*rel_move_to)(struct surface_t * s, double x, double y);
-	void (*line_to)(struct surface_t * s, double x, double y);
-	void (*rel_line_to)(struct surface_t * s, double x, double y);
-	void (*curve_to)(struct surface_t * s, double x1, double y1, double x2, double y2, double x3, double y3);
-	void (*rel_curve_to)(struct surface_t * s, double x1, double y1, double x2, double y2, double x3, double y3);
-	void (*rectangle)(struct surface_t * s, double x, double y, double w, double h);
-	void (*rounded_rectangle)(struct surface_t * s, double x, double y, double w, double h, double r);
-	void (*arc)(struct surface_t * s, double xc, double yc, double radius, double angle1, double angle2);
-	void (*arc_negative)(struct surface_t * s, double xc, double yc, double radius, double angle1, double angle2);
-	void (*stroke)(struct surface_t * s);
-	void (*stroke_preserve)(struct surface_t * s);
-	void (*fill)(struct surface_t * s);
-	void (*fill_preserve)(struct surface_t * s);
-	void (*clip)(struct surface_t * s);
-	void (*clip_preserve)(struct surface_t * s);
-	void (*mask)(struct surface_t * s); //todo
-	void (*paint)(struct surface_t * s);
-#endif
+	void (*shape_push_group)(struct surface_t * s);
+	void (*shape_pop_group)(struct surface_t * s);
+	void (*shape_pop_group_to_source)(struct surface_t * s);
+	void (*shape_new_path)(struct surface_t * s);
+	void (*shape_new_sub_path)(struct surface_t * s);
+	void (*shape_close_path)(struct surface_t * s);
+	void (*shape_set_operator)(struct surface_t * s, const char * type);
+	void (*shape_set_source)(struct surface_t * s, void * pattern);
+	void (*shape_set_source_color)(struct surface_t * s, double r, double g, double b, double a);
+	void (*shape_set_tolerance)(struct surface_t * s, double tolerance);
+	void (*shape_set_miter_limit)(struct surface_t * s, double limit);
+	void (*shape_set_antialias)(struct surface_t * s, const char * type);
+	void (*shape_set_fill_rule)(struct surface_t * s, const char * type);
+	void (*shape_set_line_width)(struct surface_t * s, double width);
+	void (*shape_set_line_cap)(struct surface_t * s, const char * type);
+	void (*shape_set_line_join)(struct surface_t * s, const char * type);
+	void (*shape_set_dash)(struct surface_t * s, const double * dashes, int ndashes, double offset);
+	void (*shape_move_to)(struct surface_t * s, double x, double y);
+	void (*shape_rel_move_to)(struct surface_t * s, double dx, double dy);
+	void (*shape_line_to)(struct surface_t * s, double x, double y);
+	void (*shape_rel_line_to)(struct surface_t * s, double dx, double dy);
+	void (*shape_curve_to)(struct surface_t * s, double x1, double y1, double x2, double y2, double x3, double y3);
+	void (*shape_rel_curve_to)(struct surface_t * s, double dx1, double dy1, double dx2, double dy2, double dx3, double dy3);
+	void (*shape_rectangle)(struct surface_t * s, double x, double y, double w, double h);
+	void (*shape_rounded_rectangle)(struct surface_t * s, double x, double y, double w, double h, double r);
+	void (*shape_arc)(struct surface_t * s, double xc, double yc, double r, double a1, double a2);
+	void (*shape_arc_negative)(struct surface_t * s, double xc, double yc, double r, double a1, double a2);
+	void (*shape_stroke)(struct surface_t * s);
+	void (*shape_stroke_preserve)(struct surface_t * s);
+	void (*shape_fill)(struct surface_t * s);
+	void (*shape_fill_preserve)(struct surface_t * s);
+	void (*shape_clip)(struct surface_t * s);
+	void (*shape_clip_preserve)(struct surface_t * s);
+	void (*shape_mask)(struct surface_t * s, void * pattern);
+	void (*shape_paint)(struct surface_t * s, double alpha);
+
+	void * (*pattern_create)(struct surface_t * s);
+	void * (*pattern_create_color)(double r, double g, double b, double a);
+	void * (*pattern_create_linear)(double x0, double y0, double x1, double y1);
+	void * (*pattern_create_radial)(double x0, double y0, double r0, double x1, double y1, double r1);
+	void (*pattern_destroy)(void * pattern);
+	void (*pattern_add_color_stop)(void * pattern, double o, double r, double g, double b, double a);
+	void (*pattern_set_extend)(void * pattern, const char * type);
+	void (*pattern_set_filter)(void * pattern, const char * type);
+	void (*pattern_set_matrix)(void * pattern, struct matrix_t * m);
 };
+
+struct surface_operate_t * surface_operate_get(void);
 
 static inline int surface_get_width(struct surface_t * s)
 {
@@ -186,6 +196,226 @@ static inline void surface_shape_save(struct surface_t * s)
 static inline void surface_shape_restore(struct surface_t * s)
 {
 	s->op->shape_restore(s);
+}
+
+static inline void surface_shape_push_group(struct surface_t * s)
+{
+	s->op->shape_push_group(s);
+}
+
+static inline void surface_shape_pop_group(struct surface_t * s)
+{
+	s->op->shape_pop_group(s);
+}
+
+static inline void surface_shape_pop_group_to_source(struct surface_t * s)
+{
+	s->op->shape_pop_group_to_source(s);
+}
+
+static inline void surface_shape_new_path(struct surface_t * s)
+{
+	s->op->shape_new_path(s);
+}
+
+static inline void surface_shape_new_sub_path(struct surface_t * s)
+{
+	s->op->shape_new_sub_path(s);
+}
+
+static inline void surface_shape_close_path(struct surface_t * s)
+{
+	s->op->shape_close_path(s);
+}
+
+static inline void surface_shape_set_operator(struct surface_t * s, const char * type)
+{
+	s->op->shape_set_operator(s, type);
+}
+
+static inline void surface_shape_set_source(struct surface_t * s, void * pattern)
+{
+	s->op->shape_set_source(s, pattern);
+}
+
+static inline void surface_shape_set_source_color(struct surface_t * s, double r, double g, double b, double a)
+{
+	s->op->shape_set_source_color(s, r, g, b, a);
+}
+
+static inline void surface_shape_set_tolerance(struct surface_t * s, double tolerance)
+{
+	s->op->shape_set_tolerance(s, tolerance);
+}
+
+static inline void surface_shape_set_miter_limit(struct surface_t * s, double limit)
+{
+	s->op->shape_set_miter_limit(s, limit);
+}
+
+static inline void surface_shape_set_antialias(struct surface_t * s, const char * type)
+{
+	s->op->shape_set_antialias(s, type);
+}
+
+static inline void surface_shape_set_fill_rule(struct surface_t * s, const char * type)
+{
+	s->op->shape_set_fill_rule(s, type);
+}
+
+static inline void surface_shape_set_line_width(struct surface_t * s, double width)
+{
+	s->op->shape_set_line_width(s, width);
+}
+
+static inline void surface_shape_set_line_cap(struct surface_t * s, const char * type)
+{
+	s->op->shape_set_line_cap(s, type);
+}
+
+static inline void surface_shape_set_line_join(struct surface_t * s, const char * type)
+{
+	s->op->shape_set_line_join(s, type);
+}
+
+static inline void surface_shape_set_dash(struct surface_t * s, const double * dashes, int ndashes, double offset)
+{
+	s->op->shape_set_dash(s, dashes, ndashes, offset);
+}
+
+static inline void surface_shape_move_to(struct surface_t * s, double x, double y)
+{
+	s->op->shape_move_to(s, x, y);
+}
+
+static inline void surface_shape_rel_move_to(struct surface_t * s, double dx, double dy)
+{
+	s->op->shape_rel_move_to(s, dx, dy);
+}
+
+static inline void surface_shape_line_to(struct surface_t * s, double x, double y)
+{
+	s->op->shape_line_to(s, x, y);
+}
+
+static inline void surface_shape_rel_line_to(struct surface_t * s, double dx, double dy)
+{
+	s->op->shape_rel_line_to(s, dx, dy);
+}
+
+static inline void surface_shape_curve_to(struct surface_t * s, double x1, double y1, double x2, double y2, double x3, double y3)
+{
+	s->op->shape_curve_to(s, x1, y1, x2, y2, x3, y3);
+}
+
+static inline void surface_shape_rel_curve_to(struct surface_t * s, double dx1, double dy1, double dx2, double dy2, double dx3, double dy3)
+{
+	s->op->shape_rel_curve_to(s, dx1, dy1, dx2, dy2, dx3, dy3);
+}
+
+static inline void surface_shape_rectangle(struct surface_t * s, double x, double y, double w, double h)
+{
+	s->op->shape_rectangle(s, x, y, w, h);
+}
+
+static inline void surface_shape_rounded_rectangle(struct surface_t * s, double x, double y, double w, double h, double r)
+{
+	s->op->shape_rounded_rectangle(s, x, y, w, h, r);
+}
+
+static inline void surface_shape_arc(struct surface_t * s, double xc, double yc, double r, double a1, double a2)
+{
+	s->op->shape_arc(s, xc, yc, r, a1, a2);
+}
+
+static inline void surface_shape_arc_negative(struct surface_t * s, double xc, double yc, double r, double a1, double a2)
+{
+	s->op->shape_arc_negative(s, xc, yc, r, a1, a2);
+}
+
+static inline void surface_shape_stroke(struct surface_t * s)
+{
+	s->op->shape_stroke(s);
+}
+
+static inline void surface_shape_stroke_preserve(struct surface_t * s)
+{
+	s->op->shape_stroke_preserve(s);
+}
+
+static inline void surface_shape_fill(struct surface_t * s)
+{
+	s->op->shape_fill(s);
+}
+
+static inline void surface_shape_fill_preserve(struct surface_t * s)
+{
+	s->op->shape_fill_preserve(s);
+}
+
+static inline void surface_shape_clip(struct surface_t * s)
+{
+	s->op->shape_clip(s);
+}
+
+static inline void surface_shape_clip_preserve(struct surface_t * s)
+{
+	s->op->shape_clip_preserve(s);
+}
+
+static inline void surface_shape_mask(struct surface_t * s, void * pattern)
+{
+	s->op->shape_mask(s, pattern);
+}
+
+static inline void surface_shape_paint(struct surface_t * s, double alpha)
+{
+	s->op->shape_paint(s, alpha);
+}
+
+static inline void * surface_pattern_create(struct surface_t * s)
+{
+	return surface_operate_get()->pattern_create(s);
+}
+
+static inline void * surface_pattern_create_color(double r, double g, double b, double a)
+{
+	return surface_operate_get()->pattern_create_color(r, g, b, a);
+}
+
+static inline void * surface_pattern_create_linear(double x0, double y0, double x1, double y1)
+{
+	return surface_operate_get()->pattern_create_linear(x0, y0, x1, y1);
+}
+
+static inline void * surface_pattern_create_radial(double x0, double y0, double r0, double x1, double y1, double r1)
+{
+	return surface_operate_get()->pattern_create_radial(x0, y0, r0, x1, y1, r1);
+}
+
+static inline void surface_pattern_destroy(void * pattern)
+{
+	surface_operate_get()->pattern_destroy(pattern);
+}
+
+static inline void surface_pattern_add_color_stop(void * pattern, double o, double r, double g, double b, double a)
+{
+	surface_operate_get()->pattern_add_color_stop(pattern, o, r, g, b, a);
+}
+
+static inline void surface_pattern_set_extend(void * pattern, const char * type)
+{
+	surface_operate_get()->pattern_set_extend(pattern, type);
+}
+
+static inline void surface_pattern_set_filter(void * pattern, const char * type)
+{
+	surface_operate_get()->pattern_set_filter(pattern, type);
+}
+
+static inline void surface_pattern_set_matrix(void * pattern, struct matrix_t * m)
+{
+	surface_operate_get()->pattern_set_matrix(pattern, m);
 }
 
 struct surface_t * surface_alloc(int width, int height);

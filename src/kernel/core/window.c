@@ -114,15 +114,6 @@ static struct window_manager_t * window_manager_alloc(const char * fb)
 	wm->fifo = fifo_alloc(sizeof(struct event_t) * CONFIG_EVENT_FIFO_SIZE);
 	wm->wcount = 0;
 	wm->refresh = 0;
-/*	wm->cursor.cs = cairo_image_surface_create_from_png("/framework/assets/images/cursor.png");
-	wm->cursor.width = cairo_image_surface_get_width(wm->cursor.cs);
-	wm->cursor.height = cairo_image_surface_get_height(wm->cursor.cs);
-	wm->cursor.ox = 0;
-	wm->cursor.oy = 0;
-	wm->cursor.nx = 0;
-	wm->cursor.ny = 0;
-	wm->cursor.dirty = 0;
-	wm->cursor.show = 0;*/
 	spin_lock_init(&wm->lock);
 	init_list_head(&wm->list);
 	init_list_head(&wm->window);
@@ -149,7 +140,6 @@ static void window_manager_free(struct window_manager_t * wm)
 			list_del(&pos->list);
 			spin_unlock_irqrestore(&__window_manager_lock, flags);
 			fifo_free(pos->fifo);
-/*			cairo_surface_destroy(wm->cursor.cs);*/
 			free(pos);
 		}
 	}
@@ -290,14 +280,6 @@ void window_present(struct window_t * w, void * o, void (*draw)(struct window_t 
 		window_region_list_add(w, &rn);
 		w->wm->refresh = 0;
 	}
-/*	if(w->wm->cursor.show && w->wm->cursor.dirty)
-	{
-		region_init(&rn, w->wm->cursor.nx, w->wm->cursor.ny, w->wm->cursor.width, w->wm->cursor.height);
-		region_init(&ro, w->wm->cursor.ox, w->wm->cursor.oy, w->wm->cursor.width, w->wm->cursor.height);
-		window_region_list_add(w, &rn);
-		window_region_list_add(w, &ro);
-		w->wm->cursor.dirty = 0;
-	}*/
 	if((count = w->rl->count) > 0)
 	{
 		surface_shape_reset_clip(s);
@@ -309,20 +291,11 @@ void window_present(struct window_t * w, void * o, void (*draw)(struct window_t 
 		surface_shape_clip(s);
 		surface_shape_save(s);
 		surface_shape_set_source_color(s, 1, 1, 1, 1);
-		surface_shape_set_operator(s, "over");
 		surface_shape_paint(s, 1);
 		surface_shape_restore(s);
 		if(draw)
 			draw(w, o);
 	}
-	/*
-	if(w->wm->cursor.show)
-	{
-		cairo_save(cr);
-		cairo_set_source_surface(cr, w->wm->cursor.cs, w->wm->cursor.nx, w->wm->cursor.ny);
-		cairo_paint(cr);
-		cairo_restore(cr);
-	}*/
 	framebuffer_present_surface(w->wm->fb, w->s, w->rl);
 }
 
@@ -367,51 +340,6 @@ void push_event(struct event_t * e)
 				break;
 			case EVENT_TYPE_KEY_UP:
 				break;
-/*			case EVENT_TYPE_MOUSE_DOWN:
-				if(!pos->cursor.dirty)
-				{
-					pos->cursor.ox = pos->cursor.nx;
-					pos->cursor.oy = pos->cursor.ny;
-					pos->cursor.dirty = 1;
-				}
-				pos->cursor.nx = e->e.mouse_down.x;
-				pos->cursor.ny = e->e.mouse_down.y;
-				pos->cursor.show = 1;
-				break;
-			case EVENT_TYPE_MOUSE_MOVE:
-				if(!pos->cursor.dirty)
-				{
-					pos->cursor.ox = pos->cursor.nx;
-					pos->cursor.oy = pos->cursor.ny;
-					pos->cursor.dirty = 1;
-				}
-				pos->cursor.nx = e->e.mouse_move.x;
-				pos->cursor.ny = e->e.mouse_move.y;
-				pos->cursor.show = 1;
-				break;
-			case EVENT_TYPE_MOUSE_UP:
-				if(!pos->cursor.dirty)
-				{
-					pos->cursor.ox = pos->cursor.nx;
-					pos->cursor.oy = pos->cursor.ny;
-					pos->cursor.dirty = 1;
-				}
-				pos->cursor.nx = e->e.mouse_up.x;
-				pos->cursor.ny = e->e.mouse_up.y;
-				pos->cursor.show = 1;
-				break;
-			case EVENT_TYPE_MOUSE_WHEEL:
-				pos->cursor.show = 1;
-				break;
-			case EVENT_TYPE_TOUCH_BEGIN:
-				pos->cursor.show = 0;
-				break;
-			case EVENT_TYPE_TOUCH_MOVE:
-				pos->cursor.show = 0;
-				break;
-			case EVENT_TYPE_TOUCH_END:
-				pos->cursor.show = 0;
-				break;*/
 			default:
 				break;
 			}

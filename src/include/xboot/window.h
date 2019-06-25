@@ -5,7 +5,12 @@
 extern "C" {
 #endif
 
-#include <xboot.h>
+#include <types.h>
+#include <stdint.h>
+#include <list.h>
+#include <fifo.h>
+#include <irqflags.h>
+#include <spinlock.h>
 #include <framebuffer/framebuffer.h>
 
 struct window_manager_t {
@@ -16,14 +21,6 @@ struct window_manager_t {
 	struct fifo_t * fifo;
 	int wcount;
 	int refresh;
-/*	struct {
-		cairo_surface_t * cs;
-		int width, height;
-		int ox, oy;
-		int nx, ny;
-		int dirty;
-		int show;
-	} cursor;*/
 };
 
 struct window_t {

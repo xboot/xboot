@@ -7,6 +7,8 @@ extern "C" {
 
 #include <types.h>
 #include <stdint.h>
+#include <graphic/region.h>
+#include <graphic/matrix.h>
 #include <xfs/xfs.h>
 
 struct surface_t;

@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-#include <xboot.h>
+#include <graphic/surface.h>
 
 struct framebuffer_t
 {

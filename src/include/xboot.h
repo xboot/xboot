@@ -37,8 +37,6 @@ extern "C" {
 #include <io.h>
 #include <bcd.h>
 #include <div.h>
-#include <matrix.h>
-#include <region.h>
 #include <list.h>
 #include <slist.h>
 #include <hmap.h>
@@ -64,14 +62,15 @@ extern "C" {
 #include <xboot/task.h>
 #include <xboot/mutex.h>
 #include <xboot/channel.h>
+#include <xboot/window.h>
 #include <time/delay.h>
 #include <time/timer.h>
 #include <clockevent/clockevent.h>
 #include <clocksource/clocksource.h>
 #include <block/block.h>
-#include <vfs/vfs.h>
-#include <graphic/surface.h>
 #include <shell/shell.h>
+#include <vfs/vfs.h>
+#include <xfs/xfs.h>
 
 #ifdef __cplusplus
 }

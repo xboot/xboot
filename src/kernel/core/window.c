@@ -149,7 +149,7 @@ static void window_manager_free(struct window_manager_t * wm)
 			list_del(&pos->list);
 			spin_unlock_irqrestore(&__window_manager_lock, flags);
 			fifo_free(pos->fifo);
-			cairo_surface_destroy(wm->cursor.cs);
+/*			cairo_surface_destroy(wm->cursor.cs);*/
 			free(pos);
 		}
 	}

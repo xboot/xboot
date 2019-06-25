@@ -5,7 +5,8 @@
 extern "C" {
 #endif
 
-#include <cairo-xboot.h>
+#include <xboot.h>
+#include <framebuffer/framebuffer.h>
 
 struct window_manager_t {
 	spinlock_t lock;
@@ -15,14 +16,14 @@ struct window_manager_t {
 	struct fifo_t * fifo;
 	int wcount;
 	int refresh;
-	struct {
+/*	struct {
 		cairo_surface_t * cs;
 		int width, height;
 		int ox, oy;
 		int nx, ny;
 		int dirty;
 		int show;
-	} cursor;
+	} cursor;*/
 };
 
 struct window_t {

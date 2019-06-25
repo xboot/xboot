@@ -7,6 +7,7 @@ extern "C" {
 
 #include <types.h>
 #include <stdint.h>
+#include <xfs/xfs.h>
 
 struct surface_t;
 struct surface_operate_t;
@@ -419,9 +420,8 @@ static inline void surface_pattern_set_matrix(void * pattern, struct matrix_t * 
 }
 
 struct surface_t * surface_alloc(int width, int height);
-struct surface_t * surface_alloc_from_jpeg(const char * filename);
-struct surface_t * surface_alloc_from_jpeg_data(void * buffer, int length);
 void surface_free(struct surface_t * s);
+struct surface_t * surface_alloc_from_xfs_jpeg(struct xfs_context_t * ctx, const char * filename);
 
 #ifdef __cplusplus
 }

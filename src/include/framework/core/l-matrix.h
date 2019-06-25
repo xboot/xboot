@@ -5,8 +5,6 @@
 extern "C" {
 #endif
 
-#include <cairo.h>
-#include <cairoint.h>
 #include <framework/luahelper.h>
 
 #define MT_MATRIX	"__mt_matrix__"

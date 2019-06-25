@@ -61,6 +61,7 @@ struct surface_operate_t
 	void (*shape_set_operator)(struct surface_t * s, const char * type);
 	void (*shape_set_source)(struct surface_t * s, void * pattern);
 	void (*shape_set_source_color)(struct surface_t * s, double r, double g, double b, double a);
+	void (*shape_set_source_surface)(struct surface_t * s, struct surface_t * o, double x, double y);
 	void (*shape_set_tolerance)(struct surface_t * s, double tolerance);
 	void (*shape_set_miter_limit)(struct surface_t * s, double limit);
 	void (*shape_set_antialias)(struct surface_t * s, const char * type);
@@ -88,6 +89,7 @@ struct surface_operate_t
 	void (*shape_clip)(struct surface_t * s);
 	void (*shape_clip_preserve)(struct surface_t * s);
 	void (*shape_mask)(struct surface_t * s, void * pattern);
+	void (*shape_mask_surface)(struct surface_t * s, struct surface_t * o, double x, double y);
 	void (*shape_paint)(struct surface_t * s, double alpha);
 
 	void * (*pattern_create)(struct surface_t * s);
@@ -248,6 +250,11 @@ static inline void surface_shape_set_source_color(struct surface_t * s, double r
 	s->op->shape_set_source_color(s, r, g, b, a);
 }
 
+static inline void surface_shape_set_source_surface(struct surface_t * s, struct surface_t * o, double x, double y)
+{
+	s->op->shape_set_source_surface(s, o, x, y);
+}
+
 static inline void surface_shape_set_tolerance(struct surface_t * s, double tolerance)
 {
 	s->op->shape_set_tolerance(s, tolerance);
@@ -381,6 +388,11 @@ static inline void surface_shape_clip_preserve(struct surface_t * s)
 static inline void surface_shape_mask(struct surface_t * s, void * pattern)
 {
 	s->op->shape_mask(s, pattern);
+}
+
+static inline void surface_shape_mask_surface(struct surface_t * s, struct surface_t * o, double x, double y)
+{
+	s->op->shape_mask_surface(s, o, x, y);
 }
 
 static inline void surface_shape_paint(struct surface_t * s, double alpha)

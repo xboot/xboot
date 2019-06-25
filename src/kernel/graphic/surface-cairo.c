@@ -245,6 +245,12 @@ static void surface_cairo_shape_set_source_color(struct surface_t * s, double r,
 	cairo_set_source_rgba(cr, r, g, b, a);
 }
 
+static void surface_cairo_shape_set_source_surface(struct surface_t * s, struct surface_t * o, double x, double y)
+{
+	cairo_t * cr = ((struct surface_cairo_context_t *)s->pctx)->cr;
+	cairo_set_source_surface(cr, ((struct surface_cairo_context_t *)o->pctx)->cs, x, y);
+}
+
 static void surface_cairo_shape_set_tolerance(struct surface_t * s, double tolerance)
 {
 	cairo_t * cr = ((struct surface_cairo_context_t *)s->pctx)->cr;
@@ -476,6 +482,12 @@ static void surface_cairo_shape_mask(struct surface_t * s, void * pattern)
 	cairo_mask(cr, pattern);
 }
 
+static void surface_cairo_shape_mask_surface(struct surface_t * s, struct surface_t * o, double x, double y)
+{
+	cairo_t * cr = ((struct surface_cairo_context_t *)s->pctx)->cr;
+	cairo_mask_surface(cr, ((struct surface_cairo_context_t *)s->pctx)->cs, x, y);
+}
+
 static void surface_cairo_shape_paint(struct surface_t * s, double alpha)
 {
 	cairo_t * cr = ((struct surface_cairo_context_t *)s->pctx)->cr;
@@ -596,6 +608,7 @@ struct surface_operate_t surface_operate_cairo = {
 	.shape_set_operator			= surface_cairo_shape_set_operator,
 	.shape_set_source			= surface_cairo_shape_set_source,
 	.shape_set_source_color		= surface_cairo_shape_set_source_color,
+	.shape_set_source_surface	= surface_cairo_shape_set_source_surface,
 	.shape_set_tolerance		= surface_cairo_shape_set_tolerance,
 	.shape_set_miter_limit		= surface_cairo_shape_set_miter_limit,
 	.shape_set_antialias		= surface_cairo_shape_set_antialias,
@@ -623,6 +636,7 @@ struct surface_operate_t surface_operate_cairo = {
 	.shape_clip					= surface_cairo_shape_clip,
 	.shape_clip_preserve		= surface_cairo_shape_clip_preserve,
 	.shape_mask					= surface_cairo_shape_mask,
+	.shape_mask_surface			= surface_cairo_shape_mask_surface,
 	.shape_paint				= surface_cairo_shape_paint,
 
 	.pattern_create				= surface_cairo_pattern_create,

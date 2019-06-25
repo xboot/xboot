@@ -89,52 +89,44 @@ static int m_image_get_size(lua_State * L)
 
 static int m_image_clone(lua_State * L)
 {
-/*	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
+	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
 	if(luaL_testudata(L, 2, MT_MATRIX))
 	{
 		struct matrix_t * m = lua_touserdata(L, 2);
 		struct limage_t * subimg = lua_newuserdata(L, sizeof(struct limage_t));
 		double x1 = 0;
 		double y1 = 0;
-		double x2 = cairo_image_surface_get_width(img->s);
-		double y2 = cairo_image_surface_get_height(img->s);
+		double x2 = surface_get_width(img->s);
+		double y2 = surface_get_height(img->s);
 		matrix_transform_bounds(m, &x1, &y1, &x2, &y2);
-		subimg->s = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, x2 - x1, y2 - y1);
-		cairo_t * cr = cairo_create(subimg->s);
-		cairo_set_matrix(cr, (cairo_matrix_t *)m);
-		cairo_set_source_surface(cr, img->s, 0, 0);
-		cairo_paint(cr);
-		cairo_destroy(cr);
+		subimg->s = surface_alloc(x2 - x1, y2 - y1, NULL);
+		surface_shape_save(subimg->s);
+		surface_shape_set_matrix(subimg->s, m);
+		surface_shape_set_source_surface(subimg->s, img->s, 0, 0);
+		surface_shape_paint(subimg->s, 1.0);
+		surface_shape_restore(subimg->s);
 		luaL_setmetatable(L, MT_IMAGE);
 	}
 	else
 	{
 		int x = luaL_optinteger(L, 2, 0);
 		int y = luaL_optinteger(L, 3, 0);
-		int w = luaL_optinteger(L, 4, cairo_image_surface_get_width(img->s));
-		int h = luaL_optinteger(L, 5, cairo_image_surface_get_height(img->s));
+		int w = luaL_optinteger(L, 4, surface_get_width(img->s));
+		int h = luaL_optinteger(L, 5, surface_get_height(img->s));
 		int r = luaL_optinteger(L, 6, 0);
 		struct limage_t * subimg = lua_newuserdata(L, sizeof(struct limage_t));
-		subimg->s = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, w, h);
-		cairo_t * cr = cairo_create(subimg->s);
+		subimg->s = surface_alloc(w, h, NULL);
+		surface_shape_save(subimg->s);
 		if(r > 0)
 		{
-			cairo_move_to(cr, r, 0);
-			cairo_line_to(cr, w - r, 0);
-			cairo_arc(cr, w - r, r, r, - M_PI / 2, 0);
-			cairo_line_to(cr, w, h - r);
-			cairo_arc(cr, w - r, h - r, r, 0, M_PI / 2);
-			cairo_line_to(cr, r, h);
-			cairo_arc(cr, r, h - r, r, M_PI / 2, M_PI);
-			cairo_line_to(cr, 0, r);
-			cairo_arc(cr, r, r, r, M_PI, M_PI + M_PI / 2);
-			cairo_clip(cr);
+			surface_shape_rounded_rectangle(subimg->s, x, y, w, h, r);
+			surface_shape_clip(subimg->s);
 		}
-		cairo_set_source_surface(cr, img->s, -x, -y);
-		cairo_paint(cr);
-		cairo_destroy(cr);
+		surface_shape_set_source_surface(subimg->s, img->s, -x, -y);
+		surface_shape_paint(subimg->s, 1.0);
+		surface_shape_restore(subimg->s);
 		luaL_setmetatable(L, MT_IMAGE);
-	}*/
+	}
 	return 1;
 }
 
@@ -143,21 +135,6 @@ static int m_image_clear(lua_State * L)
 	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
 	surface_clear(img->s);
 	lua_settop(L, 1);
-	return 1;
-}
-
-static int m_image_paste(lua_State * L)
-{
-/*	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
-	struct limage_t * other = luaL_checkudata(L, 2, MT_IMAGE);
-	cairo_t * cr = cairo_create(img->s);
-	cairo_set_source_surface(cr, other->s, 0, 0);
-	if(luaL_testudata(L, 3, MT_IMAGE))
-		cairo_mask_surface(cr, ((struct limage_t *)lua_touserdata(L, 3))->s, 0, 0);
-	else
-		cairo_paint(cr);
-	cairo_destroy(cr);
-	lua_settop(L, 1);*/
 	return 1;
 }
 
@@ -267,7 +244,6 @@ static const luaL_Reg m_image[] = {
 	{"getSize",		m_image_get_size},
 	{"clone",		m_image_clone},
 	{"clear",		m_image_clear},
-	{"paste",		m_image_paste},
 	{"grayscale",	m_image_grayscale},
 	{"sepia",		m_image_sepia},
 	{"invert",		m_image_invert},

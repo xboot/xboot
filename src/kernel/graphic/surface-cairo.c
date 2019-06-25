@@ -49,9 +49,9 @@ static void * surface_cairo_create(struct surface_t * s)
 	return ctx;
 }
 
-static void surface_cairo_destroy(void * priv)
+static void surface_cairo_destroy(void * pctx)
 {
-	struct surface_cairo_context_t * ctx = (struct surface_cairo_context_t *)priv;
+	struct surface_cairo_context_t * ctx = (struct surface_cairo_context_t *)pctx;
 	cairo_destroy(ctx->cr);
 	cairo_surface_destroy(ctx->cs);
 	free(ctx);
@@ -59,27 +59,27 @@ static void surface_cairo_destroy(void * priv)
 
 static void surface_cairo_blit(struct surface_t * s, struct matrix_t * m, struct surface_t * src, double alpha)
 {
-	cairo_t * cr = ((struct surface_cairo_context_t *)s->priv)->cr;
+	cairo_t * cr = ((struct surface_cairo_context_t *)s->pctx)->cr;
 	cairo_save(cr);
 	cairo_set_matrix(cr, (cairo_matrix_t *)m);
-	cairo_set_source_surface(cr, ((struct surface_cairo_context_t *)src->priv)->cs, 0, 0);
+	cairo_set_source_surface(cr, ((struct surface_cairo_context_t *)src->pctx)->cs, 0, 0);
 	cairo_paint_with_alpha(cr, alpha);
 	cairo_restore(cr);
 }
 
 static void surface_cairo_mask(struct surface_t * s, struct matrix_t * m, struct surface_t * src, struct surface_t * mask)
 {
-	cairo_t * cr = ((struct surface_cairo_context_t *)s->priv)->cr;
+	cairo_t * cr = ((struct surface_cairo_context_t *)s->pctx)->cr;
 	cairo_save(cr);
 	cairo_set_matrix(cr, (cairo_matrix_t *)m);
-	cairo_set_source_surface(cr, ((struct surface_cairo_context_t *)src->priv)->cs, 0, 0);
-	cairo_mask_surface(cr, ((struct surface_cairo_context_t *)mask->priv)->cs, 0, 0);
+	cairo_set_source_surface(cr, ((struct surface_cairo_context_t *)src->pctx)->cs, 0, 0);
+	cairo_mask_surface(cr, ((struct surface_cairo_context_t *)mask->pctx)->cs, 0, 0);
 	cairo_restore(cr);
 }
 
 static void surface_cairo_fill(struct surface_t * s, struct matrix_t * m, double x, double y, double w, double h, double r, double g, double b, double a)
 {
-	cairo_t * cr = ((struct surface_cairo_context_t *)s->priv)->cr;
+	cairo_t * cr = ((struct surface_cairo_context_t *)s->pctx)->cr;
 	cairo_save(cr);
 	cairo_set_matrix(cr, (cairo_matrix_t *)m);
 	cairo_rectangle(cr, x, y, w, h);
@@ -90,55 +90,55 @@ static void surface_cairo_fill(struct surface_t * s, struct matrix_t * m, double
 
 static void surface_cairo_shape_save(struct surface_t * s)
 {
-	cairo_t * cr = ((struct surface_cairo_context_t *)s->priv)->cr;
+	cairo_t * cr = ((struct surface_cairo_context_t *)s->pctx)->cr;
 	cairo_save(cr);
 }
 
 static void surface_cairo_shape_restore(struct surface_t * s)
 {
-	cairo_t * cr = ((struct surface_cairo_context_t *)s->priv)->cr;
+	cairo_t * cr = ((struct surface_cairo_context_t *)s->pctx)->cr;
 	cairo_restore(cr);
 }
 
 static void surface_cairo_shape_push_group(struct surface_t * s)
 {
-	cairo_t * cr = ((struct surface_cairo_context_t *)s->priv)->cr;
+	cairo_t * cr = ((struct surface_cairo_context_t *)s->pctx)->cr;
 	cairo_push_group(cr);
 }
 
 static void surface_cairo_shape_pop_group(struct surface_t * s)
 {
-	cairo_t * cr = ((struct surface_cairo_context_t *)s->priv)->cr;
+	cairo_t * cr = ((struct surface_cairo_context_t *)s->pctx)->cr;
 	cairo_pop_group(cr);
 }
 
 static void surface_cairo_shape_pop_group_to_source(struct surface_t * s)
 {
-	cairo_t * cr = ((struct surface_cairo_context_t *)s->priv)->cr;
+	cairo_t * cr = ((struct surface_cairo_context_t *)s->pctx)->cr;
 	cairo_pop_group_to_source(cr);
 }
 
 static void surface_cairo_shape_new_path(struct surface_t * s)
 {
-	cairo_t * cr = ((struct surface_cairo_context_t *)s->priv)->cr;
+	cairo_t * cr = ((struct surface_cairo_context_t *)s->pctx)->cr;
 	cairo_new_path(cr);
 }
 
 static void surface_cairo_shape_new_sub_path(struct surface_t * s)
 {
-	cairo_t * cr = ((struct surface_cairo_context_t *)s->priv)->cr;
+	cairo_t * cr = ((struct surface_cairo_context_t *)s->pctx)->cr;
 	cairo_new_sub_path(cr);
 }
 
 static void surface_cairo_shape_close_path(struct surface_t * s)
 {
-	cairo_t * cr = ((struct surface_cairo_context_t *)s->priv)->cr;
+	cairo_t * cr = ((struct surface_cairo_context_t *)s->pctx)->cr;
 	cairo_close_path(cr);
 }
 
 static void surface_cairo_shape_set_operator(struct surface_t * s, const char * type)
 {
-	cairo_t * cr = ((struct surface_cairo_context_t *)s->priv)->cr;
+	cairo_t * cr = ((struct surface_cairo_context_t *)s->pctx)->cr;
 	switch(shash(type))
 	{
 	case 0x0f3b6d8c: /* "clear" */
@@ -235,31 +235,31 @@ static void surface_cairo_shape_set_operator(struct surface_t * s, const char * 
 
 static void surface_cairo_shape_set_source(struct surface_t * s, void * pattern)
 {
-	cairo_t * cr = ((struct surface_cairo_context_t *)s->priv)->cr;
+	cairo_t * cr = ((struct surface_cairo_context_t *)s->pctx)->cr;
 	cairo_set_source(cr, pattern);
 }
 
 static void surface_cairo_shape_set_source_color(struct surface_t * s, double r, double g, double b, double a)
 {
-	cairo_t * cr = ((struct surface_cairo_context_t *)s->priv)->cr;
+	cairo_t * cr = ((struct surface_cairo_context_t *)s->pctx)->cr;
 	cairo_set_source_rgba(cr, r, g, b, a);
 }
 
 static void surface_cairo_shape_set_tolerance(struct surface_t * s, double tolerance)
 {
-	cairo_t * cr = ((struct surface_cairo_context_t *)s->priv)->cr;
+	cairo_t * cr = ((struct surface_cairo_context_t *)s->pctx)->cr;
 	cairo_set_tolerance(cr, tolerance);
 }
 
 static void surface_cairo_shape_set_miter_limit(struct surface_t * s, double limit)
 {
-	cairo_t * cr = ((struct surface_cairo_context_t *)s->priv)->cr;
+	cairo_t * cr = ((struct surface_cairo_context_t *)s->pctx)->cr;
 	cairo_set_miter_limit(cr, limit);
 }
 
 static void surface_cairo_shape_set_antialias(struct surface_t * s, const char * type)
 {
-	cairo_t * cr = ((struct surface_cairo_context_t *)s->priv)->cr;
+	cairo_t * cr = ((struct surface_cairo_context_t *)s->pctx)->cr;
 	switch(shash(type))
 	{
 	case 0x0885548a: /* "default" */
@@ -290,7 +290,7 @@ static void surface_cairo_shape_set_antialias(struct surface_t * s, const char *
 
 static void surface_cairo_shape_set_fill_rule(struct surface_t * s, const char * type)
 {
-	cairo_t * cr = ((struct surface_cairo_context_t *)s->priv)->cr;
+	cairo_t * cr = ((struct surface_cairo_context_t *)s->pctx)->cr;
 	switch(shash(type))
 	{
 	case 0xc8feafb5: /* "winding" */
@@ -306,13 +306,13 @@ static void surface_cairo_shape_set_fill_rule(struct surface_t * s, const char *
 
 static void surface_cairo_shape_set_line_width(struct surface_t * s, double width)
 {
-	cairo_t * cr = ((struct surface_cairo_context_t *)s->priv)->cr;
+	cairo_t * cr = ((struct surface_cairo_context_t *)s->pctx)->cr;
 	cairo_set_line_width(cr, width);
 }
 
 static void surface_cairo_shape_set_line_cap(struct surface_t * s, const char * type)
 {
-	cairo_t * cr = ((struct surface_cairo_context_t *)s->priv)->cr;
+	cairo_t * cr = ((struct surface_cairo_context_t *)s->pctx)->cr;
 	switch(shash(type))
 	{
 	case 0x7c94cdc4: /* "butt" */
@@ -331,7 +331,7 @@ static void surface_cairo_shape_set_line_cap(struct surface_t * s, const char * 
 
 static void surface_cairo_shape_set_line_join(struct surface_t * s, const char * type)
 {
-	cairo_t * cr = ((struct surface_cairo_context_t *)s->priv)->cr;
+	cairo_t * cr = ((struct surface_cairo_context_t *)s->pctx)->cr;
 	switch(shash(type))
 	{
 	case 0x0feefdc6: /* "miter" */
@@ -350,55 +350,55 @@ static void surface_cairo_shape_set_line_join(struct surface_t * s, const char *
 
 static void surface_cairo_shape_set_dash(struct surface_t * s, const double * dashes, int ndashes, double offset)
 {
-	cairo_t * cr = ((struct surface_cairo_context_t *)s->priv)->cr;
+	cairo_t * cr = ((struct surface_cairo_context_t *)s->pctx)->cr;
 	cairo_set_dash(cr, dashes, ndashes, offset);
 }
 
 static void surface_cairo_shape_move_to(struct surface_t * s, double x, double y)
 {
-	cairo_t * cr = ((struct surface_cairo_context_t *)s->priv)->cr;
+	cairo_t * cr = ((struct surface_cairo_context_t *)s->pctx)->cr;
 	cairo_move_to(cr, x, y);
 }
 
 static void surface_cairo_shape_rel_move_to(struct surface_t * s, double dx, double dy)
 {
-	cairo_t * cr = ((struct surface_cairo_context_t *)s->priv)->cr;
+	cairo_t * cr = ((struct surface_cairo_context_t *)s->pctx)->cr;
 	cairo_rel_move_to(cr, dx, dy);
 }
 
 static void surface_cairo_shape_line_to(struct surface_t * s, double x, double y)
 {
-	cairo_t * cr = ((struct surface_cairo_context_t *)s->priv)->cr;
+	cairo_t * cr = ((struct surface_cairo_context_t *)s->pctx)->cr;
 	cairo_line_to(cr, x, y);
 }
 
 static void surface_cairo_shape_rel_line_to(struct surface_t * s, double dx, double dy)
 {
-	cairo_t * cr = ((struct surface_cairo_context_t *)s->priv)->cr;
+	cairo_t * cr = ((struct surface_cairo_context_t *)s->pctx)->cr;
 	cairo_rel_line_to(cr, dx, dy);
 }
 
 static void surface_cairo_shape_curve_to(struct surface_t * s, double x1, double y1, double x2, double y2, double x3, double y3)
 {
-	cairo_t * cr = ((struct surface_cairo_context_t *)s->priv)->cr;
+	cairo_t * cr = ((struct surface_cairo_context_t *)s->pctx)->cr;
 	cairo_curve_to(cr, x1, y1, x2, y2, x3, y3);
 }
 
 static void surface_cairo_shape_rel_curve_to(struct surface_t * s, double dx1, double dy1, double dx2, double dy2, double dx3, double dy3)
 {
-	cairo_t * cr = ((struct surface_cairo_context_t *)s->priv)->cr;
+	cairo_t * cr = ((struct surface_cairo_context_t *)s->pctx)->cr;
 	cairo_rel_curve_to(cr, dx1, dy1, dx2, dy2, dx3, dy3);
 }
 
 static void surface_cairo_shape_rectangle(struct surface_t * s, double x, double y, double w, double h)
 {
-	cairo_t * cr = ((struct surface_cairo_context_t *)s->priv)->cr;
+	cairo_t * cr = ((struct surface_cairo_context_t *)s->pctx)->cr;
 	cairo_rectangle(cr, x, y, w, h);
 }
 
 static void surface_cairo_shape_rounded_rectangle(struct surface_t * s, double x, double y, double w, double h, double r)
 {
-	cairo_t * cr = ((struct surface_cairo_context_t *)s->priv)->cr;
+	cairo_t * cr = ((struct surface_cairo_context_t *)s->pctx)->cr;
 	cairo_move_to(cr, x + r, y);
 	cairo_line_to(cr, x + w - r, y);
 	cairo_arc(cr, x + w - r, y + r, r, - M_PI / 2, 0);
@@ -412,61 +412,61 @@ static void surface_cairo_shape_rounded_rectangle(struct surface_t * s, double x
 
 static void surface_cairo_shape_arc(struct surface_t * s, double xc, double yc, double r, double a1, double a2)
 {
-	cairo_t * cr = ((struct surface_cairo_context_t *)s->priv)->cr;
+	cairo_t * cr = ((struct surface_cairo_context_t *)s->pctx)->cr;
 	cairo_arc(cr, xc, yc, r, a1, a2);
 }
 
 static void surface_cairo_shape_arc_negative(struct surface_t * s, double xc, double yc, double r, double a1, double a2)
 {
-	cairo_t * cr = ((struct surface_cairo_context_t *)s->priv)->cr;
+	cairo_t * cr = ((struct surface_cairo_context_t *)s->pctx)->cr;
 	cairo_arc_negative(cr, xc, yc, r, a1, a2);
 }
 
 static void surface_cairo_shape_stroke(struct surface_t * s)
 {
-	cairo_t * cr = ((struct surface_cairo_context_t *)s->priv)->cr;
+	cairo_t * cr = ((struct surface_cairo_context_t *)s->pctx)->cr;
 	cairo_stroke(cr);
 }
 
 static void surface_cairo_shape_stroke_preserve(struct surface_t * s)
 {
-	cairo_t * cr = ((struct surface_cairo_context_t *)s->priv)->cr;
+	cairo_t * cr = ((struct surface_cairo_context_t *)s->pctx)->cr;
 	cairo_stroke_preserve(cr);
 }
 
 static void surface_cairo_shape_fill(struct surface_t * s)
 {
-	cairo_t * cr = ((struct surface_cairo_context_t *)s->priv)->cr;
+	cairo_t * cr = ((struct surface_cairo_context_t *)s->pctx)->cr;
 	cairo_fill(cr);
 }
 
 static void surface_cairo_shape_fill_preserve(struct surface_t * s)
 {
-	cairo_t * cr = ((struct surface_cairo_context_t *)s->priv)->cr;
+	cairo_t * cr = ((struct surface_cairo_context_t *)s->pctx)->cr;
 	cairo_fill_preserve(cr);
 }
 
 static void surface_cairo_shape_clip(struct surface_t * s)
 {
-	cairo_t * cr = ((struct surface_cairo_context_t *)s->priv)->cr;
+	cairo_t * cr = ((struct surface_cairo_context_t *)s->pctx)->cr;
 	cairo_clip(cr);
 }
 
 static void surface_cairo_shape_clip_preserve(struct surface_t * s)
 {
-	cairo_t * cr = ((struct surface_cairo_context_t *)s->priv)->cr;
+	cairo_t * cr = ((struct surface_cairo_context_t *)s->pctx)->cr;
 	cairo_clip_preserve(cr);
 }
 
 static void surface_cairo_shape_mask(struct surface_t * s, void * pattern)
 {
-	cairo_t * cr = ((struct surface_cairo_context_t *)s->priv)->cr;
+	cairo_t * cr = ((struct surface_cairo_context_t *)s->pctx)->cr;
 	cairo_mask(cr, pattern);
 }
 
 static void surface_cairo_shape_paint(struct surface_t * s, double alpha)
 {
-	cairo_t * cr = ((struct surface_cairo_context_t *)s->priv)->cr;
+	cairo_t * cr = ((struct surface_cairo_context_t *)s->pctx)->cr;
 	cairo_paint_with_alpha(cr, alpha);
 }
 
@@ -487,7 +487,7 @@ static void * surface_cairo_pattern_create_radial(double x0, double y0, double r
 
 static void * surface_cairo_pattern_create(struct surface_t * s)
 {
-	return cairo_pattern_create_for_surface(((struct surface_cairo_context_t *)s->priv)->cs);
+	return cairo_pattern_create_for_surface(((struct surface_cairo_context_t *)s->pctx)->cs);
 }
 
 static void surface_cairo_pattern_destroy(void * pattern)

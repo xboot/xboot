@@ -24,13 +24,14 @@ struct surface_t
 	int stride;
 	void * pixels;
 	struct surface_operate_t * op;
+	void * pctx;
 	void * priv;
 };
 
 struct surface_operate_t
 {
 	void * (*create)(struct surface_t * s);
-	void (*destroy)(void * priv);
+	void (*destroy)(void * pctx);
 
 	void (*blit)(struct surface_t * s, struct matrix_t * m, struct surface_t * src, double alpha);
 	void (*mask)(struct surface_t * s, struct matrix_t * m, struct surface_t * src, struct surface_t * mask);
@@ -419,7 +420,7 @@ static inline void surface_pattern_set_matrix(void * pattern, struct matrix_t * 
 	surface_operate_get()->pattern_set_matrix(pattern, m);
 }
 
-struct surface_t * surface_alloc(int width, int height);
+struct surface_t * surface_alloc(int width, int height, void * priv);
 struct surface_t * surface_alloc_from_xfs(struct xfs_context_t * ctx, const char * filename);
 void surface_free(struct surface_t * s);
 

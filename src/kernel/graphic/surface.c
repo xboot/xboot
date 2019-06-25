@@ -40,7 +40,7 @@ inline __attribute__((always_inline)) struct surface_operate_t * surface_operate
 	return &surface_operate_cairo;
 }
 
-struct surface_t * surface_alloc(int width, int height)
+struct surface_t * surface_alloc(int width, int height, void * priv)
 {
 	struct surface_t * s;
 	void * pixels;
@@ -64,8 +64,9 @@ struct surface_t * surface_alloc(int width, int height)
 	s->stride = width << 2;
 	s->pixels = pixels;
 	s->op = surface_operate_get();
-	s->priv = s->op->create(s);
-	if(!s->priv)
+	s->pctx = s->op->create(s);
+	s->priv = priv;
+	if(!s->pctx)
 	{
 		free(s);
 		free(pixels);
@@ -78,7 +79,8 @@ void surface_free(struct surface_t * s)
 {
 	if(s)
 	{
-		s->op->destroy(s->priv);
+		if(s->op)
+			s->op->destroy(s->pctx);
 		free(s->pixels);
 		free(s);
 	}
@@ -238,7 +240,7 @@ static inline struct surface_t * surface_alloc_from_xfs_png(struct xfs_context_t
 		break;
 	}
 
-	s = surface_alloc(png_width, png_height);
+	s = surface_alloc(png_width, png_height, NULL);
 	data = surface_get_pixels(s);
 
 	row_pointers = (png_byte **)malloc(png_height * sizeof(char *));
@@ -371,7 +373,7 @@ static inline struct surface_t * surface_alloc_from_xfs_jpeg(struct xfs_context_
 	jpeg_read_header(&cinfo, 1);
 	jpeg_start_decompress(&cinfo);
 	buf = (*cinfo.mem->alloc_sarray)((j_common_ptr)&cinfo, JPOOL_IMAGE, cinfo.output_width * cinfo.output_components, 1);
-	s = surface_alloc(cinfo.image_width, cinfo.image_height);
+	s = surface_alloc(cinfo.image_width, cinfo.image_height, NULL);
 	p = surface_get_pixels(s);
 	while(cinfo.output_scanline < cinfo.output_height)
 	{

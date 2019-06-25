@@ -570,14 +570,14 @@ static int m_shape_paint(lua_State * L)
 static int m_shape_snapshot(lua_State * L)
 {
 	struct lshape_t * shape = luaL_checkudata(L, 1, MT_SHAPE);
-	struct limage_t * img = lua_newuserdata(L, sizeof(struct limage_t));
+/*	struct limage_t * img = lua_newuserdata(L, sizeof(struct limage_t));
 	int w = cairo_image_surface_get_width(shape->cs);
 	int h = cairo_image_surface_get_height(shape->cs);
 	img->cs = cairo_surface_create_similar(shape->cs, cairo_surface_get_content(shape->cs), w, h);
 	cairo_t * cr = cairo_create(img->cs);
 	cairo_set_source_surface(cr, shape->cs, 0, 0);
 	cairo_paint(cr);
-	cairo_destroy(cr);
+	cairo_destroy(cr);*/
 	luaL_setmetatable(L, MT_IMAGE);
 	return 1;
 }

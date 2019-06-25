@@ -28,9 +28,8 @@ struct window_manager_t {
 struct window_t {
 	struct list_head list;
 	struct window_manager_t * wm;
+	struct surface_t * s;
 	struct region_list_t * rl;
-	cairo_surface_t * cs;
-	cairo_t * cr;
 	struct hmap_t * map;
 	int width, height;
 	int ashome;
@@ -70,13 +69,6 @@ static inline int window_get_pheight(struct window_t * w)
 {
 	if(w)
 		return framebuffer_get_pheight(w->wm->fb);
-	return 0;
-}
-
-static inline int window_get_bytes(struct window_t * w)
-{
-	if(w)
-		return framebuffer_get_bytes(w->wm->fb);
 	return 0;
 }
 

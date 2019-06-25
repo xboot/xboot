@@ -31,38 +31,6 @@
 #include <framework/core/l-image.h>
 #include <framework/core/l-application.h>
 
-static cairo_status_t xfs_read_func(void * closure, unsigned char * data, unsigned int size)
-{
-	struct xfs_file_t * file = closure;
-	size_t len = 0, n;
-
-	while(size > 0)
-	{
-		n = xfs_read(file, data, size);
-		if(n <= 0)
-			break;
-		size -= n;
-		len += n;
-		data += n;
-	}
-	if(len > 0)
-		return CAIRO_STATUS_SUCCESS;
-	return _cairo_error(CAIRO_STATUS_READ_ERROR);
-}
-
-static cairo_surface_t * cairo_image_surface_create_from_png_xfs(struct xfs_context_t * ctx, const char * filename)
-{
-	struct xfs_file_t * file;
-	cairo_surface_t * cs;
-
-	file = xfs_open_read(ctx, filename);
-	if(!file)
-		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_FILE_NOT_FOUND));
-	cs = cairo_image_surface_create_from_png_stream(xfs_read_func, file);
-	xfs_close(file);
-	return cs;
-}
-
 static int application_detect(struct lapplication_t * app, const char * path, const char * lang)
 {
 	struct xfs_context_t * ctx;
@@ -156,10 +124,7 @@ static int application_detect(struct lapplication_t * app, const char * path, co
 			free(p);
 		}
 
-		app->icon = cairo_image_surface_create_from_png_xfs(ctx, "icon.png");
-		if(cairo_surface_status(app->icon) != CAIRO_STATUS_SUCCESS)
-			app->icon = NULL;
-
+		app->icon = surface_alloc_from_xfs(ctx, "icon.png");
 		xfs_free(ctx);
 		return 1;
 	}
@@ -249,7 +214,7 @@ static int m_application_gc(lua_State * L)
 	if(app->desc)
 		free(app->desc);
 	if(app->icon)
-		cairo_surface_destroy(app->icon);
+		surface_free(app->icon);
 	return 0;
 }
 
@@ -280,13 +245,7 @@ static int m_application_get_icon(lua_State * L)
 	if(!app->icon)
 		return 0;
 	struct limage_t * img = lua_newuserdata(L, sizeof(struct limage_t));
-	int w = cairo_image_surface_get_width(app->icon);
-	int h = cairo_image_surface_get_height(app->icon);
-	img->cs = cairo_surface_create_similar(app->icon, cairo_surface_get_content(app->icon), w, h);
-	cairo_t * cr = cairo_create(img->cs);
-	cairo_set_source_surface(cr, app->icon, 0, 0);
-	cairo_paint(cr);
-	cairo_destroy(cr);
+	img->s = surface_clone(app->icon);
 	luaL_setmetatable(L, MT_IMAGE);
 	return 1;
 }

@@ -5,14 +5,12 @@
 extern "C" {
 #endif
 
-#include <cairo.h>
-#include <cairoint.h>
 #include <framework/luahelper.h>
 
 #define MT_PATTERN	"__mt_pattern__"
 
 struct lpattern_t {
-	cairo_pattern_t * pattern;
+	void * pattern;
 };
 
 int luaopen_pattern(lua_State * L);

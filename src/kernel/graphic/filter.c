@@ -111,13 +111,15 @@ void filter_soft_invert(struct surface_t * s)
 	}
 }
 
-void filter_soft_threshold(struct surface_t * s, const char * type, unsigned char threshold, unsigned char value)
+void filter_soft_threshold(struct surface_t * s, const char * type, int threshold, int value)
 {
 	int width = surface_get_width(s);
 	int height = surface_get_height(s);
 	int stride = surface_get_stride(s);
 	unsigned char * p, *q = surface_get_pixels(s);
 	int x, y;
+	threshold = CLAMP(threshold, 0, 255);
+	value = CLAMP(value, 0, 255);
 
 	switch(shash(type))
 	{

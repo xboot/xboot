@@ -12,7 +12,7 @@ extern "C" {
 #define MT_IMAGE	"__mt_image__"
 
 struct limage_t {
-	cairo_surface_t * cs;
+	struct surface_t * s;
 };
 
 int luaopen_image(lua_State * L);

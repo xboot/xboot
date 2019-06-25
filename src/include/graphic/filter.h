@@ -10,7 +10,7 @@ extern "C" {
 void filter_soft_grayscale(struct surface_t * s);
 void filter_soft_sepia(struct surface_t * s);
 void filter_soft_invert(struct surface_t * s);
-void filter_soft_threshold(struct surface_t * s, const char * type, unsigned char threshold, unsigned char value);
+void filter_soft_threshold(struct surface_t * s, const char * type, int threshold, int value);
 void filter_soft_colorize(struct surface_t * s, const char * type);
 void filter_soft_gamma(struct surface_t * s, double gamma);
 void filter_soft_hue(struct surface_t * s, int angle);

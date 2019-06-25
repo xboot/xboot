@@ -53,12 +53,6 @@ static ssize_t framebuffer_read_pheight(struct kobj_t * kobj, void * buf, size_t
 	return sprintf(buf, "%u", framebuffer_get_pheight(fb));
 }
 
-static ssize_t framebuffer_read_bytes(struct kobj_t * kobj, void * buf, size_t size)
-{
-	struct framebuffer_t * fb = (struct framebuffer_t *)kobj->priv;
-	return sprintf(buf, "%u", framebuffer_get_bytes(fb));
-}
-
 static ssize_t framebuffer_read_brightness(struct kobj_t * kobj, void * buf, size_t size)
 {
 	struct framebuffer_t * fb = (struct framebuffer_t *)kobj->priv;
@@ -122,7 +116,6 @@ bool_t register_framebuffer(struct device_t ** device, struct framebuffer_t * fb
 	kobj_add_regular(dev->kobj, "height", framebuffer_read_height, NULL, fb);
 	kobj_add_regular(dev->kobj, "pwidth", framebuffer_read_pwidth, NULL, fb);
 	kobj_add_regular(dev->kobj, "pheight", framebuffer_read_pheight, NULL, fb);
-	kobj_add_regular(dev->kobj, "bytes", framebuffer_read_bytes, NULL, fb);
 	kobj_add_regular(dev->kobj, "brightness", framebuffer_read_brightness, framebuffer_write_brightness, fb);
 	kobj_add_regular(dev->kobj, "max_brightness", framebuffer_read_max_brightness, NULL, fb);
 
@@ -199,30 +192,23 @@ int framebuffer_get_pheight(struct framebuffer_t * fb)
 	return 0;
 }
 
-int framebuffer_get_bytes(struct framebuffer_t * fb)
-{
-	if(fb)
-		return fb->bytes;
-	return 0;
-}
-
-struct render_t * framebuffer_create_render(struct framebuffer_t * fb)
+struct surface_t * framebuffer_create_surface(struct framebuffer_t * fb)
 {
 	if(fb && fb->create)
 		return fb->create(fb);
 	return NULL;
 }
 
-void framebuffer_destroy_render(struct framebuffer_t * fb, struct render_t * render)
+void framebuffer_destroy_surface(struct framebuffer_t * fb, struct surface_t * s)
 {
 	if(fb && fb->destroy)
-		fb->destroy(fb, render);
+		fb->destroy(fb, s);
 }
 
-void framebuffer_present_render(struct framebuffer_t * fb, struct render_t * render, struct region_list_t * rl)
+void framebuffer_present_surface(struct framebuffer_t * fb, struct surface_t * s, struct region_list_t * rl)
 {
 	if(fb && fb->present)
-		fb->present(fb, render, rl);
+		fb->present(fb, s, rl);
 }
 
 void framebuffer_set_backlight(struct framebuffer_t * fb, int brightness)

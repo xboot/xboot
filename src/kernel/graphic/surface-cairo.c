@@ -354,6 +354,12 @@ static void surface_cairo_shape_set_dash(struct surface_t * s, const double * da
 	cairo_set_dash(cr, dashes, ndashes, offset);
 }
 
+static void surface_cairo_shape_set_matrix(struct surface_t * s, struct matrix_t * m)
+{
+	cairo_t * cr = ((struct surface_cairo_context_t *)s->pctx)->cr;
+	cairo_set_matrix(cr, (cairo_matrix_t *)m);
+}
+
 static void surface_cairo_shape_move_to(struct surface_t * s, double x, double y)
 {
 	cairo_t * cr = ((struct surface_cairo_context_t *)s->pctx)->cr;
@@ -444,6 +450,12 @@ static void surface_cairo_shape_fill_preserve(struct surface_t * s)
 {
 	cairo_t * cr = ((struct surface_cairo_context_t *)s->pctx)->cr;
 	cairo_fill_preserve(cr);
+}
+
+static void surface_cairo_shape_reset_clip(struct surface_t * s)
+{
+	cairo_t * cr = ((struct surface_cairo_context_t *)s->pctx)->cr;
+	cairo_reset_clip(cr);
 }
 
 static void surface_cairo_shape_clip(struct surface_t * s)
@@ -592,6 +604,7 @@ struct surface_operate_t surface_operate_cairo = {
 	.shape_set_line_cap			= surface_cairo_shape_set_line_cap,
 	.shape_set_line_join		= surface_cairo_shape_set_line_join,
 	.shape_set_dash				= surface_cairo_shape_set_dash,
+	.shape_set_matrix			= surface_cairo_shape_set_matrix,
 	.shape_move_to				= surface_cairo_shape_move_to,
 	.shape_rel_move_to			= surface_cairo_shape_rel_move_to,
 	.shape_line_to				= surface_cairo_shape_line_to,
@@ -606,6 +619,7 @@ struct surface_operate_t surface_operate_cairo = {
 	.shape_stroke_preserve		= surface_cairo_shape_stroke_preserve,
 	.shape_fill					= surface_cairo_shape_fill,
 	.shape_fill_preserve		= surface_cairo_shape_fill_preserve,
+	.shape_reset_clip			= surface_cairo_shape_reset_clip,
 	.shape_clip					= surface_cairo_shape_clip,
 	.shape_clip_preserve		= surface_cairo_shape_clip_preserve,
 	.shape_mask					= surface_cairo_shape_mask,

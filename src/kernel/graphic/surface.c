@@ -44,6 +44,7 @@ struct surface_t * surface_alloc(int width, int height, void * priv)
 {
 	struct surface_t * s;
 	void * pixels;
+	int stride, pixlen;
 
 	if(width < 0 || height < 0)
 		return NULL;
@@ -52,7 +53,9 @@ struct surface_t * surface_alloc(int width, int height, void * priv)
 	if(!s)
 		return NULL;
 
-	pixels = memalign(4, height * (width << 2));
+	stride = width * 4;
+	pixlen = height * stride;
+	pixels = memalign(4, pixlen);
 	if(!pixels)
 	{
 		free(s);
@@ -61,7 +64,8 @@ struct surface_t * surface_alloc(int width, int height, void * priv)
 
 	s->width = width;
 	s->height = height;
-	s->stride = width << 2;
+	s->stride = stride;
+	s->pixlen = pixlen;
 	s->pixels = pixels;
 	s->op = surface_operate_get();
 	s->pctx = s->op->create(s);
@@ -75,6 +79,43 @@ struct surface_t * surface_alloc(int width, int height, void * priv)
 	return s;
 }
 
+struct surface_t * surface_clone(struct surface_t * s)
+{
+	struct surface_t * c;
+	void * pixels;
+
+	if(!s)
+		return NULL;
+
+	c = malloc(sizeof(struct surface_t));
+	if(!c)
+		return NULL;
+
+	pixels = memalign(4, s->pixlen);
+	if(!pixels)
+	{
+		free(c);
+		return NULL;
+	}
+	memcpy(pixels, s->pixels, s->pixlen);
+
+	c->width = s->width;
+	c->height = s->height;
+	c->stride = s->stride;
+	c->pixlen = s->pixlen;
+	c->pixels = pixels;
+	c->op = s->op;
+	c->pctx = c->op->create(c);
+	c->priv = NULL;
+	if(!c->pctx)
+	{
+		free(c);
+		free(pixels);
+		return NULL;
+	}
+	return c;
+}
+
 void surface_free(struct surface_t * s)
 {
 	if(s)
@@ -84,6 +125,12 @@ void surface_free(struct surface_t * s)
 		free(s->pixels);
 		free(s);
 	}
+}
+
+void surface_clear(struct surface_t * s)
+{
+	if(s)
+		memset(s->pixels, 0xff, s->pixlen);
 }
 
 static void png_xfs_read_data(png_structp png, png_bytep data, size_t length)

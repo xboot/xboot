@@ -34,6 +34,7 @@
  */
 
 
+#if 0
 #include "cairoint.h"
 #include "cairo-xboot.h"
 
@@ -125,3 +126,5 @@ void cairo_xboot_surface_present(cairo_surface_t * surface, struct region_list_t
 	if(cxs)
 		cxs->fb->present(cxs->fb, cxs->render, rl);
 }
+
+#endif

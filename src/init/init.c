@@ -27,47 +27,44 @@
  */
 
 #include <xboot.h>
-#include <cairo-xboot.h>
 #include <framebuffer/framebuffer.h>
+#include <graphic/surface.h>
 #include <init.h>
 
 void do_showlogo(void)
 {
 	struct device_t * pos, * n;
-	cairo_surface_t * logo;
-	cairo_surface_t * cs;
-	cairo_t * cr;
+	struct xfs_context_t * ctx;
+	struct surface_t * s, * logo;
 	struct framebuffer_t * fb;
-	int x, y;
+	struct matrix_t m;
 
 	if(!list_empty_careful(&__device_head[DEVICE_TYPE_FRAMEBUFFER]))
 	{
-		logo = cairo_image_surface_create_from_png("/framework/assets/images/logo.png");
-		list_for_each_entry_safe(pos, n, &__device_head[DEVICE_TYPE_FRAMEBUFFER], head)
+		ctx = xfs_alloc("/framework", 0);
+		if(ctx)
 		{
-			if((fb = (struct framebuffer_t *)(pos->priv)))
+			logo = surface_alloc_from_xfs(ctx, "assets/images/logo.png");
+			if(logo)
 			{
-				cs = cairo_xboot_surface_create(fb);
-				cr = cairo_create(cs);
-
-				cairo_save(cr);
-				cairo_set_source_rgb(cr, 0.2, 0.6, 0.8);
-				cairo_paint(cr);
-				cairo_restore(cr);
-
-				x = (cairo_image_surface_get_width(cs) - cairo_image_surface_get_width(logo)) / 2;
-				y = (cairo_image_surface_get_height(cs) - cairo_image_surface_get_height(logo)) / 2;
-				cairo_set_source_surface(cr, logo, x, y);
-				cairo_paint(cr);
-
-				cairo_destroy(cr);
-				cairo_xboot_surface_present(cs, NULL);
-				cairo_surface_destroy(cs);
-
-				framebuffer_set_backlight(fb, CONFIG_MAX_BRIGHTNESS * 618 / 1000);
+				list_for_each_entry_safe(pos, n, &__device_head[DEVICE_TYPE_FRAMEBUFFER], head)
+				{
+					if((fb = (struct framebuffer_t *)(pos->priv)))
+					{
+						s = framebuffer_create_surface(fb);
+						matrix_init_identity(&m);
+						surface_fill(s, &m, 0, 0, surface_get_width(s), surface_get_height(s), 0.2, 0.6, 0.8, 1.0);
+						matrix_init_translate(&m, (surface_get_width(s) - surface_get_width(logo)) / 2, (surface_get_height(s) - surface_get_height(logo)) / 2);
+						surface_blit(s, &m, logo, 1.0);
+						framebuffer_present_surface(fb, s, NULL);
+						framebuffer_destroy_surface(fb, s);
+						framebuffer_set_backlight(fb, CONFIG_MAX_BRIGHTNESS * 618 / 1000);
+					}
+				}
+				surface_free(logo);
 			}
 		}
-		cairo_surface_destroy(logo);
+		xfs_free(ctx);
 	}
 }
 

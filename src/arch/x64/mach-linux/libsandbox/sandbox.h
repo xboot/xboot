@@ -58,8 +58,8 @@ void sandbox_event_set_joystick_callback(void * context, void * device,
 struct sandbox_fb_surface_t {
 	int width;
 	int height;
-	int pitch;
-	int bytes;
+	int stride;
+	int pixlen;
 	void * pixels;
 	void * priv;
 };
@@ -83,7 +83,6 @@ int sandbox_fb_get_width(void * context);
 int sandbox_fb_get_height(void * context);
 int sandbox_fb_get_pwidth(void * context);
 int sandbox_fb_get_pheight(void * context);
-int sandbox_fb_get_bytes(void * context);
 int sandbox_fb_surface_create(void * context, struct sandbox_fb_surface_t * surface);
 int sandbox_fb_surface_destroy(void * context, struct sandbox_fb_surface_t * surface);
 int sandbox_fb_surface_present(void * context, struct sandbox_fb_surface_t * surface, struct sandbox_fb_region_list_t * rl);

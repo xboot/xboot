@@ -777,17 +777,12 @@ static void dobject_layout(struct ldobject_t * o)
 static void dobject_draw_image(struct ldobject_t * o, struct window_t * w)
 {
 	struct limage_t * img = o->priv;
-	cairo_t * cr = w->cr;
-	cairo_save(cr);
-	cairo_set_matrix(cr, (cairo_matrix_t *)dobject_global_matrix(o));
-	cairo_set_source_surface(cr, img->cs, 0, 0);
-	cairo_paint_with_alpha(cr, o->alpha);
-	cairo_restore(cr);
+	surface_blit(w->s, dobject_global_matrix(o), img->s, o->alpha);
 }
 
 static void dobject_draw_ninepatch(struct ldobject_t * o, struct window_t * w)
 {
-	struct lninepatch_t * ninepatch = o->priv;
+/*	struct lninepatch_t * ninepatch = o->priv;
 	cairo_t * cr = w->cr;
 	cairo_save(cr);
 	cairo_set_matrix(cr, (cairo_matrix_t *)dobject_global_matrix(o));
@@ -877,23 +872,23 @@ static void dobject_draw_ninepatch(struct ldobject_t * o, struct window_t * w)
 		cairo_paint_with_alpha(cr, o->alpha);
 		cairo_restore(cr);
 	}
-	cairo_restore(cr);
+	cairo_restore(cr);*/
 }
 
 static void dobject_draw_shape(struct ldobject_t * o, struct window_t * w)
 {
-	struct lshape_t * shape = o->priv;
+/*	struct lshape_t * shape = o->priv;
 	cairo_t * cr = w->cr;
 	cairo_save(cr);
 	cairo_set_matrix(cr, (cairo_matrix_t *)dobject_global_matrix(o));
 	cairo_set_source_surface(cr, shape->cs, 0, 0);
 	cairo_paint_with_alpha(cr, o->alpha);
-	cairo_restore(cr);
+	cairo_restore(cr);*/
 }
 
 static void dobject_draw_text(struct ldobject_t * o, struct window_t * w)
 {
-	struct ltext_t * text = o->priv;
+/*	struct ltext_t * text = o->priv;
 	struct matrix_t * m = dobject_global_matrix(o);
 	cairo_t * cr = w->cr;
 	cairo_save(cr);
@@ -904,12 +899,12 @@ static void dobject_draw_text(struct ldobject_t * o, struct window_t * w)
 	cairo_text_path(cr, text->utf8);
 	cairo_set_source(cr, text->pattern);
 	cairo_fill(cr);
-	cairo_restore(cr);
+	cairo_restore(cr);*/
 }
 
 static void dobject_draw_container(struct ldobject_t * o, struct window_t * w)
 {
-	if(o->background.alpha != 0.0)
+/*	if(o->background.alpha != 0.0)
 	{
 		cairo_t * cr = w->cr;
 		cairo_save(cr);
@@ -918,7 +913,7 @@ static void dobject_draw_container(struct ldobject_t * o, struct window_t * w)
 		cairo_set_source_rgba(cr, o->background.red, o->background.green, o->background.blue, o->background.alpha);
 		cairo_fill(cr);
 		cairo_restore(cr);
-	}
+	}*/
 }
 
 static int l_dobject_new(lua_State * L)
@@ -2166,23 +2161,23 @@ static void display_draw(struct window_t * w, struct ldobject_t * o)
 	if(o->visible)
 	{
 		struct ldobject_t * parent = o->parent;
-		cairo_t * cr = w->cr;
-		cairo_save(cr);
+		struct surface_t * s = w->s;
+		surface_shape_save(s);
 		if(parent && (parent->dtype == DOBJECT_TYPE_CONTAINER))
 		{
-			cairo_set_matrix(cr, (cairo_matrix_t *)dobject_global_matrix(parent));
-			cairo_rectangle(cr, 0, 0, parent->width, parent->height);
-			cairo_clip(cr);
+			surface_shape_set_matrix(s, dobject_global_matrix(parent));
+			surface_shape_rectangle(s, 0, 0, parent->width, parent->height);
+			surface_shape_clip(s);
 		}
 		o->draw(o, w);
 		if(w->showobj)
-		{
-			cairo_save(cr);
-			cairo_set_matrix(cr, (cairo_matrix_t *)dobject_global_matrix(o));
-			cairo_set_line_width(cr, 1);
-			cairo_rectangle(cr, 1, 1, o->width - 2, o->height - 2);
-			cairo_set_source_rgba(cr, 1, 0, 0, 0.6);
-			cairo_stroke(cr);
+		{/*
+			surface_shape_save(s);
+			surface_shape_set_matrix(s, dobject_global_matrix(o));
+			surface_shape_set_line_width(s, 1);
+			surface_shape_rectangle(s, 1, 1, o->width - 2, o->height - 2);
+			surface_shape_set_source_rgba(s, 1, 0, 0, 0.6);
+			surface_shape_stroke(s);
 			if((o->ctype != COLLIDER_TYPE_NONE) && o->touchable)
 			{
 				struct matrix_t m;
@@ -2195,30 +2190,30 @@ static void display_draw(struct window_t * w, struct ldobject_t * o)
 				switch(o->ctype)
 				{
 				case COLLIDER_TYPE_CIRCLE:
-					cairo_new_sub_path(cr);
-					cairo_move_to(cr, o->hit.circle.x + o->hit.circle.radius, o->hit.circle.y);
-					cairo_arc(cr, o->hit.circle.x, o->hit.circle.y, o->hit.circle.radius, 0, M_PI * 2);
-					cairo_close_path(cr);
+					surface_shape_new_sub_path(s);
+					surface_shape_move_to(s, o->hit.circle.x + o->hit.circle.radius, o->hit.circle.y);
+					surface_shape_arc(s, o->hit.circle.x, o->hit.circle.y, o->hit.circle.radius, 0, M_PI * 2);
+					surface_shape_close_path(s);
 					break;
 				case COLLIDER_TYPE_ELLIPSE:
 					x = o->hit.ellipse.x;
 					y = o->hit.ellipse.y;
 					w = o->hit.ellipse.width;
 					h = o->hit.ellipse.height;
-					cairo_get_matrix(cr, (cairo_matrix_t *)(&m));
-					cairo_translate(cr, x, y);
-					cairo_scale(cr, 1, h / w);
-					cairo_translate(cr, -x, -y);
-					cairo_new_sub_path(cr);
-					cairo_move_to(cr, x + w, y);
-					cairo_arc(cr, x, y, w, 0, M_PI * 2);
-					cairo_close_path(cr);
-					cairo_set_matrix(cr, (cairo_matrix_t *)(&m));
+					surface_shape_get_matrix(s, &m);
+					surface_shape_translate(s, x, y);
+					surface_shape_scale(s, 1, h / w);
+					surface_shape_translate(s, -x, -y);
+					surface_shape_new_sub_path(s);
+					surface_shape_move_to(s, x + w, y);
+					surface_shape_arc(s, x, y, w, 0, M_PI * 2);
+					surface_shape_close_path(s);
+					surface_shape_set_matrix(s, &m);
 					break;
 				case COLLIDER_TYPE_RECTANGLE:
-					cairo_new_sub_path(cr);
-					cairo_rectangle(cr, o->hit.rectangle.x, o->hit.rectangle.y, o->hit.rectangle.width, o->hit.rectangle.height);
-					cairo_close_path(cr);
+					surface_shape_new_sub_path(s);
+					surface_shape_rectangle(s, o->hit.rectangle.x, o->hit.rectangle.y, o->hit.rectangle.width, o->hit.rectangle.height);
+					surface_shape_close_path(s);
 					break;
 				case COLLIDER_TYPE_ROUNDED_RECTANGLE:
 					x = o->hit.rounded_rectangle.x;
@@ -2226,42 +2221,42 @@ static void display_draw(struct window_t * w, struct ldobject_t * o)
 					w = o->hit.rounded_rectangle.width;
 					h = o->hit.rounded_rectangle.height;
 					r = o->hit.rounded_rectangle.radius;
-					cairo_new_sub_path(cr);
-					cairo_move_to(cr, x + r, y);
-					cairo_line_to(cr, x + w - r, y);
-					cairo_arc(cr, x + w - r, y + r, r, - M_PI / 2, 0);
-					cairo_line_to(cr, x + w, y + h - r);
-					cairo_arc(cr, x + w - r, y + h - r, r, 0, M_PI / 2);
-					cairo_line_to(cr, x + r, y + h);
-					cairo_arc(cr, x + r, y + h - r, r, M_PI / 2, M_PI);
-					cairo_arc(cr, x + r, y + r, r, M_PI, M_PI + M_PI / 2);
-					cairo_close_path(cr);
+					surface_shape_new_sub_path(s);
+					surface_shape_move_to(s, x + r, y);
+					surface_shape_line_to(s, x + w - r, y);
+					surface_shape_arc(s, x + w - r, y + r, r, - M_PI / 2, 0);
+					surface_shape_line_to(s, x + w, y + h - r);
+					surface_shape_arc(s, x + w - r, y + h - r, r, 0, M_PI / 2);
+					surface_shape_line_to(s, x + r, y + h);
+					surface_shape_arc(s, x + r, y + h - r, r, M_PI / 2, M_PI);
+					surface_shape_arc(s, x + r, y + r, r, M_PI, M_PI + M_PI / 2);
+					surface_shape_close_path(s);
 					break;
 				case COLLIDER_TYPE_POLYGON:
 					p = o->hit.polygon.points;
 					n = o->hit.polygon.length / 2;
 					if(n > 0)
 					{
-						cairo_new_sub_path(cr);
-						cairo_move_to(cr, p[0], p[1]);
+						surface_shape_new_sub_path(s);
+						surface_shape_move_to(s, p[0], p[1]);
 						for(i = 1; i < n; i++)
-							cairo_line_to(cr, p[i << 1], p[(i << 1) + 1]);
-						cairo_close_path(cr);
+							surface_shape_line_to(s, p[i << 1], p[(i << 1) + 1]);
+						surface_shape_close_path(s);
 					}
 					break;
 				default:
 					break;
 				}
-				cairo_set_source_rgba(cr, 1, 1, 0, 0.6);
-				cairo_fill(cr);
+				surface_shape_set_source_rgba(s, 1, 1, 0, 0.6);
+				surface_shape_fill(s);
 			}
-			cairo_restore(cr);
-		}
+			surface_shape_restore(s);
+		*/}
 		list_for_each_entry(pos, &o->children, entry)
 		{
 			display_draw(w, pos);
 		}
-		cairo_restore(cr);
+		surface_shape_restore(s);
 	}
 }
 

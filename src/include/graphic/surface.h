@@ -22,6 +22,7 @@ struct surface_t
 	int width;
 	int height;
 	int stride;
+	int pixlen;
 	void * pixels;
 	struct surface_operate_t * op;
 	void * pctx;
@@ -40,7 +41,7 @@ struct surface_operate_t
 	void (*filter_grayscale)(struct surface_t * s);
 	void (*filter_sepia)(struct surface_t * s);
 	void (*filter_invert)(struct surface_t * s);
-	void (*filter_threshold)(struct surface_t * s, const char * type, unsigned char threshold, unsigned char value);
+	void (*filter_threshold)(struct surface_t * s, const char * type, int threshold, int value);
 	void (*filter_colorize)(struct surface_t * s, const char * type);
 	void (*filter_gamma)(struct surface_t * s, double gamma);
 	void (*filter_hue)(struct surface_t * s, int angle);
@@ -68,6 +69,7 @@ struct surface_operate_t
 	void (*shape_set_line_cap)(struct surface_t * s, const char * type);
 	void (*shape_set_line_join)(struct surface_t * s, const char * type);
 	void (*shape_set_dash)(struct surface_t * s, const double * dashes, int ndashes, double offset);
+	void (*shape_set_matrix)(struct surface_t * s, struct matrix_t * m);
 	void (*shape_move_to)(struct surface_t * s, double x, double y);
 	void (*shape_rel_move_to)(struct surface_t * s, double dx, double dy);
 	void (*shape_line_to)(struct surface_t * s, double x, double y);
@@ -82,6 +84,7 @@ struct surface_operate_t
 	void (*shape_stroke_preserve)(struct surface_t * s);
 	void (*shape_fill)(struct surface_t * s);
 	void (*shape_fill_preserve)(struct surface_t * s);
+	void (*shape_reset_clip)(struct surface_t * s);
 	void (*shape_clip)(struct surface_t * s);
 	void (*shape_clip_preserve)(struct surface_t * s);
 	void (*shape_mask)(struct surface_t * s, void * pattern);
@@ -150,7 +153,7 @@ static inline void surface_filter_invert(struct surface_t * s)
 	s->op->filter_invert(s);
 }
 
-static inline void surface_filter_threshold(struct surface_t * s, const char * type, unsigned char threshold, unsigned char value)
+static inline void surface_filter_threshold(struct surface_t * s, const char * type, int threshold, int value)
 {
 	s->op->filter_threshold(s, type, threshold, value);
 }
@@ -285,6 +288,11 @@ static inline void surface_shape_set_dash(struct surface_t * s, const double * d
 	s->op->shape_set_dash(s, dashes, ndashes, offset);
 }
 
+static inline void surface_shape_set_matrix(struct surface_t * s, struct matrix_t * m)
+{
+	s->op->shape_set_matrix(s, m);
+}
+
 static inline void surface_shape_move_to(struct surface_t * s, double x, double y)
 {
 	s->op->shape_move_to(s, x, y);
@@ -355,6 +363,11 @@ static inline void surface_shape_fill_preserve(struct surface_t * s)
 	s->op->shape_fill_preserve(s);
 }
 
+static inline void surface_shape_reset_clip(struct surface_t * s)
+{
+	s->op->shape_reset_clip(s);
+}
+
 static inline void surface_shape_clip(struct surface_t * s)
 {
 	s->op->shape_clip(s);
@@ -422,7 +435,9 @@ static inline void surface_pattern_set_matrix(void * pattern, struct matrix_t * 
 
 struct surface_t * surface_alloc(int width, int height, void * priv);
 struct surface_t * surface_alloc_from_xfs(struct xfs_context_t * ctx, const char * filename);
+struct surface_t * surface_clone(struct surface_t * s);
 void surface_free(struct surface_t * s);
+void surface_clear(struct surface_t * s);
 
 #ifdef __cplusplus
 }

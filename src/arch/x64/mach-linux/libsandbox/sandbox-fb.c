@@ -114,21 +114,13 @@ int sandbox_fb_get_pheight(void * context)
 	return 0;
 }
 
-int sandbox_fb_get_bytes(void * context)
-{
-	struct sandbox_fb_context_t * ctx = (struct sandbox_fb_context_t *)context;
-	if(ctx)
-		return ctx->vi.bits_per_pixel >> 3;
-	return 0;
-}
-
 int sandbox_fb_surface_create(void * context, struct sandbox_fb_surface_t * surface)
 {
 	struct sandbox_fb_context_t * ctx = (struct sandbox_fb_context_t *)context;
 	surface->width = ctx->vi.xres;
 	surface->height = ctx->vi.yres;
-	surface->pitch = ctx->fi.line_length;
-	surface->bytes = ctx->vi.bits_per_pixel >> 3;
+	surface->stride = ctx->fi.line_length;
+	surface->pixlen = ctx->vramsz;
 	surface->pixels = memalign(4, ctx->vramsz);
 	return 1;
 }

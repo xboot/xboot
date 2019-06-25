@@ -112,10 +112,6 @@ function M:getDotsPerInch()
 	return w * 25.4 / pw, h * 25.4 / ph
 end
 
-function M:getBytesPerPixel()
-	return self._window:getBytesPerPixel()
-end
-
 function M:setBacklight(brightness)
 	return self._window:setBacklight(brightness)
 end

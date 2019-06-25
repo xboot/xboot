@@ -40,46 +40,17 @@ static int fb_dummy_getbl(struct framebuffer_t * fb)
 	return CONFIG_MAX_BRIGHTNESS;
 }
 
-static struct render_t * fb_dummy_create(struct framebuffer_t * fb)
+static struct surface_t * fb_dummy_create(struct framebuffer_t * fb)
 {
-	struct render_t * render;
-	void * pixels;
-	size_t pixlen;
-
-	pixlen = fb->width * fb->height * fb->bytes;
-	pixels = memalign(4, pixlen);
-	if(!pixels)
-		return NULL;
-
-	render = malloc(sizeof(struct render_t));
-	if(!render)
-	{
-		free(pixels);
-		return NULL;
-	}
-
-	render->width = fb->width;
-	render->height = fb->height;
-	render->pitch = (fb->width * fb->bytes + 0x3) & ~0x3;
-	render->bytes = fb->bytes;
-	render->format = PIXEL_FORMAT_ARGB32;
-	render->pixels = pixels;
-	render->pixlen = pixlen;
-	render->priv = NULL;
-
-	return render;
+	return surface_alloc(fb->width, fb->height, NULL);
 }
 
-static void fb_dummy_destroy(struct framebuffer_t * fb, struct render_t * render)
+static void fb_dummy_destroy(struct framebuffer_t * fb, struct surface_t * s)
 {
-	if(render)
-	{
-		free(render->pixels);
-		free(render);
-	}
+	surface_free(s);
 }
 
-static void fb_dummy_present(struct framebuffer_t * fb, struct render_t * render, struct region_list_t * rl)
+static void fb_dummy_present(struct framebuffer_t * fb, struct surface_t * s, struct region_list_t * rl)
 {
 }
 
@@ -89,7 +60,6 @@ static struct framebuffer_t fb_dummy = {
 	.height		= 480,
 	.pwidth		= 216,
 	.pheight	= 135,
-	.bytes		= 4,
 	.setbl		= fb_dummy_setbl,
 	.getbl		= fb_dummy_getbl,
 	.create		= fb_dummy_create,
@@ -144,7 +114,7 @@ static struct window_manager_t * window_manager_alloc(const char * fb)
 	wm->fifo = fifo_alloc(sizeof(struct event_t) * CONFIG_EVENT_FIFO_SIZE);
 	wm->wcount = 0;
 	wm->refresh = 0;
-	wm->cursor.cs = cairo_image_surface_create_from_png("/framework/assets/images/cursor.png");
+/*	wm->cursor.cs = cairo_image_surface_create_from_png("/framework/assets/images/cursor.png");
 	wm->cursor.width = cairo_image_surface_get_width(wm->cursor.cs);
 	wm->cursor.height = cairo_image_surface_get_height(wm->cursor.cs);
 	wm->cursor.ox = 0;
@@ -152,7 +122,7 @@ static struct window_manager_t * window_manager_alloc(const char * fb)
 	wm->cursor.nx = 0;
 	wm->cursor.ny = 0;
 	wm->cursor.dirty = 0;
-	wm->cursor.show = 0;
+	wm->cursor.show = 0;*/
 	spin_lock_init(&wm->lock);
 	init_list_head(&wm->list);
 	init_list_head(&wm->window);
@@ -202,9 +172,8 @@ struct window_t * window_alloc(const char * fb, const char * input, void * data)
 		return NULL;
 
 	w->wm = wm;
+	w->s = framebuffer_create_surface(w->wm->fb);
 	w->rl = region_list_alloc(0);
-	w->cs = cairo_xboot_surface_create(w->wm->fb);
-	w->cr = cairo_create(w->cs);
 	w->width = framebuffer_get_width(w->wm->fb);
 	w->height = framebuffer_get_height(w->wm->fb);
 	w->ashome = 0;
@@ -263,8 +232,7 @@ void window_free(struct window_t * w)
 	if(w->wm->wcount <= 0)
 		window_manager_free(w->wm);
 	hmap_free(w->map);
-	cairo_destroy(w->cr);
-	cairo_surface_destroy(w->cs);
+	surface_free(w->s);
 	region_list_free(w->rl);
 	free(w);
 }
@@ -312,7 +280,7 @@ void window_region_list_clear(struct window_t * w)
 void window_present(struct window_t * w, void * o, void (*draw)(struct window_t *, void *))
 {
 	struct region_t rn, ro, * r;
-	cairo_t * cr = w->cr;
+	struct surface_t * s = w->s;
 	int count;
 	int i;
 
@@ -322,39 +290,40 @@ void window_present(struct window_t * w, void * o, void (*draw)(struct window_t 
 		window_region_list_add(w, &rn);
 		w->wm->refresh = 0;
 	}
-	if(w->wm->cursor.show && w->wm->cursor.dirty)
+/*	if(w->wm->cursor.show && w->wm->cursor.dirty)
 	{
 		region_init(&rn, w->wm->cursor.nx, w->wm->cursor.ny, w->wm->cursor.width, w->wm->cursor.height);
 		region_init(&ro, w->wm->cursor.ox, w->wm->cursor.oy, w->wm->cursor.width, w->wm->cursor.height);
 		window_region_list_add(w, &rn);
 		window_region_list_add(w, &ro);
 		w->wm->cursor.dirty = 0;
-	}
+	}*/
 	if((count = w->rl->count) > 0)
 	{
-		cairo_reset_clip(cr);
+		surface_shape_reset_clip(s);
 		for(i = 0; i < count; i++)
 		{
 			r = &w->rl->region[i];
-			cairo_rectangle(cr, r->x, r->y, r->w, r->h);
+			surface_shape_rectangle(s, r->x, r->y, r->w, r->h);
 		}
-		cairo_clip(cr);
-		cairo_save(cr);
-		cairo_set_source_rgb(cr, 1, 1, 1);
-		cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
-		cairo_paint(cr);
-		cairo_restore(cr);
+		surface_shape_clip(s);
+		surface_shape_save(s);
+		surface_shape_set_source_color(s, 1, 1, 1, 1);
+		surface_shape_set_operator(s, "over");
+		surface_shape_paint(s, 1);
+		surface_shape_restore(s);
 		if(draw)
 			draw(w, o);
 	}
+	/*
 	if(w->wm->cursor.show)
 	{
 		cairo_save(cr);
 		cairo_set_source_surface(cr, w->wm->cursor.cs, w->wm->cursor.nx, w->wm->cursor.ny);
 		cairo_paint(cr);
 		cairo_restore(cr);
-	}
-	cairo_xboot_surface_present(w->cs, w->rl);
+	}*/
+	framebuffer_present_surface(w->wm->fb, w->s, w->rl);
 }
 
 int window_pump_event(struct window_t * w, struct event_t * e)
@@ -398,7 +367,7 @@ void push_event(struct event_t * e)
 				break;
 			case EVENT_TYPE_KEY_UP:
 				break;
-			case EVENT_TYPE_MOUSE_DOWN:
+/*			case EVENT_TYPE_MOUSE_DOWN:
 				if(!pos->cursor.dirty)
 				{
 					pos->cursor.ox = pos->cursor.nx;
@@ -442,7 +411,7 @@ void push_event(struct event_t * e)
 				break;
 			case EVENT_TYPE_TOUCH_END:
 				pos->cursor.show = 0;
-				break;
+				break;*/
 			default:
 				break;
 			}

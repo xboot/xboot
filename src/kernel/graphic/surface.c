@@ -61,6 +61,7 @@ struct surface_t * surface_alloc(int width, int height, void * priv)
 		free(s);
 		return NULL;
 	}
+	memset(pixels, 0, pixlen);
 
 	s->width = width;
 	s->height = height;
@@ -130,7 +131,7 @@ void surface_free(struct surface_t * s)
 void surface_clear(struct surface_t * s)
 {
 	if(s)
-		memset(s->pixels, 0xff, s->pixlen);
+		memset(s->pixels, 0, s->pixlen);
 }
 
 static void png_xfs_read_data(png_structp png, png_bytep data, size_t length)

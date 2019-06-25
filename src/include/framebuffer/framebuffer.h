@@ -60,18 +60,46 @@ static inline void present_surface(void * vram, struct surface_t * s, struct reg
 	}
 }
 
+static inline int framebuffer_get_width(struct framebuffer_t * fb)
+{
+	return fb->width;
+}
+
+static inline int framebuffer_get_height(struct framebuffer_t * fb)
+{
+	return fb->height;
+}
+
+static inline int framebuffer_get_pwidth(struct framebuffer_t * fb)
+{
+	return fb->pwidth;
+}
+
+static inline int framebuffer_get_pheight(struct framebuffer_t * fb)
+{
+	return fb->pheight;
+}
+
+static inline struct surface_t * framebuffer_create_surface(struct framebuffer_t * fb)
+{
+	return fb->create(fb);
+}
+
+static inline void framebuffer_destroy_surface(struct framebuffer_t * fb, struct surface_t * s)
+{
+	fb->destroy(fb, s);
+}
+
+static inline void framebuffer_present_surface(struct framebuffer_t * fb, struct surface_t * s, struct region_list_t * rl)
+{
+	fb->present(fb, s, rl);
+}
+
 struct framebuffer_t * search_framebuffer(const char * name);
 struct framebuffer_t * search_first_framebuffer(void);
 bool_t register_framebuffer(struct device_t ** device, struct framebuffer_t * fb);
 bool_t unregister_framebuffer(struct framebuffer_t * fb);
 
-int framebuffer_get_width(struct framebuffer_t * fb);
-int framebuffer_get_height(struct framebuffer_t * fb);
-int framebuffer_get_pwidth(struct framebuffer_t * fb);
-int framebuffer_get_pheight(struct framebuffer_t * fb);
-struct surface_t * framebuffer_create_surface(struct framebuffer_t * fb);
-void framebuffer_destroy_surface(struct framebuffer_t * fb, struct surface_t * s);
-void framebuffer_present_surface(struct framebuffer_t * fb, struct surface_t * s, struct region_list_t * rl);
 void framebuffer_set_backlight(struct framebuffer_t * fb, int brightness);
 int framebuffer_get_backlight(struct framebuffer_t * fb);
 

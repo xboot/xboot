@@ -164,53 +164,6 @@ bool_t unregister_framebuffer(struct framebuffer_t * fb)
 	return TRUE;
 }
 
-int framebuffer_get_width(struct framebuffer_t * fb)
-{
-	if(fb)
-		return fb->width;
-	return 0;
-}
-
-int framebuffer_get_height(struct framebuffer_t * fb)
-{
-	if(fb)
-		return fb->height;
-	return 0;
-}
-
-int framebuffer_get_pwidth(struct framebuffer_t * fb)
-{
-	if(fb)
-		return fb->pwidth;
-	return 0;
-}
-
-int framebuffer_get_pheight(struct framebuffer_t * fb)
-{
-	if(fb)
-		return fb->pheight;
-	return 0;
-}
-
-struct surface_t * framebuffer_create_surface(struct framebuffer_t * fb)
-{
-	if(fb && fb->create)
-		return fb->create(fb);
-	return NULL;
-}
-
-void framebuffer_destroy_surface(struct framebuffer_t * fb, struct surface_t * s)
-{
-	if(fb && fb->destroy)
-		fb->destroy(fb, s);
-}
-
-void framebuffer_present_surface(struct framebuffer_t * fb, struct surface_t * s, struct region_list_t * rl)
-{
-	if(fb && fb->present)
-		fb->present(fb, s, rl);
-}
-
 void framebuffer_set_backlight(struct framebuffer_t * fb, int brightness)
 {
 	if(fb && fb->setbl)

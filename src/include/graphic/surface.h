@@ -420,8 +420,8 @@ static inline void surface_pattern_set_matrix(void * pattern, struct matrix_t * 
 }
 
 struct surface_t * surface_alloc(int width, int height);
+struct surface_t * surface_alloc_from_xfs(struct xfs_context_t * ctx, const char * filename);
 void surface_free(struct surface_t * s);
-struct surface_t * surface_alloc_from_xfs_jpeg(struct xfs_context_t * ctx, const char * filename);
 
 #ifdef __cplusplus
 }

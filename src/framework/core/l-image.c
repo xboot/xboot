@@ -327,7 +327,7 @@ static int m_image_set_source(lua_State * L)
 {
 	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
 	struct lpattern_t * pattern = luaL_checkudata(L, 2, MT_PATTERN);
-	surface_shape_set_source(img->s, pattern);
+	surface_shape_set_source(img->s, pattern->pattern);
 	lua_settop(L, 1);
 	return 1;
 }
@@ -694,7 +694,7 @@ static int m_image_mask(lua_State * L)
 {
 	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
 	struct lpattern_t * pattern = luaL_checkudata(L, 2, MT_PATTERN);
-	surface_shape_mask(img->s, pattern);
+	surface_shape_mask(img->s, pattern->pattern);
 	lua_settop(L, 1);
 	return 1;
 }

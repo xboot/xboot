@@ -6,7 +6,7 @@ local dashes = {
 };
 local offset = -50.0;
 
-local s = DisplayShape.new(stage:getSize())
+local s = Image.new(stage:getSize())
 	:setDash(dashes, offset)
 	:setLineWidth(10)
 	:moveTo(128.0, 25.6)
@@ -15,4 +15,4 @@ local s = DisplayShape.new(stage:getSize())
 	:curveTo(51.2, 230.4, 51.2, 128.0, 128.0, 128.0)
 	:stroke()
 
-stage:addChild(s)
+stage:addChild(DisplayImage.new(s))

@@ -1,7 +1,7 @@
 local Shape = Shape
 local M_PI = math.pi
 
-local s = DisplayShape.new(stage:getSize())
+local s = Image.new(stage:getSize())
 	:setLineWidth(6)
 	:rectangle(12, 12, 232, 70)
 	:newSubPath()
@@ -13,7 +13,8 @@ local s = DisplayShape.new(stage:getSize())
 	:fillPreserve()
 	:setSourceColor(0, 0, 0)
 	:stroke()
-	:setPosition(0, 128)
+
+local l = Image.new(stage:getSize())
 	:rectangle(12, 12, 232, 70)
 	:newSubPath()
 	:arc(64, 64, 40, 0, 2*M_PI)
@@ -25,3 +26,5 @@ local s = DisplayShape.new(stage:getSize())
 	:setSourceColor(0, 0, 0)
 	:stroke()
 
+stage:addChild(DisplayImage.new(s))
+stage:addChild(DisplayImage.new(l):setPosition(0, 128))

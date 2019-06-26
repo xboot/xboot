@@ -2,7 +2,7 @@ local Shape = Shape
 local M_PI = math.pi
 local sqrt = math.sqrt
 
-local s = DisplayShape.new(stage:getSize())
+local s = Image.new(stage:getSize())
 	:setLineWidth(40.96)
 	:moveTo(76.8, 84.48)
 	:relLineTo(51.2, -51.2)
@@ -20,4 +20,4 @@ local s = DisplayShape.new(stage:getSize())
 	:setLineJoin("round")
 	:stroke()
 
-stage:addChild(s)
+stage:addChild(DisplayImage.new(s))

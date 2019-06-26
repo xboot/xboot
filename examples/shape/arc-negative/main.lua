@@ -5,7 +5,7 @@ local radius = 100.0;
 local angle1 = 45.0  * (M_PI / 180.0);
 local angle2 = 180.0 * (M_PI / 180.0);
 
-local s = DisplayShape.new(stage:getSize())
+local s = Image.new(stage:getSize())
 	:setLineWidth(10)
 	:arcNegative(xc, yc, radius, angle1, angle2)
 	:stroke()
@@ -19,4 +19,4 @@ local s = DisplayShape.new(stage:getSize())
     :lineTo(xc, yc)
     :stroke()
 
-stage:addChild(s)
+stage:addChild(DisplayImage.new(s))

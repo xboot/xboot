@@ -1,7 +1,7 @@
 local Shape = Shape
 local M_PI = math.pi
 
-local s = DisplayShape.new(stage:getSize())
+local s = Image.new(stage:getSize())
 	:moveTo(128.0, 25.6)
 	:lineTo(230.4, 230.4)
 	:relLineTo(-102.4, 0.0)
@@ -18,4 +18,4 @@ local s = DisplayShape.new(stage:getSize())
 	:setSourceColor(0, 0, 0)
 	:stroke()
 
-stage:addChild(s)
+stage:addChild(DisplayImage.new(s))

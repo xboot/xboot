@@ -1,6 +1,6 @@
 local M_PI = math.pi
 
-local s = DisplayShape.new(stage:getSize())
+local s = Image.new(stage:getSize())
     :arc(128.0, 128.0, 76.8, 0, 2 * M_PI)
     :clip()
     :newPath()
@@ -14,4 +14,4 @@ local s = DisplayShape.new(stage:getSize())
     :setLineWidth(10.0)
     :stroke()
 
-stage:addChild(s)
+stage:addChild(DisplayImage.new(s))

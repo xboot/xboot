@@ -7,7 +7,7 @@ local radius = 102.4
 local x1 = x0 + rect_width
 local y1 = y0 + rect_height
 
-local s = DisplayShape.new(stage:getSize())
+local s = Image.new(stage:getSize())
 	:moveTo(x0, (y0 + y1) / 2)
 	:curveTo(x0, y0, x0, y0, (x0 + x1) / 2, y0)
 	:curveTo(x1, y0, x1, y0, x1, (y0 + y1) / 2)
@@ -20,4 +20,4 @@ local s = DisplayShape.new(stage:getSize())
 	:setLineWidth(10.0)
 	:stroke()
 
-stage:addChild(s)
+stage:addChild(DisplayImage.new(s))

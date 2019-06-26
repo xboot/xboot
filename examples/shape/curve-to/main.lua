@@ -8,7 +8,7 @@ local y2 = 25.6
 local x3 = 230.4
 local y3 = 128.0
 
-local s = DisplayShape.new(stage:getSize())
+local s = Image.new(stage:getSize())
 	:moveTo(x, y)
 	:curveTo(x1, y1, x2, y2, x3, y3)
 	:setLineWidth(10.0)
@@ -21,4 +21,4 @@ local s = DisplayShape.new(stage:getSize())
 	:lineTo(x3,y3)
 	:stroke()
 
-stage:addChild(s)
+stage:addChild(DisplayImage.new(s))

@@ -2,7 +2,7 @@ local Shape = Shape
 local M_PI = math.pi
 local sqrt = math.sqrt
 
-local s = DisplayShape.new(stage:getSize())
+local s = Image.new(stage:getSize())
 	:setLineWidth(30.0)
 	:setLineCap("butt")
 	:moveTo(64.0, 50.0)
@@ -26,4 +26,4 @@ local s = DisplayShape.new(stage:getSize())
 	:lineTo(192.0, 200.0)
 	:stroke()
 
-stage:addChild(s)
+stage:addChild(DisplayImage.new(s))

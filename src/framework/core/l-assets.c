@@ -99,6 +99,10 @@ function M:loadDisplay(name)
 			return DisplayNinepatch.new(Ninepatch.new(name))
 		elseif string.lower(string.sub(name, -4)) == ".png" then
 			return DisplayImage.new(self:loadImage(name))
+		elseif string.lower(string.sub(name, -4)) == ".jpg" then
+			return DisplayImage.new(self:loadImage(name))
+		elseif string.lower(string.sub(name, -5)) == ".jpeg" then
+			return DisplayImage.new(self:loadImage(name))
 		end
 	else
 		return name

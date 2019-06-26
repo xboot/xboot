@@ -48,6 +48,10 @@ function M:setText(text)
 			for i, v in ipairs(self.font.chars) do
 				if v.char == c then
 					self.caches[c] = v
+					if v.w == 0 and v.h == 0 then
+						v.w = 1
+						v.h = 1
+					end
 					self.caches[c].image = self.image:clone(v.x, v.y, v.w, v.h)
 				end
 			end

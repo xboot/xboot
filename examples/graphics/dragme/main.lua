@@ -55,6 +55,11 @@ local function onTouchEnd(self, e)
 end
 
 local sw, sh = stage:getSize()
+stage:addChild(DisplayImage.new(Image.new(sw, sh)
+	:save()
+	:setSource(Pattern.image(Image.new("assets/images/bg.png")):setExtend("repeat"))
+	:paint()
+	:restore()))
 
 for i = 1, 5 do
 	local image = DisplayImage.new(Image.new(100, 50)

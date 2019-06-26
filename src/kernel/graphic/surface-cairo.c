@@ -360,10 +360,46 @@ static void surface_cairo_shape_set_dash(struct surface_t * s, const double * da
 	cairo_set_dash(cr, dashes, ndashes, offset);
 }
 
+static void surface_cairo_shape_identity(struct surface_t * s)
+{
+	cairo_t * cr = ((struct surface_cairo_context_t *)s->pctx)->cr;
+	cairo_identity_matrix(cr);
+}
+
+static void surface_cairo_shape_translate(struct surface_t * s, double tx, double ty)
+{
+	cairo_t * cr = ((struct surface_cairo_context_t *)s->pctx)->cr;
+	cairo_translate(cr, tx, ty);
+}
+
+static void surface_cairo_shape_scale(struct surface_t * s, double sx, double sy)
+{
+	cairo_t * cr = ((struct surface_cairo_context_t *)s->pctx)->cr;
+	cairo_scale(cr, sx, sy);
+}
+
+static void surface_cairo_shape_rotate(struct surface_t * s, double angle)
+{
+	cairo_t * cr = ((struct surface_cairo_context_t *)s->pctx)->cr;
+	cairo_rotate(cr, angle);
+}
+
+static void surface_cairo_shape_transform(struct surface_t * s, struct matrix_t * m)
+{
+	cairo_t * cr = ((struct surface_cairo_context_t *)s->pctx)->cr;
+	cairo_transform(cr, (cairo_matrix_t *)m);
+}
+
 static void surface_cairo_shape_set_matrix(struct surface_t * s, struct matrix_t * m)
 {
 	cairo_t * cr = ((struct surface_cairo_context_t *)s->pctx)->cr;
 	cairo_set_matrix(cr, (cairo_matrix_t *)m);
+}
+
+static void surface_cairo_shape_get_matrix(struct surface_t * s, struct matrix_t * m)
+{
+	cairo_t * cr = ((struct surface_cairo_context_t *)s->pctx)->cr;
+	cairo_get_matrix(cr, (cairo_matrix_t *)m);
 }
 
 static void surface_cairo_shape_move_to(struct surface_t * s, double x, double y)
@@ -617,7 +653,13 @@ struct surface_operate_t surface_operate_cairo = {
 	.shape_set_line_cap			= surface_cairo_shape_set_line_cap,
 	.shape_set_line_join		= surface_cairo_shape_set_line_join,
 	.shape_set_dash				= surface_cairo_shape_set_dash,
+	.shape_identity				= surface_cairo_shape_identity,
+	.shape_translate			= surface_cairo_shape_translate,
+	.shape_scale				= surface_cairo_shape_scale,
+	.shape_rotate				= surface_cairo_shape_rotate,
+	.shape_transform			= surface_cairo_shape_transform,
 	.shape_set_matrix			= surface_cairo_shape_set_matrix,
+	.shape_get_matrix			= surface_cairo_shape_get_matrix,
 	.shape_move_to				= surface_cairo_shape_move_to,
 	.shape_rel_move_to			= surface_cairo_shape_rel_move_to,
 	.shape_line_to				= surface_cairo_shape_line_to,

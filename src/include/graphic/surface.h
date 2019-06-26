@@ -72,7 +72,13 @@ struct surface_operate_t
 	void (*shape_set_line_cap)(struct surface_t * s, const char * type);
 	void (*shape_set_line_join)(struct surface_t * s, const char * type);
 	void (*shape_set_dash)(struct surface_t * s, const double * dashes, int ndashes, double offset);
+	void (*shape_identity)(struct surface_t * s);
+	void (*shape_translate)(struct surface_t * s, double tx, double ty);
+	void (*shape_scale)(struct surface_t * s, double sx, double sy);
+	void (*shape_rotate)(struct surface_t * s, double angle);
+	void (*shape_transform)(struct surface_t * s, struct matrix_t * m);
 	void (*shape_set_matrix)(struct surface_t * s, struct matrix_t * m);
+	void (*shape_get_matrix)(struct surface_t * s, struct matrix_t * m);
 	void (*shape_move_to)(struct surface_t * s, double x, double y);
 	void (*shape_rel_move_to)(struct surface_t * s, double dx, double dy);
 	void (*shape_line_to)(struct surface_t * s, double x, double y);
@@ -297,9 +303,35 @@ static inline void surface_shape_set_dash(struct surface_t * s, const double * d
 	s->op->shape_set_dash(s, dashes, ndashes, offset);
 }
 
+static inline void surface_shape_identity(struct surface_t * s)
+{
+	s->op->shape_identity(s);
+}
+static inline void surface_shape_translate(struct surface_t * s, double tx, double ty)
+{
+	s->op->shape_translate(s, tx, ty);
+}
+static inline void surface_shape_scale(struct surface_t * s, double sx, double sy)
+{
+	s->op->shape_scale(s, sx, sy);
+}
+static inline void surface_shape_rotate(struct surface_t * s, double angle)
+{
+	s->op->shape_rotate(s, angle);
+}
+static inline void surface_shape_transform(struct surface_t * s, struct matrix_t * m)
+{
+	s->op->shape_transform(s, m);
+}
+
 static inline void surface_shape_set_matrix(struct surface_t * s, struct matrix_t * m)
 {
 	s->op->shape_set_matrix(s, m);
+}
+
+static inline void surface_shape_get_matrix(struct surface_t * s, struct matrix_t * m)
+{
+	s->op->shape_get_matrix(s, m);
 }
 
 static inline void surface_shape_move_to(struct surface_t * s, double x, double y)

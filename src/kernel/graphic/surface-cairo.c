@@ -239,6 +239,12 @@ static void surface_cairo_shape_set_source(struct surface_t * s, void * pattern)
 	cairo_set_source(cr, pattern);
 }
 
+static void * surface_cairo_shape_get_source(struct surface_t * s)
+{
+	cairo_t * cr = ((struct surface_cairo_context_t *)s->pctx)->cr;
+	return cairo_get_source(cr);
+}
+
 static void surface_cairo_shape_set_source_color(struct surface_t * s, double r, double g, double b, double a)
 {
 	cairo_t * cr = ((struct surface_cairo_context_t *)s->pctx)->cr;
@@ -643,6 +649,7 @@ struct surface_operate_t surface_operate_cairo = {
 	.shape_close_path			= surface_cairo_shape_close_path,
 	.shape_set_operator			= surface_cairo_shape_set_operator,
 	.shape_set_source			= surface_cairo_shape_set_source,
+	.shape_get_source			= surface_cairo_shape_get_source,
 	.shape_set_source_color		= surface_cairo_shape_set_source_color,
 	.shape_set_source_surface	= surface_cairo_shape_set_source_surface,
 	.shape_set_tolerance		= surface_cairo_shape_set_tolerance,

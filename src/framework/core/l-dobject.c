@@ -782,97 +782,97 @@ static void dobject_draw_image(struct ldobject_t * o, struct window_t * w)
 
 static void dobject_draw_ninepatch(struct ldobject_t * o, struct window_t * w)
 {
-/*	struct lninepatch_t * ninepatch = o->priv;
-	cairo_t * cr = w->cr;
-	cairo_save(cr);
-	cairo_set_matrix(cr, (cairo_matrix_t *)dobject_global_matrix(o));
+	struct lninepatch_t * ninepatch = o->priv;
+	struct surface_t * s = w->s;
+	surface_shape_save(s);
+	surface_shape_set_matrix(s, dobject_global_matrix(o));
 	if(ninepatch->lt)
 	{
-		cairo_save(cr);
-		cairo_translate(cr, 0, 0);
-		cairo_set_source_surface(cr, ninepatch->lt, 0, 0);
-		cairo_pattern_set_filter(cairo_get_source(cr), CAIRO_FILTER_FAST);
-		cairo_paint_with_alpha(cr, o->alpha);
-		cairo_restore(cr);
+		surface_shape_save(s);
+		surface_shape_translate(s, 0, 0);
+		surface_shape_set_source_surface(s, ninepatch->lt, 0, 0);
+		surface_pattern_set_filter(surface_shape_get_source(s), "fast");
+		surface_shape_paint(s, o->alpha);
+		surface_shape_restore(s);
 	}
 	if(ninepatch->mt)
 	{
-		cairo_save(cr);
-		cairo_translate(cr, ninepatch->left, 0);
-		cairo_scale(cr, ninepatch->__sx, 1);
-		cairo_set_source_surface(cr, ninepatch->mt, 0, 0);
-		cairo_pattern_set_filter(cairo_get_source(cr), CAIRO_FILTER_FAST);
-		cairo_paint_with_alpha(cr, o->alpha);
-		cairo_restore(cr);
+		surface_shape_save(s);
+		surface_shape_translate(s, ninepatch->left, 0);
+		surface_shape_scale(s, ninepatch->__sx, 1);
+		surface_shape_set_source_surface(s, ninepatch->mt, 0, 0);
+		surface_pattern_set_filter(surface_shape_get_source(s), "fast");
+		surface_shape_paint(s, o->alpha);
+		surface_shape_restore(s);
 	}
 	if(ninepatch->rt)
 	{
-		cairo_save(cr);
-		cairo_translate(cr, ninepatch->__w - ninepatch->right, 0);
-		cairo_set_source_surface(cr, ninepatch->rt, 0, 0);
-		cairo_pattern_set_filter(cairo_get_source(cr), CAIRO_FILTER_FAST);
-		cairo_paint_with_alpha(cr, o->alpha);
-		cairo_restore(cr);
+		surface_shape_save(s);
+		surface_shape_translate(s, ninepatch->__w - ninepatch->right, 0);
+		surface_shape_set_source_surface(s, ninepatch->rt, 0, 0);
+		surface_pattern_set_filter(surface_shape_get_source(s), "fast");
+		surface_shape_paint(s, o->alpha);
+		surface_shape_restore(s);
 	}
 	if(ninepatch->lm)
 	{
-		cairo_save(cr);
-		cairo_translate(cr, 0, ninepatch->top);
-		cairo_scale(cr, 1, ninepatch->__sy);
-		cairo_set_source_surface(cr, ninepatch->lm, 0, 0);
-		cairo_pattern_set_filter(cairo_get_source(cr), CAIRO_FILTER_FAST);
-		cairo_paint_with_alpha(cr, o->alpha);
-		cairo_restore(cr);
+		surface_shape_save(s);
+		surface_shape_translate(s, 0, ninepatch->top);
+		surface_shape_scale(s, 1, ninepatch->__sy);
+		surface_shape_set_source_surface(s, ninepatch->lm, 0, 0);
+		surface_pattern_set_filter(surface_shape_get_source(s), "fast");
+		surface_shape_paint(s, o->alpha);
+		surface_shape_restore(s);
 	}
 	if(ninepatch->mm)
 	{
-		cairo_save(cr);
-		cairo_translate(cr, ninepatch->left, ninepatch->top);
-		cairo_scale(cr, ninepatch->__sx, ninepatch->__sy);
-		cairo_set_source_surface(cr, ninepatch->mm, 0, 0);
-		cairo_pattern_set_filter(cairo_get_source(cr), CAIRO_FILTER_FAST);
-		cairo_paint_with_alpha(cr, o->alpha);
-		cairo_restore(cr);
+		surface_shape_save(s);
+		surface_shape_translate(s, ninepatch->left, ninepatch->top);
+		surface_shape_scale(s, ninepatch->__sx, ninepatch->__sy);
+		surface_shape_set_source_surface(s, ninepatch->mm, 0, 0);
+		surface_pattern_set_filter(surface_shape_get_source(s), "fast");
+		surface_shape_paint(s, o->alpha);
+		surface_shape_restore(s);
 	}
 	if(ninepatch->rm)
 	{
-		cairo_save(cr);
-		cairo_translate(cr, ninepatch->__w - ninepatch->right, ninepatch->top);
-		cairo_scale(cr, 1, ninepatch->__sy);
-		cairo_set_source_surface(cr, ninepatch->rm, 0, 0);
-		cairo_pattern_set_filter(cairo_get_source(cr), CAIRO_FILTER_FAST);
-		cairo_paint_with_alpha(cr, o->alpha);
-		cairo_restore(cr);
+		surface_shape_save(s);
+		surface_shape_translate(s, ninepatch->__w - ninepatch->right, ninepatch->top);
+		surface_shape_scale(s, 1, ninepatch->__sy);
+		surface_shape_set_source_surface(s, ninepatch->rm, 0, 0);
+		surface_pattern_set_filter(surface_shape_get_source(s), "fast");
+		surface_shape_paint(s, o->alpha);
+		surface_shape_restore(s);
 	}
 	if(ninepatch->lb)
 	{
-		cairo_save(cr);
-		cairo_translate(cr, 0, ninepatch->__h - ninepatch->bottom);
-		cairo_set_source_surface(cr, ninepatch->lb, 0, 0);
-		cairo_pattern_set_filter(cairo_get_source(cr), CAIRO_FILTER_FAST);
-		cairo_paint_with_alpha(cr, o->alpha);
-		cairo_restore(cr);
+		surface_shape_save(s);
+		surface_shape_translate(s, 0, ninepatch->__h - ninepatch->bottom);
+		surface_shape_set_source_surface(s, ninepatch->lb, 0, 0);
+		surface_pattern_set_filter(surface_shape_get_source(s), "fast");
+		surface_shape_paint(s, o->alpha);
+		surface_shape_restore(s);
 	}
 	if(ninepatch->mb)
 	{
-		cairo_save(cr);
-		cairo_translate(cr, ninepatch->left, ninepatch->__h - ninepatch->bottom);
-		cairo_scale(cr, ninepatch->__sx, 1);
-		cairo_set_source_surface(cr, ninepatch->mb, 0, 0);
-		cairo_pattern_set_filter(cairo_get_source(cr), CAIRO_FILTER_FAST);
-		cairo_paint_with_alpha(cr, o->alpha);
-		cairo_restore(cr);
+		surface_shape_save(s);
+		surface_shape_translate(s, ninepatch->left, ninepatch->__h - ninepatch->bottom);
+		surface_shape_scale(s, ninepatch->__sx, 1);
+		surface_shape_set_source_surface(s, ninepatch->mb, 0, 0);
+		surface_pattern_set_filter(surface_shape_get_source(s), "fast");
+		surface_shape_paint(s, o->alpha);
+		surface_shape_restore(s);
 	}
 	if(ninepatch->rb)
 	{
-		cairo_save(cr);
-		cairo_translate(cr, ninepatch->__w - ninepatch->right, ninepatch->__h - ninepatch->bottom);
-		cairo_set_source_surface(cr, ninepatch->rb, 0, 0);
-		cairo_pattern_set_filter(cairo_get_source(cr), CAIRO_FILTER_FAST);
-		cairo_paint_with_alpha(cr, o->alpha);
-		cairo_restore(cr);
+		surface_shape_save(s);
+		surface_shape_translate(s, ninepatch->__w - ninepatch->right, ninepatch->__h - ninepatch->bottom);
+		surface_shape_set_source_surface(s, ninepatch->rb, 0, 0);
+		surface_pattern_set_filter(surface_shape_get_source(s), "fast");
+		surface_shape_paint(s, o->alpha);
+		surface_shape_restore(s);
 	}
-	cairo_restore(cr);*/
+	surface_shape_restore(s);
 }
 
 static void dobject_draw_shape(struct ldobject_t * o, struct window_t * w)

@@ -62,6 +62,7 @@ struct surface_operate_t
 	void (*shape_close_path)(struct surface_t * s);
 	void (*shape_set_operator)(struct surface_t * s, const char * type);
 	void (*shape_set_source)(struct surface_t * s, void * pattern);
+	void * (*shape_get_source)(struct surface_t * s);
 	void (*shape_set_source_color)(struct surface_t * s, double r, double g, double b, double a);
 	void (*shape_set_source_surface)(struct surface_t * s, struct surface_t * o, double x, double y);
 	void (*shape_set_tolerance)(struct surface_t * s, double tolerance);
@@ -251,6 +252,11 @@ static inline void surface_shape_set_operator(struct surface_t * s, const char *
 static inline void surface_shape_set_source(struct surface_t * s, void * pattern)
 {
 	s->op->shape_set_source(s, pattern);
+}
+
+static inline void * surface_shape_get_source(struct surface_t * s)
+{
+	return s->op->shape_get_source(s);
 }
 
 static inline void surface_shape_set_source_color(struct surface_t * s, double r, double g, double b, double a)

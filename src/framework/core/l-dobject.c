@@ -2171,12 +2171,12 @@ static void display_draw(struct window_t * w, struct ldobject_t * o)
 		}
 		o->draw(o, w);
 		if(w->showobj)
-		{/*
+		{
 			surface_shape_save(s);
 			surface_shape_set_matrix(s, dobject_global_matrix(o));
 			surface_shape_set_line_width(s, 1);
 			surface_shape_rectangle(s, 1, 1, o->width - 2, o->height - 2);
-			surface_shape_set_source_rgba(s, 1, 0, 0, 0.6);
+			surface_shape_set_source_color(s, 1, 0, 0, 0.6);
 			surface_shape_stroke(s);
 			if((o->ctype != COLLIDER_TYPE_NONE) && o->touchable)
 			{
@@ -2247,11 +2247,11 @@ static void display_draw(struct window_t * w, struct ldobject_t * o)
 				default:
 					break;
 				}
-				surface_shape_set_source_rgba(s, 1, 1, 0, 0.6);
+				surface_shape_set_source_color(s, 1, 1, 0, 0.6);
 				surface_shape_fill(s);
 			}
 			surface_shape_restore(s);
-		*/}
+		}
 		list_for_each_entry(pos, &o->children, entry)
 		{
 			display_draw(w, pos);

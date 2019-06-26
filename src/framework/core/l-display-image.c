@@ -53,6 +53,10 @@ function M:setSize(width, height)
 	return self
 end
 
+function M:getImage()
+	return self._image
+end
+
 return M
 );
 

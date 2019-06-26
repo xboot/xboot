@@ -45,6 +45,10 @@ function M:setText(text)
 	for i = 1, #text do
 		local c = self.chars[text:byte(i)]
 		if c ~= nil then
+			if c.width == 0 and c.height == 0 then
+				c.width = 1
+				c.height = 1
+			end
 			local t = self.image:clone(c.x, c.y, c.width, c.height)
 			local bitmap = DisplayImage.new(t):setPosition(x + c.xoffset, y + c.yoffset)
 			self:addChild(bitmap)

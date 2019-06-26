@@ -62,9 +62,11 @@ end
 
 local sw, sh = stage:getSize()
 
-stage:addChild(DisplayShape.new(sw, sh)
-		:setSource(Pattern.image(assets:loadImage("bg.png")):setExtend("repeat"))
-		:paint())
+stage:addChild(DisplayImage.new(Image.new(sw, sh)
+	:save()
+	:setSource(Pattern.image(Image.new("bg.png")):setExtend("repeat"))
+	:paint()
+	:restore()))
 
 for i = 1, 10 do
 	local img = assets:loadDisplay("tomato.png")

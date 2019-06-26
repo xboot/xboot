@@ -3,9 +3,11 @@ local M_PI = math.pi
 
 local sw, sh = stage:getSize()
 
-stage:addChild(DisplayShape.new(sw, sh)
-		:setSource(Pattern.image(assets:loadImage("bg.png")):setExtend("repeat"))
-		:paint())
+stage:addChild(DisplayImage.new(Image.new(sw, sh)
+	:save()
+	:setSource(Pattern.image(Image.new("bg.png")):setExtend("repeat"))
+	:paint()
+	:restore()))
 
 local car0 = assets:loadDisplay("car.png"):setPosition(0, 48 * 0)
 local car1 = assets:loadDisplay("car.png"):setPosition(0, 48 * 1)

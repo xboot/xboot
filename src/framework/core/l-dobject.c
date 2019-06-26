@@ -29,7 +29,6 @@
 #include <xboot.h>
 #include <framework/core/l-image.h>
 #include <framework/core/l-ninepatch.h>
-#include <framework/core/l-shape.h>
 #include <framework/core/l-text.h>
 #include <framework/core/l-window.h>
 #include <framework/core/l-dobject.h>
@@ -707,20 +706,6 @@ static void dobject_layout(struct ldobject_t * o)
 				scaley = 1.0;
 				ninepatch_stretch(pos->priv, width, height);
 				break;
-			case DOBJECT_TYPE_SHAPE:
-				width = pos->width;
-				height = pos->height;
-				if(width != 0.0 && height != 0.0)
-				{
-					scalex = pos->layout.w / width;
-					scaley = pos->layout.h / height;
-				}
-				else
-				{
-					scalex = pos->scalex;
-					scaley = pos->scaley;
-				}
-				break;
 			case DOBJECT_TYPE_TEXT:
 				width = pos->width;
 				height = pos->height;
@@ -875,17 +860,6 @@ static void dobject_draw_ninepatch(struct ldobject_t * o, struct window_t * w)
 	surface_shape_restore(s);
 }
 
-static void dobject_draw_shape(struct ldobject_t * o, struct window_t * w)
-{
-/*	struct lshape_t * shape = o->priv;
-	cairo_t * cr = w->cr;
-	cairo_save(cr);
-	cairo_set_matrix(cr, (cairo_matrix_t *)dobject_global_matrix(o));
-	cairo_set_source_surface(cr, shape->cs, 0, 0);
-	cairo_paint_with_alpha(cr, o->alpha);
-	cairo_restore(cr);*/
-}
-
 static void dobject_draw_text(struct ldobject_t * o, struct window_t * w)
 {
 /*	struct ltext_t * text = o->priv;
@@ -925,12 +899,6 @@ static int l_dobject_new(lua_State * L)
 	{
 		dtype = DOBJECT_TYPE_NINEPATCH;
 		draw = dobject_draw_ninepatch;
-		userdata = lua_touserdata(L, 3);
-	}
-	else if(luaL_testudata(L, 3, MT_SHAPE))
-	{
-		dtype = DOBJECT_TYPE_SHAPE;
-		draw = dobject_draw_shape;
 		userdata = lua_touserdata(L, 3);
 	}
 	else if(luaL_testudata(L, 3, MT_TEXT))

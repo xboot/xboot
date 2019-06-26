@@ -36,7 +36,6 @@
 #include <framework/core/l-display-object.h>
 #include <framework/core/l-display-pager.h>
 #include <framework/core/l-display-scroll.h>
-#include <framework/core/l-display-shape.h>
 #include <framework/core/l-display-text.h>
 #include <framework/core/l-dobject.h>
 #include <framework/core/l-easing.h>
@@ -49,7 +48,6 @@
 #include <framework/core/l-ninepatch.h>
 #include <framework/core/l-pattern.h>
 #include <framework/core/l-printr.h>
-#include <framework/core/l-shape.h>
 #include <framework/core/l-spring.h>
 #include <framework/core/l-stage.h>
 #include <framework/core/l-stopwatch.h>
@@ -77,7 +75,6 @@ static void luaopen_glblibs(lua_State * L)
 		{ "Image",					luaopen_image },
 		{ "Ninepatch",				luaopen_ninepatch },
 		{ "Pattern",				luaopen_pattern },
-		{ "Shape",					luaopen_shape },
 		{ "Font",					luaopen_font },
 		{ "Text",					luaopen_text },
 		{ "Dobject",				luaopen_dobject },
@@ -88,7 +85,6 @@ static void luaopen_glblibs(lua_State * L)
 		{ "DisplayScroll",			luaopen_display_scroll },
 		{ "DisplayImage",			luaopen_display_image },
 		{ "DisplayNinepatch",		luaopen_display_ninepatch },
-		{ "DisplayShape",			luaopen_display_shape },
 		{ "DisplayText",			luaopen_display_text },
 		{ "Timer",					luaopen_timer },
 		{ "Stage",					luaopen_stage },

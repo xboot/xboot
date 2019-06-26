@@ -128,6 +128,10 @@ static int m_image_clone(lua_State * L)
 		int w = luaL_optinteger(L, 4, surface_get_width(img->s));
 		int h = luaL_optinteger(L, 5, surface_get_height(img->s));
 		int r = luaL_optinteger(L, 6, 0);
+		if(w <= 0)
+			w = surface_get_width(img->s);
+		if(h <= 0)
+			h = surface_get_height(img->s);
 		struct limage_t * subimg = lua_newuserdata(L, sizeof(struct limage_t));
 		subimg->s = surface_alloc(w, h, NULL);
 		surface_shape_save(subimg->s);

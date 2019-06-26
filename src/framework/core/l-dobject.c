@@ -904,16 +904,8 @@ static void dobject_draw_text(struct ldobject_t * o, struct window_t * w)
 
 static void dobject_draw_container(struct ldobject_t * o, struct window_t * w)
 {
-/*	if(o->background.alpha != 0.0)
-	{
-		cairo_t * cr = w->cr;
-		cairo_save(cr);
-		cairo_set_matrix(cr, (cairo_matrix_t *)dobject_global_matrix(o));
-		cairo_rectangle(cr, 0, 0, o->width, o->height);
-		cairo_set_source_rgba(cr, o->background.red, o->background.green, o->background.blue, o->background.alpha);
-		cairo_fill(cr);
-		cairo_restore(cr);
-	}*/
+	if(o->background.alpha != 0.0)
+		surface_fill(w->s, dobject_global_matrix(o), 0, 0, o->width, o->height, o->background.red, o->background.green, o->background.blue, o->background.alpha);
 }
 
 static int l_dobject_new(lua_State * L)

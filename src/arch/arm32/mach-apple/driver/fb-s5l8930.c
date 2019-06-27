@@ -42,15 +42,16 @@ struct fb_s5l8930_pdata_t {
 	int height;
 	int pwidth;
 	int pheight;
-	int bytes;
 	int hfp;
 	int hbp;
 	int hsl;
 	int vfp;
 	int vbp;
 	int vsl;
+	int pixlen;
 	int index;
 	void * vram[2];
+	struct region_list_t * nrl, * orl;
 	struct led_t * backlight;
 	int brightness;
 };
@@ -67,57 +68,34 @@ static int fb_getbl(struct framebuffer_t * fb)
 	return led_get_brightness(pdat->backlight);
 }
 
-static struct render_t * fb_create(struct framebuffer_t * fb)
+static struct surface_t * fb_create(struct framebuffer_t * fb)
 {
 	struct fb_s5l8930_pdata_t * pdat = (struct fb_s5l8930_pdata_t *)fb->priv;
-	struct render_t * render;
-	void * pixels;
-	size_t pixlen;
-
-	pixlen = pdat->width * pdat->height * pdat->bytes;
-	pixels = memalign(4, pixlen);
-	if(!pixels)
-		return NULL;
-
-	render = malloc(sizeof(struct render_t));
-	if(!render)
-	{
-		free(pixels);
-		return NULL;
-	}
-
-	render->width = pdat->width;
-	render->height = pdat->height;
-	render->pitch = (pdat->width * pdat->bytes + 0x3) & ~0x3;
-	render->bytes = pdat->bytes;
-	render->format = PIXEL_FORMAT_ARGB32;
-	render->pixels = pixels;
-	render->pixlen = pixlen;
-	render->priv = NULL;
-
-	return render;
+	return surface_alloc(pdat->width, pdat->height, NULL);
 }
 
-static void fb_destroy(struct framebuffer_t * fb, struct render_t * render)
+static void fb_destroy(struct framebuffer_t * fb, struct surface_t * s)
 {
-	if(render)
-	{
-		free(render->pixels);
-		free(render);
-	}
+	surface_free(s);
 }
 
-static void fb_present(struct framebuffer_t * fb, struct render_t * render, struct region_list_t * rl)
+static void fb_present(struct framebuffer_t * fb, struct surface_t * s, struct region_list_t * rl)
 {
 	struct fb_s5l8930_pdata_t * pdat = (struct fb_s5l8930_pdata_t *)fb->priv;
+	struct region_list_t * nrl = pdat->nrl;
 
-	if(render && render->pixels)
-	{
-		pdat->index = (pdat->index + 1) & 0x1;
-		memcpy(pdat->vram[pdat->index], render->pixels, render->pixlen);
-		dma_cache_sync(pdat->vram[pdat->index], render->pixlen, DMA_TO_DEVICE);
-		write32(pdat->virt + LCD_ADDR, ((u32_t)pdat->vram[pdat->index]));
-	}
+	region_list_clear(nrl);
+	region_list_merge(nrl, pdat->orl);
+	region_list_merge(nrl, rl);
+	region_list_clone(pdat->orl, rl);
+
+	pdat->index = (pdat->index + 1) & 0x1;
+	if(nrl->count > 0)
+		present_surface(pdat->vram[pdat->index], s, nrl);
+	else
+		memcpy(pdat->vram[pdat->index], s->pixels, s->pixlen);
+	dma_cache_sync(pdat->vram[pdat->index], pdat->pixlen, DMA_TO_DEVICE);
+	write32(pdat->virt + LCD_ADDR, ((u32_t)pdat->vram[pdat->index]));
 }
 
 static struct device_t * fb_s5l8930_probe(struct driver_t * drv, struct dtnode_t * n)
@@ -143,16 +121,18 @@ static struct device_t * fb_s5l8930_probe(struct driver_t * drv, struct dtnode_t
 	pdat->height = dt_read_int(n, "height", 960);
 	pdat->pwidth = dt_read_int(n, "physical-width", 216);
 	pdat->pheight = dt_read_int(n, "physical-height", 135);
-	pdat->bytes = dt_read_int(n, "bytes-per-pixel", 4);
 	pdat->hfp = dt_read_int(n, "hfront-porch", 1);
 	pdat->hbp = dt_read_int(n, "hback-porch", 1);
 	pdat->hsl = dt_read_int(n, "hsync-len", 1);
 	pdat->vfp = dt_read_int(n, "vfront-porch", 1);
 	pdat->vbp = dt_read_int(n, "vback-porch", 1);
 	pdat->vsl = dt_read_int(n, "vsync-len", 1);
+	pdat->pixlen = pdat->width * pdat->height * 4;
 	pdat->index = 0;
-	pdat->vram[0] = dma_alloc_noncoherent(pdat->width * pdat->height * pdat->bytes);
-	pdat->vram[1] = dma_alloc_noncoherent(pdat->width * pdat->height * pdat->bytes);
+	pdat->vram[0] = dma_alloc_noncoherent(pdat->pixlen);
+	pdat->vram[1] = dma_alloc_noncoherent(pdat->pixlen);
+	pdat->nrl = region_list_alloc(0);
+	pdat->orl = region_list_alloc(0);
 	pdat->backlight = search_led(dt_read_string(n, "backlight", NULL));
 
 	fb->name = alloc_device_name(dt_read_name(n), -1);
@@ -160,7 +140,6 @@ static struct device_t * fb_s5l8930_probe(struct driver_t * drv, struct dtnode_t
 	fb->height = pdat->height;
 	fb->pwidth = pdat->pwidth;
 	fb->pheight = pdat->pheight;
-	fb->bytes = pdat->bytes;
 	fb->setbl = fb_setbl;
 	fb->getbl = fb_getbl;
 	fb->create = fb_create;
@@ -174,6 +153,8 @@ static struct device_t * fb_s5l8930_probe(struct driver_t * drv, struct dtnode_t
 	{
 		dma_free_noncoherent(pdat->vram[0]);
 		dma_free_noncoherent(pdat->vram[1]);
+		region_list_free(pdat->nrl);
+		region_list_free(pdat->orl);
 
 		free_device_name(fb->name);
 		free(fb->priv);
@@ -194,6 +175,8 @@ static void fb_s5l8930_remove(struct device_t * dev)
 	{
 		dma_free_noncoherent(pdat->vram[0]);
 		dma_free_noncoherent(pdat->vram[1]);
+		region_list_free(pdat->nrl);
+		region_list_free(pdat->orl);
 
 		free_device_name(fb->name);
 		free(fb->priv);

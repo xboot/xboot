@@ -114,9 +114,6 @@ static struct kobj_t * search_device_kobj(struct device_t * dev)
 	case DEVICE_TYPE_IRQCHIP:
 		name = "irqchip";
 		break;
-	case DEVICE_TYPE_LASERSCAN:
-		name = "laserscan";
-		break;
 	case DEVICE_TYPE_LED:
 		name = "led";
 		break;

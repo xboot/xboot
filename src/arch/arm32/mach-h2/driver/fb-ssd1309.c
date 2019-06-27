@@ -49,8 +49,7 @@
  *		"width": 128,
  *		"height": 64,
  *		"physical-width": 35,
- *		"physical-height": 17,
- *		"bytes-per-pixel": 4
+ *		"physical-height": 17
  *	}
  */
 
@@ -64,7 +63,6 @@ struct fb_ssd1309_pdata_t {
 	int height;
 	int pwidth;
 	int pheight;
-	int bytes;
 	int brightness;
 };
 
@@ -163,70 +161,38 @@ static int fb_getbl(struct framebuffer_t * fb)
 	return pdat->brightness;
 }
 
-static struct render_t * fb_create(struct framebuffer_t * fb)
+static struct surface_t * fb_create(struct framebuffer_t * fb)
 {
 	struct fb_ssd1309_pdata_t * pdat = (struct fb_ssd1309_pdata_t *)fb->priv;
-	struct render_t * render;
-	void * pixels;
-	size_t pixlen;
-
-	pixlen = pdat->width * pdat->height * pdat->bytes;
-	pixels = memalign(4, pixlen);
-	if(!pixels)
-		return NULL;
-
-	render = malloc(sizeof(struct render_t));
-	if(!render)
-	{
-		free(pixels);
-		return NULL;
-	}
-
-	render->width = pdat->width;
-	render->height = pdat->height;
-	render->pitch = (pdat->width * pdat->bytes + 0x3) & ~0x3;
-	render->bytes = pdat->bytes;
-	render->format = PIXEL_FORMAT_ARGB32;
-	render->pixels = pixels;
-	render->pixlen = pixlen;
-	render->priv = NULL;
-
-	return render;
+	return surface_alloc(pdat->width, pdat->height, NULL);
 }
 
-static void fb_destroy(struct framebuffer_t * fb, struct render_t * render)
+static void fb_destroy(struct framebuffer_t * fb, struct surface_t * s)
 {
-	if(render)
-	{
-		free(render->pixels);
-		free(render);
-	}
+	surface_free(s);
 }
 
-static void fb_present(struct framebuffer_t * fb, struct render_t * render, struct region_list_t * rl)
+static void fb_present(struct framebuffer_t * fb, struct surface_t * s, struct region_list_t * rl)
 {
 	struct fb_ssd1309_pdata_t * pdat = (struct fb_ssd1309_pdata_t *)fb->priv;
 	int x, y, i, o;
 	u32_t * p;
 	u8_t v;
 
-	if(render && render->pixels)
+	p = s->pixels;
+	for(y = 0; y < pdat->height / 8; y++)
 	{
-		p = render->pixels;
-		for(y = 0; y < pdat->height / 8; y++)
+		ssd1309_write_command(pdat, 0xb0 | y);
+		ssd1309_write_command(pdat, 0x00 | ((0 >> 0) & 0xf));
+		ssd1309_write_command(pdat, 0x10 | ((0 >> 4) & 0xf));
+		for(x = 0; x < pdat->width; x++)
 		{
-			ssd1309_write_command(pdat, 0xb0 | y);
-			ssd1309_write_command(pdat, 0x00 | ((0 >> 0) & 0xf));
-			ssd1309_write_command(pdat, 0x10 | ((0 >> 4) & 0xf));
-			for(x = 0; x < pdat->width; x++)
+			for(v = 0, i = 0; i < 8; i++)
 			{
-				for(v = 0, i = 0; i < 8; i++)
-				{
-					o = (y * 8 + i) * pdat->width + x;
-					v |= ((p[o] & 0xffffff) ? 1 : 0) << i;
-				}
-				ssd1309_write_data(pdat, v);
+				o = (y * 8 + i) * pdat->width + x;
+				v |= ((p[o] & 0xffffff) ? 1 : 0) << i;
 			}
+			ssd1309_write_data(pdat, v);
 		}
 	}
 }
@@ -270,7 +236,6 @@ static struct device_t * fb_ssd1309_probe(struct driver_t * drv, struct dtnode_t
 	pdat->height = dt_read_int(n, "height", 64);
 	pdat->pwidth = dt_read_int(n, "physical-width", 35);
 	pdat->pheight = dt_read_int(n, "physical-height", 17);
-	pdat->bytes = dt_read_int(n, "bytes-per-pixel", 32);
 	pdat->brightness = -1;
 
 	fb->name = alloc_device_name(dt_read_name(n), -1);
@@ -278,7 +243,6 @@ static struct device_t * fb_ssd1309_probe(struct driver_t * drv, struct dtnode_t
 	fb->height = pdat->height;
 	fb->pwidth = pdat->pwidth;
 	fb->pheight = pdat->pheight;
-	fb->bytes = pdat->bytes;
 	fb->setbl = fb_setbl;
 	fb->getbl = fb_getbl;
 	fb->create = fb_create;

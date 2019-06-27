@@ -28,6 +28,7 @@
 
 #include <xboot.h>
 #include <arm64.h>
+#include <interrupt/interrupt.h>
 
 struct pt_regs_t {
 	uint64_t regs[31];

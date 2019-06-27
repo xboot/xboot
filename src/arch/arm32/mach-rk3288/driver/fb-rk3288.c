@@ -71,7 +71,7 @@ struct fb_rk3288_pdata_t
 	int pwidth;
 	int pheight;
 	int bits_per_pixel;
-	int bytes_per_pixel;
+	int pixlen;
 	int index;
 	void * vram[2];
 
@@ -344,58 +344,26 @@ static int fb_getbl(struct framebuffer_t * fb)
 	return led_get_brightness(pdat->backlight);
 }
 
-static struct render_t * fb_create(struct framebuffer_t * fb)
+static struct surface_t * fb_create(struct framebuffer_t * fb)
 {
 	struct fb_rk3288_pdata_t * pdat = (struct fb_rk3288_pdata_t *)fb->priv;
-	struct render_t * render;
-	void * pixels;
-	size_t pixlen;
-
-	pixlen = pdat->width * pdat->height * pdat->bytes_per_pixel;
-	pixels = memalign(4, pixlen);
-	if(!pixels)
-		return NULL;
-
-	render = malloc(sizeof(struct render_t));
-	if(!render)
-	{
-		free(pixels);
-		return NULL;
-	}
-
-	render->width = pdat->width;
-	render->height = pdat->height;
-	render->pitch = (pdat->width * pdat->bytes_per_pixel + 0x3) & ~0x3;
-	render->bytes = pdat->bytes_per_pixel;
-	render->format = PIXEL_FORMAT_ARGB32;
-	render->pixels = pixels;
-	render->pixlen = pixlen;
-	render->priv = NULL;
-
-	return render;
+	return surface_alloc(pdat->width, pdat->height, NULL);
 }
 
-static void fb_destroy(struct framebuffer_t * fb, struct render_t * render)
+static void fb_destroy(struct framebuffer_t * fb, struct surface_t * s)
 {
-	if(render)
-	{
-		free(render->pixels);
-		free(render);
-	}
+	surface_free(s);
 }
 
-static void fb_present(struct framebuffer_t * fb, struct render_t * render, struct region_list_t * rl)
+static void fb_present(struct framebuffer_t * fb, struct surface_t * s, struct region_list_t * rl)
 {
 	struct fb_rk3288_pdata_t * pdat = (struct fb_rk3288_pdata_t *)fb->priv;
 
-	if(render && render->pixels)
-	{
-		pdat->index = (pdat->index + 1) & 0x1;
-		memcpy(pdat->vram[pdat->index], render->pixels, render->pixlen);
-		dma_cache_sync(pdat->vram[pdat->index], render->pixlen, DMA_TO_DEVICE);
-		rk3288_vop_set_win0_address(pdat, pdat->vram[pdat->index]);
-		rk3288_vop_update_config(pdat);
-	}
+	pdat->index = (pdat->index + 1) & 0x1;
+	memcpy(pdat->vram[pdat->index], s->pixels, s->pixlen);
+	dma_cache_sync(pdat->vram[pdat->index], pdat->pixlen, DMA_TO_DEVICE);
+	rk3288_vop_set_win0_address(pdat, pdat->vram[pdat->index]);
+	rk3288_vop_update_config(pdat);
 }
 
 static struct device_t * fb_rk3288_probe(struct driver_t * drv, struct dtnode_t * n)
@@ -431,11 +399,11 @@ static struct device_t * fb_rk3288_probe(struct driver_t * drv, struct dtnode_t 
 	pdat->height = dt_read_int(n, "height", 600);
 	pdat->pwidth = dt_read_int(n, "physical-width", 216);
 	pdat->pheight = dt_read_int(n, "physical-height", 135);
-	pdat->bits_per_pixel = dt_read_int(n, "bits-per-pixel", 32);
-	pdat->bytes_per_pixel = dt_read_int(n, "bytes-per-pixel", 4);
+	pdat->bits_per_pixel = 32;
+	pdat->pixlen = pdat->width * pdat->height * 4;
 	pdat->index = 0;
-	pdat->vram[0] = dma_alloc_noncoherent(pdat->width * pdat->height * pdat->bytes_per_pixel);
-	pdat->vram[1] = dma_alloc_noncoherent(pdat->width * pdat->height * pdat->bytes_per_pixel);
+	pdat->vram[0] = dma_alloc_noncoherent(pdat->pixlen);
+	pdat->vram[1] = dma_alloc_noncoherent(pdat->pixlen);
 
 	pdat->interface = RK3288_VOP_INTERFACE_RGB_LVDS;
 	pdat->output = RK3288_LVDS_OUTPUT_RGB;
@@ -465,7 +433,6 @@ static struct device_t * fb_rk3288_probe(struct driver_t * drv, struct dtnode_t 
 	fb->height = pdat->height;
 	fb->pwidth = pdat->pwidth;
 	fb->pheight = pdat->pheight;
-	fb->bytes = pdat->bytes_per_pixel;
 	fb->setbl = fb_setbl;
 	fb->getbl = fb_getbl;
 	fb->create = fb_create;

@@ -408,7 +408,6 @@
 		"height": 600,
 		"physical-width": 216,
 		"physical-height": 135,
-		"bytes-per-pixel": 4,
 		"clock-frequency": 52000000,
 		"hfront-porch": 160,
 		"hback-porch": 140,

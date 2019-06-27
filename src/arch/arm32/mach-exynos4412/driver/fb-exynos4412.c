@@ -91,7 +91,7 @@ struct fb_exynos4412_pdata_t
 	int height;
 	int pwidth;
 	int pheight;
-	int bytes;
+	int pixlen;
 	int index;
 	void * vram[2];
 
@@ -241,7 +241,7 @@ static void exynos4412_fb_set_buffer_address(struct fb_exynos4412_pdata_t * pdat
 	u32_t shw;
 
 	start = (u32_t)(vram);
-	end = (u32_t)((start + pdat->width * (pdat->height * pdat->bytes)) & 0x00ffffff);
+	end = (u32_t)((start + pdat->pixlen) & 0x00ffffff);
 
 	shw = read32(pdat->virt + SHADOWCON);
 	shw |= SHADOWCON_PROTECT(id);
@@ -282,7 +282,7 @@ static void exynos4412_fb_set_buffer_size(struct fb_exynos4412_pdata_t * pdat, i
 {
 	u32_t cfg = 0;
 
-	cfg = VIDADDR_PAGEWIDTH(pdat->width * pdat->bytes);
+	cfg = VIDADDR_PAGEWIDTH(pdat->width * 4);
 	cfg |= VIDADDR_OFFSIZE(0);
 
 	switch(id)
@@ -523,57 +523,25 @@ static int fb_getbl(struct framebuffer_t * fb)
 	return led_get_brightness(pdat->backlight);
 }
 
-static struct render_t * fb_create(struct framebuffer_t * fb)
+static struct surface_t * fb_create(struct framebuffer_t * fb)
 {
 	struct fb_exynos4412_pdata_t * pdat = (struct fb_exynos4412_pdata_t *)fb->priv;
-	struct render_t * render;
-	void * pixels;
-	size_t pixlen;
-
-	pixlen = pdat->width * pdat->height * pdat->bytes;
-	pixels = memalign(4, pixlen);
-	if(!pixels)
-		return NULL;
-
-	render = malloc(sizeof(struct render_t));
-	if(!render)
-	{
-		free(pixels);
-		return NULL;
-	}
-
-	render->width = pdat->width;
-	render->height = pdat->height;
-	render->pitch = (pdat->width * pdat->bytes + 0x3) & ~0x3;
-	render->bytes = pdat->bytes;
-	render->format = PIXEL_FORMAT_ARGB32;
-	render->pixels = pixels;
-	render->pixlen = pixlen;
-	render->priv = NULL;
-
-	return render;
+	return surface_alloc(pdat->width, pdat->height, NULL);
 }
 
-static void fb_destroy(struct framebuffer_t * fb, struct render_t * render)
+static void fb_destroy(struct framebuffer_t * fb, struct surface_t * s)
 {
-	if(render)
-	{
-		free(render->pixels);
-		free(render);
-	}
+	surface_free(s);
 }
 
-static void fb_present(struct framebuffer_t * fb, struct render_t * render, struct region_list_t * rl)
+static void fb_present(struct framebuffer_t * fb, struct surface_t * s, struct region_list_t * rl)
 {
 	struct fb_exynos4412_pdata_t * pdat = (struct fb_exynos4412_pdata_t *)fb->priv;
 
-	if(render && render->pixels)
-	{
-		pdat->index = (pdat->index + 1) & 0x1;
-		memcpy(pdat->vram[pdat->index], render->pixels, render->pixlen);
-		dma_cache_sync(pdat->vram[pdat->index], render->pixlen, DMA_TO_DEVICE);
-		exynos4412_fb_set_buffer_address(pdat, 0, pdat->vram[pdat->index]);
-	}
+	pdat->index = (pdat->index + 1) & 0x1;
+	memcpy(pdat->vram[pdat->index], s->pixels, s->pixlen);
+	dma_cache_sync(pdat->vram[pdat->index], pdat->pixlen, DMA_TO_DEVICE);
+	exynos4412_fb_set_buffer_address(pdat, 0, pdat->vram[pdat->index]);
 }
 
 static struct device_t * fb_exynos4412_probe(struct driver_t * drv, struct dtnode_t * n)
@@ -604,10 +572,10 @@ static struct device_t * fb_exynos4412_probe(struct driver_t * drv, struct dtnod
 	pdat->height = dt_read_int(n, "height", 600);
 	pdat->pwidth = dt_read_int(n, "physical-width", 216);
 	pdat->pheight = dt_read_int(n, "physical-height", 135);
-	pdat->bytes = dt_read_int(n, "bytes-per-pixel", 4);
+	pdat->pixlen = pdat->width * pdat->height * 4;
 	pdat->index = 0;
-	pdat->vram[0] = dma_alloc_noncoherent(pdat->width * pdat->height * pdat->bytes);
-	pdat->vram[1] = dma_alloc_noncoherent(pdat->width * pdat->height * pdat->bytes);
+	pdat->vram[0] = dma_alloc_noncoherent(pdat->pixlen);
+	pdat->vram[1] = dma_alloc_noncoherent(pdat->pixlen);
 
 	pdat->output = EXYNOS4412_FB_OUTPUT_RGB;
 	pdat->rgb_mode = EXYNOS4412_FB_MODE_RGB_P;
@@ -632,7 +600,6 @@ static struct device_t * fb_exynos4412_probe(struct driver_t * drv, struct dtnod
 	fb->height = pdat->height;
 	fb->pwidth = pdat->pwidth;
 	fb->pheight = pdat->pheight;
-	fb->bytes = pdat->bytes;
 	fb->setbl = fb_setbl;
 	fb->getbl = fb_getbl;
 	fb->create = fb_create;

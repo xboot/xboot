@@ -35,7 +35,6 @@ struct fb_bcm2836_pdata_t {
 	int height;
 	int pwidth;
 	int pheight;
-	int bytes;
 	int index;
 	void * vram[2];
 	int brightness;
@@ -53,56 +52,24 @@ static int fb_getbl(struct framebuffer_t * fb)
 	return pdat->brightness;
 }
 
-static struct render_t * fb_create(struct framebuffer_t * fb)
+static struct surface_t * fb_create(struct framebuffer_t * fb)
 {
 	struct fb_bcm2836_pdata_t * pdat = (struct fb_bcm2836_pdata_t *)fb->priv;
-	struct render_t * render;
-	void * pixels;
-	size_t pixlen;
-
-	pixlen = pdat->width * pdat->height * pdat->bytes;
-	pixels = memalign(4, pixlen);
-	if(!pixels)
-		return NULL;
-
-	render = malloc(sizeof(struct render_t));
-	if(!render)
-	{
-		free(pixels);
-		return NULL;
-	}
-
-	render->width = pdat->width;
-	render->height = pdat->height;
-	render->pitch = (pdat->width * pdat->bytes + 0x3) & ~0x3;
-	render->bytes = pdat->bytes;
-	render->format = PIXEL_FORMAT_ARGB32;
-	render->pixels = pixels;
-	render->pixlen = pixlen;
-	render->priv = NULL;
-
-	return render;
+	return surface_alloc(pdat->width, pdat->height, NULL);
 }
 
-static void fb_destroy(struct framebuffer_t * fb, struct render_t * render)
+static void fb_destroy(struct framebuffer_t * fb, struct surface_t * s)
 {
-	if(render)
-	{
-		free(render->pixels);
-		free(render);
-	}
+	surface_free(s);
 }
 
-static void fb_present(struct framebuffer_t * fb, struct render_t * render, struct region_list_t * rl)
+static void fb_present(struct framebuffer_t * fb, struct surface_t * s, struct region_list_t * rl)
 {
 	struct fb_bcm2836_pdata_t * pdat = (struct fb_bcm2836_pdata_t *)fb->priv;
 
-	if(render && render->pixels)
-	{
-		pdat->index = (pdat->index + 1) & 0x1;
-		memcpy(pdat->vram[pdat->index], render->pixels, render->pixlen);
-		bcm2836_mbox_fb_present(0, pdat->index ? pdat->height : 0);
-	}
+	pdat->index = (pdat->index + 1) & 0x1;
+	memcpy(pdat->vram[pdat->index], s->pixels, s->pixlen);
+	bcm2836_mbox_fb_present(0, pdat->index ? pdat->height : 0);
 }
 
 static struct device_t * fb_bcm2836_probe(struct driver_t * drv, struct dtnode_t * n)
@@ -126,10 +93,9 @@ static struct device_t * fb_bcm2836_probe(struct driver_t * drv, struct dtnode_t
 	pdat->height = dt_read_int(n, "height", 480);
 	pdat->pwidth = dt_read_int(n, "physical-width", 216);
 	pdat->pheight = dt_read_int(n, "physical-height", 135);
-	pdat->bytes = dt_read_int(n, "bytes-per-pixel", 32);
 	pdat->index = 0;
-	pdat->vram[0] = bcm2836_mbox_fb_alloc(pdat->width, pdat->height, pdat->bytes * 8, 2);
-	pdat->vram[1] = pdat->vram[0] + (pdat->width * pdat->height * pdat->bytes);
+	pdat->vram[0] = bcm2836_mbox_fb_alloc(pdat->width, pdat->height, 4 * 8, 2);
+	pdat->vram[1] = pdat->vram[0] + (pdat->width * pdat->height * 4);
 	pdat->brightness = 0;
 
 	fb->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
@@ -137,7 +103,6 @@ static struct device_t * fb_bcm2836_probe(struct driver_t * drv, struct dtnode_t
 	fb->height = pdat->height;
 	fb->pwidth = pdat->pwidth;
 	fb->pheight = pdat->pheight;
-	fb->bytes = pdat->bytes;
 	fb->setbl = fb_setbl;
 	fb->getbl = fb_getbl;
 	fb->create = fb_create;

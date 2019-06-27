@@ -269,7 +269,7 @@ void window_region_list_clear(struct window_t * w)
 
 void window_present(struct window_t * w, void * o, void (*draw)(struct window_t *, void *))
 {
-	struct region_t rn, ro, * r;
+	struct region_t rn, * r;
 	struct surface_t * s = w->s;
 	int count;
 	int i;

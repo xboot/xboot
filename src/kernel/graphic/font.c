@@ -1,5 +1,5 @@
 /*
- * init/main.c
+ * kernel/graphic/font.c
  *
  * Copyright(c) 2007-2019 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -26,46 +26,57 @@
  *
  */
 
-#include <xboot.h>
-#include <init.h>
+#include <string.h>
+#include <hmap.h>
+#include <graphic/font.h>
+#include <ft2build.h>
+#include FT_FREETYPE_H
 
-int xboot_main(int argc, char * argv[])
+struct font_context_t {
+	FT_Library lib;
+	struct hmap_t * map;
+} __font_context;
+
+static struct font_t * load_font_file(struct font_context_t * ctx, const char * family)
 {
-	/* Do initial memory */
-	do_init_mem();
+	struct font_t * font;
+	FT_Face face;
 
-	/* Do initial scheduler */
-	do_init_sched();
+	font = malloc(sizeof(struct font_t));
+	if(!font)
+		return NULL;
 
-	/* Do initial vfs */
-	do_init_vfs();
+	if(FT_New_Face(ctx->lib, family, 0, &face))
+	{
+		free(font);
+		return NULL;
+	}
+	FT_Select_Charmap(face, FT_ENCODING_UNICODE);
 
-	/* Do all initial calls */
-	do_initcalls();
+	font->family = strdup(face->family_name);
+	font->style = strdup(face->style_name);
+	font->face = face;
+	return font;
+}
 
-	/* Do load font */
-	do_loadfont();
+struct font_t * search_font(const char * family)
+{
+	struct font_context_t * ctx = &__font_context;
+	struct font_t * font = hmap_search(ctx->map, family);
+	if(!font)
+		font = hmap_search(ctx->map, "sans-serif");
+	return font;
+}
 
-	/* Do show logo */
-	do_showlogo();
+void do_loadfont(void)
+{
+	struct font_context_t * ctx = &__font_context;
+	struct font_t * font;
 
-	/* Do auto boot */
-	do_autoboot();
+	FT_Init_FreeType(&ctx->lib);
+	ctx->map = hmap_alloc(0);
 
-#if defined(CONFIG_SHELL_TASK) && (CONFIG_SHELL_TASK > 0)
-	/* Create shell task */
-	struct task_t * task = task_create(NULL, "shell", shell_task, NULL, 0, 0);
-
-	/* Resume shell task */
-	task_resume(task);
-#endif
-
-	/* Scheduler loop */
-	scheduler_loop();
-
-	/* Do all exit calls */
-	do_exitcalls();
-
-	/* Xboot return */
-	return 0;
+	font = load_font_file(ctx, "/framework/assets/fonts/Roboto-Regular.ttf");
+	if(font)
+		hmap_add(ctx->map, "sans-serif", font);
 }

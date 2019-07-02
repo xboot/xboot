@@ -9,6 +9,7 @@ extern "C" {
 #include <stdint.h>
 #include <graphic/region.h>
 #include <graphic/matrix.h>
+#include <graphic/font.h>
 #include <xfs/xfs.h>
 
 struct surface_t;
@@ -39,6 +40,7 @@ struct surface_operate_t
 	void (*blit)(struct surface_t * s, struct matrix_t * m, struct surface_t * src, double alpha);
 	void (*mask)(struct surface_t * s, struct matrix_t * m, struct surface_t * src, struct surface_t * mask);
 	void (*fill)(struct surface_t * s, struct matrix_t * m, double x, double y, double w, double h, double r, double g, double b, double a);
+	void (*text)(struct surface_t * s, struct matrix_t * m, const char * utf8, void * font, double size, double r, double g, double b, double a);
 
 	void (*filter_grayscale)(struct surface_t * s);
 	void (*filter_sepia)(struct surface_t * s);
@@ -101,6 +103,9 @@ struct surface_operate_t
 	void (*shape_mask_surface)(struct surface_t * s, struct surface_t * o, double x, double y);
 	void (*shape_paint)(struct surface_t * s, double alpha);
 
+	void * (*font_create)(struct font_t * f);
+	void (*font_destroy)(void * font);
+
 	void * (*pattern_create)(struct surface_t * s);
 	void * (*pattern_create_color)(double r, double g, double b, double a);
 	void * (*pattern_create_linear)(double x0, double y0, double x1, double y1);
@@ -147,6 +152,11 @@ static inline void surface_mask(struct surface_t * s, struct matrix_t * m, struc
 static inline void surface_fill(struct surface_t * s, struct matrix_t * m, double x, double y, double w, double h, double r, double g, double b, double a)
 {
 	s->op->fill(s, m, x, y, w, h, r, g, b, a);
+}
+
+static inline void surface_text(struct surface_t * s, struct matrix_t * m, const char * utf8, void * font, double size, double r, double g, double b, double a)
+{
+	s->op->text(s, m, utf8, font, size, r, g, b, a);
 }
 
 static inline void surface_filter_grayscale(struct surface_t * s)
@@ -438,6 +448,16 @@ static inline void surface_shape_mask_surface(struct surface_t * s, struct surfa
 static inline void surface_shape_paint(struct surface_t * s, double alpha)
 {
 	s->op->shape_paint(s, alpha);
+}
+
+static inline void * surface_font_create(struct font_t * f)
+{
+	return surface_operate_get()->font_create(f);
+}
+
+static inline void surface_font_destroy(void * font)
+{
+	surface_operate_get()->font_destroy(font);
 }
 
 static inline void * surface_pattern_create(struct surface_t * s)

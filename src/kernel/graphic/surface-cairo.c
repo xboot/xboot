@@ -29,6 +29,7 @@
 #include <xboot.h>
 #include <cairo.h>
 #include <cairoint.h>
+#include <cairo-ft.h>
 #include <graphic/surface.h>
 #include <graphic/filter.h>
 
@@ -85,6 +86,21 @@ static void surface_cairo_fill(struct surface_t * s, struct matrix_t * m, double
 	cairo_rectangle(cr, x, y, w, h);
 	cairo_set_source_rgba(cr, r, g, b, a);
 	cairo_fill(cr);
+	cairo_restore(cr);
+}
+
+static void surface_cairo_text(struct surface_t * s, struct matrix_t * m, const char * utf8, void * font, double size, double r, double g, double b, double a)
+{
+	cairo_t * cr = ((struct surface_cairo_context_t *)s->pctx)->cr;
+	cairo_save(cr);
+	cairo_set_font_face(cr, (cairo_font_face_t *)font);
+	cairo_set_font_size(cr, size);
+	cairo_move_to(cr, m->tx, m->ty);
+	cairo_set_matrix(cr, (cairo_matrix_t *)m);
+	//cairo_text_extents(cr, utf8, &metric);
+	//cairo_move_to(cr, 0, metric.height);
+	cairo_set_source_rgba(cr, r, g, b, a);
+	cairo_show_text(cr, utf8);
 	cairo_restore(cr);
 }
 
@@ -551,6 +567,16 @@ static void * surface_cairo_pattern_create_radial(double x0, double y0, double r
 	return cairo_pattern_create_radial(x0, y0, r0, x1, y1, r1);
 }
 
+static void * surface_cairo_font_create(struct font_t * f)
+{
+	return cairo_ft_font_face_create_for_ft_face((FT_Face)f->face, 0);
+}
+
+static void surface_cairo_font_destroy(void * font)
+{
+	cairo_font_face_destroy((cairo_font_face_t *)font);
+}
+
 static void * surface_cairo_pattern_create(struct surface_t * s)
 {
 	return cairo_pattern_create_for_surface(((struct surface_cairo_context_t *)s->pctx)->cs);
@@ -626,6 +652,7 @@ struct surface_operate_t surface_operate_cairo = {
 	.blit						= surface_cairo_blit,
 	.mask						= surface_cairo_mask,
 	.fill						= surface_cairo_fill,
+	.text						= surface_cairo_text,
 
 	.filter_grayscale			= filter_soft_grayscale,
 	.filter_sepia				= filter_soft_sepia,
@@ -687,6 +714,9 @@ struct surface_operate_t surface_operate_cairo = {
 	.shape_mask					= surface_cairo_shape_mask,
 	.shape_mask_surface			= surface_cairo_shape_mask_surface,
 	.shape_paint				= surface_cairo_shape_paint,
+
+	.font_create				= surface_cairo_font_create,
+	.font_destroy				= surface_cairo_font_destroy,
 
 	.pattern_create				= surface_cairo_pattern_create,
 	.pattern_create_color		= surface_cairo_pattern_create_color,

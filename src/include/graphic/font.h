@@ -5,14 +5,14 @@
 extern "C" {
 #endif
 
-struct font_t {
-	char * family;
-	char * style;
-	void * face;
+struct font_context_t {
+	void * library;
+	struct hmap_t * map;
 };
 
-struct font_t * search_font(const char * family);
-void do_loadfont(void);
+struct font_context_t * font_context_alloc(void);
+void font_context_free(struct font_context_t * ctx);
+void * font_search(struct font_context_t * ctx, const char * family);
 
 #ifdef __cplusplus
 }

@@ -43,9 +43,6 @@ int xboot_main(int argc, char * argv[])
 	/* Do all initial calls */
 	do_initcalls();
 
-	/* Do load font */
-	do_loadfont();
-
 	/* Do show logo */
 	do_showlogo();
 

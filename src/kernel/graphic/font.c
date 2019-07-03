@@ -32,51 +32,65 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
-struct font_context_t {
-	FT_Library lib;
-	struct hmap_t * map;
-} __font_context;
+struct font_description_t {
+	const char * family;
+	const char * path;
+};
 
-static struct font_t * load_font_file(struct font_context_t * ctx, const char * family)
+static struct font_description_t fdesc[] = {
+	{"sans-serif", "/framework/assets/fonts/Roboto-Regular.ttf"},
+};
+
+struct font_context_t * font_context_alloc(void)
 {
-	struct font_t * font;
-	FT_Face face;
+	struct font_context_t * ctx;
 
-	font = malloc(sizeof(struct font_t));
-	if(!font)
+	ctx = malloc(sizeof(struct font_context_t));
+	if(!ctx)
 		return NULL;
-
-	if(FT_New_Face(ctx->lib, family, 0, &face))
-	{
-		free(font);
-		return NULL;
-	}
-	FT_Select_Charmap(face, FT_ENCODING_UNICODE);
-
-	font->family = strdup(face->family_name);
-	font->style = strdup(face->style_name);
-	font->face = face;
-	return font;
-}
-
-struct font_t * search_font(const char * family)
-{
-	struct font_context_t * ctx = &__font_context;
-	struct font_t * font = hmap_search(ctx->map, family);
-	if(!font)
-		font = hmap_search(ctx->map, "sans-serif");
-	return font;
-}
-
-void do_loadfont(void)
-{
-	struct font_context_t * ctx = &__font_context;
-	struct font_t * font;
-
-	FT_Init_FreeType(&ctx->lib);
+	FT_Init_FreeType((FT_Library *)&ctx->library);
 	ctx->map = hmap_alloc(0);
+	return ctx;
+}
 
-	font = load_font_file(ctx, "/framework/assets/fonts/Roboto-Regular.ttf");
-	if(font)
-		hmap_add(ctx->map, "sans-serif", font);
+static void font_callback(char * key, void * value)
+{
+	if(value)
+		FT_Done_Face((FT_Face)value);
+}
+
+void font_context_free(struct font_context_t * ctx)
+{
+	if(!ctx)
+	{
+		hmap_walk(ctx->map, font_callback);
+		hmap_free(ctx->map);
+		FT_Done_FreeType((FT_Library)ctx->library);
+	}
+}
+
+void * font_search(struct font_context_t * ctx, const char * family)
+{
+	FT_Face font;
+	int i;
+
+	if(ctx)
+	{
+		font = hmap_search(ctx->map, family);
+		if(font)
+			return font;
+		for(i = 0; i < ARRAY_SIZE(fdesc); i++)
+		{
+			if(strcmp(family, fdesc[i].family) == 0)
+			{
+				if(FT_New_Face((FT_Library)ctx->library, fdesc[i].path, 0, &font) == 0)
+				{
+					FT_Select_Charmap(font, FT_ENCODING_UNICODE);
+					hmap_add(ctx->map, family, font);
+					return font;
+				}
+			}
+		}
+	}
+	return NULL;
 }

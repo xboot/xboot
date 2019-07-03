@@ -40,7 +40,7 @@ struct surface_operate_t
 	void (*blit)(struct surface_t * s, struct matrix_t * m, struct surface_t * src, double alpha);
 	void (*mask)(struct surface_t * s, struct matrix_t * m, struct surface_t * src, struct surface_t * mask);
 	void (*fill)(struct surface_t * s, struct matrix_t * m, double x, double y, double w, double h, double r, double g, double b, double a);
-	void (*text)(struct surface_t * s, struct matrix_t * m, const char * utf8, void * font, double size, double r, double g, double b, double a);
+	void (*text)(struct surface_t * s, struct matrix_t * m, const char * utf8, void * sfont, double size, double r, double g, double b, double a);
 
 	void (*filter_grayscale)(struct surface_t * s);
 	void (*filter_sepia)(struct surface_t * s);
@@ -103,8 +103,8 @@ struct surface_operate_t
 	void (*shape_mask_surface)(struct surface_t * s, struct surface_t * o, double x, double y);
 	void (*shape_paint)(struct surface_t * s, double alpha);
 
-	void * (*font_create)(struct font_t * f);
-	void (*font_destroy)(void * font);
+	void * (*font_create)(void * font);
+	void (*font_destroy)(void * sfont);
 
 	void * (*pattern_create)(struct surface_t * s);
 	void * (*pattern_create_color)(double r, double g, double b, double a);
@@ -154,9 +154,9 @@ static inline void surface_fill(struct surface_t * s, struct matrix_t * m, doubl
 	s->op->fill(s, m, x, y, w, h, r, g, b, a);
 }
 
-static inline void surface_text(struct surface_t * s, struct matrix_t * m, const char * utf8, void * font, double size, double r, double g, double b, double a)
+static inline void surface_text(struct surface_t * s, struct matrix_t * m, const char * utf8, void * sfont, double size, double r, double g, double b, double a)
 {
-	s->op->text(s, m, utf8, font, size, r, g, b, a);
+	s->op->text(s, m, utf8, sfont, size, r, g, b, a);
 }
 
 static inline void surface_filter_grayscale(struct surface_t * s)
@@ -450,14 +450,14 @@ static inline void surface_shape_paint(struct surface_t * s, double alpha)
 	s->op->shape_paint(s, alpha);
 }
 
-static inline void * surface_font_create(struct font_t * f)
+static inline void * surface_font_create(void * font)
 {
-	return surface_operate_get()->font_create(f);
+	return surface_operate_get()->font_create(font);
 }
 
-static inline void surface_font_destroy(void * font)
+static inline void surface_font_destroy(void * sfont)
 {
-	surface_operate_get()->font_destroy(font);
+	surface_operate_get()->font_destroy(sfont);
 }
 
 static inline void * surface_pattern_create(struct surface_t * s)

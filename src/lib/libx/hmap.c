@@ -179,6 +179,19 @@ void hmap_remove(struct hmap_t * m, const char * key)
 	}
 }
 
+void hmap_walk(struct hmap_t * m, void (*cb)(char * key, void * value))
+{
+	struct hmap_node_t * pos, * n;
+
+	if(m && cb)
+	{
+		list_for_each_entry_safe(pos, n, &m->list, head)
+		{
+			cb(pos->key, pos->value);
+		}
+	}
+}
+
 void * hmap_search(struct hmap_t * m, const char * key)
 {
 	struct hmap_node_t * pos;

@@ -53,7 +53,7 @@ struct font_context_t * font_context_alloc(void)
 	return ctx;
 }
 
-static void font_callback(char * key, void * value)
+static void font_callback(const char * key, void * value)
 {
 	if(value)
 		FT_Done_Face((FT_Face)value);

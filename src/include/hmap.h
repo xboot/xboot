@@ -21,7 +21,7 @@ void hmap_free(struct hmap_t * m);
 void hmap_clear(struct hmap_t * m);
 void hmap_add(struct hmap_t * m, const char * key, void * value);
 void hmap_remove(struct hmap_t * m, const char * key);
-void hmap_walk(struct hmap_t * m, void (*cb)(char * key, void * value));
+void hmap_walk(struct hmap_t * m, void (*cb)(const char * key, void * value));
 void * hmap_search(struct hmap_t * m, const char * key);
 
 #ifdef __cplusplus

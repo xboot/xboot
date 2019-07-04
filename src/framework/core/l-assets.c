@@ -54,16 +54,12 @@ function M:loadImage(name)
 	return nil
 end
 
-function M:loadFont(family, size)
+function M:loadFont(family)
 	if type(family) == "string" then
 		if not self._fonts[family] then
-			self._fonts[family] = {}
+			self._fonts[family] = Font.new(family)
 		end
-		local size = size or 1
-		if not self._fonts[family][size] and Xfs.isfile(family) then
-			self._fonts[family][size] = Font.new(family, size)
-		end
-		return self._fonts[family][size]
+		return self._fonts[family]
 	end
 	return nil
 end

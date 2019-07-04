@@ -38,10 +38,10 @@ struct font_description_t {
 };
 
 static struct font_description_t fdesc[] = {
-	{"roboto-regular",			"/framework/assets/fonts/Roboto-Regular.ttf"},
-	{"roboto-bold",				"/framework/assets/fonts/Roboto-Bold.ttf"},
-	{"roboto-italic",			"/framework/assets/fonts/Roboto-Italic.ttf"},
-	{"roboto-bold-italic",		"/framework/assets/fonts/Roboto-BoldItalic.ttf"},
+	{"roboto-regular",		"/framework/assets/fonts/Roboto-Regular.ttf"},
+	{"roboto-bold",			"/framework/assets/fonts/Roboto-Bold.ttf"},
+	{"roboto-italic",		"/framework/assets/fonts/Roboto-Italic.ttf"},
+	{"roboto-bold-italic",	"/framework/assets/fonts/Roboto-BoldItalic.ttf"},
 };
 
 struct font_context_t * font_context_alloc(void)

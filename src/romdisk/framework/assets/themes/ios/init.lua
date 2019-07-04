@@ -5,11 +5,11 @@ local function D(name)
 end
 
 local common = {
-	fontFamily = "assets/fonts/Roboto-Regular.ttf",
+	fontFamily = "roboto-regular",
 	fontSize = 24,
-	textPatternNormal = Pattern.color(0.8, 0.8, 0.2),
-	textPatternPressed = Pattern.color(0.2, 0.8, 0.2),
-	textPatternDisabled = Pattern.color(0.8, 0.2, 0.2),
+	textPatternNormal = { red = 0, green = 0, blue = 0, alpha = 1 },
+	textPatternPressed = { red = 0.5, green = 0.5, blue = 0.1, alpha = 1 },
+	textPatternDisabled = { red = 0.4, green = 0.4, blue = 0.4, alpha = 1 },
 }
 
 return {
@@ -20,14 +20,12 @@ return {
 			disabled = D("button-disabled.9.png"),
 		},
 		text = {
-			font = {
-				family = "assets/fonts/Roboto-Regular.ttf",
-				size = 24,
-			},
-			pattern = {
-				normal = Pattern.color(0, 0, 0),
-				pressed = Pattern.color(0.5, 0.5, 0.1),
-				disabled = Pattern.color(0.4, 0.4, 0.4),
+			fontFamily = "roboto-regular",
+			fontSize = 24,
+			color = {
+				normal = { red = 0, green = 0, blue = 0, alpha = 1 },
+				pressed = { red = 0.5, green = 0.5, blue = 0.1, alpha = 1 },
+				disabled = { red = 0.4, green = 0.4, blue = 0.4, alpha = 1 },
 			},
 			margin = {
 				left = 0,
@@ -48,14 +46,12 @@ return {
 			offDisabled = D("checkbox-off-disabled.png"),
 		},
 		text = {
-			font = {
-				family = "assets/fonts/Roboto-Regular.ttf",
-				size = 24,
-			},
-			pattern = {
-				normal = Pattern.color(0, 0, 0),
-				pressed = Pattern.color(0.5, 0.5, 0.1),
-				disabled = Pattern.color(0.4, 0.4, 0.4),
+			fontFamily = "roboto-regular",
+			fontSize = 24,
+			color = {
+				normal = { red = 0, green = 0, blue = 0, alpha = 1 },
+				pressed = { red = 0.5, green = 0.5, blue = 0.1, alpha = 1 },
+				disabled = { red = 0.4, green = 0.4, blue = 0.4, alpha = 1 },
 			},
 			margin = {
 				left = 6,
@@ -76,14 +72,12 @@ return {
 			offDisabled = D("radiobutton-off-disabled.png"),
 		},
 		text = {
-			font = {
-				family = "assets/fonts/Roboto-Regular.ttf",
-				size = 24,
-			},
-			pattern = {
-				normal = Pattern.color(0, 0, 0),
-				pressed = Pattern.color(0.5, 0.5, 0.1),
-				disabled = Pattern.color(0.4, 0.4, 0.4),
+			fontFamily = "roboto-regular",
+			fontSize = 24,
+			color = {
+				normal = { red = 0, green = 0, blue = 0, alpha = 1 },
+				pressed = { red = 0.5, green = 0.5, blue = 0.1, alpha = 1 },
+				disabled = { red = 0.4, green = 0.4, blue = 0.4, alpha = 1 },
 			},
 			margin = {
 				left = 6,

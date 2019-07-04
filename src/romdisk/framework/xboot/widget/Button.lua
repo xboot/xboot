@@ -23,11 +23,11 @@ function M:init(option, name)
 	self.opt.imageNormal = assert(option.imageNormal or theme.button.image.normal)
 	self.opt.imagePressed = assert(option.imagePressed or theme.button.image.pressed)
 	self.opt.imageDisabled = assert(option.imageDisabled or theme.button.image.disabled)
-	self.opt.textFontFamily = assert(option.textFontFamily or theme.button.text.font.family)
-	self.opt.textFontSize = assert(option.textFontSize or theme.button.text.font.size)
-	self.opt.textPatternNormal = assert(option.textPatternNormal or theme.button.text.pattern.normal)
-	self.opt.textPatternPressed = assert(option.textPatternPressed or theme.button.text.pattern.pressed)
-	self.opt.textPatternDisabled = assert(option.textPatternDisabled or theme.button.text.pattern.disabled)
+	self.opt.textFontFamily = assert(option.textFontFamily or theme.button.text.fontFamily)
+	self.opt.textFontSize = assert(option.textFontSize or theme.button.text.fontSize)
+	self.opt.textColorNormal = assert(option.textColorNormal or theme.button.text.color.normal)
+	self.opt.textColorPressed = assert(option.textColorPressed or theme.button.text.color.pressed)
+	self.opt.textColorDisabled = assert(option.textColorDisabled or theme.button.text.color.disabled)
 	self.opt.textMarginLeft = assert(option.textMarginLeft or theme.button.text.margin.left)
 	self.opt.textMarginTop = assert(option.textMarginTop or theme.button.text.margin.top)
 	self.opt.textMarginRight = assert(option.textMarginRight or theme.button.text.margin.right)
@@ -91,7 +91,8 @@ function M:setText(text)
 		if self.text then
 			self.text:setText(text)
 		else
-			self.text = DisplayText.new(assets:loadFont(self.opt.textFontFamily, self.opt.textFontSize), self.opt.textPatternNormal, text)
+			local c = self.opt.textColorNormal
+			self.text = DisplayText.new(text, self.opt.textFontFamily, self.opt.textFontSize, c.red, c.green, c.blue, c.alpha)
 			self.text:setLayoutMargin(self.opt.textMarginLeft, self.opt.textMarginTop, self.opt.textMarginRight, self.opt.textMarginBottom)
 			self.text:setLayoutEnable(true)
 		end
@@ -212,7 +213,8 @@ function M:updateVisualState()
 			if not self:contains(self.text) then
 				self:addChild(self.text)
 			end
-			self.text:toFront():setPattern(self.opt.textPatternNormal)
+			local c = self.opt.textColorNormal
+			self.text:toFront():setTextColor(c.red, c.green, c.blue, c.alpha)
 		else
 			if self:contains(self.text) then
 				self:removeChild(self.text)
@@ -232,7 +234,8 @@ function M:updateVisualState()
 			if not self:contains(self.text) then
 				self:addChild(self.text)
 			end
-			self.text:toFront():setPattern(self.opt.textPatternPressed)
+			local c = self.opt.textColorPressed
+			self.text:toFront():setTextColor(c.red, c.green, c.blue, c.alpha)
 		else
 			if self:contains(self.text) then
 				self:removeChild(self.text)
@@ -252,7 +255,8 @@ function M:updateVisualState()
 			if not self:contains(self.text) then
 				self:addChild(self.text)
 			end
-			self.text:toFront():setPattern(self.opt.textPatternDisabled)
+			local c = self.opt.textColorDisabled
+			self.text:toFront():setTextColor(c.red, c.green, c.blue, c.alpha)
 		else
 			if self:contains(self.text) then
 				self:removeChild(self.text)

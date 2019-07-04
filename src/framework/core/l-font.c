@@ -27,6 +27,8 @@
  */
 
 #include <xboot.h>
+#include <ft2build.h>
+#include FT_FREETYPE_H
 #include <framework/core/l-font.h>
 
 static unsigned long ft_xfs_stream_io(FT_Stream stream, unsigned long offset, unsigned char * buffer, unsigned long count)
@@ -35,10 +37,8 @@ static unsigned long ft_xfs_stream_io(FT_Stream stream, unsigned long offset, un
 
 	if(!count && offset > stream->size)
 		return 1;
-
 	if(stream->pos != offset)
 		xfs_seek(file, offset);
-
 	return (unsigned long)xfs_read(file, buffer, count);
 }
 
@@ -87,53 +87,41 @@ static FT_Stream FT_New_Xfs_Stream(lua_State * L, const char * pathname)
     return stream;
 }
 
-static FT_Error FT_New_Xfs_Face(lua_State * L, FT_Library library, const char * pathname, FT_Long face_index, FT_Face * aface)
+static FT_Error FT_New_Xfs_Face(lua_State * L, FT_Library library, const char * pathname, FT_Long index, FT_Face * face)
 {
 	FT_Open_Args args;
 
 	if(!pathname)
 		return -1;
-
 	args.flags = FT_OPEN_STREAM;
 	args.pathname = (char *)pathname;
 	args.stream = FT_New_Xfs_Stream(L, pathname);
-
-	return FT_Open_Face(library, &args, face_index, aface);
+	return FT_Open_Face(library, &args, index, face);
 }
 
 static int l_font_new(lua_State * L)
 {
-	const char * family = luaL_checkstring(L, 1);
-	double size = luaL_optnumber(L, 2, 1);
-	struct lfont_t * font = lua_newuserdata(L, sizeof(struct lfont_t));
-	if(FT_Init_FreeType(&font->library))
-		return 0;
-	if(FT_New_Xfs_Face(L, font->library, family, 0, &font->fface))
+	struct font_context_t * f = ((struct vmctx_t *)luahelper_vmctx(L))->f;
+	const char * family = luaL_optstring(L, 1, "roboto-regular");
+	struct lfont_t * lfont = lua_newuserdata(L, sizeof(struct lfont_t));
+	void * font = font_search(f, family);
+	if(font)
 	{
-		FT_Done_FreeType(font->library);
-		return 0;
+		lfont->font = NULL;
+		lfont->sfont = surface_font_create(font);
 	}
-	font->face = cairo_ft_font_face_create_for_ft_face(font->fface, 0);
-	if(font->face->status != CAIRO_STATUS_SUCCESS)
+	else
 	{
-		FT_Done_Face(font->fface);
-		FT_Done_FreeType(font->library);
-		cairo_font_face_destroy(font->face);
-		return 0;
-	}
-	cairo_font_options_t * options = cairo_font_options_create();
-	cairo_matrix_t msize, midentity;
-	cairo_matrix_init_scale(&msize, size, size);
-	cairo_matrix_init_identity(&midentity);
-	font->font = cairo_scaled_font_reference(cairo_scaled_font_create(font->face, &msize, &midentity, options));
-	cairo_font_options_destroy(options);
-	if(cairo_scaled_font_status(font->font) != CAIRO_STATUS_SUCCESS)
-	{
-		FT_Done_Face(font->fface);
-		FT_Done_FreeType(font->library);
-		cairo_font_face_destroy(font->face);
-		cairo_scaled_font_destroy(font->font);
-		return 0;
+		if(FT_New_Xfs_Face(L, (FT_Library)f->library, family, 0, (FT_Face *)&font) == 0)
+		{
+			lfont->font = font;
+			lfont->sfont = surface_font_create(font);
+		}
+		else
+		{
+			lfont->font = NULL;
+			lfont->sfont = surface_font_create(font_search(f, "roboto-regular"));
+		}
 	}
 	luaL_setmetatable(L, MT_FONT);
 	return 1;
@@ -146,11 +134,10 @@ static const luaL_Reg l_font[] = {
 
 static int m_font_gc(lua_State * L)
 {
-	struct lfont_t * font = luaL_checkudata(L, 1, MT_FONT);
-	FT_Done_Face(font->fface);
-	FT_Done_FreeType(font->library);
-	cairo_font_face_destroy(font->face);
-	cairo_scaled_font_destroy(font->font);
+	struct lfont_t * lfont = luaL_checkudata(L, 1, MT_FONT);
+	if(lfont->font)
+		FT_Done_Face((FT_Face)lfont->font);
+	surface_font_destroy(lfont->sfont);
 	return 0;
 }
 

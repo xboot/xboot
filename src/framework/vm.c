@@ -405,6 +405,7 @@ static struct vmctx_t * vmctx_alloc(const char * path, const char * fb, const ch
 
 	ctx->path = strdup(path);
 	ctx->xfs = xfs_alloc(path, 1);
+	ctx->f = font_context_alloc();
 	ctx->w = window_alloc(fb, input, ctx);
 	return ctx;
 }
@@ -416,6 +417,7 @@ static void vmctx_free(struct vmctx_t * ctx)
 
 	free(ctx->path);
 	xfs_free(ctx->xfs);
+	font_context_free(ctx->f);
 	window_free(ctx->w);
 	free(ctx);
 }

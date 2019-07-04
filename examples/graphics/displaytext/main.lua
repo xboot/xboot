@@ -1,7 +1,6 @@
 local DisplayText = DisplayText
 
-local font = Font.new("assets/fonts/Roboto-Regular.ttf", 50)
-local txt = DisplayText.new(font, Pattern.color(1, 0.2, 0.2), "Hello World")
+local txt = DisplayText.new("Hello World", "roboto-regular", 40, 1, 0.2, 0.2, 1)
 txt:setPosition(200, 200)
 stage:addChild(txt)
 

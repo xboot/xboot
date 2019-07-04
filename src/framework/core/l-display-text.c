@@ -31,10 +31,9 @@
 static const char display_text_lua[] = X(
 local M = Class(DisplayObject)
 
-function M:init(font, pattern, text)
-	self._font = font
-	self._pattern = pattern or Pattern.color()
-	self._text = Text.new(self._font, self._pattern, text or "")
+function M:init(text, family, size, red, green, blue, alpha)
+	self._font = Font.new(family)
+	self._text = Text.new(self._font, text or "", size, red, green, blue, alpha)
 	local width, height = self._text:getSize()
 	self.super:init(width, height, self._text)
 end
@@ -51,7 +50,13 @@ function M:setSize(width, height)
 	return self
 end
 
-function M:setFont(font)
+function M:setText(text)
+	self._text:setText(text or "")
+	self.super:setSize(self._text:getSize())
+	return self
+end
+
+function M:setTextFont(font)
 	if font then
 		self._font = font
 		self._text:setFont(font)
@@ -60,15 +65,14 @@ function M:setFont(font)
 	return self
 end
 
-function M:setPattern(pattern)
-	self._pattern = pattern or Pattern.color()
-	self._text:setPattern(self._pattern)
+function M:setTextSize(size)
+	self._text:setSize(size)
+	self.super:setSize(self._text:getSize())
 	return self
 end
 
-function M:setText(text)
-	self._text:setText(text or "")
-	self.super:setSize(self._text:getSize())
+function M:setTextColor(red, green, blue, alpha)
+	self._text:setColor(red, green, blue, alpha)
 	return self
 end
 

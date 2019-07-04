@@ -92,16 +92,32 @@ static void surface_cairo_fill(struct surface_t * s, struct matrix_t * m, double
 static void surface_cairo_text(struct surface_t * s, struct matrix_t * m, const char * utf8, void * sfont, double size, double r, double g, double b, double a)
 {
 	cairo_t * cr = ((struct surface_cairo_context_t *)s->pctx)->cr;
+	cairo_text_extents_t e;
 	cairo_save(cr);
 	cairo_set_font_face(cr, (cairo_font_face_t *)sfont);
 	cairo_set_font_size(cr, size);
 	cairo_move_to(cr, m->tx, m->ty);
 	cairo_set_matrix(cr, (cairo_matrix_t *)m);
-	//cairo_text_extents(cr, utf8, &metric);
-	//cairo_move_to(cr, 0, metric.height);
+	cairo_text_extents(cr, utf8, &e);
+	cairo_move_to(cr, e.x_bearing, -e.y_bearing);
 	cairo_set_source_rgba(cr, r, g, b, a);
 	cairo_show_text(cr, utf8);
 	cairo_restore(cr);
+}
+
+static void surface_cairo_extent(struct surface_t * s, const char * utf8, void * sfont, double size, double * x, double * y, double * w, double * h)
+{
+	cairo_t * cr = ((struct surface_cairo_context_t *)s->pctx)->cr;
+	cairo_text_extents_t e;
+	cairo_save(cr);
+	cairo_set_font_face(cr, (cairo_font_face_t *)sfont);
+	cairo_set_font_size(cr, size);
+	cairo_text_extents(cr, utf8, &e);
+	cairo_restore(cr);
+	*x = e.x_bearing;
+	*y = -e.y_bearing;
+	*w = e.width;
+	*h = e.height;
 }
 
 static void surface_cairo_shape_save(struct surface_t * s)
@@ -653,6 +669,7 @@ struct surface_operate_t surface_operate_cairo = {
 	.mask						= surface_cairo_mask,
 	.fill						= surface_cairo_fill,
 	.text						= surface_cairo_text,
+	.extent						= surface_cairo_extent,
 
 	.filter_grayscale			= filter_soft_grayscale,
 	.filter_sepia				= filter_soft_sepia,

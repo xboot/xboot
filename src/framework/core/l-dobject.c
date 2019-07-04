@@ -862,18 +862,8 @@ static void dobject_draw_ninepatch(struct ldobject_t * o, struct window_t * w)
 
 static void dobject_draw_text(struct ldobject_t * o, struct window_t * w)
 {
-/*	struct ltext_t * text = o->priv;
-	struct matrix_t * m = dobject_global_matrix(o);
-	cairo_t * cr = w->cr;
-	cairo_save(cr);
-	cairo_set_scaled_font(cr, text->font);
-	cairo_move_to(cr, m->tx, m->ty);
-	cairo_set_matrix(cr, (cairo_matrix_t *)m);
-	cairo_move_to(cr, 0, text->metric.height);
-	cairo_text_path(cr, text->utf8);
-	cairo_set_source(cr, text->pattern);
-	cairo_fill(cr);
-	cairo_restore(cr);*/
+	struct ltext_t * text = o->priv;
+	surface_text(w->s, dobject_global_matrix(o), text->utf8, text->sfont, text->size, text->red, text->green, text->blue, text->alpha);
 }
 
 static void dobject_draw_container(struct ldobject_t * o, struct window_t * w)

@@ -32,10 +32,10 @@
 
 static int l_text_new(lua_State * L)
 {
-	struct window_t * w = ((struct vmctx_t *)luahelper_vmctx(L))->w;
 	struct lfont_t * lfont = luaL_checkudata(L, 1, MT_FONT);
 	const char * utf8 = luaL_checkstring(L, 2);
 	struct ltext_t * text = lua_newuserdata(L, sizeof(struct ltext_t));
+	text->s = ((struct vmctx_t *)luahelper_vmctx(L))->w->s;
 	text->utf8 = strdup(utf8);
 	text->sfont = lfont->sfont;
 	text->size = luaL_optnumber(L, 3, 24);
@@ -43,7 +43,7 @@ static int l_text_new(lua_State * L)
 	text->green = luaL_optnumber(L, 5, 1);
 	text->blue = luaL_optnumber(L, 6, 1);
 	text->alpha = luaL_optnumber(L, 7, 1);
-	surface_extent(w->s, text->utf8, text->sfont, text->size, &text->x, &text->y, &text->w, &text->h);
+	surface_extent(text->s, text->utf8, text->sfont, text->size, &text->x, &text->y, &text->w, &text->h);
 	luaL_setmetatable(L, MT_TEXT);
 	return 1;
 }
@@ -79,34 +79,31 @@ static int m_text_get_size(lua_State * L)
 
 static int m_text_set_text(lua_State * L)
 {
-	struct window_t * w = ((struct vmctx_t *)luahelper_vmctx(L))->w;
 	struct ltext_t * text = luaL_checkudata(L, 1, MT_TEXT);
 	const char * utf8 = luaL_checkstring(L, 2);
 	if(text->utf8)
 		free(text->utf8);
 	text->utf8 = strdup(utf8);
-	surface_extent(w->s, text->utf8, text->sfont, text->size, &text->x, &text->y, &text->w, &text->h);
+	surface_extent(text->s, text->utf8, text->sfont, text->size, &text->x, &text->y, &text->w, &text->h);
 	lua_settop(L, 1);
 	return 1;
 }
 
 static int m_text_set_font(lua_State * L)
 {
-	struct window_t * w = ((struct vmctx_t *)luahelper_vmctx(L))->w;
 	struct ltext_t * text = luaL_checkudata(L, 1, MT_TEXT);
 	struct lfont_t * lfont = luaL_checkudata(L, 2, MT_FONT);
 	text->sfont = lfont->sfont;
-	surface_extent(w->s, text->utf8, text->sfont, text->size, &text->x, &text->y, &text->w, &text->h);
+	surface_extent(text->s, text->utf8, text->sfont, text->size, &text->x, &text->y, &text->w, &text->h);
 	lua_settop(L, 1);
 	return 1;
 }
 
 static int m_text_set_size(lua_State * L)
 {
-	struct window_t * w = ((struct vmctx_t *)luahelper_vmctx(L))->w;
 	struct ltext_t * text = luaL_checkudata(L, 1, MT_TEXT);
 	text->size = luaL_optnumber(L, 2, 24);
-	surface_extent(w->s, text->utf8, text->sfont, text->size, &text->x, &text->y, &text->w, &text->h);
+	surface_extent(text->s, text->utf8, text->sfont, text->size, &text->x, &text->y, &text->w, &text->h);
 	lua_settop(L, 1);
 	return 1;
 }

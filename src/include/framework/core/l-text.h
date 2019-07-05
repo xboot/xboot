@@ -10,6 +10,7 @@ extern "C" {
 #define MT_TEXT	"__mt_text__"
 
 struct ltext_t {
+	struct surface_t * s;
 	char * utf8;
 	void * sfont;
 	double size;

@@ -31,7 +31,6 @@
 #include <cairoint.h>
 #include <cairo-ft.h>
 #include <graphic/surface.h>
-#include <graphic/filter.h>
 
 #ifndef MIN
 #define MIN(a, b)	((a) < (b) ? (a) : (b))

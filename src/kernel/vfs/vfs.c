@@ -701,6 +701,8 @@ int vfs_unmount(const char * path)
 	vfs_node_release(m->m_root);
 	if(m->m_covered)
 		vfs_node_release(m->m_covered);
+	if(m->m_dev)
+		block_sync(m->m_dev);
 	free(m);
 
 	return err;

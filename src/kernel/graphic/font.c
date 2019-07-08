@@ -28,20 +28,9 @@
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
+#include <shash.h>
 #include <string.h>
 #include <graphic/font.h>
-
-struct font_description_t {
-	const char * family;
-	const char * path;
-};
-
-static struct font_description_t fdesc[] = {
-	{"regular",		"/framework/assets/fonts/Roboto-Regular.ttf"},
-	{"roboto-bold",			"/framework/assets/fonts/Roboto-Bold.ttf"},
-	{"roboto-italic",		"/framework/assets/fonts/Roboto-Italic.ttf"},
-	{"roboto-bold-italic",	"/framework/assets/fonts/Roboto-BoldItalic.ttf"},
-};
 
 struct font_context_t * font_context_alloc(void)
 {
@@ -73,25 +62,37 @@ void font_context_free(struct font_context_t * ctx)
 
 void * font_search(struct font_context_t * ctx, const char * family)
 {
+	const char * path;
 	FT_Face font;
-	int i;
 
 	if(ctx)
 	{
 		font = hmap_search(ctx->map, family);
 		if(font)
 			return font;
-		for(i = 0; i < ARRAY_SIZE(fdesc); i++)
+		switch(shash(family))
 		{
-			if(strcmp(family, fdesc[i].family) == 0)
-			{
-				if(FT_New_Face((FT_Library)ctx->library, fdesc[i].path, 0, &font) == 0)
-				{
-					FT_Select_Charmap(font, FT_ENCODING_UNICODE);
-					hmap_add(ctx->map, family, font);
-					return font;
-				}
-			}
+		case 0x3e518f77: /* "regular" */
+			path = "/framework/assets/fonts/Roboto-Regular.ttf";
+			break;
+		case 0x0536d35b: /* "italic" */
+			path = "/framework/assets/fonts/Roboto-Italic.ttf";
+			break;
+		case 0x7c94b326: /* "bold" */
+			path = "/framework/assets/fonts/Roboto-Bold.ttf";
+			break;
+		case 0xad0768e9: /* "bold-italic" */
+			path = "/framework/assets/fonts/Roboto-BoldItalic.ttf";
+			break;
+		default:
+			path = "/framework/assets/fonts/Roboto-Regular.ttf";
+			break;
+		}
+		if(FT_New_Face((FT_Library)ctx->library, path, 0, &font) == 0)
+		{
+			FT_Select_Charmap(font, FT_ENCODING_UNICODE);
+			hmap_add(ctx->map, family, font);
+			return font;
 		}
 	}
 	return NULL;

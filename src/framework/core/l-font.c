@@ -102,7 +102,7 @@ static FT_Error FT_New_Xfs_Face(lua_State * L, FT_Library library, const char * 
 static int l_font_new(lua_State * L)
 {
 	struct font_context_t * f = ((struct vmctx_t *)luahelper_vmctx(L))->f;
-	const char * family = luaL_optstring(L, 1, "roboto-regular");
+	const char * family = luaL_optstring(L, 1, "regular");
 	struct lfont_t * lfont = lua_newuserdata(L, sizeof(struct lfont_t));
 	void * font = font_search(f, family);
 	if(font)
@@ -120,7 +120,7 @@ static int l_font_new(lua_State * L)
 		else
 		{
 			lfont->font = NULL;
-			lfont->sfont = surface_font_create(font_search(f, "roboto-regular"));
+			lfont->sfont = surface_font_create(font_search(f, "regular"));
 		}
 	}
 	luaL_setmetatable(L, MT_FONT);

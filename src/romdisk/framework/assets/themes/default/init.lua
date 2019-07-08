@@ -5,7 +5,7 @@ local function D(name)
 end
 
 local common = {
-	fontFamily = "roboto-regular",
+	fontFamily = "regular",
 	fontSize = 24,
 	textPatternNormal = Color.new({0, 0, 0, 1}),
 	textPatternPressed = Color.new({0.5, 0.5, 0.1, 1}),
@@ -20,7 +20,7 @@ return {
 			disabled = D("button-disabled.9.png"),
 		},
 		text = {
-			fontFamily = "roboto-regular",
+			fontFamily = "regular",
 			fontSize = 24,
 			color = {
 				normal = Color.new({0, 0, 0, 1}),
@@ -46,7 +46,7 @@ return {
 			offDisabled = D("checkbox-off-disabled.png"),
 		},
 		text = {
-			fontFamily = "roboto-regular",
+			fontFamily = "regular",
 			fontSize = 24,
 			color = {
 				normal = Color.new({0, 0, 0, 1}),
@@ -72,7 +72,7 @@ return {
 			offDisabled = D("radiobutton-off-disabled.png"),
 		},
 		text = {
-			fontFamily = "roboto-regular",
+			fontFamily = "regular",
 			fontSize = 24,
 			color = {
 				normal = Color.new({0, 0, 0, 1}),

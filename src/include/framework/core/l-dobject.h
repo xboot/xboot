@@ -40,13 +40,7 @@ struct ldobject_t {
 	double skewx, skewy;
 	double anchorx, anchory;
 	double alpha;
-
-	struct {
-		double red;
-		double green;
-		double blue;
-		double alpha;
-	} background;
+	struct color_t bgcolor;
 
 	struct {
 		int style;

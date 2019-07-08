@@ -14,10 +14,7 @@ struct ltext_t {
 	char * utf8;
 	void * sfont;
 	double size;
-	double red;
-	double green;
-	double blue;
-	double alpha;
+	struct color_t c;
 	double x, y, w, h;
 };
 

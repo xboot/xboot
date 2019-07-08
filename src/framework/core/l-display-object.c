@@ -269,8 +269,8 @@ function M:getAlpha()
 	return self._dobj:getAlpha()
 end
 
-function M:setBackgroundColor(r, g, b, a)
-	self._dobj:setBackgroundColor(r, g, b, a)
+function M:setBackgroundColor(color)
+	self._dobj:setBackgroundColor(color)
 	return self
 end
 

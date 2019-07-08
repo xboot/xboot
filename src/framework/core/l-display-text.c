@@ -71,8 +71,8 @@ function M:setTextSize(size)
 	return self
 end
 
-function M:setTextColor(red, green, blue, alpha)
-	self._text:setColor(red, green, blue, alpha)
+function M:setTextColor(color)
+	self._text:setColor(color)
 	return self
 end
 

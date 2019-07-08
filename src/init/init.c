@@ -38,6 +38,7 @@ void do_showlogo(void)
 	struct surface_t * s, * logo;
 	struct framebuffer_t * fb;
 	struct matrix_t m;
+	struct color_t c;
 
 	if(!list_empty_careful(&__device_head[DEVICE_TYPE_FRAMEBUFFER]))
 	{
@@ -53,7 +54,8 @@ void do_showlogo(void)
 					{
 						s = framebuffer_create_surface(fb);
 						matrix_init_identity(&m);
-						surface_fill(s, &m, 0, 0, surface_get_width(s), surface_get_height(s), 0.2, 0.6, 0.8, 1.0);
+						color_init(&c, 0.2, 0.6, 0.8, 1.0);
+						surface_fill(s, &m, 0, 0, surface_get_width(s), surface_get_height(s), &c);
 						matrix_init_translate(&m, (surface_get_width(s) - surface_get_width(logo)) / 2, (surface_get_height(s) - surface_get_height(logo)) / 2);
 						surface_blit(s, &m, logo, 1.0);
 						framebuffer_present_surface(fb, s, NULL);

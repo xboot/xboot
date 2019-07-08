@@ -28,6 +28,7 @@
 
 #include <xboot.h>
 #include <framework/core/l-font.h>
+#include <framework/core/l-color.h>
 #include <framework/core/l-text.h>
 
 static int l_text_new(lua_State * L)
@@ -39,10 +40,7 @@ static int l_text_new(lua_State * L)
 	text->utf8 = strdup(utf8);
 	text->sfont = lfont->sfont;
 	text->size = luaL_optnumber(L, 3, 24);
-	text->red = luaL_optnumber(L, 4, 1);
-	text->green = luaL_optnumber(L, 5, 1);
-	text->blue = luaL_optnumber(L, 6, 1);
-	text->alpha = luaL_optnumber(L, 7, 1);
+	color_init(&text->c, luaL_optnumber(L, 4, 1), luaL_optnumber(L, 5, 1), luaL_optnumber(L, 6, 1), luaL_optnumber(L, 7, 1));
 	surface_extent(text->s, text->utf8, text->sfont, text->size, &text->x, &text->y, &text->w, &text->h);
 	luaL_setmetatable(L, MT_TEXT);
 	return 1;
@@ -111,10 +109,8 @@ static int m_text_set_size(lua_State * L)
 static int m_text_set_color(lua_State * L)
 {
 	struct ltext_t * text = luaL_checkudata(L, 1, MT_TEXT);
-	text->red = luaL_optnumber(L, 2, 1);
-	text->green = luaL_optnumber(L, 3, 1);
-	text->blue = luaL_optnumber(L, 4, 1);
-	text->alpha = luaL_optnumber(L, 5, 1);
+	struct color_t * c = luaL_checkudata(L, 2, MT_COLOR);
+	memcpy(&text->c, c, sizeof(struct color_t));
 	lua_settop(L, 1);
 	return 1;
 }

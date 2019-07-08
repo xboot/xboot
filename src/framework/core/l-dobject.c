@@ -27,6 +27,7 @@
  */
 
 #include <xboot.h>
+#include <framework/core/l-color.h>
 #include <framework/core/l-image.h>
 #include <framework/core/l-ninepatch.h>
 #include <framework/core/l-text.h>
@@ -863,13 +864,13 @@ static void dobject_draw_ninepatch(struct ldobject_t * o, struct window_t * w)
 static void dobject_draw_text(struct ldobject_t * o, struct window_t * w)
 {
 	struct ltext_t * text = o->priv;
-	surface_text(w->s, dobject_global_matrix(o), text->utf8, text->sfont, text->size, text->red, text->green, text->blue, text->alpha);
+	surface_text(w->s, dobject_global_matrix(o), text->utf8, text->sfont, text->size, &text->c);
 }
 
 static void dobject_draw_container(struct ldobject_t * o, struct window_t * w)
 {
-	if(o->background.alpha != 0.0)
-		surface_fill(w->s, dobject_global_matrix(o), 0, 0, o->width, o->height, o->background.red, o->background.green, o->background.blue, o->background.alpha);
+	if(o->bgcolor.a != 0.0)
+		surface_fill(w->s, dobject_global_matrix(o), 0, 0, o->width, o->height, &o->bgcolor);
 }
 
 static int l_dobject_new(lua_State * L)
@@ -920,10 +921,10 @@ static int l_dobject_new(lua_State * L)
 	o->anchorx = 0;
 	o->anchory = 0;
 	o->alpha = 1;
-	o->background.red = 0;
-	o->background.green = 0;
-	o->background.blue = 0;
-	o->background.alpha = 0;
+	o->bgcolor.r = 0;
+	o->bgcolor.g = 0;
+	o->bgcolor.b = 0;
+	o->bgcolor.a = 0;
 	o->layout.style = 0;
 	o->layout.grow = 0;
 	o->layout.shrink = 1;
@@ -1421,17 +1422,11 @@ static int m_get_alpha(lua_State * L)
 static int m_set_background_color(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
-	double red = luaL_optnumber(L, 2, 1);
-	double green = luaL_optnumber(L, 3, 1);
-	double blue = luaL_optnumber(L, 4, 1);
-	double alpha = luaL_optnumber(L, 5, 1);
-	if((o->background.red != red) || (o->background.green != green) || (o->background.blue != blue) || (o->background.alpha != alpha))
+	struct color_t * c = luaL_checkudata(L, 2, MT_COLOR);
+	if((o->bgcolor.r != c->r) || (o->bgcolor.g != c->g) || (o->bgcolor.b != c->b) || (o->bgcolor.a != c->a))
 	{
 		dobject_mark_dirty(o);
-		o->background.red = red;
-		o->background.green = green;
-		o->background.blue = blue;
-		o->background.alpha = alpha;
+		memcpy(&o->bgcolor, c, sizeof(struct color_t));
 	}
 	return 0;
 }
@@ -1439,11 +1434,10 @@ static int m_set_background_color(lua_State * L)
 static int m_get_background_color(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
-	lua_pushnumber(L, o->background.red);
-	lua_pushnumber(L, o->background.green);
-	lua_pushnumber(L, o->background.blue);
-	lua_pushnumber(L, o->background.alpha);
-	return 4;
+	struct color_t * c = lua_newuserdata(L, sizeof(struct color_t));
+	memcpy(c, &o->bgcolor, sizeof(struct color_t));
+	luaL_setmetatable(L, MT_COLOR);
+	return 1;
 }
 
 static int m_set_layout_enable(lua_State * L)

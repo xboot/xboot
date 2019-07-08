@@ -89,18 +89,18 @@ static void surface_cairo_mask(struct surface_t * s, struct matrix_t * m, struct
 	cairo_restore(cr);
 }
 
-static void surface_cairo_fill(struct surface_t * s, struct matrix_t * m, double x, double y, double w, double h, double r, double g, double b, double a)
+static void surface_cairo_fill(struct surface_t * s, struct matrix_t * m, double x, double y, double w, double h, struct color_t * c)
 {
 	cairo_t * cr = ((struct surface_cairo_context_t *)s->pctx)->cr;
 	cairo_save(cr);
 	cairo_set_matrix(cr, (cairo_matrix_t *)m);
 	cairo_rectangle(cr, x, y, w, h);
-	cairo_set_source_rgba(cr, r, g, b, a);
+	cairo_set_source_rgba(cr, c->r, c->g, c->b, c->a);
 	cairo_fill(cr);
 	cairo_restore(cr);
 }
 
-static void surface_cairo_text(struct surface_t * s, struct matrix_t * m, const char * utf8, void * sfont, double size, double r, double g, double b, double a)
+static void surface_cairo_text(struct surface_t * s, struct matrix_t * m, const char * utf8, void * sfont, double size, struct color_t * c)
 {
 	cairo_t * cr = ((struct surface_cairo_context_t *)s->pctx)->cr;
 	cairo_text_extents_t e;
@@ -111,7 +111,7 @@ static void surface_cairo_text(struct surface_t * s, struct matrix_t * m, const 
 	cairo_set_matrix(cr, (cairo_matrix_t *)m);
 	cairo_text_extents(cr, utf8, &e);
 	cairo_move_to(cr, e.x_bearing, -e.y_bearing);
-	cairo_set_source_rgba(cr, r, g, b, a);
+	cairo_set_source_rgba(cr, c->r, c->g, c->b, c->a);
 	cairo_show_text(cr, utf8);
 	cairo_restore(cr);
 }

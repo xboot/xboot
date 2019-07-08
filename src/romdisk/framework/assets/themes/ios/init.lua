@@ -7,9 +7,9 @@ end
 local common = {
 	fontFamily = "roboto-regular",
 	fontSize = 24,
-	textPatternNormal = { red = 0, green = 0, blue = 0, alpha = 1 },
-	textPatternPressed = { red = 0.5, green = 0.5, blue = 0.1, alpha = 1 },
-	textPatternDisabled = { red = 0.4, green = 0.4, blue = 0.4, alpha = 1 },
+	textPatternNormal = Color.new({0, 0, 0, 1}),
+	textPatternPressed = Color.new({0.5, 0.5, 0.1, 1}),
+	textPatternDisabled = Color.new({0.4, 0.4, 0.4, 1}),
 }
 
 return {
@@ -23,9 +23,9 @@ return {
 			fontFamily = "roboto-regular",
 			fontSize = 24,
 			color = {
-				normal = { red = 0, green = 0, blue = 0, alpha = 1 },
-				pressed = { red = 0.5, green = 0.5, blue = 0.1, alpha = 1 },
-				disabled = { red = 0.4, green = 0.4, blue = 0.4, alpha = 1 },
+				normal = Color.new({0, 0, 0, 1}),
+				pressed = Color.new({0.5, 0.5, 0.1, 1}),
+				disabled = Color.new({0.4, 0.4, 0.4, 1}),
 			},
 			margin = {
 				left = 0,
@@ -49,9 +49,9 @@ return {
 			fontFamily = "roboto-regular",
 			fontSize = 24,
 			color = {
-				normal = { red = 0, green = 0, blue = 0, alpha = 1 },
-				pressed = { red = 0.5, green = 0.5, blue = 0.1, alpha = 1 },
-				disabled = { red = 0.4, green = 0.4, blue = 0.4, alpha = 1 },
+				normal = Color.new({0, 0, 0, 1}),
+				pressed = Color.new({0.5, 0.5, 0.1, 1}),
+				disabled = Color.new({0.4, 0.4, 0.4, 1}),
 			},
 			margin = {
 				left = 6,
@@ -75,9 +75,9 @@ return {
 			fontFamily = "roboto-regular",
 			fontSize = 24,
 			color = {
-				normal = { red = 0, green = 0, blue = 0, alpha = 1 },
-				pressed = { red = 0.5, green = 0.5, blue = 0.1, alpha = 1 },
-				disabled = { red = 0.4, green = 0.4, blue = 0.4, alpha = 1 },
+				normal = Color.new({0, 0, 0, 1}),
+				pressed = Color.new({0.5, 0.5, 0.1, 1}),
+				disabled = Color.new({0.4, 0.4, 0.4, 1}),
 			},
 			margin = {
 				left = 6,

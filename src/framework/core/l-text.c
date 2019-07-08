@@ -27,20 +27,22 @@
  */
 
 #include <xboot.h>
-#include <framework/core/l-font.h>
 #include <framework/core/l-color.h>
+#include <framework/core/l-font.h>
 #include <framework/core/l-text.h>
 
 static int l_text_new(lua_State * L)
 {
-	struct lfont_t * lfont = luaL_checkudata(L, 1, MT_FONT);
-	const char * utf8 = luaL_checkstring(L, 2);
+	const char * utf8 = luaL_checkstring(L, 1);
+	struct color_t * c = luaL_checkudata(L, 2, MT_COLOR);
+	struct lfont_t * lfont = luaL_checkudata(L, 3, MT_FONT);
+	double size = luaL_optnumber(L, 4, 24);
 	struct ltext_t * text = lua_newuserdata(L, sizeof(struct ltext_t));
 	text->s = ((struct vmctx_t *)luahelper_vmctx(L))->w->s;
 	text->utf8 = strdup(utf8);
 	text->sfont = lfont->sfont;
-	text->size = luaL_optnumber(L, 3, 24);
-	color_init(&text->c, luaL_optnumber(L, 4, 1), luaL_optnumber(L, 5, 1), luaL_optnumber(L, 6, 1), luaL_optnumber(L, 7, 1));
+	text->size = size;
+	memcpy(&text->c, c, sizeof(struct color_t));
 	surface_extent(text->s, text->utf8, text->sfont, text->size, &text->x, &text->y, &text->w, &text->h);
 	luaL_setmetatable(L, MT_TEXT);
 	return 1;

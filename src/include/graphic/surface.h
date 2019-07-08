@@ -41,7 +41,7 @@ struct surface_operate_t
 	void (*blit)(struct surface_t * s, struct matrix_t * m, struct surface_t * src, double alpha);
 	void (*mask)(struct surface_t * s, struct matrix_t * m, struct surface_t * src, struct surface_t * mask);
 	void (*fill)(struct surface_t * s, struct matrix_t * m, double x, double y, double w, double h, struct color_t * c);
-	void (*text)(struct surface_t * s, struct matrix_t * m, const char * utf8, void * sfont, double size, struct color_t * c);
+	void (*text)(struct surface_t * s, struct matrix_t * m, const char * utf8, struct color_t * c, void * sfont, double size);
 	void (*extent)(struct surface_t * s, const char * utf8, void * sfont, double size, double * x, double * y, double * w, double * h);
 
 	void (*filter_grayscale)(struct surface_t * s);
@@ -156,9 +156,9 @@ static inline void surface_fill(struct surface_t * s, struct matrix_t * m, doubl
 	s->op->fill(s, m, x, y, w, h, c);
 }
 
-static inline void surface_text(struct surface_t * s, struct matrix_t * m, const char * utf8, void * sfont, double size, struct color_t * c)
+static inline void surface_text(struct surface_t * s, struct matrix_t * m, const char * utf8, struct color_t * c, void * sfont, double size)
 {
-	s->op->text(s, m, utf8, sfont, size, c);
+	s->op->text(s, m, utf8, c, sfont, size);
 }
 
 static inline void surface_extent(struct surface_t * s, const char * utf8, void * sfont, double size, double * x, double * y, double * w, double * h)

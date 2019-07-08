@@ -1,6 +1,6 @@
 local DisplayText = DisplayText
 
-local txt = DisplayText.new("Hello World", "roboto-regular", 40, 1, 0.2, 0.2, 1)
+local txt = DisplayText.new("Hello World", Color.new("skyblue"), assets:loadFont("roboto-regular"), 40)
 txt:setPosition(200, 200)
 stage:addChild(txt)
 

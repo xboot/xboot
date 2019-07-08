@@ -26,10 +26,9 @@
  *
  */
 
-#include <string.h>
-#include <hmap.h>
 #include <ft2build.h>
 #include FT_FREETYPE_H
+#include <string.h>
 #include <graphic/font.h>
 
 struct font_description_t {

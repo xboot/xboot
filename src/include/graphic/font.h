@@ -5,6 +5,8 @@
 extern "C" {
 #endif
 
+#include <hmap.h>
+
 struct font_context_t {
 	void * library;
 	struct hmap_t * map;

@@ -4,8 +4,9 @@ local M = Class(DisplayPager)
 
 function M:init(width, height)
 	self.super:init(width, height, false)
-	self._font = Font.new("assets/fonts/Roboto-Regular.ttf", 24)
-	self._color = Pattern.color(1, 1, 1)
+	self._fontFamily = "roboto-regular"
+	self._fontSize = 24
+	self._color = {red = 1, green = 1, blue = 1, alpha = 1}
 	self:reload()
 end
 
@@ -68,7 +69,8 @@ function M:reload()
 				end)
 			pages[index]:addChild(item)
 
-			local label = DisplayText.new(self._font, self._color, v:getName())
+			local color = self._color
+			local label = DisplayText.new(v:getName(), self._fontFamily, self._fontSize, color.red, color.green, color.blur, color.alpha)
 			local w, h = label:getSize()
 			label:setPosition((iw - w) / 2 + ix, iy + ih + 4)
 			pages[index]:addChild(label)

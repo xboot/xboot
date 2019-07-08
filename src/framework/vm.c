@@ -31,6 +31,7 @@
 #include <framework/core/l-application.h>
 #include <framework/core/l-assets.h>
 #include <framework/core/l-class.h>
+#include <framework/core/l-color.h>
 #include <framework/core/l-display-image.h>
 #include <framework/core/l-display-ninepatch.h>
 #include <framework/core/l-display-object.h>
@@ -71,6 +72,7 @@ static void luaopen_glblibs(lua_State * L)
 		{ "Easing",					luaopen_easing },
 		{ "Spring",					luaopen_spring },
 		{ "Stopwatch",				luaopen_stopwatch },
+		{ "Color",					luaopen_color },
 		{ "Matrix",					luaopen_matrix },
 		{ "Image",					luaopen_image },
 		{ "Ninepatch",				luaopen_ninepatch },

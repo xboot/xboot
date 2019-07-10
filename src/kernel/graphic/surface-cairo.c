@@ -77,12 +77,12 @@ static void surface_cairo_mask(struct surface_t * s, struct matrix_t * m, struct
 	cairo_restore(cr);
 }
 
-static void surface_cairo_fill(struct surface_t * s, struct matrix_t * m, double x, double y, double w, double h, struct color_t * c)
+static void surface_cairo_fill(struct surface_t * s, struct matrix_t * m, struct region_t * r, struct color_t * c)
 {
 	cairo_t * cr = ((struct surface_cairo_context_t *)s->pctx)->cr;
 	cairo_save(cr);
 	cairo_set_matrix(cr, (cairo_matrix_t *)m);
-	cairo_rectangle(cr, x, y, w, h);
+	cairo_rectangle(cr, r->x, r->y, r->w, r->h);
 	cairo_set_source_rgba(cr, c->r / 255.0, c->g / 255.0, c->b / 255.0, c->a / 255.0);
 	cairo_fill(cr);
 	cairo_restore(cr);

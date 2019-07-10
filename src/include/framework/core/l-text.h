@@ -13,7 +13,7 @@ struct ltext_t {
 	struct surface_t * s;
 	char * utf8;
 	void * sfont;
-	double size;
+	int size;
 	struct color_t c;
 	double x, y, w, h;
 };

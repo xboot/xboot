@@ -36,7 +36,7 @@ static int l_text_new(lua_State * L)
 	const char * utf8 = luaL_checkstring(L, 1);
 	struct color_t * c = luaL_checkudata(L, 2, MT_COLOR);
 	struct lfont_t * lfont = luaL_checkudata(L, 3, MT_FONT);
-	double size = luaL_optnumber(L, 4, 24);
+	int size = luaL_optinteger(L, 4, 24);
 	struct ltext_t * text = lua_newuserdata(L, sizeof(struct ltext_t));
 	text->s = ((struct vmctx_t *)luahelper_vmctx(L))->w->s;
 	text->utf8 = strdup(utf8);
@@ -102,7 +102,7 @@ static int m_text_set_font(lua_State * L)
 static int m_text_set_size(lua_State * L)
 {
 	struct ltext_t * text = luaL_checkudata(L, 1, MT_TEXT);
-	text->size = luaL_optnumber(L, 2, 24);
+	text->size = luaL_optinteger(L, 2, 24);
 	surface_extent(text->s, text->utf8, text->sfont, text->size, &text->x, &text->y, &text->w, &text->h);
 	lua_settop(L, 1);
 	return 1;

@@ -88,7 +88,7 @@ static void surface_cairo_fill(struct surface_t * s, struct matrix_t * m, double
 	cairo_restore(cr);
 }
 
-static void surface_cairo_text(struct surface_t * s, struct matrix_t * m, const char * utf8, struct color_t * c, void * sfont, double size)
+static void surface_cairo_text(struct surface_t * s, struct matrix_t * m, const char * utf8, struct color_t * c, void * sfont, int size)
 {
 	cairo_t * cr = ((struct surface_cairo_context_t *)s->pctx)->cr;
 	cairo_text_extents_t e;
@@ -104,7 +104,7 @@ static void surface_cairo_text(struct surface_t * s, struct matrix_t * m, const 
 	cairo_restore(cr);
 }
 
-static void surface_cairo_extent(struct surface_t * s, const char * utf8, void * sfont, double size, double * x, double * y, double * w, double * h)
+static void surface_cairo_extent(struct surface_t * s, const char * utf8, void * sfont, int size, double * x, double * y, double * w, double * h)
 {
 	cairo_t * cr = ((struct surface_cairo_context_t *)s->pctx)->cr;
 	cairo_text_extents_t e;

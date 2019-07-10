@@ -32,18 +32,6 @@
 #include <cairo-ft.h>
 #include <graphic/surface.h>
 
-#ifndef MIN
-#define MIN(a, b)	((a) < (b) ? (a) : (b))
-#endif
-
-#ifndef MAX
-#define MAX(a, b)	((a) > (b) ? (a) : (b))
-#endif
-
-#ifndef CLAMP
-#define CLAMP(x, min, max)	((x) < (min) ? (min) : ((x) > (max) ? (max) : (x)))
-#endif
-
 struct surface_cairo_context_t {
 	cairo_surface_t * cs;
 	cairo_t * cr;
@@ -176,9 +164,9 @@ static void surface_cairo_filter_sepia(struct surface_t * s)
 			tb = (r * 17826 + g * 34996 + b * 8585) >> 16;
 			tg = (r * 22872 + g * 44958 + b * 11010) >> 16;
 			tr = (r * 25756 + g * 50397 + b * 12386) >> 16;
-			p[0] = MIN(tb, 255);
-			p[1] = MIN(tg, 255);
-			p[2] = MIN(tr, 255);
+			p[0] = min(tb, 255);
+			p[1] = min(tg, 255);
+			p[2] = min(tr, 255);
 		}
 	}
 }
@@ -208,8 +196,8 @@ static void surface_cairo_filter_threshold(struct surface_t * s, const char * ty
 	int stride = surface_get_stride(s);
 	unsigned char * p, *q = surface_get_pixels(s);
 	int x, y;
-	threshold = CLAMP(threshold, 0, 255);
-	value = CLAMP(value, 0, 255);
+	threshold = clamp(threshold, 0, 255);
+	value = clamp(value, 0, 255);
 
 	switch(shash(type))
 	{
@@ -415,7 +403,7 @@ static void surface_cairo_filter_gamma(struct surface_t * s, double gamma)
 	for(i = 0; i < 256; i++)
 	{
 		t = powf((float)(i / 255.0), (float)gamma) * 255.0;
-		lut[i] = MIN(t, 255);
+		lut[i] = min(t, 255);
 	}
 	for(y = 0; y < height; y++, q += stride)
 	{
@@ -461,16 +449,16 @@ static void surface_cairo_filter_hue(struct surface_t * s, int angle)
 			tb = (m[6] * r + m[7] * g + m[8] * b) >> 16;
 			tg = (m[3] * r + m[4] * g + m[5] * b) >> 16;
 			tr = (m[0] * r + m[1] * g + m[2] * b) >> 16;
-			p[0] = CLAMP(tb, 0, 255);
-			p[1] = CLAMP(tg, 0, 255);
-			p[2] = CLAMP(tr, 0, 255);
+			p[0] = clamp(tb, 0, 255);
+			p[1] = clamp(tg, 0, 255);
+			p[2] = clamp(tr, 0, 255);
 		}
 	}
 }
 
 static void surface_cairo_filter_saturate(struct surface_t * s, int saturate)
 {
-	int k = CLAMP(saturate, -100, 100) / 100.0 * 128.0;
+	int k = clamp(saturate, -100, 100) / 100.0 * 128.0;
 	int width = surface_get_width(s);
 	int height = surface_get_height(s);
 	int stride = surface_get_stride(s);
@@ -486,8 +474,8 @@ static void surface_cairo_filter_saturate(struct surface_t * s, int saturate)
 			b = p[0];
 			g = p[1];
 			r = p[2];
-			min = MIN(MIN(r, g), b);
-			max = MAX(MAX(r, g), b);
+			min = min(min(r, g), b);
+			max = max(max(r, g), b);
 			delta = max - min;
 			value = max + min;
 			if(delta == 0)
@@ -507,16 +495,16 @@ static void surface_cairo_filter_saturate(struct surface_t * s, int saturate)
 			r = r + ((r - lv) * alpha >> 7);
 			g = g + ((g - lv) * alpha >> 7);
 			b = b + ((b - lv) * alpha >> 7);
-			p[0] = CLAMP(b, 0, 255);
-			p[1] = CLAMP(g, 0, 255);
-			p[2] = CLAMP(r, 0, 255);
+			p[0] = clamp(b, 0, 255);
+			p[1] = clamp(g, 0, 255);
+			p[2] = clamp(r, 0, 255);
 		}
 	}
 }
 
 static void surface_cairo_filter_brightness(struct surface_t * s, int brightness)
 {
-	int delta = CLAMP(brightness, -100, 100) / 100.0 * 255.0;
+	int delta = clamp(brightness, -100, 100) / 100.0 * 255.0;
 	int width = surface_get_width(s);
 	int height = surface_get_height(s);
 	int stride = surface_get_stride(s);
@@ -535,16 +523,16 @@ static void surface_cairo_filter_brightness(struct surface_t * s, int brightness
 			tb = b + delta;
 			tg = g + delta;
 			tr = r + delta;
-			p[0] = CLAMP(tb, 0, 255);
-			p[1] = CLAMP(tg, 0, 255);
-			p[2] = CLAMP(tr, 0, 255);
+			p[0] = clamp(tb, 0, 255);
+			p[1] = clamp(tg, 0, 255);
+			p[2] = clamp(tr, 0, 255);
 		}
 	}
 }
 
 static void surface_cairo_filter_contrast(struct surface_t * s, int contrast)
 {
-	int k = CLAMP(contrast, -100, 100) / 100.0 * 128.0;
+	int k = clamp(contrast, -100, 100) / 100.0 * 128.0;
 	int width = surface_get_width(s);
 	int height = surface_get_height(s);
 	int stride = surface_get_stride(s);
@@ -563,9 +551,9 @@ static void surface_cairo_filter_contrast(struct surface_t * s, int contrast)
 			tb = (b << 7) + (b - 128) * k;
 			tg = (g << 7) + (g - 128) * k;
 			tr = (r << 7) + (r - 128) * k;
-			p[0] = CLAMP(tb, 0, 255 << 7) >> 7;
-			p[1] = CLAMP(tg, 0, 255 << 7) >> 7;
-			p[2] = CLAMP(tr, 0, 255 << 7) >> 7;
+			p[0] = clamp(tb, 0, 255 << 7) >> 7;
+			p[1] = clamp(tg, 0, 255 << 7) >> 7;
+			p[2] = clamp(tr, 0, 255 << 7) >> 7;
 		}
 	}
 }

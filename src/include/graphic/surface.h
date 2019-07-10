@@ -49,7 +49,6 @@ struct surface_operate_t
 	void (*filter_invert)(struct surface_t * s);
 	void (*filter_threshold)(struct surface_t * s, const char * type, int threshold, int value);
 	void (*filter_colorize)(struct surface_t * s, const char * type);
-	void (*filter_gamma)(struct surface_t * s, double gamma);
 	void (*filter_hue)(struct surface_t * s, int angle);
 	void (*filter_saturate)(struct surface_t * s, int saturate);
 	void (*filter_brightness)(struct surface_t * s, int brightness);
@@ -189,11 +188,6 @@ static inline void surface_filter_threshold(struct surface_t * s, const char * t
 static inline void surface_filter_colorize(struct surface_t * s, const char * type)
 {
 	s->op->filter_colorize(s, type);
-}
-
-static inline void surface_filter_gamma(struct surface_t * s, double gamma)
-{
-	s->op->filter_gamma(s, gamma);
 }
 
 static inline void surface_filter_hue(struct surface_t * s, int angle)

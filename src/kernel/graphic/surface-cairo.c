@@ -388,31 +388,6 @@ static void surface_cairo_filter_colorize(struct surface_t * s, const char * typ
 	}
 }
 
-static void surface_cairo_filter_gamma(struct surface_t * s, double gamma)
-{
-	int width = surface_get_width(s);
-	int height = surface_get_height(s);
-	int stride = surface_get_stride(s);
-	unsigned char * p, *q = surface_get_pixels(s);
-	unsigned char lut[256];
-	int x, y, i, t;
-
-	for(i = 0; i < 256; i++)
-	{
-		t = powf((float)(i / 255.0), (float)gamma) * 255.0;
-		lut[i] = min(t, 255);
-	}
-	for(y = 0; y < height; y++, q += stride)
-	{
-		for(x = 0, p = q; x < width; x++, p += 4)
-		{
-			p[0] = lut[p[0]];
-			p[1] = lut[p[1]];
-			p[2] = lut[p[2]];
-		}
-	}
-}
-
 static void surface_cairo_filter_hue(struct surface_t * s, int angle)
 {
 	float av = angle * M_PI / 180.0;
@@ -1188,7 +1163,6 @@ struct surface_operate_t surface_operate_cairo = {
 	.filter_invert				= surface_cairo_filter_invert,
 	.filter_threshold			= surface_cairo_filter_threshold,
 	.filter_colorize			= surface_cairo_filter_colorize,
-	.filter_gamma				= surface_cairo_filter_gamma,
 	.filter_hue					= surface_cairo_filter_hue,
 	.filter_saturate			= surface_cairo_filter_saturate,
 	.filter_brightness			= surface_cairo_filter_brightness,

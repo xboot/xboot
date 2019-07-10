@@ -200,15 +200,6 @@ static int m_image_colorize(lua_State * L)
 	return 1;
 }
 
-static int m_image_gamma(lua_State * L)
-{
-	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
-	float gamma = luaL_optnumber(L, 2, 1);
-	surface_filter_gamma(img->s, gamma);
-	lua_settop(L, 1);
-	return 1;
-}
-
 static int m_image_hue(lua_State * L)
 {
 	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
@@ -738,7 +729,6 @@ static const luaL_Reg m_image[] = {
 	{"invert",				m_image_invert},
 	{"threshold",			m_image_threshold},
 	{"colorize",			m_image_colorize},
-	{"gamma",				m_image_gamma},
 	{"hue",					m_image_hue},
 	{"saturate",			m_image_saturate},
 	{"brightness",			m_image_brightness},

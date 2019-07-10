@@ -104,19 +104,16 @@ static void surface_cairo_text(struct surface_t * s, struct matrix_t * m, const 
 	cairo_restore(cr);
 }
 
-static void surface_cairo_extent(struct surface_t * s, const char * utf8, void * sfont, int size, double * x, double * y, double * w, double * h)
+static void surface_cairo_extent(struct surface_t * s, const char * utf8, void * sfont, int size, struct region_t * e)
 {
 	cairo_t * cr = ((struct surface_cairo_context_t *)s->pctx)->cr;
-	cairo_text_extents_t e;
+	cairo_text_extents_t ext;
 	cairo_save(cr);
 	cairo_set_font_face(cr, (cairo_font_face_t *)sfont);
 	cairo_set_font_size(cr, size);
-	cairo_text_extents(cr, utf8, &e);
+	cairo_text_extents(cr, utf8, &ext);
 	cairo_restore(cr);
-	*x = e.x_bearing;
-	*y = -e.y_bearing;
-	*w = e.width;
-	*h = e.height;
+	region_init(e, ext.x_bearing, -ext.y_bearing, ext.width, ext.height);
 }
 
 static void surface_cairo_filter_grayscale(struct surface_t * s)

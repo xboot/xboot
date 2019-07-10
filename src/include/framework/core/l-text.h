@@ -15,7 +15,7 @@ struct ltext_t {
 	void * sfont;
 	int size;
 	struct color_t c;
-	double x, y, w, h;
+	struct region_t e;
 };
 
 int luaopen_text(lua_State * L);

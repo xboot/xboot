@@ -43,7 +43,7 @@ static int l_text_new(lua_State * L)
 	text->sfont = lfont->sfont;
 	text->size = size;
 	memcpy(&text->c, c, sizeof(struct color_t));
-	surface_extent(text->s, text->utf8, text->sfont, text->size, &text->x, &text->y, &text->w, &text->h);
+	surface_extent(text->s, text->utf8, text->sfont, text->size, &text->e);
 	luaL_setmetatable(L, MT_TEXT);
 	return 1;
 }
@@ -64,16 +64,16 @@ static int m_text_gc(lua_State * L)
 static int m_text_get_origin(lua_State * L)
 {
 	struct ltext_t * text = luaL_checkudata(L, 1, MT_TEXT);
-	lua_pushnumber(L, text->x);
-	lua_pushnumber(L, text->y);
+	lua_pushinteger(L, text->e.x);
+	lua_pushinteger(L, text->e.y);
 	return 2;
 }
 
 static int m_text_get_size(lua_State * L)
 {
 	struct ltext_t * text = luaL_checkudata(L, 1, MT_TEXT);
-	lua_pushnumber(L, text->w);
-	lua_pushnumber(L, text->h);
+	lua_pushinteger(L, text->e.w);
+	lua_pushinteger(L, text->e.h);
 	return 2;
 }
 
@@ -84,7 +84,7 @@ static int m_text_set_text(lua_State * L)
 	if(text->utf8)
 		free(text->utf8);
 	text->utf8 = strdup(utf8);
-	surface_extent(text->s, text->utf8, text->sfont, text->size, &text->x, &text->y, &text->w, &text->h);
+	surface_extent(text->s, text->utf8, text->sfont, text->size, &text->e);
 	lua_settop(L, 1);
 	return 1;
 }
@@ -94,7 +94,7 @@ static int m_text_set_font(lua_State * L)
 	struct ltext_t * text = luaL_checkudata(L, 1, MT_TEXT);
 	struct lfont_t * lfont = luaL_checkudata(L, 2, MT_FONT);
 	text->sfont = lfont->sfont;
-	surface_extent(text->s, text->utf8, text->sfont, text->size, &text->x, &text->y, &text->w, &text->h);
+	surface_extent(text->s, text->utf8, text->sfont, text->size, &text->e);
 	lua_settop(L, 1);
 	return 1;
 }
@@ -103,7 +103,7 @@ static int m_text_set_size(lua_State * L)
 {
 	struct ltext_t * text = luaL_checkudata(L, 1, MT_TEXT);
 	text->size = luaL_optinteger(L, 2, 24);
-	surface_extent(text->s, text->utf8, text->sfont, text->size, &text->x, &text->y, &text->w, &text->h);
+	surface_extent(text->s, text->utf8, text->sfont, text->size, &text->e);
 	lua_settop(L, 1);
 	return 1;
 }

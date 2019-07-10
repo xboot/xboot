@@ -35,10 +35,10 @@ static int l_color_new(lua_State * L)
 	if(lua_istable(L, 1) && lua_rawlen(L, 1) == 4)
 	{
 		struct color_t t;
-		lua_rawgeti(L, 1, 1); t.r = lua_tonumber(L, -1); lua_pop(L, 1);
-		lua_rawgeti(L, 1, 2); t.g = lua_tonumber(L, -1); lua_pop(L, 1);
-		lua_rawgeti(L, 1, 3); t.b = lua_tonumber(L, -1); lua_pop(L, 1);
-		lua_rawgeti(L, 1, 4); t.a = lua_tonumber(L, -1); lua_pop(L, 1);
+		lua_rawgeti(L, 1, 1); t.r = lua_tointeger(L, -1); lua_pop(L, 1);
+		lua_rawgeti(L, 1, 2); t.g = lua_tointeger(L, -1); lua_pop(L, 1);
+		lua_rawgeti(L, 1, 3); t.b = lua_tointeger(L, -1); lua_pop(L, 1);
+		lua_rawgeti(L, 1, 4); t.a = lua_tointeger(L, -1); lua_pop(L, 1);
 		c = lua_newuserdata(L, sizeof(struct color_t));
 		memcpy(c, &t, sizeof(struct color_t));
 	}
@@ -57,7 +57,7 @@ static int l_color_new(lua_State * L)
 	else
 	{
 		c = lua_newuserdata(L, sizeof(struct color_t));
-		color_init(c, 1, 1, 1, 1);
+		color_init(c, 0xff, 0xff, 0xff, 0xff);
 	}
 	luaL_setmetatable(L, MT_COLOR);
 	return 1;
@@ -71,45 +71,45 @@ static const luaL_Reg l_color[] = {
 static int m_color_tostring(lua_State * L)
 {
 	struct color_t * c = luaL_checkudata(L, 1, MT_COLOR);
-	lua_pushfstring(L, "#%02X%02X%02X%02X", (uint8_t)(c->r * 255.0), (uint8_t)(c->g * 255.0), (uint8_t)(c->b * 255.0), (uint8_t)(c->a * 255.0));
+	lua_pushfstring(L, "#%02X%02X%02X%02X", c->r, c->g, c->b, c->a);
 	return 1;
 }
 
 static int m_color_color(lua_State * L)
 {
 	struct color_t * c = luaL_checkudata(L, 1, MT_COLOR);
-	lua_pushnumber(L, c->r);
-	lua_pushnumber(L, c->g);
-	lua_pushnumber(L, c->b);
-	lua_pushnumber(L, c->a);
+	lua_pushinteger(L, c->r);
+	lua_pushinteger(L, c->g);
+	lua_pushinteger(L, c->b);
+	lua_pushinteger(L, c->a);
 	return 4;
 }
 
 static int m_color_red(lua_State * L)
 {
 	struct color_t * c = luaL_checkudata(L, 1, MT_COLOR);
-	lua_pushnumber(L, c->r);
+	lua_pushinteger(L, c->r);
 	return 1;
 }
 
 static int m_color_green(lua_State * L)
 {
 	struct color_t * c = luaL_checkudata(L, 1, MT_COLOR);
-	lua_pushnumber(L, c->g);
+	lua_pushinteger(L, c->g);
 	return 1;
 }
 
 static int m_color_blue(lua_State * L)
 {
 	struct color_t * c = luaL_checkudata(L, 1, MT_COLOR);
-	lua_pushnumber(L, c->b);
+	lua_pushinteger(L, c->b);
 	return 1;
 }
 
 static int m_color_alpha(lua_State * L)
 {
 	struct color_t * c = luaL_checkudata(L, 1, MT_COLOR);
-	lua_pushnumber(L, c->a);
+	lua_pushinteger(L, c->a);
 	return 1;
 }
 

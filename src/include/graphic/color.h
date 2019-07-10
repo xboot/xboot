@@ -5,16 +5,14 @@
 extern "C" {
 #endif
 
-#include <stdint.h>
-
 struct color_t {
-	double r;
-	double g;
-	double b;
-	double a;
+	unsigned char r;
+	unsigned char g;
+	unsigned char b;
+	unsigned char a;
 };
 
-static inline void color_init(struct color_t * c, double r, double g, double b, double a)
+static inline void color_init(struct color_t * c, unsigned char r, unsigned char g, unsigned char b, unsigned char a)
 {
 	c->r = r;
 	c->g = g;

@@ -54,7 +54,7 @@ void do_showlogo(void)
 					{
 						s = framebuffer_create_surface(fb);
 						matrix_init_identity(&m);
-						color_init(&c, 0.2, 0.6, 0.8, 1.0);
+						color_init(&c, 0x33, 0x99, 0xcc, 0xff);
 						surface_fill(s, &m, 0, 0, surface_get_width(s), surface_get_height(s), &c);
 						matrix_init_translate(&m, (surface_get_width(s) - surface_get_width(logo)) / 2, (surface_get_height(s) - surface_get_height(logo)) / 2);
 						surface_blit(s, &m, logo, 1.0);

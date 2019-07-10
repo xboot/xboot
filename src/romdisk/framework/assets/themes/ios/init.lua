@@ -7,9 +7,9 @@ end
 local common = {
 	fontFamily = "regular",
 	fontSize = 24,
-	textPatternNormal = Color.new({0, 0, 0, 1}),
-	textPatternPressed = Color.new({0.5, 0.5, 0.1, 1}),
-	textPatternDisabled = Color.new({0.4, 0.4, 0.4, 1}),
+	textPatternNormal = Color.new({0, 0, 0, 255}),
+	textPatternPressed = Color.new({128, 128, 25, 255}),
+	textPatternDisabled = Color.new({102, 102, 102, 255}),
 }
 
 return {
@@ -23,9 +23,9 @@ return {
 			fontFamily = "regular",
 			fontSize = 24,
 			color = {
-				normal = Color.new({0, 0, 0, 1}),
-				pressed = Color.new({0.5, 0.5, 0.1, 1}),
-				disabled = Color.new({0.4, 0.4, 0.4, 1}),
+				normal = Color.new({0, 0, 0, 255}),
+				pressed = Color.new({128, 128, 25, 255}),
+				disabled = Color.new({102, 102, 102, 255}),
 			},
 			margin = {
 				left = 0,
@@ -49,9 +49,9 @@ return {
 			fontFamily = "regular",
 			fontSize = 24,
 			color = {
-				normal = Color.new({0, 0, 0, 1}),
-				pressed = Color.new({0.5, 0.5, 0.1, 1}),
-				disabled = Color.new({0.4, 0.4, 0.4, 1}),
+				normal = Color.new({0, 0, 0, 255}),
+				pressed = Color.new({128, 128, 25, 255}),
+				disabled = Color.new({102, 102, 102, 255}),
 			},
 			margin = {
 				left = 6,
@@ -75,9 +75,9 @@ return {
 			fontFamily = "regular",
 			fontSize = 24,
 			color = {
-				normal = Color.new({0, 0, 0, 1}),
-				pressed = Color.new({0.5, 0.5, 0.1, 1}),
-				disabled = Color.new({0.4, 0.4, 0.4, 1}),
+				normal = Color.new({0, 0, 0, 255}),
+				pressed = Color.new({128, 128, 25, 255}),
+				disabled = Color.new({102, 102, 102, 255}),
 			},
 			margin = {
 				left = 6,

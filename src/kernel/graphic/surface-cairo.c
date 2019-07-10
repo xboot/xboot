@@ -116,6 +116,55 @@ static void surface_cairo_extent(struct surface_t * s, const char * utf8, void *
 	region_init(e, ext.x_bearing, -ext.y_bearing, ext.width, ext.height);
 }
 
+static void surface_cairo_filter_lookup(struct surface_t * s, struct surface_t * lut)
+{
+	int width = surface_get_width(s);
+	int height = surface_get_height(s);
+	int stride = surface_get_stride(s);
+	unsigned char * p, * q = surface_get_pixels(s);
+	int lw = surface_get_width(lut);
+	int lh = surface_get_height(lut);
+	int ls = surface_get_stride(lut);
+	unsigned char * lp, * lq = surface_get_pixels(lut);
+	unsigned char r, g, b;
+	int tx, ty;
+	int x, y;
+
+	if((lw == 512) && (lh == 512))
+	{
+		for(y = 0; y < height; y++, q += stride)
+		{
+			for(x = 0, p = q; x < width; x++, p += 4)
+			{
+				if(p[3] != 0)
+				{
+					if(p[3] == 255)
+					{
+						tx = (p[2] >> 2) + (((p[0] >> 2) & 0x7) << 6);
+						ty = (p[1] >> 2) + ((p[0] >> 5) << 6);
+						lp = lq + ty * ls + (tx << 2);
+						p[0] = lp[0];
+						p[1] = lp[1];
+						p[2] = lp[2];
+					}
+					else
+					{
+						b = p[0] * 255 / p[3];
+						g = p[1] * 255 / p[3];
+						r = p[2] * 255 / p[3];
+						tx = (r >> 2) + (((b >> 2) & 0x7) << 6);
+						ty = (g >> 2) + ((b >> 5) << 6);
+						lp = lq + ty * ls + (tx << 2);
+						p[0] = lp[0] * p[3] / 255;
+						p[1] = lp[1] * p[3] / 255;
+						p[2] = lp[2] * p[3] / 255;
+					}
+				}
+			}
+		}
+	}
+}
+
 static void surface_cairo_filter_grayscale(struct surface_t * s)
 {
 	int width = surface_get_width(s);
@@ -1158,6 +1207,7 @@ struct surface_operate_t surface_operate_cairo = {
 	.text						= surface_cairo_text,
 	.extent						= surface_cairo_extent,
 
+	.filter_lookup				= surface_cairo_filter_lookup,
 	.filter_grayscale			= surface_cairo_filter_grayscale,
 	.filter_sepia				= surface_cairo_filter_sepia,
 	.filter_invert				= surface_cairo_filter_invert,

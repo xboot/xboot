@@ -156,6 +156,15 @@ static int m_image_clear(lua_State * L)
 	return 1;
 }
 
+static int m_image_lookup(lua_State * L)
+{
+	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
+	struct limage_t * lut = luaL_checkudata(L, 2, MT_IMAGE);
+	surface_filter_lookup(img->s, lut->s);
+	lua_settop(L, 1);
+	return 1;
+}
+
 static int m_image_grayscale(lua_State * L)
 {
 	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
@@ -724,6 +733,7 @@ static const luaL_Reg m_image[] = {
 	{"clone",				m_image_clone},
 
 	{"clear",				m_image_clear},
+	{"lookup",				m_image_lookup},
 	{"grayscale",			m_image_grayscale},
 	{"sepia",				m_image_sepia},
 	{"invert",				m_image_invert},

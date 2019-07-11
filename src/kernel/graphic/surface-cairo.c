@@ -116,22 +116,44 @@ static void surface_cairo_extent(struct surface_t * s, const char * utf8, void *
 	region_init(e, ext.x_bearing, -ext.y_bearing, ext.width, ext.height);
 }
 
-static void surface_cairo_filter_lookup(struct surface_t * s, struct surface_t * lut)
+static void surface_cairo_filter_haldclut(struct surface_t * s, struct surface_t * clut)
 {
 	int width = surface_get_width(s);
 	int height = surface_get_height(s);
 	int stride = surface_get_stride(s);
 	unsigned char * p, * q = surface_get_pixels(s);
-	int lw = surface_get_width(lut);
-	int lh = surface_get_height(lut);
-	int ls = surface_get_stride(lut);
-	unsigned char * lp, * lq = surface_get_pixels(lut);
-	unsigned char r, g, b;
-	int tx, ty;
+	int cw = surface_get_width(clut);
+	int ch = surface_get_height(clut);
+	unsigned char * cp, * cq = surface_get_pixels(clut);
+	int r, g, b;
 	int x, y;
+	int level, level2, level_1, level_2;
 
-	if((lw == 512) && (lh == 512))
+	if(cw == ch)
 	{
+		switch(cw)
+		{
+		case 8:    level =  2 *  2; break;
+		case 27:   level =  3 *  3; break;
+		case 64:   level =  4 *  4; break;
+		case 125:  level =  5 *  5; break;
+		case 216:  level =  6 *  6; break;
+		case 343:  level =  7 *  7; break;
+		case 512:  level =  8 *  8; break;
+		case 729:  level =  9 *  9; break;
+		case 1000: level = 10 * 10; break;
+		case 1331: level = 11 * 11; break;
+		case 1728: level = 12 * 12; break;
+		case 2197: level = 13 * 13; break;
+		case 2744: level = 14 * 14; break;
+		case 3375: level = 15 * 15; break;
+		case 4096: level = 16 * 16; break;
+		default:
+			return;
+		}
+		level2 = level * level;
+		level_1 = level - 1;
+		level_2 = level - 2;
 		for(y = 0; y < height; y++, q += stride)
 		{
 			for(x = 0, p = q; x < width; x++, p += 4)
@@ -140,24 +162,35 @@ static void surface_cairo_filter_lookup(struct surface_t * s, struct surface_t *
 				{
 					if(p[3] == 255)
 					{
-						tx = (p[2] >> 2) + (((p[0] >> 2) & 0x7) << 6);
-						ty = (p[1] >> 2) + ((p[0] >> 5) << 6);
-						lp = lq + ty * ls + (tx << 2);
-						p[0] = lp[0];
-						p[1] = lp[1];
-						p[2] = lp[2];
+						b = p[0] * level_1 / 255;
+						if(b > level_2)
+							b = level_2;
+						g = p[1] * level_1 / 255;
+						if(g > level_2)
+							g = level_2;
+						r = p[2] * level_1 / 255;
+						if(r > level_2)
+							r = level_2;
+						cp = cq + ((b * level2 + g * level + r) << 2);
+						p[0] = cp[0];
+						p[1] = cp[1];
+						p[2] = cp[2];
 					}
 					else
 					{
-						b = p[0] * 255 / p[3];
-						g = p[1] * 255 / p[3];
-						r = p[2] * 255 / p[3];
-						tx = (r >> 2) + (((b >> 2) & 0x7) << 6);
-						ty = (g >> 2) + ((b >> 5) << 6);
-						lp = lq + ty * ls + (tx << 2);
-						p[0] = lp[0] * p[3] / 255;
-						p[1] = lp[1] * p[3] / 255;
-						p[2] = lp[2] * p[3] / 255;
+						b = p[0] * level_1 / p[3];
+						if(b > level_2)
+							b = level_2;
+						g = p[1] * level_1 / p[3];
+						if(g > level_2)
+							g = level_2;
+						r = p[2] * level_1 / p[3];
+						if(r > level_2)
+							r = level_2;
+						cp = cq + ((b * level2 + g * level + r) << 2);
+						p[0] = cp[0] * p[3] / 255;
+						p[1] = cp[1] * p[3] / 255;
+						p[2] = cp[2] * p[3] / 255;
 					}
 				}
 			}
@@ -1284,7 +1317,7 @@ struct surface_operate_t surface_operate_cairo = {
 	.text						= surface_cairo_text,
 	.extent						= surface_cairo_extent,
 
-	.filter_lookup				= surface_cairo_filter_lookup,
+	.filter_haldclut			= surface_cairo_filter_haldclut,
 	.filter_grayscale			= surface_cairo_filter_grayscale,
 	.filter_sepia				= surface_cairo_filter_sepia,
 	.filter_invert				= surface_cairo_filter_invert,

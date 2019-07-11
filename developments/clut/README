@@ -1,0 +1,15 @@
+convert hald:2 haldclut-2.png
+convert hald:3 haldclut-3.png
+convert hald:4 haldclut-4.png
+convert hald:5 haldclut-5.png
+convert hald:6 haldclut-6.png
+convert hald:7 haldclut-7.png
+convert hald:8 haldclut-8.png
+convert hald:9 haldclut-9.png
+convert hald:10 haldclut-10.png
+convert hald:11 haldclut-11.png
+convert hald:12 haldclut-12.png
+convert hald:13 haldclut-13.png
+convert hald:14 haldclut-14.png
+convert hald:15 haldclut-15.png
+convert hald:16 haldclut-16.png

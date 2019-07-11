@@ -171,21 +171,34 @@ static void surface_cairo_filter_grayscale(struct surface_t * s)
 	int height = surface_get_height(s);
 	int stride = surface_get_stride(s);
 	unsigned char * p, * q = surface_get_pixels(s);
+	unsigned char r, g, b;
 	unsigned char gray;
-	int r, g, b;
 	int x, y;
 
 	for(y = 0; y < height; y++, q += stride)
 	{
 		for(x = 0, p = q; x < width; x++, p += 4)
 		{
-			b = p[0];
-			g = p[1];
-			r = p[2];
-			gray = (r * 19595 + g * 38469 + b * 7472) >> 16;
-			p[0] = gray;
-			p[1] = gray;
-			p[2] = gray;
+			if(p[3] != 0)
+			{
+				if(p[3] == 255)
+				{
+					gray = (p[2] * 19595L + p[1] * 38469L + p[0] * 7472L) >> 16;
+					p[0] = gray;
+					p[1] = gray;
+					p[2] = gray;
+				}
+				else
+				{
+					b = p[0] * 255 / p[3];
+					g = p[1] * 255 / p[3];
+					r = p[2] * 255 / p[3];
+					gray = ((r * 19595L + g * 38469L + b * 7472L) >> 16) * p[3] / 255;
+					p[0] = gray;
+					p[1] = gray;
+					p[2] = gray;
+				}
+			}
 		}
 	}
 }
@@ -196,7 +209,7 @@ static void surface_cairo_filter_sepia(struct surface_t * s)
 	int height = surface_get_height(s);
 	int stride = surface_get_stride(s);
 	unsigned char * p, *q = surface_get_pixels(s);
-	int r, g, b;
+	unsigned char r, g, b;
 	int tr, tg, tb;
 	int x, y;
 
@@ -204,15 +217,30 @@ static void surface_cairo_filter_sepia(struct surface_t * s)
 	{
 		for(x = 0, p = q; x < width; x++, p += 4)
 		{
-			b = p[0];
-			g = p[1];
-			r = p[2];
-			tb = (r * 17826 + g * 34996 + b * 8585) >> 16;
-			tg = (r * 22872 + g * 44958 + b * 11010) >> 16;
-			tr = (r * 25756 + g * 50397 + b * 12386) >> 16;
-			p[0] = min(tb, 255);
-			p[1] = min(tg, 255);
-			p[2] = min(tr, 255);
+			if(p[3] != 0)
+			{
+				if(p[3] == 255)
+				{
+					tb = (p[2] * 17826L + p[1] * 34996L + p[0] * 8585L) >> 16;
+					tg = (p[2] * 22872L + p[1] * 44958L + p[0] * 11010L) >> 16;
+					tr = (p[2] * 25756L + p[1] * 50397L + p[0] * 12386L) >> 16;
+					p[0] = min(tb, 255);
+					p[1] = min(tg, 255);
+					p[2] = min(tr, 255);
+				}
+				else
+				{
+					b = p[0] * 255 / p[3];
+					g = p[1] * 255 / p[3];
+					r = p[2] * 255 / p[3];
+					tb = ((r * 17826L + g * 34996L + b * 8585L) >> 16) * p[3] / 255;
+					tg = ((r * 22872L + g * 44958L + b * 11010L) >> 16) * p[3] / 255;
+					tr = ((r * 25756L + g * 50397L + b * 12386L) >> 16) * p[3] / 255;
+					p[0] = min(tb, 255);
+					p[1] = min(tg, 255);
+					p[2] = min(tr, 255);
+				}
+			}
 		}
 	}
 }
@@ -228,9 +256,12 @@ static void surface_cairo_filter_invert(struct surface_t * s)
 	{
 		for(x = 0, p = q; x < width; x++, p += 4)
 		{
-			p[0] = 255 - p[0];
-			p[1] = 255 - p[1];
-			p[2] = 255 - p[2];
+			if(p[3] != 0)
+			{
+				p[0] = p[3] - p[0];
+				p[1] = p[3] - p[1];
+				p[2] = p[3] - p[2];
+			}
 		}
 	}
 }
@@ -252,7 +283,13 @@ static void surface_cairo_filter_threshold(struct surface_t * s, const char * ty
 		{
 			for(x = 0, p = q; x < width; x++, p += 4)
 			{
-				p[2] = p[1] = p[0] = (p[0] > threshold) ? value : 0;
+				if(p[3] != 0)
+				{
+					if(p[3] == 255)
+						p[2] = p[1] = p[0] = (p[0] > threshold) ? value : 0;
+					else
+						p[2] = p[1] = p[0] = (p[0] * 255 / p[3] > threshold) ? value * p[3] / 255 : 0;
+				}
 			}
 		}
 		break;
@@ -261,7 +298,13 @@ static void surface_cairo_filter_threshold(struct surface_t * s, const char * ty
 		{
 			for(x = 0, p = q; x < width; x++, p += 4)
 			{
-				p[2] = p[1] = p[0] = (p[0] > threshold) ? 0 : value;
+				if(p[3] != 0)
+				{
+					if(p[3] == 255)
+						p[2] = p[1] = p[0] = (p[0] > threshold) ? 0: value;
+					else
+						p[2] = p[1] = p[0] = (p[0] * 255 / p[3] > threshold) ? 0: value * p[3] / 255;
+				}
 			}
 		}
 		break;
@@ -270,7 +313,13 @@ static void surface_cairo_filter_threshold(struct surface_t * s, const char * ty
 		{
 			for(x = 0, p = q; x < width; x++, p += 4)
 			{
-				p[2] = p[1] = p[0] = (p[0] > threshold) ? p[0] : 0;
+				if(p[3] != 0)
+				{
+					if(p[3] == 255)
+						p[2] = p[1] = p[0] = (p[0] > threshold) ? p[0] : 0;
+					else
+						p[2] = p[1] = p[0] = (p[0] * 255 / p[3] > threshold) ? p[0] * p[3] / 255 : 0;
+				}
 			}
 		}
 		break;
@@ -279,7 +328,13 @@ static void surface_cairo_filter_threshold(struct surface_t * s, const char * ty
 		{
 			for(x = 0, p = q; x < width; x++, p += 4)
 			{
-				p[2] = p[1] = p[0] = (p[0] > threshold) ? 0 : p[0];
+				if(p[3] != 0)
+				{
+					if(p[3] == 255)
+						p[2] = p[1] = p[0] = (p[0] > threshold) ? 0 : p[0];
+					else
+						p[2] = p[1] = p[0] = (p[0] * 255 / p[3] > threshold) ? 0 : p[0] * p[3] / 255;
+				}
 			}
 		}
 		break;
@@ -288,7 +343,13 @@ static void surface_cairo_filter_threshold(struct surface_t * s, const char * ty
 		{
 			for(x = 0, p = q; x < width; x++, p += 4)
 			{
-				p[2] = p[1] = p[0] = (p[0] > threshold) ? threshold : value;
+				if(p[3] != 0)
+				{
+					if(p[3] == 255)
+						p[2] = p[1] = p[0] = (p[0] > threshold) ? threshold : value;
+					else
+						p[2] = p[1] = p[0] = (p[0] * 255 / p[3] > threshold) ? threshold * p[3] / 255 : value * p[3] / 255;
+				}
 			}
 		}
 		break;
@@ -409,6 +470,7 @@ static void surface_cairo_filter_colorize(struct surface_t * s, const char * typ
 	int stride = surface_get_stride(s);
 	unsigned char * p, *q = surface_get_pixels(s);
 	const unsigned char (*cm)[3];
+	unsigned char r, g, b;
 	int x, y;
 
 	switch(shash(type))
@@ -430,9 +492,24 @@ static void surface_cairo_filter_colorize(struct surface_t * s, const char * typ
 	{
 		for(x = 0, p = q; x < width; x++, p += 4)
 		{
-			p[0] = cm[p[0]][0];
-			p[1] = cm[p[1]][1];
-			p[2] = cm[p[2]][2];
+			if(p[3] != 0)
+			{
+				if(p[3] == 255)
+				{
+					p[0] = cm[p[0]][0];
+					p[1] = cm[p[1]][1];
+					p[2] = cm[p[2]][2];
+				}
+				else
+				{
+					b = p[0] * 255 / p[3];
+					g = p[1] * 255 / p[3];
+					r = p[2] * 255 / p[3];
+					p[0] = cm[b][0] * p[3] / 255;
+					p[1] = cm[g][1] * p[3] / 255;
+					p[2] = cm[r][2] * p[3] / 255;
+				}
+			}
 		}
 	}
 }

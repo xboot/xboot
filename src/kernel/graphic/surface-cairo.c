@@ -116,7 +116,7 @@ static void surface_cairo_extent(struct surface_t * s, const char * utf8, void *
 	region_init(e, ext.x_bearing, -ext.y_bearing, ext.width, ext.height);
 }
 
-static void surface_cairo_filter_haldclut(struct surface_t * s, struct surface_t * clut)
+static void surface_cairo_filter_haldclut(struct surface_t * s, struct surface_t * clut, const char * type)
 {
 	int width = surface_get_width(s);
 	int height = surface_get_height(s);
@@ -124,9 +124,11 @@ static void surface_cairo_filter_haldclut(struct surface_t * s, struct surface_t
 	unsigned char * p, * q = surface_get_pixels(s);
 	int cw = surface_get_width(clut);
 	int ch = surface_get_height(clut);
-	unsigned char * cp, * cq = surface_get_pixels(clut);
-	int r, g, b;
-	int x, y;
+	unsigned char * t, * cp, * cq = surface_get_pixels(clut);
+	double sum[9];
+	double dr, dg, db, xdr, xdg, xdb;
+	int ri, gi, bi;
+	int x, y, v;
 	int level, level2, level_1, level_2;
 
 	if(cw == ch)
@@ -154,46 +156,190 @@ static void surface_cairo_filter_haldclut(struct surface_t * s, struct surface_t
 		level2 = level * level;
 		level_1 = level - 1;
 		level_2 = level - 2;
-		for(y = 0; y < height; y++, q += stride)
+		switch(shash(type))
 		{
-			for(x = 0, p = q; x < width; x++, p += 4)
+		case 0x09fa48d7: /* "nearest" */
+			for(y = 0; y < height; y++, q += stride)
 			{
-				if(p[3] != 0)
+				for(x = 0, p = q; x < width; x++, p += 4)
 				{
-					if(p[3] == 255)
+					if(p[3] != 0)
 					{
-						b = p[0] * level_1 / 255;
-						if(b > level_2)
-							b = level_2;
-						g = p[1] * level_1 / 255;
-						if(g > level_2)
-							g = level_2;
-						r = p[2] * level_1 / 255;
-						if(r > level_2)
-							r = level_2;
-						cp = cq + ((b * level2 + g * level + r) << 2);
-						p[0] = cp[0];
-						p[1] = cp[1];
-						p[2] = cp[2];
-					}
-					else
-					{
-						b = p[0] * level_1 / p[3];
-						if(b > level_2)
-							b = level_2;
-						g = p[1] * level_1 / p[3];
-						if(g > level_2)
-							g = level_2;
-						r = p[2] * level_1 / p[3];
-						if(r > level_2)
-							r = level_2;
-						cp = cq + ((b * level2 + g * level + r) << 2);
-						p[0] = cp[0] * p[3] / 255;
-						p[1] = cp[1] * p[3] / 255;
-						p[2] = cp[2] * p[3] / 255;
+						if(p[3] == 255)
+						{
+							bi = p[0] * level_1 / 255;
+							if(bi > level_2)
+								bi = level_2;
+							gi = p[1] * level_1 / 255;
+							if(gi > level_2)
+								gi = level_2;
+							ri = p[2] * level_1 / 255;
+							if(ri > level_2)
+								ri = level_2;
+							cp = cq + ((bi * level2 + gi * level + ri) << 2);
+							p[0] = cp[0];
+							p[1] = cp[1];
+							p[2] = cp[2];
+						}
+						else
+						{
+							bi = p[0] * level_1 / p[3];
+							if(bi > level_2)
+								bi = level_2;
+							gi = p[1] * level_1 / p[3];
+							if(gi > level_2)
+								gi = level_2;
+							ri = p[2] * level_1 / p[3];
+							if(ri > level_2)
+								ri = level_2;
+							cp = cq + ((bi * level2 + gi * level + ri) << 2);
+							p[0] = cp[0] * p[3] / 255;
+							p[1] = cp[1] * p[3] / 255;
+							p[2] = cp[2] * p[3] / 255;
+						}
 					}
 				}
 			}
+			break;
+		case 0x860ab38f: /* "trilinear" */
+			for(y = 0; y < height; y++, q += stride)
+			{
+				for(x = 0, p = q; x < width; x++, p += 4)
+				{
+					if(p[3] != 0)
+					{
+						if(p[3] == 255)
+						{
+							bi = p[0] * level_1 / 255;
+							if(bi > level_2)
+								bi = level_2;
+							gi = p[1] * level_1 / 255;
+							if(gi > level_2)
+								gi = level_2;
+							ri = p[2] * level_1 / 255;
+							if(ri > level_2)
+								ri = level_2;
+							db = (double)p[0] * level_1 / 255 - bi;
+							dg = (double)p[1] * level_1 / 255 - gi;
+							dr = (double)p[2] * level_1 / 255 - ri;
+							xdb = 1 - db;
+							xdg = 1 - dg;
+							xdr = 1 - dr;
+							cp = cq + ((bi * level2 + gi * level + ri) << 2);
+							t = cp;
+							sum[0] = (double)t[0] * xdr;
+							sum[1] = (double)t[1] * xdr;
+							sum[2] = (double)t[2] * xdr;
+							t += 4;
+							sum[0] += (double)t[0] * dr;
+							sum[1] += (double)t[1] * dr;
+							sum[2] += (double)t[2] * dr;
+							t = cp + (level << 2);
+							sum[3] = (double)t[0] * xdr;
+							sum[4] = (double)t[1] * xdr;
+							sum[5] = (double)t[2] * xdr;
+							t += 4;
+							sum[3] += (double)t[0] * dr;
+							sum[4] += (double)t[1] * dr;
+							sum[5] += (double)t[2] * dr;
+							sum[6] = sum[0] * xdg + sum[3] * dg;
+							sum[7] = sum[1] * xdg + sum[4] * dg;
+							sum[8] = sum[2] * xdg + sum[5] * dg;
+							t = cp + (level2 << 2);
+							sum[0] = (double)t[0] * xdr;
+							sum[1] = (double)t[1] * xdr;
+							sum[2] = (double)t[2] * xdr;
+							t += 4;
+							sum[0] += (double)t[0] * dr;
+							sum[1] += (double)t[1] * dr;
+							sum[2] += (double)t[2] * dr;
+							t = cp + ((level2 + level) << 2);
+							sum[3] = (double)t[0] * xdr;
+							sum[4] = (double)t[1] * xdr;
+							sum[5] = (double)t[2] * xdr;
+							t += 4;
+							sum[3] += (double)t[0] * dr;
+							sum[4] += (double)t[1] * dr;
+							sum[5] += (double)t[2] * dr;
+							sum[0] = sum[0] * xdg + sum[3] * dg;
+							sum[1] = sum[1] * xdg + sum[4] * dg;
+							sum[2] = sum[2] * xdg + sum[5] * dg;
+							v = sum[6] * xdb + sum[0] * db;
+							p[0] = clamp(v, 0, 255);
+							v = sum[7] * xdb + sum[1] * db;
+							p[1] = clamp(v, 0, 255);
+							v = sum[8] * xdb + sum[2] * db;
+							p[2] = clamp(v, 0, 255);
+						}
+						else
+						{
+							bi = p[0] * level_1 / p[3];
+							if(bi > level_2)
+								bi = level_2;
+							gi = p[1] * level_1 / p[3];
+							if(gi > level_2)
+								gi = level_2;
+							ri = p[2] * level_1 / p[3];
+							if(ri > level_2)
+								ri = level_2;
+							db = (double)p[0] * level_1 / p[3] - bi;
+							dg = (double)p[1] * level_1 / p[3] - gi;
+							dr = (double)p[2] * level_1 / p[3] - ri;
+							xdb = 1 - db;
+							xdg = 1 - dg;
+							xdr = 1 - dr;
+							cp = cq + ((bi * level2 + gi * level + ri) << 2);
+							t = cp;
+							sum[0] = (double)t[0] * xdr;
+							sum[1] = (double)t[1] * xdr;
+							sum[2] = (double)t[2] * xdr;
+							t += 4;
+							sum[0] += (double)t[0] * dr;
+							sum[1] += (double)t[1] * dr;
+							sum[2] += (double)t[2] * dr;
+							t = cp + (level << 2);
+							sum[3] = (double)t[0] * xdr;
+							sum[4] = (double)t[1] * xdr;
+							sum[5] = (double)t[2] * xdr;
+							t += 4;
+							sum[3] += (double)t[0] * dr;
+							sum[4] += (double)t[1] * dr;
+							sum[5] += (double)t[2] * dr;
+							sum[6] = sum[0] * xdg + sum[3] * dg;
+							sum[7] = sum[1] * xdg + sum[4] * dg;
+							sum[8] = sum[2] * xdg + sum[5] * dg;
+							t = cp + (level2 << 2);
+							sum[0] = (double)t[0] * xdr;
+							sum[1] = (double)t[1] * xdr;
+							sum[2] = (double)t[2] * xdr;
+							t += 4;
+							sum[0] += (double)t[0] * dr;
+							sum[1] += (double)t[1] * dr;
+							sum[2] += (double)t[2] * dr;
+							t = cp + ((level2 + level) << 2);
+							sum[3] = (double)t[0] * xdr;
+							sum[4] = (double)t[1] * xdr;
+							sum[5] = (double)t[2] * xdr;
+							t += 4;
+							sum[3] += (double)t[0] * dr;
+							sum[4] += (double)t[1] * dr;
+							sum[5] += (double)t[2] * dr;
+							sum[0] = sum[0] * xdg + sum[3] * dg;
+							sum[1] = sum[1] * xdg + sum[4] * dg;
+							sum[2] = sum[2] * xdg + sum[5] * dg;
+							v = (sum[6] * xdb + sum[0] * db) * p[3] / 255;
+							p[0] = clamp(v, 0, 255);
+							v = (sum[7] * xdb + sum[1] * db) * p[3] / 255;
+							p[1] = clamp(v, 0, 255);
+							v = (sum[8] * xdb + sum[2] * db) * p[3] / 255;
+							p[2] = clamp(v, 0, 255);
+						}
+					}
+				}
+			}
+			break;
+		default:
+			break;
 		}
 	}
 }

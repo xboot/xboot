@@ -160,7 +160,8 @@ static int m_image_haldclut(lua_State * L)
 {
 	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
 	struct limage_t * clut = luaL_checkudata(L, 2, MT_IMAGE);
-	surface_filter_haldclut(img->s, clut->s);
+	const char * type = luaL_optstring(L, 3, "nearest");
+	surface_filter_haldclut(img->s, clut->s, type);
 	lua_settop(L, 1);
 	return 1;
 }

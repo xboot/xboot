@@ -55,10 +55,10 @@ struct ledstrip_sk9822_pdata_t {
 	int clkinv;
 	int brightness;
 	int count;
-	uint32_t * buffer;
+	struct color_t * color;
 };
 
-static void ledstrip_sk9822_send(struct ledstrip_t * strip, uint8_t byte)
+static void ledstrip_sk9822_send(struct ledstrip_t * strip, unsigned char byte)
 {
 	struct ledstrip_sk9822_pdata_t * pdat = (struct ledstrip_sk9822_pdata_t *)strip->priv;
 	unsigned char mask;
@@ -80,11 +80,11 @@ static void ledstrip_sk9822_set_count(struct ledstrip_t * strip, int n)
 
 	if((n != pdat->count) && (n > 0))
 	{
-		if(pdat->buffer)
-			free(pdat->buffer);
+		if(pdat->color)
+			free(pdat->color);
 		pdat->count = n;
-		pdat->buffer = memalign(sizeof(uint32_t), pdat->count * sizeof(uint32_t));
-		memset(pdat->buffer, 0, pdat->count * sizeof(uint32_t));
+		pdat->color = malloc(pdat->count * sizeof(struct color_t));
+		memset(pdat->color, 0, pdat->count * sizeof(struct color_t));
 	}
 }
 
@@ -94,16 +94,16 @@ static int ledstrip_sk9822_get_count(struct ledstrip_t * strip)
 	return pdat->count;
 }
 
-static void ledstrip_sk9822_set_color(struct ledstrip_t * strip, int i, uint32_t color)
+static void ledstrip_sk9822_set_color(struct ledstrip_t * strip, int i, struct color_t * c)
 {
 	struct ledstrip_sk9822_pdata_t * pdat = (struct ledstrip_sk9822_pdata_t *)strip->priv;
-	pdat->buffer[i] = color;
+	memcpy(&pdat->color[i], c, sizeof(struct color_t));
 }
 
-static uint32_t ledstrip_sk9822_get_color(struct ledstrip_t * strip, int i)
+static void ledstrip_sk9822_get_color(struct ledstrip_t * strip, int i, struct color_t * c)
 {
 	struct ledstrip_sk9822_pdata_t * pdat = (struct ledstrip_sk9822_pdata_t *)strip->priv;
-	return pdat->buffer[i];
+	memcpy(c, &pdat->color[i], sizeof(struct color_t));
 }
 
 static void ledstrip_sk9822_refresh(struct ledstrip_t * strip)
@@ -118,9 +118,9 @@ static void ledstrip_sk9822_refresh(struct ledstrip_t * strip)
 	for(i = 0; i < pdat->count; i++)
 	{
 		ledstrip_sk9822_send(strip, (0x7 << 5) | (pdat->brightness & 0x1f));
-		ledstrip_sk9822_send(strip, (pdat->buffer[i] >>  0) & 0xff);
-		ledstrip_sk9822_send(strip, (pdat->buffer[i] >>  8) & 0xff);
-		ledstrip_sk9822_send(strip, (pdat->buffer[i] >> 16) & 0xff);
+		ledstrip_sk9822_send(strip, pdat->color[i].b);
+		ledstrip_sk9822_send(strip, pdat->color[i].g);
+		ledstrip_sk9822_send(strip, pdat->color[i].r);
 	}
 	ledstrip_sk9822_send(strip, 0xff);
 	ledstrip_sk9822_send(strip, 0xff);
@@ -158,7 +158,7 @@ static struct device_t * ledstrip_sk9822_probe(struct driver_t * drv, struct dtn
 	pdat->clkinv = dt_read_int(n, "clk-gpio-inverted", 0);
 	pdat->brightness = dt_read_int(n, "brightness", 31);
 	pdat->count = 0;
-	pdat->buffer = NULL;
+	pdat->color = NULL;
 
 	strip->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	strip->set_count = ledstrip_sk9822_set_count;
@@ -205,8 +205,8 @@ static void ledstrip_sk9822_remove(struct device_t * dev)
 
 	if(strip && unregister_ledstrip(strip))
 	{
-		if(pdat->buffer)
-			free(pdat->buffer);
+		if(pdat->color)
+			free(pdat->color);
 
 		free_device_name(strip->name);
 		free(strip->priv);

@@ -32,28 +32,28 @@
 static ssize_t ledstrip_read_count(struct kobj_t * kobj, void * buf, size_t size)
 {
 	struct ledstrip_t * strip = (struct ledstrip_t *)kobj->priv;
-	int c = ledstrip_get_count(strip);
-	return sprintf(buf, "%d", c);
+	int n = ledstrip_get_count(strip);
+	return sprintf(buf, "%d", n);
 }
 
 static ssize_t ledstrip_write_count(struct kobj_t * kobj, void * buf, size_t size)
 {
 	struct ledstrip_t * strip = (struct ledstrip_t *)kobj->priv;
-	int c = strtol(buf, NULL, 0);
-	ledstrip_set_count(strip, c);
+	int n = strtol(buf, NULL, 0);
+	ledstrip_set_count(strip, n);
 	return size;
 }
 
 static ssize_t ledstrip_read_color(struct kobj_t * kobj, void * buf, size_t size)
 {
 	struct ledstrip_t * strip = (struct ledstrip_t *)kobj->priv;
-	int c = ledstrip_get_count(strip);
+	struct color_t c;
+	int n = ledstrip_get_count(strip);
 	int i, len;
-	uint32_t color;
-	for(i = 0, len = 0; i < c; i++)
+	for(i = 0, len = 0; i < n; i++)
 	{
-		color = ledstrip_get_color(strip, i);
-		len += sprintf((char *)(buf + len), "[%3d][%3d %3d %3d]\r\n", i, (color >> 16) & 0xff, (color >> 8) & 0xff, (color >> 0) & 0xff);
+		ledstrip_get_color(strip, i, &c);
+		len += sprintf((char *)(buf + len), "[%3d][#%02X%02X%02X]\r\n", i, c.r, c.g, c.b);
 	}
 	return len;
 }
@@ -61,10 +61,14 @@ static ssize_t ledstrip_read_color(struct kobj_t * kobj, void * buf, size_t size
 static ssize_t ledstrip_write_color(struct kobj_t * kobj, void * buf, size_t size)
 {
 	struct ledstrip_t * strip = (struct ledstrip_t *)kobj->priv;
+	struct color_t c;
+	char s[128];
 	int i;
-	uint32_t color;
-	if(sscanf(buf, "%d:%x", &i, &color) == 2)
-		ledstrip_set_color(strip, i, color);
+	if(sscanf(buf, "%d:%s", &i, s) == 2)
+	{
+		color_init_string(&c, s);
+		ledstrip_set_color(strip, i, &c);
+	}
 	return size;
 }
 
@@ -138,13 +142,13 @@ bool_t unregister_ledstrip(struct ledstrip_t * strip)
 	return TRUE;
 }
 
-void ledstrip_set_count(struct ledstrip_t * strip, int c)
+void ledstrip_set_count(struct ledstrip_t * strip, int n)
 {
 	if(strip && strip->set_count)
 	{
-		if(c < 1)
-			c = 1;
-		strip->set_count(strip, c);
+		if(n < 1)
+			n = 1;
+		strip->set_count(strip, n);
 	}
 }
 
@@ -155,27 +159,26 @@ int ledstrip_get_count(struct ledstrip_t * strip)
 	return 0;
 }
 
-void ledstrip_set_color(struct ledstrip_t * strip, int i, uint32_t color)
+void ledstrip_set_color(struct ledstrip_t * strip, int i, struct color_t * c)
 {
-	int c = ledstrip_get_count(strip);
+	int n = ledstrip_get_count(strip);
 
 	if(strip && strip->set_color)
 	{
-		if((i >= 0) && (i < c))
-			strip->set_color(strip, i, color & 0x00ffffff);
+		if((i >= 0) && (i < n))
+			strip->set_color(strip, i, c);
 	}
 }
 
-uint32_t ledstrip_get_color(struct ledstrip_t * strip, int i)
+void ledstrip_get_color(struct ledstrip_t * strip, int i, struct color_t * c)
 {
-	int c = ledstrip_get_count(strip);
+	int n = ledstrip_get_count(strip);
 
 	if(strip && strip->get_color)
 	{
-		if((i >= 0) && (i < c))
-			return strip->get_color(strip, i);
+		if((i >= 0) && (i < n))
+			strip->get_color(strip, i, c);
 	}
-	return 0;
 }
 
 void ledstrip_refresh(struct ledstrip_t * strip)

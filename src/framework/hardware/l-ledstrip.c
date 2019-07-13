@@ -27,6 +27,7 @@
  */
 
 #include <led/ledstrip.h>
+#include <framework/core/l-color.h>
 #include <framework/hardware/l-hardware.h>
 
 static int l_ledstrip_new(lua_State * L)
@@ -74,8 +75,8 @@ static int m_ledstrip_tostring(lua_State * L)
 static int m_ledstrip_set_count(lua_State * L)
 {
 	struct ledstrip_t * strip = luaL_checkudata(L, 1, MT_HARDWARE_LEDSTRIP);
-	int c = luaL_checkinteger(L, 2);
-	ledstrip_set_count(strip, c);
+	int n = luaL_checkinteger(L, 2);
+	ledstrip_set_count(strip, n);
 	lua_settop(L, 1);
 	return 1;
 }
@@ -91,14 +92,8 @@ static int m_ledstrip_set_color(lua_State * L)
 {
 	struct ledstrip_t * strip = luaL_checkudata(L, 1, MT_HARDWARE_LEDSTRIP);
 	int i = luaL_checkinteger(L, 2);
-	double red = luaL_checknumber(L, 3);
-	double green = luaL_checknumber(L, 4);
-	double blue = luaL_checknumber(L, 5);
-	uint8_t r = (uint8_t)(red * 0xff) & 0xff;
-	uint8_t g = (uint8_t)(green * 0xff) & 0xff;
-	uint8_t b = (uint8_t)(blue * 0xff) & 0xff;
-	uint32_t color = (r << 16) | (g << 8) | (b << 0);
-	ledstrip_set_color(strip, i, color);
+	struct color_t * c = luaL_checkudata(L, 3, MT_COLOR);
+	ledstrip_set_color(strip, i, c);
 	lua_settop(L, 1);
 	return 1;
 }
@@ -107,14 +102,10 @@ static int m_ledstrip_get_color(lua_State * L)
 {
 	struct ledstrip_t * strip = luaL_checkudata(L, 1, MT_HARDWARE_LEDSTRIP);
 	int i = luaL_checkinteger(L, 2);
-	uint32_t color = ledstrip_get_color(strip, i);
-	double red = (double)((color >> 16) & 0xff) / 0xff;
-	double green = (double)((color >> 8) & 0xff) / 0xff;
-	double blue = (double)((color >> 0) & 0xff) / 0xff;
-	lua_pushnumber(L, red);
-	lua_pushnumber(L, green);
-	lua_pushnumber(L, blue);
-	return 3;
+	struct color_t * c = lua_newuserdata(L, sizeof(struct color_t));
+	ledstrip_get_color(strip, i, c);
+	luaL_setmetatable(L, MT_COLOR);
+	return 1;
 }
 
 static int m_ledstrip_refresh(lua_State * L)

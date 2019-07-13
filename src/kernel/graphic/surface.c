@@ -136,7 +136,7 @@ void surface_clear(struct surface_t * s)
 
 void surface_set_pixel(struct surface_t * s, int x, int y, struct color_t * c)
 {
-	if(s && c && (x < s->width) && (y < s->height))
+	if(c && s && (x < s->width) && (y < s->height))
 	{
 		unsigned char * p = (unsigned char *)s->pixels + y * s->stride + (x << 2);
 		switch(c->a)
@@ -165,29 +165,39 @@ void surface_set_pixel(struct surface_t * s, int x, int y, struct color_t * c)
 
 void surface_get_pixel(struct surface_t * s, int x, int y, struct color_t * c)
 {
-	if(s && c && (x < s->width) && (y < s->height))
+	if(c)
 	{
-		unsigned char * p = (unsigned char *)s->pixels + y * s->stride + (x << 2);
-		switch(p[3])
+		if(s && (x < s->width) && (y < s->height))
 		{
-		case 0:
+			unsigned char * p = (unsigned char *)s->pixels + y * s->stride + (x << 2);
+			switch(p[3])
+			{
+			case 0:
+				c->b = 0;
+				c->g = 0;
+				c->r = 0;
+				c->a = 0;
+				break;
+			case 255:
+				c->b = p[0];
+				c->g = p[1];
+				c->r = p[2];
+				c->a = 255;
+				break;
+			default:
+				c->b = p[0] * 255 / p[3];
+				c->g = p[1] * 255 / p[3];
+				c->r = p[2] * 255 / p[3];
+				c->a = p[3];
+				break;
+			}
+		}
+		else
+		{
 			c->b = 0;
 			c->g = 0;
 			c->r = 0;
 			c->a = 0;
-			break;
-		case 255:
-			c->b = p[0];
-			c->g = p[1];
-			c->r = p[2];
-			c->a = 255;
-			break;
-		default:
-			c->b = p[0] * 255 / p[3];
-			c->g = p[1] * 255 / p[3];
-			c->r = p[2] * 255 / p[3];
-			c->a = p[3];
-			break;
 		}
 	}
 }

@@ -517,6 +517,8 @@ struct surface_t * surface_alloc_from_xfs(struct xfs_context_t * ctx, const char
 struct surface_t * surface_clone(struct surface_t * s);
 void surface_free(struct surface_t * s);
 void surface_clear(struct surface_t * s);
+void surface_set_pixel(struct surface_t * s, int x, int y, struct color_t * c);
+void surface_get_pixel(struct surface_t * s, int x, int y, struct color_t * c);
 
 #ifdef __cplusplus
 }

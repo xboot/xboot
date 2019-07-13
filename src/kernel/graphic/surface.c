@@ -134,6 +134,64 @@ void surface_clear(struct surface_t * s)
 		memset(s->pixels, 0, s->pixlen);
 }
 
+void surface_set_pixel(struct surface_t * s, int x, int y, struct color_t * c)
+{
+	if(s && c && (x < s->width) && (y < s->height))
+	{
+		unsigned char * p = (unsigned char *)s->pixels + y * s->stride + (x << 2);
+		if(c->a == 255)
+		{
+			p[0] = c->b;
+			p[1] = c->g;
+			p[2] = c->r;
+			p[3] = c->a;
+		}
+		else if(c->a == 0)
+		{
+			p[0] = 0;
+			p[1] = 0;
+			p[2] = 0;
+			p[3] = 0;
+		}
+		else
+		{
+			p[0] = c->b * c->a / 255;
+			p[1] = c->g * c->a / 255;
+			p[2] = c->r * c->a / 255;
+			p[3] = c->a;
+		}
+	}
+}
+
+void surface_get_pixel(struct surface_t * s, int x, int y, struct color_t * c)
+{
+	if(s && c && (x < s->width) && (y < s->height))
+	{
+		unsigned char * p = (unsigned char *)s->pixels + y * s->stride + (x << 2);
+		if(p[3] == 255)
+		{
+			c->b = p[0];
+			c->g = p[1];
+			c->r = p[2];
+			c->a = p[3];
+		}
+		else if(p[3] == 0)
+		{
+			c->b = 0;
+			c->g = 0;
+			c->r = 0;
+			c->a = 0;
+		}
+		else
+		{
+			c->b = p[0] * 255 / p[3];
+			c->g = p[1] * 255 / p[3];
+			c->r = p[2] * 255 / p[3];
+			c->a = p[3];
+		}
+	}
+}
+
 static void png_xfs_read_data(png_structp png, png_bytep data, size_t length)
 {
 	size_t check;

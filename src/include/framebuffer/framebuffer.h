@@ -49,8 +49,8 @@ static inline void present_surface(void * vram, struct surface_t * s, struct reg
 	for(i = 0; i < count; i++)
 	{
 		r = &rl->region[i];
-		offset = r->y * stride + r->x * 4;
-		line = r->w * 4;
+		offset = r->y * stride + (r->x << 2);
+		line = r->w << 2;
 		height = r->h;
 
 		p = (unsigned char *)vram + offset;

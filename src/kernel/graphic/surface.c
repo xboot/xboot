@@ -53,7 +53,7 @@ struct surface_t * surface_alloc(int width, int height, void * priv)
 	if(!s)
 		return NULL;
 
-	stride = width * 4;
+	stride = width << 2;
 	pixlen = height * stride;
 	pixels = memalign(4, pixlen);
 	if(!pixels)

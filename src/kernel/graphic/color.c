@@ -27,6 +27,7 @@
  */
 
 #include <ctype.h>
+#include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
 #include <shash.h>
@@ -578,5 +579,59 @@ void color_init_string(struct color_t * c, const char * s)
 			}
 			c->a = 0xff;
 		}
+	}
+}
+
+void color_set_hsv(struct color_t * c, int h, int s, int v)
+{
+	float cmax = clamp(v, 0, 100) * 2.55;
+	float cmin = cmax - clamp(s, 0, 100) / 100.0;
+	float adj = (cmax - cmin) * (h % 60) / 60.0;
+
+	if(c)
+	{
+		switch((h % 360) / 60)
+		{
+		case 0:
+			c->r = cmax;
+			c->g = cmin + adj;
+			c->b = cmin;
+			break;
+		case 1:
+			c->r = cmax - adj;
+			c->g = cmax;
+			c->b = cmin;
+			break;
+		case 2:
+			c->r = cmin;
+			c->g = cmax;
+			c->b = cmin + adj;
+			break;
+		case 3:
+			c->r = cmin;
+			c->g = cmax - adj;
+			c->b = cmax;
+			break;
+		case 4:
+			c->r = cmin + adj;
+			c->g = cmin;
+			c->b = cmax;
+			break;
+		case 5:
+			c->r = cmax;
+			c->g = cmin;
+			c->b = cmax - adj;
+			break;
+		default:
+			break;
+		}
+		c->a = 0xff;
+	}
+}
+
+void color_get_hsv(struct color_t * c, int * h, int * s, int * v)
+{
+	if(c)
+	{
 	}
 }

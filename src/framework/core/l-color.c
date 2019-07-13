@@ -75,7 +75,18 @@ static int m_color_tostring(lua_State * L)
 	return 1;
 }
 
-static int m_color_color(lua_State * L)
+static int m_color_set_color(lua_State * L)
+{
+	struct color_t * c = luaL_checkudata(L, 1, MT_COLOR);
+	c->r = luaL_optinteger(L, 2, 0xff);
+	c->g = luaL_optinteger(L, 3, 0xff);
+	c->b = luaL_optinteger(L, 4, 0xff);
+	c->a = luaL_optinteger(L, 5, 0xff);
+	lua_settop(L, 1);
+	return 1;
+}
+
+static int m_color_get_color(lua_State * L)
 {
 	struct color_t * c = luaL_checkudata(L, 1, MT_COLOR);
 	lua_pushinteger(L, c->r);
@@ -85,41 +96,34 @@ static int m_color_color(lua_State * L)
 	return 4;
 }
 
-static int m_color_red(lua_State * L)
+static int m_color_set_hsv(lua_State * L)
 {
 	struct color_t * c = luaL_checkudata(L, 1, MT_COLOR);
-	lua_pushinteger(L, c->r);
+	int h = luaL_optinteger(L, 2, 0);
+	int s = luaL_optinteger(L, 3, 0);
+	int v = luaL_optinteger(L, 4, 100);
+	color_set_hsv(c, h, s, v);
+	lua_settop(L, 1);
 	return 1;
 }
 
-static int m_color_green(lua_State * L)
+static int m_color_get_hsv(lua_State * L)
 {
 	struct color_t * c = luaL_checkudata(L, 1, MT_COLOR);
-	lua_pushinteger(L, c->g);
-	return 1;
-}
-
-static int m_color_blue(lua_State * L)
-{
-	struct color_t * c = luaL_checkudata(L, 1, MT_COLOR);
-	lua_pushinteger(L, c->b);
-	return 1;
-}
-
-static int m_color_alpha(lua_State * L)
-{
-	struct color_t * c = luaL_checkudata(L, 1, MT_COLOR);
-	lua_pushinteger(L, c->a);
-	return 1;
+	int h, s, v;
+	color_get_hsv(c, &h, &s, &v);
+	lua_pushinteger(L, h);
+	lua_pushinteger(L, s);
+	lua_pushinteger(L, v);
+	return 3;
 }
 
 static const luaL_Reg m_color[] = {
 	{"__tostring",	m_color_tostring},
-	{"color",		m_color_color},
-	{"red",			m_color_red},
-	{"green",		m_color_green},
-	{"blue",		m_color_blue},
-	{"alpha",		m_color_alpha},
+	{"setColor",	m_color_set_color},
+	{"getColor",	m_color_get_color},
+	{"setHsv",		m_color_set_hsv},
+	{"getHsv",		m_color_get_hsv},
 	{NULL,	NULL}
 };
 

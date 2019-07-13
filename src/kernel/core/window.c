@@ -164,8 +164,6 @@ struct window_t * window_alloc(const char * fb, const char * input, void * data)
 	w->wm = wm;
 	w->s = framebuffer_create_surface(w->wm->fb);
 	w->rl = region_list_alloc(0);
-	w->width = framebuffer_get_width(w->wm->fb);
-	w->height = framebuffer_get_height(w->wm->fb);
 	w->ashome = 0;
 	w->showobj = 0;
 	w->priv = data;
@@ -180,8 +178,8 @@ struct window_t * window_alloc(const char * fb, const char * input, void * data)
 				hmap_add(w->map, r, dev);
 				if(input_ioctl(dev, INPUT_IOCTL_MOUSE_GET_RANGE, &range[0]) >= 0)
 				{
-					range[0] = w->width;
-					range[1] = w->height;
+					range[0] = framebuffer_get_width(w->wm->fb);
+					range[1] = framebuffer_get_height(w->wm->fb);
 					input_ioctl(dev, INPUT_IOCTL_MOUSE_SET_RANGE, &range[0]);
 				}
 			}
@@ -194,8 +192,8 @@ struct window_t * window_alloc(const char * fb, const char * input, void * data)
 		{
 			if(input_ioctl(pos->priv, INPUT_IOCTL_MOUSE_GET_RANGE, &range[0]) >= 0)
 			{
-				range[0] = w->width;
-				range[1] = w->height;
+				range[0] = framebuffer_get_width(w->wm->fb);
+				range[1] = framebuffer_get_height(w->wm->fb);
 				input_ioctl(pos->priv, INPUT_IOCTL_MOUSE_SET_RANGE, &range[0]);
 			}
 		}
@@ -255,7 +253,7 @@ void window_region_list_add(struct window_t * w, struct region_t * r)
 
 	if(w)
 	{
-		region_init(&region, 0, 0, w->width, w->height);
+		region_init(&region, 0, 0, framebuffer_get_width(w->wm->fb), framebuffer_get_height(w->wm->fb));
 		if(region_intersect(&region, &region, r))
 			region_list_add(w->rl, &region);
 	}
@@ -276,7 +274,7 @@ void window_present(struct window_t * w, void * o, void (*draw)(struct window_t 
 
 	if(w->wm->refresh)
 	{
-		region_init(&rn, 0, 0, w->width, w->height);
+		region_init(&rn, 0, 0, framebuffer_get_width(w->wm->fb), framebuffer_get_height(w->wm->fb));
 		window_region_list_add(w, &rn);
 		w->wm->refresh = 0;
 	}

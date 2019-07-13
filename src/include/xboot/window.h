@@ -29,7 +29,6 @@ struct window_t {
 	struct surface_t * s;
 	struct region_list_t * rl;
 	struct hmap_t * map;
-	int width, height;
 	int ashome;
 	int showobj;
 	void * priv;

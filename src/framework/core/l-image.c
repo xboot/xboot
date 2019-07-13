@@ -27,6 +27,7 @@
  */
 
 #include <xboot.h>
+#include <framework/core/l-color.h>
 #include <framework/core/l-matrix.h>
 #include <framework/core/l-pattern.h>
 #include <framework/core/l-image.h>
@@ -153,6 +154,28 @@ static int m_image_clear(lua_State * L)
 	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
 	surface_clear(img->s);
 	lua_settop(L, 1);
+	return 1;
+}
+
+static int m_image_set_pixel(lua_State * L)
+{
+	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
+	int x = luaL_checkinteger(L, 2);
+	int y = luaL_checkinteger(L, 3);
+	struct color_t * c = luaL_checkudata(L, 4, MT_COLOR);
+	surface_set_pixel(img->s, x, y, c);
+	lua_settop(L, 1);
+	return 1;
+}
+
+static int m_image_get_pixel(lua_State * L)
+{
+	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
+	int x = luaL_checkinteger(L, 2);
+	int y = luaL_checkinteger(L, 3);
+	struct color_t * c = lua_newuserdata(L, sizeof(struct color_t));
+	surface_get_pixel(img->s, x, y, c);
+	luaL_setmetatable(L, MT_COLOR);
 	return 1;
 }
 
@@ -734,6 +757,9 @@ static const luaL_Reg m_image[] = {
 	{"clone",				m_image_clone},
 
 	{"clear",				m_image_clear},
+	{"setPixel",			m_image_set_pixel},
+	{"getPixel",			m_image_get_pixel},
+
 	{"haldclut",			m_image_haldclut},
 	{"grayscale",			m_image_grayscale},
 	{"sepia",				m_image_sepia},

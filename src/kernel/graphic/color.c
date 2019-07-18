@@ -584,12 +584,12 @@ void color_init_string(struct color_t * c, const char * s)
 
 void color_set_hsv(struct color_t * c, int h, int s, int v)
 {
-	float cmax = clamp(v, 0, 100) * 2.55;
-	float cmin = cmax - clamp(s, 0, 100) / 100.0;
-	float adj = (cmax - cmin) * (h % 60) / 60.0;
-
 	if(c)
 	{
+		float cmax = clamp(v, 0, 100) * 2.55;
+		float cmin = cmax - clamp(s, 0, 100) * cmax / 100.0;
+		float adj = (cmax - cmin) * (h % 60) / 60.0;
+
 		switch((h % 360) / 60)
 		{
 		case 0:

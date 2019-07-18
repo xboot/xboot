@@ -633,5 +633,41 @@ void color_get_hsv(struct color_t * c, int * h, int * s, int * v)
 {
 	if(c)
 	{
+		float r = c->r / 255.0;
+		float g = c->g / 255.0;
+		float b = c->b / 255.0;
+		float cmax = max(max(r, g), b);
+		float cmin = min(min(r, g), b);
+		float delta = cmax - cmin;
+
+		if(cmax > 0)
+		{
+			if(delta == 0)
+			{
+				*h = 0;
+			}
+			else if(r == cmax)
+			{
+				if(g >= b)
+					*h = ((g - b) / delta) * 60.0;
+				else
+					*h = ((g - b) / delta + 6) * 60.0;
+			}
+			else if(g == cmax)
+			{
+				*h = ((b - r) / delta + 2) * 60.0;
+			}
+			else if(b == cmax)
+			{
+				*h = ((r - g) / delta + 4) * 60.0;
+			}
+			*s = delta / cmax * 100.0;
+		}
+		else
+		{
+			*h = 0;
+			*s = 0;
+		}
+		*v = cmax * 100.0;
 	}
 }

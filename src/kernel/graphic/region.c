@@ -82,36 +82,36 @@ static inline void region_list_resize(struct region_list_t * rl, unsigned int si
 	}
 }
 
-void region_list_clone(struct region_list_t * rl, struct region_list_t * a)
+void region_list_clone(struct region_list_t * rl, struct region_list_t * o)
 {
 	int count;
 
 	if(rl)
 	{
-		if(!a)
+		if(!o)
 			rl->count = 0;
 		else
 		{
-			if(rl->size < a->size)
-				region_list_resize(rl, a->size);
-			if((count = a->count) > 0)
-				memcpy(rl->region, a->region, sizeof(struct region_t) * count);
+			if(rl->size < o->size)
+				region_list_resize(rl, o->size);
+			if((count = o->count) > 0)
+				memcpy(rl->region, o->region, sizeof(struct region_t) * count);
 			rl->count = count;
 		}
 	}
 }
 
-void region_list_merge(struct region_list_t * rl, struct region_list_t * a)
+void region_list_merge(struct region_list_t * rl, struct region_list_t * o)
 {
 	int count;
 	int i;
 
-	if(rl && a && ((count = a->count) > 0))
+	if(rl && o && ((count = o->count) > 0))
 	{
-		if(rl->size < a->size)
-			region_list_resize(rl, a->size);
+		if(rl->size < o->size)
+			region_list_resize(rl, o->size);
 		for(i = 0; i < count; i++)
-			region_list_add(rl, &a->region[i]);
+			region_list_add(rl, &o->region[i]);
 	}
 }
 

@@ -88,8 +88,8 @@ struct region_list_t {
 
 struct region_list_t * region_list_alloc(unsigned int size);
 void region_list_free(struct region_list_t * rl);
-void region_list_clone(struct region_list_t * rl, struct region_list_t * a);
-void region_list_merge(struct region_list_t * rl, struct region_list_t * a);
+void region_list_clone(struct region_list_t * rl, struct region_list_t * o);
+void region_list_merge(struct region_list_t * rl, struct region_list_t * o);
 void region_list_add(struct region_list_t * rl, struct region_t * r);
 void region_list_clear(struct region_list_t * rl);
 

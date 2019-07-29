@@ -69,6 +69,9 @@ static struct kobj_t * search_device_kobj(struct device_t * dev)
 	case DEVICE_TYPE_BUZZER:
 		name = "buzzer";
 		break;
+	case DEVICE_TYPE_CAMERA:
+		name = "camera";
+		break;
 	case DEVICE_TYPE_CLK:
 		name = "clk";
 		break;

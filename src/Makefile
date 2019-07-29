@@ -119,6 +119,7 @@ SRCDIRS		+=	arch/$(ARCH)/lib/cpu						\
 				driver/block/partition						\
 				driver/block/romdisk						\
 				driver/buzzer								\
+				driver/camera								\
 				driver/clk									\
 				driver/clockevent							\
 				driver/clocksource							\

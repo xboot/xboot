@@ -2,6 +2,11 @@
 	"clk-fixed@0": { "name": "xin24m", "rate": 24000000 },
 	"clk-fixed@1": { "name": "xin32k", "rate": 32768 },
 
+	"clk-px30-pll@0": { "parent": "xin24m", "name": "apll", "channel": 0 },
+	"clk-px30-pll@1": { "parent": "xin24m", "name": "dpll", "channel": 1 },
+	"clk-px30-pll@2": { "parent": "xin24m", "name": "cpll", "channel": 2 },
+	"clk-px30-pll@3": { "parent": "xin24m", "name": "npll", "channel": 3 },
+
 	"clk-link": { "parent": "xin24m", "name": "link-uart0" },
 
 	"uart-8250@0xff160000": {

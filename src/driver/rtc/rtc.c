@@ -29,23 +29,26 @@
 #include <xboot.h>
 #include <rtc/rtc.h>
 
-static int rtc_month_days(int year, int month)
+static inline int rtc_month_days(unsigned int year, unsigned int month)
 {
-	const unsigned char rtc_days_in_month[13] = {
+	const int rtc_days_in_month[13] = {
 		0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
 	};
-	return rtc_days_in_month[month] + (((!(year % 4) && (year % 100)) || !(year % 400)) && (month == 2));
+	if(month > 12)
+		month = 0;
+	return rtc_days_in_month[month] + (((!(year % 4) && (year % 100)) || !(year % 400)) && (month == 2)) ? 1 : 0;
 }
 
 static int rtc_time_is_valid(struct rtc_time_t * time)
 {
 	if((!time) || (time->year < 1970)
-		|| ((time->month) > 12)
+		|| (time->month < 1)
+		|| (time->month > 12)
 		|| (time->day < 1)
 		|| (time->day > rtc_month_days(time->year, time->month))
-		|| ((time->hour) >= 24)
-		|| ((time->minute) >= 60)
-		|| ((time->second) >= 60))
+		|| (time->hour >= 24)
+		|| (time->minute >= 60)
+		|| (time->second >= 60))
 		return 0;
 	return 1;
 }

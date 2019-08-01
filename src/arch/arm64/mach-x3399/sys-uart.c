@@ -33,11 +33,18 @@ void sys_uart_init(void)
 	virtual_addr_t addr;
 	u32_t val, udiv;
 
-	/* Config GPIO4_C4 and GPIO4_C3 to TXD2 and RXD2 */
+	/* Config GPIO4_B2 and GPIO4_B3 to swdclk and swdio */
+	addr = 0xff770000 + 0xe020 + ((10 >> 3) << 2);
+	val = (((0x3 << 16) | (0x2 & 0x3)) << ((10 & 0x7) << 1));
+	write32(addr, val);
+	addr = 0xff770000 + 0xe020 + ((11 >> 3) << 2);
+	val = (((0x3 << 16) | (0x2 & 0x3)) << ((11 & 0x7) << 1));
+	write32(addr, val);
+
+	/* Config GPIO4_C4 and GPIO4_C3 to txd2 and rxd2 */
 	addr = 0xff770000 + 0xe020 + ((20 >> 3) << 2);
 	val = (((0x3 << 16) | (0x1 & 0x3)) << ((20 & 0x7) << 1));
 	write32(addr, val);
-
 	addr = 0xff770000 + 0xe020 + ((19 >> 3) << 2);
 	val = (((0x3 << 16) | (0x1 & 0x3)) << ((19 & 0x7) << 1));
 	write32(addr, val);

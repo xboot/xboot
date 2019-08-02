@@ -43,7 +43,7 @@ void sys_uart_init(void)
 	write32(addr, val);
 */
 
-	/* Config uart0 to 115200-8-1-0 */
+	/* Config uart2 to 115200-8-1-0 */
 	addr = 0xff160000;
 	write32(addr + 0x88, (1 << 0) | (1 << 1) | (1 << 2));
 	write32(addr + 0x04, 0x0);

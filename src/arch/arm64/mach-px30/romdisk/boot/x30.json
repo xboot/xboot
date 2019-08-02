@@ -9,6 +9,10 @@
 
 	"clk-link": { "parent": "xin24m", "name": "link-uart0" },
 
+	"cs-armv8-timer": {
+		"clock-frequency": -1
+	},
+
 	"uart-8250@0xff160000": {
 		"clock-name": "link-uart0",
 		"txd-gpio": -1,

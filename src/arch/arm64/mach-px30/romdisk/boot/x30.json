@@ -14,6 +14,19 @@
 	"clk-link": { "parent": "xin24m", "name": "link-uart4" },
 	"clk-link": { "parent": "xin24m", "name": "link-uart5" },
 
+	"reset-px30@0xff2b0300": { "reset-base":   0, "reset-count": 16 },
+	"reset-px30@0xff2b0304": { "reset-base":  16, "reset-count": 16 },
+	"reset-px30@0xff2b0308": { "reset-base":  32, "reset-count": 16 },
+	"reset-px30@0xff2b030c": { "reset-base":  48, "reset-count": 16 },
+	"reset-px30@0xff2b0310": { "reset-base":  64, "reset-count": 16 },
+	"reset-px30@0xff2b0314": { "reset-base":  80, "reset-count": 16 },
+	"reset-px30@0xff2b0318": { "reset-base":  96, "reset-count": 16 },
+	"reset-px30@0xff2b031c": { "reset-base": 112, "reset-count": 16 },
+	"reset-px30@0xff2b0320": { "reset-base": 128, "reset-count": 16 },
+	"reset-px30@0xff2b0324": { "reset-base": 144, "reset-count": 16 },
+	"reset-px30@0xff2b0328": { "reset-base": 160, "reset-count": 16 },
+	"reset-px30@0xff2b032c": { "reset-base": 176, "reset-count": 16 },
+
 	"cs-armv8-timer": {
 		"clock-frequency": -1
 	},
@@ -65,8 +78,8 @@
 		"parity-bits": 0,
 		"stop-bits": 1
 	},
-	
-		"uart-8250@0xff170000": {
+
+	"uart-8250@0xff170000": {
 		"clock-name": "link-uart4",
 		"txd-gpio": -1,
 		"txd-gpio-config": -1,
@@ -77,7 +90,7 @@
 		"parity-bits": 0,
 		"stop-bits": 1
 	},
-	
+
 	"uart-8250@0xff178000": {
 		"clock-name": "link-uart5",
 		"txd-gpio": -1,
@@ -89,7 +102,7 @@
 		"parity-bits": 0,
 		"stop-bits": 1
 	},
-	
+
 	"console-uart@0": {
 		"uart-bus": "uart-8250.2"
 	}

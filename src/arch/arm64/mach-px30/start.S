@@ -228,6 +228,13 @@ reset:
 	ldr x0, _stack_el0_end
 	msr sp_el0, x0
 
+	/* Initial system uart */
+	bl sys_uart_init
+	mov x0, #'\r'
+	bl sys_uart_init
+	mov x0, #'\n'
+	bl sys_uart_init
+
 	/* Copyself to link address */
 	adr x0, _start
 	ldr x1, =_start

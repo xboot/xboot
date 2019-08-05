@@ -132,16 +132,16 @@ void region_list_add(struct region_list_t * rl, struct region_t * r)
 			p = &rl->region[i];
 			if(region_intersect(&region, p, r))
 			{
-				if(region.area >= r->area)
+				if(region_area(&region) >= region_area(r))
 				{
 					return;
 				}
 				else
 				{
 					region_union(&region, p, r);
-					if(region.area < area)
+					if(region_area(&region) < area)
 					{
-						area = region.area;
+						area = region_area(&region);
 						index = i;
 					}
 				}
@@ -155,13 +155,13 @@ void region_list_add(struct region_list_t * rl, struct region_t * r)
 			p = &rl->region[i];
 			if(region_union(&region, p, r))
 			{
-				if(region.area <= p->area)
+				if(region_area(&region) <= region_area(p))
 				{
 					return;
 				}
-				else if(region.area < area)
+				else if(region_area(&region) < area)
 				{
-					area = region.area;
+					area = region_area(&region);
 					index = i;
 				}
 			}

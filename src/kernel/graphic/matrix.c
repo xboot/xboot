@@ -286,3 +286,55 @@ void matrix_transform_bounds(struct matrix_t * m, double * x1, double * y1, doub
 		*y2 = maxy;
 	}
 }
+
+void matrix_transform_region(struct matrix_t * m, double w, double h, struct region_t * region)
+{
+	double aw = m->a * w;
+	double bw = m->b * w;
+	double ch = m->c * h;
+	double dh = m->d * h;
+	double l = m->tx;
+	double t = m->ty;
+	double r = m->tx;
+	double b = m->ty;
+	double nx, ny;
+
+	nx = aw + m->tx;
+	ny = bw + m->ty;
+	if(l > nx)
+		l = nx;
+	if(t > ny)
+		t = ny;
+	if(r < nx)
+		r = nx;
+	if(b < ny)
+		b = ny;
+
+	nx = aw + ch + m->tx;
+	ny = bw + dh + m->ty;
+	if(l > nx)
+		l = nx;
+	if(t > ny)
+		t = ny;
+	if(r < nx)
+		r = nx;
+	if(b < ny)
+		b = ny;
+
+	nx = ch + m->tx;
+	ny = dh + m->ty;
+	if(l > nx)
+		l = nx;
+	if(t > ny)
+		t = ny;
+	if(r < nx)
+		r = nx;
+	if(b < ny)
+		b = ny;
+
+	region->x = l;
+	region->y = t;
+	region->w = r - l;
+	region->h = b - t;
+	region->area = -1;
+}

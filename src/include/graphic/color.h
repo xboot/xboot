@@ -5,6 +5,8 @@
 extern "C" {
 #endif
 
+#include <stdint.h>
+
 struct color_t {
 	unsigned char r;
 	unsigned char g;
@@ -31,6 +33,48 @@ void color_init_string(struct color_t * c, const char * s);
  */
 void color_set_hsv(struct color_t * c, int h, int s, int v);
 void color_get_hsv(struct color_t * c, int * h, int * s, int * v);
+
+/*
+ * The color value pre-multiplied alpha is used
+ */
+static inline void color_set_pma(struct color_t * c, uint32_t v)
+{
+	unsigned char a = (v >> 24) & 0xff;
+
+	if(a == 0)
+	{
+		c->r = 0;
+		c->g = 0;
+		c->b = 0;
+		c->a = 0;
+	}
+	else if(a == 255)
+	{
+		c->r = (v >> 16) & 0xff;
+		c->g = (v >> 8) & 0xff;
+		c->b = (v >> 0) & 0xff;
+		c->a = 255;
+	}
+	else
+	{
+		c->r = ((v >> 16) & 0xff) * 255 / a;
+		c->g = ((v >> 8) & 0xff) * 255 / a;
+		c->b = ((v >> 0) & 0xff) * 255 / a;
+		c->a = a;
+	}
+}
+
+static inline void color_get_pma(struct color_t * c, uint32_t * v)
+{
+	unsigned char a = c->a;
+
+	if(a == 0)
+		*v = 0;
+	else if(a == 255)
+		*v = (255 << 24) | (c->r << 16) | (c->g << 8) | (c->b << 0);
+	else
+		*v = (a << 24) | ((c->r * a / 255) << 16) | ((c->g * a / 255) << 8) | ((c->b * a / 255) << 0);
+}
 
 #ifdef __cplusplus
 }

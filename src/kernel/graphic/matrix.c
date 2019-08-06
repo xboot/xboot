@@ -332,9 +332,5 @@ void matrix_transform_region(struct matrix_t * m, double w, double h, struct reg
 	if(b < ny)
 		b = ny;
 
-	region->x = l;
-	region->y = t;
-	region->w = r - l;
-	region->h = b - t;
-	region->area = -1;
+	region_init(region, l, t, r - l, b - t);
 }

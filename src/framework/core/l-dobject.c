@@ -869,12 +869,8 @@ static void dobject_draw_text(struct ldobject_t * o, struct window_t * w)
 
 static void dobject_draw_container(struct ldobject_t * o, struct window_t * w)
 {
-	struct region_t r;
 	if(o->bgcolor.a != 0)
-	{
-		region_init(&r, 0, 0, o->width, o->height);
-		surface_fill(w->s, dobject_global_matrix(o), &r, &o->bgcolor);
-	}
+		surface_fill(w->s, dobject_global_matrix(o), o->width, o->height, &o->bgcolor);
 }
 
 static int l_dobject_new(lua_State * L)

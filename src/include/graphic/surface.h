@@ -41,9 +41,9 @@ struct render_t
 	void * (*create)(struct surface_t * s);
 	void (*destroy)(void * pctx);
 
-	void (*blit)(struct surface_t * s, struct matrix_t * m, struct surface_t * src, double alpha);
-	void (*fill)(struct surface_t * s, struct matrix_t * m, int w, int h, struct color_t * c);
-	void (*text)(struct surface_t * s, struct matrix_t * m, const char * utf8, struct color_t * c, void * sfont, int size);
+	void (*blit)(struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct surface_t * src, double alpha);
+	void (*fill)(struct surface_t * s, struct region_t * clip, struct matrix_t * m, int w, int h, struct color_t * c);
+	void (*text)(struct surface_t * s, struct region_t * clip, struct matrix_t * m, const char * utf8, struct color_t * c, void * sfont, int size);
 	void (*extent)(struct surface_t * s, const char * utf8, void * sfont, int size, struct region_t * e);
 
 	void (*filter_haldclut)(struct surface_t * s, struct surface_t * clut, const char * type);
@@ -159,19 +159,19 @@ static inline void * surface_get_pixels(struct surface_t * s)
 	return s->pixels;
 }
 
-static inline void surface_blit(struct surface_t * s, struct matrix_t * m, struct surface_t * src, double alpha)
+static inline void surface_blit(struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct surface_t * src, double alpha)
 {
-	s->r->blit(s, m, src, alpha);
+	s->r->blit(s, clip, m, src, alpha);
 }
 
-static inline void surface_fill(struct surface_t * s, struct matrix_t * m, int w, int h, struct color_t * c)
+static inline void surface_fill(struct surface_t * s, struct region_t * clip, struct matrix_t * m, int w, int h, struct color_t * c)
 {
-	s->r->fill(s, m, w, h, c);
+	s->r->fill(s, clip, m, w, h, c);
 }
 
-static inline void surface_text(struct surface_t * s, struct matrix_t * m, const char * utf8, struct color_t * c, void * sfont, int size)
+static inline void surface_text(struct surface_t * s, struct region_t * clip, struct matrix_t * m, const char * utf8, struct color_t * c, void * sfont, int size)
 {
-	s->r->text(s, m, utf8, c, sfont, size);
+	s->r->text(s, clip, m, utf8, c, sfont, size);
 }
 
 static inline void surface_extent(struct surface_t * s, const char * utf8, void * sfont, int size, struct region_t * e)

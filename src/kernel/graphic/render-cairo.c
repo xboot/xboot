@@ -57,7 +57,7 @@ static void render_cairo_destroy(void * pctx)
 	free(ctx);
 }
 
-static void render_cairo_blit(struct surface_t * s, struct matrix_t * m, struct surface_t * src, double alpha)
+static void render_cairo_blit(struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct surface_t * src, double alpha)
 {
 	cairo_t * cr = ((struct render_cairo_context_t *)s->pctx)->cr;
 	cairo_save(cr);
@@ -67,7 +67,7 @@ static void render_cairo_blit(struct surface_t * s, struct matrix_t * m, struct 
 	cairo_restore(cr);
 }
 
-static void render_cairo_fill(struct surface_t * s, struct matrix_t * m, int w, int h, struct color_t * c)
+static void render_cairo_fill(struct surface_t * s, struct region_t * clip, struct matrix_t * m, int w, int h, struct color_t * c)
 {
 	cairo_t * cr = ((struct render_cairo_context_t *)s->pctx)->cr;
 	cairo_save(cr);
@@ -78,7 +78,7 @@ static void render_cairo_fill(struct surface_t * s, struct matrix_t * m, int w, 
 	cairo_restore(cr);
 }
 
-static void render_cairo_text(struct surface_t * s, struct matrix_t * m, const char * utf8, struct color_t * c, void * sfont, int size)
+static void render_cairo_text(struct surface_t * s, struct region_t * clip, struct matrix_t * m, const char * utf8, struct color_t * c, void * sfont, int size)
 {
 	cairo_t * cr = ((struct render_cairo_context_t *)s->pctx)->cr;
 	cairo_text_extents_t e;

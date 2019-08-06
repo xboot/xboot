@@ -145,8 +145,10 @@ static int m_matrix_point(lua_State * L)
 static int m_matrix_bounds(lua_State * L)
 {
 	struct matrix_t * m = luaL_checkudata(L, 1, MT_MATRIX);
-	double x1, y1;
-	double x2, y2;
+	double x1 = luaL_checknumber(L, 2);
+	double y1 = luaL_checknumber(L, 3);
+	double x2 = luaL_checknumber(L, 4);
+	double y2 = luaL_checknumber(L, 5);
 	matrix_transform_bounds(m, &x1, &y1, &x2, &y2);
 	lua_pushnumber(L, x1);
 	lua_pushnumber(L, y1);

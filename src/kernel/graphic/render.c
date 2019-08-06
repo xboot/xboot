@@ -29,11 +29,11 @@
 #include <xboot.h>
 #include <graphic/surface.h>
 
-void render_default_blit(struct surface_t * s, struct matrix_t * m, struct surface_t * src, double alpha)
+void render_default_blit(struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct surface_t * src, double alpha)
 {
 }
 
-void render_default_fill(struct surface_t * s, struct matrix_t * m, int w, int h, struct color_t * c)
+void render_default_fill(struct surface_t * s, struct region_t * clip, struct matrix_t * m, int w, int h, struct color_t * c)
 {
 }
 

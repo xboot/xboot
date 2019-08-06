@@ -42,7 +42,6 @@ struct render_t
 	void (*destroy)(void * pctx);
 
 	void (*blit)(struct surface_t * s, struct matrix_t * m, struct surface_t * src, double alpha);
-	void (*mask)(struct surface_t * s, struct matrix_t * m, struct surface_t * src, struct surface_t * mask);
 	void (*fill)(struct surface_t * s, struct matrix_t * m, int w, int h, struct color_t * c);
 	void (*text)(struct surface_t * s, struct matrix_t * m, const char * utf8, struct color_t * c, void * sfont, int size);
 	void (*extent)(struct surface_t * s, const char * utf8, void * sfont, int size, struct region_t * e);
@@ -163,11 +162,6 @@ static inline void * surface_get_pixels(struct surface_t * s)
 static inline void surface_blit(struct surface_t * s, struct matrix_t * m, struct surface_t * src, double alpha)
 {
 	s->r->blit(s, m, src, alpha);
-}
-
-static inline void surface_mask(struct surface_t * s, struct matrix_t * m, struct surface_t * src, struct surface_t * mask)
-{
-	s->r->mask(s, m, src, mask);
 }
 
 static inline void surface_fill(struct surface_t * s, struct matrix_t * m, int w, int h, struct color_t * c)

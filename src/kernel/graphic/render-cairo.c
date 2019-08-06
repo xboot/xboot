@@ -67,16 +67,6 @@ static void render_cairo_blit(struct surface_t * s, struct matrix_t * m, struct 
 	cairo_restore(cr);
 }
 
-static void render_cairo_mask(struct surface_t * s, struct matrix_t * m, struct surface_t * src, struct surface_t * mask)
-{
-	cairo_t * cr = ((struct render_cairo_context_t *)s->pctx)->cr;
-	cairo_save(cr);
-	cairo_set_matrix(cr, (cairo_matrix_t *)m);
-	cairo_set_source_surface(cr, ((struct render_cairo_context_t *)src->pctx)->cs, 0, 0);
-	cairo_mask_surface(cr, ((struct render_cairo_context_t *)mask->pctx)->cs, 0, 0);
-	cairo_restore(cr);
-}
-
 static void render_cairo_fill(struct surface_t * s, struct matrix_t * m, int w, int h, struct color_t * c)
 {
 	cairo_t * cr = ((struct render_cairo_context_t *)s->pctx)->cr;
@@ -664,7 +654,6 @@ static struct render_t render_cairo = {
 	.destroy					= render_cairo_destroy,
 
 	.blit						= render_cairo_blit,
-	.mask						= render_cairo_mask,
 	.fill						= render_cairo_fill,
 	.text						= render_cairo_text,
 	.extent						= render_cairo_extent,

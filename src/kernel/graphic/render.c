@@ -53,13 +53,13 @@ void render_default_fill(struct surface_t * s, struct region_t * clip, struct ma
 	if(!region_intersect(&r, &r, &region))
 		return;
 
-	color_get_pma(c, &v);
 	x1 = r.x;
 	y1 = r.y;
 	x2 = r.x + r.w;
 	y2 = r.y + r.h;
 	stride = ds - r.w;
 	p = (uint32_t *)surface_get_pixels(s) + y1 * ds + x1;
+	v = color_get_premult(c);
 	fx = x1;
 	fy = y1;
 	memcpy(&t, m, sizeof(struct matrix_t));

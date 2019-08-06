@@ -35,45 +35,57 @@ void color_set_hsv(struct color_t * c, int h, int s, int v);
 void color_get_hsv(struct color_t * c, int * h, int * s, int * v);
 
 /*
- * The color value pre-multiplied alpha is used
+ * The value with pre-multiplied alpha
  */
-static inline void color_set_pma(struct color_t * c, uint32_t v)
+static inline void color_set_premult(struct color_t * c, uint32_t v)
 {
 	unsigned char a = (v >> 24) & 0xff;
 
-	if(a == 0)
+	if(a != 0)
+	{
+		c->r = (v >> 16) & 0xff;
+		c->g = (v >> 8) & 0xff;
+		c->b = (v >> 0) & 0xff;
+		if(a != 255)
+		{
+			c->r = c->r * 255 / a;
+			c->g = c->g * 255 / a;
+			c->b = c->b * 255 / a;
+		}
+		c->a = a;
+	}
+	else
 	{
 		c->r = 0;
 		c->g = 0;
 		c->b = 0;
 		c->a = 0;
 	}
-	else if(a == 255)
-	{
-		c->r = (v >> 16) & 0xff;
-		c->g = (v >> 8) & 0xff;
-		c->b = (v >> 0) & 0xff;
-		c->a = 255;
-	}
-	else
-	{
-		c->r = ((v >> 16) & 0xff) * 255 / a;
-		c->g = ((v >> 8) & 0xff) * 255 / a;
-		c->b = ((v >> 0) & 0xff) * 255 / a;
-		c->a = a;
-	}
 }
 
-static inline void color_get_pma(struct color_t * c, uint32_t * v)
+static inline uint32_t color_get_premult(struct color_t * c)
 {
 	unsigned char a = c->a;
+	unsigned char r, g, b;
+	int t;
 
-	if(a == 0)
-		*v = 0;
-	else if(a == 255)
-		*v = (255 << 24) | (c->r << 16) | (c->g << 8) | (c->b << 0);
-	else
-		*v = (a << 24) | ((c->r * a / 255) << 16) | ((c->g * a / 255) << 8) | ((c->b * a / 255) << 0);
+	if(a != 0)
+	{
+		r = c->r;
+		g = c->g;
+		b = c->b;
+		if(a != 255)
+		{
+			t = (a * r) + 0x80;
+			r = (t + (t >> 8)) >> 8;
+			t = (a * g) + 0x80;
+			g = (t + (t >> 8)) >> 8;
+			t = (a * b) + 0x80;
+			b = (t + (t >> 8)) >> 8;
+		}
+		return (a << 24) | (r << 16) | (g << 8) | (b << 0);
+	}
+	return 0;
 }
 
 #ifdef __cplusplus

@@ -33,11 +33,47 @@
 #include <jerror.h>
 #include <graphic/surface.h>
 
-extern struct surface_operate_t surface_operate_cairo;
+static struct list_head __render_list = {
+	.next = &__render_list,
+	.prev = &__render_list,
+};
+static spinlock_t __render_lock = SPIN_LOCK_INIT();
 
-inline __attribute__((always_inline)) struct surface_operate_t * surface_operate_get(void)
+struct render_t * search_render(void)
 {
-	return &surface_operate_cairo;
+	struct render_t * r = list_first_entry_or_null(&__render_list, struct render_t, list);
+	if(!r)
+		r = NULL;
+	return r;
+}
+
+bool_t register_render(struct render_t * r)
+{
+	irq_flags_t flags;
+
+	if(!r || !r->name)
+		return FALSE;
+
+	init_list_head(&r->list);
+	spin_lock_irqsave(&__render_lock, flags);
+	list_add(&r->list, &__render_list);
+	spin_unlock_irqrestore(&__render_lock, flags);
+
+	return TRUE;
+}
+
+bool_t unregister_render(struct render_t * r)
+{
+	irq_flags_t flags;
+
+	if(!r || !r->name)
+		return FALSE;
+
+	spin_lock_irqsave(&__render_lock, flags);
+	list_del(&r->list);
+	spin_unlock_irqrestore(&__render_lock, flags);
+
+	return TRUE;
 }
 
 struct surface_t * surface_alloc(int width, int height, void * priv)
@@ -68,8 +104,8 @@ struct surface_t * surface_alloc(int width, int height, void * priv)
 	s->stride = stride;
 	s->pixlen = pixlen;
 	s->pixels = pixels;
-	s->op = surface_operate_get();
-	s->pctx = s->op->create(s);
+	s->r = search_render();
+	s->pctx = s->r->create(s);
 	s->priv = priv;
 	if(!s->pctx)
 	{
@@ -105,8 +141,8 @@ struct surface_t * surface_clone(struct surface_t * s)
 	c->stride = s->stride;
 	c->pixlen = s->pixlen;
 	c->pixels = pixels;
-	c->op = s->op;
-	c->pctx = c->op->create(c);
+	c->r = s->r;
+	c->pctx = c->r->create(c);
 	c->priv = NULL;
 	if(!c->pctx)
 	{
@@ -121,8 +157,8 @@ void surface_free(struct surface_t * s)
 {
 	if(s)
 	{
-		if(s->op)
-			s->op->destroy(s->pctx);
+		if(s->r)
+			s->r->destroy(s->pctx);
 		free(s->pixels);
 		free(s);
 	}

@@ -80,8 +80,8 @@ static struct surface_t * fb_create(struct framebuffer_t * fb)
 	s->stride = surface->stride;
 	s->pixlen = surface->pixlen;
 	s->pixels = surface->pixels;
-	s->op = surface_operate_get();
-	s->pctx = s->op->create(s);
+	s->r = search_render();
+	s->pctx = s->r->create(s);
 	s->priv = surface;
 	if(!s->pctx)
 	{
@@ -100,8 +100,8 @@ static void fb_destroy(struct framebuffer_t * fb, struct surface_t * s)
 
 	if(s)
 	{
-		if(s->op)
-			s->op->destroy(s->pctx);
+		if(s->r)
+			s->r->destroy(s->pctx);
 		sandbox_fb_sdl_surface_destroy(pdat->priv, s->priv);
 		free(s->priv);
 		free(s);

@@ -39,12 +39,9 @@ static struct list_head __render_list = {
 };
 static spinlock_t __render_lock = SPIN_LOCK_INIT();
 
-struct render_t * search_render(void)
+inline __attribute__((always_inline)) struct render_t * search_render(void)
 {
-	struct render_t * r = list_first_entry_or_null(&__render_list, struct render_t, list);
-	if(!r)
-		r = NULL;
-	return r;
+	return (struct render_t *)list_first_entry_or_null(&__render_list, struct render_t, list);
 }
 
 bool_t register_render(struct render_t * r)

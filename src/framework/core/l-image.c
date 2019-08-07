@@ -109,17 +109,10 @@ static int m_image_clone(lua_State * L)
 	{
 		struct matrix_t * m = lua_touserdata(L, 2);
 		struct limage_t * subimg = lua_newuserdata(L, sizeof(struct limage_t));
-		double x1 = 0;
-		double y1 = 0;
-		double x2 = surface_get_width(img->s);
-		double y2 = surface_get_height(img->s);
-		matrix_transform_bounds(m, &x1, &y1, &x2, &y2);
-		subimg->s = surface_alloc(x2 - x1, y2 - y1, NULL);
-		surface_shape_save(subimg->s);
-		surface_shape_set_matrix(subimg->s, m);
-		surface_shape_set_source_surface(subimg->s, img->s, 0, 0);
-		surface_shape_paint(subimg->s, 1.0);
-		surface_shape_restore(subimg->s);
+		struct region_t r;
+		matrix_transform_region(m, surface_get_width(img->s), surface_get_height(img->s), &r);
+		subimg->s = surface_alloc(r.w, r.h, NULL);
+		surface_blit(subimg->s, NULL, m, img->s, 1.0);
 		luaL_setmetatable(L, MT_IMAGE);
 	}
 	else

@@ -267,30 +267,22 @@ void window_region_list_clear(struct window_t * w)
 
 void window_present(struct window_t * w, void * o, void (*draw)(struct window_t *, void *))
 {
-	struct region_t rn, * r;
 	struct surface_t * s = w->s;
+	struct color_t c = { .r = 255, .g = 255, .b = 255, .a = 255 };
+	struct region_t r;
 	int count;
 	int i;
 
 	if(w->wm->refresh)
 	{
-		region_init(&rn, 0, 0, framebuffer_get_width(w->wm->fb), framebuffer_get_height(w->wm->fb));
-		window_region_list_add(w, &rn);
+		region_init(&r, 0, 0, framebuffer_get_width(w->wm->fb), framebuffer_get_height(w->wm->fb));
+		window_region_list_add(w, &r);
 		w->wm->refresh = 0;
 	}
 	if((count = w->rl->count) > 0)
 	{
-		surface_shape_reset_clip(s);
 		for(i = 0; i < count; i++)
-		{
-			r = &w->rl->region[i];
-			surface_shape_rectangle(s, r->x, r->y, r->w, r->h);
-		}
-		surface_shape_clip(s);
-		surface_shape_save(s);
-		surface_shape_set_source_color(s, 1, 1, 1, 1);
-		surface_shape_paint(s, 1);
-		surface_shape_restore(s);
+			surface_clear(s, &c, &w->rl->region[i]);
 		if(draw)
 			draw(w, o);
 	}

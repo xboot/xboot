@@ -29,8 +29,86 @@
 #include <xboot.h>
 #include <graphic/surface.h>
 
+static inline void alpha_blend(uint32_t * d, uint32_t * s, double alpha)
+{
+	uint8_t dr, dg, db;
+	uint8_t sr, sg, sb, sa;
+
+	sa = (((*s) >> 24) & 0xff) * alpha;
+	if(sa != 0)
+	{
+		if(sa == 255)
+		{
+			*d = *s;
+		}
+		else
+		{
+			dr = ((*d) >> 16) & 0xff;
+			dg = ((*d) >> 8) & 0xff;
+			db = ((*d) >> 0) & 0xff;
+
+			sr = ((*s) >> 16) & 0xff;
+			sg = ((*s) >> 8) & 0xff;
+			sb = ((*s) >> 0) & 0xff;
+
+			*d = sa << 24 | ((sa * (sr - dr) >> 8) + dr) << 16 | ((sa * (sg - dg) >> 8) + dg) << 8 | ((sa * (sb - db) >> 8) + db);
+		}
+	}
+}
+
 void render_default_blit(struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct surface_t * src, double alpha)
 {
+	struct region_t r, region;
+	struct matrix_t t;
+	uint32_t * p;
+	uint32_t * dp = surface_get_pixels(s);
+	uint32_t * sp = surface_get_pixels(src);
+	int ds = surface_get_stride(s) >> 2;
+	int ss = surface_get_stride(src) >> 2;
+	int sw = surface_get_width(src);
+	int sh = surface_get_height(src);
+	int x1, y1, x2, y2, stride;
+	int x, y, ox, oy;
+	double fx, fy, ofx, ofy;
+
+	region_init(&r, 0, 0, surface_get_width(s), surface_get_height(s));
+	if(clip)
+	{
+		if(!region_intersect(&r, &r, clip))
+			return;
+	}
+	matrix_transform_region(m, sw, sh, &region);
+	if(!region_intersect(&r, &r, &region))
+		return;
+
+	x1 = r.x;
+	y1 = r.y;
+	x2 = r.x + r.w;
+	y2 = r.y + r.h;
+	stride = ds - r.w;
+	p = dp + y1 * ds + x1;
+	fx = x1;
+	fy = y1;
+	memcpy(&t, m, sizeof(struct matrix_t));
+	matrix_invert(&t);
+	matrix_transform_point(&t, &fx, &fy);
+
+	for(y = y1; y < y2; ++y, fx += t.c, fy += t.d)
+	{
+		ofx = fx;
+		ofy = fy;
+		for(x = x1; x < x2; ++x, ofx += t.a, ofy += t.b)
+		{
+			ox = (int)ofx;
+			oy = (int)ofy;
+			if(ox >= 0 && ox < sw && oy >= 0 && oy < sh)
+			{
+				alpha_blend(p, sp + oy * ss + ox, alpha);
+			}
+			p++;
+		}
+		p += stride;
+	}
 }
 
 void render_default_fill(struct surface_t * s, struct region_t * clip, struct matrix_t * m, int w, int h, struct color_t * c)

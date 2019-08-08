@@ -276,7 +276,8 @@ void window_present(struct window_t * w, void * o, void (*draw)(struct window_t 
 	if(w->wm->refresh)
 	{
 		region_init(&r, 0, 0, framebuffer_get_width(w->wm->fb), framebuffer_get_height(w->wm->fb));
-		window_region_list_add(w, &r);
+		region_list_clear(w->rl);
+		region_list_add(w->rl, &r);
 		w->wm->refresh = 0;
 	}
 	if((count = w->rl->count) > 0)

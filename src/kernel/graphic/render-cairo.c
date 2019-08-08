@@ -57,13 +57,13 @@ static void render_cairo_destroy(void * pctx)
 	free(ctx);
 }
 
-static void render_cairo_blit(struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct surface_t * src, double alpha)
+static void render_cairo_blit(struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct surface_t * src)
 {
 	cairo_t * cr = ((struct render_cairo_context_t *)s->pctx)->cr;
 	cairo_save(cr);
 	cairo_set_matrix(cr, (cairo_matrix_t *)m);
 	cairo_set_source_surface(cr, ((struct render_cairo_context_t *)src->pctx)->cs, 0, 0);
-	cairo_paint_with_alpha(cr, alpha);
+	cairo_paint(cr);
 	cairo_restore(cr);
 }
 

@@ -260,15 +260,6 @@ function M:getAnchor()
 	return self._dobj:getAnchor()
 end
 
-function M:setAlpha(alpha)
-	self._dobj:setAlpha(alpha)
-	return self
-end
-
-function M:getAlpha()
-	return self._dobj:getAlpha()
-end
-
 function M:setBackgroundColor(color)
 	self._dobj:setBackgroundColor(color)
 	return self
@@ -470,8 +461,6 @@ function M:animate(properties, duration, easing)
 					d:setSkewX(v(elapsed))
 				elseif k == "skewy" then
 					d:setSkewY(v(elapsed))
-				elseif k == "alpha" then
-					d:setAlpha(v(elapsed))
 				elseif k == "width" then
 					d:setWidth(v(elapsed))
 				elseif k == "height" then
@@ -539,8 +528,6 @@ function M:spring(properties, velocity, stiffness, damping)
 						d:setSkewX(ns)
 					elseif k == "skewy" then
 						d:setSkewY(ns)
-					elseif k == "alpha" then
-						d:setAlpha(ns)
 					elseif k == "width" then
 						d:setWidth(ns)
 					elseif k == "height" then

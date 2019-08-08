@@ -41,7 +41,7 @@ struct render_t
 	void * (*create)(struct surface_t * s);
 	void (*destroy)(void * pctx);
 
-	void (*blit)(struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct surface_t * src, double alpha);
+	void (*blit)(struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct surface_t * src);
 	void (*fill)(struct surface_t * s, struct region_t * clip, struct matrix_t * m, int w, int h, struct color_t * c);
 	void (*text)(struct surface_t * s, struct region_t * clip, struct matrix_t * m, const char * utf8, struct color_t * c, void * sfont, int size);
 	void (*extent)(struct surface_t * s, const char * utf8, void * sfont, int size, struct region_t * e);
@@ -121,7 +121,7 @@ struct render_t
 	void (*pattern_set_matrix)(void * pattern, struct matrix_t * m);
 };
 
-void render_default_blit(struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct surface_t * src, double alpha);
+void render_default_blit(struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct surface_t * src);
 void render_default_fill(struct surface_t * s, struct region_t * clip, struct matrix_t * m, int w, int h, struct color_t * c);
 void render_default_filter_haldclut(struct surface_t * s, struct surface_t * clut, const char * type);
 void render_default_filter_grayscale(struct surface_t * s);
@@ -159,9 +159,9 @@ static inline void * surface_get_pixels(struct surface_t * s)
 	return s->pixels;
 }
 
-static inline void surface_blit(struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct surface_t * src, double alpha)
+static inline void surface_blit(struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct surface_t * src)
 {
-	s->r->blit(s, clip, m, src, alpha);
+	s->r->blit(s, clip, m, src);
 }
 
 static inline void surface_fill(struct surface_t * s, struct region_t * clip, struct matrix_t * m, int w, int h, struct color_t * c)

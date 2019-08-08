@@ -29,7 +29,7 @@
 #include <xboot.h>
 #include <graphic/surface.h>
 
-static inline void alpha_blend(uint32_t * d, uint32_t * s, double alpha)
+static inline void alpha_blend(uint32_t * d, uint32_t * s)
 {
 	uint8_t da, dr, dg, db;
 	uint8_t sa, sr, sg, sb;
@@ -63,7 +63,7 @@ static inline void alpha_blend(uint32_t * d, uint32_t * s, double alpha)
 	}
 }
 
-void render_default_blit(struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct surface_t * src, double alpha)
+void render_default_blit(struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct surface_t * src)
 {
 	struct region_t r, region;
 	struct matrix_t t;
@@ -110,7 +110,7 @@ void render_default_blit(struct surface_t * s, struct region_t * clip, struct ma
 			oy = (int)ofy;
 			if(ox >= 0 && ox < sw && oy >= 0 && oy < sh)
 			{
-				alpha_blend(p, sp + oy * ss + ox, alpha);
+				alpha_blend(p, sp + oy * ss + ox);
 			}
 			p++;
 		}

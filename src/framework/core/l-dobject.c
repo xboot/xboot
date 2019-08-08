@@ -763,7 +763,7 @@ static void dobject_layout(struct ldobject_t * o)
 static void dobject_draw_image(struct ldobject_t * o, struct window_t * w)
 {
 	struct limage_t * img = o->priv;
-	surface_blit(w->s, NULL, dobject_global_matrix(o), img->s, o->alpha);
+	surface_blit(w->s, NULL, dobject_global_matrix(o), img->s);
 }
 
 static void dobject_draw_ninepatch(struct ldobject_t * o, struct window_t * w)
@@ -778,7 +778,7 @@ static void dobject_draw_ninepatch(struct ldobject_t * o, struct window_t * w)
 		surface_shape_translate(s, 0, 0);
 		surface_shape_set_source_surface(s, ninepatch->lt, 0, 0);
 		surface_pattern_set_filter(surface_shape_get_source(s), "fast");
-		surface_shape_paint(s, o->alpha);
+		surface_shape_paint(s, 1.0);
 		surface_shape_restore(s);
 	}
 	if(ninepatch->mt)
@@ -788,7 +788,7 @@ static void dobject_draw_ninepatch(struct ldobject_t * o, struct window_t * w)
 		surface_shape_scale(s, ninepatch->__sx, 1);
 		surface_shape_set_source_surface(s, ninepatch->mt, 0, 0);
 		surface_pattern_set_filter(surface_shape_get_source(s), "fast");
-		surface_shape_paint(s, o->alpha);
+		surface_shape_paint(s, 1.0);
 		surface_shape_restore(s);
 	}
 	if(ninepatch->rt)
@@ -797,7 +797,7 @@ static void dobject_draw_ninepatch(struct ldobject_t * o, struct window_t * w)
 		surface_shape_translate(s, ninepatch->__w - ninepatch->right, 0);
 		surface_shape_set_source_surface(s, ninepatch->rt, 0, 0);
 		surface_pattern_set_filter(surface_shape_get_source(s), "fast");
-		surface_shape_paint(s, o->alpha);
+		surface_shape_paint(s, 1.0);
 		surface_shape_restore(s);
 	}
 	if(ninepatch->lm)
@@ -807,7 +807,7 @@ static void dobject_draw_ninepatch(struct ldobject_t * o, struct window_t * w)
 		surface_shape_scale(s, 1, ninepatch->__sy);
 		surface_shape_set_source_surface(s, ninepatch->lm, 0, 0);
 		surface_pattern_set_filter(surface_shape_get_source(s), "fast");
-		surface_shape_paint(s, o->alpha);
+		surface_shape_paint(s, 1.0);
 		surface_shape_restore(s);
 	}
 	if(ninepatch->mm)
@@ -817,7 +817,7 @@ static void dobject_draw_ninepatch(struct ldobject_t * o, struct window_t * w)
 		surface_shape_scale(s, ninepatch->__sx, ninepatch->__sy);
 		surface_shape_set_source_surface(s, ninepatch->mm, 0, 0);
 		surface_pattern_set_filter(surface_shape_get_source(s), "fast");
-		surface_shape_paint(s, o->alpha);
+		surface_shape_paint(s, 1.0);
 		surface_shape_restore(s);
 	}
 	if(ninepatch->rm)
@@ -827,7 +827,7 @@ static void dobject_draw_ninepatch(struct ldobject_t * o, struct window_t * w)
 		surface_shape_scale(s, 1, ninepatch->__sy);
 		surface_shape_set_source_surface(s, ninepatch->rm, 0, 0);
 		surface_pattern_set_filter(surface_shape_get_source(s), "fast");
-		surface_shape_paint(s, o->alpha);
+		surface_shape_paint(s, 1.0);
 		surface_shape_restore(s);
 	}
 	if(ninepatch->lb)
@@ -836,7 +836,7 @@ static void dobject_draw_ninepatch(struct ldobject_t * o, struct window_t * w)
 		surface_shape_translate(s, 0, ninepatch->__h - ninepatch->bottom);
 		surface_shape_set_source_surface(s, ninepatch->lb, 0, 0);
 		surface_pattern_set_filter(surface_shape_get_source(s), "fast");
-		surface_shape_paint(s, o->alpha);
+		surface_shape_paint(s, 1.0);
 		surface_shape_restore(s);
 	}
 	if(ninepatch->mb)
@@ -846,7 +846,7 @@ static void dobject_draw_ninepatch(struct ldobject_t * o, struct window_t * w)
 		surface_shape_scale(s, ninepatch->__sx, 1);
 		surface_shape_set_source_surface(s, ninepatch->mb, 0, 0);
 		surface_pattern_set_filter(surface_shape_get_source(s), "fast");
-		surface_shape_paint(s, o->alpha);
+		surface_shape_paint(s, 1.0);
 		surface_shape_restore(s);
 	}
 	if(ninepatch->rb)
@@ -855,7 +855,7 @@ static void dobject_draw_ninepatch(struct ldobject_t * o, struct window_t * w)
 		surface_shape_translate(s, ninepatch->__w - ninepatch->right, ninepatch->__h - ninepatch->bottom);
 		surface_shape_set_source_surface(s, ninepatch->rb, 0, 0);
 		surface_pattern_set_filter(surface_shape_get_source(s), "fast");
-		surface_shape_paint(s, o->alpha);
+		surface_shape_paint(s, 1.0);
 		surface_shape_restore(s);
 	}
 	surface_shape_restore(s);
@@ -920,7 +920,6 @@ static int l_dobject_new(lua_State * L)
 	o->skewy = 0;
 	o->anchorx = 0;
 	o->anchory = 0;
-	o->alpha = 1;
 	o->bgcolor.r = 0;
 	o->bgcolor.g = 0;
 	o->bgcolor.b = 0;
@@ -1398,25 +1397,6 @@ static int m_get_archor(lua_State * L)
 	lua_pushnumber(L, o->anchorx);
 	lua_pushnumber(L, o->anchory);
 	return 2;
-}
-
-static int m_set_alpha(lua_State * L)
-{
-	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
-	double alpha = luaL_checknumber(L, 2);
-	if(o->alpha != alpha)
-	{
-		dobject_mark_dirty(o);
-		o->alpha = alpha;
-	}
-	return 0;
-}
-
-static int m_get_alpha(lua_State * L)
-{
-	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
-	lua_pushnumber(L, o->alpha);
-	return 1;
 }
 
 static int m_set_background_color(lua_State * L)
@@ -2252,8 +2232,6 @@ static const luaL_Reg m_dobject[] = {
 	{"getSkew",				m_get_skew},
 	{"setAnchor",			m_set_archor},
 	{"getAnchor",			m_get_archor},
-	{"setAlpha",			m_set_alpha},
-	{"getAlpha",			m_get_alpha},
 	{"setBackgroundColor",	m_set_background_color},
 	{"getBackgroundColor",	m_get_background_color},
 	{"setLayoutEnable",		m_set_layout_enable},

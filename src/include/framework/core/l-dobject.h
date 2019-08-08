@@ -39,7 +39,6 @@ struct ldobject_t {
 	double scalex, scaley;
 	double skewx, skewy;
 	double anchorx, anchory;
-	double alpha;
 	struct color_t bgcolor;
 
 	struct {

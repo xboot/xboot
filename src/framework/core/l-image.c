@@ -112,7 +112,7 @@ static int m_image_clone(lua_State * L)
 		struct region_t r;
 		matrix_transform_region(m, surface_get_width(img->s), surface_get_height(img->s), &r);
 		subimg->s = surface_alloc(r.w, r.h, NULL);
-		surface_blit(subimg->s, NULL, m, img->s, 1.0);
+		surface_blit(subimg->s, NULL, m, img->s);
 		luaL_setmetatable(L, MT_IMAGE);
 	}
 	else

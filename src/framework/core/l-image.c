@@ -273,6 +273,15 @@ static int m_image_contrast(lua_State * L)
 	return 1;
 }
 
+static int m_image_opacity(lua_State * L)
+{
+	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
+	int alpha = luaL_optinteger(L, 2, 100);
+	surface_filter_opacity(img->s, alpha);
+	lua_settop(L, 1);
+	return 1;
+}
+
 static int m_image_blur(lua_State * L)
 {
 	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
@@ -774,6 +783,7 @@ static const luaL_Reg m_image[] = {
 	{"saturate",			m_image_saturate},
 	{"brightness",			m_image_brightness},
 	{"contrast",			m_image_contrast},
+	{"opacity",				m_image_opacity},
 	{"blur",				m_image_blur},
 
 	{"save",				m_image_save},

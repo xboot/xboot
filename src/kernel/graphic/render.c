@@ -888,6 +888,39 @@ void render_default_filter_contrast(struct surface_t * s, int contrast)
 	}
 }
 
+void render_default_filter_opacity(struct surface_t * s, int alpha)
+{
+	alpha = clamp(alpha, 0, 100) * 255 / 100;
+	int width = surface_get_width(s);
+	int height = surface_get_height(s);
+	int stride = surface_get_stride(s);
+	unsigned char * p, *q = surface_get_pixels(s);
+	int x, y;
+	switch(alpha)
+	{
+	case 0:
+		memset(s->pixels, 0, s->pixlen);
+		break;
+	case 255:
+		break;
+	default:
+		for(y = 0; y < height; y++, q += stride)
+		{
+			for(x = 0, p = q; x < width; x++, p += 4)
+			{
+				if(p[3] != 0)
+				{
+					p[0] = (p[0] * alpha) >> 8;
+					p[1] = (p[1] * alpha) >> 8;
+					p[2] = (p[2] * alpha) >> 8;
+					p[3] = (p[3] * alpha) >> 8;
+				}
+			}
+		}
+		break;
+	}
+}
+
 static inline void blurinner(unsigned char * p, int * zr, int * zg, int * zb, int * za, int alpha)
 {
 	int r, g, b;

@@ -56,6 +56,7 @@ struct render_t
 	void (*filter_saturate)(struct surface_t * s, int saturate);
 	void (*filter_brightness)(struct surface_t * s, int brightness);
 	void (*filter_contrast)(struct surface_t * s, int contrast);
+	void (*filter_opacity)(struct surface_t * s, int alpha);
 	void (*filter_blur)(struct surface_t * s, int radius);
 
 	void (*shape_save)(struct surface_t * s);
@@ -133,6 +134,7 @@ void render_default_filter_hue(struct surface_t * s, int angle);
 void render_default_filter_saturate(struct surface_t * s, int saturate);
 void render_default_filter_brightness(struct surface_t * s, int brightness);
 void render_default_filter_contrast(struct surface_t * s, int contrast);
+void render_default_filter_opacity(struct surface_t * s, int alpha);
 void render_default_filter_blur(struct surface_t * s, int radius);
 
 struct render_t * search_render(void);
@@ -227,6 +229,11 @@ static inline void surface_filter_brightness(struct surface_t * s, int brightnes
 static inline void surface_filter_contrast(struct surface_t * s, int contrast)
 {
 	s->r->filter_contrast(s, contrast);
+}
+
+static inline void surface_filter_opacity(struct surface_t * s, int alpha)
+{
+	s->r->filter_opacity(s, alpha);
 }
 
 static inline void surface_filter_blur(struct surface_t * s, int radius)

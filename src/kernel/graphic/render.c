@@ -31,10 +31,11 @@
 
 static inline void alpha_blend(uint32_t * d, uint32_t * s, double alpha)
 {
-	uint8_t dr, dg, db;
-	uint8_t sr, sg, sb, sa;
+	uint8_t da, dr, dg, db;
+	uint8_t sa, sr, sg, sb;
+	uint8_t a, r, g, b;
 
-	sa = (((*s) >> 24) & 0xff) * alpha;
+	sa = (((*s) >> 24) & 0xff);
 	if(sa != 0)
 	{
 		if(sa == 255)
@@ -43,15 +44,21 @@ static inline void alpha_blend(uint32_t * d, uint32_t * s, double alpha)
 		}
 		else
 		{
-			dr = ((*d) >> 16) & 0xff;
-			dg = ((*d) >> 8) & 0xff;
-			db = ((*d) >> 0) & 0xff;
-
 			sr = ((*s) >> 16) & 0xff;
 			sg = ((*s) >> 8) & 0xff;
 			sb = ((*s) >> 0) & 0xff;
 
-			*d = sa << 24 | ((sa * (sr - dr) >> 8) + dr) << 16 | ((sa * (sg - dg) >> 8) + dg) << 8 | ((sa * (sb - db) >> 8) + db);
+			da = ((*d) >> 24) & 0xff;
+			dr = ((*d) >> 16) & 0xff;
+			dg = ((*d) >> 8) & 0xff;
+			db = ((*d) >> 0) & 0xff;
+
+			a = (uint8_t)(sa + da * (1 - sa / 255.0) + 0.5);
+			r = (uint8_t)(sr + dr * (1 - sa / 255.0) + 0.5);
+			g = (uint8_t)(sg + dg * (1 - sa / 255.0) + 0.5);
+			b = (uint8_t)(sb + db * (1 - sa / 255.0) + 0.5);
+
+			*d = a << 24 | r << 16 | g << 8 | b << 0;
 		}
 	}
 }

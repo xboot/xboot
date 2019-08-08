@@ -29,13 +29,14 @@
 #include <xboot.h>
 #include <graphic/surface.h>
 
-static inline void alpha_blend(uint32_t * d, uint32_t * s)
+static inline void blend(uint32_t * d, uint32_t * s)
 {
 	uint8_t da, dr, dg, db;
 	uint8_t sa, sr, sg, sb;
 	uint8_t a, r, g, b;
+	int t;
 
-	sa = (((*s) >> 24) & 0xff);
+	sa = (*s >> 24) & 0xff;
 	if(sa != 0)
 	{
 		if(sa == 255)
@@ -44,19 +45,20 @@ static inline void alpha_blend(uint32_t * d, uint32_t * s)
 		}
 		else
 		{
-			sr = ((*s) >> 16) & 0xff;
-			sg = ((*s) >> 8) & 0xff;
-			sb = ((*s) >> 0) & 0xff;
+			sr = (*s >> 16) & 0xff;
+			sg = (*s >> 8) & 0xff;
+			sb = (*s >> 0) & 0xff;
 
-			da = ((*d) >> 24) & 0xff;
-			dr = ((*d) >> 16) & 0xff;
-			dg = ((*d) >> 8) & 0xff;
-			db = ((*d) >> 0) & 0xff;
+			da = (*d >> 24) & 0xff;
+			dr = (*d >> 16) & 0xff;
+			dg = (*d >> 8) & 0xff;
+			db = (*d >> 0) & 0xff;
 
-			a = (uint8_t)(sa + da * (1 - sa / 255.0) + 0.5);
-			r = (uint8_t)(sr + dr * (1 - sa / 255.0) + 0.5);
-			g = (uint8_t)(sg + dg * (1 - sa / 255.0) + 0.5);
-			b = (uint8_t)(sb + db * (1 - sa / 255.0) + 0.5);
+			t = sa + (sa >> 8);
+			a = (((sa + da) << 8) - da * t) >> 8;
+			r = (((sr + dr) << 8) - dr * t) >> 8;
+			g = (((sg + dg) << 8) - dg * t) >> 8;
+			b = (((sb + db) << 8) - db * t) >> 8;
 
 			*d = a << 24 | r << 16 | g << 8 | b << 0;
 		}
@@ -110,7 +112,7 @@ void render_default_blit(struct surface_t * s, struct region_t * clip, struct ma
 			oy = (int)ofy;
 			if(ox >= 0 && ox < sw && oy >= 0 && oy < sh)
 			{
-				alpha_blend(p, sp + oy * ss + ox);
+				blend(p, sp + oy * ss + ox);
 			}
 			p++;
 		}

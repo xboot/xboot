@@ -8,9 +8,9 @@ extern "C" {
 #include <stdint.h>
 
 struct color_t {
-	unsigned char r;
-	unsigned char g;
 	unsigned char b;
+	unsigned char g;
+	unsigned char r;
 	unsigned char a;
 };
 

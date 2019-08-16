@@ -770,95 +770,66 @@ static void dobject_draw_ninepatch(struct ldobject_t * o, struct window_t * w)
 {
 	struct lninepatch_t * ninepatch = o->priv;
 	struct surface_t * s = w->s;
-	surface_shape_save(s);
-	surface_shape_set_matrix(s, dobject_global_matrix(o));
+	struct matrix_t m;
 	if(ninepatch->lt)
 	{
-		surface_shape_save(s);
-		surface_shape_translate(s, 0, 0);
-		surface_shape_set_source_surface(s, ninepatch->lt, 0, 0);
-		surface_pattern_set_filter(surface_shape_get_source(s), "fast");
-		surface_shape_paint(s, 1.0);
-		surface_shape_restore(s);
+		memcpy(&m, dobject_global_matrix(o), sizeof(struct matrix_t));
+		matrix_translate(&m, 0, 0);
+		surface_blit(s, NULL, &m, ninepatch->lt, RENDER_TYPE_FAST);
 	}
 	if(ninepatch->mt)
 	{
-		surface_shape_save(s);
-		surface_shape_translate(s, ninepatch->left, 0);
-		surface_shape_scale(s, ninepatch->__sx, 1);
-		surface_shape_set_source_surface(s, ninepatch->mt, 0, 0);
-		surface_pattern_set_filter(surface_shape_get_source(s), "fast");
-		surface_shape_paint(s, 1.0);
-		surface_shape_restore(s);
+		memcpy(&m, dobject_global_matrix(o), sizeof(struct matrix_t));
+		matrix_translate(&m, ninepatch->left, 0);
+		matrix_scale(&m, ninepatch->__sx, 1);
+		surface_blit(s, NULL, &m, ninepatch->mt, RENDER_TYPE_FAST);
 	}
 	if(ninepatch->rt)
 	{
-		surface_shape_save(s);
-		surface_shape_translate(s, ninepatch->__w - ninepatch->right, 0);
-		surface_shape_set_source_surface(s, ninepatch->rt, 0, 0);
-		surface_pattern_set_filter(surface_shape_get_source(s), "fast");
-		surface_shape_paint(s, 1.0);
-		surface_shape_restore(s);
+		memcpy(&m, dobject_global_matrix(o), sizeof(struct matrix_t));
+		matrix_translate(&m, ninepatch->__w - ninepatch->right, 0);
+		surface_blit(s, NULL, &m, ninepatch->rt, RENDER_TYPE_FAST);
 	}
 	if(ninepatch->lm)
 	{
-		surface_shape_save(s);
-		surface_shape_translate(s, 0, ninepatch->top);
-		surface_shape_scale(s, 1, ninepatch->__sy);
-		surface_shape_set_source_surface(s, ninepatch->lm, 0, 0);
-		surface_pattern_set_filter(surface_shape_get_source(s), "fast");
-		surface_shape_paint(s, 1.0);
-		surface_shape_restore(s);
+		memcpy(&m, dobject_global_matrix(o), sizeof(struct matrix_t));
+		matrix_translate(&m, 0, ninepatch->top);
+		matrix_scale(&m, 1, ninepatch->__sy);
+		surface_blit(s, NULL, &m, ninepatch->lm, RENDER_TYPE_FAST);
 	}
 	if(ninepatch->mm)
 	{
-		surface_shape_save(s);
-		surface_shape_translate(s, ninepatch->left, ninepatch->top);
-		surface_shape_scale(s, ninepatch->__sx, ninepatch->__sy);
-		surface_shape_set_source_surface(s, ninepatch->mm, 0, 0);
-		surface_pattern_set_filter(surface_shape_get_source(s), "fast");
-		surface_shape_paint(s, 1.0);
-		surface_shape_restore(s);
+		memcpy(&m, dobject_global_matrix(o), sizeof(struct matrix_t));
+		matrix_translate(&m, ninepatch->left, ninepatch->top);
+		matrix_scale(&m, ninepatch->__sx, ninepatch->__sy);
+		surface_blit(s, NULL, &m, ninepatch->mm, RENDER_TYPE_FAST);
 	}
 	if(ninepatch->rm)
 	{
-		surface_shape_save(s);
-		surface_shape_translate(s, ninepatch->__w - ninepatch->right, ninepatch->top);
-		surface_shape_scale(s, 1, ninepatch->__sy);
-		surface_shape_set_source_surface(s, ninepatch->rm, 0, 0);
-		surface_pattern_set_filter(surface_shape_get_source(s), "fast");
-		surface_shape_paint(s, 1.0);
-		surface_shape_restore(s);
+		memcpy(&m, dobject_global_matrix(o), sizeof(struct matrix_t));
+		matrix_translate(&m, ninepatch->__w - ninepatch->right, ninepatch->top);
+		matrix_scale(&m, 1, ninepatch->__sy);
+		surface_blit(s, NULL, &m, ninepatch->rm, RENDER_TYPE_FAST);
 	}
 	if(ninepatch->lb)
 	{
-		surface_shape_save(s);
-		surface_shape_translate(s, 0, ninepatch->__h - ninepatch->bottom);
-		surface_shape_set_source_surface(s, ninepatch->lb, 0, 0);
-		surface_pattern_set_filter(surface_shape_get_source(s), "fast");
-		surface_shape_paint(s, 1.0);
-		surface_shape_restore(s);
+		memcpy(&m, dobject_global_matrix(o), sizeof(struct matrix_t));
+		matrix_translate(&m, 0, ninepatch->__h - ninepatch->bottom);
+		surface_blit(s, NULL, &m, ninepatch->lb, RENDER_TYPE_FAST);
 	}
 	if(ninepatch->mb)
 	{
-		surface_shape_save(s);
-		surface_shape_translate(s, ninepatch->left, ninepatch->__h - ninepatch->bottom);
-		surface_shape_scale(s, ninepatch->__sx, 1);
-		surface_shape_set_source_surface(s, ninepatch->mb, 0, 0);
-		surface_pattern_set_filter(surface_shape_get_source(s), "fast");
-		surface_shape_paint(s, 1.0);
-		surface_shape_restore(s);
+		memcpy(&m, dobject_global_matrix(o), sizeof(struct matrix_t));
+		matrix_translate(&m, ninepatch->left, ninepatch->__h - ninepatch->bottom);
+		matrix_scale(&m, ninepatch->__sx, 1);
+		surface_blit(s, NULL, &m, ninepatch->mb, RENDER_TYPE_FAST);
 	}
 	if(ninepatch->rb)
 	{
-		surface_shape_save(s);
-		surface_shape_translate(s, ninepatch->__w - ninepatch->right, ninepatch->__h - ninepatch->bottom);
-		surface_shape_set_source_surface(s, ninepatch->rb, 0, 0);
-		surface_pattern_set_filter(surface_shape_get_source(s), "fast");
-		surface_shape_paint(s, 1.0);
-		surface_shape_restore(s);
+		memcpy(&m, dobject_global_matrix(o), sizeof(struct matrix_t));
+		matrix_translate(&m, ninepatch->__w - ninepatch->right, ninepatch->__h - ninepatch->bottom);
+		surface_blit(s, NULL, &m, ninepatch->rb, RENDER_TYPE_FAST);
 	}
-	surface_shape_restore(s);
 }
 
 static void dobject_draw_text(struct ldobject_t * o, struct window_t * w)

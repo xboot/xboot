@@ -33,6 +33,12 @@ struct surface_t
 	void * priv;
 };
 
+enum render_type_t {
+	RENDER_TYPE_FAST	= 0,
+	RENDER_TYPE_GOOD	= 1,
+	RENDER_TYPE_BEST	= 2,
+};
+
 struct render_t
 {
 	char * name;
@@ -41,8 +47,8 @@ struct render_t
 	void * (*create)(struct surface_t * s);
 	void (*destroy)(void * pctx);
 
-	void (*blit)(struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct surface_t * src);
-	void (*fill)(struct surface_t * s, struct region_t * clip, struct matrix_t * m, int w, int h, struct color_t * c);
+	void (*blit)(struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct surface_t * src, enum render_type_t type);
+	void (*fill)(struct surface_t * s, struct region_t * clip, struct matrix_t * m, int w, int h, struct color_t * c, enum render_type_t type);
 	void (*text)(struct surface_t * s, struct region_t * clip, struct matrix_t * m, const char * utf8, struct color_t * c, void * sfont, int size);
 	void (*extent)(struct surface_t * s, const char * utf8, void * sfont, int size, struct region_t * e);
 
@@ -122,8 +128,8 @@ struct render_t
 	void (*pattern_set_matrix)(void * pattern, struct matrix_t * m);
 };
 
-void render_default_blit(struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct surface_t * src);
-void render_default_fill(struct surface_t * s, struct region_t * clip, struct matrix_t * m, int w, int h, struct color_t * c);
+void render_default_blit(struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct surface_t * src, enum render_type_t type);
+void render_default_fill(struct surface_t * s, struct region_t * clip, struct matrix_t * m, int w, int h, struct color_t * c, enum render_type_t type);
 void render_default_filter_haldclut(struct surface_t * s, struct surface_t * clut, const char * type);
 void render_default_filter_grayscale(struct surface_t * s);
 void render_default_filter_sepia(struct surface_t * s);
@@ -161,14 +167,14 @@ static inline void * surface_get_pixels(struct surface_t * s)
 	return s->pixels;
 }
 
-static inline void surface_blit(struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct surface_t * src)
+static inline void surface_blit(struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct surface_t * src, enum render_type_t type)
 {
-	s->r->blit(s, clip, m, src);
+	s->r->blit(s, clip, m, src, type);
 }
 
-static inline void surface_fill(struct surface_t * s, struct region_t * clip, struct matrix_t * m, int w, int h, struct color_t * c)
+static inline void surface_fill(struct surface_t * s, struct region_t * clip, struct matrix_t * m, int w, int h, struct color_t * c, enum render_type_t type)
 {
-	s->r->fill(s, clip, m, w, h, c);
+	s->r->fill(s, clip, m, w, h, c, type);
 }
 
 static inline void surface_text(struct surface_t * s, struct region_t * clip, struct matrix_t * m, const char * utf8, struct color_t * c, void * sfont, int size)

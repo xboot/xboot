@@ -55,9 +55,9 @@ void do_showlogo(void)
 						s = framebuffer_create_surface(fb);
 						matrix_init_identity(&m);
 						color_init(&c, 0x33, 0x99, 0xcc, 0xff);
-						surface_fill(s, NULL, &m, surface_get_width(s), surface_get_height(s), &c);
+						surface_fill(s, NULL, &m, surface_get_width(s), surface_get_height(s), &c, RENDER_TYPE_GOOD);
 						matrix_init_translate(&m, (surface_get_width(s) - surface_get_width(logo)) / 2, (surface_get_height(s) - surface_get_height(logo)) / 2);
-						surface_blit(s, NULL, &m, logo);
+						surface_blit(s, NULL, &m, logo, RENDER_TYPE_GOOD);
 						framebuffer_present_surface(fb, s, NULL);
 						framebuffer_destroy_surface(fb, s);
 						framebuffer_set_backlight(fb, CONFIG_MAX_BRIGHTNESS * 618 / 1000);

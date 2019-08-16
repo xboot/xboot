@@ -763,7 +763,7 @@ static void dobject_layout(struct ldobject_t * o)
 static void dobject_draw_image(struct ldobject_t * o, struct window_t * w)
 {
 	struct limage_t * img = o->priv;
-	surface_blit(w->s, NULL, dobject_global_matrix(o), img->s);
+	surface_blit(w->s, NULL, dobject_global_matrix(o), img->s, RENDER_TYPE_GOOD);
 }
 
 static void dobject_draw_ninepatch(struct ldobject_t * o, struct window_t * w)
@@ -870,7 +870,7 @@ static void dobject_draw_text(struct ldobject_t * o, struct window_t * w)
 static void dobject_draw_container(struct ldobject_t * o, struct window_t * w)
 {
 	if(o->bgcolor.a != 0)
-		surface_fill(w->s, NULL, dobject_global_matrix(o), o->width, o->height, &o->bgcolor);
+		surface_fill(w->s, NULL, dobject_global_matrix(o), o->width, o->height, &o->bgcolor, RENDER_TYPE_GOOD);
 }
 
 static int l_dobject_new(lua_State * L)

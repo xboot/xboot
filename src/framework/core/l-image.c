@@ -114,7 +114,7 @@ static int m_image_clone(lua_State * L)
 		c = surface_alloc(r.w, r.h, NULL);
 		if(!c)
 			return 0;
-		surface_blit(c, NULL, m, img->s);
+		surface_blit(c, NULL, m, img->s, RENDER_TYPE_GOOD);
 		struct limage_t * subimg = lua_newuserdata(L, sizeof(struct limage_t));
 		subimg->s = c;
 		luaL_setmetatable(L, MT_IMAGE);

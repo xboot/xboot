@@ -8,8 +8,8 @@ function M:init(app)
 	local w, h = icon:getSize()
 	self.super:init(w, h)
 	self._app = app
-	self._panelNormal = DisplayImage.new(icon:clone(0, 0, w, h, 32))
-	self._panelPressed = DisplayImage.new(icon:clone(0, 0, w, h, 32):sepia())
+	self._panelNormal = DisplayImage.new(icon:clone(0, 0, w, h))
+	self._panelPressed = DisplayImage.new(icon:clone(0, 0, w, h):sepia())
 
 	self._touchid = nil
 	self._state = M._STATE_NORMAL

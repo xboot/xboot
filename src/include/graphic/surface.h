@@ -534,7 +534,7 @@ static inline void surface_pattern_set_matrix(void * pattern, struct matrix_t * 
 
 struct surface_t * surface_alloc(int width, int height, void * priv);
 struct surface_t * surface_alloc_from_xfs(struct xfs_context_t * ctx, const char * filename);
-struct surface_t * surface_clone(struct surface_t * s);
+struct surface_t * surface_clone(struct surface_t * s, struct region_t * r);
 void surface_free(struct surface_t * s);
 void surface_clear(struct surface_t * s, struct color_t * c, struct region_t * r);
 void surface_set_pixel(struct surface_t * s, int x, int y, struct color_t * c);

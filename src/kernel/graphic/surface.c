@@ -113,30 +113,83 @@ struct surface_t * surface_alloc(int width, int height, void * priv)
 	return s;
 }
 
-struct surface_t * surface_clone(struct surface_t * s)
+struct surface_t * surface_clone(struct surface_t * s, struct region_t * r)
 {
+	struct region_t region;
 	struct surface_t * c;
+	unsigned char * p, * q;
 	void * pixels;
+	int width, height, stride, pixlen;
+	int x1, y1, x2, y2;
+	int i, l;
 
 	if(!s)
 		return NULL;
 
-	c = malloc(sizeof(struct surface_t));
-	if(!c)
-		return NULL;
-
-	pixels = memalign(4, s->pixlen);
-	if(!pixels)
+	if(r)
 	{
-		free(c);
-		return NULL;
-	}
-	memcpy(pixels, s->pixels, s->pixlen);
+		x1 = max(0, r->x);
+		x2 = min(s->width, r->x + r->w);
+		if(x1 <= x2)
+		{
+			y1 = max(0, r->y);
+			y2 = min(s->height, r->y + r->h);
+			if(y1 <= y2)
+			{
+				width = x2 - x1;
+				height = y2 - y1;
+				stride = width << 2;
+				pixlen = height * stride;
 
-	c->width = s->width;
-	c->height = s->height;
-	c->stride = s->stride;
-	c->pixlen = s->pixlen;
+				c = malloc(sizeof(struct surface_t));
+				if(!c)
+					return NULL;
+				pixels = memalign(4, pixlen);
+				if(!pixels)
+				{
+					free(c);
+					return NULL;
+				}
+
+				l = s->stride;
+				p = (unsigned char *)pixels;
+				q = (unsigned char *)s->pixels + y1 * l + (x1 << 2);
+				for(i = 0; i < height; i++, p += stride, q += l)
+					memcpy(p, q, stride);
+			}
+			else
+			{
+				return NULL;
+			}
+		}
+		else
+		{
+			return NULL;
+		}
+	}
+	else
+	{
+		width = s->width;
+		height = s->height;
+		stride = s->stride;
+		pixlen = s->pixlen;
+
+		c = malloc(sizeof(struct surface_t));
+		if(!c)
+			return NULL;
+		pixels = memalign(4, pixlen);
+		if(!pixels)
+		{
+			free(c);
+			return NULL;
+		}
+		memcpy(pixels, s->pixels, pixlen);
+	}
+
+	c->width = width;
+	c->height = height;
+	c->stride = stride;
+	c->pixlen = pixlen;
 	c->pixels = pixels;
 	c->r = s->r;
 	c->pctx = c->r->create(c);

@@ -105,38 +105,35 @@ static int m_image_get_size(lua_State * L)
 static int m_image_clone(lua_State * L)
 {
 	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
+	struct surface_t * c;
+	struct region_t r;
 	if(luaL_testudata(L, 2, MT_MATRIX))
 	{
 		struct matrix_t * m = lua_touserdata(L, 2);
-		struct limage_t * subimg = lua_newuserdata(L, sizeof(struct limage_t));
-		struct region_t r;
 		matrix_transform_region(m, surface_get_width(img->s), surface_get_height(img->s), &r);
-		subimg->s = surface_alloc(r.w, r.h, NULL);
-		surface_blit(subimg->s, NULL, m, img->s);
+		c = surface_alloc(r.w, r.h, NULL);
+		if(!c)
+			return 0;
+		surface_blit(c, NULL, m, img->s);
+		struct limage_t * subimg = lua_newuserdata(L, sizeof(struct limage_t));
+		subimg->s = c;
 		luaL_setmetatable(L, MT_IMAGE);
 	}
 	else
 	{
-		int x = luaL_optinteger(L, 2, 0);
-		int y = luaL_optinteger(L, 3, 0);
-		int w = luaL_optinteger(L, 4, surface_get_width(img->s));
-		int h = luaL_optinteger(L, 5, surface_get_height(img->s));
-		int r = luaL_optinteger(L, 6, 0);
-		if(w <= 0)
-			w = surface_get_width(img->s);
-		if(h <= 0)
-			h = surface_get_height(img->s);
+		r.x = luaL_optinteger(L, 2, 0);
+		r.y = luaL_optinteger(L, 3, 0);
+		r.w = luaL_optinteger(L, 4, surface_get_width(img->s));
+		r.h = luaL_optinteger(L, 5, surface_get_height(img->s));
+		if(r.w <= 0)
+			r.w = surface_get_width(img->s);
+		if(r.h <= 0)
+			r.h = surface_get_height(img->s);
+		c = surface_clone(img->s, &r);
+		if(!c)
+			return 0;
 		struct limage_t * subimg = lua_newuserdata(L, sizeof(struct limage_t));
-		subimg->s = surface_alloc(w, h, NULL);
-		surface_shape_save(subimg->s);
-		if(r > 0)
-		{
-			surface_shape_rounded_rectangle(subimg->s, x, y, w, h, r);
-			surface_shape_clip(subimg->s);
-		}
-		surface_shape_set_source_surface(subimg->s, img->s, -x, -y);
-		surface_shape_paint(subimg->s, 1.0);
-		surface_shape_restore(subimg->s);
+		subimg->s = c;
 		luaL_setmetatable(L, MT_IMAGE);
 	}
 	return 1;

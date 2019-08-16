@@ -67,7 +67,7 @@ static bool_t to_ninepatch(struct surface_t * surface, struct lninepatch_t * pat
 		return FALSE;
 
 	/* Nine patch chunk */
-	s = surface_clone(surface);
+	s = surface_clone(surface, NULL);
 	data = surface_get_pixels(s);
 	stride = surface_get_stride(s);
 

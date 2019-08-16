@@ -29,11 +29,6 @@
 #include <xboot.h>
 #include <framework/core/l-ninepatch.h>
 
-static inline int detect_black_pixel(unsigned char * p)
-{
-	return (((p[0] == 0) && (p[1] == 0) && (p[2] == 0) && (p[3] != 0)) ? 1 : 0);
-}
-
 void ninepatch_stretch(struct lninepatch_t * ninepatch, double width, double height)
 {
 	int lr = ninepatch->left + ninepatch->right;
@@ -49,211 +44,196 @@ void ninepatch_stretch(struct lninepatch_t * ninepatch, double width, double hei
 	ninepatch->__sy = (ninepatch->__h - tb) / (ninepatch->height - tb);
 }
 
-static bool_t to_ninepatch(struct surface_t * surface, struct lninepatch_t * patch)
+static inline int detect_black_pixel(unsigned char * p)
 {
-	struct surface_t * s;
-	unsigned char * data;
+	return (((p[0] == 0) && (p[1] == 0) && (p[2] == 0) && (p[3] != 0)) ? 1 : 0);
+}
+
+static inline int to_ninepatch(struct surface_t * s, struct lninepatch_t * ninepatch)
+{
+	struct region_t r;
+	unsigned char * p;
 	int width, height;
 	int stride;
 	int w, h;
 	int i;
 
-	if(!surface || !patch)
-		return FALSE;
+	if(!s || !ninepatch)
+		return 0;
 
-	width = surface_get_width(surface);
-	height = surface_get_height(surface);
+	width = surface_get_width(s);
+	height = surface_get_height(s);
 	if(width < 3 || height < 3)
-		return FALSE;
+		return 0;
 
 	/* Nine patch chunk */
-	s = surface_clone(surface, NULL);
-	data = surface_get_pixels(s);
+	p = surface_get_pixels(s);
 	stride = surface_get_stride(s);
 
 	/* Nine patch default size */
 	width = width - 2;
 	height = height - 2;
-	patch->width = width;
-	patch->height = height;
+	ninepatch->width = width;
+	ninepatch->height = height;
 
 	/* Stretch information */
-	patch->left = 0;
-	patch->right = 0;
-	patch->top = 0;
-	patch->right = 0;
+	ninepatch->left = 0;
+	ninepatch->right = 0;
+	ninepatch->top = 0;
+	ninepatch->right = 0;
 
 	for(i = 0; i < width; i++)
 	{
-		if(detect_black_pixel(&data[(i + 1) * 4]))
+		if(detect_black_pixel(&p[(i + 1) * 4]))
 		{
-			patch->left = i;
+			ninepatch->left = i;
 			break;
 		}
 	}
 	for(i = width - 1; i >= 0; i--)
 	{
-		if(detect_black_pixel(&data[(i + 1) * 4]))
+		if(detect_black_pixel(&p[(i + 1) * 4]))
 		{
-			patch->right = width - 1 - i;
+			ninepatch->right = width - 1 - i;
 			break;
 		}
 	}
 	for(i = 0; i < height; i++)
 	{
-		if(detect_black_pixel(&data[stride * (i + 1)]))
+		if(detect_black_pixel(&p[stride * (i + 1)]))
 		{
-			patch->top = i;
+			ninepatch->top = i;
 			break;
 		}
 	}
 	for(i = height - 1; i >= 0; i--)
 	{
-		if(detect_black_pixel(&data[stride * (i + 1)]))
+		if(detect_black_pixel(&p[stride * (i + 1)]))
 		{
-			patch->bottom = height - 1 - i;
+			ninepatch->bottom = height - 1 - i;
 			break;
 		}
 	}
-	surface_free(s);
 
 	/* Left top */
-	w = patch->left;
-	h = patch->top;
+	w = ninepatch->left;
+	h = ninepatch->top;
 	if(w > 0 && h > 0)
 	{
-		s = surface_alloc(patch->left, patch->top, NULL);
-		surface_shape_set_source_surface(s, surface, -1, -1);
-		surface_shape_paint(s, 1);
-		patch->lt = s;
+		region_init(&r, 1, 1, w, h);
+		ninepatch->lt = surface_clone(s, &r);
 	}
 	else
 	{
-		patch->lt = NULL;
+		ninepatch->lt = NULL;
 	}
 
 	/* Middle top */
-	w = width - patch->left - patch->right;
-	h = patch->top;
+	w = width - ninepatch->left - ninepatch->right;
+	h = ninepatch->top;
 	if(w > 0 && h > 0)
 	{
-		s = surface_alloc(w, h, NULL);
-		surface_shape_set_source_surface(s, surface, -patch->left - 1, -1);
-		surface_shape_paint(s, 1);
-		patch->mt = s;
+		region_init(&r, ninepatch->left + 1, 1, w, h);
+		ninepatch->mt = surface_clone(s, &r);
 	}
 	else
 	{
-		patch->mt = NULL;
+		ninepatch->mt = NULL;
 	}
 
 	/* Right top */
-	w = patch->right;
-	h = patch->top;
+	w = ninepatch->right;
+	h = ninepatch->top;
 	if(w > 0 && h > 0)
 	{
-		s = surface_alloc(w, h, NULL);
-		surface_shape_set_source_surface(s, surface, -(width - patch->right) - 1, -1);
-		surface_shape_paint(s, 1);
-		patch->rt = s;
+		region_init(&r, (width - ninepatch->right) + 1, 1, w, h);
+		ninepatch->rt = surface_clone(s, &r);
 	}
 	else
 	{
-		patch->rt = NULL;
+		ninepatch->rt = NULL;
 	}
 
 	/* Left Middle */
-	w = patch->left;
-	h = height - patch->top - patch->bottom;
+	w = ninepatch->left;
+	h = height - ninepatch->top - ninepatch->bottom;
 	if(w > 0 && h > 0)
 	{
-		s = surface_alloc(w, h, NULL);
-		surface_shape_set_source_surface(s, surface, -1, -patch->top - 1);
-		surface_shape_paint(s, 1);
-		patch->lm = s;
+		region_init(&r, 1, ninepatch->top + 1, w, h);
+		ninepatch->lm = surface_clone(s, &r);
 	}
 	else
 	{
-		patch->lm = NULL;
+		ninepatch->lm = NULL;
 	}
 
 	/* Middle Middle */
-	w = width - patch->left - patch->right;
-	h = height - patch->top - patch->bottom;
+	w = width - ninepatch->left - ninepatch->right;
+	h = height - ninepatch->top - ninepatch->bottom;
 	if(w > 0 && h > 0)
 	{
-		s = surface_alloc(w, h, NULL);
-		surface_shape_set_source_surface(s, surface, -patch->left - 1, -patch->top - 1);
-		surface_shape_paint(s, 1);
-		patch->mm = s;
+		region_init(&r, ninepatch->left + 1, ninepatch->top + 1, w, h);
+		ninepatch->mm = surface_clone(s, &r);
 	}
 	else
 	{
-		patch->mm = NULL;
+		ninepatch->mm = NULL;
 	}
 
 	/* Right middle */
-	w = patch->right;
-	h = height - patch->top - patch->bottom;
+	w = ninepatch->right;
+	h = height - ninepatch->top - ninepatch->bottom;
 	if(w > 0 && h > 0)
 	{
-		s = surface_alloc(w, h, NULL);
-		surface_shape_set_source_surface(s, surface, -(width - patch->right) - 1, -patch->top - 1);
-		surface_shape_paint(s, 1);
-		patch->rm = s;
+		region_init(&r, (width - ninepatch->right) + 1, ninepatch->top + 1, w, h);
+		ninepatch->rm = surface_clone(s, &r);
 	}
 	else
 	{
-		patch->rm = NULL;
+		ninepatch->rm = NULL;
 	}
 
 	/* Left bottom */
-	w = patch->left;
-	h = patch->bottom;
+	w = ninepatch->left;
+	h = ninepatch->bottom;
 	if(w > 0 && h > 0)
 	{
-		s = surface_alloc(w, h, NULL);
-		surface_shape_set_source_surface(s, surface, -1, -(height - patch->bottom) - 1);
-		surface_shape_paint(s, 1);
-		patch->lb = s;
+		region_init(&r, 1, (height - ninepatch->bottom) + 1, w, h);
+		ninepatch->lb = surface_clone(s, &r);
 	}
 	else
 	{
-		patch->lb = NULL;
+		ninepatch->lb = NULL;
 	}
 
 	/* Middle bottom */
-	w = width - patch->left - patch->right;
-	h = patch->bottom;
+	w = width - ninepatch->left - ninepatch->right;
+	h = ninepatch->bottom;
 	if(w > 0 && h > 0)
 	{
-		s = surface_alloc(w, h, NULL);
-		surface_shape_set_source_surface(s, surface, -patch->left - 1, -(height - patch->bottom) - 1);
-		surface_shape_paint(s, 1);
-		patch->mb = s;
+		region_init(&r, ninepatch->left + 1, (height - ninepatch->bottom) + 1, w, h);
+		ninepatch->mb = surface_clone(s, &r);
 	}
 	else
 	{
-		patch->mb = NULL;
+		ninepatch->mb = NULL;
 	}
 
 	/* Right bottom */
-	w = patch->right;
-	h = patch->bottom;
+	w = ninepatch->right;
+	h = ninepatch->bottom;
 	if(w > 0 && h > 0)
 	{
-		s = surface_alloc(w, h, NULL);
-		surface_shape_set_source_surface(s, surface, -(width - patch->right) - 1, -(height - patch->bottom) - 1);
-		surface_shape_paint(s, 1);
-		patch->rb = s;
+		region_init(&r, (width - ninepatch->right) + 1, (height - ninepatch->bottom) + 1, w, h);
+		ninepatch->rb = surface_clone(s, &r);
 	}
 	else
 	{
-		patch->rb = NULL;
+		ninepatch->rb = NULL;
 	}
 
-	ninepatch_stretch(patch, width, height);
-	return TRUE;
+	ninepatch_stretch(ninepatch, width, height);
+	return 1;
 }
 
 static int l_ninepatch_new(lua_State * L)
@@ -263,9 +243,9 @@ static int l_ninepatch_new(lua_State * L)
 	struct surface_t * s = surface_alloc_from_xfs(((struct vmctx_t *)luahelper_vmctx(L))->xfs, filename);
 	if(!s)
 		return 0;
-	bool_t result = to_ninepatch(s, ninepatch);
+	int r = to_ninepatch(s, ninepatch);
 	surface_free(s);
-	if(!result)
+	if(!r)
 		return 0;
 	luaL_setmetatable(L, MT_NINEPATCH);
 	return 1;
@@ -305,7 +285,8 @@ static int m_ninepatch_set_width(lua_State * L)
 	struct lninepatch_t * ninepatch = luaL_checkudata(L, 1, MT_NINEPATCH);
 	double w = luaL_checknumber(L, 2);
 	ninepatch_stretch(ninepatch, w, ninepatch->__h);
-	return 0;
+	lua_settop(L, 1);
+	return 1;
 }
 
 static int m_ninepatch_get_width(lua_State * L)
@@ -320,7 +301,8 @@ static int m_ninepatch_set_height(lua_State * L)
 	struct lninepatch_t * ninepatch = luaL_checkudata(L, 1, MT_NINEPATCH);
 	double h = luaL_checknumber(L, 2);
 	ninepatch_stretch(ninepatch, ninepatch->__w, h);
-	return 0;
+	lua_settop(L, 1);
+	return 1;
 }
 
 static int m_ninepatch_get_height(lua_State * L)
@@ -336,7 +318,8 @@ static int m_ninepatch_set_size(lua_State * L)
 	double w = luaL_checknumber(L, 2);
 	double h = luaL_checknumber(L, 3);
 	ninepatch_stretch(ninepatch, w, h);
-	return 0;
+	lua_settop(L, 1);
+	return 1;
 }
 
 static int m_ninepatch_get_size(lua_State * L)

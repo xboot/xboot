@@ -8,6 +8,7 @@ extern "C" {
 #include <types.h>
 #include <barrier.h>
 
+#if 0 // FIXME!!!
 static inline void atomic_add(atomic_t * a, int v)
 {
 	unsigned int tmp;
@@ -90,6 +91,39 @@ static inline int atomic_cmp_exchange(atomic_t * a, int o, int n)
 
 	return pre;
 }
+#else
+static inline void atomic_add(atomic_t * a, int v)
+{
+	a->counter += v;
+}
+
+static inline int atomic_add_return(atomic_t * a, int v)
+{
+	a->counter += v;
+	return a->counter;
+}
+
+static inline void atomic_sub(atomic_t * a, int v)
+{
+	a->counter -= v;
+}
+
+static inline int atomic_sub_return(atomic_t * a, int v)
+{
+	a->counter -= v;
+	return a->counter;
+}
+
+static inline int atomic_cmp_exchange(atomic_t * a, int o, int n)
+{
+	volatile int v;
+
+	v = a->counter;
+	if(v == o)
+		a->counter = n;
+	return v;
+}
+#endif
 
 #define atomic_set(a, v)			do { ((a)->counter) = (v); smp_wmb(); } while(0)
 #define atomic_get(a)				({ int __v; __v = (a)->counter; smp_rmb(); __v; })

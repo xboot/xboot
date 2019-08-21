@@ -69,7 +69,7 @@ static u64_t clk_rk1808_pll_get_rate(struct clk_t * clk, u64_t prate)
 
 	switch(pdat->channel)
 	{
-	case 0 ... 3:
+	case 0 ... 4:
 		con = read32(pdat->cru + CRU_PLL_CON(pdat->channel, 0));
 		postdiv1 = (con >> 12) & 0x7;
 		fbdiv = (con >> 0) & 0xfff;
@@ -79,7 +79,7 @@ static u64_t clk_rk1808_pll_get_rate(struct clk_t * clk, u64_t prate)
 		mode = (read32(pdat->cru + CRU_MODE) >> (pdat->channel * 2)) & 0x3;
 		break;
 
-	case 4:
+	case 5:
 		return 0;
 
 	default:

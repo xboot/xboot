@@ -231,9 +231,9 @@ reset:
 	/* Initial system uart */
 	bl sys_uart_init
 	mov x0, #'\r'
-	bl sys_uart_init
+	bl sys_uart_putc
 	mov x0, #'\n'
-	bl sys_uart_init
+	bl sys_uart_putc
 
 	/* Copyself to link address */
 	adr x0, _start

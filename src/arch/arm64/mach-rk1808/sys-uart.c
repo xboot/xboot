@@ -43,7 +43,7 @@ void sys_uart_init(void)
 	write32(addr, val);
 */
 
-	/* Config uart2 to 1500000-8-1-0 */
+	/* Config uart2 to 115200-8-1-0 */
 	addr = 0xff550000;
 	write32(addr + 0x88, (1 << 0) | (1 << 1) | (1 << 2));
 	write32(addr + 0x04, 0x0);
@@ -55,7 +55,7 @@ void sys_uart_init(void)
 	val = read32(addr + 0x0c);
 	val |= (1 << 7);
 	write32(addr + 0x0c, val);
-	udiv = 24000000 / (16 * 1500000);
+	udiv = 24000000 / (16 * 115200);
 	write32(addr + 0x00, udiv & 0xff);
 	write32(addr + 0x04, (udiv >> 8) & 0xff);
 	val = read32(addr + 0x0c);

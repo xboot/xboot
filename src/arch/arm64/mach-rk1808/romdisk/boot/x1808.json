@@ -1,0 +1,134 @@
+{
+	"clk-fixed@0": { "name": "xin24m", "rate": 24000000 },
+	"clk-fixed@1": { "name": "xin32k", "rate": 32768 },
+
+	"clk-link": { "parent": "xin24m", "name": "link-uart0" },
+	"clk-link": { "parent": "xin24m", "name": "link-uart1" },
+	"clk-link": { "parent": "xin24m", "name": "link-uart2" },
+	"clk-link": { "parent": "xin24m", "name": "link-uart3" },
+	"clk-link": { "parent": "xin24m", "name": "link-uart4" },
+	"clk-link": { "parent": "xin24m", "name": "link-uart5" },
+	"clk-link": { "parent": "xin24m", "name": "link-uart6" },
+	"clk-link": { "parent": "xin24m", "name": "link-uart7" },
+
+	"reset-rk1808@0xff350300": { "reset-base":   0, "reset-count": 16 },
+	"reset-rk1808@0xff350304": { "reset-base":  16, "reset-count": 16 },
+	"reset-rk1808@0xff350308": { "reset-base":  32, "reset-count": 16 },
+	"reset-rk1808@0xff35030c": { "reset-base":  48, "reset-count": 16 },
+	"reset-rk1808@0xff350310": { "reset-base":  64, "reset-count": 16 },
+	"reset-rk1808@0xff350314": { "reset-base":  80, "reset-count": 16 },
+	"reset-rk1808@0xff350318": { "reset-base":  96, "reset-count": 16 },
+	"reset-rk1808@0xff35031c": { "reset-base": 112, "reset-count": 16 },
+	"reset-rk1808@0xff350320": { "reset-base": 128, "reset-count": 16 },
+	"reset-rk1808@0xff350324": { "reset-base": 144, "reset-count": 16 },
+	"reset-rk1808@0xff350328": { "reset-base": 160, "reset-count": 16 },
+	"reset-rk1808@0xff35032c": { "reset-base": 176, "reset-count": 16 },
+	"reset-rk1808@0xff350330": { "reset-base": 192, "reset-count": 16 },
+	"reset-rk1808@0xff350334": { "reset-base": 208, "reset-count": 16 },
+	"reset-rk1808@0xff350338": { "reset-base": 224, "reset-count": 16 },
+	"reset-rk1808@0xff35033c": { "reset-base": 240, "reset-count": 16 },
+
+	"cs-armv8-timer": {
+		"clock-frequency": -1
+	},
+
+	"uart-8250@0xff430000": {
+		"clock-name": "link-uart0",
+		"txd-gpio": -1,
+		"txd-gpio-config": -1,
+		"rxd-gpio": -1,
+		"rxd-gpio-config": -1,
+		"baud-rates": 115200,
+		"data-bits": 8,
+		"parity-bits": 0,
+		"stop-bits": 1
+	},
+
+	"uart-8250@0xff540000": {
+		"clock-name": "link-uart1",
+		"txd-gpio": -1,
+		"txd-gpio-config": -1,
+		"rxd-gpio": -1,
+		"rxd-gpio-config": -1,
+		"baud-rates": 115200,
+		"data-bits": 8,
+		"parity-bits": 0,
+		"stop-bits": 1
+	},
+
+	"uart-8250@0xff550000": {
+		"clock-name": "link-uart2",
+		"txd-gpio": -1,
+		"txd-gpio-config": -1,
+		"rxd-gpio": -1,
+		"rxd-gpio-config": -1,
+		"baud-rates": 1500000,
+		"data-bits": 8,
+		"parity-bits": 0,
+		"stop-bits": 1
+	},
+
+	"uart-8250@0xff560000": {
+		"clock-name": "link-uart3",
+		"txd-gpio": -1,
+		"txd-gpio-config": -1,
+		"rxd-gpio": -1,
+		"rxd-gpio-config": -1,
+		"baud-rates": 115200,
+		"data-bits": 8,
+		"parity-bits": 0,
+		"stop-bits": 1
+	},
+
+	"uart-8250@0xff570000": {
+		"clock-name": "link-uart4",
+		"txd-gpio": -1,
+		"txd-gpio-config": -1,
+		"rxd-gpio": -1,
+		"rxd-gpio-config": -1,
+		"baud-rates": 115200,
+		"data-bits": 8,
+		"parity-bits": 0,
+		"stop-bits": 1
+	},
+
+	"uart-8250@0xff5a0000": {
+		"clock-name": "link-uart5",
+		"txd-gpio": -1,
+		"txd-gpio-config": -1,
+		"rxd-gpio": -1,
+		"rxd-gpio-config": -1,
+		"baud-rates": 115200,
+		"data-bits": 8,
+		"parity-bits": 0,
+		"stop-bits": 1
+	},
+
+	"uart-8250@0xff5b0000": {
+		"clock-name": "link-uart6",
+		"txd-gpio": -1,
+		"txd-gpio-config": -1,
+		"rxd-gpio": -1,
+		"rxd-gpio-config": -1,
+		"baud-rates": 115200,
+		"data-bits": 8,
+		"parity-bits": 0,
+		"stop-bits": 1
+	},
+
+	"uart-8250@0xff5c0000": {
+		"clock-name": "link-uart7",
+		"txd-gpio": -1,
+		"txd-gpio-config": -1,
+		"rxd-gpio": -1,
+		"rxd-gpio-config": -1,
+		"baud-rates": 115200,
+		"data-bits": 8,
+		"parity-bits": 0,
+		"stop-bits": 1
+	},
+
+	"console-uart@0": {
+		"uart-bus": "uart-8250.2"
+	}
+}

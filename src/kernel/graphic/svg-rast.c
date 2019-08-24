@@ -35,6 +35,12 @@
 #include <graphic/svg.h>
 #include <graphic/svg-rast.h>
 
+enum svg_point_flags_t {
+	SVG_PT_CORNER	= (1 << 0),
+	SVG_PT_BEVEL	= (1 << 1),
+	SVG_PT_LEFT		= (1 << 2),
+};
+
 static inline int svg_div255(int x)
 {
 	return ((x + 1) * 257) >> 16;
@@ -148,7 +154,7 @@ static void svg_add_path_point(struct svg_rasterizer_t * r, float x, float y, in
 		pt = &r->points[r->npoints - 1];
 		if(svg_pt_equals(pt->x, pt->y, x, y, r->distTol))
 		{
-			pt->flags = (unsigned char)(pt->flags | flags);
+			pt->flags |= flags;
 			return;
 		}
 	}
@@ -162,7 +168,7 @@ static void svg_add_path_point(struct svg_rasterizer_t * r, float x, float y, in
 	pt = &r->points[r->npoints];
 	pt->x = x;
 	pt->y = y;
-	pt->flags = (unsigned char)flags;
+	pt->flags = flags;
 	r->npoints++;
 }
 
@@ -291,13 +297,6 @@ static void svg_flatten_shape(struct svg_rasterizer_t * r, struct svg_shape_t * 
 			svg_add_edge(r, r->points[j].x, r->points[j].y, r->points[i].x, r->points[i].y);
 	}
 }
-
-enum svg_point_flags_t
-{
-	SVG_PT_CORNER	= 0x01,
-	SVG_PT_BEVEL	= 0x02,
-	SVG_PT_LEFT		= 0x04
-};
 
 static void svg_init_closed(struct svg_point_t * left, struct svg_point_t * right, struct svg_point_t * p0, struct svg_point_t * p1, float width)
 {
@@ -522,7 +521,7 @@ static int svg_curve_divs(float r, float arc, float tol)
 	return divs;
 }
 
-static void svg_expand_stroke(struct svg_rasterizer_t * r, struct svg_point_t * points, int npoints, int closed, enum svg_line_join_t lineJoin, enum svg_line_cap_t lineCap, float width)
+static void svg_expand_stroke(struct svg_rasterizer_t * r, struct svg_point_t * points, int npoints, int closed, enum svg_line_join_t join, enum svg_line_cap_t cap, float width)
 {
 	struct svg_point_t left = { 0, 0, 0, 0, 0, 0, 0, 0 }, right = { 0, 0, 0, 0, 0, 0, 0, 0 }, firstLeft = { 0, 0, 0, 0, 0, 0, 0, 0 }, firstRight = { 0, 0, 0, 0, 0, 0, 0, 0 };
 	struct svg_point_t * p0, * p1;
@@ -554,11 +553,11 @@ static void svg_expand_stroke(struct svg_rasterizer_t * r, struct svg_point_t * 
 		float dx = p1->x - p0->x;
 		float dy = p1->y - p0->y;
 		svg_normalize(&dx, &dy);
-		if(lineCap == SVG_CAP_BUTT)
+		if(cap == SVG_CAP_BUTT)
 			svg_butt_cap(r, &left, &right, p0, dx, dy, width, 0);
-		else if(lineCap == SVG_CAP_SQUARE)
+		else if(cap == SVG_CAP_SQUARE)
 			svg_square_cap(r, &left, &right, p0, dx, dy, width, 0);
-		else if(lineCap == SVG_CAP_ROUND)
+		else if(cap == SVG_CAP_ROUND)
 			svg_round_cap(r, &left, &right, p0, dx, dy, width, ncap, 0);
 	}
 
@@ -566,9 +565,9 @@ static void svg_expand_stroke(struct svg_rasterizer_t * r, struct svg_point_t * 
 	{
 		if(p1->flags & SVG_PT_CORNER)
 		{
-			if(lineJoin == SVG_JOIN_ROUND)
+			if(join == SVG_JOIN_ROUND)
 				svg_round_join(r, &left, &right, p0, p1, width, ncap);
-			else if(lineJoin == SVG_JOIN_BEVEL || (p1->flags & SVG_PT_BEVEL))
+			else if((join == SVG_JOIN_BEVEL) || (p1->flags & SVG_PT_BEVEL))
 				svg_bevel_join(r, &left, &right, p0, p1, width);
 			else
 				svg_miter_join(r, &left, &right, p0, p1, width);
@@ -589,16 +588,16 @@ static void svg_expand_stroke(struct svg_rasterizer_t * r, struct svg_point_t * 
 		float dx = p1->x - p0->x;
 		float dy = p1->y - p0->y;
 		svg_normalize(&dx, &dy);
-		if(lineCap == SVG_CAP_BUTT)
+		if(cap == SVG_CAP_BUTT)
 			svg_butt_cap(r, &right, &left, p1, -dx, -dy, width, 1);
-		else if(lineCap == SVG_CAP_SQUARE)
+		else if(cap == SVG_CAP_SQUARE)
 			svg_square_cap(r, &right, &left, p1, -dx, -dy, width, 1);
-		else if(lineCap == SVG_CAP_ROUND)
+		else if(cap == SVG_CAP_ROUND)
 			svg_round_cap(r, &right, &left, p1, -dx, -dy, width, ncap, 1);
 	}
 }
 
-static void svg_prepare_stroke(struct svg_rasterizer_t * r, float miter_limit, enum svg_line_join_t lineJoin)
+static void svg_prepare_stroke(struct svg_rasterizer_t * r, float miter_limit, enum svg_line_join_t join)
 {
 	struct svg_point_t * p0, * p1;
 	int i, j;
@@ -641,7 +640,7 @@ static void svg_prepare_stroke(struct svg_rasterizer_t * r, float miter_limit, e
 			p1->flags |= SVG_PT_LEFT;
 		if(p1->flags & SVG_PT_CORNER)
 		{
-			if((dmr2 * miter_limit * miter_limit) < 1.0f || lineJoin == SVG_JOIN_BEVEL || lineJoin == SVG_JOIN_ROUND)
+			if((dmr2 * miter_limit * miter_limit) < 1.0f || join == SVG_JOIN_BEVEL || join == SVG_JOIN_ROUND)
 			{
 				p1->flags |= SVG_PT_BEVEL;
 			}
@@ -655,8 +654,8 @@ static void svg_flatten_shape_stroke(struct svg_rasterizer_t * r, struct svg_sha
 	struct svg_path_t * path;
 	struct svg_point_t * p0, * p1;
 	float miter_limit = shape->miter_limit;
-	enum svg_line_join_t lineJoin = shape->stroke_line_join;
-	enum svg_line_cap_t lineCap = shape->stroke_line_cap;
+	enum svg_line_join_t join = shape->stroke_line_join;
+	enum svg_line_cap_t cap = shape->stroke_line_cap;
 	float width = shape->stroke_width * (scalex + scaley) * 0.5f;
 	int i, j, closed;
 
@@ -726,8 +725,8 @@ static void svg_flatten_shape_stroke(struct svg_rasterizer_t * r, struct svg_sha
 
 					if(r->npoints > 1 && dashState)
 					{
-						svg_prepare_stroke(r, miter_limit, lineJoin);
-						svg_expand_stroke(r, r->points, r->npoints, 0, lineJoin, lineCap, width);
+						svg_prepare_stroke(r, miter_limit, join);
+						svg_expand_stroke(r, r->points, r->npoints, 0, join, cap, width);
 					}
 					dashState = !dashState;
 					idash = (idash + 1) % shape->stroke_dash_count;
@@ -748,12 +747,12 @@ static void svg_flatten_shape_stroke(struct svg_rasterizer_t * r, struct svg_sha
 				}
 			}
 			if(r->npoints > 1 && dashState)
-				svg_expand_stroke(r, r->points, r->npoints, 0, lineJoin, lineCap, width);
+				svg_expand_stroke(r, r->points, r->npoints, 0, join, cap, width);
 		}
 		else
 		{
-			svg_prepare_stroke(r, miter_limit, lineJoin);
-			svg_expand_stroke(r, r->points, r->npoints, closed, lineJoin, lineCap, width);
+			svg_prepare_stroke(r, miter_limit, join);
+			svg_expand_stroke(r, r->points, r->npoints, closed, join, cap, width);
 		}
 	}
 }

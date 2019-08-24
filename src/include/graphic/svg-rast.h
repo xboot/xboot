@@ -5,11 +5,11 @@
 extern "C" {
 #endif
 
-#define SVG_SUBSAMPLES			5
-#define SVG_FIXSHIFT			14
-#define SVG_FIX					(1 << SVG_FIXSHIFT)
-#define SVG_FIXMASK				(SVG_FIX - 1)
-#define SVG_MEMPAGE_SIZE		1024
+#define SVG_SUBSAMPLES		(5)
+#define SVG_FIXSHIFT		(14)
+#define SVG_FIX				(1 << SVG_FIXSHIFT)
+#define SVG_FIXMASK			(SVG_FIX - 1)
+#define SVG_MEMPAGE_SIZE	(1024)
 
 struct svg_edge_t {
 	float x0, y0, x1, y1;
@@ -22,7 +22,7 @@ struct svg_point_t {
 	float dx, dy;
 	float len;
 	float dmx, dmy;
-	unsigned char flags;
+	int flags;
 };
 
 struct svg_active_edge_t {

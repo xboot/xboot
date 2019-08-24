@@ -46,14 +46,14 @@ struct svg_gradient_stop_t {
 
 struct svg_gradient_t {
 	float xform[6];
-	char spread;
+	enum svg_spread_type_t spread;
 	float fx, fy;
 	int nstops;
 	struct svg_gradient_stop_t stops[1];
 };
 
 struct svg_paint_t {
-	char type;
+	enum svg_paint_type_t type;
 	union {
 		unsigned int color;
 		struct svg_gradient_t * gradient;
@@ -63,7 +63,7 @@ struct svg_paint_t {
 struct svg_path_t {
 	float * pts;
 	int npts;
-	char closed;
+	int closed;
 	float bounds[4];
 	struct svg_path_t * next;
 };
@@ -76,11 +76,11 @@ struct svg_shape_t {
 	float stroke_width;
 	float stroke_dash_offset;
 	float stroke_dash_array[8];
-	char stroke_dash_count;
-	char stroke_line_join;
-	char stroke_line_cap;
+	int stroke_dash_count;
+	enum svg_line_join_t stroke_line_join;
+	enum svg_line_cap_t stroke_line_cap;
 	float miter_limit;
-	char fill_rule;
+	enum svg_fill_rule_t fill_rule;
 	unsigned char flags;
 	float bounds[4];
 	struct svg_path_t * paths;

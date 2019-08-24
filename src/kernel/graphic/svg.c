@@ -36,7 +36,6 @@
 #include <graphic/color.h>
 #include <graphic/svg.h>
 
-#define SVG_PI 			(3.14159265358979323846264338327f)
 #define SVG_KAPPA90		(0.5522847493f)	// Length proportional to radius of a cubic bezier handle for 90deg arcs.
 
 #define SVG_ALIGN_MIN	0
@@ -287,12 +286,12 @@ struct svg_gradient_data_t
 {
 	char id[64];
 	char ref[64];
-	char type;
+	enum svg_paint_type_t type;
 	union {
 		struct svg_linear_data_t linear;
 		struct svg_radial_data_t radial;
 	};
-	char spread;
+	enum svg_spread_type_t spread;
 	char units;
 	float xform[6];
 	int nstops;
@@ -315,17 +314,17 @@ struct svg_attrib_t
 	float stroke_dash_offset;
 	float stroke_dash_array[SVG_MAX_DASHES];
 	int stroke_dash_count;
-	char stroke_line_join;
-	char stroke_line_cap;
+	enum svg_line_join_t stroke_line_join;
+	enum svg_line_cap_t stroke_line_cap;
 	float miter_limit;
-	char fill_rule;
+	enum svg_fill_rule_t fill_rule;
 	float font_size;
 	unsigned int stop_color;
 	float stop_opacity;
 	float stop_offset;
 	char has_fill;
 	char has_stroke;
-	char visible;
+	int visible;
 };
 
 struct svg_parser_t
@@ -729,7 +728,7 @@ static struct svg_gradient_data_t * svg_find_gradient_data(struct svg_parser_t *
 	return NULL;
 }
 
-static struct svg_gradient_t * svg_create_gradient(struct svg_parser_t * p, const char * id, const float * localBounds, char * paintType)
+static struct svg_gradient_t * svg_create_gradient(struct svg_parser_t * p, const char * id, const float * bounds, enum svg_paint_type_t * type)
 {
 	struct svg_attrib_t * attr = svg_get_attr(p);
 	struct svg_gradient_data_t * data = NULL;
@@ -763,10 +762,10 @@ static struct svg_gradient_t * svg_create_gradient(struct svg_parser_t * p, cons
 
 	if(data->units == SVG_OBJECT_SPACE)
 	{
-		ox = localBounds[0];
-		oy = localBounds[1];
-		sw = localBounds[2] - localBounds[0];
-		sh = localBounds[3] - localBounds[1];
+		ox = bounds[0];
+		oy = bounds[1];
+		sw = bounds[2] - bounds[0];
+		sh = bounds[3] - bounds[1];
 	}
 	else
 	{
@@ -816,7 +815,7 @@ static struct svg_gradient_t * svg_create_gradient(struct svg_parser_t * p, cons
 	grad->spread = data->spread;
 	memcpy(grad->stops, stops, nstops * sizeof(struct svg_gradient_stop_t));
 	grad->nstops = nstops;
-	*paintType = data->type;
+	*type = data->type;
 
 	return grad;
 }
@@ -883,7 +882,7 @@ static void svg_add_shape(struct svg_parser_t * p)
 	scale = svg_get_average_scale(attr->xform);
 	shape->stroke_width = attr->stroke_width * scale;
 	shape->stroke_dash_offset = attr->stroke_dash_offset * scale;
-	shape->stroke_dash_count = (char)attr->stroke_dash_count;
+	shape->stroke_dash_count = attr->stroke_dash_count;
 	for(i = 0; i < attr->stroke_dash_count; i++)
 		shape->stroke_dash_array[i] = attr->stroke_dash_array[i] * scale;
 	shape->stroke_line_join = attr->stroke_line_join;
@@ -918,10 +917,10 @@ static void svg_add_shape(struct svg_parser_t * p)
 	}
 	else if(attr->has_fill == 2)
 	{
-		float inv[6], localBounds[4];
+		float inv[6], bounds[4];
 		svg_xform_inverse(inv, attr->xform);
-		svg_get_local_bounds(localBounds, shape, inv);
-		shape->fill.gradient = svg_create_gradient(p, attr->fill_gradient, localBounds, &shape->fill.type);
+		svg_get_local_bounds(bounds, shape, inv);
+		shape->fill.gradient = svg_create_gradient(p, attr->fill_gradient, bounds, &shape->fill.type);
 		if(shape->fill.gradient == NULL)
 			shape->fill.type = SVG_PAINT_NONE;
 	}
@@ -938,10 +937,10 @@ static void svg_add_shape(struct svg_parser_t * p)
 	}
 	else if(attr->has_stroke == 2)
 	{
-		float inv[6], localBounds[4];
+		float inv[6], bounds[4];
 		svg_xform_inverse(inv, attr->xform);
-		svg_get_local_bounds(localBounds, shape, inv);
-		shape->stroke.gradient = svg_create_gradient(p, attr->stroke_gradient, localBounds, &shape->stroke.type);
+		svg_get_local_bounds(bounds, shape, inv);
+		shape->stroke.gradient = svg_create_gradient(p, attr->stroke_gradient, bounds, &shape->stroke.type);
 		if(shape->stroke.gradient == NULL)
 			shape->stroke.type = SVG_PAINT_NONE;
 	}
@@ -954,7 +953,7 @@ static void svg_add_shape(struct svg_parser_t * p)
 	p->shapesTail = shape;
 }
 
-static void svg_add_path(struct svg_parser_t * p, char closed)
+static void svg_add_path(struct svg_parser_t * p, int closed)
 {
 	struct svg_attrib_t * attr = svg_get_attr(p);
 	struct svg_path_t * path = NULL;
@@ -1227,7 +1226,7 @@ static int svg_parse_skewx(float * xform, const char * str)
 	int na = 0;
 	float t[6];
 	int len = svg_parse_transform_args(str, args, 1, &na);
-	svg_xform_set_skewx(t, args[0] / 180.0f * SVG_PI);
+	svg_xform_set_skewx(t, args[0] / 180.0f * M_PI);
 	memcpy(xform, t, sizeof(float) * 6);
 	return len;
 }
@@ -1238,7 +1237,7 @@ static int svg_parse_skewy(float * xform, const char * str)
 	int na = 0;
 	float t[6];
 	int len = svg_parse_transform_args(str, args, 1, &na);
-	svg_xform_set_skewy(t, args[0] / 180.0f * SVG_PI);
+	svg_xform_set_skewy(t, args[0] / 180.0f * M_PI);
 	memcpy(xform, t, sizeof(float) * 6);
 	return len;
 }
@@ -1259,7 +1258,7 @@ static int svg_parse_rotate(float * xform, const char * str)
 		svg_xform_set_translation(t, -args[1], -args[2]);
 		svg_xform_multiply(m, t);
 	}
-	svg_xform_set_rotation(t, args[0] / 180.0f * SVG_PI);
+	svg_xform_set_rotation(t, args[0] / 180.0f * M_PI);
 	svg_xform_multiply(m, t);
 	if(na > 1)
 	{
@@ -1823,7 +1822,7 @@ static void svg_path_arc_to(struct svg_parser_t * p, float * cpx, float * cpy, f
 
 	rx = fabsf(args[0]);
 	ry = fabsf(args[1]);
-	rotx = args[2] / 180.0f * SVG_PI;
+	rotx = args[2] / 180.0f * M_PI;
 	fa = fabsf(args[3]) > 1e-6 ? 1 : 0;
 	fs = fabsf(args[4]) > 1e-6 ? 1 : 0;
 	x1 = *cpx;
@@ -1885,9 +1884,9 @@ static void svg_path_arc_to(struct svg_parser_t * p, float * cpx, float * cpy, f
 	da = svg_vecang(ux, uy, vx, vy);
 
 	if(fs == 0 && da > 0)
-		da -= 2 * SVG_PI;
+		da -= 2 * M_PI;
 	else if(fs == 1 && da < 0)
-		da += 2 * SVG_PI;
+		da += 2 * M_PI;
 
 	t[0] = cosrx;
 	t[1] = sinrx;
@@ -1896,7 +1895,7 @@ static void svg_path_arc_to(struct svg_parser_t * p, float * cpx, float * cpy, f
 	t[4] = cx;
 	t[5] = cy;
 
-	ndivs = (int)(fabsf(da) / (SVG_PI * 0.5f) + 1.0f);
+	ndivs = (int)(fabsf(da) / (M_PI * 0.5f) + 1.0f);
 	hda = (da / (float)ndivs) / 2.0f;
 	kappa = fabsf(4.0f / 3.0f * (1.0f - cosf(hda)) / sinf(hda));
 	if(da < 0.0f)
@@ -1929,7 +1928,7 @@ static void svg_parse_path(struct svg_parser_t * p, const char ** attr)
 	int rargs = 0;
 	float cpx, cpy, cpx2, cpy2;
 	const char * tmp[4];
-	char closedFlag;
+	int closed;
 	int i;
 	char item[64];
 
@@ -1955,7 +1954,7 @@ static void svg_parse_path(struct svg_parser_t * p, const char ** attr)
 		cpy = 0;
 		cpx2 = 0;
 		cpy2 = 0;
-		closedFlag = 0;
+		closed = 0;
 		nargs = 0;
 		while(*s)
 		{
@@ -2038,31 +2037,31 @@ static void svg_parse_path(struct svg_parser_t * p, const char ** attr)
 				if(cmd == 'M' || cmd == 'm')
 				{
 					if(p->npts > 0)
-						svg_add_path(p, closedFlag);
+						svg_add_path(p, closed);
 					svg_reset_path(p);
-					closedFlag = 0;
+					closed = 0;
 					nargs = 0;
 				}
 				else if(cmd == 'Z' || cmd == 'z')
 				{
-					closedFlag = 1;
+					closed = 1;
 					if(p->npts > 0)
 					{
 						cpx = p->pts[0];
 						cpy = p->pts[1];
 						cpx2 = cpx;
 						cpy2 = cpy;
-						svg_add_path(p, closedFlag);
+						svg_add_path(p, closed);
 					}
 					svg_reset_path(p);
 					svg_move_to(p, cpx, cpy);
-					closedFlag = 0;
+					closed = 0;
 					nargs = 0;
 				}
 			}
 		}
 		if(p->npts)
-			svg_add_path(p, closedFlag);
+			svg_add_path(p, closed);
 	}
 	svg_add_shape(p);
 }
@@ -2336,7 +2335,7 @@ static void svg_parse_svg(struct svg_parser_t * p, const char ** attr)
 	}
 }
 
-static void svg_parse_gradient(struct svg_parser_t * p, const char ** attr, char type)
+static void svg_parse_gradient(struct svg_parser_t * p, const char ** attr, enum svg_paint_type_t type)
 {
 	int i;
 	struct svg_gradient_data_t * grad = malloc(sizeof(struct svg_gradient_data_t));

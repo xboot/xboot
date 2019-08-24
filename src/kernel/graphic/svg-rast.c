@@ -278,7 +278,7 @@ static void svg_flatten_cubic_bez(struct svg_rasterizer_t * r, float x1, float y
 	svg_flatten_cubic_bez(r, x1234, y1234, x234, y234, x34, y34, x4, y4, level + 1, type);
 }
 
-static void svg_flatten_shape(struct svg_rasterizer_t * r, struct svg_shape_t * shape, float scalex, float scaley)
+static void svg_flatten_shape(struct svg_rasterizer_t * r, struct svg_shape_t * shape, float sx, float sy)
 {
 	struct svg_path_t * path;
 	int i, j;
@@ -286,13 +286,13 @@ static void svg_flatten_shape(struct svg_rasterizer_t * r, struct svg_shape_t * 
 	for(path = shape->paths; path != NULL; path = path->next)
 	{
 		r->npoints = 0;
-		svg_add_path_point(r, path->pts[0] * scalex, path->pts[1] * scaley, 0);
+		svg_add_path_point(r, path->pts[0] * sx, path->pts[1] * sy, 0);
 		for(i = 0; i < path->npts - 1; i += 3)
 		{
 			float* p = &path->pts[i * 2];
-			svg_flatten_cubic_bez(r, p[0] * scalex, p[1] * scaley, p[2] * scalex, p[3] * scaley, p[4] * scalex, p[5] * scaley, p[6] * scalex, p[7] * scaley, 0, 0);
+			svg_flatten_cubic_bez(r, p[0] * sx, p[1] * sy, p[2] * sx, p[3] * sy, p[4] * sx, p[5] * sy, p[6] * sx, p[7] * sy, 0, 0);
 		}
-		svg_add_path_point(r, path->pts[0] * scalex, path->pts[1] * scaley, 0);
+		svg_add_path_point(r, path->pts[0] * sx, path->pts[1] * sy, 0);
 		for(i = 0, j = r->npoints - 1; i < r->npoints; j = i++)
 			svg_add_edge(r, r->points[j].x, r->points[j].y, r->points[i].x, r->points[i].y);
 	}
@@ -649,24 +649,25 @@ static void svg_prepare_stroke(struct svg_rasterizer_t * r, float miter_limit, e
 	}
 }
 
-static void svg_flatten_shape_stroke(struct svg_rasterizer_t * r, struct svg_shape_t * shape, float scalex, float scaley)
+static void svg_flatten_shape_stroke(struct svg_rasterizer_t * r, struct svg_shape_t * shape, float sx, float sy)
 {
 	struct svg_path_t * path;
 	struct svg_point_t * p0, * p1;
 	float miter_limit = shape->miter_limit;
 	enum svg_line_join_t join = shape->stroke_line_join;
 	enum svg_line_cap_t cap = shape->stroke_line_cap;
-	float width = shape->stroke_width * (scalex + scaley) * 0.5f;
+	float sw = (sx + sy) * 0.5f;
+	float width = shape->stroke_width * sw;
 	int i, j, closed;
 
 	for(path = shape->paths; path != NULL; path = path->next)
 	{
 		r->npoints = 0;
-		svg_add_path_point(r, path->pts[0] * scalex, path->pts[1] * scaley, SVG_PT_CORNER);
+		svg_add_path_point(r, path->pts[0] * sx, path->pts[1] * sy, SVG_PT_CORNER);
 		for(i = 0; i < path->npts - 1; i += 3)
 		{
 			float* p = &path->pts[i * 2];
-			svg_flatten_cubic_bez(r, p[0] * scalex, p[1] * scaley, p[2] * scalex, p[3] * scaley, p[4] * scalex, p[5] * scaley, p[6] * scalex, p[7] * scaley, 0, SVG_PT_CORNER);
+			svg_flatten_cubic_bez(r, p[0] * sx, p[1] * sy, p[2] * sx, p[3] * sy, p[4] * sx, p[5] * sy, p[6] * sx, p[7] * sy, 0, SVG_PT_CORNER);
 		}
 		if(r->npoints < 2)
 			continue;
@@ -708,7 +709,7 @@ static void svg_flatten_shape_stroke(struct svg_rasterizer_t * r, struct svg_sha
 				dashOffset -= shape->stroke_dash_array[idash];
 				idash = (idash + 1) % shape->stroke_dash_count;
 			}
-			dashLen = (shape->stroke_dash_array[idash] - dashOffset) * (scalex + scaley) * 0.5f;
+			dashLen = (shape->stroke_dash_array[idash] - dashOffset) * sw;
 
 			for(j = 1; j < r->npoints2;)
 			{
@@ -730,7 +731,7 @@ static void svg_flatten_shape_stroke(struct svg_rasterizer_t * r, struct svg_sha
 					}
 					dashState = !dashState;
 					idash = (idash + 1) % shape->stroke_dash_count;
-					dashLen = shape->stroke_dash_array[idash] * (scalex + scaley) * 0.5f;
+					dashLen = shape->stroke_dash_array[idash] * sw;
 					cur.x = x;
 					cur.y = y;
 					cur.flags = SVG_PT_CORNER;
@@ -902,7 +903,7 @@ static unsigned int svg_apply_opacity(unsigned int c, float u)
 	return svg_RGBA((unsigned char)r, (unsigned char)g, (unsigned char)b, (unsigned char)a);
 }
 
-static void svg_scanline_solid(unsigned char * dst, int count, unsigned char * cover, int x, int y, float tx, float ty, float scalex, float scaley, struct svg_cache_paint_t * cache)
+static void svg_scanline_solid(unsigned char * dst, int count, unsigned char * cover, int x, int y, float tx, float ty, float sx, float sy, struct svg_cache_paint_t * cache)
 {
 	if(cache->type == SVG_PAINT_COLOR)
 	{
@@ -942,9 +943,9 @@ static void svg_scanline_solid(unsigned char * dst, int count, unsigned char * c
 		int i, cr, cg, cb, ca;
 		unsigned int c;
 
-		fx = ((float)x - tx) / scalex;
-		fy = ((float)y - ty) / scaley;
-		dx = 1.0f / scalex;
+		fx = ((float)x - tx) / sx;
+		fy = ((float)y - ty) / sy;
+		dx = 1.0f / sx;
 
 		for(i = 0; i < count; i++)
 		{
@@ -985,9 +986,9 @@ static void svg_scanline_solid(unsigned char * dst, int count, unsigned char * c
 		int i, cr, cg, cb, ca;
 		unsigned int c;
 
-		fx = ((float)x - tx) / scalex;
-		fy = ((float)y - ty) / scaley;
-		dx = 1.0f / scalex;
+		fx = ((float)x - tx) / sx;
+		fy = ((float)y - ty) / sy;
+		dx = 1.0f / sx;
 
 		for(i = 0; i < count; i++)
 		{
@@ -1025,7 +1026,7 @@ static void svg_scanline_solid(unsigned char * dst, int count, unsigned char * c
 	}
 }
 
-static void svg_rasterize_sorted_edges(struct svg_rasterizer_t * r, float tx, float ty, float scalex, float scaley, struct svg_cache_paint_t * cache, enum svg_fill_rule_t fill_rule)
+static void svg_rasterize_sorted_edges(struct svg_rasterizer_t * r, float tx, float ty, float sx, float sy, struct svg_cache_paint_t * cache, enum svg_fill_rule_t fill_rule)
 {
 	struct svg_active_edge_t * active = NULL;
 	int y, s;
@@ -1114,7 +1115,7 @@ static void svg_rasterize_sorted_edges(struct svg_rasterizer_t * r, float tx, fl
 		if(xmax > r->width - 1)
 			xmax = r->width - 1;
 		if(xmin <= xmax)
-			svg_scanline_solid(&r->bitmap[y * r->stride] + xmin * 4, xmax - xmin + 1, &r->scanline[xmin], xmin, y, tx, ty, scalex, scaley, cache);
+			svg_scanline_solid(&r->bitmap[y * r->stride] + xmin * 4, xmax - xmin + 1, &r->scanline[xmin], xmin, y, tx, ty, sx, sy, cache);
 	}
 }
 
@@ -1249,11 +1250,12 @@ static void svg_init_paint(struct svg_cache_paint_t * cache, struct svg_paint_t 
 	}
 }
 
-void svg_rasterize(struct svg_rasterizer_t * r, struct svg_image_t * image, float tx, float ty, float scalex, float scaley, unsigned char * dst, int w, int h, int stride)
+void svg_rasterize(struct svg_rasterizer_t * r, struct svg_image_t * image, float tx, float ty, float sx, float sy, unsigned char * dst, int w, int h, int stride)
 {
 	struct svg_shape_t * shape = NULL;
 	struct svg_edge_t * e = NULL;
 	struct svg_cache_paint_t cache;
+	float sw = (sx + sy) * 0.5f;
 	int i;
 
 	r->bitmap = dst;
@@ -1278,7 +1280,7 @@ void svg_rasterize(struct svg_rasterizer_t * r, struct svg_image_t * image, floa
 			svg_reset_pool(r);
 			r->freelist = NULL;
 			r->nedges = 0;
-			svg_flatten_shape(r, shape, scalex, scaley);
+			svg_flatten_shape(r, shape, sx, sy);
 			for(i = 0; i < r->nedges; i++)
 			{
 				e = &r->edges[i];
@@ -1289,14 +1291,14 @@ void svg_rasterize(struct svg_rasterizer_t * r, struct svg_image_t * image, floa
 			}
 			qsort(r->edges, r->nedges, sizeof(struct svg_edge_t), svg_cmp_edge);
 			svg_init_paint(&cache, &shape->fill, shape->opacity);
-			svg_rasterize_sorted_edges(r, tx, ty, scalex, scaley, &cache, shape->fill_rule);
+			svg_rasterize_sorted_edges(r, tx, ty, sx, sy, &cache, shape->fill_rule);
 		}
-		if(shape->stroke.type != SVG_PAINT_NONE && (shape->stroke_width * (scalex + scaley) * 0.5f) > 0.01f)
+		if(shape->stroke.type != SVG_PAINT_NONE && (shape->stroke_width * sw) > 0.01f)
 		{
 			svg_reset_pool(r);
 			r->freelist = NULL;
 			r->nedges = 0;
-			svg_flatten_shape_stroke(r, shape, scalex, scaley);
+			svg_flatten_shape_stroke(r, shape, sx, sy);
 			for(i = 0; i < r->nedges; i++)
 			{
 				e = &r->edges[i];
@@ -1307,7 +1309,7 @@ void svg_rasterize(struct svg_rasterizer_t * r, struct svg_image_t * image, floa
 			}
 			qsort(r->edges, r->nedges, sizeof(struct svg_edge_t), svg_cmp_edge);
 			svg_init_paint(&cache, &shape->stroke, shape->opacity);
-			svg_rasterize_sorted_edges(r, tx, ty, scalex, scaley, &cache, SVG_FILLRULE_NONZERO);
+			svg_rasterize_sorted_edges(r, tx, ty, sx, sy, &cache, SVG_FILLRULE_NONZERO);
 		}
 	}
 	svg_unpremultiply_alpha(dst, w, h, stride);

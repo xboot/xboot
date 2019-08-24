@@ -6,6 +6,7 @@ extern "C" {
 #endif
 
 #include <graphic/color.h>
+#include <xfs/xfs.h>
 
 enum svg_paint_type_t {
 	SVG_PAINT_NONE				= 0,
@@ -96,12 +97,8 @@ struct svg_t {
 };
 
 struct svg_t * svg_alloc(char * svgstr, const char * units, float dpi);
+struct svg_t * svg_alloc_from_xfs(struct xfs_context_t * ctx, const char * filename);
 void svg_free(struct svg_t * svg);
-
-
-struct svg_t * nsvgParseFromFile(const char * filename, const char * units, float dpi);
-struct svg_path_t * nsvgDuplicatePath(struct svg_path_t * p);
-
 
 #ifdef __cplusplus
 }

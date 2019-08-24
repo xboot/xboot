@@ -2748,6 +2748,36 @@ struct svg_t * svg_alloc(char * svgstr, const char * units, float dpi)
 	return svg;
 }
 
+struct svg_t * svg_alloc_from_xfs(struct xfs_context_t * ctx, const char * filename)
+{
+	struct xfs_file_t * file;
+	struct svg_t * svg;
+	char * buf;
+	size_t len;
+
+	if(!(file = xfs_open_read(ctx, filename)))
+		return NULL;
+	len = xfs_length(file);
+	if(len <= 0)
+	{
+		xfs_close(file);
+		return NULL;
+	}
+	buf = malloc(len + 1);
+	if(!buf)
+	{
+		xfs_close(file);
+		return NULL;
+	}
+	xfs_read(file, buf, len);
+	buf[len] = '\0';
+	xfs_close(file);
+	svg = svg_alloc(buf, "px", 96);
+	free(buf);
+
+	return svg;
+}
+
 void svg_free(struct svg_t * svg)
 {
 	struct svg_shape_t * shape;
@@ -2768,63 +2798,3 @@ void svg_free(struct svg_t * svg)
 		free(svg);
 	}
 }
-
-struct svg_t * nsvgParseFromFile(const char * filename, const char * units, float dpi)
-{
-	FILE* fp = NULL;
-	size_t size;
-	char * data = NULL;
-	struct svg_t* svg = NULL;
-
-	fp = fopen(filename, "rb");
-	if (!fp) goto error;
-	fseek(fp, 0, SEEK_END);
-	size = ftell(fp);
-	fseek(fp, 0, SEEK_SET);
-	data = (char*)malloc(size+1);
-	if (data == NULL) goto error;
-	if (fread(data, 1, size, fp) != size) goto error;
-	data[size] = '\0';	// Must be null terminated.
-	fclose(fp);
-	svg = svg_alloc(data, units, dpi);
-	free(data);
-
-	return svg;
-
-error:
-	if (fp) fclose(fp);
-	if (data) free(data);
-	if (svg) svg_free(svg);
-	return NULL;
-}
-
-struct svg_path_t* nsvgDuplicatePath(struct svg_path_t* p)
-{
-    struct svg_path_t* res = NULL;
-
-    if (p == NULL)
-        return NULL;
-
-    res = (struct svg_path_t*)malloc(sizeof(struct svg_path_t));
-    if (res == NULL) goto error;
-    memset(res, 0, sizeof(struct svg_path_t));
-
-    res->pts = (float*)malloc(p->npts*2*sizeof(float));
-    if (res->pts == NULL) goto error;
-    memcpy(res->pts, p->pts, p->npts * sizeof(float) * 2);
-    res->npts = p->npts;
-
-    memcpy(res->bounds, p->bounds, sizeof(p->bounds));
-
-    res->closed = p->closed;
-
-    return res;
-
-error:
-    if (res != NULL) {
-        free(res->pts);
-        free(res);
-    }
-    return NULL;
-}
-

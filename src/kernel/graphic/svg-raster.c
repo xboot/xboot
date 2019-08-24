@@ -29,16 +29,16 @@
 #include <xboot.h>
 #include <graphic/surface.h>
 
-#define SVG_SUBSAMPLES		(5)
-#define SVG_FIXSHIFT		(14)
-#define SVG_FIX				(1 << SVG_FIXSHIFT)
-#define SVG_FIXMASK			(SVG_FIX - 1)
-#define SVG_MEMPAGE_SIZE	(1024)
+#define SVG_SUBSAMPLES	(5)
+#define SVG_FIXSHIFT	(14)
+#define SVG_FIX			(1 << SVG_FIXSHIFT)
+#define SVG_FIXMASK		(SVG_FIX - 1)
+#define SVG_MPAGE_SIZE	(4096)
 
 enum svg_point_flags_t {
-	SVG_PT_CORNER	= (1 << 0),
-	SVG_PT_BEVEL	= (1 << 1),
-	SVG_PT_LEFT		= (1 << 2),
+	SVG_POINT_CORNER	= (1 << 0),
+	SVG_POINT_BEVEL		= (1 << 1),
+	SVG_POINT_LEFT		= (1 << 2),
 };
 
 struct svg_edge_t {
@@ -63,7 +63,7 @@ struct svg_active_edge_t {
 };
 
 struct svg_mem_page_t {
-	unsigned char mem[SVG_MEMPAGE_SIZE];
+	unsigned char mem[SVG_MPAGE_SIZE];
 	int size;
 	struct svg_mem_page_t * next;
 };
@@ -77,8 +77,8 @@ struct svg_cache_paint_t {
 
 struct svg_rasterizer_t {
 	float px, py;
-	float tessTol;
-	float distTol;
+	float tesstol;
+	float disttol;
 	struct svg_edge_t * edges;
 	int nedges;
 	int cedges;
@@ -146,9 +146,9 @@ static unsigned char * svg_mem_alloc(struct svg_rasterizer_t * r, int size)
 {
 	unsigned char * buf;
 
-	if(size > SVG_MEMPAGE_SIZE)
+	if(size > SVG_MPAGE_SIZE)
 		return NULL;
-	if(r->curpage == NULL || r->curpage->size + size > SVG_MEMPAGE_SIZE)
+	if(r->curpage == NULL || r->curpage->size + size > SVG_MPAGE_SIZE)
 		r->curpage = svg_next_page(r, r->curpage);
 	buf = &r->curpage->mem[r->curpage->size];
 	r->curpage->size += size;
@@ -169,7 +169,7 @@ static void svg_add_path_point(struct svg_rasterizer_t * r, float x, float y, in
 	if(r->npoints > 0)
 	{
 		pt = &r->points[r->npoints - 1];
-		if(svg_pt_equals(pt->x, pt->y, x, y, r->distTol))
+		if(svg_pt_equals(pt->x, pt->y, x, y, r->disttol))
 		{
 			pt->flags |= flags;
 			return;
@@ -281,7 +281,7 @@ static void svg_flatten_cubic_bez(struct svg_rasterizer_t * r, float x1, float y
 	d2 = svg_absf(((x2 - x4) * dy - (y2 - y4) * dx));
 	d3 = svg_absf(((x3 - x4) * dy - (y3 - y4) * dx));
 
-	if((d2 + d3) * (d2 + d3) < r->tessTol * (dx * dx + dy * dy))
+	if((d2 + d3) * (d2 + d3) < r->tesstol * (dx * dx + dy * dy))
 	{
 		svg_add_path_point(r, x4, y4, type);
 		return;
@@ -439,7 +439,7 @@ static void svg_miter_join(struct svg_rasterizer_t * r, struct svg_point_t * lef
 	float lx0, rx0, lx1, rx1;
 	float ly0, ry0, ly1, ry1;
 
-	if(p1->flags & SVG_PT_LEFT)
+	if(p1->flags & SVG_POINT_LEFT)
 	{
 		lx0 = lx1 = p1->x - p1->dmx * w;
 		ly0 = ly1 = p1->y - p1->dmy * w;
@@ -542,7 +542,7 @@ static void svg_expand_stroke(struct svg_rasterizer_t * r, struct svg_point_t * 
 {
 	struct svg_point_t left = { 0, 0, 0, 0, 0, 0, 0, 0 }, right = { 0, 0, 0, 0, 0, 0, 0, 0 }, firstLeft = { 0, 0, 0, 0, 0, 0, 0, 0 }, firstRight = { 0, 0, 0, 0, 0, 0, 0, 0 };
 	struct svg_point_t * p0, * p1;
-	int ncap = svg_curve_divs(width * 0.5f, M_PI, r->tessTol);
+	int ncap = svg_curve_divs(width * 0.5f, M_PI, r->tesstol);
 	int j, s, e;
 
 	if(closed)
@@ -580,11 +580,11 @@ static void svg_expand_stroke(struct svg_rasterizer_t * r, struct svg_point_t * 
 
 	for(j = s; j < e; ++j)
 	{
-		if(p1->flags & SVG_PT_CORNER)
+		if(p1->flags & SVG_POINT_CORNER)
 		{
 			if(join == SVG_JOIN_ROUND)
 				svg_round_join(r, &left, &right, p0, p1, width, ncap);
-			else if((join == SVG_JOIN_BEVEL) || (p1->flags & SVG_PT_BEVEL))
+			else if((join == SVG_JOIN_BEVEL) || (p1->flags & SVG_POINT_BEVEL))
 				svg_bevel_join(r, &left, &right, p0, p1, width);
 			else
 				svg_miter_join(r, &left, &right, p0, p1, width);
@@ -651,15 +651,15 @@ static void svg_prepare_stroke(struct svg_rasterizer_t * r, float miter_limit, e
 			p1->dmx *= s2;
 			p1->dmy *= s2;
 		}
-		p1->flags = (p1->flags & SVG_PT_CORNER) ? SVG_PT_CORNER : 0;
+		p1->flags = (p1->flags & SVG_POINT_CORNER) ? SVG_POINT_CORNER : 0;
 		cross = p1->dx * p0->dy - p0->dx * p1->dy;
 		if(cross > 0.0f)
-			p1->flags |= SVG_PT_LEFT;
-		if(p1->flags & SVG_PT_CORNER)
+			p1->flags |= SVG_POINT_LEFT;
+		if(p1->flags & SVG_POINT_CORNER)
 		{
 			if((dmr2 * miter_limit * miter_limit) < 1.0f || join == SVG_JOIN_BEVEL || join == SVG_JOIN_ROUND)
 			{
-				p1->flags |= SVG_PT_BEVEL;
+				p1->flags |= SVG_POINT_BEVEL;
 			}
 		}
 		p0 = p1++;
@@ -680,11 +680,11 @@ static void svg_flatten_shape_stroke(struct svg_rasterizer_t * r, struct svg_sha
 	for(path = shape->paths; path != NULL; path = path->next)
 	{
 		r->npoints = 0;
-		svg_add_path_point(r, path->pts[0] * sx, path->pts[1] * sy, SVG_PT_CORNER);
+		svg_add_path_point(r, path->pts[0] * sx, path->pts[1] * sy, SVG_POINT_CORNER);
 		for(i = 0; i < path->npts - 1; i += 3)
 		{
 			float* p = &path->pts[i * 2];
-			svg_flatten_cubic_bez(r, p[0] * sx, p[1] * sy, p[2] * sx, p[3] * sy, p[4] * sx, p[5] * sy, p[6] * sx, p[7] * sy, 0, SVG_PT_CORNER);
+			svg_flatten_cubic_bez(r, p[0] * sx, p[1] * sy, p[2] * sx, p[3] * sy, p[4] * sx, p[5] * sy, p[6] * sx, p[7] * sy, 0, SVG_POINT_CORNER);
 		}
 		if(r->npoints < 2)
 			continue;
@@ -692,7 +692,7 @@ static void svg_flatten_shape_stroke(struct svg_rasterizer_t * r, struct svg_sha
 
 		p0 = &r->points[r->npoints - 1];
 		p1 = &r->points[0];
-		if(svg_pt_equals(p0->x, p0->y, p1->x, p1->y, r->distTol))
+		if(svg_pt_equals(p0->x, p0->y, p1->x, p1->y, r->disttol))
 		{
 			r->npoints--;
 			p0 = &r->points[r->npoints - 1];
@@ -739,7 +739,7 @@ static void svg_flatten_shape_stroke(struct svg_rasterizer_t * r, struct svg_sha
 					float d = (dashLen - totalDist) / dist;
 					float x = cur.x + dx * d;
 					float y = cur.y + dy * d;
-					svg_add_path_point(r, x, y, SVG_PT_CORNER);
+					svg_add_path_point(r, x, y, SVG_POINT_CORNER);
 
 					if(r->npoints > 1 && dashState)
 					{
@@ -751,7 +751,7 @@ static void svg_flatten_shape_stroke(struct svg_rasterizer_t * r, struct svg_sha
 					dashLen = shape->stroke_dash_array[idash] * sw;
 					cur.x = x;
 					cur.y = y;
-					cur.flags = SVG_PT_CORNER;
+					cur.flags = SVG_POINT_CORNER;
 					totalDist = 0.0f;
 					r->npoints = 0;
 					svg_append_path_point(r, cur);
@@ -1282,8 +1282,8 @@ void render_default_raster(struct surface_t * s, struct svg_t * svg, float tx, f
 		sw = (sx + sy) * 0.5f;
 		r.px = 0;
 		r.py = 0;
-		r.tessTol = 0.25;
-		r.distTol = 0.01;
+		r.tesstol = 0.25;
+		r.disttol = 0.01;
 		r.edges = NULL;
 		r.nedges = 0;
 		r.cedges = 0;

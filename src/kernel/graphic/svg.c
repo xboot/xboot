@@ -708,7 +708,7 @@ static float svg_convert_to_pixels(struct svg_parser_t * p, struct svg_coordinat
 	case SVG_UNITS_EM:
 		return c.value * attr->font_size;
 	case SVG_UNITS_EX:
-		return c.value * attr->font_size * 0.52f; // x-height of Helvetica.
+		return c.value * attr->font_size * 0.52f;
 	case SVG_UNITS_PERCENT:
 		return orig + c.value / 100.0f * length;
 	default:
@@ -1502,6 +1502,16 @@ static int svg_parse_attr(struct svg_parser_t * p, const char * name, const char
 		strncpy(attr->id, value, 63);
 		attr->id[63] = '\0';
 	}
+	else if(strcmp(name, "x") == 0)
+	{
+		svg_xform_set_translation(xform, svg_atof(value), 0);
+		svg_xform_premultiply(attr->xform, xform);
+	}
+	else if(strcmp(name, "y") == 0)
+	{
+		svg_xform_set_translation(xform, 0, svg_atof(value));
+		svg_xform_premultiply(attr->xform, xform);
+	}
 	else
 	{
 		return 0;
@@ -2069,21 +2079,20 @@ static void svg_parse_rect(struct svg_parser_t * p, const char ** attr)
 
 	for(i = 0; attr[i]; i += 2)
 	{
-		if(!svg_parse_attr(p, attr[i], attr[i + 1]))
-		{
-			if(strcmp(attr[i], "x") == 0)
-				x = svg_parse_coordinate(p, attr[i + 1], svg_actual_origx(p), svg_actual_width(p));
-			if(strcmp(attr[i], "y") == 0)
-				y = svg_parse_coordinate(p, attr[i + 1], svg_actual_origy(p), svg_actual_height(p));
-			if(strcmp(attr[i], "width") == 0)
-				w = svg_parse_coordinate(p, attr[i + 1], 0.0f, svg_actual_width(p));
-			if(strcmp(attr[i], "height") == 0)
-				h = svg_parse_coordinate(p, attr[i + 1], 0.0f, svg_actual_height(p));
-			if(strcmp(attr[i], "rx") == 0)
-				rx = fabsf(svg_parse_coordinate(p, attr[i + 1], 0.0f, svg_actual_width(p)));
-			if(strcmp(attr[i], "ry") == 0)
-				ry = fabsf(svg_parse_coordinate(p, attr[i + 1], 0.0f, svg_actual_height(p)));
-		}
+		if(strcmp(attr[i], "x") == 0)
+			x = svg_parse_coordinate(p, attr[i + 1], svg_actual_origx(p), svg_actual_width(p));
+		else if(strcmp(attr[i], "y") == 0)
+			y = svg_parse_coordinate(p, attr[i + 1], svg_actual_origy(p), svg_actual_height(p));
+		else if(strcmp(attr[i], "width") == 0)
+			w = svg_parse_coordinate(p, attr[i + 1], 0.0f, svg_actual_width(p));
+		else if(strcmp(attr[i], "height") == 0)
+			h = svg_parse_coordinate(p, attr[i + 1], 0.0f, svg_actual_height(p));
+		else if(strcmp(attr[i], "rx") == 0)
+			rx = fabsf(svg_parse_coordinate(p, attr[i + 1], 0.0f, svg_actual_width(p)));
+		else if(strcmp(attr[i], "ry") == 0)
+			ry = fabsf(svg_parse_coordinate(p, attr[i + 1], 0.0f, svg_actual_height(p)));
+		else
+			svg_parse_attr(p, attr[i], attr[i + 1]);
 	}
 	if(rx < 0.0f && ry > 0.0f)
 		rx = ry;
@@ -2555,6 +2564,7 @@ static void svg_start_element(void * ud, const char * el, const char ** attr)
 	}
 	else if(strcmp(el, "svg") == 0)
 	{
+		svg_push_attr(p);
 		svg_parse_svg(p, attr);
 	}
 }
@@ -2574,6 +2584,10 @@ static void svg_end_element(void * ud, const char * el)
 	else if(strcmp(el, "defs") == 0)
 	{
 		p->defsFlag = 0;
+	}
+	else if(strcmp(el, "svg") == 0)
+	{
+		svg_pop_attr(p);
 	}
 }
 

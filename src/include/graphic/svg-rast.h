@@ -75,7 +75,7 @@ struct svg_rasterizer_t {
 };
 
 struct svg_rasterizer_t * svg_rasterizer_alloc(void);
-void svg_rasterize(struct svg_rasterizer_t * r, struct svg_image_t * image, float tx, float ty, float scale, unsigned char* dst, int w, int h, int stride);
+void svg_rasterize(struct svg_rasterizer_t * r, struct svg_image_t * image, float tx, float ty, float scalex, float scaley, unsigned char* dst, int w, int h, int stride);
 void svg_rasterizer_free(struct svg_rasterizer_t * r);
 
 #ifdef __cplusplus

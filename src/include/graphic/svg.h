@@ -5,6 +5,8 @@
 extern "C" {
 #endif
 
+#include <graphic/color.h>
+
 enum svg_paint_type_t {
 	SVG_PAINT_NONE				= 0,
 	SVG_PAINT_COLOR				= 1,
@@ -87,17 +89,17 @@ struct svg_shape_t {
 	struct svg_shape_t * next;
 };
 
-struct svg_image_t {
+struct svg_t {
 	float width;
 	float height;
 	struct svg_shape_t * shapes;
 };
 
-struct svg_image_t * svg_alloc(char * svg, const char * units, float dpi);
-void svg_free(struct svg_image_t * img);
+struct svg_t * svg_alloc(char * svgstr, const char * units, float dpi);
+void svg_free(struct svg_t * svg);
 
 
-struct svg_image_t * nsvgParseFromFile(const char * filename, const char * units, float dpi);
+struct svg_t * nsvgParseFromFile(const char * filename, const char * units, float dpi);
 struct svg_path_t * nsvgDuplicatePath(struct svg_path_t * p);
 
 

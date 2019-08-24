@@ -1,5 +1,5 @@
 /*
- * kernel/graphic/svg-rast.c
+ * kernel/graphic/svg-raster.c
  *
  * Copyright(c) 2007-2019 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -26,19 +26,75 @@
  *
  */
 
-#include <ctype.h>
-#include <stddef.h>
-#include <stdlib.h>
-#include <string.h>
-#include <math.h>
-#include <shash.h>
-#include <graphic/svg.h>
-#include <graphic/svg-rast.h>
+#include <xboot.h>
+#include <graphic/surface.h>
+
+#define SVG_SUBSAMPLES		(5)
+#define SVG_FIXSHIFT		(14)
+#define SVG_FIX				(1 << SVG_FIXSHIFT)
+#define SVG_FIXMASK			(SVG_FIX - 1)
+#define SVG_MEMPAGE_SIZE	(1024)
 
 enum svg_point_flags_t {
 	SVG_PT_CORNER	= (1 << 0),
 	SVG_PT_BEVEL	= (1 << 1),
 	SVG_PT_LEFT		= (1 << 2),
+};
+
+struct svg_edge_t {
+	float x0, y0, x1, y1;
+	int dir;
+	struct svg_edge_t * next;
+};
+
+struct svg_point_t {
+	float x, y;
+	float dx, dy;
+	float len;
+	float dmx, dmy;
+	int flags;
+};
+
+struct svg_active_edge_t {
+	int x, dx;
+	float ey;
+	int dir;
+	struct svg_active_edge_t * next;
+};
+
+struct svg_mem_page_t {
+	unsigned char mem[SVG_MEMPAGE_SIZE];
+	int size;
+	struct svg_mem_page_t * next;
+};
+
+struct svg_cache_paint_t {
+	enum svg_paint_type_t type;
+	enum svg_spread_type_t spread;
+	float xform[6];
+	unsigned int colors[256];
+};
+
+struct svg_rasterizer_t {
+	float px, py;
+	float tessTol;
+	float distTol;
+	struct svg_edge_t * edges;
+	int nedges;
+	int cedges;
+	struct svg_point_t * points;
+	int npoints;
+	int cpoints;
+	struct svg_point_t * points2;
+	int npoints2;
+	int cpoints2;
+	struct svg_active_edge_t * freelist;
+	struct svg_mem_page_t * pages;
+	struct svg_mem_page_t * curpage;
+	unsigned char * bitmap;
+	int width, height, stride;
+	unsigned char * scanline;
+	int cscanline;
 };
 
 static inline int svg_div255(int x)
@@ -54,45 +110,6 @@ static inline float svg_absf(float x)
 static inline float svg_clampf(float a, float mn, float mx)
 {
 	return a < mn ? mn : (a > mx ? mx : a);
-}
-
-struct svg_rasterizer_t * svg_rasterizer_alloc(void)
-{
-	struct svg_rasterizer_t * r;
-
-	r = malloc(sizeof(struct svg_rasterizer_t));
-	if(!r)
-		return NULL;
-	memset(r, 0, sizeof(struct svg_rasterizer_t));
-
-	r->tessTol = 0.25f;
-	r->distTol = 0.01f;
-	return r;
-}
-
-void svg_rasterizer_free(struct svg_rasterizer_t * r)
-{
-	struct svg_mem_page_t * p, * n;
-
-	if(r)
-	{
-		p = r->pages;
-		while(p != NULL)
-		{
-			n = p->next;
-			free(p);
-			p = n;
-		}
-		if(r->edges)
-			free(r->edges);
-		if(r->points)
-			free(r->points);
-		if(r->points2)
-			free(r->points2);
-		if(r->scanline)
-			free(r->scanline);
-		free(r);
-	}
 }
 
 static struct svg_mem_page_t * svg_next_page(struct svg_rasterizer_t * r, struct svg_mem_page_t * cur)
@@ -878,7 +895,7 @@ static void svg_fill_active_edges(unsigned char * scanline, int len, struct svg_
 	}
 }
 
-static unsigned int svg_RGBA(unsigned char r, unsigned char g, unsigned char b, unsigned char a)
+static inline unsigned int svg_rgba(unsigned char r, unsigned char g, unsigned char b, unsigned char a)
 {
 	return (r) | (g << 8) | (b << 16) | (a << 24);
 }
@@ -890,7 +907,7 @@ static unsigned int svg_lerp_rgba(unsigned int c0, unsigned int c1, float u)
 	int g = (((c0 >> 8) & 0xff) * (256 - iu) + (((c1 >> 8) & 0xff) * iu)) >> 8;
 	int b = (((c0 >> 16) & 0xff) * (256 - iu) + (((c1 >> 16) & 0xff) * iu)) >> 8;
 	int a = (((c0 >> 24) & 0xff) * (256 - iu) + (((c1 >> 24) & 0xff) * iu)) >> 8;
-	return svg_RGBA((unsigned char)r, (unsigned char)g, (unsigned char)b, (unsigned char)a);
+	return svg_rgba((unsigned char)r, (unsigned char)g, (unsigned char)b, (unsigned char)a);
 }
 
 static unsigned int svg_apply_opacity(unsigned int c, float u)
@@ -900,7 +917,7 @@ static unsigned int svg_apply_opacity(unsigned int c, float u)
 	int g = (c >> 8) & 0xff;
 	int b = (c >> 16) & 0xff;
 	int a = (((c >> 24) & 0xff) * iu) >> 8;
-	return svg_RGBA((unsigned char)r, (unsigned char)g, (unsigned char)b, (unsigned char)a);
+	return svg_rgba((unsigned char)r, (unsigned char)g, (unsigned char)b, (unsigned char)a);
 }
 
 static void svg_scanline_solid(unsigned char * dst, int count, unsigned char * cover, int x, int y, float tx, float ty, float sx, float sy, struct svg_cache_paint_t * cache)
@@ -1119,73 +1136,6 @@ static void svg_rasterize_sorted_edges(struct svg_rasterizer_t * r, float tx, fl
 	}
 }
 
-static void svg_unpremultiply_alpha(unsigned char * image, int w, int h, int stride)
-{
-	int x, y;
-
-	for(y = 0; y < h; y++)
-	{
-		unsigned char *row = &image[y * stride];
-		for(x = 0; x < w; x++)
-		{
-			int r = row[0], g = row[1], b = row[2], a = row[3];
-			if(a != 0)
-			{
-				row[0] = (unsigned char)(r * 255 / a);
-				row[1] = (unsigned char)(g * 255 / a);
-				row[2] = (unsigned char)(b * 255 / a);
-			}
-			row += 4;
-		}
-	}
-	for(y = 0; y < h; y++)
-	{
-		unsigned char * row = &image[y * stride];
-		for(x = 0; x < w; x++)
-		{
-			int r = 0, g = 0, b = 0, a = row[3], n = 0;
-			if(a == 0)
-			{
-				if(x - 1 > 0 && row[-1] != 0)
-				{
-					r += row[-4];
-					g += row[-3];
-					b += row[-2];
-					n++;
-				}
-				if(x + 1 < w && row[7] != 0)
-				{
-					r += row[4];
-					g += row[5];
-					b += row[6];
-					n++;
-				}
-				if(y - 1 > 0 && row[-stride + 3] != 0)
-				{
-					r += row[-stride];
-					g += row[-stride + 1];
-					b += row[-stride + 2];
-					n++;
-				}
-				if(y + 1 < h && row[stride + 3] != 0)
-				{
-					r += row[stride];
-					g += row[stride + 1];
-					b += row[stride + 2];
-					n++;
-				}
-				if(n > 0)
-				{
-					row[0] = (unsigned char)(r / n);
-					row[1] = (unsigned char)(g / n);
-					row[2] = (unsigned char)(b / n);
-				}
-			}
-			row += 4;
-		}
-	}
-}
-
 static void svg_init_paint(struct svg_cache_paint_t * cache, struct svg_paint_t * paint, float opacity)
 {
 	struct svg_gradient_t * grad;
@@ -1250,71 +1200,168 @@ static void svg_init_paint(struct svg_cache_paint_t * cache, struct svg_paint_t 
 	}
 }
 
-void svg_rasterize(struct svg_rasterizer_t * r, struct svg_image_t * image, float tx, float ty, float sx, float sy, unsigned char * dst, int w, int h, int stride)
+static void svg_unpremultiply_alpha(unsigned char * img, int w, int h, int stride)
 {
-	struct svg_shape_t * shape = NULL;
-	struct svg_edge_t * e = NULL;
+	int x, y;
+
+	for(y = 0; y < h; y++)
+	{
+		unsigned char *row = &img[y * stride];
+		for(x = 0; x < w; x++)
+		{
+			int r = row[0], g = row[1], b = row[2], a = row[3];
+			if(a != 0)
+			{
+				row[0] = (unsigned char)(r * 255 / a);
+				row[1] = (unsigned char)(g * 255 / a);
+				row[2] = (unsigned char)(b * 255 / a);
+			}
+			row += 4;
+		}
+	}
+	for(y = 0; y < h; y++)
+	{
+		unsigned char * row = &img[y * stride];
+		for(x = 0; x < w; x++)
+		{
+			int r = 0, g = 0, b = 0, a = row[3], n = 0;
+			if(a == 0)
+			{
+				if(x - 1 > 0 && row[-1] != 0)
+				{
+					r += row[-4];
+					g += row[-3];
+					b += row[-2];
+					n++;
+				}
+				if(x + 1 < w && row[7] != 0)
+				{
+					r += row[4];
+					g += row[5];
+					b += row[6];
+					n++;
+				}
+				if(y - 1 > 0 && row[-stride + 3] != 0)
+				{
+					r += row[-stride];
+					g += row[-stride + 1];
+					b += row[-stride + 2];
+					n++;
+				}
+				if(y + 1 < h && row[stride + 3] != 0)
+				{
+					r += row[stride];
+					g += row[stride + 1];
+					b += row[stride + 2];
+					n++;
+				}
+				if(n > 0)
+				{
+					row[0] = (unsigned char)(r / n);
+					row[1] = (unsigned char)(g / n);
+					row[2] = (unsigned char)(b / n);
+				}
+			}
+			row += 4;
+		}
+	}
+}
+
+void render_default_raster(struct surface_t * s, struct svg_t * svg, float tx, float ty, float sx, float sy)
+{
+	struct svg_rasterizer_t r;
 	struct svg_cache_paint_t cache;
-	float sw = (sx + sy) * 0.5f;
+	struct svg_mem_page_t * p, * n;
+	struct svg_shape_t * shape;
+	struct svg_edge_t * e;
+	float sw;
 	int i;
 
-	r->bitmap = dst;
-	r->width = w;
-	r->height = h;
-	r->stride = stride;
-	if(w > r->cscanline)
+	if(s)
 	{
-		r->cscanline = w;
-		r->scanline = realloc(r->scanline, w);
-		if(!r->scanline)
+		sw = (sx + sy) * 0.5f;
+		r.px = 0;
+		r.py = 0;
+		r.tessTol = 0.25;
+		r.distTol = 0.01;
+		r.edges = NULL;
+		r.nedges = 0;
+		r.cedges = 0;
+		r.points = NULL;
+		r.npoints = 0;
+		r.cpoints = 0;
+		r.points2 = NULL;
+		r.npoints2 = 0;
+		r.cpoints2 = 0;
+		r.freelist = NULL;
+		r.pages = 0;
+		r.curpage = 0;
+		r.bitmap = surface_get_pixels(s);
+		r.width = surface_get_width(s);
+		r.height = surface_get_height(s);
+		r.stride = surface_get_stride(s);
+		r.cscanline = r.width;
+		r.scanline = malloc(r.cscanline);
+		if(!r.scanline)
 			return;
-	}
-	for(i = 0; i < h; i++)
-		memset(&dst[i * stride], 0, w * 4);
-	for(shape = image->shapes; shape != NULL; shape = shape->next)
-	{
-		if(!(shape->flags & SVG_FLAGS_VISIBLE))
-			continue;
-		if(shape->fill.type != SVG_PAINT_NONE)
+
+		for(shape = svg->shapes; shape != NULL; shape = shape->next)
 		{
-			svg_reset_pool(r);
-			r->freelist = NULL;
-			r->nedges = 0;
-			svg_flatten_shape(r, shape, sx, sy);
-			for(i = 0; i < r->nedges; i++)
+			if(!(shape->flags & SVG_FLAGS_VISIBLE))
+				continue;
+			if(shape->fill.type != SVG_PAINT_NONE)
 			{
-				e = &r->edges[i];
-				e->x0 = tx + e->x0;
-				e->y0 = (ty + e->y0) * SVG_SUBSAMPLES;
-				e->x1 = tx + e->x1;
-				e->y1 = (ty + e->y1) * SVG_SUBSAMPLES;
+				svg_reset_pool(&r);
+				r.freelist = NULL;
+				r.nedges = 0;
+				svg_flatten_shape(&r, shape, sx, sy);
+				for(i = 0; i < r.nedges; i++)
+				{
+					e = &r.edges[i];
+					e->x0 = tx + e->x0;
+					e->y0 = (ty + e->y0) * SVG_SUBSAMPLES;
+					e->x1 = tx + e->x1;
+					e->y1 = (ty + e->y1) * SVG_SUBSAMPLES;
+				}
+				qsort(r.edges, r.nedges, sizeof(struct svg_edge_t), svg_cmp_edge);
+				svg_init_paint(&cache, &shape->fill, shape->opacity);
+				svg_rasterize_sorted_edges(&r, tx, ty, sx, sy, &cache, shape->fill_rule);
 			}
-			qsort(r->edges, r->nedges, sizeof(struct svg_edge_t), svg_cmp_edge);
-			svg_init_paint(&cache, &shape->fill, shape->opacity);
-			svg_rasterize_sorted_edges(r, tx, ty, sx, sy, &cache, shape->fill_rule);
+			if((shape->stroke.type != SVG_PAINT_NONE) && (shape->stroke_width * sw > 0.01f))
+			{
+				svg_reset_pool(&r);
+				r.freelist = NULL;
+				r.nedges = 0;
+				svg_flatten_shape_stroke(&r, shape, sx, sy);
+				for(i = 0; i < r.nedges; i++)
+				{
+					e = &r.edges[i];
+					e->x0 = tx + e->x0;
+					e->y0 = (ty + e->y0) * SVG_SUBSAMPLES;
+					e->x1 = tx + e->x1;
+					e->y1 = (ty + e->y1) * SVG_SUBSAMPLES;
+				}
+				qsort(r.edges, r.nedges, sizeof(struct svg_edge_t), svg_cmp_edge);
+				svg_init_paint(&cache, &shape->stroke, shape->opacity);
+				svg_rasterize_sorted_edges(&r, tx, ty, sx, sy, &cache, SVG_FILLRULE_NONZERO);
+			}
 		}
-		if(shape->stroke.type != SVG_PAINT_NONE && (shape->stroke_width * sw) > 0.01f)
+		svg_unpremultiply_alpha(r.bitmap, r.width, r.height, r.stride);
+
+		p = r.pages;
+		while(p)
 		{
-			svg_reset_pool(r);
-			r->freelist = NULL;
-			r->nedges = 0;
-			svg_flatten_shape_stroke(r, shape, sx, sy);
-			for(i = 0; i < r->nedges; i++)
-			{
-				e = &r->edges[i];
-				e->x0 = tx + e->x0;
-				e->y0 = (ty + e->y0) * SVG_SUBSAMPLES;
-				e->x1 = tx + e->x1;
-				e->y1 = (ty + e->y1) * SVG_SUBSAMPLES;
-			}
-			qsort(r->edges, r->nedges, sizeof(struct svg_edge_t), svg_cmp_edge);
-			svg_init_paint(&cache, &shape->stroke, shape->opacity);
-			svg_rasterize_sorted_edges(r, tx, ty, sx, sy, &cache, SVG_FILLRULE_NONZERO);
+			n = p->next;
+			free(p);
+			p = n;
 		}
+		if(r.edges)
+			free(r.edges);
+		if(r.points)
+			free(r.points);
+		if(r.points2)
+			free(r.points2);
+		if(r.scanline)
+			free(r.scanline);
 	}
-	svg_unpremultiply_alpha(dst, w, h, stride);
-	r->bitmap = NULL;
-	r->width = 0;
-	r->height = 0;
-	r->stride = 0;
 }

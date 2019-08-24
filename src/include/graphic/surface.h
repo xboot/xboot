@@ -11,6 +11,7 @@ extern "C" {
 #include <graphic/region.h>
 #include <graphic/matrix.h>
 #include <graphic/font.h>
+#include <graphic/svg.h>
 #include <xfs/xfs.h>
 
 struct surface_t;
@@ -49,6 +50,7 @@ struct render_t
 
 	void (*blit)(struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct surface_t * src, enum render_type_t type);
 	void (*fill)(struct surface_t * s, struct region_t * clip, struct matrix_t * m, int w, int h, struct color_t * c, enum render_type_t type);
+	void (*raster)(struct surface_t * s, struct svg_t * svg, float tx, float ty, float sx, float sy);
 	void (*text)(struct surface_t * s, struct region_t * clip, struct matrix_t * m, const char * utf8, struct color_t * c, void * sfont, int size);
 	void (*extent)(struct surface_t * s, const char * utf8, void * sfont, int size, struct region_t * e);
 
@@ -130,6 +132,7 @@ struct render_t
 
 void render_default_blit(struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct surface_t * src, enum render_type_t type);
 void render_default_fill(struct surface_t * s, struct region_t * clip, struct matrix_t * m, int w, int h, struct color_t * c, enum render_type_t type);
+void render_default_raster(struct surface_t * s, struct svg_t * svg, float tx, float ty, float sx, float sy);
 void render_default_filter_haldclut(struct surface_t * s, struct surface_t * clut, const char * type);
 void render_default_filter_grayscale(struct surface_t * s);
 void render_default_filter_sepia(struct surface_t * s);
@@ -175,6 +178,11 @@ static inline void surface_blit(struct surface_t * s, struct region_t * clip, st
 static inline void surface_fill(struct surface_t * s, struct region_t * clip, struct matrix_t * m, int w, int h, struct color_t * c, enum render_type_t type)
 {
 	s->r->fill(s, clip, m, w, h, c, type);
+}
+
+static inline void surface_raster(struct surface_t * s, struct svg_t * svg, float tx, float ty, float sx, float sy)
+{
+	s->r->raster(s, svg, tx, ty, sx, sy);
 }
 
 static inline void surface_text(struct surface_t * s, struct region_t * clip, struct matrix_t * m, const char * utf8, struct color_t * c, void * sfont, int size)

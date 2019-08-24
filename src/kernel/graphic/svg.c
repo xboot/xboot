@@ -33,7 +33,6 @@
 #include <stdio.h>
 #include <math.h>
 #include <shash.h>
-#include <graphic/color.h>
 #include <graphic/svg.h>
 
 #define SVG_KAPPA90		(0.5522847493f)	// Length proportional to radius of a cubic bezier handle for 90deg arcs.
@@ -219,9 +218,9 @@ static void svg_parse_element(char * s, void (*scb)(void *, const char *, const 
 		(*ecb)(ud, name);
 }
 
-static void svg_parse_xml(char * svg, void (*scb)(void *, const char *, const char **), void (*ecb)(void *, const char *), void (*ccb)(void *, const char *), void * ud)
+static void svg_parse_xml(char * svgstr, void (*scb)(void *, const char *, const char **), void (*ecb)(void *, const char *), void (*ccb)(void *, const char *), void * ud)
 {
-	char * s = svg;
+	char * s = svgstr;
 	char * mark = s;
 	int state = SVG_XML_CONTENT;
 	while(*s)
@@ -335,7 +334,7 @@ struct svg_parser_t
 	int npts;
 	int cpts;
 	struct svg_path_t * plist;
-	struct svg_image_t * image;
+	struct svg_t * svg;
 	struct svg_gradient_data_t * gradients;
 	struct svg_shape_t * shapesTail;
 	float viewMinx, viewMiny, viewWidth, viewHeight;
@@ -514,13 +513,13 @@ static struct svg_parser_t * svg_parser_alloc(void)
 		return NULL;
 	memset(p, 0, sizeof(struct svg_parser_t));
 
-	p->image = malloc(sizeof(struct svg_image_t));
-	if(!p->image)
+	p->svg = malloc(sizeof(struct svg_t));
+	if(!p->svg)
 	{
 		free(p);
 		return NULL;
 	}
-	memset(p->image, 0, sizeof(struct svg_image_t));
+	memset(p->svg, 0, sizeof(struct svg_t));
 
 	svg_xform_identity(p->attr[0].xform);
 	memset(p->attr[0].id, 0, sizeof(p->attr[0].id));
@@ -578,7 +577,7 @@ static void svg_parser_free(struct svg_parser_t * p)
 	{
 		svg_delete_paths(p->plist);
 		svg_delete_gradient_data(p->gradients);
-		svg_free(p->image);
+		svg_free(p->svg);
 		free(p->pts);
 		free(p);
 	}
@@ -946,8 +945,8 @@ static void svg_add_shape(struct svg_parser_t * p)
 	}
 	shape->flags = attr->visible ? SVG_FLAGS_VISIBLE : 0;
 
-	if(p->image->shapes == NULL)
-		p->image->shapes = shape;
+	if(p->svg->shapes == NULL)
+		p->svg->shapes = shape;
 	else
 		p->shapesTail->next = shape;
 	p->shapesTail = shape;
@@ -2275,11 +2274,11 @@ static void svg_parse_svg(struct svg_parser_t * p, const char ** attr)
 		{
 			if(strcmp(attr[i], "width") == 0)
 			{
-				p->image->width = svg_parse_coordinate(p, attr[i + 1], 0.0f, 0.0f);
+				p->svg->width = svg_parse_coordinate(p, attr[i + 1], 0.0f, 0.0f);
 			}
 			else if(strcmp(attr[i], "height") == 0)
 			{
-				p->image->height = svg_parse_coordinate(p, attr[i + 1], 0.0f, 0.0f);
+				p->svg->height = svg_parse_coordinate(p, attr[i + 1], 0.0f, 0.0f);
 			}
 			else if(strcmp(attr[i], "viewBox") == 0)
 			{
@@ -2597,7 +2596,7 @@ static void svg_content(void * ud, const char * s)
 static void svg_image_bounds(struct svg_parser_t * p, float * bounds)
 {
 	struct svg_shape_t* shape;
-	shape = p->image->shapes;
+	shape = p->svg->shapes;
 	if(shape == NULL)
 	{
 		bounds[0] = bounds[1] = bounds[2] = bounds[3] = 0.0;
@@ -2645,9 +2644,9 @@ static void svg_scale_to_viewbox(struct svg_parser_t * p, const char * units)
 	svg_image_bounds(p, bounds);
 	if(p->viewWidth == 0)
 	{
-		if(p->image->width > 0)
+		if(p->svg->width > 0)
 		{
-			p->viewWidth = p->image->width;
+			p->viewWidth = p->svg->width;
 		}
 		else
 		{
@@ -2657,9 +2656,9 @@ static void svg_scale_to_viewbox(struct svg_parser_t * p, const char * units)
 	}
 	if(p->viewHeight == 0)
 	{
-		if(p->image->height > 0)
+		if(p->svg->height > 0)
 		{
-			p->viewHeight = p->image->height;
+			p->viewHeight = p->svg->height;
 		}
 		else
 		{
@@ -2667,32 +2666,32 @@ static void svg_scale_to_viewbox(struct svg_parser_t * p, const char * units)
 			p->viewHeight = bounds[3] - bounds[1];
 		}
 	}
-	if(p->image->width == 0)
-		p->image->width = p->viewWidth;
-	if(p->image->height == 0)
-		p->image->height = p->viewHeight;
+	if(p->svg->width == 0)
+		p->svg->width = p->viewWidth;
+	if(p->svg->height == 0)
+		p->svg->height = p->viewHeight;
 
 	tx = -p->viewMinx;
 	ty = -p->viewMiny;
-	sx = p->viewWidth > 0 ? p->image->width / p->viewWidth : 0;
-	sy = p->viewHeight > 0 ? p->image->height / p->viewHeight : 0;
+	sx = p->viewWidth > 0 ? p->svg->width / p->viewWidth : 0;
+	sy = p->viewHeight > 0 ? p->svg->height / p->viewHeight : 0;
 	us = 1.0f / svg_convert_to_pixels(p, svg_coord(1.0f, svg_parse_units(units)), 0.0f, 1.0f);
 	if(p->alignType == SVG_ALIGN_MEET)
 	{
 		sx = sy = svg_minf(sx, sy);
-		tx += svg_view_align(p->viewWidth * sx, p->image->width, p->alignX) / sx;
-		ty += svg_view_align(p->viewHeight * sy, p->image->height, p->alignY) / sy;
+		tx += svg_view_align(p->viewWidth * sx, p->svg->width, p->alignX) / sx;
+		ty += svg_view_align(p->viewHeight * sy, p->svg->height, p->alignY) / sy;
 	}
 	else if(p->alignType == SVG_ALIGN_SLICE)
 	{
 		sx = sy = svg_maxf(sx, sy);
-		tx += svg_view_align(p->viewWidth * sx, p->image->width, p->alignX) / sx;
-		ty += svg_view_align(p->viewHeight * sy, p->image->height, p->alignY) / sy;
+		tx += svg_view_align(p->viewWidth * sx, p->svg->width, p->alignX) / sx;
+		ty += svg_view_align(p->viewHeight * sy, p->svg->height, p->alignY) / sy;
 	}
 	sx *= us;
 	sy *= us;
 	avgs = (sx + sy) / 2.0f;
-	for(shape = p->image->shapes; shape != NULL; shape = shape->next)
+	for(shape = p->svg->shapes; shape != NULL; shape = shape->next)
 	{
 		shape->bounds[0] = (shape->bounds[0] + tx) * sx;
 		shape->bounds[1] = (shape->bounds[1] + ty) * sy;
@@ -2730,33 +2729,33 @@ static void svg_scale_to_viewbox(struct svg_parser_t * p, const char * units)
 	}
 }
 
-struct svg_image_t * svg_alloc(char * svg, const char * units, float dpi)
+struct svg_t * svg_alloc(char * svgstr, const char * units, float dpi)
 {
 	struct svg_parser_t * p;
-	struct svg_image_t * img;
+	struct svg_t * svg;
 
 	p = svg_parser_alloc();
 	if(!p)
 		return NULL;
 
 	p->dpi = dpi;
-	svg_parse_xml(svg, svg_start_element, svg_end_element, svg_content, p);
+	svg_parse_xml(svgstr, svg_start_element, svg_end_element, svg_content, p);
 	svg_scale_to_viewbox(p, units);
-	img = p->image;
-	p->image = NULL;
+	svg = p->svg;
+	p->svg = NULL;
 	svg_parser_free(p);
 
-	return img;
+	return svg;
 }
 
-void svg_free(struct svg_image_t * img)
+void svg_free(struct svg_t * svg)
 {
 	struct svg_shape_t * shape;
 	struct svg_shape_t * n;
 
-	if(img)
+	if(svg)
 	{
-		shape = img->shapes;
+		shape = svg->shapes;
 		while(shape)
 		{
 			n = shape->next;
@@ -2766,16 +2765,16 @@ void svg_free(struct svg_image_t * img)
 			free(shape);
 			shape = n;
 		}
-		free(img);
+		free(svg);
 	}
 }
 
-struct svg_image_t* nsvgParseFromFile(const char* filename, const char* units, float dpi)
+struct svg_t * nsvgParseFromFile(const char * filename, const char * units, float dpi)
 {
 	FILE* fp = NULL;
 	size_t size;
 	char * data = NULL;
-	struct svg_image_t* image = NULL;
+	struct svg_t* svg = NULL;
 
 	fp = fopen(filename, "rb");
 	if (!fp) goto error;
@@ -2787,15 +2786,15 @@ struct svg_image_t* nsvgParseFromFile(const char* filename, const char* units, f
 	if (fread(data, 1, size, fp) != size) goto error;
 	data[size] = '\0';	// Must be null terminated.
 	fclose(fp);
-	image = svg_alloc(data, units, dpi);
+	svg = svg_alloc(data, units, dpi);
 	free(data);
 
-	return image;
+	return svg;
 
 error:
 	if (fp) fclose(fp);
 	if (data) free(data);
-	if (image) svg_free(image);
+	if (svg) svg_free(svg);
 	return NULL;
 }
 

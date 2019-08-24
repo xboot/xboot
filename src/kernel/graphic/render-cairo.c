@@ -106,6 +106,11 @@ static void render_cairo_fill(struct surface_t * s, struct region_t * clip, stru
 	cairo_restore(cr);
 }
 
+static void render_cairo_raster(struct surface_t * s, struct svg_t * svg, float tx, float ty, float sx, float sy)
+{
+	render_default_raster(s, svg, tx, ty, sx, sy);
+}
+
 static void render_cairo_text(struct surface_t * s, struct region_t * clip, struct matrix_t * m, const char * utf8, struct color_t * c, void * sfont, int size)
 {
 	cairo_t * cr = ((struct render_cairo_context_t *)s->pctx)->cr;
@@ -683,6 +688,7 @@ static struct render_t render_cairo = {
 
 	.blit						= render_cairo_blit,
 	.fill						= render_cairo_fill,
+	.raster						= render_cairo_raster,
 	.text						= render_cairo_text,
 	.extent						= render_cairo_extent,
 

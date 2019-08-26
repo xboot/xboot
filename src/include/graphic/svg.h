@@ -43,7 +43,7 @@ enum svg_flags_t {
 };
 
 struct svg_gradient_stop_t {
-	unsigned int color;
+	struct color_t color;
 	float offset;
 };
 
@@ -58,7 +58,7 @@ struct svg_gradient_t {
 struct svg_paint_t {
 	enum svg_paint_type_t type;
 	union {
-		unsigned int color;
+		struct color_t color;
 		struct svg_gradient_t * gradient;
 	};
 };

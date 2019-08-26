@@ -302,8 +302,8 @@ struct svg_attrib_t
 {
 	char id[64];
 	float xform[6];
-	unsigned int fill_color;
-	unsigned int stroke_color;
+	struct color_t fill_color;
+	struct color_t stroke_color;
 	float opacity;
 	float fill_opacity;
 	float stroke_opacity;
@@ -318,7 +318,7 @@ struct svg_attrib_t
 	float miter_limit;
 	enum svg_fill_rule_t fill_rule;
 	float font_size;
-	unsigned int stop_color;
+	struct color_t stop_color;
 	float stop_opacity;
 	float stop_offset;
 	char has_fill;
@@ -523,8 +523,8 @@ static struct svg_parser_t * svg_parser_alloc(void)
 
 	svg_xform_identity(p->attr[0].xform);
 	memset(p->attr[0].id, 0, sizeof(p->attr[0].id));
-	p->attr[0].fill_color = 0;
-	p->attr[0].stroke_color = 0;
+	memset(&p->attr[0].fill_color, 0, sizeof(struct color_t));
+	memset(&p->attr[0].stroke_color, 0, sizeof(struct color_t));
 	p->attr[0].opacity = 1;
 	p->attr[0].fill_opacity = 1;
 	p->attr[0].stroke_opacity = 1;
@@ -911,8 +911,7 @@ static void svg_add_shape(struct svg_parser_t * p)
 	else if(attr->has_fill == 1)
 	{
 		shape->fill.type = SVG_PAINT_COLOR;
-		shape->fill.color = attr->fill_color;
-		shape->fill.color |= (unsigned int)(attr->fill_opacity * 255) << 24;
+		color_init(&shape->fill.color, attr->fill_color.r, attr->fill_color.g, attr->fill_color.b, attr->fill_opacity * 255);
 	}
 	else if(attr->has_fill == 2)
 	{
@@ -931,8 +930,7 @@ static void svg_add_shape(struct svg_parser_t * p)
 	else if(attr->has_stroke == 1)
 	{
 		shape->stroke.type = SVG_PAINT_COLOR;
-		shape->stroke.color = attr->stroke_color;
-		shape->stroke.color |= (unsigned int)(attr->stroke_opacity * 255) << 24;
+		color_init(&shape->stroke.color, attr->stroke_color.r, attr->stroke_color.g, attr->stroke_color.b, attr->stroke_opacity * 255);
 	}
 	else if(attr->has_stroke == 2)
 	{
@@ -1076,13 +1074,6 @@ static const char * svg_get_next_path_item(const char * s, char * it)
 		return s;
 	}
 	return s;
-}
-
-static unsigned int svg_parse_color(const char * str)
-{
-	struct color_t c;
-	color_init_string(&c, str);
-	return (((unsigned int)c.b) | ((unsigned int)c.g << 8) | ((unsigned int)c.r << 16) | ((unsigned int)c.a << 24));
 }
 
 static float svg_parse_opacity(const char * str)
@@ -1414,7 +1405,7 @@ static int svg_parse_attr(struct svg_parser_t * p, const char * name, const char
 		else
 		{
 			attr->has_fill = 1;
-			attr->fill_color = svg_parse_color(value);
+			color_init_string(&attr->fill_color, value);
 		}
 	}
 	else if(strcmp(name, "opacity") == 0)
@@ -1439,7 +1430,7 @@ static int svg_parse_attr(struct svg_parser_t * p, const char * name, const char
 		else
 		{
 			attr->has_stroke = 1;
-			attr->stroke_color = svg_parse_color(value);
+			color_init_string(&attr->stroke_color, value);
 		}
 	}
 	else if(strcmp(name, "stroke-width") == 0)
@@ -1485,7 +1476,7 @@ static int svg_parse_attr(struct svg_parser_t * p, const char * name, const char
 	}
 	else if(strcmp(name, "stop-color") == 0)
 	{
-		attr->stop_color = svg_parse_color(value);
+		color_init_string(&attr->stop_color, value);
 	}
 	else if(strcmp(name, "stop-opacity") == 0)
 	{
@@ -2436,14 +2427,14 @@ static void svg_parse_gradient(struct svg_parser_t * p, const char ** attr, enum
 
 static void svg_parse_gradient_stop(struct svg_parser_t * p, const char ** attr)
 {
-	struct svg_attrib_t * curAttr = svg_get_attr(p);
+	struct svg_attrib_t * curattr = svg_get_attr(p);
 	struct svg_gradient_data_t * grad;
 	struct svg_gradient_stop_t * stop;
 	int i, idx;
 
-	curAttr->stop_offset = 0;
-	curAttr->stop_color = 0;
-	curAttr->stop_opacity = 1.0f;
+	memset(&curattr->stop_color, 0, sizeof(struct color_t));
+	curattr->stop_offset = 0;
+	curattr->stop_opacity = 1.0f;
 	for(i = 0; attr[i]; i += 2)
 	{
 		svg_parse_attr(p, attr[i], attr[i + 1]);
@@ -2458,7 +2449,7 @@ static void svg_parse_gradient_stop(struct svg_parser_t * p, const char ** attr)
 	idx = grad->nstops - 1;
 	for(i = 0; i < grad->nstops - 1; i++)
 	{
-		if(curAttr->stop_offset < grad->stops[i].offset)
+		if(curattr->stop_offset < grad->stops[i].offset)
 		{
 			idx = i;
 			break;
@@ -2470,9 +2461,8 @@ static void svg_parse_gradient_stop(struct svg_parser_t * p, const char ** attr)
 			grad->stops[i] = grad->stops[i - 1];
 	}
 	stop = &grad->stops[idx];
-	stop->color = curAttr->stop_color;
-	stop->color |= (unsigned int)(curAttr->stop_opacity * 255) << 24;
-	stop->offset = curAttr->stop_offset;
+	color_init(&stop->color, curattr->stop_color.r, curattr->stop_color.g, curattr->stop_color.b, curattr->stop_opacity * 255);
+	stop->offset = curattr->stop_offset;
 }
 
 static void svg_start_element(void * ud, const char * el, const char ** attr)

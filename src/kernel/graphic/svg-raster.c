@@ -72,7 +72,7 @@ struct svg_cache_paint_t {
 	enum svg_paint_type_t type;
 	enum svg_spread_type_t spread;
 	float xform[6];
-	unsigned int colors[256];
+	struct color_t colors[256];
 };
 
 struct svg_rasterizer_t {
@@ -895,58 +895,49 @@ static void svg_fill_active_edges(unsigned char * scanline, int len, struct svg_
 	}
 }
 
-static inline unsigned int svg_rgba(unsigned char r, unsigned char g, unsigned char b, unsigned char a)
-{
-	return (r) | (g << 8) | (b << 16) | (a << 24);
-}
-
-static unsigned int svg_lerp_rgba(unsigned int c0, unsigned int c1, float u)
+static void svg_lerp_rgba(struct color_t * c, struct color_t * c0, struct color_t * c1, float u)
 {
 	int iu = (int)(svg_clampf(u, 0.0f, 1.0f) * 256.0f);
-	int r = (((c0) & 0xff) * (256 - iu) + (((c1) & 0xff) * iu)) >> 8;
-	int g = (((c0 >> 8) & 0xff) * (256 - iu) + (((c1 >> 8) & 0xff) * iu)) >> 8;
-	int b = (((c0 >> 16) & 0xff) * (256 - iu) + (((c1 >> 16) & 0xff) * iu)) >> 8;
-	int a = (((c0 >> 24) & 0xff) * (256 - iu) + (((c1 >> 24) & 0xff) * iu)) >> 8;
-	return svg_rgba((unsigned char)r, (unsigned char)g, (unsigned char)b, (unsigned char)a);
+	int b = (c0->b * (256 - iu) + (c1->b * iu)) >> 8;
+	int g = (c0->g * (256 - iu) + (c1->g * iu)) >> 8;
+	int r = (c0->r * (256 - iu) + (c1->r * iu)) >> 8;
+	int a = (c0->a * (256 - iu) + (c1->a * iu)) >> 8;
+	color_init(c, r, g, b, a);
 }
 
-static unsigned int svg_apply_opacity(unsigned int c, float u)
+static void svg_apply_opacity(struct color_t * c, struct color_t * o, float u)
 {
 	int iu = (int)(svg_clampf(u, 0.0f, 1.0f) * 256.0f);
-	int r = (c) & 0xff;
-	int g = (c >> 8) & 0xff;
-	int b = (c >> 16) & 0xff;
-	int a = (((c >> 24) & 0xff) * iu) >> 8;
-	return svg_rgba((unsigned char)r, (unsigned char)g, (unsigned char)b, (unsigned char)a);
+	color_init(c, o->r, o->g, o->b, (o->a * iu) >> 8);
 }
 
 static void svg_scanline_solid(unsigned char * dst, int count, unsigned char * cover, int x, int y, float tx, float ty, float sx, float sy, struct svg_cache_paint_t * cache)
 {
 	if(cache->type == SVG_PAINT_COLOR)
 	{
-		int i, cr, cg, cb, ca;
-		cr = cache->colors[0] & 0xff;
-		cg = (cache->colors[0] >> 8) & 0xff;
-		cb = (cache->colors[0] >> 16) & 0xff;
-		ca = (cache->colors[0] >> 24) & 0xff;
+		int i, cb, cg, cr, ca;
+		cb = cache->colors[0].b;
+		cg = cache->colors[0].g;
+		cr = cache->colors[0].r;
+		ca = cache->colors[0].a;
 
 		for(i = 0; i < count; i++)
 		{
-			int r, g, b;
+			int b, g, r;
 			int a = svg_div255((int)cover[0] * ca);
 			int ia = 255 - a;
-			r = svg_div255(cr * a);
-			g = svg_div255(cg * a);
 			b = svg_div255(cb * a);
+			g = svg_div255(cg * a);
+			r = svg_div255(cr * a);
 
-			r += svg_div255(ia * (int)dst[0]);
+			b += svg_div255(ia * (int)dst[0]);
 			g += svg_div255(ia * (int)dst[1]);
-			b += svg_div255(ia * (int)dst[2]);
+			r += svg_div255(ia * (int)dst[2]);
 			a += svg_div255(ia * (int)dst[3]);
 
-			dst[0] = (unsigned char)r;
+			dst[0] = (unsigned char)b;
 			dst[1] = (unsigned char)g;
-			dst[2] = (unsigned char)b;
+			dst[2] = (unsigned char)r;
 			dst[3] = (unsigned char)a;
 
 			cover++;
@@ -957,8 +948,8 @@ static void svg_scanline_solid(unsigned char * dst, int count, unsigned char * c
 	{
 		float fx, fy, dx, gy;
 		float * t = cache->xform;
-		int i, cr, cg, cb, ca;
-		unsigned int c;
+		int i, cb, cg, cr, ca;
+		struct color_t * c;
 
 		fx = ((float)x - tx) / sx;
 		fy = ((float)y - ty) / sy;
@@ -966,29 +957,29 @@ static void svg_scanline_solid(unsigned char * dst, int count, unsigned char * c
 
 		for(i = 0; i < count; i++)
 		{
-			int r, g, b, a, ia;
+			int b, g, r, a, ia;
 			gy = fx * t[1] + fy * t[3] + t[5];
-			c = cache->colors[(int)svg_clampf(gy * 255.0f, 0, 255.0f)];
-			cr = (c) & 0xff;
-			cg = (c >> 8) & 0xff;
-			cb = (c >> 16) & 0xff;
-			ca = (c >> 24) & 0xff;
+			c = &cache->colors[(int)svg_clampf(gy * 255.0f, 0, 255.0f)];
+			cb = c->b;
+			cg = c->g;
+			cr = c->r;
+			ca = c->a;
 
 			a = svg_div255((int)cover[0] * ca);
 			ia = 255 - a;
 
-			r = svg_div255(cr * a);
-			g = svg_div255(cg * a);
 			b = svg_div255(cb * a);
+			g = svg_div255(cg * a);
+			r = svg_div255(cr * a);
 
-			r += svg_div255(ia * (int)dst[0]);
+			b += svg_div255(ia * (int)dst[0]);
 			g += svg_div255(ia * (int)dst[1]);
-			b += svg_div255(ia * (int)dst[2]);
+			r += svg_div255(ia * (int)dst[2]);
 			a += svg_div255(ia * (int)dst[3]);
 
-			dst[0] = (unsigned char)r;
+			dst[0] = (unsigned char)b;
 			dst[1] = (unsigned char)g;
-			dst[2] = (unsigned char)b;
+			dst[2] = (unsigned char)r;
 			dst[3] = (unsigned char)a;
 
 			cover++;
@@ -1000,8 +991,8 @@ static void svg_scanline_solid(unsigned char * dst, int count, unsigned char * c
 	{
 		float fx, fy, dx, gx, gy, gd;
 		float* t = cache->xform;
-		int i, cr, cg, cb, ca;
-		unsigned int c;
+		int i, cb, cg, cr, ca;
+		struct color_t * c;
 
 		fx = ((float)x - tx) / sx;
 		fy = ((float)y - ty) / sy;
@@ -1009,31 +1000,31 @@ static void svg_scanline_solid(unsigned char * dst, int count, unsigned char * c
 
 		for(i = 0; i < count; i++)
 		{
-			int r, g, b, a, ia;
+			int b, g, r, a, ia;
 			gx = fx * t[0] + fy * t[2] + t[4];
 			gy = fx * t[1] + fy * t[3] + t[5];
 			gd = sqrtf(gx * gx + gy * gy);
-			c = cache->colors[(int)svg_clampf(gd * 255.0f, 0, 255.0f)];
-			cr = (c) & 0xff;
-			cg = (c >> 8) & 0xff;
-			cb = (c >> 16) & 0xff;
-			ca = (c >> 24) & 0xff;
+			c = &cache->colors[(int)svg_clampf(gd * 255.0f, 0, 255.0f)];
+			cb = c->b;
+			cg = c->g;
+			cr = c->r;
+			ca = c->a;
 
 			a = svg_div255((int)cover[0] * ca);
 			ia = 255 - a;
 
-			r = svg_div255(cr * a);
-			g = svg_div255(cg * a);
 			b = svg_div255(cb * a);
+			g = svg_div255(cg * a);
+			r = svg_div255(cr * a);
 
-			r += svg_div255(ia * (int)dst[0]);
+			b += svg_div255(ia * (int)dst[0]);
 			g += svg_div255(ia * (int)dst[1]);
-			b += svg_div255(ia * (int)dst[2]);
+			r += svg_div255(ia * (int)dst[2]);
 			a += svg_div255(ia * (int)dst[3]);
 
-			dst[0] = (unsigned char)r;
+			dst[0] = (unsigned char)b;
 			dst[1] = (unsigned char)g;
-			dst[2] = (unsigned char)b;
+			dst[2] = (unsigned char)r;
 			dst[3] = (unsigned char)a;
 
 			cover++;
@@ -1063,7 +1054,7 @@ static void svg_rasterize_sorted_edges(struct svg_rasterizer_t * r, float tx, fl
 
 			while(*step)
 			{
-				struct svg_active_edge_t *z = *step;
+				struct svg_active_edge_t * z = *step;
 				if(z->ey <= scany)
 				{
 					*step = z->next;
@@ -1144,7 +1135,7 @@ static void svg_init_paint(struct svg_cache_paint_t * cache, struct svg_paint_t 
 	cache->type = paint->type;
 	if(paint->type == SVG_PAINT_COLOR)
 	{
-		cache->colors[0] = svg_apply_opacity(paint->color, opacity);
+		svg_apply_opacity(&cache->colors[0], &paint->color, opacity);
 		return;
 	}
 	grad = paint->gradient;
@@ -1154,32 +1145,32 @@ static void svg_init_paint(struct svg_cache_paint_t * cache, struct svg_paint_t 
 	if(grad->nstops == 0)
 	{
 		for(i = 0; i < 256; i++)
-			cache->colors[i] = 0;
+			memset(&cache->colors[i], 0, sizeof(struct color_t));
 	}
 	if(grad->nstops == 1)
 	{
 		for(i = 0; i < 256; i++)
-			cache->colors[i] = svg_apply_opacity(grad->stops[i].color, opacity);
+			svg_apply_opacity(&cache->colors[i], &grad->stops[i].color, opacity);
 	}
 	else
 	{
-		unsigned int ca, cb = 0;
+		struct color_t ca, cb;
 		float ua, ub, du, u;
 		int ia, ib, count;
 
-		ca = svg_apply_opacity(grad->stops[0].color, opacity);
+		svg_apply_opacity(&ca, &grad->stops[0].color, opacity);
 		ua = svg_clampf(grad->stops[0].offset, 0, 1);
 		ub = svg_clampf(grad->stops[grad->nstops - 1].offset, ua, 1);
 		ia = (int)(ua * 255.0f);
 		ib = (int)(ub * 255.0f);
 		for(i = 0; i < ia; i++)
 		{
-			cache->colors[i] = ca;
+			memcpy(&cache->colors[i], &ca, sizeof(struct color_t));
 		}
 		for(i = 0; i < grad->nstops - 1; i++)
 		{
-			ca = svg_apply_opacity(grad->stops[i].color, opacity);
-			cb = svg_apply_opacity(grad->stops[i + 1].color, opacity);
+			svg_apply_opacity(&ca, &grad->stops[i].color, opacity);
+			svg_apply_opacity(&cb, &grad->stops[i + 1].color, opacity);
 			ua = svg_clampf(grad->stops[i].offset, 0, 1);
 			ub = svg_clampf(grad->stops[i + 1].offset, 0, 1);
 			ia = (int)(ua * 255.0f);
@@ -1191,12 +1182,12 @@ static void svg_init_paint(struct svg_cache_paint_t * cache, struct svg_paint_t 
 			du = 1.0f / (float)count;
 			for(j = 0; j < count; j++)
 			{
-				cache->colors[ia + j] = svg_lerp_rgba(ca, cb, u);
+				svg_lerp_rgba(&cache->colors[ia + j], &ca, &cb, u);
 				u += du;
 			}
 		}
 		for(i = ib; i < 256; i++)
-			cache->colors[i] = cb;
+			memcpy(&cache->colors[i], &cb, sizeof(struct color_t));
 	}
 }
 
@@ -1206,15 +1197,15 @@ static void svg_unpremultiply_alpha(unsigned char * img, int w, int h, int strid
 
 	for(y = 0; y < h; y++)
 	{
-		unsigned char *row = &img[y * stride];
+		unsigned char * row = &img[y * stride];
 		for(x = 0; x < w; x++)
 		{
-			int r = row[0], g = row[1], b = row[2], a = row[3];
+			int b = row[0], g = row[1], r = row[2], a = row[3];
 			if(a != 0)
 			{
-				row[0] = (unsigned char)(r * 255 / a);
+				row[0] = (unsigned char)(b * 255 / a);
 				row[1] = (unsigned char)(g * 255 / a);
-				row[2] = (unsigned char)(b * 255 / a);
+				row[2] = (unsigned char)(r * 255 / a);
 			}
 			row += 4;
 		}
@@ -1224,42 +1215,42 @@ static void svg_unpremultiply_alpha(unsigned char * img, int w, int h, int strid
 		unsigned char * row = &img[y * stride];
 		for(x = 0; x < w; x++)
 		{
-			int r = 0, g = 0, b = 0, a = row[3], n = 0;
+			int b = 0, g = 0, r = 0, a = row[3], n = 0;
 			if(a == 0)
 			{
 				if(x - 1 > 0 && row[-1] != 0)
 				{
-					r += row[-4];
+					b += row[-4];
 					g += row[-3];
-					b += row[-2];
+					r += row[-2];
 					n++;
 				}
 				if(x + 1 < w && row[7] != 0)
 				{
-					r += row[4];
+					b += row[4];
 					g += row[5];
-					b += row[6];
+					r += row[6];
 					n++;
 				}
 				if(y - 1 > 0 && row[-stride + 3] != 0)
 				{
-					r += row[-stride];
+					b += row[-stride];
 					g += row[-stride + 1];
-					b += row[-stride + 2];
+					r += row[-stride + 2];
 					n++;
 				}
 				if(y + 1 < h && row[stride + 3] != 0)
 				{
-					r += row[stride];
+					b += row[stride];
 					g += row[stride + 1];
-					b += row[stride + 2];
+					r += row[stride + 2];
 					n++;
 				}
 				if(n > 0)
 				{
-					row[0] = (unsigned char)(r / n);
+					row[0] = (unsigned char)(b / n);
 					row[1] = (unsigned char)(g / n);
-					row[2] = (unsigned char)(b / n);
+					row[2] = (unsigned char)(r / n);
 				}
 			}
 			row += 4;

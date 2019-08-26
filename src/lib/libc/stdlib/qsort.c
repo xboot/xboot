@@ -5,10 +5,6 @@
 #include <stdlib.h>
 #include <xboot/module.h>
 
-#ifndef MIN
-#define MIN(a, b)	((a) < (b) ? (a) : (b))
-#endif
-
 #define swapcode(TYPE, parmi, parmj, n) {	\
 	long i = (n) / sizeof (TYPE);			\
 	TYPE *pi = (TYPE *) (parmi);			\
@@ -52,25 +48,26 @@ static __inline void swapfunc(char *a, char *b, int n, int swaptype)
 
 void qsort(void * aa, size_t n, size_t es, int (*cmp)(const void *, const void *))
 {
-	char *pa, *pb, *pc, *pd, *pl, *pm, *pn;
+	char * pa, * pb, * pc, * pd, * pl, * pm, * pn;
 	int d, r, swaptype, swap_cnt;
-	char *a = aa;
+	char * a = aa;
 
-loop: SWAPINIT(a, es);
+loop:
+	SWAPINIT(a, es);
 	swap_cnt = 0;
-	if (n < 7)
+	if(n < 7)
 	{
-		for (pm = (char *) a + es; pm < (char *) a + n * es; pm += es)
-			for (pl = pm; pl > (char *) a && cmp(pl - es, pl) > 0; pl -= es)
+		for(pm = (char *)a + es; pm < (char *)a + n * es; pm += es)
+			for(pl = pm; pl > (char *)a && cmp(pl - es, pl) > 0; pl -= es)
 				swap(pl, pl - es);
 		return;
 	}
-	pm = (char *) a + (n / 2) * es;
-	if (n > 7)
+	pm = (char *)a + (n / 2) * es;
+	if(n > 7)
 	{
-		pl = (char *) a;
-		pn = (char *) a + (n - 1) * es;
-		if (n > 40)
+		pl = (char *)a;
+		pn = (char *)a + (n - 1) * es;
+		if(n > 40)
 		{
 			d = (n / 8) * es;
 			pl = med3(pl, pl + d, pl + 2 * d, cmp);
@@ -80,14 +77,14 @@ loop: SWAPINIT(a, es);
 		pm = med3(pl, pm, pn, cmp);
 	}
 	swap(a, pm);
-	pa = pb = (char *) a + es;
+	pa = pb = (char *)a + es;
 
-	pc = pd = (char *) a + (n - 1) * es;
-	for (;;)
+	pc = pd = (char *)a + (n - 1) * es;
+	for(;;)
 	{
-		while (pb <= pc && (r = cmp(pb, a)) <= 0)
+		while(pb <= pc && (r = cmp(pb, a)) <= 0)
 		{
-			if (r == 0)
+			if(r == 0)
 			{
 				swap_cnt = 1;
 				swap(pa, pb);
@@ -95,9 +92,9 @@ loop: SWAPINIT(a, es);
 			}
 			pb += es;
 		}
-		while (pb <= pc && (r = cmp(pc, a)) >= 0)
+		while(pb <= pc && (r = cmp(pc, a)) >= 0)
 		{
-			if (r == 0)
+			if(r == 0)
 			{
 				swap_cnt = 1;
 				swap(pc, pd);
@@ -105,29 +102,29 @@ loop: SWAPINIT(a, es);
 			}
 			pc -= es;
 		}
-		if (pb > pc)
+		if(pb > pc)
 			break;
 		swap(pb, pc);
 		swap_cnt = 1;
 		pb += es;
 		pc -= es;
 	}
-	if (swap_cnt == 0)
+	if(swap_cnt == 0)
 	{
-		for (pm = (char *) a + es; pm < (char *) a + n * es; pm += es)
-			for (pl = pm; pl > (char *) a && cmp(pl - es, pl) > 0; pl -= es)
+		for(pm = (char *)a + es; pm < (char *)a + n * es; pm += es)
+			for(pl = pm; pl > (char *)a && cmp(pl - es, pl) > 0; pl -= es)
 				swap(pl, pl - es);
 		return;
 	}
 
-	pn = (char *) a + n * es;
-	r = MIN(pa - (char *)a, pb - pa);
+	pn = (char *)a + n * es;
+	r = min(pa - (char * )a, pb - pa);
 	vecswap(a, pb - r, r);
-	r = MIN(pd - pc, pn - pd - (int)es);
+	r = min(pd - pc, pn - pd - (int )es);
 	vecswap(pb, pn - r, r);
-	if ((r = pb - pa) > (int) es)
+	if((r = pb - pa) > (int)es)
 		qsort(a, r / es, es, cmp);
-	if ((r = pd - pc) > (int) es)
+	if((r = pd - pc) > (int)es)
 	{
 		a = pn - r;
 		n = r / es;

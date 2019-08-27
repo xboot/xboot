@@ -209,7 +209,7 @@ static void svg_add_edge(struct svg_rasterizer_t * r, float x0, float y0, float 
 	if(r->nedges + 1 > r->cedges)
 	{
 		r->cedges = r->cedges > 0 ? r->cedges * 2 : 64;
-		r->edges = (struct svg_edge_t*)realloc(r->edges, sizeof(struct svg_edge_t) * r->cedges);
+		r->edges = (struct svg_edge_t *)realloc(r->edges, sizeof(struct svg_edge_t) * r->cedges);
 		if(r->edges == NULL)
 			return;
 	}
@@ -291,7 +291,7 @@ static void svg_flatten_shape(struct svg_rasterizer_t * r, struct svg_shape_t * 
 		svg_add_path_point(r, path->pts[0] * sx, path->pts[1] * sy, 0);
 		for(i = 0; i < path->npts - 1; i += 3)
 		{
-			float* p = &path->pts[i * 2];
+			float * p = &path->pts[i * 2];
 			svg_flatten_cubic_bez(r, p[0] * sx, p[1] * sy, p[2] * sx, p[3] * sy, p[4] * sx, p[5] * sy, p[6] * sx, p[7] * sy, 0, 0);
 		}
 		svg_add_path_point(r, path->pts[0] * sx, path->pts[1] * sy, 0);
@@ -1283,7 +1283,7 @@ void render_default_raster(struct surface_t * s, struct svg_t * svg, float tx, f
 
 		for(shape = svg->shapes; shape != NULL; shape = shape->next)
 		{
-			if(!(shape->flags & SVG_FLAGS_VISIBLE))
+			if(!shape->visible)
 				continue;
 			if(shape->fill.type != SVG_PAINT_NONE)
 			{

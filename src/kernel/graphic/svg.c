@@ -32,17 +32,123 @@
 #include <string.h>
 #include <stdio.h>
 #include <math.h>
-#include <shash.h>
 #include <graphic/svg.h>
 
-#define SVG_KAPPA90		(0.5522847493f)	// Length proportional to radius of a cubic bezier handle for 90deg arcs.
+#define SVG_KAPPA90			(0.5522847493f)
+#define SVG_XML_MAX_ATTRIBS	(256)
+#define SVG_MAX_ATTR		(128)
+#define SVG_MAX_DASHES		(8)
 
-#define SVG_ALIGN_MIN	0
-#define SVG_ALIGN_MID	1
-#define SVG_ALIGN_MAX	2
-#define SVG_ALIGN_NONE	0
-#define SVG_ALIGN_MEET	1
-#define SVG_ALIGN_SLICE	2
+enum {
+	SVG_XML_TAG				= 0,
+	SVG_XML_CONTENT			= 1,
+};
+
+enum {
+	SVG_ALIGN_MIN			= 0,
+	SVG_ALIGN_MID			= 1,
+	SVG_ALIGN_MAX			= 2,
+};
+
+enum {
+	SVG_ALIGN_NONE			= 0,
+	SVG_ALIGN_MEET			= 1,
+	SVG_ALIGN_SLICE			= 2,
+};
+
+enum svg_gradient_space_t {
+	SVG_SPACE_USER			= 0,
+	SVG_SPACE_OBJECT		= 1,
+};
+
+enum svg_units_t {
+	SVG_UNITS_USER			= 0,
+	SVG_UNITS_PX			= 1,
+	SVG_UNITS_PT			= 2,
+	SVG_UNITS_PC			= 3,
+	SVG_UNITS_MM			= 4,
+	SVG_UNITS_CM			= 5,
+	SVG_UNITS_IN			= 6,
+	SVG_UNITS_PERCENT		= 7,
+	SVG_UNITS_EM			= 8,
+	SVG_UNITS_EX			= 9,
+};
+
+struct svg_coordinate_t {
+	float value;
+	enum svg_units_t units;
+};
+
+struct svg_linear_data_t {
+	struct svg_coordinate_t x1, y1, x2, y2;
+};
+
+struct svg_radial_data_t {
+	struct svg_coordinate_t cx, cy, r, fx, fy;
+};
+
+struct svg_gradient_data_t
+{
+	char id[64];
+	char ref[64];
+	enum svg_paint_type_t type;
+	union {
+		struct svg_linear_data_t linear;
+		struct svg_radial_data_t radial;
+	};
+	enum svg_spread_type_t spread;
+	enum svg_gradient_space_t space;
+	float xform[6];
+	int nstops;
+	struct svg_gradient_stop_t * stops;
+	struct svg_gradient_data_t * next;
+};
+
+struct svg_attrib_t
+{
+	char id[64];
+	float xform[6];
+	struct color_t fill_color;
+	struct color_t stroke_color;
+	float opacity;
+	float fill_opacity;
+	float stroke_opacity;
+	char fill_gradient[64];
+	char stroke_gradient[64];
+	float stroke_width;
+	float stroke_dash_offset;
+	float stroke_dash_array[SVG_MAX_DASHES];
+	int stroke_dash_count;
+	enum svg_line_join_t stroke_line_join;
+	enum svg_line_cap_t stroke_line_cap;
+	float miter_limit;
+	enum svg_fill_rule_t fill_rule;
+	float font_size;
+	struct color_t stop_color;
+	float stop_opacity;
+	float stop_offset;
+	int has_fill;
+	int has_stroke;
+	int visible;
+};
+
+struct svg_parser_t
+{
+	struct svg_attrib_t attr[SVG_MAX_ATTR];
+	int attrhead;
+	float * pts;
+	int npts;
+	int cpts;
+	struct svg_path_t * plist;
+	struct svg_t * svg;
+	struct svg_gradient_data_t * gradients;
+	struct svg_shape_t * tail;
+	float view_minx, view_miny, view_width, view_height;
+	int alignx, aligny, aligntype;
+	float dpi;
+	int pathflag;
+	int defsflag;
+};
 
 static inline int svg_isspace(char c)
 {
@@ -124,12 +230,6 @@ static double svg_atof(const char * s)
 	}
 	return res * sign;
 }
-
-enum {
-	SVG_XML_TAG		= 1,
-	SVG_XML_CONTENT	= 2,
-};
-#define SVG_XML_MAX_ATTRIBS 256
 
 static void svg_parse_content(char * s, void (*ccb)(void *, const char *), void * ud)
 {
@@ -245,104 +345,6 @@ static void svg_parse_xml(char * svgstr, void (*scb)(void *, const char *, const
 		}
 	}
 }
-
-#define SVG_MAX_ATTR 128
-
-enum NSVGgradientUnits {
-	SVG_USER_SPACE = 0,
-	SVG_OBJECT_SPACE = 1
-};
-
-#define SVG_MAX_DASHES 8
-
-enum svg_units_t {
-	SVG_UNITS_USER,
-	SVG_UNITS_PX,
-	SVG_UNITS_PT,
-	SVG_UNITS_PC,
-	SVG_UNITS_MM,
-	SVG_UNITS_CM,
-	SVG_UNITS_IN,
-	SVG_UNITS_PERCENT,
-	SVG_UNITS_EM,
-	SVG_UNITS_EX
-};
-
-struct svg_coordinate_t {
-	float value;
-	int units;
-};
-
-struct svg_linear_data_t {
-	struct svg_coordinate_t x1, y1, x2, y2;
-};
-
-struct svg_radial_data_t {
-	struct svg_coordinate_t cx, cy, r, fx, fy;
-};
-
-struct svg_gradient_data_t
-{
-	char id[64];
-	char ref[64];
-	enum svg_paint_type_t type;
-	union {
-		struct svg_linear_data_t linear;
-		struct svg_radial_data_t radial;
-	};
-	enum svg_spread_type_t spread;
-	char units;
-	float xform[6];
-	int nstops;
-	struct svg_gradient_stop_t * stops;
-	struct svg_gradient_data_t * next;
-};
-
-struct svg_attrib_t
-{
-	char id[64];
-	float xform[6];
-	struct color_t fill_color;
-	struct color_t stroke_color;
-	float opacity;
-	float fill_opacity;
-	float stroke_opacity;
-	char fill_gradient[64];
-	char stroke_gradient[64];
-	float stroke_width;
-	float stroke_dash_offset;
-	float stroke_dash_array[SVG_MAX_DASHES];
-	int stroke_dash_count;
-	enum svg_line_join_t stroke_line_join;
-	enum svg_line_cap_t stroke_line_cap;
-	float miter_limit;
-	enum svg_fill_rule_t fill_rule;
-	float font_size;
-	struct color_t stop_color;
-	float stop_opacity;
-	float stop_offset;
-	char has_fill;
-	char has_stroke;
-	int visible;
-};
-
-struct svg_parser_t
-{
-	struct svg_attrib_t attr[SVG_MAX_ATTR];
-	int attrHead;
-	float * pts;
-	int npts;
-	int cpts;
-	struct svg_path_t * plist;
-	struct svg_t * svg;
-	struct svg_gradient_data_t * gradients;
-	struct svg_shape_t * shapesTail;
-	float viewMinx, viewMiny, viewWidth, viewHeight;
-	int alignX, alignY, alignType;
-	float dpi;
-	char pathFlag;
-	char defsFlag;
-};
 
 static void svg_xform_identity(float * t)
 {
@@ -639,42 +641,42 @@ static void svg_cubic_bezto(struct svg_parser_t * p, float cpx1, float cpy1, flo
 
 static struct svg_attrib_t * svg_get_attr(struct svg_parser_t * p)
 {
-	return &p->attr[p->attrHead];
+	return &p->attr[p->attrhead];
 }
 
 static void svg_push_attr(struct svg_parser_t * p)
 {
-	if(p->attrHead < SVG_MAX_ATTR - 1)
+	if(p->attrhead < SVG_MAX_ATTR - 1)
 	{
-		p->attrHead++;
-		memcpy(&p->attr[p->attrHead], &p->attr[p->attrHead - 1], sizeof(struct svg_attrib_t));
+		p->attrhead++;
+		memcpy(&p->attr[p->attrhead], &p->attr[p->attrhead - 1], sizeof(struct svg_attrib_t));
 	}
 }
 
 static void svg_pop_attr(struct svg_parser_t * p)
 {
-	if(p->attrHead > 0)
-		p->attrHead--;
+	if(p->attrhead > 0)
+		p->attrhead--;
 }
 
 static float svg_actual_origx(struct svg_parser_t * p)
 {
-	return p->viewMinx;
+	return p->view_minx;
 }
 
 static float svg_actual_origy(struct svg_parser_t * p)
 {
-	return p->viewMiny;
+	return p->view_miny;
 }
 
 static float svg_actual_width(struct svg_parser_t * p)
 {
-	return p->viewWidth;
+	return p->view_width;
 }
 
 static float svg_actual_height(struct svg_parser_t * p)
 {
-	return p->viewHeight;
+	return p->view_height;
 }
 
 static float svg_actual_length(struct svg_parser_t * p)
@@ -759,7 +761,7 @@ static struct svg_gradient_t * svg_create_gradient(struct svg_parser_t * p, cons
 	if(grad == NULL)
 		return NULL;
 
-	if(data->units == SVG_OBJECT_SPACE)
+	if(data->space == SVG_SPACE_OBJECT)
 	{
 		ox = bounds[0];
 		oy = bounds[1];
@@ -877,7 +879,7 @@ static void svg_add_shape(struct svg_parser_t * p)
 		return;
 	memset(shape, 0, sizeof(struct svg_shape_t));
 
-	memcpy(shape->id, attr->id, sizeof shape->id);
+	memcpy(shape->id, attr->id, sizeof(shape->id));
 	scale = svg_get_average_scale(attr->xform);
 	shape->stroke_width = attr->stroke_width * scale;
 	shape->stroke_dash_offset = attr->stroke_dash_offset * scale;
@@ -941,13 +943,13 @@ static void svg_add_shape(struct svg_parser_t * p)
 		if(shape->stroke.gradient == NULL)
 			shape->stroke.type = SVG_PAINT_NONE;
 	}
-	shape->flags = attr->visible ? SVG_FLAGS_VISIBLE : 0;
+	shape->visible = attr->visible ? 1 : 0;
 
 	if(p->svg->shapes == NULL)
 		p->svg->shapes = shape;
 	else
-		p->shapesTail->next = shape;
-	p->shapesTail = shape;
+		p->tail->next = shape;
+	p->tail = shape;
 }
 
 static void svg_add_path(struct svg_parser_t * p, int closed)
@@ -955,7 +957,7 @@ static void svg_add_path(struct svg_parser_t * p, int closed)
 	struct svg_attrib_t * attr = svg_get_attr(p);
 	struct svg_path_t * path = NULL;
 	float bounds[4];
-	float* curve;
+	float * curve;
 	int i;
 
 	if(p->npts < 4)
@@ -1094,7 +1096,7 @@ static float svg_parse_miter_limit(const char * str)
 	return val;
 }
 
-static int svg_parse_units(const char * units)
+static enum svg_units_t svg_parse_units(const char * units)
 {
 	if(units[0] == 'p' && units[1] == 'x')
 		return SVG_UNITS_PX;
@@ -1126,7 +1128,7 @@ static struct svg_coordinate_t svg_parse_coordinate_raw(const char * str)
 	return coord;
 }
 
-static struct svg_coordinate_t svg_coord(float v, int units)
+static struct svg_coordinate_t svg_coord(float v, enum svg_units_t units)
 {
 	struct svg_coordinate_t coord = { v, units };
 	return coord;
@@ -1510,8 +1512,8 @@ static int svg_parse_attr(struct svg_parser_t * p, const char * name, const char
 
 static int svg_parse_name_value(struct svg_parser_t * p, const char * start, const char * end)
 {
-	const char* str;
-	const char* val;
+	const char * str;
+	const char * val;
 	char name[512];
 	char value[512];
 	int n;
@@ -1773,22 +1775,22 @@ static void svg_path_quad_bez_short_to(struct svg_parser_t * p, float * cpx, flo
 	*cpy = y2;
 }
 
-static float svg_sqr(float x)
+static inline float svg_sqr(float x)
 {
 	return x * x;
 }
 
-static float svg_vmag(float x, float y)
+static inline float svg_vmag(float x, float y)
 {
 	return sqrtf(x * x + y * y);
 }
 
-static float svg_vecrat(float ux, float uy, float vx, float vy)
+static inline float svg_vecrat(float ux, float uy, float vx, float vy)
 {
 	return (ux * vx + uy * vy) / (svg_vmag(ux, uy) * svg_vmag(vx, vy));
 }
 
-static float svg_vecang(float ux, float uy, float vx, float vy)
+static inline float svg_vecang(float ux, float uy, float vx, float vy)
 {
 	float r = svg_vecrat(ux, uy, vx, vy);
 	if(r < -1.0f)
@@ -2276,49 +2278,49 @@ static void svg_parse_svg(struct svg_parser_t * p, const char ** attr)
 				const char *s = attr[i + 1];
 				char buf[64];
 				s = svg_parse_number(s, buf, 64);
-				p->viewMinx = svg_atof(buf);
+				p->view_minx = svg_atof(buf);
 				while(*s && (svg_isspace(*s) || *s == '%' || *s == ','))
 					s++;
 				if(!*s)
 					return;
 				s = svg_parse_number(s, buf, 64);
-				p->viewMiny = svg_atof(buf);
+				p->view_miny = svg_atof(buf);
 				while(*s && (svg_isspace(*s) || *s == '%' || *s == ','))
 					s++;
 				if(!*s)
 					return;
 				s = svg_parse_number(s, buf, 64);
-				p->viewWidth = svg_atof(buf);
+				p->view_width = svg_atof(buf);
 				while(*s && (svg_isspace(*s) || *s == '%' || *s == ','))
 					s++;
 				if(!*s)
 					return;
 				s = svg_parse_number(s, buf, 64);
-				p->viewHeight = svg_atof(buf);
+				p->view_height = svg_atof(buf);
 			}
 			else if(strcmp(attr[i], "preserveAspectRatio") == 0)
 			{
 				if(strstr(attr[i + 1], "none") != 0)
 				{
-					p->alignType = SVG_ALIGN_NONE;
+					p->aligntype = SVG_ALIGN_NONE;
 				}
 				else
 				{
 					if(strstr(attr[i + 1], "xMin") != 0)
-						p->alignX = SVG_ALIGN_MIN;
+						p->alignx = SVG_ALIGN_MIN;
 					else if(strstr(attr[i + 1], "xMid") != 0)
-						p->alignX = SVG_ALIGN_MID;
+						p->alignx = SVG_ALIGN_MID;
 					else if(strstr(attr[i + 1], "xMax") != 0)
-						p->alignX = SVG_ALIGN_MAX;
+						p->alignx = SVG_ALIGN_MAX;
 					if(strstr(attr[i + 1], "yMin") != 0)
-						p->alignY = SVG_ALIGN_MIN;
+						p->aligny = SVG_ALIGN_MIN;
 					else if(strstr(attr[i + 1], "yMid") != 0)
-						p->alignY = SVG_ALIGN_MID;
+						p->aligny = SVG_ALIGN_MID;
 					else if(strstr(attr[i + 1], "yMax") != 0)
-						p->alignY = SVG_ALIGN_MAX;
-					p->alignType = SVG_ALIGN_MEET;
+						p->aligny = SVG_ALIGN_MAX;
+					p->aligntype = SVG_ALIGN_MEET;
 					if(strstr(attr[i + 1], "slice") != 0)
-						p->alignType = SVG_ALIGN_SLICE;
+						p->aligntype = SVG_ALIGN_SLICE;
 				}
 			}
 		}
@@ -2332,7 +2334,7 @@ static void svg_parse_gradient(struct svg_parser_t * p, const char ** attr, enum
 	if(grad == NULL)
 		return;
 	memset(grad, 0, sizeof(struct svg_gradient_data_t));
-	grad->units = SVG_OBJECT_SPACE;
+	grad->space = SVG_SPACE_OBJECT;
 	grad->type = type;
 	if(grad->type == SVG_PAINT_LINEAR_GRADIENT)
 	{
@@ -2360,9 +2362,9 @@ static void svg_parse_gradient(struct svg_parser_t * p, const char ** attr, enum
 			if(strcmp(attr[i], "gradientUnits") == 0)
 			{
 				if(strcmp(attr[i + 1], "objectBoundingBox") == 0)
-					grad->units = SVG_OBJECT_SPACE;
+					grad->space = SVG_SPACE_OBJECT;
 				else
-					grad->units = SVG_USER_SPACE;
+					grad->space = SVG_SPACE_USER;
 			}
 			else if(strcmp(attr[i], "gradientTransform") == 0)
 			{
@@ -2469,7 +2471,7 @@ static void svg_start_element(void * ud, const char * el, const char ** attr)
 {
 	struct svg_parser_t * p = (struct svg_parser_t *)ud;
 
-	if(p->defsFlag)
+	if(p->defsflag)
 	{
 		if(strcmp(el, "linearGradient") == 0)
 		{
@@ -2492,7 +2494,7 @@ static void svg_start_element(void * ud, const char * el, const char ** attr)
 	}
 	else if(strcmp(el, "path") == 0)
 	{
-		if(p->pathFlag)
+		if(p->pathflag)
 			return;
 		svg_push_attr(p);
 		svg_parse_path(p, attr);
@@ -2548,7 +2550,7 @@ static void svg_start_element(void * ud, const char * el, const char ** attr)
 	}
 	else if(strcmp(el, "defs") == 0)
 	{
-		p->defsFlag = 1;
+		p->defsflag = 1;
 	}
 	else if(strcmp(el, "svg") == 0)
 	{
@@ -2567,11 +2569,11 @@ static void svg_end_element(void * ud, const char * el)
 	}
 	else if(strcmp(el, "path") == 0)
 	{
-		p->pathFlag = 0;
+		p->pathflag = 0;
 	}
 	else if(strcmp(el, "defs") == 0)
 	{
-		p->defsFlag = 0;
+		p->defsflag = 0;
 	}
 	else if(strcmp(el, "svg") == 0)
 	{
@@ -2632,51 +2634,51 @@ static void svg_scale_to_viewbox(struct svg_parser_t * p, const char * units)
 	int i;
 
 	svg_image_bounds(p, bounds);
-	if(p->viewWidth == 0)
+	if(p->view_width == 0)
 	{
 		if(p->svg->width > 0)
 		{
-			p->viewWidth = p->svg->width;
+			p->view_width = p->svg->width;
 		}
 		else
 		{
-			p->viewMinx = bounds[0];
-			p->viewWidth = bounds[2] - bounds[0];
+			p->view_minx = bounds[0];
+			p->view_width = bounds[2] - bounds[0];
 		}
 	}
-	if(p->viewHeight == 0)
+	if(p->view_height == 0)
 	{
 		if(p->svg->height > 0)
 		{
-			p->viewHeight = p->svg->height;
+			p->view_height = p->svg->height;
 		}
 		else
 		{
-			p->viewMiny = bounds[1];
-			p->viewHeight = bounds[3] - bounds[1];
+			p->view_miny = bounds[1];
+			p->view_height = bounds[3] - bounds[1];
 		}
 	}
 	if(p->svg->width == 0)
-		p->svg->width = p->viewWidth;
+		p->svg->width = p->view_width;
 	if(p->svg->height == 0)
-		p->svg->height = p->viewHeight;
+		p->svg->height = p->view_height;
 
-	tx = -p->viewMinx;
-	ty = -p->viewMiny;
-	sx = p->viewWidth > 0 ? p->svg->width / p->viewWidth : 0;
-	sy = p->viewHeight > 0 ? p->svg->height / p->viewHeight : 0;
+	tx = -p->view_minx;
+	ty = -p->view_miny;
+	sx = p->view_width > 0 ? p->svg->width / p->view_width : 0;
+	sy = p->view_height > 0 ? p->svg->height / p->view_height : 0;
 	us = 1.0f / svg_convert_to_pixels(p, svg_coord(1.0f, svg_parse_units(units)), 0.0f, 1.0f);
-	if(p->alignType == SVG_ALIGN_MEET)
+	if(p->aligntype == SVG_ALIGN_MEET)
 	{
 		sx = sy = svg_minf(sx, sy);
-		tx += svg_view_align(p->viewWidth * sx, p->svg->width, p->alignX) / sx;
-		ty += svg_view_align(p->viewHeight * sy, p->svg->height, p->alignY) / sy;
+		tx += svg_view_align(p->view_width * sx, p->svg->width, p->alignx) / sx;
+		ty += svg_view_align(p->view_height * sy, p->svg->height, p->aligny) / sy;
 	}
-	else if(p->alignType == SVG_ALIGN_SLICE)
+	else if(p->aligntype == SVG_ALIGN_SLICE)
 	{
 		sx = sy = svg_maxf(sx, sy);
-		tx += svg_view_align(p->viewWidth * sx, p->svg->width, p->alignX) / sx;
-		ty += svg_view_align(p->viewHeight * sy, p->svg->height, p->alignY) / sy;
+		tx += svg_view_align(p->view_width * sx, p->svg->width, p->alignx) / sx;
+		ty += svg_view_align(p->view_height * sy, p->svg->height, p->aligny) / sy;
 	}
 	sx *= us;
 	sy *= us;

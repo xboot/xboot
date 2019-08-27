@@ -38,10 +38,6 @@ enum svg_fill_rule_t {
 	SVG_FILLRULE_EVENODD		= 1,
 };
 
-enum svg_flags_t {
-	SVG_FLAGS_VISIBLE			= 1,
-};
-
 struct svg_gradient_stop_t {
 	struct color_t color;
 	float offset;
@@ -84,7 +80,7 @@ struct svg_shape_t {
 	enum svg_line_cap_t stroke_line_cap;
 	float miter_limit;
 	enum svg_fill_rule_t fill_rule;
-	unsigned char flags;
+	int visible;
 	float bounds[4];
 	struct svg_path_t * paths;
 	struct svg_shape_t * next;

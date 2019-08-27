@@ -115,7 +115,6 @@ struct surface_t * surface_alloc(int width, int height, void * priv)
 
 struct surface_t * surface_clone(struct surface_t * s, struct region_t * r)
 {
-	struct region_t region;
 	struct surface_t * c;
 	unsigned char * p, * q;
 	void * pixels;
@@ -287,10 +286,7 @@ void surface_get_pixel(struct surface_t * s, int x, int y, struct color_t * c)
 		}
 		else
 		{
-			c->b = 0;
-			c->g = 0;
-			c->r = 0;
-			c->a = 0;
+			memset(&c, 0, sizeof(struct color_t));
 		}
 	}
 }

@@ -32,6 +32,7 @@ extern "C" {
 #define ifloor(x)		((x) > 0 ? (int)(x) : (int)((x) - 0.9999999999))
 #define iround(x)		((x) > 0 ? (int)((x) + 0.5) : (int)((x) - 0.5))
 #define iceil(x)		((x) > 0 ? (int)((x) + 0.9999999999) : (int)(x))
+#define idiv255(x)		((((int)(x) + 1) * 257) >> 16)
 
 #define X(...)			("" #__VA_ARGS__ "")
 

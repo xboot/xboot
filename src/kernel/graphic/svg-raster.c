@@ -97,11 +97,6 @@ struct svg_rasterizer_t {
 	int cscanline;
 };
 
-static inline int svg_div255(int x)
-{
-	return ((x + 1) * 257) >> 16;
-}
-
 static struct svg_mem_page_t * svg_next_page(struct svg_rasterizer_t * r, struct svg_mem_page_t * cur)
 {
 	struct svg_mem_page_t * page;
@@ -914,16 +909,16 @@ static void svg_scanline_solid(unsigned char * dst, int count, unsigned char * c
 		for(i = 0; i < count; i++)
 		{
 			int b, g, r;
-			int a = svg_div255((int)cover[0] * ca);
+			int a = idiv255((int)cover[0] * ca);
 			int ia = 255 - a;
-			b = svg_div255(cb * a);
-			g = svg_div255(cg * a);
-			r = svg_div255(cr * a);
+			b = idiv255(cb * a);
+			g = idiv255(cg * a);
+			r = idiv255(cr * a);
 
-			b += svg_div255(ia * (int)dst[0]);
-			g += svg_div255(ia * (int)dst[1]);
-			r += svg_div255(ia * (int)dst[2]);
-			a += svg_div255(ia * (int)dst[3]);
+			b += idiv255(ia * (int)dst[0]);
+			g += idiv255(ia * (int)dst[1]);
+			r += idiv255(ia * (int)dst[2]);
+			a += idiv255(ia * (int)dst[3]);
 
 			dst[0] = (unsigned char)b;
 			dst[1] = (unsigned char)g;
@@ -955,17 +950,17 @@ static void svg_scanline_solid(unsigned char * dst, int count, unsigned char * c
 			cr = c->r;
 			ca = c->a;
 
-			a = svg_div255((int)cover[0] * ca);
+			a = idiv255((int)cover[0] * ca);
 			ia = 255 - a;
 
-			b = svg_div255(cb * a);
-			g = svg_div255(cg * a);
-			r = svg_div255(cr * a);
+			b = idiv255(cb * a);
+			g = idiv255(cg * a);
+			r = idiv255(cr * a);
 
-			b += svg_div255(ia * (int)dst[0]);
-			g += svg_div255(ia * (int)dst[1]);
-			r += svg_div255(ia * (int)dst[2]);
-			a += svg_div255(ia * (int)dst[3]);
+			b += idiv255(ia * (int)dst[0]);
+			g += idiv255(ia * (int)dst[1]);
+			r += idiv255(ia * (int)dst[2]);
+			a += idiv255(ia * (int)dst[3]);
 
 			dst[0] = (unsigned char)b;
 			dst[1] = (unsigned char)g;
@@ -1000,17 +995,17 @@ static void svg_scanline_solid(unsigned char * dst, int count, unsigned char * c
 			cr = c->r;
 			ca = c->a;
 
-			a = svg_div255((int)cover[0] * ca);
+			a = idiv255((int)cover[0] * ca);
 			ia = 255 - a;
 
-			b = svg_div255(cb * a);
-			g = svg_div255(cg * a);
-			r = svg_div255(cr * a);
+			b = idiv255(cb * a);
+			g = idiv255(cg * a);
+			r = idiv255(cr * a);
 
-			b += svg_div255(ia * (int)dst[0]);
-			g += svg_div255(ia * (int)dst[1]);
-			r += svg_div255(ia * (int)dst[2]);
-			a += svg_div255(ia * (int)dst[3]);
+			b += idiv255(ia * (int)dst[0]);
+			g += idiv255(ia * (int)dst[1]);
+			r += idiv255(ia * (int)dst[2]);
+			a += idiv255(ia * (int)dst[3]);
 
 			dst[0] = (unsigned char)b;
 			dst[1] = (unsigned char)g;

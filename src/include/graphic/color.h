@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-#include <stdint.h>
+#include <stddef.h>
 
 struct color_t {
 	unsigned char b;
@@ -43,16 +43,20 @@ static inline void color_set_premult(struct color_t * c, uint32_t v)
 
 	if(a != 0)
 	{
-		c->r = (v >> 16) & 0xff;
-		c->g = (v >> 8) & 0xff;
-		c->b = (v >> 0) & 0xff;
-		if(a != 255)
+		if(a == 255)
+		{
+			c->r = (v >> 16) & 0xff;
+			c->g = (v >> 8) & 0xff;
+			c->b = (v >> 0) & 0xff;
+			c->a = a;
+		}
+		else
 		{
 			c->r = c->r * 255 / a;
 			c->g = c->g * 255 / a;
 			c->b = c->b * 255 / a;
+			c->a = a;
 		}
-		c->a = a;
 	}
 	else
 	{
@@ -66,24 +70,12 @@ static inline void color_set_premult(struct color_t * c, uint32_t v)
 static inline uint32_t color_get_premult(struct color_t * c)
 {
 	unsigned char a = c->a;
-	unsigned char r, g, b;
-	int t;
 
 	if(a != 0)
 	{
-		r = c->r;
-		g = c->g;
-		b = c->b;
-		if(a != 255)
-		{
-			t = (a * r) + 0x80;
-			r = (t + (t >> 8)) >> 8;
-			t = (a * g) + 0x80;
-			g = (t + (t >> 8)) >> 8;
-			t = (a * b) + 0x80;
-			b = (t + (t >> 8)) >> 8;
-		}
-		return (a << 24) | (r << 16) | (g << 8) | (b << 0);
+		if(a == 255)
+			return (a << 24) | (c->r << 16) | (c->g << 8) | (c->b << 0);
+		return (a << 24) | (idiv255(c->r * a) << 16) | (idiv255(c->g * a) << 8) | (idiv255(c->b * a) << 0);
 	}
 	return 0;
 }

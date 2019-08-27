@@ -102,16 +102,6 @@ static inline int svg_div255(int x)
 	return ((x + 1) * 257) >> 16;
 }
 
-static inline float svg_absf(float x)
-{
-	return x < 0 ? -x : x;
-}
-
-static inline float svg_clampf(float a, float mn, float mx)
-{
-	return a < mn ? mn : (a > mx ? mx : a);
-}
-
 static struct svg_mem_page_t * svg_next_page(struct svg_rasterizer_t * r, struct svg_mem_page_t * cur)
 {
 	struct svg_mem_page_t * page;
@@ -278,8 +268,8 @@ static void svg_flatten_cubic_bez(struct svg_rasterizer_t * r, float x1, float y
 
 	dx = x4 - x1;
 	dy = y4 - y1;
-	d2 = svg_absf(((x2 - x4) * dy - (y2 - y4) * dx));
-	d3 = svg_absf(((x3 - x4) * dy - (y3 - y4) * dx));
+	d2 = fabsf(((x2 - x4) * dy - (y2 - y4) * dx));
+	d3 = fabsf(((x3 - x4) * dy - (y3 - y4) * dx));
 
 	if((d2 + d3) * (d2 + d3) < r->tesstol * (dx * dx + dy * dy))
 	{
@@ -485,7 +475,7 @@ static void svg_round_join(struct svg_rasterizer_t * r, struct svg_point_t * lef
 	if(da > M_PI)
 		da -= M_PI * 2;
 
-	n = (int)ceilf((svg_absf(da) / M_PI) * (float)ncap);
+	n = (int)ceilf((fabsf(da) / M_PI) * (float)ncap);
 	if(n < 2)
 		n = 2;
 	if(n > ncap)
@@ -897,7 +887,7 @@ static void svg_fill_active_edges(unsigned char * scanline, int len, struct svg_
 
 static void svg_lerp_rgba(struct color_t * c, struct color_t * c0, struct color_t * c1, float u)
 {
-	int iu = (int)(svg_clampf(u, 0.0f, 1.0f) * 256.0f);
+	int iu = (int)(clamp(u, 0.0f, 1.0f) * 256.0f);
 	int b = (c0->b * (256 - iu) + (c1->b * iu)) >> 8;
 	int g = (c0->g * (256 - iu) + (c1->g * iu)) >> 8;
 	int r = (c0->r * (256 - iu) + (c1->r * iu)) >> 8;
@@ -907,7 +897,7 @@ static void svg_lerp_rgba(struct color_t * c, struct color_t * c0, struct color_
 
 static void svg_apply_opacity(struct color_t * c, struct color_t * o, float u)
 {
-	int iu = (int)(svg_clampf(u, 0.0f, 1.0f) * 256.0f);
+	int iu = (int)(clamp(u, 0.0f, 1.0f) * 256.0f);
 	color_init(c, o->r, o->g, o->b, (o->a * iu) >> 8);
 }
 
@@ -959,7 +949,7 @@ static void svg_scanline_solid(unsigned char * dst, int count, unsigned char * c
 		{
 			int b, g, r, a, ia;
 			gy = fx * t[1] + fy * t[3] + t[5];
-			c = &cache->colors[(int)svg_clampf(gy * 255.0f, 0, 255.0f)];
+			c = &cache->colors[(int)clamp(gy * 255.0f, 0.0f, 255.0f)];
 			cb = c->b;
 			cg = c->g;
 			cr = c->r;
@@ -1004,7 +994,7 @@ static void svg_scanline_solid(unsigned char * dst, int count, unsigned char * c
 			gx = fx * t[0] + fy * t[2] + t[4];
 			gy = fx * t[1] + fy * t[3] + t[5];
 			gd = sqrtf(gx * gx + gy * gy);
-			c = &cache->colors[(int)svg_clampf(gd * 255.0f, 0, 255.0f)];
+			c = &cache->colors[(int)clamp(gd * 255.0f, 0.0f, 255.0f)];
 			cb = c->b;
 			cg = c->g;
 			cr = c->r;
@@ -1159,8 +1149,8 @@ static void svg_init_paint(struct svg_cache_paint_t * cache, struct svg_paint_t 
 		int ia, ib, count;
 
 		svg_apply_opacity(&ca, &grad->stops[0].color, opacity);
-		ua = svg_clampf(grad->stops[0].offset, 0, 1);
-		ub = svg_clampf(grad->stops[grad->nstops - 1].offset, ua, 1);
+		ua = clamp(grad->stops[0].offset, 0.0f, 1.0f);
+		ub = clamp(grad->stops[grad->nstops - 1].offset, ua, 1.0f);
 		ia = (int)(ua * 255.0f);
 		ib = (int)(ub * 255.0f);
 		for(i = 0; i < ia; i++)
@@ -1171,8 +1161,8 @@ static void svg_init_paint(struct svg_cache_paint_t * cache, struct svg_paint_t 
 		{
 			svg_apply_opacity(&ca, &grad->stops[i].color, opacity);
 			svg_apply_opacity(&cb, &grad->stops[i + 1].color, opacity);
-			ua = svg_clampf(grad->stops[i].offset, 0, 1);
-			ub = svg_clampf(grad->stops[i + 1].offset, 0, 1);
+			ua = clamp(grad->stops[i].offset, 0.0f, 1.0f);
+			ub = clamp(grad->stops[i + 1].offset, 0.0f, 1.0f);
 			ia = (int)(ua * 255.0f);
 			ib = (int)(ub * 255.0f);
 			count = ib - ia;

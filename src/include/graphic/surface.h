@@ -52,7 +52,7 @@ struct render_t
 	void (*fill)(struct surface_t * s, struct region_t * clip, struct matrix_t * m, int w, int h, struct color_t * c, enum render_type_t type);
 
 	void (*text_output)(struct surface_t * s, struct region_t * clip, struct matrix_t * m, const char * utf8, struct color_t * c, struct font_context_t * fctx, const char * family, int size);
-	void (*text_extent)(struct surface_t * s, const char * utf8, struct font_context_t * fctx, const char * family, struct region_t * e);
+	void (*text_extent)(struct surface_t * s, const char * utf8, struct font_context_t * fctx, const char * family, int size, struct region_t * e);
 
 	void (*filter_haldclut)(struct surface_t * s, struct surface_t * clut, const char * type);
 	void (*filter_grayscale)(struct surface_t * s);
@@ -138,7 +138,7 @@ struct render_t
 void render_default_blit(struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct surface_t * src, enum render_type_t type);
 void render_default_fill(struct surface_t * s, struct region_t * clip, struct matrix_t * m, int w, int h, struct color_t * c, enum render_type_t type);
 void render_default_text_output(struct surface_t * s, struct region_t * clip, struct matrix_t * m, const char * utf8, struct color_t * c, struct font_context_t * fctx, const char * family, int size);
-void render_default_text_extent(struct surface_t * s, const char * utf8, struct font_context_t * fctx, const char * family, struct region_t * e);
+void render_default_text_extent(struct surface_t * s, const char * utf8, struct font_context_t * fctx, const char * family, int size, struct region_t * e);
 void render_default_filter_haldclut(struct surface_t * s, struct surface_t * clut, const char * type);
 void render_default_filter_grayscale(struct surface_t * s);
 void render_default_filter_sepia(struct surface_t * s);
@@ -192,9 +192,9 @@ static inline void surface_text_output(struct surface_t * s, struct region_t * c
 	s->r->text_output(s, clip, m, utf8, c, fctx, family, size);
 }
 
-static inline void surface_text_extent(struct surface_t * s, const char * utf8, struct font_context_t * fctx, const char * family, struct region_t * e)
+static inline void surface_text_extent(struct surface_t * s, const char * utf8, struct font_context_t * fctx, const char * family, int size, struct region_t * e)
 {
-	s->r->text_extent(s, utf8, fctx, family, e);
+	s->r->text_extent(s, utf8, fctx, family, size, e);
 }
 
 static inline void surface_filter_haldclut(struct surface_t * s, struct surface_t * clut, const char * type)

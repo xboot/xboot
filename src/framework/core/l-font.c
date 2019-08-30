@@ -26,104 +26,13 @@
  *
  */
 
-#include <xboot.h>
-#include <ft2build.h>
-#include FT_FREETYPE_H
+#include <graphic/font.h>
 #include <framework/core/l-font.h>
-
-#if 0
-static unsigned long ft_xfs_stream_io(FT_Stream stream, unsigned long offset, unsigned char * buffer, unsigned long count)
-{
-	struct xfs_file_t * file = ((struct xfs_file_t *)stream->descriptor.pointer);
-
-	if(!count && offset > stream->size)
-		return 1;
-	if(stream->pos != offset)
-		xfs_seek(file, offset);
-	return (unsigned long)xfs_read(file, buffer, count);
-}
-
-static void ft_xfs_stream_close(FT_Stream stream)
-{
-	struct xfs_file_t * file = ((struct xfs_file_t *)stream->descriptor.pointer);
-
-	xfs_close(file);
-	stream->descriptor.pointer = NULL;
-	stream->size = 0;
-	stream->base = 0;
-	free(stream);
-}
-
-static FT_Stream FT_New_Xfs_Stream(lua_State * L, const char * pathname)
-{
-	struct xfs_context_t * ctx = ((struct vmctx_t *)luahelper_vmctx(L))->xfs;
-	FT_Stream stream = NULL;
-	struct xfs_file_t * file;
-
-	stream = malloc(sizeof(*stream));
-	if(!stream)
-		return NULL;
-
-	file = xfs_open_read(ctx, pathname);
-	if(!file)
-	{
-		free(stream);
-		return NULL;
-	}
-
-	stream->size = xfs_length(file);
-	if(!stream->size)
-	{
-		xfs_close(file);
-		free(stream);
-		return NULL;
-	}
-	xfs_seek(file, 0);
-
-	stream->descriptor.pointer = file;
-	stream->pathname.pointer = (char *)pathname;
-	stream->read = ft_xfs_stream_io;
-	stream->close = ft_xfs_stream_close;
-
-    return stream;
-}
-
-static FT_Error FT_New_Xfs_Face(lua_State * L, FT_Library library, const char * pathname, FT_Long index, FT_Face * face)
-{
-	FT_Open_Args args;
-
-	if(!pathname)
-		return -1;
-	args.flags = FT_OPEN_STREAM;
-	args.pathname = (char *)pathname;
-	args.stream = FT_New_Xfs_Stream(L, pathname);
-	return FT_Open_Face(library, &args, index, face);
-}
 
 static int l_font_new(lua_State * L)
 {
 	struct font_context_t * f = ((struct vmctx_t *)luahelper_vmctx(L))->f;
-	const char * family = luaL_optstring(L, 1, "regular");
-	struct lfont_t * lfont = lua_newuserdata(L, sizeof(struct lfont_t));
-	void * font = font_search(f, family);
-	if(font)
-	{
-		lfont->font = NULL;
-		lfont->sfont = surface_font_create(font);
-	}
-	else
-	{
-		if(FT_New_Xfs_Face(L, (FT_Library)f->library, family, 0, (FT_Face *)&font) == 0)
-		{
-			lfont->font = font;
-			lfont->sfont = surface_font_create(font);
-		}
-		else
-		{
-			lfont->font = NULL;
-			lfont->sfont = surface_font_create(font_search(f, "regular"));
-		}
-	}
+	lua_pushlightuserdata(L, f);
 	luaL_setmetatable(L, MT_FONT);
 	return 1;
 }
@@ -133,25 +42,34 @@ static const luaL_Reg l_font[] = {
 	{NULL,	NULL}
 };
 
-static int m_font_gc(lua_State * L)
+static int m_font_install(lua_State * L)
 {
-	struct lfont_t * lfont = luaL_checkudata(L, 1, MT_FONT);
-	if(lfont->font)
-		FT_Done_Face((FT_Face)lfont->font);
-	surface_font_destroy(lfont->sfont);
-	return 0;
+	struct font_context_t * f = luaL_checkudata(L, 1, MT_FONT);
+	const char * family = luaL_checkstring(L, 2);
+	const char * path = luaL_checkstring(L, 3);
+	font_install(f, family, path);
+	lua_settop(L, 1);
+	return 1;
+}
+
+static int m_font_uninstall(lua_State * L)
+{
+	struct font_context_t * f = luaL_checkudata(L, 1, MT_FONT);
+	const char * family = luaL_checkstring(L, 2);
+	font_uninstall(f, family);
+	lua_settop(L, 1);
+	return 1;
 }
 
 static const luaL_Reg m_font[] = {
-	{"__gc",		m_font_gc},
+	{"install",		m_font_install},
+	{"uninstall",	m_font_uninstall},
 	{NULL,			NULL}
 };
-#endif
 
 int luaopen_font(lua_State * L)
 {
-/*	luaL_newlib(L, l_font);
+	luaL_newlib(L, l_font);
 	luahelper_create_metatable(L, MT_FONT, m_font);
-	return 1;*/
-	return 0;
+	return 1;
 }

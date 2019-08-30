@@ -330,6 +330,38 @@ void render_default_text_output(struct surface_t * s, struct region_t * clip, st
 	}
 }
 
-void render_default_text_extent(struct surface_t * s, const char * utf8, struct font_context_t * fctx, const char * family, struct region_t * e)
+void render_default_text_extent(struct surface_t * s, const char * utf8, struct font_context_t * fctx, const char * family, int size, struct region_t * e)
 {
+	const char * p;
+	u32_t code;
+	int glyph;
+	FT_Face face;
+	FT_Matrix matrix;
+	FT_Vector pen;
+	int i = 0;
+
+	matrix.xx = (FT_Fixed)(1 * 0x10000);
+	matrix.xy = (FT_Fixed)(0 * 0x10000);
+	matrix.yx = (FT_Fixed)(0 * 0x10000);
+	matrix.yy = (FT_Fixed)(1 * 0x10000);
+	pen.x = (FT_Pos)(0 * 64);
+	pen.y = (FT_Pos)((s->height - 0) * 64);
+
+	for(p = utf8; utf8_to_ucs4(&code, 1, p, -1, &p) > 0;)
+	{
+		glyph = search_glyph(fctx, family, code, (void **)(&face));
+		if(glyph == 0)
+			glyph = search_glyph(fctx, "roboto", 0xfffd, (void **)(&face));
+		FT_Set_Pixel_Sizes(face, 0, size);
+		FT_Set_Transform(face, &matrix, &pen);
+		FT_Load_Glyph(face, glyph, FT_LOAD_RENDER);
+		pen.x += face->glyph->advance.x;
+		pen.y += face->glyph->advance.y;
+		i++;
+	}
+	e->x = 0;
+	e->y = 0;
+	e->w = i * (size / 2);
+	e->y = size;
+	e->area = -1;
 }

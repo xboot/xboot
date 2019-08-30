@@ -9,11 +9,6 @@ extern "C" {
 
 #define	MT_FONT		"__mt_font__"
 
-struct lfont_t {
-	void * font;
-	void * sfont;
-};
-
 int luaopen_font(lua_State * L);
 
 #ifdef __cplusplus

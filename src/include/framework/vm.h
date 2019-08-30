@@ -6,6 +6,7 @@ extern "C" {
 #endif
 
 #include <xfs/xfs.h>
+#include <graphic/font.h>
 #include <xboot/window.h>
 
 struct vmctx_t

@@ -31,6 +31,7 @@
 #include FT_FREETYPE_H
 #include <framework/core/l-font.h>
 
+#if 0
 static unsigned long ft_xfs_stream_io(FT_Stream stream, unsigned long offset, unsigned char * buffer, unsigned long count)
 {
 	struct xfs_file_t * file = ((struct xfs_file_t *)stream->descriptor.pointer);
@@ -145,10 +146,12 @@ static const luaL_Reg m_font[] = {
 	{"__gc",		m_font_gc},
 	{NULL,			NULL}
 };
+#endif
 
 int luaopen_font(lua_State * L)
 {
-	luaL_newlib(L, l_font);
+/*	luaL_newlib(L, l_font);
 	luahelper_create_metatable(L, MT_FONT, m_font);
-	return 1;
+	return 1;*/
+	return 0;
 }

@@ -5,6 +5,7 @@
 extern "C" {
 #endif
 
+#include <types.h>
 #include <hmap.h>
 
 struct font_context_t {
@@ -14,7 +15,8 @@ struct font_context_t {
 
 struct font_context_t * font_context_alloc(void);
 void font_context_free(struct font_context_t * ctx);
-void * font_search(struct font_context_t * ctx, const char * family);
+void * search_face(struct font_context_t * ctx, const char * family);
+int search_glyph(struct font_context_t * ctx, const char * family, u32_t code, void ** face);
 
 #ifdef __cplusplus
 }

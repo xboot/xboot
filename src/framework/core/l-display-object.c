@@ -428,8 +428,6 @@ function M:animate(properties, duration, easing)
 						b = d:getSkewX()
 					elseif k == "skewy" then
 						b = d:getSkewY()
-					elseif k == "alpha" then
-						b = d:getAlpha()
 					elseif k == "width" then
 						b = d:getWidth()
 					elseif k == "height" then
@@ -568,8 +566,6 @@ function M:spring(properties, velocity, stiffness, damping)
 				s = self:getSkewX()
 			elseif k == "skewy" then
 				s = self:getSkewY()
-			elseif k == "alpha" then
-				s = self:getAlpha()
 			elseif k == "width" then
 				s = self:getWidth()
 			elseif k == "height" then

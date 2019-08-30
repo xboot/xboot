@@ -71,7 +71,7 @@ static const luaL_Reg l_color[] = {
 static int m_color_tostring(lua_State * L)
 {
 	struct color_t * c = luaL_checkudata(L, 1, MT_COLOR);
-	lua_pushfstring(L, "#%02X%02X%02X%02X", c->r, c->g, c->b, c->a);
+	lua_pushfstring(L, "rgba(%d,%d,%d,%d)", c->r, c->g, c->b, c->a);
 	return 1;
 }
 

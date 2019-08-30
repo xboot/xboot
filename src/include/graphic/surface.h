@@ -50,9 +50,9 @@ struct render_t
 
 	void (*blit)(struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct surface_t * src, enum render_type_t type);
 	void (*fill)(struct surface_t * s, struct region_t * clip, struct matrix_t * m, int w, int h, struct color_t * c, enum render_type_t type);
-	void (*raster)(struct surface_t * s, struct svg_t * svg, float tx, float ty, float sx, float sy);
-	void (*text)(struct surface_t * s, struct region_t * clip, struct matrix_t * m, const char * utf8, struct color_t * c, void * sfont, int size);
-	void (*extent)(struct surface_t * s, const char * utf8, void * sfont, int size, struct region_t * e);
+
+	void (*text_output)(struct surface_t * s, struct region_t * clip, struct matrix_t * m, const char * utf8, struct color_t * c, struct font_context_t * fctx, const char * family, int size);
+	void (*text_extent)(struct surface_t * s, const char * utf8, struct font_context_t * fctx, const char * family, struct region_t * e);
 
 	void (*filter_haldclut)(struct surface_t * s, struct surface_t * clut, const char * type);
 	void (*filter_grayscale)(struct surface_t * s);
@@ -66,6 +66,11 @@ struct render_t
 	void (*filter_contrast)(struct surface_t * s, int contrast);
 	void (*filter_opacity)(struct surface_t * s, int alpha);
 	void (*filter_blur)(struct surface_t * s, int radius);
+
+	void (*raster)(struct surface_t * s, struct svg_t * svg, float tx, float ty, float sx, float sy);
+
+	void (*text)(struct surface_t * s, struct region_t * clip, struct matrix_t * m, const char * utf8, struct color_t * c, void * sfont, int size);
+	void (*extent)(struct surface_t * s, const char * utf8, void * sfont, int size, struct region_t * e);
 
 	void (*shape_save)(struct surface_t * s);
 	void (*shape_restore)(struct surface_t * s);
@@ -132,7 +137,8 @@ struct render_t
 
 void render_default_blit(struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct surface_t * src, enum render_type_t type);
 void render_default_fill(struct surface_t * s, struct region_t * clip, struct matrix_t * m, int w, int h, struct color_t * c, enum render_type_t type);
-void render_default_raster(struct surface_t * s, struct svg_t * svg, float tx, float ty, float sx, float sy);
+void render_default_text_output(struct surface_t * s, struct region_t * clip, struct matrix_t * m, const char * utf8, struct color_t * c, struct font_context_t * fctx, const char * family, int size);
+void render_default_text_extent(struct surface_t * s, const char * utf8, struct font_context_t * fctx, const char * family, struct region_t * e);
 void render_default_filter_haldclut(struct surface_t * s, struct surface_t * clut, const char * type);
 void render_default_filter_grayscale(struct surface_t * s);
 void render_default_filter_sepia(struct surface_t * s);
@@ -145,6 +151,7 @@ void render_default_filter_brightness(struct surface_t * s, int brightness);
 void render_default_filter_contrast(struct surface_t * s, int contrast);
 void render_default_filter_opacity(struct surface_t * s, int alpha);
 void render_default_filter_blur(struct surface_t * s, int radius);
+void render_default_raster(struct surface_t * s, struct svg_t * svg, float tx, float ty, float sx, float sy);
 
 struct render_t * search_render(void);
 bool_t register_render(struct render_t * r);
@@ -180,19 +187,14 @@ static inline void surface_fill(struct surface_t * s, struct region_t * clip, st
 	s->r->fill(s, clip, m, w, h, c, type);
 }
 
-static inline void surface_raster(struct surface_t * s, struct svg_t * svg, float tx, float ty, float sx, float sy)
+static inline void surface_text_output(struct surface_t * s, struct region_t * clip, struct matrix_t * m, const char * utf8, struct color_t * c, struct font_context_t * fctx, const char * family, int size)
 {
-	s->r->raster(s, svg, tx, ty, sx, sy);
+	s->r->text_output(s, clip, m, utf8, c, fctx, family, size);
 }
 
-static inline void surface_text(struct surface_t * s, struct region_t * clip, struct matrix_t * m, const char * utf8, struct color_t * c, void * sfont, int size)
+static inline void surface_text_extent(struct surface_t * s, const char * utf8, struct font_context_t * fctx, const char * family, struct region_t * e)
 {
-	s->r->text(s, clip, m, utf8, c, sfont, size);
-}
-
-static inline void surface_extent(struct surface_t * s, const char * utf8, void * sfont, int size, struct region_t * e)
-{
-	s->r->extent(s, utf8, sfont, size, e);
+	s->r->text_extent(s, utf8, fctx, family, e);
 }
 
 static inline void surface_filter_haldclut(struct surface_t * s, struct surface_t * clut, const char * type)
@@ -253,6 +255,21 @@ static inline void surface_filter_opacity(struct surface_t * s, int alpha)
 static inline void surface_filter_blur(struct surface_t * s, int radius)
 {
 	s->r->filter_blur(s, radius);
+}
+
+static inline void surface_raster(struct surface_t * s, struct svg_t * svg, float tx, float ty, float sx, float sy)
+{
+	s->r->raster(s, svg, tx, ty, sx, sy);
+}
+
+static inline void surface_text(struct surface_t * s, struct region_t * clip, struct matrix_t * m, const char * utf8, struct color_t * c, void * sfont, int size)
+{
+	s->r->text(s, clip, m, utf8, c, sfont, size);
+}
+
+static inline void surface_extent(struct surface_t * s, const char * utf8, void * sfont, int size, struct region_t * e)
+{
+	s->r->extent(s, utf8, sfont, size, e);
 }
 
 static inline void surface_shape_save(struct surface_t * s)

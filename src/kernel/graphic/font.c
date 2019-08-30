@@ -43,6 +43,7 @@ static struct font_description_t fdesc[] = {
 	{"roboto-italic",		"/framework/assets/fonts/Roboto-Italic.ttf"},
 	{"roboto-bold",			"/framework/assets/fonts/Roboto-Bold.ttf"},
 	{"roboto-bold-italic",	"/framework/assets/fonts/Roboto-BoldItalic.ttf"},
+	{"droid-sans",			"/framework/assets/fonts/DroidSansFallback.ttf"},
 };
 
 struct font_context_t * font_context_alloc(void)
@@ -327,4 +328,8 @@ void render_default_text_output(struct surface_t * s, struct region_t * clip, st
 		pen.x += face->glyph->advance.x;
 		pen.y += face->glyph->advance.y;
 	}
+}
+
+void render_default_text_extent(struct surface_t * s, const char * utf8, struct font_context_t * fctx, const char * family, struct region_t * e)
+{
 }

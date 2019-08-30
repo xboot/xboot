@@ -106,11 +106,6 @@ static void render_cairo_fill(struct surface_t * s, struct region_t * clip, stru
 	cairo_restore(cr);
 }
 
-static void render_cairo_raster(struct surface_t * s, struct svg_t * svg, float tx, float ty, float sx, float sy)
-{
-	render_default_raster(s, svg, tx, ty, sx, sy);
-}
-
 static void render_cairo_text(struct surface_t * s, struct region_t * clip, struct matrix_t * m, const char * utf8, struct color_t * c, void * sfont, int size)
 {
 	cairo_t * cr = ((struct render_cairo_context_t *)s->pctx)->cr;
@@ -688,9 +683,9 @@ static struct render_t render_cairo = {
 
 	.blit						= render_cairo_blit,
 	.fill						= render_cairo_fill,
-	.raster						= render_cairo_raster,
-	.text						= render_cairo_text,
-	.extent						= render_cairo_extent,
+
+	.text_output				= render_default_text_output,
+	.text_extent				= render_default_text_extent,
 
 	.filter_haldclut			= render_default_filter_haldclut,
 	.filter_grayscale			= render_default_filter_grayscale,
@@ -704,6 +699,11 @@ static struct render_t render_cairo = {
 	.filter_contrast			= render_default_filter_contrast,
 	.filter_opacity				= render_default_filter_opacity,
 	.filter_blur				= render_default_filter_blur,
+
+	.raster						= render_default_raster,
+
+	.text						= render_cairo_text,
+	.extent						= render_cairo_extent,
 
 	.shape_save					= render_cairo_shape_save,
 	.shape_restore				= render_cairo_shape_restore,

@@ -43,7 +43,6 @@ static struct font_description_t fdesc[] = {
 	{"roboto-italic",		"/framework/assets/fonts/Roboto-Italic.ttf"},
 	{"roboto-bold",			"/framework/assets/fonts/Roboto-Bold.ttf"},
 	{"roboto-bold-italic",	"/framework/assets/fonts/Roboto-BoldItalic.ttf"},
-	{"droid-sans",			"/framework/assets/fonts/DroidSansFallback.ttf"},
 };
 
 struct font_context_t * font_context_alloc(void)
@@ -309,10 +308,10 @@ void render_default_text_output(struct surface_t * s, struct region_t * clip, st
 	FT_Matrix matrix;
 	FT_Vector pen;
 
-	matrix.xx = (FT_Fixed)(m->a * 0x10000);
-	matrix.xy = (FT_Fixed)(m->c * 0x10000);
-	matrix.yx = (FT_Fixed)(m->b * 0x10000);
-	matrix.yy = (FT_Fixed)(m->d * 0x10000);
+	matrix.xx = (FT_Fixed)(m->a * 65536.0);
+	matrix.xy = -((FT_Fixed)(m->c * 65536.0));
+	matrix.yx = -((FT_Fixed)(m->b * 65536.0));
+	matrix.yy = (FT_Fixed)(m->d * 65536.0);
 	pen.x = (FT_Pos)(m->tx * 64);
 	pen.y = (FT_Pos)((s->height - m->ty) * 64);
 
@@ -324,7 +323,7 @@ void render_default_text_output(struct surface_t * s, struct region_t * clip, st
 		FT_Set_Pixel_Sizes(face, 0, size);
 		FT_Set_Transform(face, &matrix, &pen);
 		FT_Load_Glyph(face, glyph, FT_LOAD_RENDER);
-		draw_font_bitmap(s, clip, c, 100 + face->glyph->bitmap_left, s->height - face->glyph->bitmap_top, &face->glyph->bitmap);
+		draw_font_bitmap(s, clip, c, face->glyph->bitmap_left, s->height - face->glyph->bitmap_top, &face->glyph->bitmap);
 		pen.x += face->glyph->advance.x;
 		pen.y += face->glyph->advance.y;
 	}
@@ -340,10 +339,10 @@ void render_default_text_extent(struct surface_t * s, const char * utf8, struct 
 	FT_Vector pen;
 	int i = 0;
 
-	matrix.xx = (FT_Fixed)(1 * 0x10000);
-	matrix.xy = (FT_Fixed)(0 * 0x10000);
-	matrix.yx = (FT_Fixed)(0 * 0x10000);
-	matrix.yy = (FT_Fixed)(1 * 0x10000);
+	matrix.xx = (FT_Fixed)(1 * 65536.0);
+	matrix.xy = -((FT_Fixed)(0 * 65536.0));
+	matrix.yx = -((FT_Fixed)(0 * 65536.0));
+	matrix.yy = (FT_Fixed)(1 * 65536.0);
 	pen.x = (FT_Pos)(0 * 64);
 	pen.y = (FT_Pos)((s->height - 0) * 64);
 

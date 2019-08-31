@@ -192,43 +192,43 @@ SRCDIRS		+=	external/pixman-0.38.4 \
 INCDIRS		+= 	external/cairo-1.17.2
 SRCDIRS		+=	external/cairo-1.17.2
 
-INCDIRS		+= 	external/freetype-2.8/include \
-				external/freetype-2.8/src/autofit \
-				external/freetype-2.8/src/base \
-				external/freetype-2.8/src/cache \
-				external/freetype-2.8/src/cff \
-				external/freetype-2.8/src/cid \
-				external/freetype-2.8/src/gxvalid \
-				external/freetype-2.8/src/otvalid \
-				external/freetype-2.8/src/pfr \
-				external/freetype-2.8/src/psaux \
-				external/freetype-2.8/src/pshinter \
-				external/freetype-2.8/src/psnames \
-				external/freetype-2.8/src/raster \
-				external/freetype-2.8/src/sfnt \
-				external/freetype-2.8/src/smooth \
-				external/freetype-2.8/src/truetype \
-				external/freetype-2.8/src/type1 \
-				external/freetype-2.8/src/type42 \
-				external/freetype-2.8/src/winfonts
-SRCDIRS		+=	external/freetype-2.8/src/autofit \
-				external/freetype-2.8/src/base \
-				external/freetype-2.8/src/cache \
-				external/freetype-2.8/src/cff \
-				external/freetype-2.8/src/cid \
-				external/freetype-2.8/src/gxvalid \
-				external/freetype-2.8/src/otvalid \
-				external/freetype-2.8/src/pfr \
-				external/freetype-2.8/src/psaux \
-				external/freetype-2.8/src/pshinter \
-				external/freetype-2.8/src/psnames \
-				external/freetype-2.8/src/raster \
-				external/freetype-2.8/src/sfnt \
-				external/freetype-2.8/src/smooth \
-				external/freetype-2.8/src/truetype \
-				external/freetype-2.8/src/type1 \
-				external/freetype-2.8/src/type42 \
-				external/freetype-2.8/src/winfonts
+INCDIRS		+= 	external/freetype-2.10.1/include \
+				external/freetype-2.10.1/src/autofit \
+				external/freetype-2.10.1/src/base \
+				external/freetype-2.10.1/src/cache \
+				external/freetype-2.10.1/src/cff \
+				external/freetype-2.10.1/src/cid \
+				external/freetype-2.10.1/src/gxvalid \
+				external/freetype-2.10.1/src/otvalid \
+				external/freetype-2.10.1/src/pfr \
+				external/freetype-2.10.1/src/psaux \
+				external/freetype-2.10.1/src/pshinter \
+				external/freetype-2.10.1/src/psnames \
+				external/freetype-2.10.1/src/raster \
+				external/freetype-2.10.1/src/sfnt \
+				external/freetype-2.10.1/src/smooth \
+				external/freetype-2.10.1/src/truetype \
+				external/freetype-2.10.1/src/type1 \
+				external/freetype-2.10.1/src/type42 \
+				external/freetype-2.10.1/src/winfonts
+SRCDIRS		+=	external/freetype-2.10.1/src/autofit \
+				external/freetype-2.10.1/src/base \
+				external/freetype-2.10.1/src/cache \
+				external/freetype-2.10.1/src/cff \
+				external/freetype-2.10.1/src/cid \
+				external/freetype-2.10.1/src/gxvalid \
+				external/freetype-2.10.1/src/otvalid \
+				external/freetype-2.10.1/src/pfr \
+				external/freetype-2.10.1/src/psaux \
+				external/freetype-2.10.1/src/pshinter \
+				external/freetype-2.10.1/src/psnames \
+				external/freetype-2.10.1/src/raster \
+				external/freetype-2.10.1/src/sfnt \
+				external/freetype-2.10.1/src/smooth \
+				external/freetype-2.10.1/src/truetype \
+				external/freetype-2.10.1/src/type1 \
+				external/freetype-2.10.1/src/type42 \
+				external/freetype-2.10.1/src/winfonts
 
 INCDIRS		+=	external/chipmunk-7.0.2/include
 SRCDIRS		+=	external/chipmunk-7.0.2/src

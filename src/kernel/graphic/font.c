@@ -180,7 +180,7 @@ void font_uninstall(struct font_context_t * ctx, const char * family)
 	}
 }
 
-void * search_face(struct font_context_t * ctx, const char * family)
+static void * search_face(struct font_context_t * ctx, const char * family)
 {
 	FT_Face face;
 	int i;
@@ -288,7 +288,7 @@ static inline void draw_font_bitmap(struct surface_t * s, struct region_t * clip
 					tr = (((sr + dr) << 8) - dr * t) >> 8;
 					tg = (((sg + dg) << 8) - dg * t) >> 8;
 					tb = (((sb + db) << 8) - db * t) >> 8;
-					*dp = ta << 24 | tr << 16 | tg << 8 | tb << 0;
+					*dp = (ta << 24) | (tr << 16) | (tg << 8) | (tb << 0);
 				}
 			}
 			sp++;
@@ -361,6 +361,6 @@ void render_default_text_extent(struct surface_t * s, const char * utf8, struct 
 	e->x = 0;
 	e->y = 0;
 	e->w = i * (size / 2);
-	e->y = size;
+	e->h = size;
 	e->area = -1;
 }

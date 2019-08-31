@@ -307,20 +307,21 @@ void render_default_text_output(struct surface_t * s, struct region_t * clip, st
 	FT_Face face;
 	FT_Matrix matrix;
 	FT_Vector pen;
+	int tx = 0, ty = 0;
 
 	matrix.xx = (FT_Fixed)(m->a * 65536.0);
 	matrix.xy = -((FT_Fixed)(m->c * 65536.0));
 	matrix.yx = -((FT_Fixed)(m->b * 65536.0));
 	matrix.yy = (FT_Fixed)(m->d * 65536.0);
-	pen.x = (FT_Pos)(m->tx * 64);
-	pen.y = (FT_Pos)((s->height - m->ty) * 64);
+	pen.x = (FT_Pos)((m->tx + m->a * tx + m->c * ty) * 64);
+	pen.y = (FT_Pos)((s->height - (m->ty + m->b * tx + m->d * ty)) * 64);
 
 	for(p = utf8; utf8_to_ucs4(&code, 1, p, -1, &p) > 0;)
 	{
 		glyph = search_glyph(fctx, family, code, (void **)(&face));
 		if(glyph == 0)
 			glyph = search_glyph(fctx, "roboto", 0xfffd, (void **)(&face));
-		FT_Set_Pixel_Sizes(face, 0, size);
+		FT_Set_Pixel_Sizes(face, size, size);
 		FT_Set_Transform(face, &matrix, &pen);
 		FT_Load_Glyph(face, glyph, FT_LOAD_RENDER);
 		draw_font_bitmap(s, clip, c, face->glyph->bitmap_left, s->height - face->glyph->bitmap_top, &face->glyph->bitmap);
@@ -335,32 +336,25 @@ void render_default_text_extent(struct surface_t * s, const char * utf8, struct 
 	u32_t code;
 	int glyph;
 	FT_Face face;
-	FT_Matrix matrix;
-	FT_Vector pen;
-	int i = 0;
-
-	matrix.xx = (FT_Fixed)(1 * 65536.0);
-	matrix.xy = -((FT_Fixed)(0 * 65536.0));
-	matrix.yx = -((FT_Fixed)(0 * 65536.0));
-	matrix.yy = (FT_Fixed)(1 * 65536.0);
-	pen.x = (FT_Pos)(0 * 64);
-	pen.y = (FT_Pos)((s->height - 0) * 64);
+	int x = 0, y = 0, w = 0, h = 0;
+	int flag = 1;
 
 	for(p = utf8; utf8_to_ucs4(&code, 1, p, -1, &p) > 0;)
 	{
 		glyph = search_glyph(fctx, family, code, (void **)(&face));
 		if(glyph == 0)
 			glyph = search_glyph(fctx, "roboto", 0xfffd, (void **)(&face));
-		FT_Set_Pixel_Sizes(face, 0, size);
-		FT_Set_Transform(face, &matrix, &pen);
-		FT_Load_Glyph(face, glyph, FT_LOAD_RENDER);
-		pen.x += face->glyph->advance.x;
-		pen.y += face->glyph->advance.y;
-		i++;
+		FT_Set_Pixel_Sizes(face, size, size);
+		FT_Load_Glyph(face, glyph, FT_LOAD_BITMAP_METRICS_ONLY);
+		w += face->glyph->metrics.horiAdvance;
+		if(face->glyph->metrics.vertAdvance > h)
+			h = face->glyph->metrics.vertAdvance;
+		if(flag)
+		{
+			x = face->glyph->metrics.horiBearingX;
+			y = face->glyph->metrics.horiBearingY;
+			flag = 0;
+		}
 	}
-	e->x = 0;
-	e->y = 0;
-	e->w = i * (size / 2);
-	e->h = size;
-	e->area = -1;
+	region_init(e, x >> 6, y >> 6, w >> 6, h >> 6);
 }

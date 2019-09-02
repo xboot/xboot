@@ -10,13 +10,7 @@ extern "C" {
 #define MT_TEXT	"__mt_text__"
 
 struct ltext_t {
-	struct font_context_t * f;
-	struct surface_t * s;
-	char * utf8;
-	char * family;
-	int size;
-	struct color_t c;
-	struct region_t e;
+	struct text_t * txt;
 };
 
 int luaopen_text(lua_State * L);

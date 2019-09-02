@@ -34,18 +34,17 @@ static int l_text_new(lua_State * L)
 {
 	const char * utf8 = luaL_checkstring(L, 1);
 	struct color_t * c = luaL_checkudata(L, 2, MT_COLOR);
-	const char * family = luaL_checkstring(L, 3);
+	const char * family = luaL_optstring(L, 3, NULL);
 	int size = luaL_optinteger(L, 4, 24);
-	struct ltext_t * text = lua_newuserdata(L, sizeof(struct ltext_t));
-	text->f = ((struct vmctx_t *)luahelper_vmctx(L))->f;
-	text->s = ((struct vmctx_t *)luahelper_vmctx(L))->w->s;
-	text->utf8 = strdup(utf8);
-	text->family = strdup(family);
-	text->size = size;
-	memcpy(&text->c, c, sizeof(struct color_t));
-	surface_text_extent(text->s, text->utf8, text->f, text->family, text->size, &text->e);
-	luaL_setmetatable(L, MT_TEXT);
-	return 1;
+	struct text_t * txt = text_alloc(utf8, c, ((struct vmctx_t *)luahelper_vmctx(L))->f, family, size);
+	if(txt)
+	{
+		struct ltext_t * text = lua_newuserdata(L, sizeof(struct ltext_t));
+		text->txt = txt;
+		luaL_setmetatable(L, MT_TEXT);
+		return 1;
+	}
+	return 0;
 }
 
 static const luaL_Reg l_text[] = {
@@ -56,26 +55,23 @@ static const luaL_Reg l_text[] = {
 static int m_text_gc(lua_State * L)
 {
 	struct ltext_t * text = luaL_checkudata(L, 1, MT_TEXT);
-	if(text->utf8)
-		free(text->utf8);
-	if(text->family)
-		free(text->family);
+	text_free(text->txt);
 	return 0;
 }
 
 static int m_text_get_origin(lua_State * L)
 {
 	struct ltext_t * text = luaL_checkudata(L, 1, MT_TEXT);
-	lua_pushinteger(L, text->e.x);
-	lua_pushinteger(L, text->e.y);
+	lua_pushinteger(L, text->txt->e.x);
+	lua_pushinteger(L, text->txt->e.y);
 	return 2;
 }
 
 static int m_text_get_size(lua_State * L)
 {
 	struct ltext_t * text = luaL_checkudata(L, 1, MT_TEXT);
-	lua_pushinteger(L, text->e.w);
-	lua_pushinteger(L, text->e.h);
+	lua_pushinteger(L, text->txt->e.w);
+	lua_pushinteger(L, text->txt->e.h);
 	return 2;
 }
 
@@ -83,31 +79,7 @@ static int m_text_set_text(lua_State * L)
 {
 	struct ltext_t * text = luaL_checkudata(L, 1, MT_TEXT);
 	const char * utf8 = luaL_checkstring(L, 2);
-	if(text->utf8)
-		free(text->utf8);
-	text->utf8 = strdup(utf8);
-	surface_text_extent(text->s, text->utf8, text->f, text->family, text->size, &text->e);
-	lua_settop(L, 1);
-	return 1;
-}
-
-static int m_text_set_font(lua_State * L)
-{
-	struct ltext_t * text = luaL_checkudata(L, 1, MT_TEXT);
-	const char * family = luaL_checkstring(L, 2);
-	if(text->family)
-		free(text->family);
-	text->family = strdup(family);
-	surface_text_extent(text->s, text->utf8, text->f, text->family, text->size, &text->e);
-	lua_settop(L, 1);
-	return 1;
-}
-
-static int m_text_set_size(lua_State * L)
-{
-	struct ltext_t * text = luaL_checkudata(L, 1, MT_TEXT);
-	text->size = luaL_optinteger(L, 2, 24);
-	surface_text_extent(text->s, text->utf8, text->f, text->family, text->size, &text->e);
+	text_set_text(text->txt, utf8);
 	lua_settop(L, 1);
 	return 1;
 }
@@ -116,19 +88,37 @@ static int m_text_set_color(lua_State * L)
 {
 	struct ltext_t * text = luaL_checkudata(L, 1, MT_TEXT);
 	struct color_t * c = luaL_checkudata(L, 2, MT_COLOR);
-	memcpy(&text->c, c, sizeof(struct color_t));
+	text_set_color(text->txt, c);
+	lua_settop(L, 1);
+	return 1;
+}
+
+static int m_text_set_font_family(lua_State * L)
+{
+	struct ltext_t * text = luaL_checkudata(L, 1, MT_TEXT);
+	const char * family = luaL_checkstring(L, 2);
+	text_set_font_family(text->txt, family);
+	lua_settop(L, 1);
+	return 1;
+}
+
+static int m_text_set_font_size(lua_State * L)
+{
+	struct ltext_t * text = luaL_checkudata(L, 1, MT_TEXT);
+	int size = luaL_optinteger(L, 2, 0);
+	text_set_font_size(text->txt, size);
 	lua_settop(L, 1);
 	return 1;
 }
 
 static const luaL_Reg m_text[] = {
-	{"__gc",		m_text_gc},
-	{"getOrigin",	m_text_get_origin},
-	{"getSize",		m_text_get_size},
-	{"setText",		m_text_set_text},
-	{"setFont",		m_text_set_font},
-	{"setSize",		m_text_set_size},
-	{"setColor",	m_text_set_color},
+	{"__gc",			m_text_gc},
+	{"getOrigin",		m_text_get_origin},
+	{"getSize",			m_text_get_size},
+	{"setText",			m_text_set_text},
+	{"setColor",		m_text_set_color},
+	{"setFontFamily",	m_text_set_font_family},
+	{"setFontSize",		m_text_set_font_size},
 	{NULL, NULL}
 };
 

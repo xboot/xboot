@@ -55,22 +55,22 @@ function M:setText(text)
 	return self
 end
 
-function M:setTextFont(family)
+function M:setColor(color)
+	self._text:setColor(color)
+	return self
+end
+
+function M:setFontFamily(family)
 	if font then
-		self._text:setFont(family)
+		self._text:setFontFamily(family)
 		self.super:setSize(self._text:getSize())
 	end
 	return self
 end
 
-function M:setTextSize(size)
-	self._text:setSize(size)
+function M:setFontSize(size)
+	self._text:setFontSize(size)
 	self.super:setSize(self._text:getSize())
-	return self
-end
-
-function M:setTextColor(color)
-	self._text:setColor(color)
 	return self
 end
 

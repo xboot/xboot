@@ -26,9 +26,6 @@
  *
  */
 
-#include <xboot.h>
-#include <string.h>
-#include <graphic/surface.h>
 #include <graphic/font.h>
 #include <ft2build.h>
 #include FT_FREETYPE_H
@@ -210,7 +207,7 @@ int search_glyph(struct font_context_t * ctx, const char * family, u32_t code, v
 	int glyph;
 	int i;
 
-	strlcpy(buffer, family, sizeof(buffer));
+	strlcpy(buffer, family ? family : "", sizeof(buffer));
 	p = buffer;
 	while((r = strsep(&p, ",;:|")) != NULL)
 	{
@@ -225,136 +222,4 @@ int search_glyph(struct font_context_t * ctx, const char * family, u32_t code, v
 			return glyph;
 	}
 	return 0;
-}
-
-static inline void draw_font_bitmap(struct surface_t * s, struct region_t * clip, struct color_t * c, int x, int y, FT_Bitmap * bitmap)
-{
-	struct region_t r, region;
-	uint32_t * dp, dv;
-	uint8_t * sp, gray;
-	uint8_t da, dr, dg, db;
-	uint8_t sr, sg, sb, sa;
-	uint8_t ta, tr, tg, tb;
-	int dx, dy, dw, dh;
-	int sx, sy;
-	int dskip, sskip;
-	int i, j, t;
-
-	region_init(&r, 0, 0, s->width, s->height);
-	if(clip)
-	{
-		if(!region_intersect(&r, &r, clip))
-			return;
-	}
-	region_init(&region, x, y, bitmap->width, bitmap->rows);
-	if(!region_intersect(&r, &r, &region))
-		return;
-
-	dx = r.x;
-	dy = r.y;
-	dw = r.w;
-	dh = r.h;
-	sx = r.x - x;
-	sy = r.y - y;
-	dskip = s->width - dw;
-	sskip = bitmap->pitch - dw;
-	dp = (uint32_t *)s->pixels + dy * s->width + dx;
-	sp = (uint8_t *)bitmap->buffer + sy * bitmap->pitch + sx;
-
-	for(j = 0; j < dh; j++)
-	{
-		for(i = 0; i < dw; i++)
-		{
-			gray = *sp;
-			if(gray != 0)
-			{
-				if(gray == 255)
-				{
-					*dp = (c->a << 24) | (c->r << 16) | (c->g << 8) | (c->b << 0);
-				}
-				else
-				{
-					sr = idiv255(c->r * gray);
-					sg = idiv255(c->g * gray);
-					sb = idiv255(c->b * gray);
-					sa = idiv255(c->a * gray);
-					dv = *dp;
-					da = (dv >> 24) & 0xff;
-					dr = (dv >> 16) & 0xff;
-					dg = (dv >> 8) & 0xff;
-					db = (dv >> 0) & 0xff;
-					t = sa + (sa >> 8);
-					ta = (((sa + da) << 8) - da * t) >> 8;
-					tr = (((sr + dr) << 8) - dr * t) >> 8;
-					tg = (((sg + dg) << 8) - dg * t) >> 8;
-					tb = (((sb + db) << 8) - db * t) >> 8;
-					*dp = (ta << 24) | (tr << 16) | (tg << 8) | (tb << 0);
-				}
-			}
-			sp++;
-			dp++;
-		}
-		dp += dskip;
-		sp += sskip;
-	}
-}
-
-void render_default_text_output(struct surface_t * s, struct region_t * clip, struct matrix_t * m, const char * utf8, struct color_t * c, struct font_context_t * fctx, const char * family, int size)
-{
-	const char * p;
-	u32_t code;
-	int glyph;
-	FT_Face face;
-	FT_Matrix matrix;
-	FT_Vector pen;
-	int tx = 0, ty = 0;
-
-	matrix.xx = (FT_Fixed)(m->a * 65536.0);
-	matrix.xy = -((FT_Fixed)(m->c * 65536.0));
-	matrix.yx = -((FT_Fixed)(m->b * 65536.0));
-	matrix.yy = (FT_Fixed)(m->d * 65536.0);
-	pen.x = (FT_Pos)((m->tx + m->a * tx + m->c * ty) * 64);
-	pen.y = (FT_Pos)((s->height - (m->ty + m->b * tx + m->d * ty)) * 64);
-
-	for(p = utf8; utf8_to_ucs4(&code, 1, p, -1, &p) > 0;)
-	{
-		glyph = search_glyph(fctx, family, code, (void **)(&face));
-		if(glyph == 0)
-			glyph = search_glyph(fctx, "roboto", 0xfffd, (void **)(&face));
-		FT_Set_Pixel_Sizes(face, size, size);
-		FT_Set_Transform(face, &matrix, &pen);
-		FT_Load_Glyph(face, glyph, FT_LOAD_RENDER);
-		draw_font_bitmap(s, clip, c, face->glyph->bitmap_left, s->height - face->glyph->bitmap_top, &face->glyph->bitmap);
-		pen.x += face->glyph->advance.x;
-		pen.y += face->glyph->advance.y;
-	}
-}
-
-void render_default_text_extent(struct surface_t * s, const char * utf8, struct font_context_t * fctx, const char * family, int size, struct region_t * e)
-{
-	const char * p;
-	u32_t code;
-	int glyph;
-	FT_Face face;
-	int x = 0, y = 0, w = 0, h = 0;
-	int flag = 1;
-
-	for(p = utf8; utf8_to_ucs4(&code, 1, p, -1, &p) > 0;)
-	{
-		glyph = search_glyph(fctx, family, code, (void **)(&face));
-		if(glyph == 0)
-			glyph = search_glyph(fctx, "roboto", 0xfffd, (void **)(&face));
-		FT_Set_Pixel_Sizes(face, size, size);
-		FT_Load_Glyph(face, glyph, FT_LOAD_BITMAP_METRICS_ONLY);
-		w += face->glyph->metrics.horiAdvance;
-		if(face->glyph->metrics.vertAdvance > h)
-			h = face->glyph->metrics.vertAdvance;
-		if(flag)
-		{
-			x = face->glyph->metrics.horiBearingX;
-			y = face->glyph->metrics.horiBearingY;
-			flag = 0;
-		}
-	}
-	region_init(e, x >> 6, y >> 6, w >> 6, h >> 6);
 }

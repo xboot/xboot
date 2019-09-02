@@ -106,34 +106,6 @@ static void render_cairo_fill(struct surface_t * s, struct region_t * clip, stru
 	cairo_restore(cr);
 }
 
-static void render_cairo_text(struct surface_t * s, struct region_t * clip, struct matrix_t * m, const char * utf8, struct color_t * c, void * sfont, int size)
-{
-	cairo_t * cr = ((struct render_cairo_context_t *)s->pctx)->cr;
-	cairo_text_extents_t e;
-	cairo_save(cr);
-	cairo_set_font_face(cr, (cairo_font_face_t *)sfont);
-	cairo_set_font_size(cr, size);
-	cairo_move_to(cr, m->tx, m->ty);
-	cairo_set_matrix(cr, (cairo_matrix_t *)m);
-	cairo_text_extents(cr, utf8, &e);
-	cairo_move_to(cr, e.x_bearing, -e.y_bearing);
-	cairo_set_source_rgba(cr, c->r / 255.0, c->g / 255.0, c->b / 255.0, c->a / 255.0);
-	cairo_show_text(cr, utf8);
-	cairo_restore(cr);
-}
-
-static void render_cairo_extent(struct surface_t * s, const char * utf8, void * sfont, int size, struct region_t * e)
-{
-	cairo_t * cr = ((struct render_cairo_context_t *)s->pctx)->cr;
-	cairo_text_extents_t ext;
-	cairo_save(cr);
-	cairo_set_font_face(cr, (cairo_font_face_t *)sfont);
-	cairo_set_font_size(cr, size);
-	cairo_text_extents(cr, utf8, &ext);
-	cairo_restore(cr);
-	region_init(e, ext.x_bearing, -ext.y_bearing, ext.width, ext.height);
-}
-
 static void render_cairo_shape_save(struct surface_t * s)
 {
 	cairo_t * cr = ((struct render_cairo_context_t *)s->pctx)->cr;
@@ -597,16 +569,6 @@ static void * render_cairo_pattern_create_radial(double x0, double y0, double r0
 	return cairo_pattern_create_radial(x0, y0, r0, x1, y1, r1);
 }
 
-static void * render_cairo_font_create(void * font)
-{
-	return cairo_ft_font_face_create_for_ft_face((FT_Face)font, 0);
-}
-
-static void render_cairo_font_destroy(void * sfont)
-{
-	cairo_font_face_destroy((cairo_font_face_t *)sfont);
-}
-
 static void * render_cairo_pattern_create(struct surface_t * s)
 {
 	return cairo_pattern_create_for_surface(((struct render_cairo_context_t *)s->pctx)->cs);
@@ -683,9 +645,7 @@ static struct render_t render_cairo = {
 
 	.blit						= render_cairo_blit,
 	.fill						= render_cairo_fill,
-
-	.text_output				= render_default_text_output,
-	.text_extent				= render_default_text_extent,
+	.text						= render_default_text,
 
 	.filter_haldclut			= render_default_filter_haldclut,
 	.filter_grayscale			= render_default_filter_grayscale,
@@ -701,9 +661,6 @@ static struct render_t render_cairo = {
 	.filter_blur				= render_default_filter_blur,
 
 	.raster						= render_default_raster,
-
-	.text						= render_cairo_text,
-	.extent						= render_cairo_extent,
 
 	.shape_save					= render_cairo_shape_save,
 	.shape_restore				= render_cairo_shape_restore,
@@ -753,9 +710,6 @@ static struct render_t render_cairo = {
 	.shape_mask					= render_cairo_shape_mask,
 	.shape_mask_surface			= render_cairo_shape_mask_surface,
 	.shape_paint				= render_cairo_shape_paint,
-
-	.font_create				= render_cairo_font_create,
-	.font_destroy				= render_cairo_font_destroy,
 
 	.pattern_create				= render_cairo_pattern_create,
 	.pattern_create_color		= render_cairo_pattern_create_color,

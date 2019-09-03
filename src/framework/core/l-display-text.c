@@ -52,11 +52,13 @@ end
 function M:setText(text)
 	self._text:setText(text or "")
 	self.super:setSize(self._text:getSize())
+	self:markDirty()
 	return self
 end
 
 function M:setColor(color)
 	self._text:setColor(color)
+	self:markDirty()
 	return self
 end
 
@@ -64,6 +66,7 @@ function M:setFontFamily(family)
 	if font then
 		self._text:setFontFamily(family)
 		self.super:setSize(self._text:getSize())
+		self:markDirty()
 	end
 	return self
 end
@@ -71,6 +74,7 @@ end
 function M:setFontSize(size)
 	self._text:setFontSize(size)
 	self.super:setSize(self._text:getSize())
+	self:markDirty()
 	return self
 end
 

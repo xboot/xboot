@@ -43,7 +43,7 @@ static void calc_text_extent(struct text_t * txt)
 	int glyph;
 	FT_Face face;
 	int x = 0, y = 0, w = 0, h = 0;
-	int flag = 1;
+	int flag = 0;
 
 	for(p = txt->utf8; utf8_to_ucs4(&code, 1, p, -1, &p) > 0;)
 	{
@@ -55,14 +55,15 @@ static void calc_text_extent(struct text_t * txt)
 		w += face->glyph->metrics.horiAdvance;
 		if(face->glyph->metrics.vertAdvance > h)
 			h = face->glyph->metrics.vertAdvance;
-		if(flag)
+		if(!flag)
 		{
 			x = face->glyph->metrics.horiBearingX;
-			y = face->glyph->metrics.horiBearingY;
-			flag = 0;
+			flag = 1;
 		}
+		if(face->glyph->metrics.horiBearingY > y)
+			y = face->glyph->metrics.horiBearingY;
 	}
-	region_init(&txt->e, x >> 6, y >> 6, w >> 6, h >> 6);
+	region_init(&txt->e, (x >> 6) + 4, (y >> 6) + 4, (w >> 6) + 8, (h >> 6) + 8);
 }
 
 struct text_t * text_alloc(const char * utf8, struct color_t * c, struct font_context_t * fctx, const char * family, int size)

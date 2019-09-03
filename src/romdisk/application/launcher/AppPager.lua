@@ -4,7 +4,7 @@ local M = Class(DisplayPager)
 
 function M:init(width, height)
 	self.super:init(width, height, false)
-	self._font = assets:loadFont("regular")
+	self._font = "roboto"
 	self._size = 24
 	self._color = Color.new({255, 255, 255, 255})
 	self:reload()

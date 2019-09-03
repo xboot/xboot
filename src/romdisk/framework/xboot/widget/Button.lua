@@ -91,7 +91,7 @@ function M:setText(text)
 		if self.text then
 			self.text:setText(text)
 		else
-			self.text = DisplayText.new(text, self.opt.textColorNormal, assets:loadFont(self.opt.textFontFamily), self.opt.textFontSize)
+			self.text = DisplayText.new(text, self.opt.textColorNormal, self.opt.textFontFamily, self.opt.textFontSize)
 			self.text:setLayoutMargin(self.opt.textMarginLeft, self.opt.textMarginTop, self.opt.textMarginRight, self.opt.textMarginBottom)
 			self.text:setLayoutEnable(true)
 		end
@@ -212,7 +212,7 @@ function M:updateVisualState()
 			if not self:contains(self.text) then
 				self:addChild(self.text)
 			end
-			self.text:toFront():setTextColor(self.opt.textColorNormal)
+			self.text:toFront():setColor(self.opt.textColorNormal)
 		else
 			if self:contains(self.text) then
 				self:removeChild(self.text)
@@ -232,7 +232,7 @@ function M:updateVisualState()
 			if not self:contains(self.text) then
 				self:addChild(self.text)
 			end
-			self.text:toFront():setTextColor(self.opt.textColorPressed)
+			self.text:toFront():setColor(self.opt.textColorPressed)
 		else
 			if self:contains(self.text) then
 				self:removeChild(self.text)
@@ -252,7 +252,7 @@ function M:updateVisualState()
 			if not self:contains(self.text) then
 				self:addChild(self.text)
 			end
-			self.text:toFront():setTextColor(self.opt.textColorDisabled)
+			self.text:toFront():setColor(self.opt.textColorDisabled)
 		else
 			if self:contains(self.text) then
 				self:removeChild(self.text)

@@ -40,7 +40,6 @@ local M = Class()
 
 function M:init()
 	self._images = {}
-	self._fonts = {}
 	self._themes = {}
 end
 
@@ -50,16 +49,6 @@ function M:loadImage(name)
 			self._images[name] = Image.new(name)
 		end
 		return self._images[name]
-	end
-	return nil
-end
-
-function M:loadFont(family)
-	if type(family) == "string" then
-		if not self._fonts[family] then
-			self._fonts[family] = Font.new(family)
-		end
-		return self._fonts[family]
 	end
 	return nil
 end
@@ -107,7 +96,6 @@ end
 
 function M:clear()
 	self._images = {}
-	self._fonts = {}
 	self._themes = {}
 end
 

@@ -47,7 +47,6 @@
 #include <framework/core/l-image.h>
 #include <framework/core/l-matrix.h>
 #include <framework/core/l-ninepatch.h>
-#include <framework/core/l-pattern.h>
 #include <framework/core/l-printr.h>
 #include <framework/core/l-spring.h>
 #include <framework/core/l-stage.h>
@@ -76,7 +75,6 @@ static void luaopen_glblibs(lua_State * L)
 		{ "Matrix",					luaopen_matrix },
 		{ "Image",					luaopen_image },
 		{ "Ninepatch",				luaopen_ninepatch },
-		{ "Pattern",				luaopen_pattern },
 		{ "Font",					luaopen_font },
 		{ "Text",					luaopen_text },
 		{ "Dobject",				luaopen_dobject },

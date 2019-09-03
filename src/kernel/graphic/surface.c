@@ -39,9 +39,37 @@ static struct list_head __render_list = {
 };
 static spinlock_t __render_lock = SPIN_LOCK_INIT();
 
+static struct render_t render_default = {
+	.name	 			= "default",
+
+	.create				= render_default_create,
+	.destroy			= render_default_destroy,
+
+	.blit				= render_default_blit,
+	.fill				= render_default_fill,
+	.text				= render_default_text,
+	.raster				= render_default_raster,
+
+	.filter_haldclut	= render_default_filter_haldclut,
+	.filter_grayscale	= render_default_filter_grayscale,
+	.filter_sepia		= render_default_filter_sepia,
+	.filter_invert		= render_default_filter_invert,
+	.filter_threshold	= render_default_filter_threshold,
+	.filter_colorize	= render_default_filter_colorize,
+	.filter_hue			= render_default_filter_hue,
+	.filter_saturate	= render_default_filter_saturate,
+	.filter_brightness	= render_default_filter_brightness,
+	.filter_contrast	= render_default_filter_contrast,
+	.filter_opacity		= render_default_filter_opacity,
+	.filter_blur		= render_default_filter_blur,
+};
+
 inline __attribute__((always_inline)) struct render_t * search_render(void)
 {
-	return (struct render_t *)list_first_entry_or_null(&__render_list, struct render_t, list);
+	struct render_t * r = (struct render_t *)list_first_entry_or_null(&__render_list, struct render_t, list);
+	if(!r)
+		r = &render_default;
+	return r;
 }
 
 bool_t register_render(struct render_t * r)
@@ -104,12 +132,6 @@ struct surface_t * surface_alloc(int width, int height, void * priv)
 	s->r = search_render();
 	s->pctx = s->r->create(s);
 	s->priv = priv;
-	if(!s->pctx)
-	{
-		free(s);
-		free(pixels);
-		return NULL;
-	}
 	return s;
 }
 
@@ -193,12 +215,6 @@ struct surface_t * surface_clone(struct surface_t * s, struct region_t * r)
 	c->r = s->r;
 	c->pctx = c->r->create(c);
 	c->priv = NULL;
-	if(!c->pctx)
-	{
-		free(c);
-		free(pixels);
-		return NULL;
-	}
 	return c;
 }
 

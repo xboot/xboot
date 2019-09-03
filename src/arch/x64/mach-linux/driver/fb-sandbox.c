@@ -83,13 +83,6 @@ static struct surface_t * fb_create(struct framebuffer_t * fb)
 	s->r = search_render();
 	s->pctx = s->r->create(s);
 	s->priv = surface;
-	if(!s->pctx)
-	{
-		sandbox_fb_surface_destroy(pdat->priv, surface);
-		free(surface);
-		free(s);
-		return NULL;
-	}
 
 	return s;
 }

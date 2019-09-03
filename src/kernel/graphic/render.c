@@ -29,6 +29,15 @@
 #include <xboot.h>
 #include <graphic/surface.h>
 
+void * render_default_create(struct surface_t * s)
+{
+	return NULL;
+}
+
+void render_default_destroy(void * pctx)
+{
+}
+
 static inline void blend(uint32_t * d, uint32_t * s)
 {
 	uint8_t da, dr, dg, db;

@@ -141,6 +141,14 @@ static inline struct region_t * dobject_global_bounds(struct ldobject_t * o)
 	return r;
 }
 
+static inline struct region_t * dobject_parent_global_bounds(struct ldobject_t * o)
+{
+	struct ldobject_t * parent = o->parent;
+	if(parent)
+		return dobject_global_bounds(parent);
+	return NULL;
+}
+
 static inline struct region_t * dobject_dirty_bounds(struct ldobject_t * o)
 {
 	return &o->dirty_bounds;
@@ -763,7 +771,7 @@ static void dobject_layout(struct ldobject_t * o)
 static void dobject_draw_image(struct ldobject_t * o, struct window_t * w)
 {
 	struct limage_t * img = o->priv;
-	surface_blit(w->s, NULL, dobject_global_matrix(o), img->s, RENDER_TYPE_GOOD);
+	surface_blit(w->s, dobject_parent_global_bounds(o), dobject_global_matrix(o), img->s, RENDER_TYPE_GOOD);
 }
 
 static void dobject_draw_ninepatch(struct ldobject_t * o, struct window_t * w)
@@ -775,73 +783,73 @@ static void dobject_draw_ninepatch(struct ldobject_t * o, struct window_t * w)
 	{
 		memcpy(&m, dobject_global_matrix(o), sizeof(struct matrix_t));
 		matrix_translate(&m, 0, 0);
-		surface_blit(s, NULL, &m, ninepatch->lt, RENDER_TYPE_FAST);
+		surface_blit(s, dobject_parent_global_bounds(o), &m, ninepatch->lt, RENDER_TYPE_FAST);
 	}
 	if(ninepatch->mt)
 	{
 		memcpy(&m, dobject_global_matrix(o), sizeof(struct matrix_t));
 		matrix_translate(&m, ninepatch->left, 0);
 		matrix_scale(&m, ninepatch->__sx, 1);
-		surface_blit(s, NULL, &m, ninepatch->mt, RENDER_TYPE_FAST);
+		surface_blit(s, dobject_parent_global_bounds(o), &m, ninepatch->mt, RENDER_TYPE_FAST);
 	}
 	if(ninepatch->rt)
 	{
 		memcpy(&m, dobject_global_matrix(o), sizeof(struct matrix_t));
 		matrix_translate(&m, ninepatch->__w - ninepatch->right, 0);
-		surface_blit(s, NULL, &m, ninepatch->rt, RENDER_TYPE_FAST);
+		surface_blit(s, dobject_parent_global_bounds(o), &m, ninepatch->rt, RENDER_TYPE_FAST);
 	}
 	if(ninepatch->lm)
 	{
 		memcpy(&m, dobject_global_matrix(o), sizeof(struct matrix_t));
 		matrix_translate(&m, 0, ninepatch->top);
 		matrix_scale(&m, 1, ninepatch->__sy);
-		surface_blit(s, NULL, &m, ninepatch->lm, RENDER_TYPE_FAST);
+		surface_blit(s, dobject_parent_global_bounds(o), &m, ninepatch->lm, RENDER_TYPE_FAST);
 	}
 	if(ninepatch->mm)
 	{
 		memcpy(&m, dobject_global_matrix(o), sizeof(struct matrix_t));
 		matrix_translate(&m, ninepatch->left, ninepatch->top);
 		matrix_scale(&m, ninepatch->__sx, ninepatch->__sy);
-		surface_blit(s, NULL, &m, ninepatch->mm, RENDER_TYPE_FAST);
+		surface_blit(s, dobject_parent_global_bounds(o), &m, ninepatch->mm, RENDER_TYPE_FAST);
 	}
 	if(ninepatch->rm)
 	{
 		memcpy(&m, dobject_global_matrix(o), sizeof(struct matrix_t));
 		matrix_translate(&m, ninepatch->__w - ninepatch->right, ninepatch->top);
 		matrix_scale(&m, 1, ninepatch->__sy);
-		surface_blit(s, NULL, &m, ninepatch->rm, RENDER_TYPE_FAST);
+		surface_blit(s, dobject_parent_global_bounds(o), &m, ninepatch->rm, RENDER_TYPE_FAST);
 	}
 	if(ninepatch->lb)
 	{
 		memcpy(&m, dobject_global_matrix(o), sizeof(struct matrix_t));
 		matrix_translate(&m, 0, ninepatch->__h - ninepatch->bottom);
-		surface_blit(s, NULL, &m, ninepatch->lb, RENDER_TYPE_FAST);
+		surface_blit(s, dobject_parent_global_bounds(o), &m, ninepatch->lb, RENDER_TYPE_FAST);
 	}
 	if(ninepatch->mb)
 	{
 		memcpy(&m, dobject_global_matrix(o), sizeof(struct matrix_t));
 		matrix_translate(&m, ninepatch->left, ninepatch->__h - ninepatch->bottom);
 		matrix_scale(&m, ninepatch->__sx, 1);
-		surface_blit(s, NULL, &m, ninepatch->mb, RENDER_TYPE_FAST);
+		surface_blit(s, dobject_parent_global_bounds(o), &m, ninepatch->mb, RENDER_TYPE_FAST);
 	}
 	if(ninepatch->rb)
 	{
 		memcpy(&m, dobject_global_matrix(o), sizeof(struct matrix_t));
 		matrix_translate(&m, ninepatch->__w - ninepatch->right, ninepatch->__h - ninepatch->bottom);
-		surface_blit(s, NULL, &m, ninepatch->rb, RENDER_TYPE_FAST);
+		surface_blit(s, dobject_parent_global_bounds(o), &m, ninepatch->rb, RENDER_TYPE_FAST);
 	}
 }
 
 static void dobject_draw_text(struct ldobject_t * o, struct window_t * w)
 {
 	struct ltext_t * text = o->priv;
-	surface_text(w->s, NULL, dobject_global_matrix(o), text->txt);
+	surface_text(w->s, dobject_parent_global_bounds(o), dobject_global_matrix(o), text->txt);
 }
 
 static void dobject_draw_container(struct ldobject_t * o, struct window_t * w)
 {
 	if(o->bgcolor.a != 0)
-		surface_fill(w->s, NULL, dobject_global_matrix(o), o->width, o->height, &o->bgcolor, RENDER_TYPE_GOOD);
+		surface_fill(w->s, dobject_parent_global_bounds(o), dobject_global_matrix(o), o->width, o->height, &o->bgcolor, RENDER_TYPE_GOOD);
 }
 
 static int l_dobject_new(lua_State * L)
@@ -1820,7 +1828,7 @@ static int m_get_collider(lua_State * L)
 static int m_set_visible(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
-	double visible = lua_toboolean(L, 2);
+	int visible = lua_toboolean(L, 2);
 	if(o->visible != visible)
 	{
 		dobject_mark_dirty(o);
@@ -2055,103 +2063,11 @@ static void display_draw(struct window_t * w, struct ldobject_t * o)
 
 	if(o->visible)
 	{
-		struct ldobject_t * parent = o->parent;
-		struct surface_t * s = w->s;
-		surface_shape_save(s);
-		if(parent && (parent->dtype == DOBJECT_TYPE_CONTAINER))
-		{
-			surface_shape_set_matrix(s, dobject_global_matrix(parent));
-			surface_shape_rectangle(s, 0, 0, parent->width, parent->height);
-			surface_shape_clip(s);
-		}
 		o->draw(o, w);
-		if(w->showobj)
-		{
-			surface_shape_save(s);
-			surface_shape_set_matrix(s, dobject_global_matrix(o));
-			surface_shape_set_line_width(s, 1);
-			surface_shape_rectangle(s, 1, 1, o->width - 2, o->height - 2);
-			surface_shape_set_source_color(s, 1, 0, 0, 0.6);
-			surface_shape_stroke(s);
-			if((o->ctype != COLLIDER_TYPE_NONE) && o->touchable)
-			{
-				struct matrix_t m;
-				double x, y;
-				double w, h;
-				double r;
-				double * p;
-				int n, i;
-
-				switch(o->ctype)
-				{
-				case COLLIDER_TYPE_CIRCLE:
-					surface_shape_new_sub_path(s);
-					surface_shape_move_to(s, o->hit.circle.x + o->hit.circle.radius, o->hit.circle.y);
-					surface_shape_arc(s, o->hit.circle.x, o->hit.circle.y, o->hit.circle.radius, 0, M_PI * 2);
-					surface_shape_close_path(s);
-					break;
-				case COLLIDER_TYPE_ELLIPSE:
-					x = o->hit.ellipse.x;
-					y = o->hit.ellipse.y;
-					w = o->hit.ellipse.width;
-					h = o->hit.ellipse.height;
-					surface_shape_get_matrix(s, &m);
-					surface_shape_translate(s, x, y);
-					surface_shape_scale(s, 1, h / w);
-					surface_shape_translate(s, -x, -y);
-					surface_shape_new_sub_path(s);
-					surface_shape_move_to(s, x + w, y);
-					surface_shape_arc(s, x, y, w, 0, M_PI * 2);
-					surface_shape_close_path(s);
-					surface_shape_set_matrix(s, &m);
-					break;
-				case COLLIDER_TYPE_RECTANGLE:
-					surface_shape_new_sub_path(s);
-					surface_shape_rectangle(s, o->hit.rectangle.x, o->hit.rectangle.y, o->hit.rectangle.width, o->hit.rectangle.height);
-					surface_shape_close_path(s);
-					break;
-				case COLLIDER_TYPE_ROUNDED_RECTANGLE:
-					x = o->hit.rounded_rectangle.x;
-					y = o->hit.rounded_rectangle.y;
-					w = o->hit.rounded_rectangle.width;
-					h = o->hit.rounded_rectangle.height;
-					r = o->hit.rounded_rectangle.radius;
-					surface_shape_new_sub_path(s);
-					surface_shape_move_to(s, x + r, y);
-					surface_shape_line_to(s, x + w - r, y);
-					surface_shape_arc(s, x + w - r, y + r, r, - M_PI / 2, 0);
-					surface_shape_line_to(s, x + w, y + h - r);
-					surface_shape_arc(s, x + w - r, y + h - r, r, 0, M_PI / 2);
-					surface_shape_line_to(s, x + r, y + h);
-					surface_shape_arc(s, x + r, y + h - r, r, M_PI / 2, M_PI);
-					surface_shape_arc(s, x + r, y + r, r, M_PI, M_PI + M_PI / 2);
-					surface_shape_close_path(s);
-					break;
-				case COLLIDER_TYPE_POLYGON:
-					p = o->hit.polygon.points;
-					n = o->hit.polygon.length / 2;
-					if(n > 0)
-					{
-						surface_shape_new_sub_path(s);
-						surface_shape_move_to(s, p[0], p[1]);
-						for(i = 1; i < n; i++)
-							surface_shape_line_to(s, p[i << 1], p[(i << 1) + 1]);
-						surface_shape_close_path(s);
-					}
-					break;
-				default:
-					break;
-				}
-				surface_shape_set_source_color(s, 1, 1, 0, 0.6);
-				surface_shape_fill(s);
-			}
-			surface_shape_restore(s);
-		}
 		list_for_each_entry(pos, &o->children, entry)
 		{
 			display_draw(w, pos);
 		}
-		surface_shape_restore(s);
 	}
 }
 

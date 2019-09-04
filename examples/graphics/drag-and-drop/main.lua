@@ -1,5 +1,3 @@
-local Pattern = Pattern
-
 local function onMouseDown(self, e)
 	if self:hitTestPoint(e.x, e.y) then
 		self:toFront():animate({scalex = self.sx * 1.2, scaley = self.sx * 1.2}, 0.1, "elastic-in-out")

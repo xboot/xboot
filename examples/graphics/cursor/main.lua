@@ -1,5 +1,3 @@
-local Pattern = Pattern
-
 local cursor = assets:loadDisplay("cursor.png")
 	:addEventListener("mouse-down", function(d, e) d:setPosition(e.x, e.y) end)
 	:addEventListener("mouse-move", function(d, e) d:setPosition(e.x, e.y) end)

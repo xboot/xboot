@@ -27,7 +27,6 @@
  */
 
 #include <xboot.h>
-#include <cairo-ft.h>
 #include <shell/ctrlc.h>
 #include <input/input.h>
 #include <input/keyboard.h>

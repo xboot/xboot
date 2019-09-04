@@ -2,12 +2,7 @@ local Pattern = Pattern
 local M_PI = math.pi
 
 local sw, sh = stage:getSize()
-
-stage:addChild(DisplayImage.new(Image.new(sw, sh)
-	:save()
-	:setSource(Pattern.image(Image.new("bg.png")):setExtend("repeat"))
-	:paint()
-	:restore()))
+stage:addChild(DisplayImage.new(Image.new(sw, sh):extend(Image.new("bg.png"), "repeat")))
 
 local snowman = assets:loadDisplay("snowman.png"):setAnchor(0.5, 0.5):setPosition(sw / 2, sh / 2)
 local w, h = snowman:getSize();

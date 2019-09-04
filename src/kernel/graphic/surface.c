@@ -135,6 +135,17 @@ struct surface_t * surface_alloc(int width, int height, void * priv)
 	return s;
 }
 
+void surface_free(struct surface_t * s)
+{
+	if(s)
+	{
+		if(s->r)
+			s->r->destroy(s->pctx);
+		free(s->pixels);
+		free(s);
+	}
+}
+
 struct surface_t * surface_clone(struct surface_t * s, struct region_t * r)
 {
 	struct surface_t * c;
@@ -218,15 +229,8 @@ struct surface_t * surface_clone(struct surface_t * s, struct region_t * r)
 	return c;
 }
 
-void surface_free(struct surface_t * s)
+void surface_extend(struct surface_t * s, struct surface_t * o, const char * type)
 {
-	if(s)
-	{
-		if(s->r)
-			s->r->destroy(s->pctx);
-		free(s->pixels);
-		free(s);
-	}
 }
 
 void surface_clear(struct surface_t * s, struct color_t * c, struct region_t * r)

@@ -138,6 +138,16 @@ static int m_image_clone(lua_State * L)
 	return 1;
 }
 
+static int m_image_extend(lua_State * L)
+{
+	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
+	struct limage_t * o = luaL_checkudata(L, 2, MT_IMAGE);
+	const char * type = luaL_optstring(L, 3, "repeat");
+	surface_extend(img->s, o->s, type);
+	lua_settop(L, 1);
+	return 1;
+}
+
 static int m_image_clear(lua_State * L)
 {
 	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
@@ -160,8 +170,8 @@ static int m_image_clear(lua_State * L)
 static int m_image_set_pixel(lua_State * L)
 {
 	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
-	int x = luaL_checkinteger(L, 2);
-	int y = luaL_checkinteger(L, 3);
+	int x = luaL_checknumber(L, 2);
+	int y = luaL_checknumber(L, 3);
 	struct color_t * c = luaL_checkudata(L, 4, MT_COLOR);
 	surface_set_pixel(img->s, x, y, c);
 	lua_settop(L, 1);
@@ -171,8 +181,8 @@ static int m_image_set_pixel(lua_State * L)
 static int m_image_get_pixel(lua_State * L)
 {
 	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
-	int x = luaL_checkinteger(L, 2);
-	int y = luaL_checkinteger(L, 3);
+	int x = luaL_checknumber(L, 2);
+	int y = luaL_checknumber(L, 3);
 	struct color_t * c = lua_newuserdata(L, sizeof(struct color_t));
 	surface_get_pixel(img->s, x, y, c);
 	luaL_setmetatable(L, MT_COLOR);
@@ -295,6 +305,7 @@ static const luaL_Reg m_image[] = {
 	{"getSize",		m_image_get_size},
 
 	{"clone",		m_image_clone},
+	{"extend",		m_image_extend},
 	{"clear",		m_image_clear},
 	{"setPixel",	m_image_set_pixel},
 	{"getPixel",	m_image_get_pixel},

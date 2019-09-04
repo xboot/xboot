@@ -67,29 +67,6 @@ struct render_t
 	void (*filter_blur)(struct surface_t * s, int radius);
 };
 
-void * render_default_create(struct surface_t * s);
-void render_default_destroy(void * pctx);
-void render_default_blit(struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct surface_t * src, enum render_type_t type);
-void render_default_fill(struct surface_t * s, struct region_t * clip, struct matrix_t * m, int w, int h, struct color_t * c, enum render_type_t type);
-void render_default_text(struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct text_t * txt);
-void render_default_raster(struct surface_t * s, struct svg_t * svg, float tx, float ty, float sx, float sy);
-void render_default_filter_haldclut(struct surface_t * s, struct surface_t * clut, const char * type);
-void render_default_filter_grayscale(struct surface_t * s);
-void render_default_filter_sepia(struct surface_t * s);
-void render_default_filter_invert(struct surface_t * s);
-void render_default_filter_threshold(struct surface_t * s, const char * type, int threshold, int value);
-void render_default_filter_colorize(struct surface_t * s, const char * type);
-void render_default_filter_hue(struct surface_t * s, int angle);
-void render_default_filter_saturate(struct surface_t * s, int saturate);
-void render_default_filter_brightness(struct surface_t * s, int brightness);
-void render_default_filter_contrast(struct surface_t * s, int contrast);
-void render_default_filter_opacity(struct surface_t * s, int alpha);
-void render_default_filter_blur(struct surface_t * s, int radius);
-
-struct render_t * search_render(void);
-bool_t register_render(struct render_t * r);
-bool_t unregister_render(struct render_t * r);
-
 static inline int surface_get_width(struct surface_t * s)
 {
 	return s->width;
@@ -190,10 +167,33 @@ static inline void surface_filter_blur(struct surface_t * s, int radius)
 	s->r->filter_blur(s, radius);
 }
 
+void * render_default_create(struct surface_t * s);
+void render_default_destroy(void * pctx);
+void render_default_blit(struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct surface_t * src, enum render_type_t type);
+void render_default_fill(struct surface_t * s, struct region_t * clip, struct matrix_t * m, int w, int h, struct color_t * c, enum render_type_t type);
+void render_default_text(struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct text_t * txt);
+void render_default_raster(struct surface_t * s, struct svg_t * svg, float tx, float ty, float sx, float sy);
+void render_default_filter_haldclut(struct surface_t * s, struct surface_t * clut, const char * type);
+void render_default_filter_grayscale(struct surface_t * s);
+void render_default_filter_sepia(struct surface_t * s);
+void render_default_filter_invert(struct surface_t * s);
+void render_default_filter_threshold(struct surface_t * s, const char * type, int threshold, int value);
+void render_default_filter_colorize(struct surface_t * s, const char * type);
+void render_default_filter_hue(struct surface_t * s, int angle);
+void render_default_filter_saturate(struct surface_t * s, int saturate);
+void render_default_filter_brightness(struct surface_t * s, int brightness);
+void render_default_filter_contrast(struct surface_t * s, int contrast);
+void render_default_filter_opacity(struct surface_t * s, int alpha);
+void render_default_filter_blur(struct surface_t * s, int radius);
+
+struct render_t * search_render(void);
+bool_t register_render(struct render_t * r);
+bool_t unregister_render(struct render_t * r);
 struct surface_t * surface_alloc(int width, int height, void * priv);
 struct surface_t * surface_alloc_from_xfs(struct xfs_context_t * ctx, const char * filename);
-struct surface_t * surface_clone(struct surface_t * s, struct region_t * r);
 void surface_free(struct surface_t * s);
+struct surface_t * surface_clone(struct surface_t * s, struct region_t * r);
+void surface_extend(struct surface_t * s, struct surface_t * o, const char * type);
 void surface_clear(struct surface_t * s, struct color_t * c, struct region_t * r);
 void surface_set_pixel(struct surface_t * s, int x, int y, struct color_t * c);
 void surface_get_pixel(struct surface_t * s, int x, int y, struct color_t * c);

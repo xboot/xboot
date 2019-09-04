@@ -40,34 +40,33 @@ void render_default_destroy(void * pctx)
 
 static inline void blend(uint32_t * d, uint32_t * s)
 {
+	uint32_t dv, sv = *s;
 	uint8_t da, dr, dg, db;
 	uint8_t sa, sr, sg, sb;
 	uint8_t a, r, g, b;
 	int t;
 
-	sa = (*s >> 24) & 0xff;
+	sa = (sv >> 24) & 0xff;
 	if(sa == 255)
 	{
-		*d = *s;
+		*d = sv;
 	}
 	else if(sa != 0)
 	{
-		sr = (*s >> 16) & 0xff;
-		sg = (*s >> 8) & 0xff;
-		sb = (*s >> 0) & 0xff;
-
-		da = (*d >> 24) & 0xff;
-		dr = (*d >> 16) & 0xff;
-		dg = (*d >> 8) & 0xff;
-		db = (*d >> 0) & 0xff;
-
+		sr = (sv >> 16) & 0xff;
+		sg = (sv >> 8) & 0xff;
+		sb = (sv >> 0) & 0xff;
+		dv = *d;
+		da = (dv >> 24) & 0xff;
+		dr = (dv >> 16) & 0xff;
+		dg = (dv >> 8) & 0xff;
+		db = (dv >> 0) & 0xff;
 		t = sa + (sa >> 8);
 		a = (((sa + da) << 8) - da * t) >> 8;
 		r = (((sr + dr) << 8) - dr * t) >> 8;
 		g = (((sg + dg) << 8) - dg * t) >> 8;
 		b = (((sb + db) << 8) - db * t) >> 8;
-
-		*d = a << 24 | r << 16 | g << 8 | b << 0;
+		*d = (a << 24) | (r << 16) | (g << 8) | (b << 0);
 	}
 }
 

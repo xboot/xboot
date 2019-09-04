@@ -59,14 +59,8 @@ stage:addChild(DisplayImage.new(Image.new(sw, sh):extend(Image.new("assets/image
 
 for i = 1, 5 do
 	local image = DisplayImage.new(Image.new(100, 50)
-			:save()
-			:setLineWidth(6)
-			:rectangle(0, 0, 100, 50)
-			:setSourceColor(1, 0, 0, 0.5)
-			:fillPreserve()
-			:setSourceColor(0, 0, 0)
-			:stroke()
-			:restore()
+			:clear(Color.new("black"))
+			:clear(Color.new("#FF000080"), 4, 4, 92, 42)
 		):setPosition(math.random(0, sw - 100), math.random(0, sh - 50))
 
 	image:addEventListener("mouse-down", onMouseDown)

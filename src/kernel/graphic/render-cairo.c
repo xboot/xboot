@@ -60,7 +60,23 @@ static void render_cairo_destroy(void * pctx)
 static void render_cairo_blit(struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct surface_t * src, enum render_type_t type)
 {
 	cairo_t * cr = ((struct render_cairo_context_t *)s->pctx)->cr;
+	struct region_t r;
+
 	cairo_save(cr);
+	if(clip)
+	{
+		region_init(&r, 0, 0, surface_get_width(s), surface_get_height(s));
+		if(region_intersect(&r, &r, clip))
+		{
+			cairo_rectangle(cr, r.x, r.y, r.w, r.h);
+			cairo_clip(cr);
+		}
+		else
+		{
+			cairo_restore(cr);
+			return;
+		}
+	}
 	cairo_set_matrix(cr, (cairo_matrix_t *)m);
 	cairo_set_source_surface(cr, ((struct render_cairo_context_t *)src->pctx)->cs, 0, 0);
 	switch(type)
@@ -84,7 +100,23 @@ static void render_cairo_blit(struct surface_t * s, struct region_t * clip, stru
 static void render_cairo_fill(struct surface_t * s, struct region_t * clip, struct matrix_t * m, int w, int h, struct color_t * c, enum render_type_t type)
 {
 	cairo_t * cr = ((struct render_cairo_context_t *)s->pctx)->cr;
+	struct region_t r;
+
 	cairo_save(cr);
+	if(clip)
+	{
+		region_init(&r, 0, 0, surface_get_width(s), surface_get_height(s));
+		if(region_intersect(&r, &r, clip))
+		{
+			cairo_rectangle(cr, r.x, r.y, r.w, r.h);
+			cairo_clip(cr);
+		}
+		else
+		{
+			cairo_restore(cr);
+			return;
+		}
+	}
 	cairo_set_matrix(cr, (cairo_matrix_t *)m);
 	cairo_rectangle(cr, 0, 0, w, h);
 	cairo_set_source_rgba(cr, c->r / 255.0, c->g / 255.0, c->b / 255.0, c->a / 255.0);

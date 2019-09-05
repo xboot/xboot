@@ -55,7 +55,7 @@ local function onTouchEnd(self, e)
 end
 
 local sw, sh = stage:getSize()
-stage:addChild(DisplayImage.new(Image.new(sw, sh):extend(Image.new("bg.png"), "repeat")))
+stage:addChild(DisplayImage.new(Image.new("assets/images/bg.png"):extend(sw, sh, "repeat")))
 
 local panel = Image.new(200, 200)
 

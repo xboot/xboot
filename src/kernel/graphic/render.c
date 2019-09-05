@@ -445,7 +445,7 @@ void render_default_filter_sepia(struct surface_t * s)
 	int width = surface_get_width(s);
 	int height = surface_get_height(s);
 	int stride = surface_get_stride(s);
-	unsigned char * p, *q = surface_get_pixels(s);
+	unsigned char * p, * q = surface_get_pixels(s);
 	unsigned char r, g, b;
 	int tr, tg, tb;
 	int x, y;
@@ -487,7 +487,7 @@ void render_default_filter_invert(struct surface_t * s)
 	int width = surface_get_width(s);
 	int height = surface_get_height(s);
 	int stride = surface_get_stride(s);
-	unsigned char * p, *q = surface_get_pixels(s);
+	unsigned char * p, * q = surface_get_pixels(s);
 	int x, y;
 	for(y = 0; y < height; y++, q += stride)
 	{
@@ -508,7 +508,7 @@ void render_default_filter_threshold(struct surface_t * s, const char * type, in
 	int width = surface_get_width(s);
 	int height = surface_get_height(s);
 	int stride = surface_get_stride(s);
-	unsigned char * p, *q = surface_get_pixels(s);
+	unsigned char * p, * q = surface_get_pixels(s);
 	int x, y;
 	threshold = clamp(threshold, 0, 255);
 	value = clamp(value, 0, 255);
@@ -705,7 +705,7 @@ void render_default_filter_colorize(struct surface_t * s, const char * type)
 	int width = surface_get_width(s);
 	int height = surface_get_height(s);
 	int stride = surface_get_stride(s);
-	unsigned char * p, *q = surface_get_pixels(s);
+	unsigned char * p, * q = surface_get_pixels(s);
 	const unsigned char (*cm)[3];
 	unsigned char r, g, b;
 	int x, y;
@@ -759,7 +759,7 @@ void render_default_filter_hue(struct surface_t * s, int angle)
 	int width = surface_get_width(s);
 	int height = surface_get_height(s);
 	int stride = surface_get_stride(s);
-	unsigned char * p, *q = surface_get_pixels(s);
+	unsigned char * p, * q = surface_get_pixels(s);
 	int r, g, b;
 	int tr, tg, tb;
 	int x, y;
@@ -797,7 +797,7 @@ void render_default_filter_saturate(struct surface_t * s, int saturate)
 	int width = surface_get_width(s);
 	int height = surface_get_height(s);
 	int stride = surface_get_stride(s);
-	unsigned char * p, *q = surface_get_pixels(s);
+	unsigned char * p, * q = surface_get_pixels(s);
 	int r, g, b, min, max;
 	int alpha, delta, value, lv, sv;
 	int x, y;
@@ -843,7 +843,7 @@ void render_default_filter_brightness(struct surface_t * s, int brightness)
 	int width = surface_get_width(s);
 	int height = surface_get_height(s);
 	int stride = surface_get_stride(s);
-	unsigned char * p, *q = surface_get_pixels(s);
+	unsigned char * p, * q = surface_get_pixels(s);
 	int r, g, b;
 	int tr, tg, tb;
 	int x, y;
@@ -871,7 +871,7 @@ void render_default_filter_contrast(struct surface_t * s, int contrast)
 	int width = surface_get_width(s);
 	int height = surface_get_height(s);
 	int stride = surface_get_stride(s);
-	unsigned char * p, *q = surface_get_pixels(s);
+	unsigned char * p, * q = surface_get_pixels(s);
 	int r, g, b;
 	int tr, tg, tb;
 	int x, y;
@@ -899,7 +899,7 @@ void render_default_filter_opacity(struct surface_t * s, int alpha)
 	int width = surface_get_width(s);
 	int height = surface_get_height(s);
 	int stride = surface_get_stride(s);
-	unsigned char * p, *q = surface_get_pixels(s);
+	unsigned char * p, * q = surface_get_pixels(s);
 	int x, y;
 	switch(alpha)
 	{

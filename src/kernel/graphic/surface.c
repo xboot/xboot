@@ -229,8 +229,39 @@ struct surface_t * surface_clone(struct surface_t * s, struct region_t * r)
 	return c;
 }
 
-void surface_extend(struct surface_t * s, struct surface_t * o, const char * type)
+struct surface_t * surface_extend(struct surface_t * s, int width, int height, const char * type)
 {
+	struct surface_t * c;
+	void * pixels;
+	int stride, pixlen;
+
+	if(!s || (width <= 0) || (height <= 0))
+		return NULL;
+
+	c = malloc(sizeof(struct surface_t));
+	if(!c)
+		return NULL;
+
+	stride = width << 2;
+	pixlen = height * stride;
+	pixels = memalign(4, pixlen);
+	if(!pixels)
+	{
+		free(s);
+		return NULL;
+	}
+	memset(pixels, 0xb0, pixlen);
+	memcpy(pixels, s->pixels, s->pixlen);
+
+	c->width = width;
+	c->height = height;
+	c->stride = stride;
+	c->pixlen = pixlen;
+	c->pixels = pixels;
+	c->r = s->r;
+	c->pctx = c->r->create(c);
+	c->priv = NULL;
+	return c;
 }
 
 void surface_clear(struct surface_t * s, struct color_t * c, struct region_t * r)

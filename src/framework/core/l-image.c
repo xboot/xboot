@@ -141,10 +141,19 @@ static int m_image_clone(lua_State * L)
 static int m_image_extend(lua_State * L)
 {
 	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
-	struct limage_t * o = luaL_checkudata(L, 2, MT_IMAGE);
+	int width = luaL_checkinteger(L, 2);
+	int height = luaL_checkinteger(L, 3);
 	const char * type = luaL_optstring(L, 3, "repeat");
-	surface_extend(img->s, o->s, type);
-	lua_settop(L, 1);
+	if(width <= 0)
+		width = surface_get_width(img->s);
+	if(height <= 0)
+		height = surface_get_height(img->s);
+	struct surface_t * c = surface_extend(img->s, width, height, type);
+	if(!c)
+		return 0;
+	struct limage_t * subimg = lua_newuserdata(L, sizeof(struct limage_t));
+	subimg->s = c;
+	luaL_setmetatable(L, MT_IMAGE);
 	return 1;
 }
 
@@ -306,6 +315,7 @@ static const luaL_Reg m_image[] = {
 
 	{"clone",		m_image_clone},
 	{"extend",		m_image_extend},
+
 	{"clear",		m_image_clear},
 	{"setPixel",	m_image_set_pixel},
 	{"getPixel",	m_image_get_pixel},

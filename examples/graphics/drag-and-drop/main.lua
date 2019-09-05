@@ -59,10 +59,10 @@ local function onTouchEnd(self, e)
 end
 
 local sw, sh = stage:getSize()
-stage:addChild(DisplayImage.new(Image.new(sw, sh):extend(Image.new("bg.png"), "repeat")))
+stage:addChild(DisplayImage.new(Image.new("assets/images/bg.png"):extend(sw, sh, "repeat")))
 
 for i = 1, 10 do
-	local img = assets:loadDisplay("tomato.png")
+	local img = assets:loadDisplay("assets/images/tomato.png")
 		:setPosition(math.random(0, sw - 64), math.random(0, sh - 64))
 		:setScale(math.random() * 0.4 + 0.6)
 		:setRotation(math.random(0, 360))

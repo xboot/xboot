@@ -1,9 +1,9 @@
 local M_PI = math.pi
 
 local sw, sh = stage:getSize()
-stage:addChild(DisplayImage.new(Image.new(sw, sh):extend(Image.new("bg.png"), "repeat")))
+stage:addChild(DisplayImage.new(Image.new("assets/images/bg.png"):extend(sw, sh, "repeat")))
 
-local snowman = assets:loadDisplay("snowman.png"):setAnchor(0.5, 0.5):setPosition(sw / 2, sh / 2)
+local snowman = assets:loadDisplay("assets/images/snowman.png"):setAnchor(0.5, 0.5):setPosition(sw / 2, sh / 2)
 local w, h = snowman:getSize();
 
 stage:addTimer(Timer.new(1, 0, function(t)

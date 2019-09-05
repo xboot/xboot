@@ -3,16 +3,7 @@ local sw, sh = stage:getSize()
 local bgimg = Image.new("assets/images/background.png")
 stage:addChild(DisplayImage.new(bgimg))
 
---[[local mimg = Image.new(sw, sh)
-	:save()
-	:setSource(Pattern.image(bgimg:clone():blur(120)))
-	:paint()
-	:setSource(Pattern.image(Image.new("assets/images/water.png")))
-	:paint()
-	:restore()
---]]
-local mimg = bgimg:extend(sw, sh, "repeat"):blur(120)
-
+local mimg = bgimg:extend(sw, sh, "repeat"):blur(120):blit(Matrix.new(), Image.new("assets/images/water.png"))
 local mask = DisplayImage.new(mimg)
 stage:addChild(mask)
 

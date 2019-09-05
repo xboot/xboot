@@ -157,6 +157,29 @@ static int m_image_extend(lua_State * L)
 	return 1;
 }
 
+static int m_image_blit(lua_State * L)
+{
+	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
+	struct matrix_t * m = luaL_checkudata(L, 2, MT_MATRIX);
+	struct limage_t * o = luaL_checkudata(L, 3, MT_IMAGE);
+	surface_blit(img->s, NULL, m, o->s, RENDER_TYPE_GOOD);
+	lua_settop(L, 1);
+	return 1;
+}
+
+static int m_image_fill(lua_State * L)
+{
+	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
+	struct matrix_t * m = luaL_checkudata(L, 2, MT_MATRIX);
+	int w = luaL_checkinteger(L, 3);
+	int h = luaL_checkinteger(L, 4);
+	struct color_t * c = luaL_checkudata(L, 5, MT_COLOR);
+	if((w > 0) && (h > 0))
+		surface_fill(img->s, NULL, m, w, h, c, RENDER_TYPE_GOOD);
+	lua_settop(L, 1);
+	return 1;
+}
+
 static int m_image_clear(lua_State * L)
 {
 	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
@@ -316,6 +339,8 @@ static const luaL_Reg m_image[] = {
 	{"clone",		m_image_clone},
 	{"extend",		m_image_extend},
 
+	{"blit",		m_image_blit},
+	{"fill",		m_image_fill},
 	{"clear",		m_image_clear},
 	{"setPixel",	m_image_set_pixel},
 	{"getPixel",	m_image_get_pixel},

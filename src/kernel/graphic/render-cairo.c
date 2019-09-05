@@ -77,7 +77,10 @@ static void render_cairo_blit(struct surface_t * s, struct region_t * clip, stru
 			return;
 		}
 	}
-	cairo_set_matrix(cr, (cairo_matrix_t *)m);
+	if(m)
+	{
+		cairo_set_matrix(cr, (cairo_matrix_t *)m);
+	}
 	cairo_set_source_surface(cr, ((struct render_cairo_context_t *)src->pctx)->cs, 0, 0);
 	switch(type)
 	{
@@ -117,7 +120,10 @@ static void render_cairo_fill(struct surface_t * s, struct region_t * clip, stru
 			return;
 		}
 	}
-	cairo_set_matrix(cr, (cairo_matrix_t *)m);
+	if(m)
+	{
+		cairo_set_matrix(cr, (cairo_matrix_t *)m);
+	}
 	cairo_rectangle(cr, 0, 0, w, h);
 	cairo_set_source_rgba(cr, c->r / 255.0, c->g / 255.0, c->b / 255.0, c->a / 255.0);
 	switch(type)

@@ -143,7 +143,7 @@ static int m_image_extend(lua_State * L)
 	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
 	int width = luaL_checkinteger(L, 2);
 	int height = luaL_checkinteger(L, 3);
-	const char * type = luaL_optstring(L, 3, "repeat");
+	const char * type = luaL_optstring(L, 4, "repeat");
 	if(width <= 0)
 		width = surface_get_width(img->s);
 	if(height <= 0)

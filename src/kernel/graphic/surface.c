@@ -232,8 +232,10 @@ struct surface_t * surface_clone(struct surface_t * s, struct region_t * r)
 struct surface_t * surface_extend(struct surface_t * s, int width, int height, const char * type)
 {
 	struct surface_t * c;
-	void * pixels;
+	uint32_t * dp, * sp;
+	void * pixels, * spixels;
 	int stride, pixlen;
+	int sw, sh, x, y;
 
 	if(!s || (width <= 0) || (height <= 0))
 		return NULL;
@@ -250,7 +252,60 @@ struct surface_t * surface_extend(struct surface_t * s, int width, int height, c
 		free(s);
 		return NULL;
 	}
-	memcpy(pixels, s->pixels, min(pixlen, s->pixlen));
+	spixels = s->pixels;
+	sw = s->width;
+	sh = s->height;
+
+	switch(shash(type))
+	{
+	case 0x192dec66: /* "repeat" */
+		for(y = 0, dp = (uint32_t *)pixels; y < height; y++)
+		{
+			for(x = 0, sp = (uint32_t *)spixels + (y % sh) * sw; x < width; x++)
+			{
+				*dp++ = *(sp + (x % sw));
+			}
+		}
+		break;
+	case 0x3e3a6a0a: /* "reflect" */
+		for(y = 0, dp = (uint32_t *)pixels; y < height; y++)
+		{
+			for(x = 0, sp = (uint32_t *)spixels + (((y / sh) & 0x1) ? (sh - 1 - (y % sh)) : (y % sh)) * sw; x < width; x++)
+			{
+				*dp++ = *(sp + (((x / sw) & 0x1) ? (sw - 1 - (x % sw)) : (x % sw)));
+			}
+		}
+		break;
+	case 0x0b889c3a: /* "pad" */
+		for(y = 0, dp = (uint32_t *)pixels; y < height; y++)
+		{
+			for(x = 0, sp = (uint32_t *)spixels + ((y < sh) ? y : sh - 1) * sw; x < width; x++)
+			{
+				*dp++ = *(sp + ((x < sw) ? x : sw - 1));
+			}
+		}
+		break;
+	default:
+		for(y = 0, dp = (uint32_t *)pixels; y < height; y++)
+		{
+			if(y < sh)
+			{
+				for(x = 0, sp = (uint32_t *)spixels + y * sw; x < width; x++)
+				{
+					if(x < sw)
+						*dp++ = *(sp + x);
+					else
+						*dp++ = 0;
+				}
+			}
+			else
+			{
+				memset(dp, 0, stride);
+				dp += width;
+			}
+		}
+		break;
+	}
 
 	c->width = width;
 	c->height = height;

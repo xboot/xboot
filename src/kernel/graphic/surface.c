@@ -250,8 +250,7 @@ struct surface_t * surface_extend(struct surface_t * s, int width, int height, c
 		free(s);
 		return NULL;
 	}
-	memset(pixels, 0xb0, pixlen);
-	memcpy(pixels, s->pixels, s->pixlen);
+	memcpy(pixels, s->pixels, min(pixlen, s->pixlen));
 
 	c->width = width;
 	c->height = height;

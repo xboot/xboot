@@ -65,8 +65,8 @@ void do_showlogo(void)
 				}
 				surface_free(logo);
 			}
+			xfs_free(ctx);
 		}
-		xfs_free(ctx);
 	}
 }
 

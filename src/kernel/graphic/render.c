@@ -206,6 +206,10 @@ void render_default_shape_ellipse(struct surface_t * s, struct region_t * clip, 
 {
 }
 
+void render_default_shape_arc(struct surface_t * s, struct region_t * clip, int x, int y, int radius, int a1, int a2, int thickness, struct color_t * c)
+{
+}
+
 void render_default_filter_haldclut(struct surface_t * s, struct surface_t * clut, const char * type)
 {
 	int width = surface_get_width(s);

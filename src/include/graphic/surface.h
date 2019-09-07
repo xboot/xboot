@@ -61,6 +61,7 @@ struct render_t
 	void (*shape_polygon)(struct surface_t * s, struct region_t * clip, struct point_t * p, int n, int thickness, struct color_t * c);
 	void (*shape_circle)(struct surface_t * s, struct region_t * clip, int x, int y, int radius, int thickness, struct color_t * c);
 	void (*shape_ellipse)(struct surface_t * s, struct region_t * clip, int x, int y, int w, int h, int thickness, struct color_t * c);
+	void (*shape_arc)(struct surface_t * s, struct region_t * clip, int x, int y, int radius, int a1, int a2, int thickness, struct color_t * c);
 	void (*shape_raster)(struct surface_t * s, struct svg_t * svg, float tx, float ty, float sx, float sy);
 
 	void (*filter_haldclut)(struct surface_t * s, struct surface_t * clut, const char * type);
@@ -152,6 +153,11 @@ static inline void surface_shape_ellipse(struct surface_t * s, struct region_t *
 	s->r->shape_ellipse(s, clip, x, y, w, h, thickness, c);
 }
 
+static inline void surface_shape_arc(struct surface_t * s, struct region_t * clip, int x, int y, int radius, int a1, int a2, int thickness, struct color_t * c)
+{
+	s->r->shape_arc(s, clip, x, y, radius, a1, a2, thickness, c);
+}
+
 static inline void surface_shape_raster(struct surface_t * s, struct svg_t * svg, float tx, float ty, float sx, float sy)
 {
 	s->r->shape_raster(s, svg, tx, ty, sx, sy);
@@ -230,6 +236,7 @@ void render_default_shape_rectangle(struct surface_t * s, struct region_t * clip
 void render_default_shape_polygon(struct surface_t * s, struct region_t * clip, struct point_t * p, int n, int thickness, struct color_t * c);
 void render_default_shape_circle(struct surface_t * s, struct region_t * clip, int x, int y, int radius, int thickness, struct color_t * c);
 void render_default_shape_ellipse(struct surface_t * s, struct region_t * clip, int x, int y, int w, int h, int thickness, struct color_t * c);
+void render_default_shape_arc(struct surface_t * s, struct region_t * clip, int x, int y, int radius, int a1, int a2, int thickness, struct color_t * c);
 void render_default_shape_raster(struct surface_t * s, struct svg_t * svg, float tx, float ty, float sx, float sy);
 void render_default_filter_haldclut(struct surface_t * s, struct surface_t * clut, const char * type);
 void render_default_filter_grayscale(struct surface_t * s);

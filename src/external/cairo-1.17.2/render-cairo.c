@@ -438,6 +438,43 @@ static void render_cairo_shape_ellipse(struct surface_t * s, struct region_t * c
 	}
 }
 
+void render_cairo_shape_arc(struct surface_t * s, struct region_t * clip, int x, int y, int radius, int a1, int a2, int thickness, struct color_t * c)
+{
+	cairo_t * cr = ((struct render_cairo_context_t *)s->pctx)->cr;
+	struct region_t r;
+
+	if(radius > 0)
+	{
+		cairo_save(cr);
+		if(clip)
+		{
+			region_init(&r, 0, 0, surface_get_width(s), surface_get_height(s));
+			if(region_intersect(&r, &r, clip))
+			{
+				cairo_rectangle(cr, r.x, r.y, r.w, r.h);
+				cairo_clip(cr);
+			}
+			else
+			{
+				cairo_restore(cr);
+				return;
+			}
+		}
+		cairo_arc(cr, x, y, radius, a1 * (M_PI / 180.0), a2 * (M_PI / 180.0));
+		cairo_set_source_rgba(cr, c->r / 255.0, c->g / 255.0, c->b / 255.0, c->a / 255.0);
+		if(thickness > 0)
+		{
+			cairo_set_line_width(cr, thickness);
+			cairo_stroke(cr);
+		}
+		else
+		{
+			cairo_fill(cr);
+		}
+		cairo_restore(cr);
+	}
+}
+
 static struct render_t render_cairo = {
 	.name	 			= "cairo",
 
@@ -456,6 +493,7 @@ static struct render_t render_cairo = {
 	.shape_polygon		= render_cairo_shape_polygon,
 	.shape_circle		= render_cairo_shape_circle,
 	.shape_ellipse		= render_cairo_shape_ellipse,
+	.shape_arc			= render_cairo_shape_arc,
 	.shape_raster		= render_default_shape_raster,
 
 	.filter_haldclut	= render_default_filter_haldclut,

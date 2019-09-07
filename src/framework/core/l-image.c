@@ -371,6 +371,21 @@ static int m_image_ellipse(lua_State * L)
 	return 1;
 }
 
+static int m_image_arc(lua_State * L)
+{
+	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
+	int x = luaL_checknumber(L, 2);
+	int y = luaL_checknumber(L, 3);
+	int radius = luaL_checknumber(L, 4);
+	int a1 = luaL_checknumber(L, 5);
+	int a2 = luaL_checknumber(L, 6);
+	int thickness = luaL_checknumber(L, 7);
+	struct color_t * c = luaL_checkudata(L, 8, MT_COLOR);
+	surface_shape_arc(img->s, NULL, x, y, radius, a1, a2, thickness, c);
+	lua_settop(L, 1);
+	return 1;
+}
+
 static int m_image_haldclut(lua_State * L)
 {
 	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
@@ -502,6 +517,7 @@ static const luaL_Reg m_image[] = {
 	{"polygon",		m_image_polygon},
 	{"circle",		m_image_circle},
 	{"ellipse",		m_image_ellipse},
+	{"arc",			m_image_arc},
 
 	{"haldclut",	m_image_haldclut},
 	{"grayscale",	m_image_grayscale},

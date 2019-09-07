@@ -157,6 +157,25 @@ static int m_image_extend(lua_State * L)
 	return 1;
 }
 
+static int m_image_clear(lua_State * L)
+{
+	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
+	struct color_t * c = luaL_checkudata(L, 2, MT_COLOR);
+	struct region_t r;
+	int x = luaL_optinteger(L, 3, 0);
+	int y = luaL_optinteger(L, 4, 0);
+	int w = luaL_optinteger(L, 5, surface_get_width(img->s) - x);
+	int h = luaL_optinteger(L, 6, surface_get_height(img->s) - y);
+	if(w <= 0)
+		w = surface_get_width(img->s);
+	if(h <= 0)
+		h = surface_get_height(img->s);
+	region_init(&r, x, y, w, h);
+	surface_clear(img->s, c, &r);
+	lua_settop(L, 1);
+	return 1;
+}
+
 static int m_image_blit(lua_State * L)
 {
 	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
@@ -177,47 +196,6 @@ static int m_image_fill(lua_State * L)
 	if((w > 0) && (h > 0))
 		surface_fill(img->s, NULL, m, w, h, c, RENDER_TYPE_GOOD);
 	lua_settop(L, 1);
-	return 1;
-}
-
-static int m_image_clear(lua_State * L)
-{
-	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
-	struct color_t * c = luaL_checkudata(L, 2, MT_COLOR);
-	struct region_t r;
-	int x = luaL_optinteger(L, 3, 0);
-	int y = luaL_optinteger(L, 4, 0);
-	int w = luaL_optinteger(L, 5, surface_get_width(img->s) - x);
-	int h = luaL_optinteger(L, 6, surface_get_height(img->s) - y);
-	if(w <= 0)
-		w = surface_get_width(img->s);
-	if(h <= 0)
-		h = surface_get_height(img->s);
-	region_init(&r, x, y, w, h);
-	surface_clear(img->s, c, &r);
-	lua_settop(L, 1);
-	return 1;
-}
-
-static int m_image_set_pixel(lua_State * L)
-{
-	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
-	int x = luaL_checknumber(L, 2);
-	int y = luaL_checknumber(L, 3);
-	struct color_t * c = luaL_checkudata(L, 4, MT_COLOR);
-	surface_set_pixel(img->s, x, y, c);
-	lua_settop(L, 1);
-	return 1;
-}
-
-static int m_image_get_pixel(lua_State * L)
-{
-	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
-	int x = luaL_checknumber(L, 2);
-	int y = luaL_checknumber(L, 3);
-	struct color_t * c = lua_newuserdata(L, sizeof(struct color_t));
-	surface_get_pixel(img->s, x, y, c);
-	luaL_setmetatable(L, MT_COLOR);
 	return 1;
 }
 
@@ -499,12 +477,10 @@ static const luaL_Reg m_image[] = {
 
 	{"clone",		m_image_clone},
 	{"extend",		m_image_extend},
+	{"clear",		m_image_clear},
 
 	{"blit",		m_image_blit},
 	{"fill",		m_image_fill},
-	{"clear",		m_image_clear},
-	{"setPixel",	m_image_set_pixel},
-	{"getPixel",	m_image_get_pixel},
 
 	{"line",		m_image_line},
 	{"polyline",	m_image_polyline},

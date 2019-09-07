@@ -58,61 +58,8 @@ local sw, sh = stage:getSize()
 stage:addChild(DisplayImage.new(Image.new("assets/images/bg.png"):extend(sw, sh, "repeat")))
 
 local panel = Image.new(200, 200)
-
-local function drawLine(p, x1, y1, x2, y2, c)
-	if math.abs(x2 - x1) > math.abs(y2 - y1) then
-		steps = math.abs(x2 - x1)
-	else
-		steps = math.abs(y2 - y1)
-	end
-		increx = (x2 - x1) / steps
-		increy = (y2 - y1) / steps
-		x = x1
-		y = y1
-	for i = 1, steps do
-		p:setPixel(x, y, c)
-		x = x + increx
-		y = y + increy
-	end
-end
-
-local function drawRectFull(p, x, y, w, h, c)
-	for i = 0, w do
-		for o = 0, h do
-			p:setPixel(x + i,y + o, c)
-		end
-	end
-end
-
-function drawPutdot(p, x0, y0, x, y, c)
-	p:setPixel(x0 + x, y0 + y, c)
-	p:setPixel(x0 + x, y0 - y, c)
-	p:setPixel(x0 - x, y0 + y, c)
-	p:setPixel(x0 - x, y0 - y, c)
-	p:setPixel(x0 + y, y0 + x, c)
-	p:setPixel(x0 + y, y0 - x, c)
-	p:setPixel(x0 - y, y0 + x, c)
-	p:setPixel(x0 - y, y0 - x, c)
-end
-
-local function drawCircle(p, x0, y0, l, c)
-	x = 0
-	y = l
-	f = 5 / 4 - y
-	while x <= y do
-		drawPutdot(p, x0, y0, x, y, c)
-		if f < 0 then
-			f = f + 2 * x + 3
-		else
-			f = f + 2 * ( x - y ) + 5
-			y = y - 1
-		end
-		x = x + 1
-	end
-end
-
-drawLine(panel, 50, 30, 100, 150, Color.new("red"))
-drawCircle(panel, 100, 100, 50, Color.new("blue"))
+panel:rectangle(0, 0, 200, 200, 0, 1, Color.new("red"))
+panel:circle(100, 100, 50, 10, Color.new("blue"))
 
 local img = DisplayImage.new(panel)
 	:setPosition(math.random(0, sw - 64), math.random(0, sh - 64))

@@ -253,8 +253,6 @@ void surface_free(struct surface_t * s);
 struct surface_t * surface_clone(struct surface_t * s, struct region_t * r);
 struct surface_t * surface_extend(struct surface_t * s, int width, int height, const char * type);
 void surface_clear(struct surface_t * s, struct color_t * c, struct region_t * r);
-void surface_set_pixel(struct surface_t * s, int x, int y, struct color_t * c);
-void surface_get_pixel(struct surface_t * s, int x, int y, struct color_t * c);
 
 #ifdef __cplusplus
 }

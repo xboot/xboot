@@ -184,14 +184,6 @@ SRCDIRS		+=	external/lua-5.3.5
 INCDIRS		+= 	external/lua-cjson-2.1.0
 SRCDIRS		+=	external/lua-cjson-2.1.0
 
-INCDIRS		+= 	external/pixman-0.38.4 \
-				external/pixman-0.38.4/$(ARCH)
-SRCDIRS		+=	external/pixman-0.38.4 \
-				external/pixman-0.38.4/$(ARCH)
-
-INCDIRS		+= 	external/cairo-1.17.2
-SRCDIRS		+=	external/cairo-1.17.2
-
 INCDIRS		+= 	external/freetype-2.10.1/include \
 				external/freetype-2.10.1/src/autofit \
 				external/freetype-2.10.1/src/base \
@@ -229,6 +221,14 @@ SRCDIRS		+=	external/freetype-2.10.1/src/autofit \
 				external/freetype-2.10.1/src/type1 \
 				external/freetype-2.10.1/src/type42 \
 				external/freetype-2.10.1/src/winfonts
+
+INCDIRS		+= 	external/pixman-0.38.4 \
+				external/pixman-0.38.4/$(ARCH)
+SRCDIRS		+=	external/pixman-0.38.4 \
+				external/pixman-0.38.4/$(ARCH)
+
+INCDIRS		+= 	external/cairo-1.17.2
+SRCDIRS		+=	external/cairo-1.17.2
 
 INCDIRS		+=	external/chipmunk-7.0.2/include
 SRCDIRS		+=	external/chipmunk-7.0.2/src

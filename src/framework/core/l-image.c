@@ -221,6 +221,167 @@ static int m_image_get_pixel(lua_State * L)
 	return 1;
 }
 
+static int m_image_line(lua_State * L)
+{
+	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
+	struct point_t p0, p1;
+	p0.x = luaL_checknumber(L, 2);
+	p0.y = luaL_checknumber(L, 3);
+	p1.x = luaL_checknumber(L, 4);
+	p1.y = luaL_checknumber(L, 5);
+	int thickness = luaL_checknumber(L, 6);
+	struct color_t * c = luaL_checkudata(L, 7, MT_COLOR);
+	surface_shape_line(img->s, NULL, &p0, &p1, thickness, c);
+	lua_settop(L, 1);
+	return 1;
+}
+
+static int m_image_polyline(lua_State * L)
+{
+	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
+	struct point_t pts[128], * p;
+	int n, i;
+	if(lua_istable(L, 2) && ((n = lua_rawlen(L, 2) >> 1) > 0))
+	{
+		if(n > ARRAY_SIZE(pts))
+			p = malloc(sizeof(struct point_t) * n);
+		else
+			p = pts;
+		for(i = 0; i < n; i++)
+		{
+			lua_rawgeti(L, 2, i * 2 + 1);
+			lua_rawgeti(L, 2, i * 2 + 2);
+			p[i].x = luaL_checknumber(L, -2);
+			p[i].y = luaL_checknumber(L, -1);
+			lua_pop(L, 2);
+		}
+		int thickness = luaL_checknumber(L, 3);
+		struct color_t * c = luaL_checkudata(L, 4, MT_COLOR);
+		surface_shape_polyline(img->s, NULL, p, n, thickness, c);
+		if(p != pts)
+			free(p);
+	}
+	lua_settop(L, 1);
+	return 1;
+}
+
+static int m_image_curve(lua_State * L)
+{
+	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
+	struct point_t pts[128], * p;
+	int n, i;
+	if(lua_istable(L, 2) && ((n = lua_rawlen(L, 2) >> 1) > 0))
+	{
+		if(n > ARRAY_SIZE(pts))
+			p = malloc(sizeof(struct point_t) * n);
+		else
+			p = pts;
+		for(i = 0; i < n; i++)
+		{
+			lua_rawgeti(L, 2, i * 2 + 1);
+			lua_rawgeti(L, 2, i * 2 + 2);
+			p[i].x = luaL_checknumber(L, -2);
+			p[i].y = luaL_checknumber(L, -1);
+			lua_pop(L, 2);
+		}
+		int thickness = luaL_checknumber(L, 3);
+		struct color_t * c = luaL_checkudata(L, 4, MT_COLOR);
+		surface_shape_curve(img->s, NULL, p, n, thickness, c);
+		if(p != pts)
+			free(p);
+	}
+	lua_settop(L, 1);
+	return 1;
+}
+
+static int m_image_triangle(lua_State * L)
+{
+	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
+	struct point_t p0, p1, p2;
+	p0.x = luaL_checknumber(L, 2);
+	p0.y = luaL_checknumber(L, 3);
+	p1.x = luaL_checknumber(L, 4);
+	p1.y = luaL_checknumber(L, 5);
+	p2.x = luaL_checknumber(L, 6);
+	p2.y = luaL_checknumber(L, 7);
+	int thickness = luaL_checknumber(L, 8);
+	struct color_t * c = luaL_checkudata(L, 9, MT_COLOR);
+	surface_shape_triangle(img->s, NULL, &p0, &p1, &p2, thickness, c);
+	lua_settop(L, 1);
+	return 1;
+}
+
+static int m_image_rectangle(lua_State * L)
+{
+	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
+	int x = luaL_checknumber(L, 2);
+	int y = luaL_checknumber(L, 3);
+	int w = luaL_checknumber(L, 4);
+	int h = luaL_checknumber(L, 5);
+	int radius = luaL_checknumber(L, 6);
+	int thickness = luaL_checknumber(L, 7);
+	struct color_t * c = luaL_checkudata(L, 8, MT_COLOR);
+	surface_shape_rectangle(img->s, NULL, x, y, w, h, radius, thickness, c);
+	lua_settop(L, 1);
+	return 1;
+}
+
+static int m_image_polygon(lua_State * L)
+{
+	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
+	struct point_t pts[128], * p;
+	int n, i;
+	if(lua_istable(L, 2) && ((n = lua_rawlen(L, 2) >> 1) > 0))
+	{
+		if(n > ARRAY_SIZE(pts))
+			p = malloc(sizeof(struct point_t) * n);
+		else
+			p = pts;
+		for(i = 0; i < n; i++)
+		{
+			lua_rawgeti(L, 2, i * 2 + 1);
+			lua_rawgeti(L, 2, i * 2 + 2);
+			p[i].x = luaL_checknumber(L, -2);
+			p[i].y = luaL_checknumber(L, -1);
+			lua_pop(L, 2);
+		}
+		int thickness = luaL_checknumber(L, 3);
+		struct color_t * c = luaL_checkudata(L, 4, MT_COLOR);
+		surface_shape_polygon(img->s, NULL, p, n, thickness, c);
+		if(p != pts)
+			free(p);
+	}
+	lua_settop(L, 1);
+	return 1;
+}
+
+static int m_image_circle(lua_State * L)
+{
+	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
+	int x = luaL_checknumber(L, 2);
+	int y = luaL_checknumber(L, 3);
+	int radius = luaL_checknumber(L, 4);
+	int thickness = luaL_checknumber(L, 5);
+	struct color_t * c = luaL_checkudata(L, 6, MT_COLOR);
+	surface_shape_circle(img->s, NULL, x, y, radius, thickness, c);
+	lua_settop(L, 1);
+	return 1;
+}
+
+static int m_image_ellipse(lua_State * L)
+{
+	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
+	int x = luaL_checknumber(L, 2);
+	int y = luaL_checknumber(L, 3);
+	int w = luaL_checknumber(L, 4);
+	int h = luaL_checknumber(L, 5);
+	int thickness = luaL_checknumber(L, 6);
+	struct color_t * c = luaL_checkudata(L, 7, MT_COLOR);
+	surface_shape_ellipse(img->s, NULL, x, y, w, h, thickness, c);
+	lua_settop(L, 1);
+	return 1;
+}
+
 static int m_image_haldclut(lua_State * L)
 {
 	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
@@ -344,6 +505,15 @@ static const luaL_Reg m_image[] = {
 	{"clear",		m_image_clear},
 	{"setPixel",	m_image_set_pixel},
 	{"getPixel",	m_image_get_pixel},
+
+	{"line",		m_image_line},
+	{"polyline",	m_image_polyline},
+	{"curve",		m_image_curve},
+	{"triangle",	m_image_triangle},
+	{"rectangle",	m_image_rectangle},
+	{"polygon",		m_image_polygon},
+	{"circle",		m_image_circle},
+	{"ellipse",		m_image_ellipse},
 
 	{"haldclut",	m_image_haldclut},
 	{"grayscale",	m_image_grayscale},

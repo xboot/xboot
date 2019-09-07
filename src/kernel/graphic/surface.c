@@ -48,7 +48,16 @@ static struct render_t render_default = {
 	.blit				= render_default_blit,
 	.fill				= render_default_fill,
 	.text				= render_default_text,
-	.raster				= render_default_raster,
+
+	.shape_line			= render_default_shape_line,
+	.shape_polyline		= render_default_shape_polyline,
+	.shape_curve		= render_default_shape_curve,
+	.shape_triangle		= render_default_shape_triangle,
+	.shape_rectangle	= render_default_shape_rectangle,
+	.shape_polygon		= render_default_shape_polygon,
+	.shape_circle		= render_default_shape_circle,
+	.shape_ellipse		= render_default_shape_ellipse,
+	.shape_raster		= render_default_shape_raster,
 
 	.filter_haldclut	= render_default_filter_haldclut,
 	.filter_grayscale	= render_default_filter_grayscale,

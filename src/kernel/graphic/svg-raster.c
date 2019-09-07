@@ -1243,7 +1243,7 @@ static void svg_unpremultiply_alpha(unsigned char * img, int w, int h, int strid
 	}
 }
 
-void render_default_raster(struct surface_t * s, struct svg_t * svg, float tx, float ty, float sx, float sy)
+void render_default_shape_raster(struct surface_t * s, struct svg_t * svg, float tx, float ty, float sx, float sy)
 {
 	struct svg_rasterizer_t r;
 	struct svg_cache_paint_t cache;

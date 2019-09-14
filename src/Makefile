@@ -232,7 +232,9 @@ SRCDIRS		+=	external/freetype-2.8/src/autofit \
 INCDIRS		+=	external/chipmunk-7.0.2/include
 SRCDIRS		+=	external/chipmunk-7.0.2/src
 
-#
+# Host toolchain for compiling tools
+HOST_CC			:=	$(CC)
+
 # You shouldn't need to change anything below this point.
 #
 AS			:=	$(CROSS_COMPILE)gcc -x assembler-with-cpp

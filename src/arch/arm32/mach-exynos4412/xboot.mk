@@ -15,12 +15,15 @@ INCDIRS		:=
 SRCDIRS		:=
 
 ifeq ($(strip $(HOSTOS)), linux)
-MK4412		:= arch/$(ARCH)/$(MACH)/tools/linux/mk4412
+MK4412		:= .obj/arch/$(ARCH)/$(MACH)/tools/linux/mk4412
+$(MK4412):
+	mkdir -p `dirname $(MK4412)`
+	$(HOST_CC) ../developments/exynos4412/mk4412/mk4412.c -o $@
 endif
 ifeq ($(strip $(HOSTOS)), windows)
 MK4412		:= arch/$(ARCH)/$(MACH)/tools/windows/mk4412
 endif
 
-xend:
+xend: $(MK4412)
 	@echo Make header information for irom booting
 	@$(MK4412) $(X_NAME).bin

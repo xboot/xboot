@@ -232,6 +232,9 @@ SRCDIRS		+=	external/cairo-1.17.2
 INCDIRS		+=	external/chipmunk-7.0.3/include
 SRCDIRS		+=	external/chipmunk-7.0.3/src
 
+INCDIRS		+=	external/nuklear-4.01.0
+SRCDIRS		+=	external/nuklear-4.01.0
+
 #
 # Add whitebox test
 #

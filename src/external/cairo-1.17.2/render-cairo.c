@@ -175,15 +175,8 @@ static void render_cairo_shape_polyline(struct surface_t * s, struct region_t * 
 		for(i = 1; i < n; i++)
 			cairo_line_to(cr, p[i].x, p[i].y);
 		cairo_set_source_rgba(cr, c->r / 255.0, c->g / 255.0, c->b / 255.0, c->a / 255.0);
-		if(thickness > 0)
-		{
-			cairo_set_line_width(cr, thickness);
-			cairo_stroke(cr);
-		}
-		else
-		{
-			cairo_fill(cr);
-		}
+		cairo_set_line_width(cr, thickness > 0 ? thickness : 1);
+		cairo_stroke(cr);
 		cairo_restore(cr);
 	}
 }
@@ -215,15 +208,8 @@ static void render_cairo_shape_curve(struct surface_t * s, struct region_t * cli
 		for(i = 1; i <= n - 3; i += 3)
 			cairo_curve_to(cr, p[i].x, p[i].y, p[i + 1].x, p[i + 1].y, p[i + 2].x, p[i + 2].y);
 		cairo_set_source_rgba(cr, c->r / 255.0, c->g / 255.0, c->b / 255.0, c->a / 255.0);
-		if(thickness > 0)
-		{
-			cairo_set_line_width(cr, thickness);
-			cairo_stroke(cr);
-		}
-		else
-		{
-			cairo_fill(cr);
-		}
+		cairo_set_line_width(cr, thickness > 0 ? thickness : 1);
+		cairo_stroke(cr);
 		cairo_restore(cr);
 	}
 }

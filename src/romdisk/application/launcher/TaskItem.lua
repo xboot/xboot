@@ -8,8 +8,8 @@ function M:init(width, height, task)
 	local image = task:snapshot():clone(Matrix.new({width / w, 0, 0, height / h, 0, 0}))
 	self.super:init(width, height)
 	self._task = task
-	self._panelNormal = DisplayImage.new(image:clone(0, 0, width, height))
-	self._panelPressed = DisplayImage.new(image:clone(0, 0, width, height):sepia())
+	self._panelNormal = DisplayImage.new(image:clone(0, 0, width, height, 32))
+	self._panelPressed = DisplayImage.new(image:clone(0, 0, width, height, 32):sepia())
 
 	self._touchid = nil
 	self._state = M._STATE_NORMAL

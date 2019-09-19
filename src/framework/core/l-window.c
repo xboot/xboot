@@ -109,7 +109,7 @@ static int m_window_snapshot(lua_State * L)
 {
 	struct window_t * w = luaL_checkudata(L, 1, MT_WINDOW);
 	struct limage_t * img = lua_newuserdata(L, sizeof(struct limage_t));
-	img->s = surface_clone(w->s, NULL);
+	img->s = surface_clone(w->s, 0, 0, 0, 0, 0);
 	luaL_setmetatable(L, MT_IMAGE);
 	return 1;
 }

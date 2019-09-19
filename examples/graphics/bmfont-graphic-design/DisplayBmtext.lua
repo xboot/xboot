@@ -49,7 +49,7 @@ function M:setText(text)
 				c.width = 1
 				c.height = 1
 			end
-			local t = self.image:clone(c.x, c.y, c.width, c.height)
+			local t = self.image:clone(c.x, c.y, c.width, c.height, 0)
 			local bitmap = DisplayImage.new(t):setPosition(x + c.xoffset, y + c.yoffset)
 			self:addChild(bitmap)
 			x = x + c.xadvance

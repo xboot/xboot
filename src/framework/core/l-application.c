@@ -245,7 +245,7 @@ static int m_application_get_icon(lua_State * L)
 	if(!app->icon)
 		return 0;
 	struct limage_t * img = lua_newuserdata(L, sizeof(struct limage_t));
-	img->s = surface_clone(app->icon, NULL);
+	img->s = surface_clone(app->icon, 0, 0, 0, 0, 0);
 	luaL_setmetatable(L, MT_IMAGE);
 	return 1;
 }

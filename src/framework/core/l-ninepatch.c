@@ -51,7 +51,6 @@ static inline int detect_black_pixel(unsigned char * p)
 
 static inline int to_ninepatch(struct surface_t * s, struct lninepatch_t * ninepatch)
 {
-	struct region_t r;
 	unsigned char * p;
 	int width, height;
 	int stride;
@@ -119,118 +118,73 @@ static inline int to_ninepatch(struct surface_t * s, struct lninepatch_t * ninep
 	w = ninepatch->left;
 	h = ninepatch->top;
 	if(w > 0 && h > 0)
-	{
-		region_init(&r, 1, 1, w, h);
-		ninepatch->lt = surface_clone(s, &r);
-	}
+		ninepatch->lt = surface_clone(s, 1, 1, w, h, 0);
 	else
-	{
 		ninepatch->lt = NULL;
-	}
 
 	/* Middle top */
 	w = width - ninepatch->left - ninepatch->right;
 	h = ninepatch->top;
 	if(w > 0 && h > 0)
-	{
-		region_init(&r, ninepatch->left + 1, 1, w, h);
-		ninepatch->mt = surface_clone(s, &r);
-	}
+		ninepatch->mt = surface_clone(s, ninepatch->left + 1, 1, w, h, 0);
 	else
-	{
 		ninepatch->mt = NULL;
-	}
 
 	/* Right top */
 	w = ninepatch->right;
 	h = ninepatch->top;
 	if(w > 0 && h > 0)
-	{
-		region_init(&r, (width - ninepatch->right) + 1, 1, w, h);
-		ninepatch->rt = surface_clone(s, &r);
-	}
+		ninepatch->rt = surface_clone(s, (width - ninepatch->right) + 1, 1, w, h, 0);
 	else
-	{
 		ninepatch->rt = NULL;
-	}
 
 	/* Left Middle */
 	w = ninepatch->left;
 	h = height - ninepatch->top - ninepatch->bottom;
 	if(w > 0 && h > 0)
-	{
-		region_init(&r, 1, ninepatch->top + 1, w, h);
-		ninepatch->lm = surface_clone(s, &r);
-	}
+		ninepatch->lm = surface_clone(s, 1, ninepatch->top + 1, w, h, 0);
 	else
-	{
 		ninepatch->lm = NULL;
-	}
 
 	/* Middle Middle */
 	w = width - ninepatch->left - ninepatch->right;
 	h = height - ninepatch->top - ninepatch->bottom;
 	if(w > 0 && h > 0)
-	{
-		region_init(&r, ninepatch->left + 1, ninepatch->top + 1, w, h);
-		ninepatch->mm = surface_clone(s, &r);
-	}
+		ninepatch->mm = surface_clone(s, ninepatch->left + 1, ninepatch->top + 1, w, h, 0);
 	else
-	{
 		ninepatch->mm = NULL;
-	}
 
 	/* Right middle */
 	w = ninepatch->right;
 	h = height - ninepatch->top - ninepatch->bottom;
 	if(w > 0 && h > 0)
-	{
-		region_init(&r, (width - ninepatch->right) + 1, ninepatch->top + 1, w, h);
-		ninepatch->rm = surface_clone(s, &r);
-	}
+		ninepatch->rm = surface_clone(s, (width - ninepatch->right) + 1, ninepatch->top + 1, w, h, 0);
 	else
-	{
 		ninepatch->rm = NULL;
-	}
 
 	/* Left bottom */
 	w = ninepatch->left;
 	h = ninepatch->bottom;
 	if(w > 0 && h > 0)
-	{
-		region_init(&r, 1, (height - ninepatch->bottom) + 1, w, h);
-		ninepatch->lb = surface_clone(s, &r);
-	}
+		ninepatch->lb = surface_clone(s, 1, (height - ninepatch->bottom) + 1, w, h, 0);
 	else
-	{
 		ninepatch->lb = NULL;
-	}
 
 	/* Middle bottom */
 	w = width - ninepatch->left - ninepatch->right;
 	h = ninepatch->bottom;
 	if(w > 0 && h > 0)
-	{
-		region_init(&r, ninepatch->left + 1, (height - ninepatch->bottom) + 1, w, h);
-		ninepatch->mb = surface_clone(s, &r);
-	}
+		ninepatch->mb = surface_clone(s, ninepatch->left + 1, (height - ninepatch->bottom) + 1, w, h, 0);
 	else
-	{
 		ninepatch->mb = NULL;
-	}
 
 	/* Right bottom */
 	w = ninepatch->right;
 	h = ninepatch->bottom;
 	if(w > 0 && h > 0)
-	{
-		region_init(&r, (width - ninepatch->right) + 1, (height - ninepatch->bottom) + 1, w, h);
-		ninepatch->rb = surface_clone(s, &r);
-	}
+		ninepatch->rb = surface_clone(s, (width - ninepatch->right) + 1, (height - ninepatch->bottom) + 1, w, h, 0);
 	else
-	{
 		ninepatch->rb = NULL;
-	}
 
 	ninepatch_stretch(ninepatch, width, height);
 	return 1;

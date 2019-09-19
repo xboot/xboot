@@ -52,7 +52,7 @@ function M:setText(text)
 						v.w = 1
 						v.h = 1
 					end
-					self.caches[c].image = self.image:clone(v.x, v.y, v.w, v.h)
+					self.caches[c].image = self.image:clone(v.x, v.y, v.w, v.h, 0)
 				end
 			end
 		end

@@ -156,7 +156,7 @@ void surface_free(struct surface_t * s)
 	}
 }
 
-struct surface_t * surface_clone(struct surface_t * s, struct region_t * r)
+struct surface_t * surface_clone(struct surface_t * s, int x, int y, int w, int h, int r)
 {
 	struct surface_t * c;
 	unsigned char * p, * q;
@@ -168,48 +168,7 @@ struct surface_t * surface_clone(struct surface_t * s, struct region_t * r)
 	if(!s)
 		return NULL;
 
-	if(r)
-	{
-		x1 = max(0, r->x);
-		x2 = min(s->width, r->x + r->w);
-		if(x1 <= x2)
-		{
-			y1 = max(0, r->y);
-			y2 = min(s->height, r->y + r->h);
-			if(y1 <= y2)
-			{
-				width = x2 - x1;
-				height = y2 - y1;
-				stride = width << 2;
-				pixlen = height * stride;
-
-				c = malloc(sizeof(struct surface_t));
-				if(!c)
-					return NULL;
-				pixels = memalign(4, pixlen);
-				if(!pixels)
-				{
-					free(c);
-					return NULL;
-				}
-
-				l = s->stride;
-				p = (unsigned char *)pixels;
-				q = (unsigned char *)s->pixels + y1 * l + (x1 << 2);
-				for(i = 0; i < height; i++, p += stride, q += l)
-					memcpy(p, q, stride);
-			}
-			else
-			{
-				return NULL;
-			}
-		}
-		else
-		{
-			return NULL;
-		}
-	}
-	else
+	if((w <= 0) || (h <= 0))
 	{
 		width = s->width;
 		height = s->height;
@@ -226,6 +185,46 @@ struct surface_t * surface_clone(struct surface_t * s, struct region_t * r)
 			return NULL;
 		}
 		memcpy(pixels, s->pixels, pixlen);
+	}
+	else
+	{
+		x1 = max(0, x);
+		x2 = min(s->width, x + w);
+		if(x1 <= x2)
+		{
+			y1 = max(0, y);
+			y2 = min(s->height, y + h);
+			if(y1 <= y2)
+			{
+				width = x2 - x1;
+				height = y2 - y1;
+				stride = width << 2;
+				pixlen = height * stride;
+
+				c = malloc(sizeof(struct surface_t));
+				if(!c)
+					return NULL;
+				pixels = memalign(4, pixlen);
+				if(!pixels)
+				{
+					free(c);
+					return NULL;
+				}
+				l = s->stride;
+				p = (unsigned char *)pixels;
+				q = (unsigned char *)s->pixels + y1 * l + (x1 << 2);
+				for(i = 0; i < height; i++, p += stride, q += l)
+					memcpy(p, q, stride);
+			}
+			else
+			{
+				return NULL;
+			}
+		}
+		else
+		{
+			return NULL;
+		}
 	}
 
 	c->width = width;

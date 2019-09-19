@@ -106,10 +106,10 @@ static int m_image_clone(lua_State * L)
 {
 	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
 	struct surface_t * c;
-	struct region_t r;
 	if(luaL_testudata(L, 2, MT_MATRIX))
 	{
 		struct matrix_t * m = lua_touserdata(L, 2);
+		struct region_t r;
 		matrix_transform_region(m, surface_get_width(img->s), surface_get_height(img->s), &r);
 		c = surface_alloc(r.w, r.h, NULL);
 		if(!c)
@@ -121,15 +121,12 @@ static int m_image_clone(lua_State * L)
 	}
 	else
 	{
-		r.x = luaL_optinteger(L, 2, 0);
-		r.y = luaL_optinteger(L, 3, 0);
-		r.w = luaL_optinteger(L, 4, surface_get_width(img->s));
-		r.h = luaL_optinteger(L, 5, surface_get_height(img->s));
-		if(r.w <= 0)
-			r.w = surface_get_width(img->s);
-		if(r.h <= 0)
-			r.h = surface_get_height(img->s);
-		c = surface_clone(img->s, &r);
+		int x = luaL_optinteger(L, 2, 0);
+		int y = luaL_optinteger(L, 3, 0);
+		int w = luaL_optinteger(L, 4, 0);
+		int h = luaL_optinteger(L, 5, 0);
+		int r = luaL_optinteger(L, 6, 0);
+		c = surface_clone(img->s, x, y, w, h, r);
 		if(!c)
 			return 0;
 		struct limage_t * subimg = lua_newuserdata(L, sizeof(struct limage_t));

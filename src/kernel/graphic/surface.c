@@ -156,14 +156,33 @@ void surface_free(struct surface_t * s)
 	}
 }
 
+static inline void blend_edge(uint32_t * d, uint32_t * s, int l)
+{
+	uint32_t v = *s;
+	int a = (v >> 24) & 0xff;
+	int r = (v >> 16) & 0xff;
+	int g = (v >> 8) & 0xff;
+	int b = (v >> 0) & 0xff;
+
+	a = a * (32 - l) >> 5;
+	r = r * (32 - l) >> 5;
+	g = g * (32 - l) >> 5;
+	b = b * (32 - l) >> 5;
+
+	*d = (a << 24) | (r << 16) | (g << 8) | (b << 0);
+}
+
 struct surface_t * surface_clone(struct surface_t * s, int x, int y, int w, int h, int r)
 {
-	struct surface_t * c;
+	struct surface_t * o;
+	uint32_t * dp, * sp;
 	unsigned char * p, * q;
 	void * pixels;
 	int width, height, stride, pixlen;
+	int swidth, sstride;
 	int x1, y1, x2, y2;
-	int i, l;
+	int r2, n, l;
+	int i, j;
 
 	if(!s)
 		return NULL;
@@ -175,13 +194,13 @@ struct surface_t * surface_clone(struct surface_t * s, int x, int y, int w, int 
 		stride = s->stride;
 		pixlen = s->pixlen;
 
-		c = malloc(sizeof(struct surface_t));
-		if(!c)
+		o = malloc(sizeof(struct surface_t));
+		if(!o)
 			return NULL;
 		pixels = memalign(4, pixlen);
 		if(!pixels)
 		{
-			free(c);
+			free(o);
 			return NULL;
 		}
 		memcpy(pixels, s->pixels, pixlen);
@@ -201,20 +220,116 @@ struct surface_t * surface_clone(struct surface_t * s, int x, int y, int w, int 
 				stride = width << 2;
 				pixlen = height * stride;
 
-				c = malloc(sizeof(struct surface_t));
-				if(!c)
+				o = malloc(sizeof(struct surface_t));
+				if(!o)
 					return NULL;
 				pixels = memalign(4, pixlen);
 				if(!pixels)
 				{
-					free(c);
+					free(o);
 					return NULL;
 				}
-				l = s->stride;
-				p = (unsigned char *)pixels;
-				q = (unsigned char *)s->pixels + y1 * l + (x1 << 2);
-				for(i = 0; i < height; i++, p += stride, q += l)
-					memcpy(p, q, stride);
+				if(r <= 0)
+				{
+					sstride = s->stride;
+					p = (unsigned char *)pixels;
+					q = (unsigned char *)s->pixels + y1 * sstride + (x1 << 2);
+					for(i = 0; i < height; i++, p += stride, q += sstride)
+						memcpy(p, q, stride);
+				}
+				else
+				{
+					swidth = s->width;
+					sstride = s->stride;
+					r = min(r, min(width >> 1, height >> 1));
+					r2 = r * r;
+
+					p = (unsigned char *)pixels + (r << 2);
+					q = (unsigned char *)s->pixels + y1 * sstride + ((x1 + r) << 2);
+					l = stride - (r << (1 + 2));
+					for(i = 0; i < r; i++, p += stride, q += sstride)
+						memcpy(p, q, l);
+
+					p = (unsigned char *)pixels + r * stride;
+					q = (unsigned char *)s->pixels + (y1 + r) * sstride + (x1 << 2);
+					l = stride;
+					for(i = 0; i < y2 - y1 - (r << 1); i++, p += stride, q += sstride)
+						memcpy(p, q, l);
+
+					p = (unsigned char *)pixels + (y2 - y1 - r) * stride + (r << 2);
+					q = (unsigned char *)s->pixels + (y2 - r) * sstride + ((x1 + r) << 2);
+					l = stride - (r << (1 + 2));
+					for(i = 0; i < r; i++, p += stride, q += sstride)
+						memcpy(p, q, l);
+
+					for(i = 0; i < r; i++)
+					{
+						dp = (uint32_t *)pixels + i * width;
+						sp = (uint32_t *)s->pixels + (y1 + i) * swidth + x1;
+						n = (r - i) * (r - i);
+						for(j = 0; j < r; j++, dp++, sp++)
+						{
+							l = n + (r - j) * (r - j);
+							if(l < r2)
+								*dp = *sp;
+							else if(l < r2 + 32)
+								blend_edge(dp, sp, l - r2);
+							else
+								*dp = 0;
+						}
+					}
+
+					for(i = 0; i < r; i++)
+					{
+						dp = (uint32_t *)pixels + i * width + (width - r);
+						sp = (uint32_t *)s->pixels + (y1 + i) * swidth + (x2 - r);
+						n = (r - i) * (r - i);
+						for(j = 0; j < r; j++, dp++, sp++)
+						{
+							l = n + j * j;
+							if(l < r2)
+								*dp = *sp;
+							else if(l < r2 + 32)
+								blend_edge(dp, sp, l - r2);
+							else
+								*dp = 0;
+						}
+					}
+
+					for(i = 0; i < r; i++)
+					{
+						dp = (uint32_t *)pixels + (height - r + i) * width;
+						sp = (uint32_t *)s->pixels + (y2 - r + i) * swidth + x1;
+						n = i * i;
+						for(j = 0; j < r; j++, dp++, sp++)
+						{
+							l = n + (r - j) * (r - j);
+							if(l < r2)
+								*dp = *sp;
+							else if(l < r2 + 32)
+								blend_edge(dp, sp, l - r2);
+							else
+								*dp = 0;
+						}
+					}
+
+					for(i = 0; i < r; i++)
+					{
+						dp = (uint32_t *)pixels + (height - r + i) * width + (width - r);
+						sp = (uint32_t *)s->pixels + (y2 - r + i) * swidth + (x2 - r);
+						n = i * i;
+						for(j = 0; j < r; j++, dp++, sp++)
+						{
+							l = n + j * j;
+							if(l < r2)
+								*dp = *sp;
+							else if(l < r2 + 32)
+								blend_edge(dp, sp, l - r2);
+							else
+								*dp = 0;
+						}
+					}
+				}
 			}
 			else
 			{
@@ -227,20 +342,20 @@ struct surface_t * surface_clone(struct surface_t * s, int x, int y, int w, int 
 		}
 	}
 
-	c->width = width;
-	c->height = height;
-	c->stride = stride;
-	c->pixlen = pixlen;
-	c->pixels = pixels;
-	c->r = s->r;
-	c->pctx = c->r->create(c);
-	c->priv = NULL;
-	return c;
+	o->width = width;
+	o->height = height;
+	o->stride = stride;
+	o->pixlen = pixlen;
+	o->pixels = pixels;
+	o->r = s->r;
+	o->pctx = o->r->create(o);
+	o->priv = NULL;
+	return o;
 }
 
 struct surface_t * surface_extend(struct surface_t * s, int width, int height, const char * type)
 {
-	struct surface_t * c;
+	struct surface_t * o;
 	uint32_t * dp, * sp;
 	void * pixels, * spixels;
 	int stride, pixlen;
@@ -249,8 +364,8 @@ struct surface_t * surface_extend(struct surface_t * s, int width, int height, c
 	if(!s || (width <= 0) || (height <= 0))
 		return NULL;
 
-	c = malloc(sizeof(struct surface_t));
-	if(!c)
+	o = malloc(sizeof(struct surface_t));
+	if(!o)
 		return NULL;
 
 	stride = width << 2;
@@ -316,15 +431,15 @@ struct surface_t * surface_extend(struct surface_t * s, int width, int height, c
 		break;
 	}
 
-	c->width = width;
-	c->height = height;
-	c->stride = stride;
-	c->pixlen = pixlen;
-	c->pixels = pixels;
-	c->r = s->r;
-	c->pctx = c->r->create(c);
-	c->priv = NULL;
-	return c;
+	o->width = width;
+	o->height = height;
+	o->stride = stride;
+	o->pixlen = pixlen;
+	o->pixels = pixels;
+	o->r = s->r;
+	o->pctx = o->r->create(o);
+	o->priv = NULL;
+	return o;
 }
 
 void surface_clear(struct surface_t * s, struct color_t * c, struct region_t * r)

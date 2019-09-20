@@ -267,23 +267,26 @@ void window_region_list_clear(struct window_t * w)
 
 void window_present(struct window_t * w, void * o, void (*draw)(struct window_t *, void *))
 {
+	static struct color_t c = { .r = 255, .g = 255, .b = 255, .a = 255 };
 	struct surface_t * s = w->s;
-	struct color_t c = { .r = 255, .g = 255, .b = 255, .a = 255 };
-	struct region_t r;
+	struct region_t * r, region;
 	int count;
 	int i;
 
 	if(w->wm->refresh)
 	{
-		region_init(&r, 0, 0, framebuffer_get_width(w->wm->fb), framebuffer_get_height(w->wm->fb));
+		region_init(&region, 0, 0, framebuffer_get_width(w->wm->fb), framebuffer_get_height(w->wm->fb));
 		region_list_clear(w->rl);
-		region_list_add(w->rl, &r);
+		region_list_add(w->rl, &region);
 		w->wm->refresh = 0;
 	}
 	if((count = w->rl->count) > 0)
 	{
 		for(i = 0; i < count; i++)
-			surface_clear(s, &c, &w->rl->region[i]);
+		{
+			r = &w->rl->region[i];
+			surface_clear(s, &c, r->x, r->y, r->w, r->h);
+		}
 		if(draw)
 			draw(w, o);
 	}

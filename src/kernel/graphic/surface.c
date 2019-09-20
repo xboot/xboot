@@ -442,36 +442,16 @@ struct surface_t * surface_extend(struct surface_t * s, int width, int height, c
 	return o;
 }
 
-void surface_clear(struct surface_t * s, struct color_t * c, struct region_t * r)
+void surface_clear(struct surface_t * s, struct color_t * c, int x, int y, int w, int h)
 {
 	uint32_t * q, * p, v;
 	int x1, y1, x2, y2;
-	int x, y, l;
+	int i, j, l;
 
 	if(s)
 	{
 		v = c ? color_get_premult(c) : 0;
-		if(r)
-		{
-			x1 = max(0, r->x);
-			x2 = min(s->width, r->x + r->w);
-			if(x1 <= x2)
-			{
-				y1 = max(0, r->y);
-				y2 = min(s->height, r->y + r->h);
-				if(y1 <= y2)
-				{
-					l = s->stride >> 2;
-					q = (uint32_t *)s->pixels + y1 * l + x1;
-					for(y = y1; y < y2; y++, q += l)
-					{
-						for(x = x1, p = q; x < x2; x++, p++)
-							*p = v;
-					}
-				}
-			}
-		}
-		else
+		if((w <= 0) || (h <= 0))
 		{
 			if(v)
 			{
@@ -490,6 +470,26 @@ void surface_clear(struct surface_t * s, struct color_t * c, struct region_t * r
 			else
 			{
 				memset(s->pixels, 0, s->pixlen);
+			}
+		}
+		else
+		{
+			x1 = max(0, x);
+			x2 = min(s->width, x + w);
+			if(x1 <= x2)
+			{
+				y1 = max(0, y);
+				y2 = min(s->height, y + h);
+				if(y1 <= y2)
+				{
+					l = s->stride >> 2;
+					q = (uint32_t *)s->pixels + y1 * l + x1;
+					for(j = y1; j < y2; j++, q += l)
+					{
+						for(i = x1, p = q; i < x2; i++, p++)
+							*p = v;
+					}
+				}
 			}
 		}
 	}

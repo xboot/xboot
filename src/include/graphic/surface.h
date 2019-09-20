@@ -259,7 +259,7 @@ struct surface_t * surface_alloc_from_xfs(struct xfs_context_t * ctx, const char
 void surface_free(struct surface_t * s);
 struct surface_t * surface_clone(struct surface_t * s, int x, int y, int w, int h, int r);
 struct surface_t * surface_extend(struct surface_t * s, int width, int height, const char * type);
-void surface_clear(struct surface_t * s, struct color_t * c, struct region_t * r);
+void surface_clear(struct surface_t * s, struct color_t * c, int x, int y, int w, int h);
 
 #ifdef __cplusplus
 }

@@ -159,17 +159,11 @@ static int m_image_clear(lua_State * L)
 {
 	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
 	struct color_t * c = luaL_checkudata(L, 2, MT_COLOR);
-	struct region_t r;
 	int x = luaL_optinteger(L, 3, 0);
 	int y = luaL_optinteger(L, 4, 0);
-	int w = luaL_optinteger(L, 5, surface_get_width(img->s) - x);
-	int h = luaL_optinteger(L, 6, surface_get_height(img->s) - y);
-	if(w <= 0)
-		w = surface_get_width(img->s);
-	if(h <= 0)
-		h = surface_get_height(img->s);
-	region_init(&r, x, y, w, h);
-	surface_clear(img->s, c, &r);
+	int w = luaL_optinteger(L, 5, 0);
+	int h = luaL_optinteger(L, 6, 0);
+	surface_clear(img->s, c, x, y, w, h);
 	lua_settop(L, 1);
 	return 1;
 }

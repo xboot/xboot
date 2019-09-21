@@ -230,8 +230,8 @@ SRCDIRS		+=	external/pixman-0.38.4 \
 INCDIRS		+= 	external/cairo-1.17.2
 SRCDIRS		+=	external/cairo-1.17.2
 
-INCDIRS		+=	external/chipmunk-7.0.2/include
-SRCDIRS		+=	external/chipmunk-7.0.2/src
+INCDIRS		+=	external/chipmunk-7.0.3/include
+SRCDIRS		+=	external/chipmunk-7.0.3/src
 
 #
 # You shouldn't need to change anything below this point.

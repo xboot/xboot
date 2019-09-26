@@ -129,11 +129,6 @@ function M:asHome(enable)
 	return self
 end
 
-function M:showObj(enable)
-	self._window:showObj(enable)
-	return self
-end
-
 function M:loop()
 	local Event = Event
 	local window = self._window

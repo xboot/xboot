@@ -165,7 +165,6 @@ struct window_t * window_alloc(const char * fb, const char * input, void * data)
 	w->s = framebuffer_create_surface(w->wm->fb);
 	w->rl = region_list_alloc(0);
 	w->ashome = 0;
-	w->showobj = 0;
 	w->priv = data;
 	if(p)
 	{

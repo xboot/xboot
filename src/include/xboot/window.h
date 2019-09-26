@@ -30,7 +30,6 @@ struct window_t {
 	struct region_list_t * rl;
 	struct hmap_t * map;
 	int ashome;
-	int showobj;
 	void * priv;
 };
 
@@ -91,17 +90,6 @@ static inline void window_set_ashome(struct window_t * w, int enable)
 static inline int window_get_ashome(struct window_t * w)
 {
 	return w ? w->ashome : 0;
-}
-
-static inline void window_set_showobj(struct window_t * w, int enable)
-{
-	if(w)
-		w->showobj = enable ? 1 : 0;
-}
-
-static inline int window_get_showobj(struct window_t * w)
-{
-	return w ? w->showobj : 0;
 }
 
 struct window_t * window_alloc(const char * fb, const char * input, void * data);

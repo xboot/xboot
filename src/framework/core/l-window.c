@@ -121,13 +121,6 @@ static int m_window_ashome(lua_State * L)
 	return 0;
 }
 
-static int m_window_showobj(lua_State * L)
-{
-	struct window_t * w = luaL_checkudata(L, 1, MT_WINDOW);
-	window_set_showobj(w, lua_toboolean(L, 2));
-	return 0;
-}
-
 static const luaL_Reg m_window[] = {
 	{"getSize",				m_window_get_size},
 	{"getPhysicalSize",		m_window_get_physical_size},
@@ -137,7 +130,6 @@ static const luaL_Reg m_window[] = {
 	{"toBack",				m_window_to_back},
 	{"snapshot",			m_window_snapshot},
 	{"asHome",				m_window_ashome},
-	{"showObj",				m_window_showobj},
 	{NULL, NULL}
 };
 

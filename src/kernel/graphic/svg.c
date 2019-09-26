@@ -2721,7 +2721,7 @@ static void svg_scale_to_viewbox(struct svg_parser_t * p, const char * units)
 	}
 }
 
-struct svg_t * svg_alloc(char * svgstr, const char * units, float dpi)
+struct svg_t * svg_alloc(char * svgstr)
 {
 	struct svg_parser_t * p;
 	struct svg_t * svg;
@@ -2730,9 +2730,9 @@ struct svg_t * svg_alloc(char * svgstr, const char * units, float dpi)
 	if(!p)
 		return NULL;
 
-	p->dpi = dpi;
+	p->dpi = 96;
 	svg_parse_xml(svgstr, svg_start_element, svg_end_element, svg_content, p);
-	svg_scale_to_viewbox(p, units);
+	svg_scale_to_viewbox(p, "px");
 	svg = p->svg;
 	p->svg = NULL;
 	svg_parser_free(p);
@@ -2764,7 +2764,7 @@ struct svg_t * svg_alloc_from_xfs(struct xfs_context_t * ctx, const char * filen
 	xfs_read(file, buf, len);
 	buf[len] = '\0';
 	xfs_close(file);
-	svg = svg_alloc(buf, "px", 96);
+	svg = svg_alloc(buf);
 	free(buf);
 
 	return svg;

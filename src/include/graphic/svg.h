@@ -92,7 +92,7 @@ struct svg_t {
 	struct svg_shape_t * shapes;
 };
 
-struct svg_t * svg_alloc(char * svgstr, const char * units, float dpi);
+struct svg_t * svg_alloc(char * svgstr);
 struct svg_t * svg_alloc_from_xfs(struct xfs_context_t * ctx, const char * filename);
 void svg_free(struct svg_t * svg);
 

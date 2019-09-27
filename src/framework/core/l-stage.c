@@ -120,13 +120,13 @@ function M:getBacklight()
 	return self._window:getBacklight()
 end
 
-function M:snapshot()
-	return self._window:snapshot()
+function M:setLauncher(enable)
+	self._window:setLauncher(enable)
+	return self
 end
 
-function M:asHome(enable)
-	self._window:asHome(enable)
-	return self
+function M:snapshot()
+	return self._window:snapshot()
 end
 
 function M:loop()

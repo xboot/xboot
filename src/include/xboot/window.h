@@ -36,7 +36,7 @@ struct window_t {
 	struct surface_t * s;
 	struct region_list_t * rl;
 	struct hmap_t * map;
-	int ashome;
+	int launcher;
 	void * priv;
 };
 
@@ -88,15 +88,15 @@ static inline int window_get_backlight(struct window_t * w)
 	return 0;
 }
 
-static inline void window_set_ashome(struct window_t * w, int enable)
+static inline void window_set_launcher(struct window_t * w, int enable)
 {
 	if(w)
-		w->ashome = enable ? 1 : 0;
+		w->launcher = enable ? 1 : 0;
 }
 
-static inline int window_get_ashome(struct window_t * w)
+static inline int window_get_launcher(struct window_t * w)
 {
-	return w ? w->ashome : 0;
+	return w ? w->launcher : 0;
 }
 
 struct window_t * window_alloc(const char * fb, const char * input, void * data);

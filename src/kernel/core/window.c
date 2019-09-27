@@ -178,7 +178,7 @@ struct window_t * window_alloc(const char * fb, const char * input, void * data)
 	w->wm = wm;
 	w->s = framebuffer_create_surface(w->wm->fb);
 	w->rl = region_list_alloc(0);
-	w->ashome = 0;
+	w->launcher = 0;
 	w->priv = data;
 	if(p)
 	{
@@ -350,7 +350,7 @@ void push_event(struct event_t * e)
 				{
 					list_for_each_entry_safe(wpos, wn, &pos->window, list)
 					{
-						if(wpos->ashome)
+						if(wpos->launcher)
 						{
 							window_to_front(wpos);
 							break;

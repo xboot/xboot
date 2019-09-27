@@ -46,4 +46,4 @@ end)
 
 stage:addChild(bg)
 stage:addChild(pager)
-stage:asHome(true)
+stage:setLauncher(true)

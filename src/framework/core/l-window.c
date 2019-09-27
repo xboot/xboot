@@ -105,6 +105,13 @@ static int m_window_to_back(lua_State * L)
 	return 0;
 }
 
+static int m_window_set_launcher(lua_State * L)
+{
+	struct window_t * w = luaL_checkudata(L, 1, MT_WINDOW);
+	window_set_launcher(w, lua_toboolean(L, 2));
+	return 0;
+}
+
 static int m_window_snapshot(lua_State * L)
 {
 	struct window_t * w = luaL_checkudata(L, 1, MT_WINDOW);
@@ -114,13 +121,6 @@ static int m_window_snapshot(lua_State * L)
 	return 1;
 }
 
-static int m_window_ashome(lua_State * L)
-{
-	struct window_t * w = luaL_checkudata(L, 1, MT_WINDOW);
-	window_set_ashome(w, lua_toboolean(L, 2));
-	return 0;
-}
-
 static const luaL_Reg m_window[] = {
 	{"getSize",				m_window_get_size},
 	{"getPhysicalSize",		m_window_get_physical_size},
@@ -128,8 +128,8 @@ static const luaL_Reg m_window[] = {
 	{"getBacklight",		m_window_get_backlight},
 	{"toFront",				m_window_to_front},
 	{"toBack",				m_window_to_back},
+	{"setLauncher",			m_window_set_launcher},
 	{"snapshot",			m_window_snapshot},
-	{"asHome",				m_window_ashome},
 	{NULL, NULL}
 };
 

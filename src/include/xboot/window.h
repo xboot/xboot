@@ -18,7 +18,7 @@ struct window_manager_t {
 	struct list_head list;
 	struct list_head window;
 	struct framebuffer_t * fb;
-	struct fifo_t * fifo;
+	struct fifo_t * event;
 	int wcount;
 	int refresh;
 	struct {

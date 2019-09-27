@@ -119,7 +119,7 @@ static struct window_manager_t * window_manager_alloc(const char * fb)
 		return NULL;
 
 	wm->fb = dev;
-	wm->fifo = fifo_alloc(sizeof(struct event_t) * CONFIG_EVENT_FIFO_SIZE);
+	wm->event = fifo_alloc(sizeof(struct event_t) * CONFIG_EVENT_FIFO_SIZE);
 	wm->wcount = 0;
 	wm->refresh = 0;
 	wm->cursor.s = s;
@@ -152,7 +152,7 @@ static void window_manager_free(struct window_manager_t * wm)
 			spin_lock_irqsave(&__window_manager_lock, flags);
 			list_del(&pos->list);
 			spin_unlock_irqrestore(&__window_manager_lock, flags);
-			fifo_free(pos->fifo);
+			fifo_free(pos->event);
 			surface_free(pos->cursor.s);
 			free(pos);
 		}
@@ -323,7 +323,7 @@ int window_pump_event(struct window_t * w, struct event_t * e)
 {
 	if(w && e)
 	{
-		if(fifo_get(w->wm->fifo, (unsigned char *)e, sizeof(struct event_t)) == sizeof(struct event_t))
+		if(fifo_get(w->wm->event, (unsigned char *)e, sizeof(struct event_t)) == sizeof(struct event_t))
 		{
 			if(w->map)
 				return hmap_search(w->map, ((struct input_t *)e->device)->name) ? 1 : 0;
@@ -402,7 +402,7 @@ void push_event(struct event_t * e)
 			default:
 				break;
 			}
-			fifo_put(pos->fifo, (unsigned char *)e, sizeof(struct event_t));
+			fifo_put(pos->event, (unsigned char *)e, sizeof(struct event_t));
 		}
 	}
 }

@@ -278,9 +278,8 @@ void window_region_list_clear(struct window_t * w)
 		region_list_clear(w->rl);
 }
 
-void window_present(struct window_t * w, void * o, void (*draw)(struct window_t *, void *))
+void window_present(struct window_t * w, struct color_t * c, void * o, void (*draw)(struct window_t *, void *))
 {
-	static struct color_t c = { .r = 255, .g = 255, .b = 255, .a = 255 };
 	struct surface_t * s = w->s;
 	struct region_t * r, region;
 	struct matrix_t m;
@@ -305,7 +304,7 @@ void window_present(struct window_t * w, void * o, void (*draw)(struct window_t 
 		for(i = 0; i < count; i++)
 		{
 			r = &w->rl->region[i];
-			surface_clear(s, &c, r->x, r->y, r->w, r->h);
+			surface_clear(s, c, r->x, r->y, r->w, r->h);
 		}
 		if(draw)
 			draw(w, o);

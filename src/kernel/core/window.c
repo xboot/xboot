@@ -93,6 +93,8 @@ static struct window_manager_t * window_manager_alloc(const char * fb)
 {
 	struct window_manager_t * wm;
 	struct framebuffer_t * dev;
+	struct xfs_context_t * ctx;
+	struct surface_t * s;
 	irq_flags_t flags;
 
 	dev = search_framebuffer(fb);
@@ -106,6 +108,12 @@ static struct window_manager_t * window_manager_alloc(const char * fb)
 	if(wm)
 		return wm;
 
+	ctx = xfs_alloc("/framework", 0);
+	s = surface_alloc_from_xfs(ctx, "assets/images/cursor.png");
+	xfs_free(ctx);
+	if(!s)
+		return NULL;
+
 	wm = malloc(sizeof(struct window_manager_t));
 	if(!wm)
 		return NULL;
@@ -114,6 +122,11 @@ static struct window_manager_t * window_manager_alloc(const char * fb)
 	wm->fifo = fifo_alloc(sizeof(struct event_t) * CONFIG_EVENT_FIFO_SIZE);
 	wm->wcount = 0;
 	wm->refresh = 0;
+	wm->cursor.s = s;
+	region_init(&wm->cursor.ro, 0, 0, surface_get_width(wm->cursor.s) + 2, surface_get_height(wm->cursor.s) + 2);
+	region_init(&wm->cursor.rn, 0, 0, surface_get_width(wm->cursor.s) + 2, surface_get_height(wm->cursor.s) + 2);
+	wm->cursor.dirty = 0;
+	wm->cursor.show = 0;
 	spin_lock_init(&wm->lock);
 	init_list_head(&wm->list);
 	init_list_head(&wm->window);
@@ -140,6 +153,7 @@ static void window_manager_free(struct window_manager_t * wm)
 			list_del(&pos->list);
 			spin_unlock_irqrestore(&__window_manager_lock, flags);
 			fifo_free(pos->fifo);
+			surface_free(pos->cursor.s);
 			free(pos);
 		}
 	}
@@ -269,6 +283,7 @@ void window_present(struct window_t * w, void * o, void (*draw)(struct window_t 
 	static struct color_t c = { .r = 255, .g = 255, .b = 255, .a = 255 };
 	struct surface_t * s = w->s;
 	struct region_t * r, region;
+	struct matrix_t m;
 	int count;
 	int i;
 
@@ -279,6 +294,12 @@ void window_present(struct window_t * w, void * o, void (*draw)(struct window_t 
 		region_list_add(w->rl, &region);
 		w->wm->refresh = 0;
 	}
+	else if(w->wm->cursor.show && w->wm->cursor.dirty)
+	{
+		window_region_list_add(w, &w->wm->cursor.ro);
+		window_region_list_add(w, &w->wm->cursor.rn);
+		w->wm->cursor.dirty = 0;
+	}
 	if((count = w->rl->count) > 0)
 	{
 		for(i = 0; i < count; i++)
@@ -288,6 +309,13 @@ void window_present(struct window_t * w, void * o, void (*draw)(struct window_t 
 		}
 		if(draw)
 			draw(w, o);
+		if(w->wm->cursor.show)
+		{
+			r = &w->wm->cursor.rn;
+			region_init(&region, r->x - 2, r->y - 2, r->w, r->h);
+			matrix_init_translate(&m, r->x - 2, r->y - 2);
+			surface_blit(s, NULL, &m, w->wm->cursor.s, RENDER_TYPE_GOOD);
+		}
 	}
 	framebuffer_present_surface(w->wm->fb, w->s, w->rl);
 }
@@ -332,6 +360,45 @@ void push_event(struct event_t * e)
 				}
 				break;
 			case EVENT_TYPE_KEY_UP:
+				break;
+			case EVENT_TYPE_MOUSE_DOWN:
+				if(!pos->cursor.dirty)
+				{
+					region_clone(&pos->cursor.ro, &pos->cursor.rn);
+					pos->cursor.dirty = 1;
+				}
+				region_init(&pos->cursor.rn, e->e.mouse_down.x - 1, e->e.mouse_down.y - 1, pos->cursor.rn.w, pos->cursor.rn.h);
+				pos->cursor.show = 1;
+				break;
+			case EVENT_TYPE_MOUSE_MOVE:
+				if(!pos->cursor.dirty)
+				{
+					region_clone(&pos->cursor.ro, &pos->cursor.rn);
+					pos->cursor.dirty = 1;
+				}
+				region_init(&pos->cursor.rn, e->e.mouse_move.x - 1, e->e.mouse_move.y - 1, pos->cursor.rn.w, pos->cursor.rn.h);
+				pos->cursor.show = 1;
+				break;
+			case EVENT_TYPE_MOUSE_UP:
+				if(!pos->cursor.dirty)
+				{
+					region_clone(&pos->cursor.ro, &pos->cursor.rn);
+					pos->cursor.dirty = 1;
+				}
+				region_init(&pos->cursor.rn, e->e.mouse_up.x - 1, e->e.mouse_up.y - 1, pos->cursor.rn.w, pos->cursor.rn.h);
+				pos->cursor.show = 1;
+				break;
+			case EVENT_TYPE_MOUSE_WHEEL:
+				pos->cursor.show = 1;
+				break;
+			case EVENT_TYPE_TOUCH_BEGIN:
+				pos->cursor.show = 0;
+				break;
+			case EVENT_TYPE_TOUCH_MOVE:
+				pos->cursor.show = 0;
+				break;
+			case EVENT_TYPE_TOUCH_END:
+				pos->cursor.show = 0;
 				break;
 			default:
 				break;

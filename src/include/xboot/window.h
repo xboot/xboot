@@ -21,6 +21,13 @@ struct window_manager_t {
 	struct fifo_t * fifo;
 	int wcount;
 	int refresh;
+	struct {
+		struct surface_t * s;
+		struct region_t ro;
+		struct region_t rn;
+		int dirty;
+		int show;
+	} cursor;
 };
 
 struct window_t {

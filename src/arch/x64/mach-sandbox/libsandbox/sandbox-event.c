@@ -531,8 +531,7 @@ void sandbox_event_mouse_get_range(void * context, int * xmax, int * ymax)
 void sandbox_event_mouse_set_sensitivity(void * context, int s)
 {
 	struct sandbox_event_context_t * ctx = (struct sandbox_event_context_t *)context;
-	if((s >= 1) && (s <= 11))
-		ctx->sensitivity = s;
+	ctx->sensitivity = s;
 }
 
 void sandbox_event_mouse_get_sensitivity(void * context, int * s)

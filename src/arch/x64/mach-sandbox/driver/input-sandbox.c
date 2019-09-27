@@ -223,7 +223,7 @@ static int input_sandbox_ioctl(struct input_t * input, int cmd, void * arg)
 	case INPUT_IOCTL_MOUSE_SET_SENSITIVITY:
 		if(p)
 		{
-			sandbox_event_mouse_set_sensitivity(pdat->ctx, p[0]);
+			sandbox_event_mouse_set_sensitivity(pdat->ctx, clamp(p[0], 1, 11));
 			return 0;
 		}
 		break;

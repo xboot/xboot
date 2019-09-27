@@ -205,7 +205,7 @@ static int mouse_pl050_ioctl(struct input_t * input, int cmd, void * arg)
 	case INPUT_IOCTL_MOUSE_SET_SENSITIVITY:
 		if(p)
 		{
-			pdat->sensitivity = p[0];
+			pdat->sensitivity = clamp(p[0], 1, 11);
 			return 0;
 		}
 		break;

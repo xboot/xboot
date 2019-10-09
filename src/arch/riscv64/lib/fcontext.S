@@ -35,18 +35,18 @@
  *  |    s4     |    s5     |    s6     |     s7    |  *
  *  -------------------------------------------------  *
  *  -------------------------------------------------  *
- *  |  40 |  41 |  42 |  43 |  44 |  45 |  46 |  47 |  *
+ *  |  40 |  41 |  42 | 43  |  44 | 45  |  46 | 47  |  *
  *  -------------------------------------------------  *
  *  | 0xa0| 0xa4| 0xa8| 0xac| 0xb0| 0xb4| 0xb8| 0xbc|  *
  *  -------------------------------------------------  *
- *  |    s8     |    s9     |    s10    |     s11   |  *
+ *  |     s8    |     s9    |    s10    |    s11    |  *
  *  -------------------------------------------------  *
  *  -------------------------------------------------  *
- *  |  48 |  49 |  50 | 51  |           |           |  *
+ *  |  48 |  49 |  50 | 51  |     |     |     |     |  *
  *  -------------------------------------------------  *
- *  | 0xc0| 0xc4| 0xc8| 0xcc|           |           |  *
+ *  | 0xc0| 0xc4| 0xc8| 0xcc|     |     |     |     |  *
  *  -------------------------------------------------  *
- *  |     ra    |    pc     |           |           |  *
+ *  |     ra    |     pc    |           |           |  *
  *  -------------------------------------------------  *
  */
 	.text
@@ -58,18 +58,16 @@ make_fcontext:
 	andi a0, a0, ~0xf
 
 	/* reserve space for context-data on context-stack */
-	addi a0, a0, -(26 * 8)
+	addi a0, a0, -0xd0
 
 	/* third arg of make_fcontext() == address of context-function */
 	/* store address as a pc to jump in */
-	addi t0, a0, 0xc8
-	sd a2, (t0)
+	sd a2, 0xc8(a0)
 
 	/* save address of finish as return-address for context-function */
 	/* will be entered after context-function returns (ra register) */
-	la a1, finish
-	addi t0, a0, 0xc0
-	sd a1, (t0)
+	la a4, finish
+	sd a4, 0xc0(a0)
 
 	/* return pointer to context-data (a0) */
 	ret
@@ -78,8 +76,7 @@ finish:
 	/* exit code is zero */
 	li a0, 0
 	/* exit application */
-	call exit
-	ret
+	tail exit
 
 /*
  *  -------------------------------------------------  *
@@ -118,18 +115,18 @@ finish:
  *  |    s4     |    s5     |    s6     |     s7    |  *
  *  -------------------------------------------------  *
  *  -------------------------------------------------  *
- *  |  40 |  41 |  42 |  43 |  44 |  45 |  46 |  47 |  *
+ *  |  40 |  41 |  42 | 43  |  44 | 45  |  46 | 47  |  *
  *  -------------------------------------------------  *
  *  | 0xa0| 0xa4| 0xa8| 0xac| 0xb0| 0xb4| 0xb8| 0xbc|  *
  *  -------------------------------------------------  *
- *  |    s8     |    s9     |    s10    |     s11   |  *
+ *  |     s8    |     s9    |    s10    |    s11    |  *
  *  -------------------------------------------------  *
  *  -------------------------------------------------  *
- *  |  48 |  49 |  50 | 51  |           |           |  *
+ *  |  48 |  49 |  50 | 51  |     |     |     |     |  *
  *  -------------------------------------------------  *
- *  | 0xc0| 0xc4| 0xc8| 0xcc|           |           |  *
+ *  | 0xc0| 0xc4| 0xc8| 0xcc|     |     |     |     |  *
  *  -------------------------------------------------  *
- *  |     ra    |    pc     |           |           |  *
+ *  |     ra    |     pc    |           |           |  *
  *  -------------------------------------------------  *
  */
 	.text
@@ -142,81 +139,83 @@ jump_fcontext:
 
 	/* save fs0 - fs11 */
 #if __riscv_flen == 64
-	fsd fs0, 0 * 8(sp)
-	fsd fs1, 1 * 8(sp)
-	fsd fs2, 2 * 8(sp)
-	fsd fs3, 3 * 8(sp)
-	fsd fs4, 4 * 8(sp)
-	fsd fs5, 5 * 8(sp)
-	fsd fs6, 6 * 8(sp)
-	fsd fs7, 7 * 8(sp)
-	fsd fs8, 8 * 8(sp)
-	fsd fs9, 9 * 8(sp)
-	fsd fs10, 10 * 8(sp)
-	fsd fs11, 11 * 8(sp)
+	fsd fs0, 0x00(sp)
+	fsd fs1, 0x08(sp)
+	fsd fs2, 0x10(sp)
+	fsd fs3, 0x18(sp)
+	fsd fs4, 0x20(sp)
+	fsd fs5, 0x28(sp)
+	fsd fs6, 0x30(sp)
+	fsd fs7, 0x38(sp)
+	fsd fs8, 0x40(sp)
+	fsd fs9, 0x48(sp)
+	fsd fs10, 0x50(sp)
+	fsd fs11, 0x58(sp)
 #endif
 
-	/* save s0 - s11 */
-	sd s0, 12 * 8(sp)
-	sd s1, 13 * 8(sp)
-	sd s2, 14 * 8(sp)
-	sd s3, 15 * 8(sp)
-	sd s4, 16 * 8(sp)
-	sd s5, 17 * 8(sp)
-	sd s6, 18 * 8(sp)
-	sd s7, 19 * 8(sp)
-	sd s8, 20 * 8(sp)
-	sd s9, 21 * 8(sp)
-	sd s10, 22 * 8(sp)
-	sd s11, 23 * 8(sp)
+	/* save s0 - s11, ra */
+	sd s0, 0x60(sp)
+	sd s1, 0x68(sp)
+	sd s2, 0x70(sp)
+	sd s3, 0x78(sp)
+	sd s4, 0x80(sp)
+	sd s5, 0x88(sp)
+	sd s6, 0x90(sp)
+	sd s7, 0x98(sp)
+	sd s8, 0xa0(sp)
+	sd s9, 0xa8(sp)
+	sd s10, 0xb0(sp)
+	sd s11, 0xb8(sp)
+	sd ra, 0xc0(sp)
 
 	/* save ra as pc */
-	sd ra, 25 * 8(sp)
+	sd ra, 0xc8(sp)
 
-	/* store sp (pointing to context-data) in a0 */
-	mv t0, sp
+	/* store sp (pointing to context-data) in a2 */
+	mv a2, sp
 
-	/* restore sp (pointing to context-data) from a1 */
+	/* restore sp (pointing to context-data) from a0 */
 	mv sp, a0
 
 	/* load fs0 - fs11 */
 #if __riscv_flen == 64
-	fld fs0, 0 * 8(sp)
-	fld fs1, 1 * 8(sp)
-	fld fs2, 2 * 8(sp)
-	fld fs3, 3 * 8(sp)
-	fld fs4, 4 * 8(sp)
-	fld fs5, 5 * 8(sp)
-	fld fs6, 6 * 8(sp)
-	fld fs7, 7 * 8(sp)
-	fld fs8, 8 * 8(sp)
-	fld fs9, 9 * 8(sp)
-	fld fs10, 10 * 8(sp)
-	fld fs11, 11 * 8(sp)
+	fld fs0, 0x00(sp)
+	fld fs1, 0x08(sp)
+	fld fs2, 0x10(sp)
+	fld fs3, 0x18(sp)
+	fld fs4, 0x20(sp)
+	fld fs5, 0x28(sp)
+	fld fs6, 0x30(sp)
+	fld fs7, 0x38(sp)
+	fld fs8, 0x40(sp)
+	fld fs9, 0x48(sp)
+	fld fs10, 0x50(sp)
+	fld fs11, 0x58(sp)
 #endif
 
 	/* load s0 - s11 */
-	ld s0, 12 * 8(sp)
-	ld s1, 13 * 8(sp)
-	ld s2, 14 * 8(sp)
-	ld s3, 15 * 8(sp)
-	ld s4, 16 * 8(sp)
-	ld s5, 17 * 8(sp)
-	ld s6, 18 * 8(sp)
-	ld s7, 19 * 8(sp)
-	ld s8, 20 * 8(sp)
-	ld s9, 21 * 8(sp)
-	ld s10, 22 * 8(sp)
-	ld s11, 23 * 8(sp)
+	ld s0, 0x60(sp)
+	ld s1, 0x68(sp)
+	ld s2, 0x70(sp)
+	ld s3, 0x78(sp)
+	ld s4, 0x80(sp)
+	ld s5, 0x88(sp)
+	ld s6, 0x90(sp)
+	ld s7, 0x98(sp)
+	ld s8, 0xa0(sp)
+	ld s9, 0xa8(sp)
+	ld s10, 0xb0(sp)
+	ld s11, 0xb8(sp)
+	ld ra, 0xc0(sp)
 
 	/* return transfer_t from jump */
 	/* pass transfer_t as first arg in context function */
-	mv a0, t0
+	mv a0, a2
 
 	/* load pc */
-	ld ra, 25 * 8(sp)
+	ld a2, 0xc8(sp)
 
 	/* restore stack */
-	addi sp, sp, (26 * 8)
+	addi sp, sp, 0xd0
 
-	ret
+	jr a2

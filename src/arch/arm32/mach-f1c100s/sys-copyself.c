@@ -40,20 +40,22 @@ extern void sys_spi_flash_exit(void);
 extern void sys_spi_flash_read(int addr, void * buf, int count);
 
 enum {
-	ZFLAG_COMPRESS_LZ4	= (1 << 0),
-	ZFLAG_VERIFY_WITHID	= (1 << 1),
+	ZFLAG_LZ4_COMPRESS			= (1 << 0),
+	ZFLAG_SHA256_BINDID			= (1 << 1),
+	ZFLAG_ECDSA256_SIGNATURE	= (1 << 2),
 };
 
 struct zdesc_t {
-	uint8_t magic[4];
-	uint8_t sha256[32];
-	uint8_t ecdsa256[64];
-	uint8_t majoy;
-	uint8_t minior;
-	uint8_t patch;
-	uint8_t flag;
-	uint8_t csize[4];
-	uint8_t dsize[4];
+	uint8_t magic[4];		/* ZBL! */
+	uint8_t sha256[32];		/* Sha256 hash */
+	uint8_t signature[64];	/* Ecdsa256 signature */
+	uint8_t csize[4];		/* Compress size */
+	uint8_t dsize[4];		/* Uncompress size */
+	uint8_t public[33];		/* Ecdsa256 public key */
+	uint8_t majoy;			/* Majoy version */
+	uint8_t minior;			/* Minior version */
+	uint8_t patch;			/* Patch version */
+	uint8_t flag;			/* Zflag */
 };
 
 enum {
@@ -118,7 +120,7 @@ void sys_copyself(void)
 			sys_spi_flash_init();
 			sys_spi_flash_read(16384 + sizeof(struct zdesc_t), tmp, csize);
 			sys_spi_flash_exit();
-			if(z.flag & ZFLAG_COMPRESS_LZ4)
+			if(z.flag & ZFLAG_LZ4_COMPRESS)
 				sys_decompress(tmp, csize, mem, dsize);
 			else
 				memcpy(mem, tmp, dsize);

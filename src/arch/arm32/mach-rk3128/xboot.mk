@@ -20,9 +20,6 @@ endif
 ifeq ($(strip $(HOSTOS)), windows)
 MKROCK		:= arch/$(ARCH)/$(MACH)/tools/windows/mkrock
 endif
-ifeq ($(strip $(HOSTOS)), macos)
-MKROCK		:= arch/$(ARCH)/$(MACH)/tools/macos/mkrock
-endif
 INIFILE		:= arch/$(ARCH)/$(MACH)/tools/images/rk3128.ini
 
 xend:

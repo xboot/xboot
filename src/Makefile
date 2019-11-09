@@ -28,9 +28,6 @@ endif
 ifneq (,$(findstring windows, $(shell uname -a)))
 HOSTOS		:= windows
 endif
-ifneq (,$(findstring Darwin, $(shell uname -a)))
-HOSTOS		:= macos
-endif
 
 #
 # Load default variables.
@@ -248,11 +245,7 @@ CP			:=	cp -af
 RM			:=	rm -fr
 CD			:=	cd
 FIND		:=	find
-ifeq ($(strip $(HOSTOS)), macos)
-CPIO		:=	gcpio -o -H newc --quiet
-else
 CPIO		:=	cpio -o -H newc --quiet
-endif
 
 #
 # Xboot variables

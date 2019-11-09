@@ -22,10 +22,6 @@ ifeq ($(strip $(HOSTOS)), windows)
 MKSUNXI		:= arch/$(ARCH)/$(MACH)/tools/windows/mksunxi
 MKZ			:= arch/$(ARCH)/$(MACH)/tools/windows/mkz
 endif
-ifeq ($(strip $(HOSTOS)), macos)
-MKSUNXI		:= arch/$(ARCH)/$(MACH)/tools/macos/mksunxi
-MKZ			:= arch/$(ARCH)/$(MACH)/tools/macos/mkz
-endif
 
 BINDID		:= ""
 PUBLIC_KEY	:= "03cfd18e4a4b40d6529448aa2df8bbb677128258b8fbfc5b9e492fbbba4e84832f"

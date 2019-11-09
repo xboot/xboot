@@ -21,10 +21,10 @@ struct ecdsa256_point_t {
 	uint64_t y[ECDSA256_NUM_DIGITS];
 };
 
-static uint64_t curve_p[ECDSA256_NUM_DIGITS] = { 0xFFFFFFFFFFFFFFFFull, 0x00000000FFFFFFFFull, 0x0000000000000000ull, 0xFFFFFFFF00000001ull };
-static uint64_t curve_b[ECDSA256_NUM_DIGITS] = { 0x3BCE3C3E27D2604Bull, 0x651D06B0CC53B0F6ull, 0xB3EBBD55769886BCull, 0x5AC635D8AA3A93E7ull };
-static uint64_t curve_n[ECDSA256_NUM_DIGITS] = { 0xF3B9CAC2FC632551ull, 0xBCE6FAADA7179E84ull, 0xFFFFFFFFFFFFFFFFull, 0xFFFFFFFF00000000ull };
-static struct ecdsa256_point_t curve_g = { { 0xF4A13945D898C296ull, 0x77037D812DEB33A0ull, 0xF8BCE6E563A440F2ull, 0x6B17D1F2E12C4247ull }, { 0xCBB6406837BF51F5ull, 0x2BCE33576B315ECEull, 0x8EE7EB4A7C0F9E16ull, 0x4FE342E2FE1A7F9Bull } };
+static uint64_t curve_p[ECDSA256_NUM_DIGITS] = { 0xffffffffffffffffull, 0x00000000ffffffffull, 0x0000000000000000ull, 0xffffffff00000001ull };
+static uint64_t curve_b[ECDSA256_NUM_DIGITS] = { 0x3bce3c3e27d2604bull, 0x651d06b0cc53b0f6ull, 0xb3ebbd55769886bcull, 0x5ac635d8aa3a93e7ull };
+static uint64_t curve_n[ECDSA256_NUM_DIGITS] = { 0xf3b9cac2fc632551ull, 0xbce6faada7179e84ull, 0xffffffffffffffffull, 0xffffffff00000000ull };
+static struct ecdsa256_point_t curve_g = { { 0xf4a13945d898c296ull, 0x77037d812deb33a0ull, 0xf8bce6e563a440f2ull, 0x6b17d1f2e12c4247ull }, { 0xcbb6406837bf51f5ull, 0x2bce33576b315eceull, 0x8ee7eb4a7c0f9e16ull, 0x4fe342e2fe1a7f9bull } };
 
 static int get_random_number(uint64_t * vli)
 {

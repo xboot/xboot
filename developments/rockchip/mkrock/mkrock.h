@@ -9,7 +9,17 @@
 #include <stdbool.h>
 #include <sys/stat.h>
 
-#define SCANF_EAT(in)   	fscanf(in, "%*[ \r\n\t/]")
+/* #define DEBUG */
+
+extern bool gDebug;
+
+#define LOGE(fmt, args...) fprintf(stderr, "E: [%s] "fmt, __func__, ##args)
+#define LOGD(fmt, args...) do {\
+	if (gDebug) \
+	fprintf(stderr, "W: [%s] "fmt, __func__, ##args); \
+} while (0)
+
+#define SCANF_EAT(in)   fscanf(in, "%*[ \r\n\t/]")
 #define MAX_LINE_LEN        256
 extern char gEat[MAX_LINE_LEN];
 
@@ -169,5 +179,19 @@ typedef struct {
 #define OPT_MERGE           "--pack"
 #define OPT_UNPACK          "--unpack"
 #define OPT_SUBFIX          "--subfix"
+#define OPT_REPLACE         "--replace"
+#define OPT_PREPATH         "--prepath"
+#define OPT_SIZE	    "--size"
+#define OPT_RC4		    "--rc4"
+
+#define OPT_CHIP	"-c"
+#define OPT_471		"-1"
+#define OPT_472		"-2"
+#define	OPT_DATA	"-d"
+#define	OPT_BOOT	"-b"
+#define	OPT_OUT		"-o"
+
+
+#define VERSION             "2013-8-12 14:27:23"
 
 #endif /* __MKROCK_H__ */

@@ -21,6 +21,7 @@ SECTIONS
 		PROVIDE(__image_start = .);
 		PROVIDE(__text_start = .);
 		.obj/arch/arm64/mach-x3399/start.o (.text*)
+		.obj/arch/arm64/mach-x3399/sys-jtag.o (.text*)
 		.obj/arch/arm64/mach-x3399/sys-uart.o (.text*)
 		*(.text*)
 		*(.init.text)

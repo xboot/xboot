@@ -228,8 +228,11 @@ reset:
 	ldr x0, _stack_el0_end
 	msr sp_el0, x0
 
-	/* Initial system uart */
+	/* Initial system jtag and uart */
+	bl sys_jtag_init
 	bl sys_uart_init
+
+	/* Uart putchar for new line */
 	mov x0, #'\r'
 	bl sys_uart_putc
 	mov x0, #'\n'

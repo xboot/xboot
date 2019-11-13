@@ -22,6 +22,7 @@ SECTIONS
 		PROVIDE(__image_start = .);
 		PROVIDE(__text_start = .);
 		.obj/arch/arm32/mach-rk3128/start.o (.text*)
+		.obj/arch/arm32/mach-rk3128/sys-jtag.o (.text*)
 		*(.text*)
 		*(.init.text)
 		*(.exit.text)

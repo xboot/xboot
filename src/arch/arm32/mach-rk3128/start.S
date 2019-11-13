@@ -151,6 +151,9 @@ reset:
 	mov r0, #0x40000000
 	vmsr fpexc, r0
 
+	/* Initial system jtag */
+	bl sys_jtag_init
+
 	/* Initialize stacks */
 	mrs r0, cpsr
 	bic r0, r0, #0x1f

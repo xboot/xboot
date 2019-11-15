@@ -129,16 +129,16 @@ reset:
 	fmxr fpexc, r0
 
 	/* Initialize stacks */
-	mrc p15, 0, r10, c0, c0, 5
-	and r10, r10, #0xf
-	mov r11, #CONFIG_MAX_SMP_CPUS
+	mrc p15, 0, r4, c0, c0, 5
+	and r4, r4, #0xf
+	mov r5, #CONFIG_MAX_SMP_CPUS
 
 	ldr r0, _stack_und_start
 	ldr r1, _stack_und_end
 	sub r0, r1, r0
-	mov r1, r11
+	mov r1, r5
 	bl udiv32
-	mul r2, r0, r10
+	mul r2, r0, r4
 	mrs r0, cpsr
 	bic r0, r0, #0x1f
 	orr r1, r0, #0x1b
@@ -149,9 +149,9 @@ reset:
 	ldr r0, _stack_abt_start
 	ldr r1, _stack_abt_end
 	sub r0, r1, r0
-	mov r1, r11
+	mov r1, r5
 	bl udiv32
-	mul r2, r0, r10
+	mul r2, r0, r4
 	mrs r0, cpsr
 	bic r0, r0, #0x1f
 	orr r1, r0, #0x17
@@ -162,9 +162,9 @@ reset:
 	ldr r0, _stack_irq_start
 	ldr r1, _stack_irq_end
 	sub r0, r1, r0
-	mov r1, r11
+	mov r1, r5
 	bl udiv32
-	mul r2, r0, r10
+	mul r2, r0, r4
 	mrs r0, cpsr
 	bic r0, r0, #0x1f
 	orr r1, r0, #0x12
@@ -175,9 +175,9 @@ reset:
 	ldr r0, _stack_fiq_start
 	ldr r1, _stack_fiq_end
 	sub r0, r1, r0
-	mov r1, r11
+	mov r1, r5
 	bl udiv32
-	mul r2, r0, r10
+	mul r2, r0, r4
 	mrs r0, cpsr
 	bic r0, r0, #0x1f
 	orr r1, r0, #0x11
@@ -188,9 +188,9 @@ reset:
 	ldr r0, _stack_srv_start
 	ldr r1, _stack_srv_end
 	sub r0, r1, r0
-	mov r1, r11
+	mov r1, r5
 	bl udiv32
-	mul r2, r0, r10
+	mul r2, r0, r4
 	mrs r0, cpsr
 	bic r0, r0, #0x1f
 	orr r1, r0, #0x13

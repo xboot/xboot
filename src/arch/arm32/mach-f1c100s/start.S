@@ -40,11 +40,11 @@
 	ldr r1, [r0, #-4]
 	str r1, [sp, #-4]!
 	ldr r1, [r0, #-8]
-	str r1, [sp, #-(4*16)]
+	str r1, [sp, #-(4 * 16)]
 	ldr r1, [r0, #-12]
 	ldr r0, [r0, #-16]
-	stmdb sp, {r0-r14}^
-	sub sp, sp, #(4*16)
+	stmdb sp, {r0 - r14}^
+	sub sp, sp, #(4 * 16)
 	ldr r4, [sp]
 	and r0, r4, #0x1f
 	cmp r0, #0x10
@@ -52,10 +52,10 @@
 	cmp r0, #0x13
 	beq 11f
 	b .
-11:	add r1, sp, #(4*17)
-	str r1, [sp, #(4*14)]
-	str lr, [sp, #(4*15)]
-10:	add r1, sp, #(4*17)
+11:	add r1, sp, #(4 * 17)
+	str r1, [sp, #(4 * 14)]
+	str lr, [sp, #(4 * 15)]
+10:	add r1, sp, #(4 * 17)
 	str r1, [sp, #-4]!
 	mov r0, sp
 .endm
@@ -71,10 +71,10 @@
 	cmp r0, #0x13
 	beq 21f
 	b .
-20:	ldr lr, [r12, #(4*15)]
-	ldmia r12, {r0-r14}^
+20:	ldr lr, [r12, #(4 * 15)]
+	ldmia r12, {r0 - r14}^
 	movs pc, lr
-21:	ldm r12, {r0-r15}^
+21:	ldm r12, {r0 - r15}^
 	mov r0, r0
 .endm
 
@@ -153,7 +153,7 @@ reset:
 
 	/* Set vector to the low address */
 	mrc p15, 0, r0, c1, c0, 0
-	bic r0, #(1<<13)
+	bic r0, #(1 << 13)
 	mcr p15, 0, r0, c1, c0, 0
 
 	/* Copy vector to the correct address */

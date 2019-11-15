@@ -221,7 +221,10 @@ reset:
 	/* Suspend the other cpu cores */
 	mrc p15, 0, r0, c0, c0, 5
 	ands r0, #3
-	bne _halt
+	beq 2f
+1:	wfe
+	b 1b
+2:	nop
 
 	/* Initial system jtag and uart */
 	bl sys_jtag_init
@@ -254,10 +257,6 @@ _main:
 	mov r1, #0
 	bl xboot_main
 	b _main
-
-_halt:
-	wfe
-	b _halt
 
 	.global udiv32
 udiv32:

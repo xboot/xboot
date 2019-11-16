@@ -344,15 +344,6 @@ void resume_device(struct device_t * dev)
 	}
 }
 
-void remove_device(struct device_t * dev)
-{
-	if(dev)
-	{
-		if(dev->driver && dev->driver->remove)
-			dev->driver->remove(dev);
-	}
-}
-
 static __init void device_pure_init(void)
 {
 	int i;

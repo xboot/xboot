@@ -93,7 +93,6 @@ bool_t register_device_notifier(struct notifier_t * n);
 bool_t unregister_device_notifier(struct notifier_t * n);
 void suspend_device(struct device_t * dev);
 void resume_device(struct device_t * dev);
-void remove_device(struct device_t * dev);
 
 #ifdef __cplusplus
 }

@@ -29,6 +29,7 @@ struct driver_t * search_driver(const char * name);
 bool_t register_driver(struct driver_t * drv);
 bool_t unregister_driver(struct driver_t * drv);
 void probe_device(const char * json, int length, const char * tips);
+void remove_device(struct device_t * dev);
 
 #ifdef __cplusplus
 }

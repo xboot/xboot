@@ -174,6 +174,12 @@ void probe_device(const char * json, int length, const char * tips)
 	}
 }
 
+void remove_device(struct device_t * dev)
+{
+	if(dev && dev->driver && dev->driver->remove)
+		dev->driver->remove(dev);
+}
+
 static __init void driver_pure_init(void)
 {
 	int i;

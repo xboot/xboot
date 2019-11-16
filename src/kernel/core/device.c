@@ -326,26 +326,31 @@ bool_t unregister_device_notifier(struct notifier_t * n)
 
 void suspend_device(struct device_t * dev)
 {
-	if(dev && dev->driver && dev->driver->suspend)
+	if(dev)
 	{
 		notifier_chain_call(&__device_nc, NOTIFIER_DEVICE_SUSPEND, dev);
-		dev->driver->suspend(dev);
+		if(dev->driver && dev->driver->suspend)
+			dev->driver->suspend(dev);
 	}
 }
 
 void resume_device(struct device_t * dev)
 {
-	if(dev && dev->driver && dev->driver->resume)
+	if(dev)
 	{
-		dev->driver->resume(dev);
+		if(dev->driver && dev->driver->resume)
+			dev->driver->resume(dev);
 		notifier_chain_call(&__device_nc, NOTIFIER_DEVICE_RESUME, dev);
 	}
 }
 
 void remove_device(struct device_t * dev)
 {
-	if(dev && dev->driver && dev->driver->remove)
-		dev->driver->remove(dev);
+	if(dev)
+	{
+		if(dev->driver && dev->driver->remove)
+			dev->driver->remove(dev);
+	}
 }
 
 static __init void device_pure_init(void)

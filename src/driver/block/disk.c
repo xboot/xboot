@@ -52,6 +52,9 @@ static u64_t disk_block_write(struct block_t * blk, u8_t * buf, u64_t blkno, u64
 
 static void disk_block_sync(struct block_t * blk)
 {
+	struct disk_block_t * dblk = (struct disk_block_t *)(blk->priv);
+	struct disk_t * disk = dblk->disk;
+	disk->sync(disk);
 }
 
 static ssize_t partition_read_from(struct kobj_t * kobj, void * buf, size_t size)

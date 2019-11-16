@@ -136,7 +136,7 @@
 		]
 	},
 
-	"rotary-encoder@0": {
+	"rotary-gpio@0": {
 		"a-gpio": 2,
 		"a-gpio-config": -1,
 		"b-gpio": 3,

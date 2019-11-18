@@ -156,18 +156,15 @@ static struct device_t * buzzer_pwm_probe(struct driver_t * drv, struct dtnode_t
 
 	buzzer_pwm_set(buzzer, 0);
 
-	if(!register_buzzer(&dev, buzzer))
+	if(!(dev = register_buzzer(buzzer, drv)))
 	{
 		timer_cancel(&pdat->timer);
 		queue_free(pdat->queue, iter_queue_node);
-
 		free_device_name(buzzer->name);
 		free(buzzer->priv);
 		free(buzzer);
 		return NULL;
 	}
-	dev->driver = drv;
-
 	return dev;
 }
 
@@ -176,11 +173,11 @@ static void buzzer_pwm_remove(struct device_t * dev)
 	struct buzzer_t * buzzer = (struct buzzer_t *)dev->priv;
 	struct buzzer_pwm_pdata_t * pdat = (struct buzzer_pwm_pdata_t *)buzzer->priv;
 
-	if(buzzer && unregister_buzzer(buzzer))
+	if(buzzer)
 	{
+		unregister_buzzer(buzzer);
 		timer_cancel(&pdat->timer);
 		queue_free(pdat->queue, iter_queue_node);
-
 		free_device_name(buzzer->name);
 		free(buzzer->priv);
 		free(buzzer);

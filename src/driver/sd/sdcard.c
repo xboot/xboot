@@ -626,7 +626,7 @@ static int sdcard_disk_timer_function(struct timer_t * timer, void * data)
 				pdat->disk.write = sdcard_disk_write;
 				pdat->disk.sync = sdcard_disk_sync;
 				pdat->disk.priv = pdat;
-				if(!register_disk(NULL, &pdat->disk))
+				if(!register_disk(&pdat->disk, NULL))
 					free_device_name(pdat->disk.name);
 				else
 					pdat->online = TRUE;
@@ -637,11 +637,9 @@ static int sdcard_disk_timer_function(struct timer_t * timer, void * data)
 	{
 		if(!sdhci_detect(pdat->hci))
 		{
-			if(unregister_disk(&pdat->disk))
-			{
-				free_device_name(pdat->disk.name);
-				pdat->online = FALSE;
-			}
+			unregister_disk(&pdat->disk);
+			free_device_name(pdat->disk.name);
+			pdat->online = FALSE;
 		}
 	}
 	if(!pdat->hci->removable)
@@ -673,8 +671,11 @@ void sdcard_remove(void * card)
 	if(pdat)
 	{
 		timer_cancel(&pdat->timer);
-		if(pdat->online && unregister_disk(&pdat->disk))
+		if(pdat->online)
+		{
+			unregister_disk(&pdat->disk);
 			free_device_name(pdat->disk.name);
+		}
 		free(pdat);
 	}
 }

@@ -89,15 +89,13 @@ static struct device_t * romdisk_probe(struct driver_t * drv, struct dtnode_t * 
 	blk->sync = romdisk_sync;
 	blk->priv = pdat;
 
-	if(!register_block(&dev, blk))
+	if(!(dev = register_block(blk, drv)))
 	{
 		free_device_name(blk->name);
 		free(blk->priv);
 		free(blk);
 		return NULL;
 	}
-	dev->driver = drv;
-
 	return dev;
 }
 
@@ -105,8 +103,9 @@ static void romdisk_remove(struct device_t * dev)
 {
 	struct block_t * blk = (struct block_t *)dev->priv;
 
-	if(blk && unregister_block(blk))
+	if(blk)
 	{
+		unregister_block(blk);
 		free_device_name(blk->name);
 		free(blk->priv);
 		free(blk);

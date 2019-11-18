@@ -56,20 +56,20 @@ struct block_t * search_block(const char * name)
 	return (struct block_t *)dev->priv;
 }
 
-bool_t register_block(struct device_t ** device, struct block_t * blk)
+struct device_t * register_block(struct block_t * blk, struct driver_t * drv)
 {
 	struct device_t * dev;
 
 	if(!blk || !blk->name)
-		return FALSE;
+		return NULL;
 
 	dev = malloc(sizeof(struct device_t));
 	if(!dev)
-		return FALSE;
+		return NULL;
 
 	dev->name = strdup(blk->name);
 	dev->type = DEVICE_TYPE_BLOCK;
-	dev->driver = NULL;
+	dev->driver = drv;
 	dev->priv = blk;
 	dev->kobj = kobj_alloc_directory(dev->name);
 	kobj_add_regular(dev->kobj, "size", block_read_size, NULL, blk);
@@ -81,32 +81,25 @@ bool_t register_block(struct device_t ** device, struct block_t * blk)
 		kobj_remove_self(dev->kobj);
 		free(dev->name);
 		free(dev);
-		return FALSE;
+		return NULL;
 	}
-
-	if(device)
-		*device = dev;
-	return TRUE;
+	return dev;
 }
 
-bool_t unregister_block(struct block_t * blk)
+void unregister_block(struct block_t * blk)
 {
 	struct device_t * dev;
 
-	if(!blk || !blk->name)
-		return FALSE;
-
-	dev = search_device(blk->name, DEVICE_TYPE_BLOCK);
-	if(!dev)
-		return FALSE;
-
-	if(!unregister_device(dev))
-		return FALSE;
-
-	kobj_remove_self(dev->kobj);
-	free(dev->name);
-	free(dev);
-	return TRUE;
+	if(blk && blk->name)
+	{
+		dev = search_device(blk->name, DEVICE_TYPE_BLOCK);
+		if(dev && unregister_device(dev))
+		{
+			kobj_remove_self(dev->kobj);
+			free(dev->name);
+			free(dev);
+		}
+	}
 }
 
 u64_t block_read(struct block_t * blk, u8_t * buf, u64_t offset, u64_t count)

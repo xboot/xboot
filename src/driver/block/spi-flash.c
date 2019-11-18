@@ -738,17 +738,14 @@ static struct device_t * spi_flash_probe(struct driver_t * drv, struct dtnode_t 
 	blk->priv = pdat;
 	spi_flash_init(pdat);
 
-	if(!register_block(&dev, blk))
+	if(!(dev = register_block(blk, drv)))
 	{
 		spi_device_free(pdat->dev);
-
 		free_device_name(blk->name);
 		free(blk->priv);
 		free(blk);
 		return NULL;
 	}
-	dev->driver = drv;
-
 	return dev;
 }
 
@@ -757,10 +754,10 @@ static void spi_flash_remove(struct device_t * dev)
 	struct block_t * blk = (struct block_t *)dev->priv;
 	struct spi_flash_pdata_t * pdat = (struct spi_flash_pdata_t *)blk->priv;
 
-	if(blk && unregister_block(blk))
+	if(blk)
 	{
+		unregister_block(blk);
 		spi_device_free(pdat->dev);
-
 		free_device_name(blk->name);
 		free(blk->priv);
 		free(blk);

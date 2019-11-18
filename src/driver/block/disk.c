@@ -92,7 +92,7 @@ struct disk_t * search_disk(const char * name)
 	return (struct disk_t *)dev->priv;
 }
 
-bool_t register_disk(struct device_t ** device, struct disk_t * disk)
+struct device_t * register_disk(struct disk_t * disk, struct driver_t * drv)
 {
 	struct device_t * dev;
 	struct kobj_t * kobj;
@@ -102,24 +102,24 @@ bool_t register_disk(struct device_t ** device, struct disk_t * disk)
 	char name[256];
 
 	if(!disk)
-		return FALSE;
+		return NULL;
 
 	if(!disk || !disk->name)
-		return FALSE;
+		return NULL;
 
 	if(!partition_map(disk))
-		return FALSE;
+		return NULL;
 
 	if(list_empty(&(disk->part.entry)))
-		return FALSE;
+		return NULL;
 
 	dev = malloc(sizeof(struct device_t));
 	if(!dev)
-		return FALSE;
+		return NULL;
 
 	dev->name = strdup(disk->name);
 	dev->type = DEVICE_TYPE_DISK;
-	dev->driver = NULL;
+	dev->driver = drv;
 	dev->priv = (void *)disk;
 	dev->kobj = kobj_alloc_directory(dev->name);
 	list_for_each_entry_safe(ppos, pn, &(disk->part.entry), entry)
@@ -136,9 +136,8 @@ bool_t register_disk(struct device_t ** device, struct disk_t * disk)
 		kobj_remove_self(dev->kobj);
 		free(dev->name);
 		free(dev);
-		return FALSE;
+		return NULL;
 	}
-
 	list_for_each_entry_safe(ppos, pn, &(disk->part.entry), entry)
 	{
 		blk = malloc(sizeof(struct block_t));
@@ -148,7 +147,7 @@ bool_t register_disk(struct device_t ** device, struct disk_t * disk)
 			free(blk);
 			free(dblk);
 			unregister_disk(disk);
-			return FALSE;
+			return NULL;
 		}
 
 		snprintf(name, sizeof(name), "%s.%s", disk->name, ppos->name);
@@ -165,55 +164,47 @@ bool_t register_disk(struct device_t ** device, struct disk_t * disk)
 		blk->sync = disk_block_sync;
 		blk->priv = dblk;
 
-		if(!register_block(NULL, blk))
+		if(!register_block(blk, NULL))
 		{
 			free(blk->name);
 			free(blk);
 			free(dblk);
 			ppos->blk = NULL;
 			unregister_disk(disk);
-			return FALSE;
+			return NULL;
 		}
 	}
-
-	if(device)
-		*device = dev;
-	return TRUE;
+	return dev;
 }
 
-bool_t unregister_disk(struct disk_t * disk)
+void unregister_disk(struct disk_t * disk)
 {
 	struct device_t * dev;
 	struct partition_t * ppos, * pn;
 	struct block_t * blk;
 
-	if(!disk || !disk->name)
-		return FALSE;
-
-	list_for_each_entry_safe(ppos, pn, &(disk->part.entry), entry)
+	if(disk && disk->name)
 	{
-		blk = ppos->blk;
-		if(blk)
+		list_for_each_entry_safe(ppos, pn, &(disk->part.entry), entry)
 		{
-			unregister_block(blk);
-			free(blk->name);
-			free(blk->priv);
-			free(blk);
+			blk = ppos->blk;
+			if(blk)
+			{
+				unregister_block(blk);
+				free(blk->name);
+				free(blk->priv);
+				free(blk);
+			}
+			free(ppos);
 		}
-		free(ppos);
+		dev = search_device(disk->name, DEVICE_TYPE_DISK);
+		if(dev && unregister_device(dev))
+		{
+			kobj_remove_self(dev->kobj);
+			free(dev->name);
+			free(dev);
+		}
 	}
-
-	dev = search_device(disk->name, DEVICE_TYPE_DISK);
-	if(!dev)
-		return FALSE;
-
-	if(!unregister_device(dev))
-		return FALSE;
-
-	kobj_remove_self(dev->kobj);
-	free(dev->name);
-	free(dev);
-	return TRUE;
 }
 
 u64_t disk_read(struct disk_t * disk, u8_t * buf, u64_t offset, u64_t count)

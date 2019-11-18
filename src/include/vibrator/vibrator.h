@@ -27,8 +27,8 @@ struct vibrator_t
 
 struct vibrator_t * search_vibrator(const char * name);
 struct vibrator_t * search_first_vibrator(void);
-bool_t register_vibrator(struct device_t ** device, struct vibrator_t * vib);
-bool_t unregister_vibrator(struct vibrator_t * vib);
+struct device_t * register_vibrator(struct vibrator_t * vib, struct driver_t * drv);
+void unregister_vibrator(struct vibrator_t * vib);
 
 void vibrator_set_state(struct vibrator_t * vib, int state);
 int vibrator_get_state(struct vibrator_t * vib);

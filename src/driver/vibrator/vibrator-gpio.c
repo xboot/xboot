@@ -155,18 +155,15 @@ static struct device_t * vibrator_gpio_probe(struct driver_t * drv, struct dtnod
 	gpio_set_direction(pdat->gpio, GPIO_DIRECTION_OUTPUT);
 	vibrator_gpio_set(vib, 0);
 
-	if(!register_vibrator(&dev, vib))
+	if(!(dev = register_vibrator(vib, drv)))
 	{
 		timer_cancel(&pdat->timer);
 		queue_free(pdat->queue, iter_queue_node);
-
 		free_device_name(vib->name);
 		free(vib->priv);
 		free(vib);
 		return NULL;
 	}
-	dev->driver = drv;
-
 	return dev;
 }
 
@@ -175,11 +172,11 @@ static void vibrator_gpio_remove(struct device_t * dev)
 	struct vibrator_t * vib = (struct vibrator_t *)dev->priv;
 	struct vibrator_gpio_pdata_t * pdat = (struct vibrator_gpio_pdata_t *)vib->priv;
 
-	if(vib && unregister_vibrator(vib))
+	if(vib)
 	{
+		unregister_vibrator(vib);
 		timer_cancel(&pdat->timer);
 		queue_free(pdat->queue, iter_queue_node);
-
 		free_device_name(vib->name);
 		free(vib->priv);
 		free(vib);

@@ -144,8 +144,8 @@ static inline u64_t clockevent_delta2ns(struct clockevent_t * ce, u64_t latch)
 
 struct clockevent_t * search_clockevent(const char * name);
 struct clockevent_t * search_first_clockevent(void);
-bool_t register_clockevent(struct device_t ** device, struct clockevent_t * ce);
-bool_t unregister_clockevent(struct clockevent_t * ce);
+struct device_t * register_clockevent(struct clockevent_t * ce, struct driver_t * drv);
+void unregister_clockevent(struct clockevent_t * ce);
 
 bool_t clockevent_set_event_handler(struct clockevent_t * ce, void (*handler)(struct clockevent_t *, void *), void * data);
 bool_t clockevent_set_event_next(struct clockevent_t * ce, ktime_t now, ktime_t expires);

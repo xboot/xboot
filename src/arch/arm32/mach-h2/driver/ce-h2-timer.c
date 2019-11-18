@@ -123,19 +123,16 @@ static struct device_t * ce_h2_timer_probe(struct driver_t * drv, struct dtnode_
 	val |= (0x1 << 7) | (0x0 << 0);
 	write32(pdat->virt + TIMER_CTRL(0), val);
 
-	if(!register_clockevent(&dev, ce))
+	if(!(dev = register_clockevent(ce, drv)))
 	{
 		clk_disable(pdat->clk);
 		free_irq(pdat->irq);
 		free(pdat->clk);
-
 		free_device_name(ce->name);
 		free(ce->priv);
 		free(ce);
 		return NULL;
 	}
-	dev->driver = drv;
-
 	return dev;
 }
 
@@ -144,12 +141,12 @@ static void ce_h2_timer_remove(struct device_t * dev)
 	struct clockevent_t * ce = (struct clockevent_t *)dev->priv;
 	struct ce_h2_timer_pdata_t * pdat = (struct ce_h2_timer_pdata_t *)ce->priv;
 
-	if(ce && unregister_clockevent(ce))
+	if(ce)
 	{
+		unregister_clockevent(ce);
 		clk_disable(pdat->clk);
 		free_irq(pdat->irq);
 		free(pdat->clk);
-
 		free_device_name(ce->name);
 		free(ce->priv);
 		free(ce);

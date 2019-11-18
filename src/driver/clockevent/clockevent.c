@@ -105,24 +105,24 @@ struct clockevent_t * search_first_clockevent(void)
 	return (struct clockevent_t *)dev->priv;
 }
 
-bool_t register_clockevent(struct device_t ** device, struct clockevent_t * ce)
+struct device_t * register_clockevent(struct clockevent_t * ce, struct driver_t * drv)
 {
 	struct device_t * dev;
 	irq_flags_t flags;
 
 	if(!ce || !ce->name || !ce->next)
-		return FALSE;
+		return NULL;
 
 	dev = malloc(sizeof(struct device_t));
 	if(!dev)
-		return FALSE;
+		return NULL;
 
 	ce->data = NULL;
 	ce->handler = __ce_dummy_handler;
 
 	dev->name = strdup(ce->name);
 	dev->type = DEVICE_TYPE_CLOCKEVENT;
-	dev->driver = NULL;
+	dev->driver = drv;
 	dev->priv = ce;
 	dev->kobj = kobj_alloc_directory(dev->name);
 	kobj_add_regular(dev->kobj, "mult", clockevent_read_mult, NULL, ce);
@@ -136,9 +136,8 @@ bool_t register_clockevent(struct device_t ** device, struct clockevent_t * ce)
 		kobj_remove_self(dev->kobj);
 		free(dev->name);
 		free(dev);
-		return FALSE;
+		return NULL;
 	}
-
 	if(__clockevent == &__ce_dummy)
 	{
 		spin_lock_irqsave(&__clockevent_lock, flags);
@@ -146,43 +145,35 @@ bool_t register_clockevent(struct device_t ** device, struct clockevent_t * ce)
 		timer_bind_clockevent(__clockevent);
 		spin_unlock_irqrestore(&__clockevent_lock, flags);
 	}
-
-	if(device)
-		*device = dev;
-	return TRUE;
+	return dev;
 }
 
-bool_t unregister_clockevent(struct clockevent_t * ce)
+void unregister_clockevent(struct clockevent_t * ce)
 {
 	struct device_t * dev;
 	struct clockevent_t * c;
 	irq_flags_t flags;
 
-	if(!ce || !ce->name || !ce->next)
-		return FALSE;
-
-	dev = search_device(ce->name, DEVICE_TYPE_CLOCKEVENT);
-	if(!dev)
-		return FALSE;
-
-	if(!unregister_device(dev))
-		return FALSE;
-
-	if(__clockevent == ce)
+	if(ce && ce->name && ce->next)
 	{
-		if(!(c = search_first_clockevent()))
-			c = &__ce_dummy;
+		dev = search_device(ce->name, DEVICE_TYPE_CLOCKEVENT);
+		if(dev && unregister_device(dev))
+		{
+			if(__clockevent == ce)
+			{
+				if(!(c = search_first_clockevent()))
+					c = &__ce_dummy;
 
-		spin_lock_irqsave(&__clockevent_lock, flags);
-		__clockevent = c;
-		timer_bind_clockevent(__clockevent);
-		spin_unlock_irqrestore(&__clockevent_lock, flags);
+				spin_lock_irqsave(&__clockevent_lock, flags);
+				__clockevent = c;
+				timer_bind_clockevent(__clockevent);
+				spin_unlock_irqrestore(&__clockevent_lock, flags);
+			}
+			kobj_remove_self(dev->kobj);
+			free(dev->name);
+			free(dev);
+		}
 	}
-
-	kobj_remove_self(dev->kobj);
-	free(dev->name);
-	free(dev);
-	return TRUE;
 }
 
 bool_t clockevent_set_event_handler(struct clockevent_t * ce, void (*handler)(struct clockevent_t *, void *), void * data)

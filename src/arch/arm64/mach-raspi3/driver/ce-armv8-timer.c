@@ -94,17 +94,14 @@ static struct device_t * ce_armv8_timer_probe(struct driver_t * drv, struct dtno
 	arm64_timer_interrupt_disable();
 	arm64_timer_stop();
 
-	if(!register_clockevent(&dev, ce))
+	if(!(dev = register_clockevent(ce, drv)))
 	{
 		free_irq(pdat->irq);
-
 		free_device_name(ce->name);
 		free(ce->priv);
 		free(ce);
 		return NULL;
 	}
-	dev->driver = drv;
-
 	return dev;
 }
 
@@ -113,10 +110,10 @@ static void ce_armv8_timer_remove(struct device_t * dev)
 	struct clockevent_t * ce = (struct clockevent_t *)dev->priv;
 	struct ce_armv8_timer_pdata_t * pdat = (struct ce_armv8_timer_pdata_t *)ce->priv;
 
-	if(ce && unregister_clockevent(ce))
+	if(ce)
 	{
+		unregister_clockevent(ce);
 		free_irq(pdat->irq);
-
 		free_device_name(ce->name);
 		free(ce->priv);
 		free(ce);

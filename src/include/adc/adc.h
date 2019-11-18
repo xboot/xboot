@@ -19,8 +19,8 @@ struct adc_t
 };
 
 struct adc_t * search_adc(const char * name);
-bool_t register_adc(struct device_t ** device, struct adc_t * adc);
-bool_t unregister_adc(struct adc_t * adc);
+struct device_t * register_adc(struct adc_t * adc, struct driver_t * drv);
+void unregister_adc(struct adc_t * adc);
 
 u32_t adc_read_raw(struct adc_t * adc, int channel);
 int adc_read_voltage(struct adc_t * adc, int channel);

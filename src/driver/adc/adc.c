@@ -72,23 +72,23 @@ struct adc_t * search_adc(const char * name)
 	return (struct adc_t *)dev->priv;
 }
 
-bool_t register_adc(struct device_t ** device, struct adc_t * adc)
+struct device_t * register_adc(struct adc_t * adc, struct driver_t * drv)
 {
 	struct device_t * dev;
 	char buf[64];
 	int i;
 
 	if(!adc || !adc->name || (adc->resolution <= 0) || (adc->nchannel <= 0) || !adc->read)
-		return FALSE;
+		return NULL;
 
 	dev = malloc(sizeof(struct device_t));
 	if(!dev)
-		return FALSE;
+		return NULL;
 
 	dev->name = strdup(adc->name);
 	dev->type = DEVICE_TYPE_ADC;
 	dev->priv = adc;
-	dev->driver = NULL;
+	dev->driver = drv;
 	dev->kobj = kobj_alloc_directory(dev->name);
 	kobj_add_regular(dev->kobj, "vreference", adc_read_vreference, NULL, adc);
 	kobj_add_regular(dev->kobj, "resolution", adc_read_resolution, NULL, adc);
@@ -109,32 +109,25 @@ bool_t register_adc(struct device_t ** device, struct adc_t * adc)
 		kobj_remove_self(dev->kobj);
 		free(dev->name);
 		free(dev);
-		return FALSE;
+		return NULL;
 	}
-
-	if(device)
-		*device = dev;
-	return TRUE;
+	return dev;
 }
 
-bool_t unregister_adc(struct adc_t * adc)
+void unregister_adc(struct adc_t * adc)
 {
 	struct device_t * dev;
 
-	if(!adc || !adc->name)
-		return FALSE;
-
-	dev = search_device(adc->name, DEVICE_TYPE_ADC);
-	if(!dev)
-		return FALSE;
-
-	if(!unregister_device(dev))
-		return FALSE;
-
-	kobj_remove_self(dev->kobj);
-	free(dev->name);
-	free(dev);
-	return TRUE;
+	if(adc && adc->name)
+	{
+		dev = search_device(adc->name, DEVICE_TYPE_ADC);
+		if(dev && unregister_device(dev))
+		{
+			kobj_remove_self(dev->kobj);
+			free(dev->name);
+			free(dev);
+		}
+	}
 }
 
 u32_t adc_read_raw(struct adc_t * adc, int channel)

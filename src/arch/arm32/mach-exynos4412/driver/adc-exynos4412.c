@@ -91,18 +91,15 @@ static struct device_t * adc_exynos4412_probe(struct driver_t * drv, struct dtno
 	clk_enable(pdat->clk);
 	write32(pdat->virt + ADCCON, (1 << 16) | (1 << 14) | (100 << 6));
 
-	if(!register_adc(&dev, adc))
+	if(!(dev = register_adc(adc, drv)))
 	{
 		clk_disable(pdat->clk);
 		free(pdat->clk);
-
 		free_device_name(adc->name);
 		free(adc->priv);
 		free(adc);
 		return NULL;
 	}
-	dev->driver = drv;
-
 	return dev;
 }
 
@@ -111,11 +108,11 @@ static void adc_exynos4412_remove(struct device_t * dev)
 	struct adc_t * adc = (struct adc_t *)dev->priv;
 	struct adc_exynos4412_pdata_t * pdat = (struct adc_exynos4412_pdata_t *)adc->priv;
 
-	if(adc && unregister_adc(adc))
+	if(adc)
 	{
+		unregister_adc(adc);
 		clk_disable(pdat->clk);
 		free(pdat->clk);
-
 		free_device_name(adc->name);
 		free(adc->priv);
 		free(adc);

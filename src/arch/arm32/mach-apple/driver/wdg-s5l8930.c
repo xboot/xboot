@@ -109,19 +109,16 @@ static struct device_t * wdg_s5l8930_probe(struct driver_t * drv, struct dtnode_
 	clk_enable(pdat->clk);
 	write32(pdat->virt + WDT_CON, 0x0);
 
-	if(!register_watchdog(&dev, wdg))
+	if(!(dev = register_watchdog(wdg, drv)))
 	{
 		write32(pdat->virt + WDT_CON, 0x0);
 		clk_disable(pdat->clk);
 		free(pdat->clk);
-
 		free_device_name(wdg->name);
 		free(wdg->priv);
 		free(wdg);
 		return NULL;
 	}
-	dev->driver = drv;
-
 	return dev;
 }
 
@@ -130,12 +127,12 @@ static void wdg_s5l8930_remove(struct device_t * dev)
 	struct watchdog_t * wdg = (struct watchdog_t *)dev->priv;
 	struct wdg_s5l8930_pdata_t * pdat = (struct wdg_s5l8930_pdata_t *)wdg->priv;
 
-	if(wdg && unregister_watchdog(wdg))
+	if(wdg)
 	{
+		unregister_watchdog(wdg);
 		write32(pdat->virt + WDT_CON, 0x0);
 		clk_disable(pdat->clk);
 		free(pdat->clk);
-
 		free_device_name(wdg->name);
 		free(wdg->priv);
 		free(wdg);

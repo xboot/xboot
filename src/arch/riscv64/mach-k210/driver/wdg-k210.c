@@ -126,20 +126,17 @@ static struct device_t * wdg_k210_probe(struct driver_t * drv, struct dtnode_t *
 	write32(pdat->virt + WDG_EOI, read32(pdat->virt + WDG_EOI));
 	write32(pdat->virt + WDG_CR, read32(pdat->virt + WDG_CR) & ~(1 << 1));
 
-	if(!register_watchdog(&dev, wdg))
+	if(!(dev = register_watchdog(wdg, drv)))
 	{
 		write32(pdat->virt + WDG_CRR, 0x76);
 		write32(pdat->virt + WDG_CR, read32(pdat->virt + WDG_CR) & ~(1 << 0));
 		clk_disable(pdat->clk);
 		free(pdat->clk);
-
 		free_device_name(wdg->name);
 		free(wdg->priv);
 		free(wdg);
 		return NULL;
 	}
-	dev->driver = drv;
-
 	return dev;
 }
 
@@ -148,13 +145,13 @@ static void wdg_k210_remove(struct device_t * dev)
 	struct watchdog_t * wdg = (struct watchdog_t *)dev->priv;
 	struct wdg_k210_pdata_t * pdat = (struct wdg_k210_pdata_t *)wdg->priv;
 
-	if(wdg && unregister_watchdog(wdg))
+	if(wdg)
 	{
+		unregister_watchdog(wdg);
 		write32(pdat->virt + WDG_CRR, 0x76);
 		write32(pdat->virt + WDG_CR, read32(pdat->virt + WDG_CR) & ~(1 << 0));
 		clk_disable(pdat->clk);
 		free(pdat->clk);
-
 		free_device_name(wdg->name);
 		free(wdg->priv);
 		free(wdg);

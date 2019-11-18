@@ -67,20 +67,20 @@ struct watchdog_t * search_first_watchdog(void)
 	return (struct watchdog_t *)dev->priv;
 }
 
-bool_t register_watchdog(struct device_t ** device,struct watchdog_t * wdg)
+struct device_t * register_watchdog(struct watchdog_t * wdg, struct driver_t * drv)
 {
 	struct device_t * dev;
 
 	if(!wdg || !wdg->name)
-		return FALSE;
+		return NULL;
 
 	dev = malloc(sizeof(struct device_t));
 	if(!dev)
-		return FALSE;
+		return NULL;
 
 	dev->name = strdup(wdg->name);
 	dev->type = DEVICE_TYPE_WATCHDOG;
-	dev->driver = NULL;
+	dev->driver = drv;
 	dev->priv = wdg;
 	dev->kobj = kobj_alloc_directory(dev->name);
 	kobj_add_regular(dev->kobj, "timeout", watchdog_read_timeout, watchdog_write_timeout, wdg);
@@ -90,32 +90,25 @@ bool_t register_watchdog(struct device_t ** device,struct watchdog_t * wdg)
 		kobj_remove_self(dev->kobj);
 		free(dev->name);
 		free(dev);
-		return FALSE;
+		return NULL;
 	}
-
-	if(device)
-		*device = dev;
-	return TRUE;
+	return dev;
 }
 
-bool_t unregister_watchdog(struct watchdog_t * wdg)
+void unregister_watchdog(struct watchdog_t * wdg)
 {
 	struct device_t * dev;
 
-	if(!wdg || !wdg->name)
-		return FALSE;
-
-	dev = search_device(wdg->name, DEVICE_TYPE_WATCHDOG);
-	if(!dev)
-		return FALSE;
-
-	if(!unregister_device(dev))
-		return FALSE;
-
-	kobj_remove_self(dev->kobj);
-	free(dev->name);
-	free(dev);
-	return TRUE;
+	if(wdg && wdg->name)
+	{
+		dev = search_device(wdg->name, DEVICE_TYPE_WATCHDOG);
+		if(dev && unregister_device(dev))
+		{
+			kobj_remove_self(dev->kobj);
+			free(dev->name);
+			free(dev);
+		}
+	}
 }
 
 void watchdog_set_timeout(struct watchdog_t * wdg, int timeout)

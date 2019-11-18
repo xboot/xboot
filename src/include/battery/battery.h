@@ -51,8 +51,8 @@ struct battery_t
 
 struct battery_t * search_battery(const char * name);
 struct battery_t * search_first_battery(void);
-bool_t register_battery(struct device_t ** device, struct battery_t * bat);
-bool_t unregister_battery(struct battery_t * bat);
+struct device_t * register_battery(struct battery_t * bat, struct driver_t * drv);
+void unregister_battery(struct battery_t * bat);
 
 char * power_supply_string(enum power_supply_t supply);
 char * battery_status_string(enum battery_status_t status);

@@ -149,20 +149,20 @@ struct battery_t * search_first_battery(void)
 	return (struct battery_t *)dev->priv;
 }
 
-bool_t register_battery(struct device_t ** device, struct battery_t * bat)
+struct device_t * register_battery(struct battery_t * bat, struct driver_t * drv)
 {
 	struct device_t * dev;
 
 	if(!bat || !bat->name)
-		return FALSE;
+		return NULL;
 
 	dev = malloc(sizeof(struct device_t));
 	if(!dev)
-		return FALSE;
+		return NULL;
 
 	dev->name = strdup(bat->name);
 	dev->type = DEVICE_TYPE_BATTERY;
-	dev->driver = NULL;
+	dev->driver = drv;
 	dev->priv = bat;
 	dev->kobj = kobj_alloc_directory(dev->name);
 	kobj_add_regular(dev->kobj, "supply", battery_read_supply, NULL, bat);
@@ -181,32 +181,25 @@ bool_t register_battery(struct device_t ** device, struct battery_t * bat)
 		kobj_remove_self(dev->kobj);
 		free(dev->name);
 		free(dev);
-		return FALSE;
+		return NULL;
 	}
-
-	if(device)
-		*device = dev;
-	return TRUE;
+	return dev;
 }
 
-bool_t unregister_battery(struct battery_t * bat)
+void unregister_battery(struct battery_t * bat)
 {
 	struct device_t * dev;
 
-	if(!bat || !bat->name)
-		return FALSE;
-
-	dev = search_device(bat->name, DEVICE_TYPE_BATTERY);
-	if(!dev)
-		return FALSE;
-
-	if(!unregister_device(dev))
-		return FALSE;
-
-	kobj_remove_self(dev->kobj);
-	free(dev->name);
-	free(dev);
-	return TRUE;
+	if(bat && bat->name)
+	{
+		dev = search_device(bat->name, DEVICE_TYPE_BATTERY);
+		if(dev && unregister_device(dev))
+		{
+			kobj_remove_self(dev->kobj);
+			free(dev->name);
+			free(dev);
+		}
+	}
 }
 
 char * power_supply_string(enum power_supply_t supply)

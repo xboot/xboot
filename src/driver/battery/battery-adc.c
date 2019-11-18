@@ -228,20 +228,17 @@ static struct device_t * battery_adc_probe(struct driver_t * drv, struct dtnode_
 		gpio_set_direction(pdat->gpio, GPIO_DIRECTION_INPUT);
 	}
 
-	if(!register_battery(&dev, bat))
+	if(!(dev = register_battery(bat, drv)))
 	{
 		median_free(pdat->mf);
 		mean_free(pdat->nf);
 		free(pdat->cc);
 		free(pdat->dc);
-
 		free_device_name(bat->name);
 		free(bat->priv);
 		free(bat);
 		return NULL;
 	}
-	dev->driver = drv;
-
 	return dev;
 }
 
@@ -250,13 +247,13 @@ static void battery_adc_remove(struct device_t * dev)
 	struct battery_t * bat = (struct battery_t *)dev->priv;
 	struct battery_adc_pdata_t * pdat = (struct battery_adc_pdata_t *)bat->priv;
 
-	if(bat && unregister_battery(bat))
+	if(bat)
 	{
+		unregister_battery(bat);
 		median_free(pdat->mf);
 		mean_free(pdat->nf);
 		free(pdat->cc);
 		free(pdat->dc);
-
 		free_device_name(bat->name);
 		free(bat->priv);
 		free(bat);

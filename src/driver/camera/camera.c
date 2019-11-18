@@ -49,21 +49,21 @@ struct camera_t * search_first_camera(void)
 	return (struct camera_t *)dev->priv;
 }
 
-bool_t register_camera(struct device_t ** device, struct camera_t * camera)
+struct device_t * register_camera(struct camera_t * cam, struct driver_t * drv)
 {
 	struct device_t * dev;
 
-	if(!camera || !camera->name)
-		return FALSE;
+	if(!cam || !cam->name)
+		return NULL;
 
 	dev = malloc(sizeof(struct device_t));
 	if(!dev)
-		return FALSE;
+		return NULL;
 
-	dev->name = strdup(camera->name);
+	dev->name = strdup(cam->name);
 	dev->type = DEVICE_TYPE_CAMERA;
-	dev->driver = NULL;
-	dev->priv = camera;
+	dev->driver = drv;
+	dev->priv = cam;
 	dev->kobj = kobj_alloc_directory(dev->name);
 
 	if(!register_device(dev))
@@ -71,30 +71,23 @@ bool_t register_camera(struct device_t ** device, struct camera_t * camera)
 		kobj_remove_self(dev->kobj);
 		free(dev->name);
 		free(dev);
-		return FALSE;
+		return NULL;
 	}
-
-	if(device)
-		*device = dev;
-	return TRUE;
+	return dev;
 }
 
-bool_t unregister_camera(struct camera_t * camera)
+void unregister_camera(struct camera_t * cam)
 {
 	struct device_t * dev;
 
-	if(!camera || !camera->name)
-		return FALSE;
-
-	dev = search_device(camera->name, DEVICE_TYPE_CAMERA);
-	if(!dev)
-		return FALSE;
-
-	if(!unregister_device(dev))
-		return FALSE;
-
-	kobj_remove_self(dev->kobj);
-	free(dev->name);
-	free(dev);
-	return TRUE;
+	if(cam && cam->name)
+	{
+		dev = search_device(cam->name, DEVICE_TYPE_CAMERA);
+		if(dev && unregister_device(dev))
+		{
+			kobj_remove_self(dev->kobj);
+			free(dev->name);
+			free(dev);
+		}
+	}
 }

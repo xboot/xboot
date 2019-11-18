@@ -18,8 +18,8 @@ struct camera_t
 
 struct camera_t * search_camera(const char * name);
 struct camera_t * search_first_camera(void);
-bool_t register_camera(struct device_t ** device, struct camera_t * cam);
-bool_t unregister_camera(struct camera_t * cam);
+struct device_t * register_camera(struct camera_t * cam, struct driver_t * drv);
+void unregister_camera(struct camera_t * cam);
 
 #ifdef __cplusplus
 }

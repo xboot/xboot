@@ -50,20 +50,20 @@ struct audio_t * search_first_audio(void)
 	return (struct audio_t *)dev->priv;
 }
 
-bool_t register_audio(struct device_t ** device, struct audio_t * audio)
+struct device_t * register_audio(struct audio_t * audio, struct driver_t * drv)
 {
 	struct device_t * dev;
 
 	if(!audio || !audio->name)
-		return FALSE;
+		return NULL;
 
 	dev = malloc(sizeof(struct device_t));
 	if(!dev)
-		return FALSE;
+		return NULL;
 
 	dev->name = strdup(audio->name);
 	dev->type = DEVICE_TYPE_AUDIO;
-	dev->driver = NULL;
+	dev->driver = drv;
 	dev->priv = audio;
 	dev->kobj = kobj_alloc_directory(dev->name);
 
@@ -72,32 +72,25 @@ bool_t register_audio(struct device_t ** device, struct audio_t * audio)
 		kobj_remove_self(dev->kobj);
 		free(dev->name);
 		free(dev);
-		return FALSE;
+		return NULL;
 	}
-
-	if(device)
-		*device = dev;
-	return TRUE;
+	return dev;
 }
 
-bool_t unregister_audio(struct audio_t * audio)
+void unregister_audio(struct audio_t * audio)
 {
 	struct device_t * dev;
 
-	if(!audio || !audio->name)
-		return FALSE;
-
-	dev = search_device(audio->name, DEVICE_TYPE_AUDIO);
-	if(!dev)
-		return FALSE;
-
-	if(!unregister_device(dev))
-		return FALSE;
-
-	kobj_remove_self(dev->kobj);
-	free(dev->name);
-	free(dev);
-	return TRUE;
+	if(audio && audio->name)
+	{
+		dev = search_device(audio->name, DEVICE_TYPE_AUDIO);
+		if(dev && unregister_device(dev))
+		{
+			kobj_remove_self(dev->kobj);
+			free(dev->name);
+			free(dev);
+		}
+	}
 }
 
 static int sound_read(struct sound_t * snd, void * buf, int count)

@@ -56,20 +56,20 @@ struct hygrometer_t * search_first_hygrometer(void)
 	return (struct hygrometer_t *)dev->priv;
 }
 
-bool_t register_hygrometer(struct device_t ** device,struct hygrometer_t * hygrometer)
+struct device_t * register_hygrometer(struct hygrometer_t * hygrometer, struct driver_t * drv)
 {
 	struct device_t * dev;
 
 	if(!hygrometer || !hygrometer->name)
-		return FALSE;
+		return NULL;
 
 	dev = malloc(sizeof(struct device_t));
 	if(!dev)
-		return FALSE;
+		return NULL;
 
 	dev->name = strdup(hygrometer->name);
 	dev->type = DEVICE_TYPE_THERMOMETER;
-	dev->driver = NULL;
+	dev->driver = drv;
 	dev->priv = hygrometer;
 	dev->kobj = kobj_alloc_directory(dev->name);
 	kobj_add_regular(dev->kobj, "humidity", hygrometer_read_humidity, NULL, hygrometer);
@@ -79,32 +79,25 @@ bool_t register_hygrometer(struct device_t ** device,struct hygrometer_t * hygro
 		kobj_remove_self(dev->kobj);
 		free(dev->name);
 		free(dev);
-		return FALSE;
+		return NULL;
 	}
-
-	if(device)
-		*device = dev;
-	return TRUE;
+	return dev;
 }
 
-bool_t unregister_hygrometer(struct hygrometer_t * hygrometer)
+void unregister_hygrometer(struct hygrometer_t * hygrometer)
 {
 	struct device_t * dev;
 
-	if(!hygrometer || !hygrometer->name)
-		return FALSE;
-
-	dev = search_device(hygrometer->name, DEVICE_TYPE_THERMOMETER);
-	if(!dev)
-		return FALSE;
-
-	if(!unregister_device(dev))
-		return FALSE;
-
-	kobj_remove_self(dev->kobj);
-	free(dev->name);
-	free(dev);
-	return TRUE;
+	if(hygrometer && hygrometer->name)
+	{
+		dev = search_device(hygrometer->name, DEVICE_TYPE_THERMOMETER);
+		if(dev && unregister_device(dev))
+		{
+			kobj_remove_self(dev->kobj);
+			free(dev->name);
+			free(dev);
+		}
+	}
 }
 
 int hygrometer_get_humidity(struct hygrometer_t * hygrometer)

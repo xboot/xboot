@@ -17,8 +17,8 @@ struct hygrometer_t
 
 struct hygrometer_t * search_hygrometer(const char * name);
 struct hygrometer_t * search_first_hygrometer(void);
-bool_t register_hygrometer(struct device_t ** device,struct hygrometer_t * hygrometer);
-bool_t unregister_hygrometer(struct hygrometer_t * hygrometer);
+struct device_t * register_hygrometer(struct hygrometer_t * hygrometer, struct driver_t * drv);
+void unregister_hygrometer(struct hygrometer_t * hygrometer);
 
 int hygrometer_get_humidity(struct hygrometer_t * hygrometer);
 

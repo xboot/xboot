@@ -138,7 +138,7 @@ static struct device_t * irq_bcm2836_probe(struct driver_t * drv, struct dtnode_
 
 	arm32_interrupt_enable();
 
-	if(!register_irqchip(&dev, chip))
+	if(!(dev = register_irqchip(chip, drv)))
 	{
 		free_device_name(chip->name);
 		free(chip->handler);
@@ -146,8 +146,6 @@ static struct device_t * irq_bcm2836_probe(struct driver_t * drv, struct dtnode_
 		free(chip);
 		return NULL;
 	}
-	dev->driver = drv;
-
 	return dev;
 }
 
@@ -155,8 +153,9 @@ static void irq_bcm2836_remove(struct device_t * dev)
 {
 	struct irqchip_t * chip = (struct irqchip_t *)dev->priv;
 
-	if(chip && unregister_irqchip(chip))
+	if(chip)
 	{
+		unregister_irqchip(chip);
 		free_device_name(chip->name);
 		free(chip->handler);
 		free(chip->priv);

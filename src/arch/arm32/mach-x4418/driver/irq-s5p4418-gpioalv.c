@@ -250,7 +250,7 @@ static struct device_t * irq_s5p4418_gpioalv_probe(struct driver_t * drv, struct
 	chip->dispatch = irq_s5p4418_gpioalv_dispatch;
 	chip->priv = pdat;
 
-	if(!register_sub_irqchip(&dev, pdat->parent, chip))
+	if(!(dev = register_sub_irqchip(pdat->parent, chip, drv)))
 	{
 		free_device_name(chip->name);
 		free(chip->handler);
@@ -258,8 +258,6 @@ static struct device_t * irq_s5p4418_gpioalv_probe(struct driver_t * drv, struct
 		free(chip);
 		return NULL;
 	}
-	dev->driver = drv;
-
 	return dev;
 }
 
@@ -268,8 +266,9 @@ static void irq_s5p4418_gpioalv_remove(struct device_t * dev)
 	struct irqchip_t * chip = (struct irqchip_t *)dev->priv;
 	struct irq_s5p4418_gpioalv_pdata_t * pdat = (struct irq_s5p4418_gpioalv_pdata_t *)chip->priv;
 
-	if(chip && unregister_sub_irqchip(pdat->parent, chip))
+	if(chip)
 	{
+		unregister_sub_irqchip(pdat->parent, chip);
 		free_device_name(chip->name);
 		free(chip->handler);
 		free(chip->priv);

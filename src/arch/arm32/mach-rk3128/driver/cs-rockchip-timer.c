@@ -80,19 +80,16 @@ static struct device_t * cs_rockchip_timer_probe(struct driver_t * drv, struct d
 	rockchip_timer_count(pdat->virt, 0xffffffff);
 	rockchip_timer_start(pdat->virt, 0, 0);
 
-	if(!register_clocksource(&dev, cs))
+	if(!(dev = register_clocksource(cs, drv)))
 	{
 		rockchip_timer_stop(pdat->virt);
 		clk_disable(pdat->clk);
 		free(pdat->clk);
-
 		free_device_name(cs->name);
 		free(cs->priv);
 		free(cs);
 		return NULL;
 	}
-	dev->driver = drv;
-
 	return dev;
 }
 
@@ -101,12 +98,12 @@ static void cs_rockchip_timer_remove(struct device_t * dev)
 	struct clocksource_t * cs = (struct clocksource_t *)dev->priv;
 	struct cs_rockchip_timer_pdata_t * pdat = (struct cs_rockchip_timer_pdata_t *)cs->priv;
 
-	if(cs && unregister_clocksource(cs))
+	if(cs)
 	{
+		unregister_clocksource(cs);
 		rockchip_timer_stop(pdat->virt);
 		clk_disable(pdat->clk);
 		free(pdat->clk);
-
 		free_device_name(cs->name);
 		free(cs->priv);
 		free(cs);

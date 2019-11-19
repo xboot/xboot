@@ -84,18 +84,15 @@ static struct device_t * cs_bcm2836_systimer_probe(struct driver_t * drv, struct
 	cs->read = cs_bcm2836_systimer_read;
 	cs->priv = pdat;
 
-	if(!register_clocksource(&dev, cs))
+	if(!(dev = register_clocksource(cs, drv)))
 	{
 		clk_disable(pdat->clk);
 		free(pdat->clk);
-
 		free_device_name(cs->name);
 		free(cs->priv);
 		free(cs);
 		return NULL;
 	}
-	dev->driver = drv;
-
 	return dev;
 }
 
@@ -104,11 +101,11 @@ static void cs_bcm2836_systimer_remove(struct device_t * dev)
 	struct clocksource_t * cs = (struct clocksource_t *)dev->priv;
 	struct cs_bcm2836_systimer_pdata_t * pdat = (struct cs_bcm2836_systimer_pdata_t *)cs->priv;
 
-	if(cs && unregister_clocksource(cs))
+	if(cs)
 	{
+		unregister_clocksource(cs);
 		clk_disable(pdat->clk);
 		free(pdat->clk);
-
 		free_device_name(cs->name);
 		free(cs->priv);
 		free(cs);

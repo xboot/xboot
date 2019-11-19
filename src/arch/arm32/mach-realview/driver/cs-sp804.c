@@ -101,19 +101,16 @@ static struct device_t * cs_sp804_probe(struct driver_t * drv, struct dtnode_t *
 	write32(pdat->virt + TIMER_VALUE(pdat->channel), 0xffffffff);
 	write32(pdat->virt + TIMER_CTRL(pdat->channel), (1 << 1) | (1 << 6) | (1 << 7));
 
-	if(!register_clocksource(&dev, cs))
+	if(!(dev = register_clocksource(cs, drv)))
 	{
 		write32(pdat->virt + TIMER_CTRL(pdat->channel), 0);
 		clk_disable(pdat->clk);
 		free(pdat->clk);
-
 		free_device_name(cs->name);
 		free(cs->priv);
 		free(cs);
 		return NULL;
 	}
-	dev->driver = drv;
-
 	return dev;
 }
 
@@ -122,12 +119,12 @@ static void cs_sp804_remove(struct device_t * dev)
 	struct clocksource_t * cs = (struct clocksource_t *)dev->priv;
 	struct cs_sp804_pdata_t * pdat = (struct cs_sp804_pdata_t *)cs->priv;
 
-	if(cs && unregister_clocksource(cs))
+	if(cs)
 	{
+		unregister_clocksource(cs);
 		write32(pdat->virt + TIMER_CTRL(pdat->channel), 0);
 		clk_disable(pdat->clk);
 		free(pdat->clk);
-
 		free_device_name(cs->name);
 		free(cs->priv);
 		free(cs);

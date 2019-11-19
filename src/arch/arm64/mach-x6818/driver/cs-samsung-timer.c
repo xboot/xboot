@@ -87,20 +87,17 @@ static struct device_t * cs_samsung_timer_probe(struct driver_t * drv, struct dt
 	samsung_timer_count(pdat->virt, pdat->channel, 0xffffffff);
 	samsung_timer_start(pdat->virt, pdat->channel, 0);
 
-	if(!register_clocksource(&dev, cs))
+	if(!(dev = register_clocksource(cs, drv)))
 	{
 		samsung_timer_stop(pdat->virt, pdat->channel);
 		samsung_timer_disable(pdat->virt, pdat->channel);
 		clk_disable(pdat->clk);
 		free(pdat->clk);
-
 		free_device_name(cs->name);
 		free(cs->priv);
 		free(cs);
 		return NULL;
 	}
-	dev->driver = drv;
-
 	return dev;
 }
 
@@ -109,13 +106,13 @@ static void cs_samsung_timer_remove(struct device_t * dev)
 	struct clocksource_t * cs = (struct clocksource_t *)dev->priv;
 	struct cs_samsung_timer_pdata_t * pdat = (struct cs_samsung_timer_pdata_t *)cs->priv;
 
-	if(cs && unregister_clocksource(cs))
+	if(cs)
 	{
+		unregister_clocksource(cs);
 		samsung_timer_stop(pdat->virt, pdat->channel);
 		samsung_timer_disable(pdat->virt, pdat->channel);
 		clk_disable(pdat->clk);
 		free(pdat->clk);
-
 		free_device_name(cs->name);
 		free(cs->priv);
 		free(cs);

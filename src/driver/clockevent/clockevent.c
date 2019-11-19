@@ -163,7 +163,6 @@ void unregister_clockevent(struct clockevent_t * ce)
 			{
 				if(!(c = search_first_clockevent()))
 					c = &__ce_dummy;
-
 				spin_lock_irqsave(&__clockevent_lock, flags);
 				__clockevent = c;
 				timer_bind_clockevent(__clockevent);

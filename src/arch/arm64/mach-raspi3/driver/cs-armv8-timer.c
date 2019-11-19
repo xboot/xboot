@@ -54,15 +54,13 @@ static struct device_t * cs_armv8_timer_probe(struct driver_t * drv, struct dtno
 	clocksource_calc_mult_shift(&cs->mult, &cs->shift, (u64_t)rate, 1000000000ULL, 10);
 	arm64_timer_start();
 
-	if(!register_clocksource(&dev, cs))
+	if(!(dev = register_clocksource(cs, drv)))
 	{
 		free_device_name(cs->name);
 		free(cs->priv);
 		free(cs);
 		return NULL;
 	}
-	dev->driver = drv;
-
 	return dev;
 }
 
@@ -70,8 +68,9 @@ static void cs_armv8_timer_remove(struct device_t * dev)
 {
 	struct clocksource_t * cs = (struct clocksource_t *)dev->priv;
 
-	if(cs && unregister_clocksource(cs))
+	if(cs)
 	{
+		unregister_clocksource(cs);
 		free_device_name(cs->name);
 		free(cs->priv);
 		free(cs);

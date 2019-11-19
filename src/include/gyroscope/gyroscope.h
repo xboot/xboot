@@ -17,8 +17,8 @@ struct gyroscope_t
 
 struct gyroscope_t * search_gyroscope(const char * name);
 struct gyroscope_t * search_first_gyroscope(void);
-bool_t register_gyroscope(struct device_t ** device,struct gyroscope_t * g);
-bool_t unregister_gyroscope(struct gyroscope_t * g);
+struct device_t * register_gyroscope(struct gyroscope_t * g, struct driver_t * drv);
+void unregister_gyroscope(struct gyroscope_t * g);
 
 bool_t gyroscope_get_palstance(struct gyroscope_t * g, int * x, int * y, int * z);
 

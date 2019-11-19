@@ -57,20 +57,20 @@ struct gyroscope_t * search_first_gyroscope(void)
 	return (struct gyroscope_t *)dev->priv;
 }
 
-bool_t register_gyroscope(struct device_t ** device,struct gyroscope_t * g)
+struct device_t * register_gyroscope(struct gyroscope_t * g, struct driver_t * drv)
 {
 	struct device_t * dev;
 
 	if(!g || !g->name)
-		return FALSE;
+		return NULL;
 
 	dev = malloc(sizeof(struct device_t));
 	if(!dev)
-		return FALSE;
+		return NULL;
 
 	dev->name = strdup(g->name);
 	dev->type = DEVICE_TYPE_GYROSCOPE;
-	dev->driver = NULL;
+	dev->driver = drv;
 	dev->priv = g;
 	dev->kobj = kobj_alloc_directory(dev->name);
 	kobj_add_regular(dev->kobj, "palstance", gyroscope_read_palstance, NULL, g);
@@ -80,32 +80,25 @@ bool_t register_gyroscope(struct device_t ** device,struct gyroscope_t * g)
 		kobj_remove_self(dev->kobj);
 		free(dev->name);
 		free(dev);
-		return FALSE;
+		return NULL;
 	}
-
-	if(device)
-		*device = dev;
-	return TRUE;
+	return dev;
 }
 
-bool_t unregister_gyroscope(struct gyroscope_t * g)
+void unregister_gyroscope(struct gyroscope_t * g)
 {
 	struct device_t * dev;
 
-	if(!g || !g->name)
-		return FALSE;
-
-	dev = search_device(g->name, DEVICE_TYPE_GYROSCOPE);
-	if(!dev)
-		return FALSE;
-
-	if(!unregister_device(dev))
-		return FALSE;
-
-	kobj_remove_self(dev->kobj);
-	free(dev->name);
-	free(dev);
-	return TRUE;
+	if(g && g->name)
+	{
+		dev = search_device(g->name, DEVICE_TYPE_GYROSCOPE);
+		if(dev && unregister_device(dev))
+		{
+			kobj_remove_self(dev->kobj);
+			free(dev->name);
+			free(dev);
+		}
+	}
 }
 
 bool_t gyroscope_get_palstance(struct gyroscope_t * g, int * x, int * y, int * z)

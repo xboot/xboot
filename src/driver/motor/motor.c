@@ -60,20 +60,20 @@ struct motor_t * search_motor(const char * name)
 	return (struct motor_t *)dev->priv;
 }
 
-bool_t register_motor(struct device_t ** device, struct motor_t * m)
+struct device_t * register_motor(struct motor_t * m, struct driver_t * drv)
 {
 	struct device_t * dev;
 
 	if(!m || !m->name)
-		return FALSE;
+		return NULL;
 
 	dev = malloc(sizeof(struct device_t));
 	if(!dev)
-		return FALSE;
+		return NULL;
 
 	dev->name = strdup(m->name);
 	dev->type = DEVICE_TYPE_MOTOR;
-	dev->driver = NULL;
+	dev->driver = drv;
 	dev->priv = m;
 	dev->kobj = kobj_alloc_directory(dev->name);
 	kobj_add_regular(dev->kobj, "enable", NULL, motor_write_enable, m);
@@ -85,32 +85,25 @@ bool_t register_motor(struct device_t ** device, struct motor_t * m)
 		kobj_remove_self(dev->kobj);
 		free(dev->name);
 		free(dev);
-		return FALSE;
+		return NULL;
 	}
-
-	if(device)
-		*device = dev;
-	return TRUE;
+	return dev;
 }
 
-bool_t unregister_motor(struct motor_t * m)
+void unregister_motor(struct motor_t * m)
 {
 	struct device_t * dev;
 
-	if(!m || !m->name)
-		return FALSE;
-
-	dev = search_device(m->name, DEVICE_TYPE_MOTOR);
-	if(!dev)
-		return FALSE;
-
-	if(!unregister_device(dev))
-		return FALSE;
-
-	kobj_remove_self(dev->kobj);
-	free(dev->name);
-	free(dev);
-	return TRUE;
+	if(m && m->name)
+	{
+		dev = search_device(m->name, DEVICE_TYPE_MOTOR);
+		if(dev && unregister_device(dev))
+		{
+			kobj_remove_self(dev->kobj);
+			free(dev->name);
+			free(dev);
+		}
+	}
 }
 
 void motor_enable(struct motor_t * m)

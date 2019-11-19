@@ -18,8 +18,8 @@ struct motor_t
 };
 
 struct motor_t * search_motor(const char * name);
-bool_t register_motor(struct device_t ** device, struct motor_t * m);
-bool_t unregister_motor(struct motor_t * m);
+struct device_t * register_motor(struct motor_t * m, struct driver_t * drv);
+void unregister_motor(struct motor_t * m);
 
 void motor_enable(struct motor_t * m);
 void motor_disable(struct motor_t * m);

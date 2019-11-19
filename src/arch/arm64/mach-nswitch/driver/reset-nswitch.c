@@ -100,15 +100,13 @@ static struct device_t * reset_nswitch_probe(struct driver_t * drv, struct dtnod
 	chip->deassert = reset_nswitch_deassert;
 	chip->priv = pdat;
 
-	if(!register_resetchip(&dev, chip))
+	if(!(dev = register_resetchip(chip, drv)))
 	{
 		free_device_name(chip->name);
 		free(chip->priv);
 		free(chip);
 		return NULL;
 	}
-	dev->driver = drv;
-
 	return dev;
 }
 
@@ -116,8 +114,9 @@ static void reset_nswitch_remove(struct device_t * dev)
 {
 	struct resetchip_t * chip = (struct resetchip_t *)dev->priv;
 
-	if(chip && unregister_resetchip(chip))
+	if(chip)
 	{
+		unregister_resetchip(chip);
 		free_device_name(chip->name);
 		free(chip->priv);
 		free(chip);

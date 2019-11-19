@@ -20,8 +20,8 @@ struct resetchip_t
 };
 
 struct resetchip_t * search_resetchip(int rst);
-bool_t register_resetchip(struct device_t ** device, struct resetchip_t * chip);
-bool_t unregister_resetchip(struct resetchip_t * chip);
+struct device_t * register_resetchip(struct resetchip_t * chip, struct driver_t * drv);
+void unregister_resetchip(struct resetchip_t * chip);
 
 int reset_is_valid(int rst);
 void reset_assert(int rst);

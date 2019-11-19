@@ -16,8 +16,8 @@ struct pressure_t
 
 struct pressure_t * search_pressure(const char * name);
 struct pressure_t * search_first_pressure(void);
-bool_t register_pressure(struct device_t ** device,struct pressure_t * p);
-bool_t unregister_pressure(struct pressure_t * p);
+struct device_t * register_pressure(struct pressure_t * p, struct driver_t * drv);
+void unregister_pressure(struct pressure_t * p);
 
 int pressure_get_pascal(struct pressure_t * p);
 

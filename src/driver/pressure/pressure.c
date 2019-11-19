@@ -56,20 +56,20 @@ struct pressure_t * search_first_pressure(void)
 	return (struct pressure_t *)dev->priv;
 }
 
-bool_t register_pressure(struct device_t ** device,struct pressure_t * p)
+struct device_t * register_pressure(struct pressure_t * p, struct driver_t * drv)
 {
 	struct device_t * dev;
 
 	if(!p || !p->name)
-		return FALSE;
+		return NULL;
 
 	dev = malloc(sizeof(struct device_t));
 	if(!dev)
-		return FALSE;
+		return NULL;
 
 	dev->name = strdup(p->name);
 	dev->type = DEVICE_TYPE_PRESSURE;
-	dev->driver = NULL;
+	dev->driver = drv;
 	dev->priv = p;
 	dev->kobj = kobj_alloc_directory(dev->name);
 	kobj_add_regular(dev->kobj, "pascal", pressure_read_pascal, NULL, p);
@@ -79,32 +79,25 @@ bool_t register_pressure(struct device_t ** device,struct pressure_t * p)
 		kobj_remove_self(dev->kobj);
 		free(dev->name);
 		free(dev);
-		return FALSE;
+		return NULL;
 	}
-
-	if(device)
-		*device = dev;
-	return TRUE;
+	return dev;
 }
 
-bool_t unregister_pressure(struct pressure_t * p)
+void unregister_pressure(struct pressure_t * p)
 {
 	struct device_t * dev;
 
-	if(!p || !p->name)
-		return FALSE;
-
-	dev = search_device(p->name, DEVICE_TYPE_PRESSURE);
-	if(!dev)
-		return FALSE;
-
-	if(!unregister_device(dev))
-		return FALSE;
-
-	kobj_remove_self(dev->kobj);
-	free(dev->name);
-	free(dev);
-	return TRUE;
+	if(p && p->name)
+	{
+		dev = search_device(p->name, DEVICE_TYPE_PRESSURE);
+		if(dev && unregister_device(dev))
+		{
+			kobj_remove_self(dev->kobj);
+			free(dev->name);
+			free(dev);
+		}
+	}
 }
 
 int pressure_get_pascal(struct pressure_t * p)

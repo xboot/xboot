@@ -257,19 +257,16 @@ static struct device_t * uart_bcm2837_aux_probe(struct driver_t * drv, struct dt
 	write32(pdat->virt + UART_CNTL, 0x3);
 	uart_bcm2837_aux_set(uart, pdat->baud, pdat->data, pdat->parity, pdat->stop);
 
-	if(!register_uart(&dev, uart))
+	if(!(dev = register_uart(uart, drv)))
 	{
 		bcm2837_aux_disable(AUX_ID_UART);
 		clk_disable(pdat->clk);
 		free(pdat->clk);
-
 		free_device_name(uart->name);
 		free(uart->priv);
 		free(uart);
 		return NULL;
 	}
-	dev->driver = drv;
-
 	return dev;
 }
 
@@ -278,12 +275,12 @@ static void uart_bcm2837_aux_remove(struct device_t * dev)
 	struct uart_t * uart = (struct uart_t *)dev->priv;
 	struct uart_bcm2837_aux_pdata_t * pdat = (struct uart_bcm2837_aux_pdata_t *)uart->priv;
 
-	if(uart && unregister_uart(uart))
+	if(uart)
 	{
+		unregister_uart(uart);
 		bcm2837_aux_disable(AUX_ID_UART);
 		clk_disable(pdat->clk);
 		free(pdat->clk);
-
 		free_device_name(uart->name);
 		free(uart->priv);
 		free(uart);

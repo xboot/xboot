@@ -253,18 +253,15 @@ static struct device_t * uart_nswitch_probe(struct driver_t * drv, struct dtnode
 	write32(pdat->virt + UART_MCR, 0x0);
 	uart_nswitch_set(uart, pdat->baud, pdat->data, pdat->parity, pdat->stop);*/
 
-	if(!register_uart(&dev, uart))
+	if(!(dev = register_uart(uart, drv)))
 	{
 		clk_disable(pdat->clk);
 		free(pdat->clk);
-
 		free_device_name(uart->name);
 		free(uart->priv);
 		free(uart);
 		return NULL;
 	}
-	dev->driver = drv;
-
 	return dev;
 }
 
@@ -273,11 +270,11 @@ static void uart_nswitch_remove(struct device_t * dev)
 	struct uart_t * uart = (struct uart_t *)dev->priv;
 	struct uart_nswitch_pdata_t * pdat = (struct uart_nswitch_pdata_t *)uart->priv;
 
-	if(uart && unregister_uart(uart))
+	if(uart)
 	{
+		unregister_uart(uart);
 		clk_disable(pdat->clk);
 		free(pdat->clk);
-
 		free_device_name(uart->name);
 		free(uart->priv);
 		free(uart);

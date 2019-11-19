@@ -20,8 +20,8 @@ struct nvmem_t
 
 struct nvmem_t * search_nvmem(const char * name);
 struct nvmem_t * search_first_nvmem(void);
-bool_t register_nvmem(struct device_t ** device, struct nvmem_t * m);
-bool_t unregister_nvmem(struct nvmem_t * m);
+struct device_t * register_nvmem(struct nvmem_t * m, struct driver_t * drv);
+void unregister_nvmem(struct nvmem_t * m);
 
 int nvmem_capacity(struct nvmem_t * m);
 int nvmem_read(struct nvmem_t * m, void * buf, int offset, int count);

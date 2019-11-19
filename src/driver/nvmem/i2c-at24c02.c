@@ -147,17 +147,14 @@ static struct device_t * i2c_at24c02_probe(struct driver_t * drv, struct dtnode_
 	m->write = i2c_at24c02_write;
 	m->priv = pdat;
 
-	if(!register_nvmem(&dev, m))
+	if(!(dev = register_nvmem(m, drv)))
 	{
 		i2c_device_free(pdat->dev);
-
 		free_device_name(m->name);
 		free(m->priv);
 		free(m);
 		return NULL;
 	}
-	dev->driver = drv;
-
 	return dev;
 }
 
@@ -166,10 +163,10 @@ static void i2c_at24c02_remove(struct device_t * dev)
 	struct nvmem_t * m = (struct nvmem_t *)dev->priv;
 	struct i2c_at24c02_pdata_t * pdat = (struct i2c_at24c02_pdata_t *)m->priv;
 
-	if(m && unregister_nvmem(m))
+	if(m)
 	{
+		unregister_nvmem(m);
 		i2c_device_free(pdat->dev);
-
 		free_device_name(m->name);
 		free(m->priv);
 		free(m);

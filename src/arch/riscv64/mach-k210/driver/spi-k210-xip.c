@@ -313,18 +313,15 @@ static struct device_t * spi_k210_probe(struct driver_t * drv, struct dtnode_t *
 	clk_enable(pdat->clk);
 	spi_k210_init(pdat);
 
-	if(!register_spi(&dev, spi))
+	if(!(dev = register_spi(spi, drv)))
 	{
 		clk_disable(pdat->clk);
 		free(pdat->clk);
-
 		free_device_name(spi->name);
 		free(spi->priv);
 		free(spi);
 		return NULL;
 	}
-	dev->driver = drv;
-
 	return dev;
 }
 
@@ -333,11 +330,11 @@ static void spi_k210_remove(struct device_t * dev)
 	struct spi_t * spi = (struct spi_t *)dev->priv;
 	struct spi_k210_pdata_t * pdat = (struct spi_k210_pdata_t *)spi->priv;
 
-	if(spi && unregister_spi(spi))
+	if(spi)
 	{
+		unregister_spi(spi);
 		clk_disable(pdat->clk);
 		free(pdat->clk);
-
 		free_device_name(spi->name);
 		free(spi->priv);
 		free(spi);

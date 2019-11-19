@@ -341,15 +341,13 @@ static struct device_t * spi_gpio_probe(struct driver_t * drv, struct dtnode_t *
 	spi->deselect = spi_gpio_deselect;
 	spi->priv = pdat;
 
-	if(!register_spi(&dev, spi))
+	if(!(dev = register_spi(spi, drv)))
 	{
 		free_device_name(spi->name);
 		free(spi->priv);
 		free(spi);
 		return NULL;
 	}
-	dev->driver = drv;
-
 	return dev;
 }
 
@@ -357,8 +355,9 @@ static void spi_gpio_remove(struct device_t * dev)
 {
 	struct spi_t * spi = (struct spi_t *)dev->priv;
 
-	if(spi && unregister_spi(spi))
+	if(spi)
 	{
+		unregister_spi(spi);
 		free_device_name(spi->name);
 		free(spi->priv);
 		free(spi);

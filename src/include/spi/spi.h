@@ -55,8 +55,8 @@ struct spi_device_t {
 };
 
 struct spi_t * search_spi(const char * name);
-bool_t register_spi(struct device_t ** device, struct spi_t * spi);
-bool_t unregister_spi(struct spi_t * spi);
+struct device_t * register_spi(struct spi_t * spi, struct driver_t * drv);
+void unregister_spi(struct spi_t * spi);
 
 int spi_transfer(struct spi_t * spi, struct spi_msg_t * msg);
 void spi_select(struct spi_t * spi, int cs);

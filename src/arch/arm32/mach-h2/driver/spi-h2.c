@@ -251,18 +251,15 @@ static struct device_t * spi_h2_probe(struct driver_t * drv, struct dtnode_t * n
 	}
 	h2_spi_enable_chip(pdat);
 
-	if(!register_spi(&dev, spi))
+	if(!(dev = register_spi(spi, drv)))
 	{
 		clk_disable(pdat->clk);
 		free(pdat->clk);
-
 		free_device_name(spi->name);
 		free(spi->priv);
 		free(spi);
 		return NULL;
 	}
-	dev->driver = drv;
-
 	return dev;
 }
 
@@ -271,11 +268,11 @@ static void spi_h2_remove(struct device_t * dev)
 	struct spi_t * spi = (struct spi_t *)dev->priv;
 	struct spi_h2_pdata_t * pdat = (struct spi_h2_pdata_t *)spi->priv;
 
-	if(spi && unregister_spi(spi))
+	if(spi)
 	{
+		unregister_spi(spi);
 		clk_disable(pdat->clk);
 		free(pdat->clk);
-
 		free_device_name(spi->name);
 		free(spi->priv);
 		free(spi);

@@ -39,16 +39,16 @@ struct spi_t * search_spi(const char * name)
 	return (struct spi_t *)dev->priv;
 }
 
-bool_t register_spi(struct device_t ** device, struct spi_t * spi)
+struct device_t * register_spi(struct spi_t * spi, struct driver_t * drv)
 {
 	struct device_t * dev;
 
 	if(!spi || !spi->name || !spi->type)
-		return FALSE;
+		return NULL;
 
 	dev = malloc(sizeof(struct device_t));
 	if(!dev)
-		return FALSE;
+		return dev;
 
 	dev->name = strdup(spi->name);
 	dev->type = DEVICE_TYPE_SPI;
@@ -61,32 +61,25 @@ bool_t register_spi(struct device_t ** device, struct spi_t * spi)
 		kobj_remove_self(dev->kobj);
 		free(dev->name);
 		free(dev);
-		return FALSE;
+		return NULL;
 	}
-
-	if(device)
-		*device = dev;
-	return TRUE;
+	return dev;
 }
 
-bool_t unregister_spi(struct spi_t * spi)
+void unregister_spi(struct spi_t * spi)
 {
 	struct device_t * dev;
 
-	if(!spi || !spi->name)
-		return FALSE;
-
-	dev = search_device(spi->name, DEVICE_TYPE_SPI);
-	if(!dev)
-		return FALSE;
-
-	if(!unregister_device(dev))
-		return FALSE;
-
-	kobj_remove_self(dev->kobj);
-	free(dev->name);
-	free(dev);
-	return TRUE;
+	if(spi && spi->name)
+	{
+		dev = search_device(spi->name, DEVICE_TYPE_SPI);
+		if(dev && unregister_device(dev))
+		{
+			kobj_remove_self(dev->kobj);
+			free(dev->name);
+			free(dev);
+		}
+	}
 }
 
 int spi_transfer(struct spi_t * spi, struct spi_msg_t * msg)

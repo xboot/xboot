@@ -314,18 +314,15 @@ static struct device_t * spi_rk3288_probe(struct driver_t * drv, struct dtnode_t
 	write32(pdat->virt + SPI_TXFTLR, 32 / 2 - 1);
 	write32(pdat->virt + SPI_RXFTLR, 32 / 2 - 1);
 
-	if(!register_spi(&dev, spi))
+	if(!(dev = register_spi(spi, drv)))
 	{
 		clk_disable(pdat->clk);
 		free(pdat->clk);
-
 		free_device_name(spi->name);
 		free(spi->priv);
 		free(spi);
 		return NULL;
 	}
-	dev->driver = drv;
-
 	return dev;
 }
 
@@ -334,11 +331,11 @@ static void spi_rk3288_remove(struct device_t * dev)
 	struct spi_t * spi = (struct spi_t *)dev->priv;
 	struct spi_rk3288_pdata_t * pdat = (struct spi_rk3288_pdata_t *)spi->priv;
 
-	if(spi && unregister_spi(spi))
+	if(spi)
 	{
+		unregister_spi(spi);
 		clk_disable(pdat->clk);
 		free(pdat->clk);
-
 		free_device_name(spi->name);
 		free(spi->priv);
 		free(spi);

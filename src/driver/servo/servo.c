@@ -60,20 +60,20 @@ struct servo_t * search_servo(const char * name)
 	return (struct servo_t *)dev->priv;
 }
 
-bool_t register_servo(struct device_t ** device, struct servo_t * m)
+struct device_t * register_servo(struct servo_t * m, struct driver_t * drv)
 {
 	struct device_t * dev;
 
 	if(!m || !m->name)
-		return FALSE;
+		return NULL;
 
 	dev = malloc(sizeof(struct device_t));
 	if(!dev)
-		return FALSE;
+		return NULL;
 
 	dev->name = strdup(m->name);
 	dev->type = DEVICE_TYPE_SERVO;
-	dev->driver = NULL;
+	dev->driver = drv;
 	dev->priv = m;
 	dev->kobj = kobj_alloc_directory(dev->name);
 	kobj_add_regular(dev->kobj, "enable", NULL, servo_write_enable, m);
@@ -85,32 +85,25 @@ bool_t register_servo(struct device_t ** device, struct servo_t * m)
 		kobj_remove_self(dev->kobj);
 		free(dev->name);
 		free(dev);
-		return FALSE;
+		return NULL;
 	}
-
-	if(device)
-		*device = dev;
-	return TRUE;
+	return dev;
 }
 
-bool_t unregister_servo(struct servo_t * m)
+void unregister_servo(struct servo_t * m)
 {
 	struct device_t * dev;
 
-	if(!m || !m->name)
-		return FALSE;
-
-	dev = search_device(m->name, DEVICE_TYPE_SERVO);
-	if(!dev)
-		return FALSE;
-
-	if(!unregister_device(dev))
-		return FALSE;
-
-	kobj_remove_self(dev->kobj);
-	free(dev->name);
-	free(dev);
-	return TRUE;
+	if(m && m->name)
+	{
+		dev = search_device(m->name, DEVICE_TYPE_SERVO);
+		if(dev && unregister_device(dev))
+		{
+			kobj_remove_self(dev->kobj);
+			free(dev->name);
+			free(dev);
+		}
+	}
 }
 
 void servo_enable(struct servo_t * m)

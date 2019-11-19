@@ -18,8 +18,8 @@ struct servo_t
 };
 
 struct servo_t * search_servo(const char * name);
-bool_t register_servo(struct device_t ** device, struct servo_t * m);
-bool_t unregister_servo(struct servo_t * m);
+struct device_t * register_servo(struct servo_t * m, struct driver_t * drv);
+void unregister_servo(struct servo_t * m);
 
 void servo_enable(struct servo_t * m);
 void servo_disable(struct servo_t * m);

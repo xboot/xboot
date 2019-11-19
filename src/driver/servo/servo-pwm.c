@@ -113,15 +113,13 @@ static struct device_t * servo_pwm_probe(struct driver_t * drv, struct dtnode_t 
 	m->priv = pdat;
 	servo_pwm_set(m, dt_read_int(n, "default-angle", 0));
 
-	if(!register_servo(&dev, m))
+	if(!(dev = register_servo(m, drv)))
 	{
 		free_device_name(m->name);
 		free(m->priv);
 		free(m);
 		return NULL;
 	}
-	dev->driver = drv;
-
 	return dev;
 }
 
@@ -129,8 +127,9 @@ static void servo_pwm_remove(struct device_t * dev)
 {
 	struct servo_t * m = (struct servo_t *)dev->priv;
 
-	if(m && unregister_servo(m))
+	if(m)
 	{
+		unregister_servo(m);
 		free_device_name(m->name);
 		free(m->priv);
 		free(m);

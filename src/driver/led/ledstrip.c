@@ -89,16 +89,16 @@ struct ledstrip_t * search_ledstrip(const char * name)
 	return (struct ledstrip_t *)dev->priv;
 }
 
-bool_t register_ledstrip(struct device_t ** device, struct ledstrip_t * strip)
+struct device_t * register_ledstrip(struct ledstrip_t * strip, struct driver_t * drv)
 {
 	struct device_t * dev;
 
 	if(!strip || !strip->name)
-		return FALSE;
+		return NULL;
 
 	dev = malloc(sizeof(struct device_t));
 	if(!dev)
-		return FALSE;
+		return NULL;
 
 	dev->name = strdup(strip->name);
 	dev->type = DEVICE_TYPE_LEDSTRIP;
@@ -114,32 +114,25 @@ bool_t register_ledstrip(struct device_t ** device, struct ledstrip_t * strip)
 		kobj_remove_self(dev->kobj);
 		free(dev->name);
 		free(dev);
-		return FALSE;
+		return NULL;
 	}
-
-	if(device)
-		*device = dev;
-	return TRUE;
+	return dev;
 }
 
-bool_t unregister_ledstrip(struct ledstrip_t * strip)
+void unregister_ledstrip(struct ledstrip_t * strip)
 {
 	struct device_t * dev;
 
-	if(!strip || !strip->name)
-		return FALSE;
-
-	dev = search_device(strip->name, DEVICE_TYPE_LEDSTRIP);
-	if(!dev)
-		return FALSE;
-
-	if(!unregister_device(dev))
-		return FALSE;
-
-	kobj_remove_self(dev->kobj);
-	free(dev->name);
-	free(dev);
-	return TRUE;
+	if(strip && strip->name)
+	{
+		dev = search_device(strip->name, DEVICE_TYPE_LEDSTRIP);
+		if(dev && unregister_device(dev))
+		{
+			kobj_remove_self(dev->kobj);
+			free(dev->name);
+			free(dev);
+		}
+	}
 }
 
 void ledstrip_set_count(struct ledstrip_t * strip, int n)

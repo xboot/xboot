@@ -23,8 +23,8 @@ struct led_t
 };
 
 struct led_t * search_led(const char * name);
-bool_t register_led(struct device_t ** device, struct led_t * led);
-bool_t unregister_led(struct led_t * led);
+struct device_t * register_led(struct led_t * led, struct driver_t * drv);
+void unregister_led(struct led_t * led);
 
 void led_set_brightness(struct led_t * led, int brightness);
 int led_get_brightness(struct led_t * led);

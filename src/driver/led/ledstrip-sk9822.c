@@ -186,15 +186,13 @@ static struct device_t * ledstrip_sk9822_probe(struct driver_t * drv, struct dtn
 	}
 	ledstrip_sk9822_set_count(strip, dt_read_int(n, "count", 1));
 
-	if(!register_ledstrip(&dev, strip))
+	if(!(dev = register_ledstrip(strip, drv)))
 	{
 		free_device_name(strip->name);
 		free(strip->priv);
 		free(strip);
 		return NULL;
 	}
-	dev->driver = drv;
-
 	return dev;
 }
 
@@ -203,11 +201,11 @@ static void ledstrip_sk9822_remove(struct device_t * dev)
 	struct ledstrip_t * strip = (struct ledstrip_t *)dev->priv;
 	struct ledstrip_sk9822_pdata_t * pdat = (struct ledstrip_sk9822_pdata_t *)strip->priv;
 
-	if(strip && unregister_ledstrip(strip))
+	if(strip)
 	{
+		unregister_ledstrip(strip);
 		if(pdat->color)
 			free(pdat->color);
-
 		free_device_name(strip->name);
 		free(strip->priv);
 		free(strip);

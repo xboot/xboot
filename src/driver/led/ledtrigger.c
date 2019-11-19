@@ -47,16 +47,16 @@ struct ledtrigger_t * search_ledtrigger(const char * name)
 	return (struct ledtrigger_t *)dev->priv;
 }
 
-bool_t register_ledtrigger(struct device_t ** device, struct ledtrigger_t * trigger)
+struct device_t * register_ledtrigger(struct ledtrigger_t * trigger, struct driver_t * drv)
 {
 	struct device_t * dev;
 
 	if(!trigger || !trigger->name)
-		return FALSE;
+		return NULL;
 
 	dev = malloc(sizeof(struct device_t));
 	if(!dev)
-		return FALSE;
+		return NULL;
 
 	dev->name = strdup(trigger->name);
 	dev->type = DEVICE_TYPE_LEDTRIGGER;
@@ -70,32 +70,25 @@ bool_t register_ledtrigger(struct device_t ** device, struct ledtrigger_t * trig
 		kobj_remove_self(dev->kobj);
 		free(dev->name);
 		free(dev);
-		return FALSE;
+		return NULL;
 	}
-
-	if(device)
-		*device = dev;
-	return TRUE;
+	return dev;
 }
 
-bool_t unregister_ledtrigger(struct ledtrigger_t * trigger)
+void unregister_ledtrigger(struct ledtrigger_t * trigger)
 {
 	struct device_t * dev;
 
-	if(!trigger || !trigger->name)
-		return FALSE;
-
-	dev = search_device(trigger->name, DEVICE_TYPE_LEDTRIGGER);
-	if(!dev)
-		return FALSE;
-
-	if(!unregister_device(dev))
-		return FALSE;
-
-	kobj_remove_self(dev->kobj);
-	free(dev->name);
-	free(dev);
-	return TRUE;
+	if(trigger && trigger->name)
+	{
+		dev = search_device(trigger->name, DEVICE_TYPE_LEDTRIGGER);
+		if(dev && unregister_device(dev))
+		{
+			kobj_remove_self(dev->kobj);
+			free(dev->name);
+			free(dev);
+		}
+	}
 }
 
 void ledtrigger_activity(struct ledtrigger_t * trigger)

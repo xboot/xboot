@@ -62,21 +62,21 @@ struct led_t * search_led(const char * name)
 	return (struct led_t *)dev->priv;
 }
 
-bool_t register_led(struct device_t ** device, struct led_t * led)
+struct device_t * register_led(struct led_t * led, struct driver_t * drv)
 {
 	struct device_t * dev;
 
 	if(!led || !led->name)
-		return FALSE;
+		return NULL;
 
 	dev = malloc(sizeof(struct device_t));
 	if(!dev)
-		return FALSE;
+		return NULL;
 
 	dev->name = strdup(led->name);
 	dev->type = DEVICE_TYPE_LED;
 	dev->driver = NULL;
-	dev->priv = led;
+	dev->priv = drv;
 	dev->kobj = kobj_alloc_directory(dev->name);
 	kobj_add_regular(dev->kobj, "brightness", led_read_brightness, led_write_brightness, led);
 	kobj_add_regular(dev->kobj, "max_brightness", led_read_max_brightness, NULL, led);
@@ -86,32 +86,25 @@ bool_t register_led(struct device_t ** device, struct led_t * led)
 		kobj_remove_self(dev->kobj);
 		free(dev->name);
 		free(dev);
-		return FALSE;
+		return NULL;
 	}
-
-	if(device)
-		*device = dev;
-	return TRUE;
+	return dev;
 }
 
-bool_t unregister_led(struct led_t * led)
+void unregister_led(struct led_t * led)
 {
 	struct device_t * dev;
 
-	if(!led || !led->name)
-		return FALSE;
-
-	dev = search_device(led->name, DEVICE_TYPE_LED);
-	if(!dev)
-		return FALSE;
-
-	if(!unregister_device(dev))
-		return FALSE;
-
-	kobj_remove_self(dev->kobj);
-	free(dev->name);
-	free(dev);
-	return TRUE;
+	if(led && led->name)
+	{
+		dev = search_device(led->name, DEVICE_TYPE_LED);
+		if(dev && unregister_device(dev))
+		{
+			kobj_remove_self(dev->kobj);
+			free(dev->name);
+			free(dev);
+		}
+	}
 }
 
 void led_set_brightness(struct led_t * led, int brightness)

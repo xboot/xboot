@@ -21,8 +21,8 @@ struct ledtrigger_t
 };
 
 struct ledtrigger_t * search_ledtrigger(const char * name);
-bool_t register_ledtrigger(struct device_t ** device, struct ledtrigger_t * trigger);
-bool_t unregister_ledtrigger(struct ledtrigger_t * trigger);
+struct device_t * register_ledtrigger(struct ledtrigger_t * trigger, struct driver_t * drv);
+void unregister_ledtrigger(struct ledtrigger_t * trigger);
 
 void ledtrigger_activity(struct ledtrigger_t * trigger);
 

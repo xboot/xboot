@@ -58,20 +58,20 @@ struct rng_t * search_first_rng(void)
 	return (struct rng_t *)dev->priv;
 }
 
-bool_t register_rng(struct device_t ** device, struct rng_t * rng)
+struct device_t * register_rng(struct rng_t * rng, struct driver_t * drv)
 {
 	struct device_t * dev;
 
 	if(!rng || !rng->name || !rng->read)
-		return FALSE;
+		return NULL;
 
 	dev = malloc(sizeof(struct device_t));
 	if(!dev)
-		return FALSE;
+		return NULL;
 
 	dev->name = strdup(rng->name);
 	dev->type = DEVICE_TYPE_RNG;
-	dev->driver = NULL;
+	dev->driver = drv;
 	dev->priv = rng;
 	dev->kobj = kobj_alloc_directory(dev->name);
 	kobj_add_regular(dev->kobj, "random", rng_read_random, NULL, rng);
@@ -81,32 +81,25 @@ bool_t register_rng(struct device_t ** device, struct rng_t * rng)
 		kobj_remove_self(dev->kobj);
 		free(dev->name);
 		free(dev);
-		return FALSE;
+		return NULL;
 	}
-
-	if(device)
-		*device = dev;
-	return TRUE;
+	return dev;
 }
 
-bool_t unregister_rng(struct rng_t * rng)
+void unregister_rng(struct rng_t * rng)
 {
 	struct device_t * dev;
 
-	if(!rng || !rng->name)
-		return FALSE;
-
-	dev = search_device(rng->name, DEVICE_TYPE_RNG);
-	if(!dev)
-		return FALSE;
-
-	if(!unregister_device(dev))
-		return FALSE;
-
-	kobj_remove_self(dev->kobj);
-	free(dev->name);
-	free(dev);
-	return TRUE;
+	if(rng && rng->name)
+	{
+		dev = search_device(rng->name, DEVICE_TYPE_RNG);
+		if(dev && unregister_device(dev))
+		{
+			kobj_remove_self(dev->kobj);
+			free(dev->name);
+			free(dev);
+		}
+	}
 }
 
 int rng_read_data(struct rng_t * rng, void * buf, int max, int wait)

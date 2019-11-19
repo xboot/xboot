@@ -34,8 +34,8 @@ struct rtc_t
 
 struct rtc_t * search_rtc(const char * name);
 struct rtc_t * search_first_rtc(void);
-bool_t register_rtc(struct device_t ** device, struct rtc_t * rtc);
-bool_t unregister_rtc(struct rtc_t * rtc);
+struct device_t * register_rtc(struct rtc_t * rtc, struct driver_t * drv);
+void unregister_rtc(struct rtc_t * rtc);
 
 bool_t rtc_settime(struct rtc_t * rtc, struct rtc_time_t * time);
 bool_t rtc_gettime(struct rtc_t * rtc, struct rtc_time_t * time);

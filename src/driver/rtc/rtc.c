@@ -98,21 +98,21 @@ struct rtc_t * search_first_rtc(void)
 	return (struct rtc_t *)dev->priv;
 }
 
-bool_t register_rtc(struct device_t ** device, struct rtc_t * rtc)
+struct device_t * register_rtc(struct rtc_t * rtc, struct driver_t * drv)
 {
 	struct device_t * dev;
 	struct rtc_time_t time;
 
 	if(!rtc || !rtc->name)
-		return FALSE;
+		return NULL;
 
 	dev = malloc(sizeof(struct device_t));
 	if(!dev)
-		return FALSE;
+		return NULL;
 
 	dev->name = strdup(rtc->name);
 	dev->type = DEVICE_TYPE_RTC;
-	dev->driver = NULL;
+	dev->driver = drv;
 	dev->priv = rtc;
 	dev->kobj = kobj_alloc_directory(dev->name);
 	kobj_add_regular(dev->kobj, "time", rtc_time_read, rtc_time_write, rtc);
@@ -134,32 +134,25 @@ bool_t register_rtc(struct device_t ** device, struct rtc_t * rtc)
 		kobj_remove_self(dev->kobj);
 		free(dev->name);
 		free(dev);
-		return FALSE;
+		return NULL;
 	}
-
-	if(device)
-		*device = dev;
-	return TRUE;
+	return dev;
 }
 
-bool_t unregister_rtc(struct rtc_t * rtc)
+void unregister_rtc(struct rtc_t * rtc)
 {
 	struct device_t * dev;
 
-	if(!rtc || !rtc->name)
-		return FALSE;
-
-	dev = search_device(rtc->name, DEVICE_TYPE_RTC);
-	if(!dev)
-		return FALSE;
-
-	if(!unregister_device(dev))
-		return FALSE;
-
-	kobj_remove_self(dev->kobj);
-	free(dev->name);
-	free(dev);
-	return TRUE;
+	if(rtc && rtc->name)
+	{
+		dev = search_device(rtc->name, DEVICE_TYPE_RTC);
+		if(dev && unregister_device(dev))
+		{
+			kobj_remove_self(dev->kobj);
+			free(dev->name);
+			free(dev);
+		}
+	}
 }
 
 bool_t rtc_settime(struct rtc_t * rtc, struct rtc_time_t * time)

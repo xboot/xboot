@@ -172,17 +172,14 @@ static struct device_t * rtc_sd3068_probe(struct driver_t * drv, struct dtnode_t
 	rtc->gettime = rtc_sd3068_gettime;
 	rtc->priv = pdat;
 
-	if(!register_rtc(&dev, rtc))
+	if(!(dev = register_rtc(rtc, drv)))
 	{
 		i2c_device_free(pdat->dev);
-
 		free_device_name(rtc->name);
 		free(rtc->priv);
 		free(rtc);
 		return NULL;
 	}
-	dev->driver = drv;
-
 	return dev;
 }
 
@@ -191,10 +188,10 @@ static void rtc_sd3068_remove(struct device_t * dev)
 	struct rtc_t * rtc = (struct rtc_t *)dev->priv;
 	struct rtc_sd3068_pdata_t * pdat = (struct rtc_sd3068_pdata_t *)rtc->priv;
 
-	if(rtc && unregister_rtc(rtc))
+	if(rtc)
 	{
+		unregister_rtc(rtc);
 		i2c_device_free(pdat->dev);
-
 		free_device_name(rtc->name);
 		free(rtc->priv);
 		free(rtc);

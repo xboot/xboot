@@ -549,17 +549,14 @@ static struct device_t * regulator_axp228_probe(struct driver_t * drv, struct dt
 	supply->get_voltage = regulator_axp228_get_voltage;
 	supply->priv = pdat;
 
-	if(!register_regulator(&dev, supply))
+	if(!(dev = register_regulator(supply, drv)))
 	{
 		i2c_device_free(pdat->dev);
-
 		free(supply->name);
 		free(supply->priv);
 		free(supply);
 		return NULL;
 	}
-	dev->driver = drv;
-
 	if(dt_read_object(n, "default", &o))
 	{
 		char * s = supply->name;
@@ -587,10 +584,10 @@ static void regulator_axp228_remove(struct device_t * dev)
 	struct regulator_t * supply = (struct regulator_t *)dev->priv;
 	struct regulator_axp228_pdata_t * pdat = (struct regulator_axp228_pdata_t *)supply->priv;
 
-	if(supply && unregister_regulator(supply))
+	if(supply)
 	{
+		unregister_regulator(supply);
 		i2c_device_free(pdat->dev);
-
 		free(supply->name);
 		free(supply->priv);
 		free(supply);

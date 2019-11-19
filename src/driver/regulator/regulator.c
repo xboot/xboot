@@ -103,23 +103,23 @@ struct regulator_t * search_regulator(const char * name)
 	return (struct regulator_t *)dev->priv;
 }
 
-bool_t register_regulator(struct device_t ** device, struct regulator_t * supply)
+struct device_t * register_regulator(struct regulator_t * supply, struct driver_t * drv)
 {
 	struct device_t * dev;
 
 	if(!supply || !supply->name)
-		return FALSE;
+		return NULL;
 
 	if(search_regulator(supply->name))
-		return FALSE;
+		return NULL;
 
 	dev = malloc(sizeof(struct device_t));
 	if(!dev)
-		return FALSE;
+		return NULL;
 
 	dev->name = strdup(supply->name);
 	dev->type = DEVICE_TYPE_REGULATOR;
-	dev->driver = NULL;
+	dev->driver = drv;
 	dev->priv = supply;
 	dev->kobj = kobj_alloc_directory(dev->name);
 	kobj_add_regular(dev->kobj, "summary", regulator_read_summary, NULL, supply);
@@ -132,32 +132,25 @@ bool_t register_regulator(struct device_t ** device, struct regulator_t * supply
 		kobj_remove_self(dev->kobj);
 		free(dev->name);
 		free(dev);
-		return FALSE;
+		return NULL;
 	}
-
-	if(device)
-		*device = dev;
-	return TRUE;
+	return dev;
 }
 
-bool_t unregister_regulator(struct regulator_t * supply)
+void unregister_regulator(struct regulator_t * supply)
 {
 	struct device_t * dev;
 
-	if(!supply || !supply->name)
-		return FALSE;
-
-	dev = search_device(supply->name, DEVICE_TYPE_REGULATOR);
-	if(!dev)
-		return FALSE;
-
-	if(!unregister_device(dev))
-		return FALSE;
-
-	kobj_remove_self(dev->kobj);
-	free(dev->name);
-	free(dev);
-	return TRUE;
+	if(supply && supply->name)
+	{
+		dev = search_device(supply->name, DEVICE_TYPE_REGULATOR);
+		if(dev && unregister_device(dev))
+		{
+			kobj_remove_self(dev->kobj);
+			free(dev->name);
+			free(dev);
+		}
+	}
 }
 
 void regulator_set_parent(const char * name, const char * pname)

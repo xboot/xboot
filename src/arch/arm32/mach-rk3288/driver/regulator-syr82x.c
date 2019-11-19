@@ -238,19 +238,16 @@ static struct device_t * regulator_syr82x_probe(struct driver_t * drv, struct dt
 	val |= (0x4 << 4);
 	syr82x_write(pdat->dev, SYR82X_CTRL, val);
 
-	if(!register_regulator(&dev, supply))
+	if(!(dev = register_regulator(supply, drv)))
 	{
 		i2c_device_free(pdat->dev);
 		if(pdat->parent)
 			free(pdat->parent);
-
 		free(supply->name);
 		free(supply->priv);
 		free(supply);
 		return NULL;
 	}
-	dev->driver = drv;
-
 	if(dt_read_object(n, "default", &o))
 	{
 		char * s = supply->name;
@@ -278,12 +275,12 @@ static void regulator_syr82x_remove(struct device_t * dev)
 	struct regulator_t * supply = (struct regulator_t *)dev->priv;
 	struct regulator_syr82x_pdata_t * pdat = (struct regulator_syr82x_pdata_t *)supply->priv;
 
-	if(supply && unregister_regulator(supply))
+	if(supply)
 	{
+		unregister_regulator(supply);
 		i2c_device_free(pdat->dev);
 		if(pdat->parent)
 			free(pdat->parent);
-
 		free(supply->name);
 		free(supply->priv);
 		free(supply);

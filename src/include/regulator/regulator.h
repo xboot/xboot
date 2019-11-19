@@ -23,8 +23,8 @@ struct regulator_t
 };
 
 struct regulator_t * search_regulator(const char * name);
-bool_t register_regulator(struct device_t ** device, struct regulator_t * supply);
-bool_t unregister_regulator(struct regulator_t * supply);
+struct device_t * register_regulator(struct regulator_t * supply, struct driver_t * drv);
+void unregister_regulator(struct regulator_t * supply);
 
 void regulator_set_parent(const char * name, const char * pname);
 const char * regulator_get_parent(const char * name);

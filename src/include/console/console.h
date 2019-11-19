@@ -24,8 +24,8 @@ struct console_t
 
 struct console_t * search_console(const char * name);
 struct console_t * search_first_console(void);
-bool_t register_console(struct device_t ** device, struct console_t * console);
-bool_t unregister_console(struct console_t * console);
+struct device_t * register_console(struct console_t * console, struct driver_t * drv);
+void unregister_console(struct console_t * console);
 
 struct console_t * console_get(void);
 bool_t console_set(const char * name);

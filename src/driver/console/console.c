@@ -86,21 +86,21 @@ struct console_t * search_first_console(void)
 	return (struct console_t *)dev->priv;
 }
 
-bool_t register_console(struct device_t ** device, struct console_t * console)
+struct device_t * register_console(struct console_t * console, struct driver_t * drv)
 {
 	struct device_t * dev;
 	irq_flags_t flags;
 
 	if(!console || !console->name)
-		return FALSE;
+		return NULL;
 
 	dev = malloc(sizeof(struct device_t));
 	if(!dev)
-		return FALSE;
+		return NULL;
 
 	dev->name = strdup(console->name);
 	dev->type = DEVICE_TYPE_CONSOLE;
-	dev->driver = NULL;
+	dev->driver = drv;
 	dev->priv = console;
 	dev->kobj = kobj_alloc_directory(dev->name);
 	kobj_add_regular(dev->kobj, "active", console_read_active, console_write_active, console);
@@ -110,51 +110,41 @@ bool_t register_console(struct device_t ** device, struct console_t * console)
 		kobj_remove_self(dev->kobj);
 		free(dev->name);
 		free(dev);
-		return FALSE;
+		return NULL;
 	}
-
 	if(__console == &__console_dummy)
 	{
 		spin_lock_irqsave(&__console_lock, flags);
 		__console = console;
 		spin_unlock_irqrestore(&__console_lock, flags);
 	}
-
-	if(device)
-		*device = dev;
-	return TRUE;
+	return dev;
 }
 
-bool_t unregister_console(struct console_t * console)
+void unregister_console(struct console_t * console)
 {
 	struct device_t * dev;
 	struct console_t * c;
 	irq_flags_t flags;
 
-	if(!console || !console->name)
-		return FALSE;
-
-	dev = search_device(console->name, DEVICE_TYPE_CONSOLE);
-	if(!dev)
-		return FALSE;
-
-	if(!unregister_device(dev))
-		return FALSE;
-
-	if(__console == console)
+	if(console && console->name)
 	{
-		if(!(c = search_first_console()))
-			c = &__console_dummy;
-
-		spin_lock_irqsave(&__console_lock, flags);
-		__console = c;
-		spin_unlock_irqrestore(&__console_lock, flags);
+		dev = search_device(console->name, DEVICE_TYPE_CONSOLE);
+		if(dev && unregister_device(dev))
+		{
+			if(__console == console)
+			{
+				if(!(c = search_first_console()))
+					c = &__console_dummy;
+				spin_lock_irqsave(&__console_lock, flags);
+				__console = c;
+				spin_unlock_irqrestore(&__console_lock, flags);
+			}
+			kobj_remove_self(dev->kobj);
+			free(dev->name);
+			free(dev);
+		}
 	}
-
-	kobj_remove_self(dev->kobj);
-	free(dev->name);
-	free(dev);
-	return TRUE;
 }
 
 struct console_t * console_get(void)

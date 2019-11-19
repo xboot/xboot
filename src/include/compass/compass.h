@@ -17,8 +17,8 @@ struct compass_t
 
 struct compass_t * search_compass(const char * name);
 struct compass_t * search_first_compass(void);
-bool_t register_compass(struct device_t ** device,struct compass_t * c);
-bool_t unregister_compass(struct compass_t * c);
+struct device_t * register_compass(struct compass_t * c, struct driver_t * drv);
+void unregister_compass(struct compass_t * c);
 
 bool_t compass_set_offset(struct compass_t * c, int ox, int oy, int oz);
 bool_t compass_get_offset(struct compass_t * c, int * ox, int * oy, int * oz);

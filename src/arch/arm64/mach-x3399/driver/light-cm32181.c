@@ -135,17 +135,14 @@ static struct device_t * light_cm32181_probe(struct driver_t * drv, struct dtnod
 	light->get = light_cm32181_get;
 	light->priv = pdat;
 
-	if(!register_light(&dev, light))
+	if(!(dev = register_light(light, drv)))
 	{
 		i2c_device_free(pdat->dev);
-
 		free_device_name(light->name);
 		free(light->priv);
 		free(light);
 		return NULL;
 	}
-	dev->driver = drv;
-
 	return dev;
 }
 
@@ -154,10 +151,10 @@ static void light_cm32181_remove(struct device_t * dev)
 	struct light_t * light = (struct light_t *)dev->priv;
 	struct light_cm32181_pdata_t * pdat = (struct light_cm32181_pdata_t *)light->priv;
 
-	if(light && unregister_light(light))
+	if(light)
 	{
+		unregister_light(light);
 		i2c_device_free(pdat->dev);
-
 		free_device_name(light->name);
 		free(light->priv);
 		free(light);

@@ -17,8 +17,8 @@ struct light_t
 
 struct light_t * search_light(const char * name);
 struct light_t * search_first_light(void);
-bool_t register_light(struct device_t ** device,struct light_t * light);
-bool_t unregister_light(struct light_t * light);
+struct device_t * register_light(struct light_t * light, struct driver_t * drv);
+void unregister_light(struct light_t * light);
 
 int light_get_illuminance(struct light_t * light);
 

@@ -343,7 +343,7 @@ static struct device_t * fb_f1c100s_probe(struct driver_t * drv, struct dtnode_t
 		write32(pdat->virtdebe + i, 0);
 	fb_f1c100s_init(pdat);
 
-	if(!register_framebuffer(&dev, fb))
+	if(!(dev = register_framebuffer(fb, drv)))
 	{
 		clk_disable(pdat->clkdefe);
 		clk_disable(pdat->clkdebe);
@@ -355,14 +355,11 @@ static struct device_t * fb_f1c100s_probe(struct driver_t * drv, struct dtnode_t
 		dma_free_noncoherent(pdat->vram[1]);
 		region_list_free(pdat->nrl);
 		region_list_free(pdat->orl);
-
 		free_device_name(fb->name);
 		free(fb->priv);
 		free(fb);
 		return NULL;
 	}
-	dev->driver = drv;
-
 	return dev;
 }
 
@@ -371,8 +368,9 @@ static void fb_f1c100s_remove(struct device_t * dev)
 	struct framebuffer_t * fb = (struct framebuffer_t *)dev->priv;
 	struct fb_f1c100s_pdata_t * pdat = (struct fb_f1c100s_pdata_t *)fb->priv;
 
-	if(fb && unregister_framebuffer(fb))
+	if(fb)
 	{
+		unregister_framebuffer(fb);
 		clk_disable(pdat->clkdefe);
 		clk_disable(pdat->clkdebe);
 		clk_disable(pdat->clktcon);
@@ -383,7 +381,6 @@ static void fb_f1c100s_remove(struct device_t * dev)
 		dma_free_noncoherent(pdat->vram[1]);
 		region_list_free(pdat->nrl);
 		region_list_free(pdat->orl);
-
 		free_device_name(fb->name);
 		free(fb->priv);
 		free(fb);

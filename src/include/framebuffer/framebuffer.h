@@ -97,8 +97,8 @@ static inline void framebuffer_present_surface(struct framebuffer_t * fb, struct
 
 struct framebuffer_t * search_framebuffer(const char * name);
 struct framebuffer_t * search_first_framebuffer(void);
-bool_t register_framebuffer(struct device_t ** device, struct framebuffer_t * fb);
-bool_t unregister_framebuffer(struct framebuffer_t * fb);
+struct device_t * register_framebuffer(struct framebuffer_t * fb, struct driver_t * drv);
+void unregister_framebuffer(struct framebuffer_t * fb);
 
 void framebuffer_set_backlight(struct framebuffer_t * fb, int brightness);
 int framebuffer_get_backlight(struct framebuffer_t * fb);

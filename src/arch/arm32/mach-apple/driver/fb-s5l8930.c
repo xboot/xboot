@@ -149,20 +149,17 @@ static struct device_t * fb_s5l8930_probe(struct driver_t * drv, struct dtnode_t
 
 	write32(pdat->virt + LCD_SIZE, (pdat->width << 16) | (pdat->height << 0));
 
-	if(!register_framebuffer(&dev, fb))
+	if(!(dev = register_framebuffer(fb, drv)))
 	{
 		dma_free_noncoherent(pdat->vram[0]);
 		dma_free_noncoherent(pdat->vram[1]);
 		region_list_free(pdat->nrl);
 		region_list_free(pdat->orl);
-
 		free_device_name(fb->name);
 		free(fb->priv);
 		free(fb);
 		return NULL;
 	}
-	dev->driver = drv;
-
 	return dev;
 }
 
@@ -171,13 +168,13 @@ static void fb_s5l8930_remove(struct device_t * dev)
 	struct framebuffer_t * fb = (struct framebuffer_t *)dev->priv;
 	struct fb_s5l8930_pdata_t * pdat = (struct fb_s5l8930_pdata_t *)fb->priv;
 
-	if(fb && unregister_framebuffer(fb))
+	if(fb)
 	{
+		unregister_framebuffer(fb);
 		dma_free_noncoherent(pdat->vram[0]);
 		dma_free_noncoherent(pdat->vram[1]);
 		region_list_free(pdat->nrl);
 		region_list_free(pdat->orl);
-
 		free_device_name(fb->name);
 		free(fb->priv);
 		free(fb);

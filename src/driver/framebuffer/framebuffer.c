@@ -96,20 +96,20 @@ struct framebuffer_t * search_first_framebuffer(void)
 	return (struct framebuffer_t *)dev->priv;
 }
 
-bool_t register_framebuffer(struct device_t ** device, struct framebuffer_t * fb)
+struct device_t * register_framebuffer(struct framebuffer_t * fb, struct driver_t * drv)
 {
 	struct device_t * dev;
 
 	if(!fb || !fb->name)
-		return FALSE;
+		return NULL;
 
 	dev = malloc(sizeof(struct device_t));
 	if(!dev)
-		return FALSE;
+		return NULL;
 
 	dev->name = strdup(fb->name);
 	dev->type = DEVICE_TYPE_FRAMEBUFFER;
-	dev->driver = NULL;
+	dev->driver = drv;
 	dev->priv = fb;
 	dev->kobj = kobj_alloc_directory(dev->name);
 	kobj_add_regular(dev->kobj, "width", framebuffer_read_width, NULL, fb);
@@ -127,41 +127,27 @@ bool_t register_framebuffer(struct device_t ** device, struct framebuffer_t * fb
 		kobj_remove_self(dev->kobj);
 		free(dev->name);
 		free(dev);
-		return FALSE;
+		return NULL;
 	}
-
-	if(device)
-		*device = dev;
-	return TRUE;
+	return dev;
 }
 
-bool_t unregister_framebuffer(struct framebuffer_t * fb)
+void unregister_framebuffer(struct framebuffer_t * fb)
 {
 	struct device_t * dev;
-	struct framebuffer_t * driver;
 
-	if(!fb || !fb->name)
-		return FALSE;
-
-	dev = search_device(fb->name, DEVICE_TYPE_FRAMEBUFFER);
-	if(!dev)
-		return FALSE;
-
-	if(!unregister_device(dev))
-		return FALSE;
-
-	driver = (struct framebuffer_t *)(dev->driver);
-	if(driver)
+	if(fb && fb->name)
 	{
-		if(driver->setbl)
-			driver->setbl(driver, 0);
+		if(fb->setbl)
+			fb->setbl(fb, 0);
+		dev = search_device(fb->name, DEVICE_TYPE_FRAMEBUFFER);
+		if(dev && unregister_device(dev))
+		{
+			kobj_remove_self(dev->kobj);
+			free(dev->name);
+			free(dev);
+		}
 	}
-
-	kobj_remove_self(dev->kobj);
-	free(dev->name);
-	free(dev);
-
-	return TRUE;
 }
 
 void framebuffer_set_backlight(struct framebuffer_t * fb, int brightness)

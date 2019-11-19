@@ -1000,20 +1000,17 @@ static struct device_t * fb_s5p6818_probe(struct driver_t * drv, struct dtnode_t
 	clk_enable(pdat->clk);
 	s5p6818_fb_init(pdat);
 
-	if(!register_framebuffer(&dev, fb))
+	if(!(dev = register_framebuffer(fb, drv)))
 	{
 		clk_disable(pdat->clk);
 		free(pdat->clk);
 		dma_free_noncoherent(pdat->vram[0]);
 		dma_free_noncoherent(pdat->vram[1]);
-
 		free_device_name(fb->name);
 		free(fb->priv);
 		free(fb);
 		return NULL;
 	}
-	dev->driver = drv;
-
 	return dev;
 }
 
@@ -1022,13 +1019,13 @@ static void fb_s5p6818_remove(struct device_t * dev)
 	struct framebuffer_t * fb = (struct framebuffer_t *)dev->priv;
 	struct fb_s5p6818_pdata_t * pdat = (struct fb_s5p6818_pdata_t *)fb->priv;
 
-	if(fb && unregister_framebuffer(fb))
+	if(fb)
 	{
+		unregister_framebuffer(fb);
 		clk_disable(pdat->clk);
 		free(pdat->clk);
 		dma_free_noncoherent(pdat->vram[0]);
 		dma_free_noncoherent(pdat->vram[1]);
-
 		free_device_name(fb->name);
 		free(fb->priv);
 		free(fb);

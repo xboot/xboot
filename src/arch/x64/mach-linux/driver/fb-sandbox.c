@@ -147,17 +147,14 @@ static struct device_t * fb_sandbox_probe(struct driver_t * drv, struct dtnode_t
 	fb->present = fb_present;
 	fb->priv = pdat;
 
-	if(!register_framebuffer(&dev, fb))
+	if(!(dev = register_framebuffer(fb, drv)))
 	{
 		sandbox_fb_close(pdat->priv);
-
 		free_device_name(fb->name);
 		free(fb->priv);
 		free(fb);
 		return NULL;
 	}
-	dev->driver = drv;
-
 	return dev;
 }
 
@@ -166,10 +163,10 @@ static void fb_sandbox_remove(struct device_t * dev)
 	struct framebuffer_t * fb = (struct framebuffer_t *)dev->priv;
 	struct fb_sandbox_pdata_t * pdat = (struct fb_sandbox_pdata_t *)fb->priv;
 
-	if(fb && unregister_framebuffer(fb))
+	if(fb)
 	{
+		unregister_framebuffer(fb);
 		sandbox_fb_close(pdat->priv);
-
 		free_device_name(fb->name);
 		free(fb->priv);
 		free(fb);

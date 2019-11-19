@@ -110,15 +110,13 @@ static struct device_t * fb_bcm2836_probe(struct driver_t * drv, struct dtnode_t
 	fb->present = fb_present;
 	fb->priv = pdat;
 
-	if(!register_framebuffer(&dev, fb))
+	if(!(dev = register_framebuffer(fb, drv)))
 	{
 		free_device_name(fb->name);
 		free(fb->priv);
 		free(fb);
 		return NULL;
 	}
-	dev->driver = drv;
-
 	return dev;
 }
 
@@ -126,8 +124,9 @@ static void fb_bcm2836_remove(struct device_t * dev)
 {
 	struct framebuffer_t * fb = (struct framebuffer_t *)dev->priv;
 
-	if(fb && unregister_framebuffer(fb))
+	if(fb)
 	{
+		unregister_framebuffer(fb);
 		free_device_name(fb->name);
 		free(fb->priv);
 		free(fb);

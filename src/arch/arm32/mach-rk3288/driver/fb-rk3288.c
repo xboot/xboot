@@ -449,7 +449,7 @@ static struct device_t * fb_rk3288_probe(struct driver_t * drv, struct dtnode_t 
 	clk_enable(pdat->clk);
 	rk3288_fb_init(pdat);
 
-	if(!register_framebuffer(&dev, fb))
+	if(!(dev = register_framebuffer(fb, drv)))
 	{
 		regulator_disable(pdat->lcd_avdd_3v3);
 		free(pdat->lcd_avdd_3v3);
@@ -461,14 +461,11 @@ static struct device_t * fb_rk3288_probe(struct driver_t * drv, struct dtnode_t 
 		free(pdat->clk);
 		dma_free_noncoherent(pdat->vram[0]);
 		dma_free_noncoherent(pdat->vram[1]);
-
 		free_device_name(fb->name);
 		free(fb->priv);
 		free(fb);
 		return NULL;
 	}
-	dev->driver = drv;
-
 	return dev;
 }
 
@@ -477,8 +474,9 @@ static void fb_rk3288_remove(struct device_t * dev)
 	struct framebuffer_t * fb = (struct framebuffer_t *)dev->priv;
 	struct fb_rk3288_pdata_t * pdat = (struct fb_rk3288_pdata_t *)fb->priv;
 
-	if(fb && unregister_framebuffer(fb))
+	if(fb)
 	{
+		unregister_framebuffer(fb);
 		regulator_disable(pdat->lcd_avdd_3v3);
 		free(pdat->lcd_avdd_3v3);
 		regulator_disable(pdat->lcd_avdd_1v8);
@@ -489,7 +487,6 @@ static void fb_rk3288_remove(struct device_t * dev)
 		free(pdat->clk);
 		dma_free_noncoherent(pdat->vram[0]);
 		dma_free_noncoherent(pdat->vram[1]);
-
 		free_device_name(fb->name);
 		free(fb->priv);
 		free(fb);

@@ -608,19 +608,16 @@ static struct device_t * fb_exynos4412_probe(struct driver_t * drv, struct dtnod
 	fb->priv = pdat;
 	fb_exynos4412_init(pdat);
 
-	if(!register_framebuffer(&dev, fb))
+	if(!(dev = register_framebuffer(fb, drv)))
 	{
 		clk_disable(pdat->clk);
 		dma_free_noncoherent(pdat->vram[0]);
 		dma_free_noncoherent(pdat->vram[1]);
-
 		free_device_name(fb->name);
 		free(fb->priv);
 		free(fb);
 		return NULL;
 	}
-	dev->driver = drv;
-
 	return dev;
 }
 
@@ -629,12 +626,12 @@ static void fb_exynos4412_remove(struct device_t * dev)
 	struct framebuffer_t * fb = (struct framebuffer_t *)dev->priv;
 	struct fb_exynos4412_pdata_t * pdat = (struct fb_exynos4412_pdata_t *)fb->priv;
 
-	if(fb && unregister_framebuffer(fb))
+	if(fb)
 	{
+		unregister_framebuffer(fb);
 		clk_disable(pdat->clk);
 		dma_free_noncoherent(pdat->vram[0]);
 		dma_free_noncoherent(pdat->vram[1]);
-
 		free_device_name(fb->name);
 		free(fb->priv);
 		free(fb);

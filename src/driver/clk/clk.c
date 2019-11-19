@@ -103,23 +103,23 @@ struct clk_t * search_clk(const char * name)
 	return (struct clk_t *)dev->priv;
 }
 
-bool_t register_clk(struct device_t ** device, struct clk_t * clk)
+struct device_t * register_clk(struct clk_t * clk, struct driver_t * drv)
 {
 	struct device_t * dev;
 
 	if(!clk || !clk->name)
-		return FALSE;
+		return NULL;
 
 	if(search_clk(clk->name))
-		return FALSE;
+		return NULL;
 
 	dev = malloc(sizeof(struct device_t));
 	if(!dev)
-		return FALSE;
+		return NULL;
 
 	dev->name = strdup(clk->name);
 	dev->type = DEVICE_TYPE_CLK;
-	dev->driver = NULL;
+	dev->driver = drv;
 	dev->priv = clk;
 	dev->kobj = kobj_alloc_directory(dev->name);
 	kobj_add_regular(dev->kobj, "summary", clk_read_summary, NULL, clk);
@@ -132,32 +132,25 @@ bool_t register_clk(struct device_t ** device, struct clk_t * clk)
 		kobj_remove_self(dev->kobj);
 		free(dev->name);
 		free(dev);
-		return FALSE;
+		return NULL;
 	}
-
-	if(device)
-		*device = dev;
-	return TRUE;
+	return dev;
 }
 
-bool_t unregister_clk(struct clk_t * clk)
+void unregister_clk(struct clk_t * clk)
 {
 	struct device_t * dev;
 
-	if(!clk || !clk->name)
-		return FALSE;
-
-	dev = search_device(clk->name, DEVICE_TYPE_CLK);
-	if(!dev)
-		return FALSE;
-
-	if(!unregister_device(dev))
-		return FALSE;
-
-	kobj_remove_self(dev->kobj);
-	free(dev->name);
-	free(dev);
-	return TRUE;
+	if(clk && clk->name)
+	{
+		dev = search_device(clk->name, DEVICE_TYPE_CLK);
+		if(dev && unregister_device(dev))
+		{
+			kobj_remove_self(dev->kobj);
+			free(dev->name);
+			free(dev);
+		}
+	}
 }
 
 void clk_set_parent(const char * name, const char * pname)

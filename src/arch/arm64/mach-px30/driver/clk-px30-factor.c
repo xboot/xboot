@@ -129,17 +129,14 @@ static struct device_t * clk_px30_factor_probe(struct driver_t * drv, struct dtn
 	clk->get_rate = clk_px30_factor_get_rate;
 	clk->priv = pdat;
 
-	if(!register_clk(&dev, clk))
+	if(!(dev = register_clk(clk, drv)))
 	{
 		free(pdat->parent);
-
 		free(clk->name);
 		free(clk->priv);
 		free(clk);
 		return NULL;
 	}
-	dev->driver = drv;
-
 	if(dt_read_object(n, "default", &o))
 	{
 		char * c = clk->name;
@@ -167,10 +164,10 @@ static void clk_px30_factor_remove(struct device_t * dev)
 	struct clk_t * clk = (struct clk_t *)dev->priv;
 	struct clk_px30_factor_pdata_t * pdat = (struct clk_px30_factor_pdata_t *)clk->priv;
 
-	if(clk && unregister_clk(clk))
+	if(clk)
 	{
+		unregister_clk(clk);
 		free(pdat->parent);
-
 		free(clk->name);
 		free(clk->priv);
 		free(clk);

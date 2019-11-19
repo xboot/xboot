@@ -239,17 +239,14 @@ static struct device_t * clk_h3_pll_probe(struct driver_t * drv, struct dtnode_t
 	clk->get_rate = clk_h3_pll_get_rate;
 	clk->priv = pdat;
 
-	if(!register_clk(&dev, clk))
+	if(!(dev = register_clk(clk, drv)))
 	{
 		free(pdat->parent);
-
 		free(clk->name);
 		free(clk->priv);
 		free(clk);
 		return NULL;
 	}
-	dev->driver = drv;
-
 	if(dt_read_object(n, "default", &o))
 	{
 		char * c = clk->name;
@@ -277,10 +274,10 @@ static void clk_h3_pll_remove(struct device_t * dev)
 	struct clk_t * clk = (struct clk_t *)dev->priv;
 	struct clk_h3_pll_pdata_t * pdat = (struct clk_h3_pll_pdata_t *)clk->priv;
 
-	if(clk && unregister_clk(clk))
+	if(clk)
 	{
+		unregister_clk(clk);
 		free(pdat->parent);
-
 		free(clk->name);
 		free(clk->priv);
 		free(clk);

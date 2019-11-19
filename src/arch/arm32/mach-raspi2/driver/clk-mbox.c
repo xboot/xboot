@@ -104,15 +104,13 @@ static struct device_t * clk_mbox_probe(struct driver_t * drv, struct dtnode_t *
 	clk->get_rate = clk_mbox_get_rate;
 	clk->priv = pdat;
 
-	if(!register_clk(&dev, clk))
+	if(!(dev = register_clk(clk, drv)))
 	{
 		free(clk->name);
 		free(clk->priv);
 		free(clk);
 		return NULL;
 	}
-	dev->driver = drv;
-
 	if(dt_read_object(n, "default", &o))
 	{
 		char * c = clk->name;
@@ -139,8 +137,9 @@ static void clk_mbox_remove(struct device_t * dev)
 {
 	struct clk_t * clk = (struct clk_t *)dev->priv;
 
-	if(clk && unregister_clk(clk))
+	if(clk)
 	{
+		unregister_clk(clk);
 		free(clk->name);
 		free(clk->priv);
 		free(clk);

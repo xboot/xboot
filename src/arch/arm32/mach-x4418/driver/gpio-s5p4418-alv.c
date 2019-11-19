@@ -340,15 +340,13 @@ static struct device_t * gpio_s5p4418_alv_probe(struct driver_t * drv, struct dt
 	chip->to_irq = gpio_s5p4418_alv_to_irq;
 	chip->priv = pdat;
 
-	if(!register_gpiochip(&dev, chip))
+	if(!(dev = register_gpiochip(chip, drv)))
 	{
 		free_device_name(chip->name);
 		free(chip->priv);
 		free(chip);
 		return NULL;
 	}
-	dev->driver = drv;
-
 	return dev;
 }
 
@@ -356,8 +354,9 @@ static void gpio_s5p4418_alv_remove(struct device_t * dev)
 {
 	struct gpiochip_t * chip = (struct gpiochip_t *)dev->priv;
 
-	if(chip && unregister_gpiochip(chip))
+	if(chip)
 	{
+		unregister_gpiochip(chip);
 		free_device_name(chip->name);
 		free(chip->priv);
 		free(chip);

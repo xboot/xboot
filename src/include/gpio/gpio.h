@@ -54,8 +54,8 @@ struct gpiochip_t
 };
 
 struct gpiochip_t * search_gpiochip(int gpio);
-bool_t register_gpiochip(struct device_t ** device, struct gpiochip_t * chip);
-bool_t unregister_gpiochip(struct gpiochip_t * chip);
+struct device_t * register_gpiochip(struct gpiochip_t * chip, struct driver_t * drv);
+void unregister_gpiochip(struct gpiochip_t * chip);
 
 int gpio_is_valid(int gpio);
 void gpio_set_cfg(int gpio, int cfg);

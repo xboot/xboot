@@ -199,15 +199,13 @@ static struct device_t * gpio_pl061_probe(struct driver_t * drv, struct dtnode_t
 	chip->to_irq = gpio_pl061_to_irq;
 	chip->priv = pdat;
 
-	if(!register_gpiochip(&dev, chip))
+	if(!(dev = register_gpiochip(chip, drv)))
 	{
 		free_device_name(chip->name);
 		free(chip->priv);
 		free(chip);
 		return NULL;
 	}
-	dev->driver = drv;
-
 	return dev;
 }
 
@@ -215,8 +213,9 @@ static void gpio_pl061_remove(struct device_t * dev)
 {
 	struct gpiochip_t * chip = (struct gpiochip_t *)dev->priv;
 
-	if(chip && unregister_gpiochip(chip))
+	if(chip)
 	{
+		unregister_gpiochip(chip);
 		free_device_name(chip->name);
 		free(chip->priv);
 		free(chip);

@@ -16,8 +16,8 @@ struct proximity_t
 
 struct proximity_t * search_proximity(const char * name);
 struct proximity_t * search_first_proximity(void);
-bool_t register_proximity(struct device_t ** device,struct proximity_t * p);
-bool_t unregister_proximity(struct proximity_t * p);
+struct device_t * register_proximity(struct proximity_t * p, struct driver_t * drv);
+void unregister_proximity(struct proximity_t * p);
 
 int proximity_get_distance(struct proximity_t * p);
 

@@ -43,7 +43,6 @@
 #define clrsetbits_le32(addr, clear, set) \
 	write32(((virtual_addr_t)(addr)), (read32(((virtual_addr_t)(addr))) & ~(clear)) | (set))
 
-#define clamp(val, lo, hi)	min((typeof(val))max(val, lo), hi)
 #define DIV_ROUND_UP(n, d)	(((n) + (d) - 1) / (d))
 #define REPEAT_BYTE(x)		((~0ul / 0xff) * (x))
 

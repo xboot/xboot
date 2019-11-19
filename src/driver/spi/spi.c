@@ -52,7 +52,7 @@ struct device_t * register_spi(struct spi_t * spi, struct driver_t * drv)
 
 	dev->name = strdup(spi->name);
 	dev->type = DEVICE_TYPE_SPI;
-	dev->driver = NULL;
+	dev->driver = drv;
 	dev->priv = spi;
 	dev->kobj = kobj_alloc_directory(dev->name);
 

@@ -107,7 +107,7 @@ struct device_t * register_i2c(struct i2c_t * i2c, struct driver_t * drv)
 
 	dev->name = strdup(i2c->name);
 	dev->type = DEVICE_TYPE_I2C;
-	dev->driver = NULL;
+	dev->driver = drv;
 	dev->priv = i2c;
 	dev->kobj = kobj_alloc_directory(dev->name);
 	kobj_add_regular(dev->kobj, "detect", i2c_read_detect, NULL, i2c);

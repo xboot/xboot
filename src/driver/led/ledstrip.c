@@ -102,7 +102,7 @@ struct device_t * register_ledstrip(struct ledstrip_t * strip, struct driver_t *
 
 	dev->name = strdup(strip->name);
 	dev->type = DEVICE_TYPE_LEDSTRIP;
-	dev->driver = NULL;
+	dev->driver = drv;
 	dev->priv = strip;
 	dev->kobj = kobj_alloc_directory(dev->name);
 	kobj_add_regular(dev->kobj, "count", ledstrip_read_count, ledstrip_write_count, strip);

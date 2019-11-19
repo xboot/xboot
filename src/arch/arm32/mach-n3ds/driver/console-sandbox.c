@@ -54,14 +54,12 @@ static struct device_t * console_sandbox_probe(struct driver_t * drv, struct dtn
 	console->write = console_sandbox_write;
 	console->priv = NULL;
 
-	if(!register_console(&dev, console))
+	if(!(dev = register_console(console, drv)))
 	{
 		free_device_name(console->name);
 		free(console);
 		return NULL;
 	}
-	dev->driver = drv;
-
 	return dev;
 }
 
@@ -69,8 +67,9 @@ static void console_sandbox_remove(struct device_t * dev)
 {
 	struct console_t * console = (struct console_t *)dev->priv;
 
-	if(console && unregister_console(console))
+	if(console)
 	{
+		unregister_console(console);
 		free_device_name(console->name);
 		free(console);
 	}

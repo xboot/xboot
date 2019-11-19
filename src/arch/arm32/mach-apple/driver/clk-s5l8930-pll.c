@@ -77,6 +77,7 @@ static struct device_t * clk_s5l8930_pll_probe(struct driver_t * drv, struct dtn
 	struct clk_s5l8930_pll_pdata_t * pdat;
 	struct clk_t * clk;
 	struct device_t * dev;
+	struct dtnode_t o;
 	virtual_addr_t virt = phys_to_virt(dt_read_address(n));
 	char * parent = dt_read_string(n, "parent", NULL);
 	char * name = dt_read_string(n, "name", NULL);

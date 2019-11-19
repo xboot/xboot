@@ -142,7 +142,7 @@ static void ce_bcm2837_armtimer_remove(struct device_t * dev)
 
 	if(ce)
 	{
-		 unregister_clockevent(ce)
+		unregister_clockevent(ce);
 		clk_disable(pdat->clk);
 		free_irq(pdat->irq);
 		free(pdat->clk);

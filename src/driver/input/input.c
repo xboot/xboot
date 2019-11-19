@@ -52,7 +52,7 @@ struct device_t * register_input(struct input_t * input, struct driver_t * drv)
 
 	dev->name = strdup(input->name);
 	dev->type = DEVICE_TYPE_INPUT;
-	dev->driver = NULL;
+	dev->driver = drv;
 	dev->priv = input;
 	dev->kobj = kobj_alloc_directory(dev->name);
 

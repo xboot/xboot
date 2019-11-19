@@ -172,17 +172,14 @@ static struct device_t * gmeter_lis331dlh_probe(struct driver_t * drv, struct dt
 	g->get = gmeter_lis331dlh_get;
 	g->priv = pdat;
 
-	if(!register_gmeter(&dev, g))
+	if(!(dev = register_gmeter(g, drv)))
 	{
 		i2c_device_free(pdat->dev);
-
 		free_device_name(g->name);
 		free(g->priv);
 		free(g);
 		return NULL;
 	}
-	dev->driver = drv;
-
 	return dev;
 }
 
@@ -191,10 +188,10 @@ static void gmeter_lis331dlh_remove(struct device_t * dev)
 	struct gmeter_t * g = (struct gmeter_t *)dev->priv;
 	struct gmeter_lis331dlh_pdata_t * pdat = (struct gmeter_lis331dlh_pdata_t *)g->priv;
 
-	if(g && unregister_gmeter(g))
+	if(g)
 	{
+		unregister_gmeter(g);
 		i2c_device_free(pdat->dev);
-
 		free_device_name(g->name);
 		free(g->priv);
 		free(g);

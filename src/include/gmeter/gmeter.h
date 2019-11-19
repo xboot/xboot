@@ -17,8 +17,8 @@ struct gmeter_t
 
 struct gmeter_t * search_gmeter(const char * name);
 struct gmeter_t * search_first_gmeter(void);
-bool_t register_gmeter(struct device_t ** device,struct gmeter_t * g);
-bool_t unregister_gmeter(struct gmeter_t * g);
+struct device_t * register_gmeter(struct gmeter_t * g, struct driver_t * drv);
+void unregister_gmeter(struct gmeter_t * g);
 
 bool_t gmeter_get_acceleration(struct gmeter_t * g, int * x, int * y, int * z);
 

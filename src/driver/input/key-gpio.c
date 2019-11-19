@@ -132,19 +132,16 @@ static struct device_t * key_gpio_probe(struct driver_t * drv, struct dtnode_t *
 			LOG("Fail to request interrupt %d, gpio is %d", gpio_to_irq(pdat->keys[i].gpio), pdat->keys[i].gpio);
 	}
 
-	if(!register_input(&dev, input))
+	if(!(dev = register_input(input, drv)))
 	{
 		for(i = 0; i < pdat->nkeys; i++)
 			free_irq(gpio_to_irq(pdat->keys[i].gpio));
 		free(pdat->keys);
-
 		free_device_name(input->name);
 		free(input->priv);
 		free(input);
 		return NULL;
 	}
-	dev->driver = drv;
-
 	return dev;
 }
 
@@ -154,12 +151,12 @@ static void key_gpio_remove(struct device_t * dev)
 	struct key_gpio_pdata_t * pdat = (struct key_gpio_pdata_t *)input->priv;
 	int i;
 
-	if(input && unregister_input(input))
+	if(input)
 	{
+		unregister_input(input);
 		for(i = 0; i < pdat->nkeys; i++)
 			free_irq(gpio_to_irq(pdat->keys[i].gpio));
 		free(pdat->keys);
-
 		free_device_name(input->name);
 		free(input->priv);
 		free(input);

@@ -306,20 +306,17 @@ static struct device_t * ts_f1c100s_probe(struct driver_t * drv, struct dtnode_t
 	request_irq(pdat->irq, ts_f1c100s_interrupt, IRQ_TYPE_LEVEL_LOW, input);
 	ts_f1c100s_init(pdat);
 
-	if(!register_input(&dev, input))
+	if(!(dev = register_input(input, drv)))
 	{
 		clk_disable(pdat->clk);
 		free(pdat->clk);
 		free_irq(pdat->irq);
 		tsfilter_free(pdat->filter);
-
 		free_device_name(input->name);
 		free(input->priv);
 		free(input);
 		return NULL;
 	}
-	dev->driver = drv;
-
 	return dev;
 }
 
@@ -328,13 +325,13 @@ static void ts_f1c100s_remove(struct device_t * dev)
 	struct input_t * input = (struct input_t *)dev->priv;
 	struct ts_f1c100s_pdata_t * pdat = (struct ts_f1c100s_pdata_t *)input->priv;
 
-	if(input && unregister_input(input))
+	if(input)
 	{
+		unregister_input(input);
 		clk_disable(pdat->clk);
 		free(pdat->clk);
 		free_irq(pdat->irq);
 		tsfilter_free(pdat->filter);
-
 		free_device_name(input->name);
 		free(input->priv);
 		free(input);

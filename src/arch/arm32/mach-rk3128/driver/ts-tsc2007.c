@@ -278,20 +278,17 @@ static struct device_t * ts_tsc2007_probe(struct driver_t * drv, struct dtnode_t
 		return NULL;
 	}
 
-	if(!register_input(&dev, input))
+	if(!(dev = register_input(input, drv)))
 	{
 		tsfilter_free(pdat->filter);
 		free_irq(pdat->irq);
 		timer_cancel(&pdat->timer);
 		i2c_device_free(pdat->dev);
-
 		free_device_name(input->name);
 		free(input->priv);
 		free(input);
 		return NULL;
 	}
-	dev->driver = drv;
-
 	return dev;
 }
 
@@ -300,13 +297,13 @@ static void ts_tsc2007_remove(struct device_t * dev)
 	struct input_t * input = (struct input_t *)dev->priv;
 	struct ts_tsc2007_pdata_t * pdat = (struct ts_tsc2007_pdata_t *)input->priv;
 
-	if(input && unregister_input(input))
+	if(input)
 	{
+		unregister_input(input);
 		tsfilter_free(pdat->filter);
 		free_irq(pdat->irq);
 		timer_cancel(&pdat->timer);
 		i2c_device_free(pdat->dev);
-
 		free_device_name(input->name);
 		free(input->priv);
 		free(input);

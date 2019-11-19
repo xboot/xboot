@@ -136,18 +136,15 @@ static struct device_t * key_gpio_polled_probe(struct driver_t * drv, struct dtn
 
 	timer_start_now(&pdat->timer, ms_to_ktime(pdat->interval));
 
-	if(!register_input(&dev, input))
+	if(!(dev = register_input(input, drv)))
 	{
 		timer_cancel(&pdat->timer);
 		free(pdat->keys);
-
 		free_device_name(input->name);
 		free(input->priv);
 		free(input);
 		return NULL;
 	}
-	dev->driver = drv;
-
 	return dev;
 }
 
@@ -156,11 +153,11 @@ static void key_gpio_polled_remove(struct device_t * dev)
 	struct input_t * input = (struct input_t *)dev->priv;
 	struct key_gpio_polled_pdata_t * pdat = (struct key_gpio_polled_pdata_t *)input->priv;
 
-	if(input && unregister_input(input))
+	if(input)
 	{
+		unregister_input(input);
 		timer_cancel(&pdat->timer);
 		free(pdat->keys);
-
 		free_device_name(input->name);
 		free(input->priv);
 		free(input);

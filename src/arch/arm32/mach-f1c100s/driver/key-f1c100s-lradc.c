@@ -186,20 +186,17 @@ static struct device_t * key_f1c100s_lradc_probe(struct driver_t * drv, struct d
 	write32(pdat->virt + LRADC_CTRL, FIRST_CONVERT_DLY(2) | LEVELA_B_CNT(1) | HOLD_EN(1) | SAMPLE_RATE(0) | ENABLE(1));
 	write32(pdat->virt + LRADC_INTC, CHAN0_KEYUP_IRQ | CHAN0_KEYDOWN_IRQ);
 
-	if(!register_input(&dev, input))
+	if(!(dev = register_input(input, drv)))
 	{
 		write32(pdat->virt + LRADC_CTRL, 0);
 		write32(pdat->virt + LRADC_INTC, 0);
 		free_irq(pdat->irq);
 		free(pdat->keys);
-
 		free_device_name(input->name);
 		free(input->priv);
 		free(input);
 		return NULL;
 	}
-	dev->driver = drv;
-
 	return dev;
 }
 
@@ -208,13 +205,13 @@ static void key_f1c100s_lradc_remove(struct device_t * dev)
 	struct input_t * input = (struct input_t *)dev->priv;
 	struct key_f1c100s_lradc_pdata_t * pdat = (struct key_f1c100s_lradc_pdata_t *)input->priv;
 
-	if(input && unregister_input(input))
+	if(input)
 	{
+		unregister_input(input);
 		write32(pdat->virt + LRADC_CTRL, 0);
 		write32(pdat->virt + LRADC_INTC, 0);
 		free_irq(pdat->irq);
 		free(pdat->keys);
-
 		free_device_name(input->name);
 		free(input->priv);
 		free(input);

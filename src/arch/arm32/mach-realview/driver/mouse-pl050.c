@@ -305,20 +305,17 @@ static struct device_t * mouse_pl050_probe(struct driver_t * drv, struct dtnode_
 	kmi_read(pdat, &value);
 	write8(pdat->virt + MOUSE_CR, (1 << 2) | (1 << 4));
 
-	if(!register_input(&dev, input))
+	if(!(dev = register_input(input, drv)))
 	{
 		write8(pdat->virt + MOUSE_CR, 0);
 		clk_disable(pdat->clk);
 		free_irq(pdat->irq);
 		free(pdat->clk);
-
 		free_device_name(input->name);
 		free(input->priv);
 		free(input);
 		return NULL;
 	}
-	dev->driver = drv;
-
 	return dev;
 }
 
@@ -327,13 +324,13 @@ static void mouse_pl050_remove(struct device_t * dev)
 	struct input_t * input = (struct input_t *)dev->priv;
 	struct mouse_pl050_pdata_t * pdat = (struct mouse_pl050_pdata_t *)input->priv;
 
-	if(input && unregister_input(input))
+	if(input)
 	{
+		unregister_input(input);
 		write8(pdat->virt + MOUSE_CR, 0);
 		clk_disable(pdat->clk);
 		free_irq(pdat->irq);
 		free(pdat->clk);
-
 		free_device_name(input->name);
 		free(input->priv);
 		free(input);

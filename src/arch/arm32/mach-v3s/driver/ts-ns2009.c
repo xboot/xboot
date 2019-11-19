@@ -192,19 +192,16 @@ static struct device_t * ts_ns2009_probe(struct driver_t * drv, struct dtnode_t 
 	input->priv = pdat;
 	timer_start_now(&pdat->timer, ms_to_ktime(pdat->interval));
 
-	if(!register_input(&dev, input))
+	if(!(dev = register_input(input, drv)))
 	{
 		tsfilter_free(pdat->filter);
 		timer_cancel(&pdat->timer);
 		i2c_device_free(pdat->dev);
-
 		free_device_name(input->name);
 		free(input->priv);
 		free(input);
 		return NULL;
 	}
-	dev->driver = drv;
-
 	return dev;
 }
 
@@ -213,12 +210,12 @@ static void ts_ns2009_remove(struct device_t * dev)
 	struct input_t * input = (struct input_t *)dev->priv;
 	struct ts_ns2009_pdata_t * pdat = (struct ts_ns2009_pdata_t *)input->priv;
 
-	if(input && unregister_input(input))
+	if(input)
 	{
+		unregister_input(input);
 		tsfilter_free(pdat->filter);
 		timer_cancel(&pdat->timer);
 		i2c_device_free(pdat->dev);
-
 		free_device_name(input->name);
 		free(input->priv);
 		free(input);

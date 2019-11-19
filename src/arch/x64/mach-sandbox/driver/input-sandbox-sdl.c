@@ -255,17 +255,14 @@ static struct device_t * input_sandbox_sdl_probe(struct driver_t * drv, struct d
 			cb_joystick_button_down,
 			cb_joystick_button_up);
 
-	if(!register_input(&dev, input))
+	if(!(dev = register_input(input, drv)))
 	{
 		sandbox_event_sdl_close(input->priv);
-
 		free_device_name(input->name);
 		free(input->priv);
 		free(input);
 		return NULL;
 	}
-	dev->driver = drv;
-
 	return dev;
 }
 
@@ -273,10 +270,10 @@ static void input_sandbox_sdl_remove(struct device_t * dev)
 {
 	struct input_t * input = (struct input_t *)dev->priv;
 
-	if(input && unregister_input(input))
+	if(input)
 	{
+		unregister_input(input);
 		sandbox_event_sdl_close(input->priv);
-
 		free_device_name(input->name);
 		free(input->priv);
 		free(input);

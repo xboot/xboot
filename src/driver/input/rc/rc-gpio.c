@@ -118,19 +118,16 @@ static struct device_t * rc_gpio_probe(struct driver_t * drv, struct dtnode_t * 
 	gpio_direction_input(pdat->gpio);
 	request_irq(pdat->irq, rc_gpio_interrupt, IRQ_TYPE_EDGE_BOTH, input);
 
-	if(!register_input(&dev, input))
+	if(!(dev = register_input(input, drv)))
 	{
 		free_irq(pdat->irq);
 		if(pdat->decoder.size > 0)
 			free(pdat->decoder.map);
-
 		free_device_name(input->name);
 		free(input->priv);
 		free(input);
 		return NULL;
 	}
-	dev->driver = drv;
-
 	return dev;
 }
 
@@ -139,12 +136,12 @@ static void rc_gpio_remove(struct device_t * dev)
 	struct input_t * input = (struct input_t *)dev->priv;
 	struct rc_gpio_pdata_t * pdat = (struct rc_gpio_pdata_t *)input->priv;
 
-	if(input && unregister_input(input))
+	if(input)
 	{
+		unregister_input(input);
 		free_irq(pdat->irq);
 		if(pdat->decoder.size > 0)
 			free(pdat->decoder.map);
-
 		free_device_name(input->name);
 		free(input->priv);
 		free(input);
@@ -174,6 +171,7 @@ static struct driver_t rc_gpio = {
 	.suspend	= rc_gpio_suspend,
 	.resume		= rc_gpio_resume,
 };
+
 
 static __init void rc_gpio_driver_init(void)
 {

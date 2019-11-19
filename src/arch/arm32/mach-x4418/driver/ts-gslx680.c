@@ -5293,18 +5293,15 @@ static struct device_t * ts_gslx680_probe(struct driver_t * drv, struct dtnode_t
 	gpio_direction_input(gpio);
 	request_irq(pdat->irq, gslx680_interrupt, IRQ_TYPE_EDGE_RISING, input);
 
-	if(!register_input(&dev, input))
+	if(!(dev = register_input(input, drv)))
 	{
 		free_irq(pdat->irq);
 		i2c_device_free(pdat->dev);
-
 		free_device_name(input->name);
 		free(input->priv);
 		free(input);
 		return NULL;
 	}
-	dev->driver = drv;
-
 	return dev;
 }
 
@@ -5313,11 +5310,11 @@ static void ts_gslx680_remove(struct device_t * dev)
 	struct input_t * input = (struct input_t *)dev->priv;
 	struct ts_gslx680_pdata_t * pdat = (struct ts_gslx680_pdata_t *)input->priv;
 
-	if(input && unregister_input(input))
+	if(input)
 	{
+		unregister_input(input);
 		free_irq(pdat->irq);
 		i2c_device_free(pdat->dev);
-
 		free_device_name(input->name);
 		free(input->priv);
 		free(input);

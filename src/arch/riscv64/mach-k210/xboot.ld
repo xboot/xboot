@@ -6,8 +6,8 @@ STACK_SIZE = 0x40000 * 2;
 
 MEMORY
 {
-	ram  : org = 0x80000000, len = 3M
-	dma  : org = 0x40300000, len = 1M
+	ram  : org = 0x80000000, len = 4M
+	dma  : org = 0x40400000, len = 0M
 	heap : org = 0x80400000, len = 2M
 }
 

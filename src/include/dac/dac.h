@@ -19,8 +19,8 @@ struct dac_t
 };
 
 struct dac_t * search_dac(const char * name);
-bool_t register_dac(struct device_t ** device, struct dac_t * dac);
-bool_t unregister_dac(struct dac_t * dac);
+struct device_t * register_dac(struct dac_t * dac, struct driver_t * drv);
+void unregister_dac(struct dac_t * dac);
 
 void dac_write_raw(struct dac_t * dac, int channel, u32_t value);
 void dac_write_voltage(struct dac_t * dac, int channel, int voltage);

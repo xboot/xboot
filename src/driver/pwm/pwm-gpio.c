@@ -134,17 +134,14 @@ static struct device_t * pwm_gpio_probe(struct driver_t * drv, struct dtnode_t *
 	gpio_set_direction(pdat->gpio, GPIO_DIRECTION_OUTPUT);
 	gpio_set_value(pdat->gpio, pdat->polarity ? 1 : 0);
 
-	if(!register_pwm(&dev, pwm))
+	if(!(dev = register_pwm(pwm, drv)))
 	{
 		timer_cancel(&pdat->timer);
-
 		free_device_name(pwm->name);
 		free(pwm->priv);
 		free(pwm);
 		return NULL;
 	}
-	dev->driver = drv;
-
 	return dev;
 }
 
@@ -153,10 +150,10 @@ static void pwm_gpio_remove(struct device_t * dev)
 	struct pwm_t * pwm = (struct pwm_t *)dev->priv;
 	struct pwm_gpio_pdata_t * pdat = (struct pwm_gpio_pdata_t *)pwm->priv;
 
-	if(pwm && unregister_pwm(pwm))
+	if(pwm)
 	{
+		unregister_pwm(pwm);
 		timer_cancel(&pdat->timer);
-
 		free_device_name(pwm->name);
 		free(pwm->priv);
 		free(pwm);

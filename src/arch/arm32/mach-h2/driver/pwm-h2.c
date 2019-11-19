@@ -204,17 +204,14 @@ static struct device_t * pwm_h2_probe(struct driver_t * drv, struct dtnode_t * n
 	write32(pdat->virt + PWM_CTRL, read32(pdat->virt + PWM_CTRL) &~(0x3fff << (pdat->channel * 15)));
 	write32(pdat->virt + PWM_PERIOD(pdat->channel), 0);
 
-	if(!register_pwm(&dev, pwm))
+	if(!(dev = register_pwm(pwm, drv)))
 	{
 		free(pdat->clk);
-
 		free_device_name(pwm->name);
 		free(pwm->priv);
 		free(pwm);
 		return NULL;
 	}
-	dev->driver = drv;
-
 	return dev;
 }
 
@@ -223,10 +220,10 @@ static void pwm_h2_remove(struct device_t * dev)
 	struct pwm_t * pwm = (struct pwm_t *)dev->priv;
 	struct pwm_h2_pdata_t * pdat = (struct pwm_h2_pdata_t *)pwm->priv;
 
-	if(pwm && unregister_pwm(pwm))
+	if(pwm)
 	{
+		unregister_pwm(pwm);
 		free(pdat->clk);
-
 		free_device_name(pwm->name);
 		free(pwm->priv);
 		free(pwm);

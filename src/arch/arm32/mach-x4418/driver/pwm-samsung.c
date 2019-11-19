@@ -182,17 +182,14 @@ static struct device_t * pwm_samsung_probe(struct driver_t * drv, struct dtnode_
 	pwm->disable = pwm_samsung_disable;
 	pwm->priv = pdat;
 
-	if(!register_pwm(&dev, pwm))
+	if(!(dev = register_pwm(pwm, drv)))
 	{
 		free(pdat->clk);
-
 		free_device_name(pwm->name);
 		free(pwm->priv);
 		free(pwm);
 		return NULL;
 	}
-	dev->driver = drv;
-
 	return dev;
 }
 
@@ -201,10 +198,10 @@ static void pwm_samsung_remove(struct device_t * dev)
 	struct pwm_t * pwm = (struct pwm_t *)dev->priv;
 	struct pwm_samsung_pdata_t * pdat = (struct pwm_samsung_pdata_t *)pwm->priv;
 
-	if(pwm && unregister_pwm(pwm))
+	if(pwm)
 	{
+		unregister_pwm(pwm);
 		free(pdat->clk);
-
 		free_device_name(pwm->name);
 		free(pwm->priv);
 		free(pwm);

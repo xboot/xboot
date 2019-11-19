@@ -24,8 +24,8 @@ struct pwm_t
 };
 
 struct pwm_t * search_pwm(const char * name);
-bool_t register_pwm(struct device_t ** device, struct pwm_t * pwm);
-bool_t unregister_pwm(struct pwm_t * pwm);
+struct device_t * register_pwm(struct pwm_t * pwm, struct driver_t * drv);
+void unregister_pwm(struct pwm_t * pwm);
 
 void pwm_config(struct pwm_t * pwm, int duty, int period, int polarity);
 void pwm_enable(struct pwm_t * pwm);

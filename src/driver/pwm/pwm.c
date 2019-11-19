@@ -98,16 +98,16 @@ struct pwm_t * search_pwm(const char * name)
 	return (struct pwm_t *)dev->priv;
 }
 
-bool_t register_pwm(struct device_t ** device, struct pwm_t * pwm)
+struct device_t * register_pwm(struct pwm_t * pwm, struct driver_t * drv)
 {
 	struct device_t * dev;
 
 	if(!pwm || !pwm->name)
-		return FALSE;
+		return NULL;
 
 	dev = malloc(sizeof(struct device_t));
 	if(!dev)
-		return FALSE;
+		return NULL;
 
 	pwm->__enable = -1;
 	pwm->__duty = -1;
@@ -129,32 +129,25 @@ bool_t register_pwm(struct device_t ** device, struct pwm_t * pwm)
 		kobj_remove_self(dev->kobj);
 		free(dev->name);
 		free(dev);
-		return FALSE;
+		return NULL;
 	}
-
-	if(device)
-		*device = dev;
-	return TRUE;
+	return dev;
 }
 
-bool_t unregister_pwm(struct pwm_t * pwm)
+void unregister_pwm(struct pwm_t * pwm)
 {
 	struct device_t * dev;
 
-	if(!pwm || !pwm->name)
-		return FALSE;
-
-	dev = search_device(pwm->name, DEVICE_TYPE_PWM);
-	if(!dev)
-		return FALSE;
-
-	if(!unregister_device(dev))
-		return FALSE;
-
-	kobj_remove_self(dev->kobj);
-	free(dev->name);
-	free(dev);
-	return TRUE;
+	if(pwm && pwm->name)
+	{
+		dev = search_device(pwm->name, DEVICE_TYPE_PWM);
+		if(dev && unregister_device(dev))
+		{
+			kobj_remove_self(dev->kobj);
+			free(dev->name);
+			free(dev);
+		}
+	}
 }
 
 void pwm_config(struct pwm_t * pwm, int duty, int period, int polarity)

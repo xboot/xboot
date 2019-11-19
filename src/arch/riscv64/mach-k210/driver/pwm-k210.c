@@ -121,18 +121,15 @@ static struct device_t * pwm_k210_probe(struct driver_t * drv, struct dtnode_t *
 	write32(pdat->virt + PWM_LOAD2(pdat->channel), 1000);
 	write32(pdat->virt + PWM_CTRL(pdat->channel), (1 << 2));
 
-	if(!register_pwm(&dev, pwm))
+	if(!(dev = register_pwm(pwm, drv)))
 	{
 		clk_disable(pdat->clk);
 		free(pdat->clk);
-
 		free_device_name(pwm->name);
 		free(pwm->priv);
 		free(pwm);
 		return NULL;
 	}
-	dev->driver = drv;
-
 	return dev;
 }
 
@@ -141,11 +138,10 @@ static void pwm_k210_remove(struct device_t * dev)
 	struct pwm_t * pwm = (struct pwm_t *)dev->priv;
 	struct pwm_k210_pdata_t * pdat = (struct pwm_k210_pdata_t *)pwm->priv;
 
-	if(pwm && unregister_pwm(pwm))
+	if(pwm)
 	{
-		clk_disable(pdat->clk);
+		unregister_pwm(pwm);
 		free(pdat->clk);
-
 		free_device_name(pwm->name);
 		free(pwm->priv);
 		free(pwm);

@@ -143,17 +143,14 @@ static struct device_t * pwm_rk3128_probe(struct driver_t * drv, struct dtnode_t
 	write32(pdat->virt + PWM_CTRL(pdat->channel), (read32(pdat->virt + PWM_CTRL(pdat->channel)) | (0x3 << 3)));
 	write32(pdat->virt + PWM_CTRL(pdat->channel), (read32(pdat->virt + PWM_CTRL(pdat->channel)) & ~(0x1 << 0)));
 
-	if(!register_pwm(&dev, pwm))
+	if(!(dev = register_pwm(pwm, drv)))
 	{
 		free(pdat->clk);
-
 		free_device_name(pwm->name);
 		free(pwm->priv);
 		free(pwm);
 		return NULL;
 	}
-	dev->driver = drv;
-
 	return dev;
 }
 
@@ -162,10 +159,10 @@ static void pwm_rk3128_remove(struct device_t * dev)
 	struct pwm_t * pwm = (struct pwm_t *)dev->priv;
 	struct pwm_rk3128_pdata_t * pdat = (struct pwm_rk3128_pdata_t *)pwm->priv;
 
-	if(pwm && unregister_pwm(pwm))
+	if(pwm)
 	{
+		unregister_pwm(pwm);
 		free(pdat->clk);
-
 		free_device_name(pwm->name);
 		free(pwm->priv);
 		free(pwm);

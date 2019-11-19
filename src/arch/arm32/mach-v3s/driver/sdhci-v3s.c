@@ -230,18 +230,15 @@ static struct device_t * sdhci_v3s_probe(struct driver_t * drv, struct dtnode_t 
 		gpio_set_pull(pdat->cd, GPIO_PULL_UP);
 	}
 
-	if(!register_sdhci(&dev, sdhci))
+	if(!(dev = register_sdhci(sdhci, drv)))
 	{
 		clk_disable(pdat->pclk);
 		free(pdat->pclk);
-
 		free_device_name(sdhci->name);
 		free(sdhci->priv);
 		free(sdhci);
 		return NULL;
 	}
-	dev->driver = drv;
-
 	return dev;
 }
 
@@ -250,11 +247,11 @@ static void sdhci_v3s_remove(struct device_t * dev)
 	struct sdhci_t * sdhci = (struct sdhci_t *)dev->priv;
 	struct sdhci_v3s_pdata_t * pdat = (struct sdhci_v3s_pdata_t *)sdhci->priv;
 
-	if(sdhci && unregister_sdhci(sdhci))
+	if(sdhci)
 	{
+		unregister_sdhci(sdhci);
 		clk_disable(pdat->pclk);
 		free(pdat->pclk);
-
 		free_device_name(sdhci->name);
 		free(sdhci->priv);
 		free(sdhci);

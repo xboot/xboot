@@ -320,15 +320,13 @@ static struct device_t * sdhci_pl180_probe(struct driver_t * drv, struct dtnode_
 	sdhci->priv = pdat;
 	write32(pdat->virt + PL180_POWER, 0xbf);
 
-	if(!register_sdhci(&dev, sdhci))
+	if(!(dev = register_sdhci(sdhci, drv)))
 	{
 		free_device_name(sdhci->name);
 		free(sdhci->priv);
 		free(sdhci);
 		return NULL;
 	}
-	dev->driver = drv;
-
 	return dev;
 }
 
@@ -336,8 +334,9 @@ static void sdhci_pl180_remove(struct device_t * dev)
 {
 	struct sdhci_t * sdhci = (struct sdhci_t *)dev->priv;
 
-	if(sdhci && unregister_sdhci(sdhci))
+	if(sdhci)
 	{
+		unregister_sdhci(sdhci);
 		free_device_name(sdhci->name);
 		free(sdhci->priv);
 		free(sdhci);

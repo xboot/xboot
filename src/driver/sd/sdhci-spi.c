@@ -400,17 +400,14 @@ static struct device_t * sdhci_spi_probe(struct driver_t * drv, struct dtnode_t 
 		gpio_set_direction(pdat->cd, GPIO_DIRECTION_INPUT);
 	}
 
-	if(!register_sdhci(&dev, sdhci))
+	if(!(dev = register_sdhci(sdhci, drv)))
 	{
 		spi_device_free(pdat->dev);
-
 		free_device_name(sdhci->name);
 		free(sdhci->priv);
 		free(sdhci);
 		return NULL;
 	}
-	dev->driver = drv;
-
 	return dev;
 }
 
@@ -419,10 +416,10 @@ static void sdhci_spi_remove(struct device_t * dev)
 	struct sdhci_t * sdhci = (struct sdhci_t *)dev->priv;
 	struct sdhci_spi_pdata_t * pdat = (struct sdhci_spi_pdata_t *)sdhci->priv;
 
-	if(sdhci && unregister_sdhci(sdhci))
+	if(sdhci)
 	{
+		unregister_sdhci(sdhci);
 		spi_device_free(pdat->dev);
-
 		free_device_name(sdhci->name);
 		free(sdhci->priv);
 		free(sdhci);

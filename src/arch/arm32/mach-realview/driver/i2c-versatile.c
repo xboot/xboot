@@ -120,15 +120,13 @@ static struct device_t * i2c_versatile_probe(struct driver_t * drv, struct dtnod
 	i2c_versatile_setsda(&pdat->bdat, 1);
 	i2c_versatile_setscl(&pdat->bdat, 1);
 
-	if(!register_i2c(&dev, i2c))
+	if(!(dev = register_i2c(i2c, drv)))
 	{
 		free_device_name(i2c->name);
 		free(i2c->priv);
 		free(i2c);
 		return NULL;
 	}
-	dev->driver = drv;
-
 	return dev;
 }
 
@@ -136,8 +134,9 @@ static void i2c_versatile_remove(struct device_t * dev)
 {
 	struct i2c_t * i2c = (struct i2c_t *)dev->priv;
 
-	if(i2c && unregister_i2c(i2c))
+	if(i2c)
 	{
+		unregister_i2c(i2c);
 		free_device_name(i2c->name);
 		free(i2c->priv);
 		free(i2c);

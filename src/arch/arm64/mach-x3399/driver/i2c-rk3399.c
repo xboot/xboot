@@ -296,18 +296,15 @@ static struct device_t * i2c_rk3399_probe(struct driver_t * drv, struct dtnode_t
 		gpio_set_pull(pdat->scl, GPIO_PULL_UP);
 	}
 
-	if(!register_i2c(&dev, i2c))
+	if(!(dev = register_i2c(i2c, drv)))
 	{
 		clk_disable(pdat->clk);
 		free(pdat->clk);
-
 		free_device_name(i2c->name);
 		free(i2c->priv);
 		free(i2c);
 		return NULL;
 	}
-	dev->driver = drv;
-
 	return dev;
 }
 
@@ -316,11 +313,11 @@ static void i2c_rk3399_remove(struct device_t * dev)
 	struct i2c_t * i2c = (struct i2c_t *)dev->priv;
 	struct i2c_rk3399_pdata_t * pdat = (struct i2c_rk3399_pdata_t *)i2c->priv;
 
-	if(i2c && unregister_i2c(i2c))
+	if(i2c)
 	{
+		unregister_i2c(i2c);
 		clk_disable(pdat->clk);
 		free(pdat->clk);
-
 		free_device_name(i2c->name);
 		free(i2c->priv);
 		free(i2c);

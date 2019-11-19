@@ -94,16 +94,16 @@ struct i2c_t * search_i2c(const char * name)
 	return (struct i2c_t *)dev->priv;
 }
 
-bool_t register_i2c(struct device_t ** device, struct i2c_t * i2c)
+struct device_t * register_i2c(struct i2c_t * i2c, struct driver_t * drv)
 {
 	struct device_t * dev;
 
 	if(!i2c || !i2c->name)
-		return FALSE;
+		return NULL;
 
 	dev = malloc(sizeof(struct device_t));
 	if(!dev)
-		return FALSE;
+		return NULL;
 
 	dev->name = strdup(i2c->name);
 	dev->type = DEVICE_TYPE_I2C;
@@ -117,32 +117,25 @@ bool_t register_i2c(struct device_t ** device, struct i2c_t * i2c)
 		kobj_remove_self(dev->kobj);
 		free(dev->name);
 		free(dev);
-		return FALSE;
+		return NULL;
 	}
-
-	if(device)
-		*device = dev;
-	return TRUE;
+	return dev;
 }
 
-bool_t unregister_i2c(struct i2c_t * i2c)
+void unregister_i2c(struct i2c_t * i2c)
 {
 	struct device_t * dev;
 
-	if(!i2c || !i2c->name)
-		return FALSE;
-
-	dev = search_device(i2c->name, DEVICE_TYPE_I2C);
-	if(!dev)
-		return FALSE;
-
-	if(!unregister_device(dev))
-		return FALSE;
-
-	kobj_remove_self(dev->kobj);
-	free(dev->name);
-	free(dev);
-	return TRUE;
+	if(i2c || i2c->name)
+	{
+		dev = search_device(i2c->name, DEVICE_TYPE_I2C);
+		if(dev && unregister_device(dev))
+		{
+			kobj_remove_self(dev->kobj);
+			free(dev->name);
+			free(dev);
+		}
+	}
 }
 
 struct i2c_device_t * i2c_device_alloc(const char * i2cbus, int addr, int flags)

@@ -273,18 +273,15 @@ static struct device_t * i2c_f1c500s_probe(struct driver_t * drv, struct dtnode_
 	write32(pdat->virt + I2C_XADDR, 0);
 	write32(pdat->virt + I2C_CNTR, (1 << 6) | (1 << 4));
 
-	if(!register_i2c(&dev, i2c))
+	if(!(dev = register_i2c(i2c, drv)))
 	{
 		clk_disable(pdat->clk);
 		free(pdat->clk);
-
 		free_device_name(i2c->name);
 		free(i2c->priv);
 		free(i2c);
 		return NULL;
 	}
-	dev->driver = drv;
-
 	return dev;
 }
 
@@ -293,11 +290,11 @@ static void i2c_f1c500s_remove(struct device_t * dev)
 	struct i2c_t * i2c = (struct i2c_t *)dev->priv;
 	struct i2c_f1c500s_pdata_t * pdat = (struct i2c_f1c500s_pdata_t *)i2c->priv;
 
-	if(i2c && unregister_i2c(i2c))
+	if(i2c)
 	{
+		unregister_i2c(i2c);
 		clk_disable(pdat->clk);
 		free(pdat->clk);
-
 		free_device_name(i2c->name);
 		free(i2c->priv);
 		free(i2c);

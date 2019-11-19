@@ -44,8 +44,8 @@ struct i2c_device_t {
 };
 
 struct i2c_t * search_i2c(const char * name);
-bool_t register_i2c(struct device_t ** device, struct i2c_t * i2c);
-bool_t unregister_i2c(struct i2c_t * i2c);
+struct device_t * register_i2c(struct i2c_t * i2c, struct driver_t * drv);
+void unregister_i2c(struct i2c_t * i2c);
 
 struct i2c_device_t * i2c_device_alloc(const char * i2cbus, int addr, int flags);
 void i2c_device_free(struct i2c_device_t * client);

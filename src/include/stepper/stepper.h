@@ -20,8 +20,8 @@ struct stepper_t
 };
 
 struct stepper_t * search_stepper(const char * name);
-bool_t register_stepper(struct device_t ** device, struct stepper_t * m);
-bool_t unregister_stepper(struct stepper_t * m);
+struct device_t * register_stepper(struct stepper_t * m, struct driver_t * drv);
+void unregister_stepper(struct stepper_t * m);
 
 void stepper_enable(struct stepper_t * m);
 void stepper_disable(struct stepper_t * m);

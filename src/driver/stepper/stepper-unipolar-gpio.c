@@ -373,17 +373,14 @@ static struct device_t * stepper_unipolar_gpio_probe(struct driver_t * drv, stru
 		gpio_set_value(pdat->d, 0);
 	}
 
-	if(!register_stepper(&dev, m))
+	if(!(dev = register_stepper(m, drv)))
 	{
 		timer_cancel(&pdat->timer);
-
 		free_device_name(m->name);
 		free(m->priv);
 		free(m);
 		return NULL;
 	}
-	dev->driver = drv;
-
 	return dev;
 }
 
@@ -392,10 +389,10 @@ static void stepper_unipolar_gpio_remove(struct device_t * dev)
 	struct stepper_t * m = (struct stepper_t *)dev->priv;
 	struct stepper_unipolar_gpio_pdata_t * pdat = (struct stepper_unipolar_gpio_pdata_t *)m->priv;
 
-	if(m && unregister_stepper(m))
+	if(m)
 	{
+		unregister_stepper(m);
 		timer_cancel(&pdat->timer);
-
 		free_device_name(m->name);
 		free(m->priv);
 		free(m);

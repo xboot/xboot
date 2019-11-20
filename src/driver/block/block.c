@@ -28,6 +28,12 @@
 
 #include <block/block.h>
 
+struct sub_block_pdata_t
+{
+	u64_t from;
+	struct block_t * pblk;
+};
+
 static ssize_t block_read_size(struct kobj_t * kobj, void * buf, size_t size)
 {
 	struct block_t * blk = (struct block_t *)kobj->priv;
@@ -44,6 +50,27 @@ static ssize_t block_read_capacity(struct kobj_t * kobj, void * buf, size_t size
 {
 	struct block_t * blk = (struct block_t *)kobj->priv;
 	return sprintf(buf, "%lld", block_capacity(blk));
+}
+
+static u64_t sub_block_read(struct block_t * blk, u8_t * buf, u64_t blkno, u64_t blkcnt)
+{
+	struct sub_block_pdata_t * pdat = (struct sub_block_pdata_t *)(blk->priv);
+	struct block_t * pblk = pdat->pblk;
+	return (pblk->read(pblk, buf, blkno + pdat->from, blkcnt));
+}
+
+static u64_t sub_block_write(struct block_t * blk, u8_t * buf, u64_t blkno, u64_t blkcnt)
+{
+	struct sub_block_pdata_t * pdat = (struct sub_block_pdata_t *)(blk->priv);
+	struct block_t * pblk = pdat->pblk;
+	return (pblk->write(pblk, buf, blkno + pdat->from, blkcnt));
+}
+
+static void sub_block_sync(struct block_t * blk)
+{
+	struct sub_block_pdata_t * pdat = (struct sub_block_pdata_t *)(blk->priv);
+	struct block_t * pblk = pdat->pblk;
+	pblk->sync(pblk);
 }
 
 struct block_t * search_block(const char * name)
@@ -98,6 +125,87 @@ void unregister_block(struct block_t * blk)
 			kobj_remove_self(dev->kobj);
 			free(dev->name);
 			free(dev);
+		}
+	}
+}
+
+struct device_t * register_sub_block(struct block_t * pblk, u64_t offset, u64_t length, const char * name, struct driver_t * drv)
+{
+	struct device_t * dev;
+	struct block_t * blk;
+	struct sub_block_pdata_t * pdat;
+	u64_t blksz, blkno, blkcnt, tmp;
+	char buffer[256];
+
+	if(!name)
+		return NULL;
+
+	if(!pblk || !pblk->name)
+		return NULL;
+
+	blksz = block_size(pblk);
+	blkno = offset / blksz;
+	tmp = offset % blksz;
+	if(tmp > 0)
+		blkno++;
+	tmp = length / blksz;
+	blkcnt = block_available_count(pblk, blkno, tmp);
+	if(blkcnt <= 0)
+		return NULL;
+
+	blk = malloc(sizeof(struct block_t));
+	pdat = malloc(sizeof(struct sub_block_pdata_t));
+	if(!blk || !pdat)
+	{
+		free(blk);
+		free(pdat);
+		return NULL;
+	}
+
+	snprintf(buffer, sizeof(buffer), "%s.%s", pblk->name, name);
+	pdat->from = blkno;
+	pdat->pblk = pblk;
+
+	blk->name = strdup(buffer);
+	blk->blksz = blksz;
+	blk->blkcnt = blkcnt;
+	blk->read = sub_block_read;
+	blk->write = sub_block_write;
+	blk->sync = sub_block_sync;
+	blk->priv = pdat;
+
+	if(!(dev = register_block(blk, drv)))
+	{
+		free(blk->priv);
+		free(blk->name);
+		free(blk);
+		return NULL;
+	}
+	return dev;
+}
+
+void unregister_sub_block(struct block_t * pblk)
+{
+	struct device_t * pos, * n;
+	struct block_t * blk;
+	int len;
+
+	if(pblk && pblk->name && search_block(pblk->name))
+	{
+		len = strlen(pblk->name);
+		list_for_each_entry_safe(pos, n, &__device_head[DEVICE_TYPE_BLOCK], head)
+		{
+			if((strncmp(pos->name, pblk->name, len) == 0) && (strlen(pos->name) > len))
+			{
+				blk = (struct block_t *)pos->priv;
+				if(blk)
+				{
+					unregister_block(blk);
+					free(blk->priv);
+					free(blk->name);
+					free(blk);
+				}
+			}
 		}
 	}
 }

@@ -328,7 +328,11 @@
 		"spi-bus": "spi-f1c500s.0",
 		"chip-select": 0,
 		"mode": 0,
-		"speed": 50000000
+		"speed": 50000000,
+		"partition": [
+			{ "name": "xboot",   "offset": 0,       "length": 4194304 },
+			{ "name": "private", "offset": 4194304, "length": 0 }
+		]
 	},
 
 	"wdg-f1c500s@0x01c20ca0": {

@@ -698,8 +698,10 @@ static struct device_t * spi_flash_probe(struct driver_t * drv, struct dtnode_t 
 	struct spi_flash_pdata_t * pdat;
 	struct block_t * blk;
 	struct device_t * dev;
+	struct dtnode_t o;
 	struct spi_device_t * spidev;
 	struct spi_flash_info_t info;
+	int npart, i;
 
 	spidev = spi_device_alloc(dt_read_string(n, "spi-bus", NULL), dt_read_int(n, "chip-select", 0), dt_read_int(n, "type", 0), dt_read_int(n, "mode", 0), 8, dt_read_int(n, "speed", 0));
 	if(!spidev)
@@ -746,6 +748,31 @@ static struct device_t * spi_flash_probe(struct driver_t * drv, struct dtnode_t 
 		free(blk);
 		return NULL;
 	}
+	if((npart = dt_read_array_length(n, "partition")) > 0)
+	{
+		char buffer[64];
+		char * name;
+		u64_t offset, length;
+
+		for(i = 0; i < npart; i++)
+		{
+			dt_read_array_object(n, "partition", i, &o);
+			name = dt_read_string(&o, "name", NULL);
+			if(!name)
+			{
+				snprintf(buffer, sizeof(buffer), "unkown%d", i);
+				name = buffer;
+			}
+			offset = dt_read_long(&o, "offset", 0);
+			if(offset < block_capacity(blk))
+			{
+				length = dt_read_long(&o, "length", 0);
+				if(length == 0)
+					length = block_capacity(blk) - offset;
+				register_sub_block(blk, offset, length, name, drv);
+			}
+		}
+	}
 	return dev;
 }
 
@@ -756,6 +783,7 @@ static void spi_flash_remove(struct device_t * dev)
 
 	if(blk)
 	{
+		unregister_sub_block(blk);
 		unregister_block(blk);
 		spi_device_free(pdat->dev);
 		free_device_name(blk->name);

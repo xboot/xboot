@@ -1,8 +1,10 @@
 /*
  * driver/block/romdisk/data.S
  *
- * Copyright (c) 2007-2010  Jianjun Jiang <8192542@qq.com>
- * official site: http://xboot.org
+ * Copyright(c) 2007-2019 Jianjun Jiang <8192542@qq.com>
+ * Official site: http://xboot.org
+ * Mobile phone: +86-18665388956
+ * QQ: 8192542
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal

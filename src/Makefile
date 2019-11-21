@@ -114,7 +114,6 @@ SRCDIRS		+=	arch/$(ARCH)/lib/cpu			\
 				driver/battery					\
 				driver/block					\
 				driver/block/partition			\
-				driver/block/romdisk			\
 				driver/buzzer					\
 				driver/camera					\
 				driver/clk						\
@@ -305,7 +304,7 @@ sinclude $(shell $(MKDIR) $(X_OBJDIRS) $(X_OUT)						\
 			&& $(RM) .obj/romdisk									\
 			&& $(RM) .obj/romdisk.cpio								\
 			&& $(RM) .obj/init/version.o							\
-			&& $(RM) .obj/driver/block/romdisk/data.o				\
+			&& $(RM) .obj/driver/block/romdisk-data.o				\
 			&& $(CP) romdisk .obj									\
 			&& $(CP) arch/$(ARCH)/$(MACH)/romdisk .obj				\
 			&& $(CD) .obj/romdisk									\

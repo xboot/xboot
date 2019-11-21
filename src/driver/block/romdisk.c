@@ -1,5 +1,5 @@
 /*
- * driver/block/romdisk/romdisk.c
+ * driver/block/romdisk.c
  *
  * Copyright(c) 2007-2019 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -39,11 +39,9 @@ static u64_t romdisk_read(struct block_t * blk, u8_t * buf, u64_t blkno, u64_t b
 {
 	struct romdisk_pdata_t * pdat = (struct romdisk_pdata_t *)(blk->priv);
 	virtual_addr_t offset = pdat->addr + block_offset(blk, blkno);
-	u64_t count = block_available_count(blk, blkno, blkcnt);
-	u64_t length = block_available_length(blk, blkno, blkcnt);
-
+	u64_t length = block_size(blk) * blkcnt;
 	memcpy((void *)buf, (const void *)(offset), length);
-	return count;
+	return blkcnt;
 }
 
 static u64_t romdisk_write(struct block_t * blk, u8_t * buf, u64_t blkno, u64_t blkcnt)
@@ -60,12 +58,13 @@ static struct device_t * romdisk_probe(struct driver_t * drv, struct dtnode_t * 
 	struct romdisk_pdata_t * pdat;
 	struct block_t * blk;
 	struct device_t * dev;
-	virtual_addr_t addr = strtoull(dt_read_string(n, "address", "0"), NULL, 0);
-	virtual_size_t size = strtoull(dt_read_string(n, "size", "0"), NULL, 0);
+	u64_t blkcnt, blksz = SZ_512;
+	virtual_addr_t addr = dt_read_long(n, "address", 0);
+	virtual_size_t size = dt_read_long(n, "size", 0);
 
 	if(size <= 0)
 		return NULL;
-	size = (size + SZ_512) / SZ_512;
+	blkcnt = (size + blksz) / blksz;
 
 	pdat = malloc(sizeof(struct romdisk_pdata_t));
 	if(!pdat)
@@ -79,11 +78,11 @@ static struct device_t * romdisk_probe(struct driver_t * drv, struct dtnode_t * 
 	}
 
 	pdat->addr = addr;
-	pdat->size = size;
+	pdat->size = blkcnt * blksz;
 
 	blk->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
-	blk->blksz	= SZ_512;
-	blk->blkcnt	= (u64_t)size;
+	blk->blksz	= blksz;
+	blk->blkcnt	= blkcnt;
 	blk->read = romdisk_read;
 	blk->write = romdisk_write;
 	blk->sync = romdisk_sync;

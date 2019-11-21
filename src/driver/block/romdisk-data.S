@@ -1,5 +1,5 @@
 /*
- * driver/block/romdisk/data.S
+ * driver/block/romdisk-data.S
  *
  * Copyright(c) 2007-2019 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org

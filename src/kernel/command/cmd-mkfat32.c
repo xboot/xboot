@@ -125,7 +125,7 @@ static int format_fat32(struct block_t * blk)
 	 * Now that we know the number of blocks per cluster, we can calculate the
 	 * size of the FAT Once again, this might overestimate a bit, but that's fine
 	 */
-	data_blocks = blk->blkcnt - 32;
+	data_blocks = block_capacity(blk) / 512 - 32;
 	clusters = data_blocks / blocks_per_cluster;
 
 	/*
@@ -160,7 +160,7 @@ static int format_fat32(struct block_t * blk)
 
 	printf("FAT32 filesystem parameters:\r\n");
 	printf(" Cluster size (in blocks): %ld (%ld bytes)\r\n", blocks_per_cluster, blocks_per_cluster * 512);
-	printf(" Number of raw blocks: %ld\r\n", blk->blkcnt);
+	printf(" Number of raw blocks: %ld\r\n", block_capacity(blk) / 512);
 	printf(" Data blocks on volume: %ld\r\n", data_blocks);
 	printf(" Number of clusters: %ld\r\n", clusters);
 	printf(" Size of each FAT (in blocks): %ld\r\n", blocks_per_fat);
@@ -186,7 +186,7 @@ static int format_fat32(struct block_t * blk)
 	bs.sectors_per_track = 1;           /* We don't care about CHS addressing */
 	bs.heads = 1;                       /* Ditto. */
 	bs.hidden_sectors = 0;
-	bs.num_sectors = blk->blkcnt;
+	bs.num_sectors = block_capacity(blk) / 512;
 	bs.sectors_per_fat = blocks_per_fat;
 	bs.flags = 0;                       /* Mirror the FAT, as FAT16 does */
 	bs.version = 0;                     /* Version 0.0 */

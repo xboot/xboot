@@ -76,7 +76,7 @@ static int format_fat16(struct block_t * blk)
 	 * Make an initial guess at the number of data blocks. This guess will
 	 * obviously be wrong, as we're not including the FAT.
 	 */
-	data_blocks = blk->blkcnt - reserved_blocks;
+	data_blocks = block_capacity(blk) / 512 - reserved_blocks;
 
 	/*
 	 * Calculate how many blocks the FAT would take up for one block per
@@ -137,7 +137,7 @@ static int format_fat16(struct block_t * blk)
 	/*
 	 * Calculate the real number of data blocks...
 	 */
-	data_blocks = blk->blkcnt - reserved_blocks - (2 * blocks_per_fat);
+	data_blocks = block_capacity(blk) / 512 - reserved_blocks - (2 * blocks_per_fat);
 
 	/*
 	 * Did we fail to get a match?
@@ -150,7 +150,7 @@ static int format_fat16(struct block_t * blk)
 
 	printf("FAT16 filesystem parameters:\r\n");
 	printf(" Cluster size (in blocks): %ld (%ld bytes)\r\n", blocks_per_cluster, blocks_per_cluster * 512);
-	printf(" Number of raw blocks: %ld\r\n", blk->blkcnt);
+	printf(" Number of raw blocks: %ld\r\n", block_capacity(blk) / 512);
 	printf(" Data blocks on volume: %ld\r\n", data_blocks);
 	printf(" Number of clusters: %ld\r\n", clusters);
 	printf(" Size of each FAT (in blocks): %ld\r\n", blocks_per_fat);
@@ -177,7 +177,7 @@ static int format_fat16(struct block_t * blk)
 	bs.sectors_per_track = 1;           /* We don't care about CHS addressing */
 	bs.heads = 1;                       /* Ditto. */
 	bs.hidden_sectors = 0;
-	bs.num_sectors_lg = blk->blkcnt;
+	bs.num_sectors_lg = block_capacity(blk) / 512;
 	bs.drive_number = 0x80;             /* Fixed disk */
 	bs.chkdsk_needed = 0;
 	bs.ext_sig = 0x29;                  /* Magic value, required by FAT */

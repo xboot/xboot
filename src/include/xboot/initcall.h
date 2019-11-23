@@ -27,7 +27,7 @@ typedef void (*exitcall_t)(void);
 #define subsys_initcall(fn)		__define_initcall("5", fn, 5)
 #define command_initcall(fn)	__define_initcall("6", fn, 6)
 #define server_initcall(fn)		__define_initcall("7", fn, 7)
-#define reserver_initcall(fn)	__define_initcall("8", fn, 8)
+#define wboxtest_initcall(fn)	__define_initcall("8", fn, 8)
 #define late_initcall(fn)		__define_initcall("9", fn, 9)
 
 #define pure_exitcall(fn)		__define_exitcall("0", fn, 0)
@@ -38,7 +38,7 @@ typedef void (*exitcall_t)(void);
 #define subsys_exitcall(fn)		__define_exitcall("5", fn, 5)
 #define command_exitcall(fn)	__define_exitcall("6", fn, 6)
 #define server_exitcall(fn)		__define_exitcall("7", fn, 7)
-#define reserver_exitcall(fn)	__define_exitcall("8", fn, 8)
+#define wboxtest_exitcall(fn)	__define_exitcall("8", fn, 8)
 #define late_exitcall(fn)		__define_exitcall("9", fn, 9)
 
 void do_initcalls(void);

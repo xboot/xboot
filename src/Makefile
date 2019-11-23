@@ -3,10 +3,11 @@
 #
 
 #
-# You must pass CROSS_COMPILE and PLATFORM variable.
+# You can pass CROSS_COMPILE, PLATFORM and WBOXTEST variable.
 #
 CROSS_COMPILE	?=
 PLATFORM		?=
+WBOXTEST		?=
 
 #
 # Get platform information about ARCH and MACH from PLATFORM variable.
@@ -228,6 +229,15 @@ SRCDIRS		+=	external/cairo-1.17.2
 
 INCDIRS		+=	external/chipmunk-7.0.3/include
 SRCDIRS		+=	external/chipmunk-7.0.3/src
+
+#
+# Add whitebox test
+#
+ifneq ($(strip $(WBOXTEST)),)
+INCDIRS		+=	wboxtest
+SRCDIRS		+=	wboxtest \
+				wboxtest/stdio
+endif
 
 #
 # You shouldn't need to change anything below this point.

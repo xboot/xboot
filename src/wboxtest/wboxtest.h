@@ -41,6 +41,7 @@ void wboxtest_list(void);
 #define assert_not_inrange(v, min, max)		do { wboxtest_assert((((v) < (min)) && ((v) > (max))), #v"<>["#min", "#max"]", __FILE__, __LINE__); } while(0);
 
 int wboxtest_random_int(int a, int b);
+double wboxtest_random_float(double a, double b);
 char * wboxtest_random_string(char * buf, int len);
 char * wboxtest_random_buffer(char * buf, int len);
 int wboxtest_print(const char * fmt, ...);

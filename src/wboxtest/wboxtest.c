@@ -191,6 +191,13 @@ int wboxtest_random_int(int a, int b)
 	return (int)(r + a);
 }
 
+double wboxtest_random_float(double a, double b)
+{
+	double r = (double)rand() * (1.0 / ((double)RAND_MAX + 1.0));
+	r *= b - a + 1.0;
+	return r + a;
+}
+
 char * wboxtest_random_string(char * buf, int len)
 {
 	char c;

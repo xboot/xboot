@@ -1,5 +1,5 @@
 /*
- * driver/block/spi-flash.c
+ * driver/block/blk-spinor.c
  *
  * Copyright(c) 2007-2019 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -75,7 +75,7 @@ struct sfdp_t {
 	struct sfdp_basic_table_t bt;
 };
 
-struct spi_flash_info_t {
+struct spinor_info_t {
 	char * name;
 	u32_t id;
 	u32_t capacity;
@@ -92,12 +92,12 @@ struct spi_flash_info_t {
 	u8_t opcode_erase_256k;
 };
 
-struct spi_flash_pdata_t {
+struct blk_spinor_pdata_t {
 	struct spi_device_t * dev;
-	struct spi_flash_info_t info;
+	struct spinor_info_t info;
 };
 
-static bool_t spi_flash_read_sfdp(struct spi_device_t * dev, struct sfdp_t * sfdp)
+static bool_t blk_spinor_read_sfdp(struct spi_device_t * dev, struct sfdp_t * sfdp)
 {
 	u32_t addr;
 	u8_t tx[5];
@@ -157,7 +157,7 @@ static bool_t spi_flash_read_sfdp(struct spi_device_t * dev, struct sfdp_t * sfd
 	return FALSE;
 }
 
-static bool_t spi_flash_read_id(struct spi_device_t * dev, u32_t * id)
+static bool_t blk_spinor_read_id(struct spi_device_t * dev, u32_t * id)
 {
 	u8_t tx[1];
 	u8_t rx[3];
@@ -173,18 +173,18 @@ static bool_t spi_flash_read_id(struct spi_device_t * dev, u32_t * id)
 	return TRUE;
 }
 
-static const struct spi_flash_info_t spi_flash_infos[] = {
+static const struct spinor_info_t blk_spinor_infos[] = {
 	{ "w25x40", 0xef3013, 512 * 1024, 4096, 1, 256, 3, OPCODE_READ, OPCODE_PROG, OPCODE_WREN, OPCODE_E4K, 0, OPCODE_E64K, 0 },
 };
 
-static bool_t spi_flash_detect(struct spi_device_t * dev, struct spi_flash_info_t * info)
+static bool_t blk_spinor_detect(struct spi_device_t * dev, struct spinor_info_t * info)
 {
-	const struct spi_flash_info_t * t;
+	const struct spinor_info_t * t;
 	struct sfdp_t sfdp;
 	u32_t v, id;
 	int i;
 
-	if(spi_flash_read_sfdp(dev, &sfdp))
+	if(blk_spinor_read_sfdp(dev, &sfdp))
 	{
 		info->name = "";
 		info->id = 0;
@@ -313,14 +313,14 @@ static bool_t spi_flash_detect(struct spi_device_t * dev, struct spi_flash_info_
 		info->opcode_write = OPCODE_PROG;
 		return TRUE;
 	}
-	else if(spi_flash_read_id(dev, &id))
+	else if(blk_spinor_read_id(dev, &id))
 	{
-		for(i = 0; i < ARRAY_SIZE(spi_flash_infos); i++)
+		for(i = 0; i < ARRAY_SIZE(blk_spinor_infos); i++)
 		{
-			t = &spi_flash_infos[i];
+			t = &blk_spinor_infos[i];
 			if(id == t->id)
 			{
-				memcpy(info, t, sizeof(struct spi_flash_info_t));
+				memcpy(info, t, sizeof(struct spinor_info_t));
 				return TRUE;
 			}
 		}
@@ -328,7 +328,7 @@ static bool_t spi_flash_detect(struct spi_device_t * dev, struct spi_flash_info_
 	return FALSE;
 }
 
-static inline u8_t spi_flash_read_status_register(struct spi_flash_pdata_t * pdat)
+static inline u8_t blk_spinor_read_status_register(struct blk_spinor_pdata_t * pdat)
 {
 	u8_t tx = OPCODE_RDSR;
 	u8_t rx = 0;
@@ -339,7 +339,7 @@ static inline u8_t spi_flash_read_status_register(struct spi_flash_pdata_t * pda
 	return rx;
 }
 
-static inline void spi_flash_write_status_register(struct spi_flash_pdata_t * pdat, u8_t sr)
+static inline void blk_spinor_write_status_register(struct blk_spinor_pdata_t * pdat, u8_t sr)
 {
 	u8_t tx[2];
 
@@ -350,14 +350,14 @@ static inline void spi_flash_write_status_register(struct spi_flash_pdata_t * pd
 	spi_device_deselect(pdat->dev);
 }
 
-static inline void spi_flash_write_enable(struct spi_flash_pdata_t * pdat)
+static inline void blk_spinor_write_enable(struct blk_spinor_pdata_t * pdat)
 {
 	spi_device_select(pdat->dev);
 	spi_device_write_then_read(pdat->dev, &pdat->info.opcode_write_enable, 1, 0, 0);
 	spi_device_deselect(pdat->dev);
 }
 
-static inline void spi_flash_address_mode_4byte(struct spi_flash_pdata_t * pdat, int enable)
+static inline void blk_spinor_address_mode_4byte(struct blk_spinor_pdata_t * pdat, int enable)
 {
 	u8_t tx;
 
@@ -370,7 +370,7 @@ static inline void spi_flash_address_mode_4byte(struct spi_flash_pdata_t * pdat,
 	spi_device_deselect(pdat->dev);
 }
 
-static inline void spi_flash_chip_reset(struct spi_flash_pdata_t * pdat)
+static inline void blk_spinor_chip_reset(struct blk_spinor_pdata_t * pdat)
 {
 	u8_t tx[2];
 
@@ -381,12 +381,12 @@ static inline void spi_flash_chip_reset(struct spi_flash_pdata_t * pdat)
 	spi_device_deselect(pdat->dev);
 }
 
-static inline void spi_flash_wait_for_busy(struct spi_flash_pdata_t * pdat)
+static inline void blk_spinor_wait_for_busy(struct blk_spinor_pdata_t * pdat)
 {
-	while((spi_flash_read_status_register(pdat) & 0x1) == 0x1);
+	while((blk_spinor_read_status_register(pdat) & 0x1) == 0x1);
 }
 
-static void spi_flash_read_bytes(struct spi_flash_pdata_t * pdat, u32_t addr, u8_t * buf, u32_t count)
+static void blk_spinor_read_bytes(struct blk_spinor_pdata_t * pdat, u32_t addr, u8_t * buf, u32_t count)
 {
 	u8_t tx[5];
 
@@ -418,7 +418,7 @@ static void spi_flash_read_bytes(struct spi_flash_pdata_t * pdat, u32_t addr, u8
 	}
 }
 
-static void spi_flash_write_bytes(struct spi_flash_pdata_t * pdat, u32_t addr, u8_t * buf, u32_t count)
+static void blk_spinor_write_bytes(struct blk_spinor_pdata_t * pdat, u32_t addr, u8_t * buf, u32_t count)
 {
 	u8_t tx[5];
 
@@ -452,7 +452,7 @@ static void spi_flash_write_bytes(struct spi_flash_pdata_t * pdat, u32_t addr, u
 	}
 }
 
-static void spi_flash_sector_erase_4k(struct spi_flash_pdata_t * pdat, u32_t addr)
+static void blk_spinor_sector_erase_4k(struct blk_spinor_pdata_t * pdat, u32_t addr)
 {
 	u8_t tx[5];
 
@@ -484,7 +484,7 @@ static void spi_flash_sector_erase_4k(struct spi_flash_pdata_t * pdat, u32_t add
 	}
 }
 
-static void spi_flash_sector_erase_32k(struct spi_flash_pdata_t * pdat, u32_t addr)
+static void blk_spinor_sector_erase_32k(struct blk_spinor_pdata_t * pdat, u32_t addr)
 {
 	u8_t tx[5];
 
@@ -516,7 +516,7 @@ static void spi_flash_sector_erase_32k(struct spi_flash_pdata_t * pdat, u32_t ad
 	}
 }
 
-static void spi_flash_sector_erase_64k(struct spi_flash_pdata_t * pdat, u32_t addr)
+static void blk_spinor_sector_erase_64k(struct blk_spinor_pdata_t * pdat, u32_t addr)
 {
 	u8_t tx[5];
 
@@ -548,7 +548,7 @@ static void spi_flash_sector_erase_64k(struct spi_flash_pdata_t * pdat, u32_t ad
 	}
 }
 
-static void spi_flash_sector_erase_256k(struct spi_flash_pdata_t * pdat, u32_t addr)
+static void blk_spinor_sector_erase_256k(struct blk_spinor_pdata_t * pdat, u32_t addr)
 {
 	u8_t tx[5];
 
@@ -580,24 +580,24 @@ static void spi_flash_sector_erase_256k(struct spi_flash_pdata_t * pdat, u32_t a
 	}
 }
 
-static void spi_flash_init(struct spi_flash_pdata_t * pdat)
+static void blk_spinor_init(struct blk_spinor_pdata_t * pdat)
 {
-	spi_flash_chip_reset(pdat);
-	spi_flash_wait_for_busy(pdat);
-	spi_flash_write_enable(pdat);
-	spi_flash_write_status_register(pdat, 0);
-	spi_flash_wait_for_busy(pdat);
+	blk_spinor_chip_reset(pdat);
+	blk_spinor_wait_for_busy(pdat);
+	blk_spinor_write_enable(pdat);
+	blk_spinor_write_status_register(pdat, 0);
+	blk_spinor_wait_for_busy(pdat);
 	if(pdat->info.address_length == 4)
 	{
-		spi_flash_write_enable(pdat);
-		spi_flash_address_mode_4byte(pdat, 1);
-		spi_flash_wait_for_busy(pdat);
+		blk_spinor_write_enable(pdat);
+		blk_spinor_address_mode_4byte(pdat, 1);
+		blk_spinor_wait_for_busy(pdat);
 	}
 }
 
-static u64_t spi_flash_read(struct block_t * blk, u8_t * buf, u64_t blkno, u64_t blkcnt)
+static u64_t blk_spinor_read(struct block_t * blk, u8_t * buf, u64_t blkno, u64_t blkcnt)
 {
-	struct spi_flash_pdata_t * pdat = (struct spi_flash_pdata_t *)blk->priv;
+	struct blk_spinor_pdata_t * pdat = (struct blk_spinor_pdata_t *)blk->priv;
 	u64_t addr = blkno * blk->blksz;
 	s64_t cnt = blkcnt * blk->blksz;
 	u8_t * pbuf = buf;
@@ -609,8 +609,8 @@ static u64_t spi_flash_read(struct block_t * blk, u8_t * buf, u64_t blkno, u64_t
 		len = pdat->info.read_granularity;
 	while(cnt > 0)
 	{
-		spi_flash_wait_for_busy(pdat);
-		spi_flash_read_bytes(pdat, addr, pbuf, len);
+		blk_spinor_wait_for_busy(pdat);
+		blk_spinor_read_bytes(pdat, addr, pbuf, len);
 		addr += len;
 		pbuf += len;
 		cnt -= len;
@@ -619,9 +619,9 @@ static u64_t spi_flash_read(struct block_t * blk, u8_t * buf, u64_t blkno, u64_t
 	return blkcnt;
 }
 
-static u64_t spi_flash_write(struct block_t * blk, u8_t * buf, u64_t blkno, u64_t blkcnt)
+static u64_t blk_spinor_write(struct block_t * blk, u8_t * buf, u64_t blkno, u64_t blkcnt)
 {
-	struct spi_flash_pdata_t * pdat = (struct spi_flash_pdata_t *)blk->priv;
+	struct blk_spinor_pdata_t * pdat = (struct blk_spinor_pdata_t *)blk->priv;
 	u64_t addr, baddr = blkno * blk->blksz;
 	s64_t cnt, count = blkcnt * blk->blksz;
 	u32_t len;
@@ -629,36 +629,36 @@ static u64_t spi_flash_write(struct block_t * blk, u8_t * buf, u64_t blkno, u64_
 
 	addr = baddr;
 	cnt = count;
-	spi_flash_wait_for_busy(pdat);
+	blk_spinor_wait_for_busy(pdat);
 	while(cnt > 0)
 	{
 		if((pdat->info.opcode_erase_256k != 0) && ((addr & 0x3ffff) == 0) && (cnt >= 262144))
 		{
 			len = 262144;
-			spi_flash_write_enable(pdat);
-			spi_flash_sector_erase_256k(pdat, addr);
-			spi_flash_wait_for_busy(pdat);
+			blk_spinor_write_enable(pdat);
+			blk_spinor_sector_erase_256k(pdat, addr);
+			blk_spinor_wait_for_busy(pdat);
 		}
 		else if((pdat->info.opcode_erase_64k != 0) && ((addr & 0xffff) == 0) && (cnt >= 65536))
 		{
 			len = 65536;
-			spi_flash_write_enable(pdat);
-			spi_flash_sector_erase_64k(pdat, addr);
-			spi_flash_wait_for_busy(pdat);
+			blk_spinor_write_enable(pdat);
+			blk_spinor_sector_erase_64k(pdat, addr);
+			blk_spinor_wait_for_busy(pdat);
 		}
 		else if((pdat->info.opcode_erase_32k != 0) && ((addr & 0x7fff) == 0) && (cnt >= 32768))
 		{
 			len = 32768;
-			spi_flash_write_enable(pdat);
-			spi_flash_sector_erase_32k(pdat, addr);
-			spi_flash_wait_for_busy(pdat);
+			blk_spinor_write_enable(pdat);
+			blk_spinor_sector_erase_32k(pdat, addr);
+			blk_spinor_wait_for_busy(pdat);
 		}
 		else if((pdat->info.opcode_erase_4k != 0) && ((addr & 0xfff) == 0) && (cnt >= 4096))
 		{
 			len = 4096;
-			spi_flash_write_enable(pdat);
-			spi_flash_sector_erase_4k(pdat, addr);
-			spi_flash_wait_for_busy(pdat);
+			blk_spinor_write_enable(pdat);
+			blk_spinor_sector_erase_4k(pdat, addr);
+			blk_spinor_wait_for_busy(pdat);
 		}
 		else
 		{
@@ -675,12 +675,12 @@ static u64_t spi_flash_write(struct block_t * blk, u8_t * buf, u64_t blkno, u64_
 		len = (cnt < 0x7fffffff) ? cnt : 0x7fffffff;
 	else
 		len = pdat->info.write_granularity;
-	spi_flash_wait_for_busy(pdat);
+	blk_spinor_wait_for_busy(pdat);
 	while(cnt > 0)
 	{
-		spi_flash_write_enable(pdat);
-		spi_flash_write_bytes(pdat, addr, pbuf, len);
-		spi_flash_wait_for_busy(pdat);
+		blk_spinor_write_enable(pdat);
+		blk_spinor_write_bytes(pdat, addr, pbuf, len);
+		blk_spinor_wait_for_busy(pdat);
 		addr += len;
 		pbuf += len;
 		cnt -= len;
@@ -689,31 +689,31 @@ static u64_t spi_flash_write(struct block_t * blk, u8_t * buf, u64_t blkno, u64_
 	return blkcnt;
 }
 
-static void spi_flash_sync(struct block_t * blk)
+static void blk_spinor_sync(struct block_t * blk)
 {
 }
 
-static struct device_t * spi_flash_probe(struct driver_t * drv, struct dtnode_t * n)
+static struct device_t * blk_spinor_probe(struct driver_t * drv, struct dtnode_t * n)
 {
-	struct spi_flash_pdata_t * pdat;
+	struct blk_spinor_pdata_t * pdat;
 	struct block_t * blk;
 	struct device_t * dev;
 	struct dtnode_t o;
 	struct spi_device_t * spidev;
-	struct spi_flash_info_t info;
+	struct spinor_info_t info;
 	int npart, i;
 
 	spidev = spi_device_alloc(dt_read_string(n, "spi-bus", NULL), dt_read_int(n, "chip-select", 0), dt_read_int(n, "type", 0), dt_read_int(n, "mode", 0), 8, dt_read_int(n, "speed", 0));
 	if(!spidev)
 		return NULL;
 
-	if(!spi_flash_detect(spidev, &info))
+	if(!blk_spinor_detect(spidev, &info))
 	{
 		spi_device_free(spidev);
 		return NULL;
 	}
 
-	pdat = malloc(sizeof(struct spi_flash_pdata_t));
+	pdat = malloc(sizeof(struct blk_spinor_pdata_t));
 	if(!pdat)
 	{
 		spi_device_free(spidev);
@@ -729,16 +729,16 @@ static struct device_t * spi_flash_probe(struct driver_t * drv, struct dtnode_t 
 	}
 
 	pdat->dev = spidev;
-	memcpy(&pdat->info, &info, sizeof(struct spi_flash_info_t));
+	memcpy(&pdat->info, &info, sizeof(struct spinor_info_t));
 
 	blk->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	blk->blksz = pdat->info.blksz;
 	blk->blkcnt = pdat->info.capacity / pdat->info.blksz;
-	blk->read = spi_flash_read;
-	blk->write = spi_flash_write;
-	blk->sync = spi_flash_sync;
+	blk->read = blk_spinor_read;
+	blk->write = blk_spinor_write;
+	blk->sync = blk_spinor_sync;
 	blk->priv = pdat;
-	spi_flash_init(pdat);
+	blk_spinor_init(pdat);
 
 	if(!(dev = register_block(blk, drv)))
 	{
@@ -776,10 +776,10 @@ static struct device_t * spi_flash_probe(struct driver_t * drv, struct dtnode_t 
 	return dev;
 }
 
-static void spi_flash_remove(struct device_t * dev)
+static void blk_spinor_remove(struct device_t * dev)
 {
 	struct block_t * blk = (struct block_t *)dev->priv;
-	struct spi_flash_pdata_t * pdat = (struct spi_flash_pdata_t *)blk->priv;
+	struct blk_spinor_pdata_t * pdat = (struct blk_spinor_pdata_t *)blk->priv;
 
 	if(blk)
 	{
@@ -792,31 +792,31 @@ static void spi_flash_remove(struct device_t * dev)
 	}
 }
 
-static void spi_flash_suspend(struct device_t * dev)
+static void blk_spinor_suspend(struct device_t * dev)
 {
 }
 
-static void spi_flash_resume(struct device_t * dev)
+static void blk_spinor_resume(struct device_t * dev)
 {
 }
 
-static struct driver_t spi_flash = {
-	.name		= "spi-flash",
-	.probe		= spi_flash_probe,
-	.remove		= spi_flash_remove,
-	.suspend	= spi_flash_suspend,
-	.resume		= spi_flash_resume,
+static struct driver_t blk_spinor = {
+	.name		= "blk-spinor",
+	.probe		= blk_spinor_probe,
+	.remove		= blk_spinor_remove,
+	.suspend	= blk_spinor_suspend,
+	.resume		= blk_spinor_resume,
 };
 
-static __init void spi_flash_driver_init(void)
+static __init void blk_spinor_driver_init(void)
 {
-	register_driver(&spi_flash);
+	register_driver(&blk_spinor);
 }
 
-static __exit void spi_flash_driver_exit(void)
+static __exit void blk_spinor_driver_exit(void)
 {
-	unregister_driver(&spi_flash);
+	unregister_driver(&blk_spinor);
 }
 
-driver_initcall(spi_flash_driver_init);
-driver_exitcall(spi_flash_driver_exit);
+driver_initcall(blk_spinor_driver_init);
+driver_exitcall(blk_spinor_driver_exit);

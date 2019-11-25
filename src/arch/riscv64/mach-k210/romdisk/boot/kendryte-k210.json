@@ -363,11 +363,15 @@
 		"reset": 9
 	},
 
-	"spi-flash@0": {
+	"blk-spinor@0": {
 		"spi-bus": "spi-k210-xip.0",
 		"chip-select": 0,
 		"mode": 0,
 		"speed": 1000000,
+		"partition": [
+			{ "name": "xboot",   "offset": 0,       "length": 4194304 },
+			{ "name": "private", "offset": 4194304, "length": 0 }
+		],
 		"status": "disabled"
 	},
 

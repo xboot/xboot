@@ -397,7 +397,7 @@
 		"cd-gpio-config": -1
 	},
 
-	"spi-flash@0": {
+	"blk-spinor@0": {
 		"spi-bus": "spi-v3s.0",
 		"chip-select": 0,
 		"mode": 0,

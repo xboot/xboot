@@ -308,7 +308,7 @@
 		"cs-gpio-config": 4
 	},
 
-	"spi-flash@0": {
+	"blk-spinor@0": {
 		"spi-bus": "spi-f1c100s.0",
 		"chip-select": 0,
 		"mode": 0,

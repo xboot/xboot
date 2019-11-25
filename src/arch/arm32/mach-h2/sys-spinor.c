@@ -1,5 +1,5 @@
 /*
- * sys-spi-flash.c
+ * sys-spinor.c
  *
  * Copyright(c) 2007-2019 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -44,7 +44,7 @@ enum {
 	SPI_RXD	= 0x300,
 };
 
-void sys_spi_flash_init(void)
+void sys_spinor_init(void)
 {
 	virtual_addr_t addr;
 	u32_t val;
@@ -53,22 +53,22 @@ void sys_spi_flash_init(void)
 	addr = 0x01c20848 + 0x00;
 	val = read32(addr);
 	val &= ~(0xf << ((0 & 0x7) << 2));
-	val |= ((0x2 & 0x7) << ((0 & 0x7) << 2));
+	val |= ((0x3 & 0x7) << ((0 & 0x7) << 2));
 	write32(addr, val);
 
 	val = read32(addr);
 	val &= ~(0xf << ((1 & 0x7) << 2));
-	val |= ((0x2 & 0x7) << ((1 & 0x7) << 2));
+	val |= ((0x3 & 0x7) << ((1 & 0x7) << 2));
 	write32(addr, val);
 
 	val = read32(addr);
 	val &= ~(0xf << ((2 & 0x7) << 2));
-	val |= ((0x2 & 0x7) << ((2 & 0x7) << 2));
+	val |= ((0x3 & 0x7) << ((2 & 0x7) << 2));
 	write32(addr, val);
 
 	val = read32(addr);
 	val &= ~(0xf << ((3 & 0x7) << 2));
-	val |= ((0x2 & 0x7) << ((3 & 0x7) << 2));
+	val |= ((0x3 & 0x7) << ((3 & 0x7) << 2));
 	write32(addr, val);
 
 	/* Deassert spi0 reset */
@@ -77,18 +77,45 @@ void sys_spi_flash_init(void)
 	val |= (1 << 20);
 	write32(addr, val);
 
+	/* Open the spi0 gate */
+	addr = 0x01c20000 + 0xa0;
+	val = read32(addr);
+	val |= (1 << 31);
+	write32(addr, val);
+
 	/* Open the spi0 bus gate */
 	addr = 0x01c20000 + 0x60;
 	val = read32(addr);
 	val |= (1 << 20);
 	write32(addr, val);
 
-	/* Set spi clock rate control register, divided by 4 */
-	addr = 0x01c05000;
-	write32(addr + SPI_CCR, 0x00001001);
+	/* Select pll-periph0 for spi0 clk */
+	addr = 0x01c200a0;
+	val = read32(addr);
+	val &= ~(0x3 << 24);
+	val |= 0x1 << 24;
+	write32(addr, val);
+
+	/* Set clock pre divide ratio, divided by 1 */
+	addr = 0x01c200a0;
+	val = read32(addr);
+	val &= ~(0x3 << 16);
+	val |= 0x0 << 16;
+	write32(addr, val);
+
+	/* Set clock divide ratio, divided by 6 */
+	addr = 0x01c200a0;
+	val = read32(addr);
+	val &= ~(0xf << 0);
+	val |= (6 - 1) << 0;
+	write32(addr, val);
+
+	/* Set spi clock rate control register, divided by 2 */
+	addr = 0x01c68000;
+	write32(addr + SPI_CCR, 0x1000);
 
 	/* Enable spi0 and do a soft reset */
-	addr = 0x01c05000;
+	addr = 0x01c68000;
 	val = read32(addr + SPI_GCR);
 	val |= (1 << 31) | (1 << 7) | (1 << 1) | (1 << 0);
 	write32(addr + SPI_GCR, val);
@@ -104,9 +131,9 @@ void sys_spi_flash_init(void)
 	write32(addr + SPI_FCR, val);
 }
 
-void sys_spi_flash_exit(void)
+void sys_spinor_exit(void)
 {
-	virtual_addr_t addr = 0x01c05000;
+	virtual_addr_t addr = 0x01c68000;
 	u32_t val;
 
 	/* Disable the spi0 controller */
@@ -117,7 +144,7 @@ void sys_spi_flash_exit(void)
 
 static void sys_spi_select(void)
 {
-	virtual_addr_t addr = 0x01c05000;
+	virtual_addr_t addr = 0x01c68000;
 	u32_t val;
 
 	val = read32(addr + SPI_TCR);
@@ -128,7 +155,7 @@ static void sys_spi_select(void)
 
 static void sys_spi_deselect(void)
 {
-	virtual_addr_t addr = 0x01c05000;
+	virtual_addr_t addr = 0x01c68000;
 	u32_t val;
 
 	val = read32(addr + SPI_TCR);
@@ -139,7 +166,7 @@ static void sys_spi_deselect(void)
 
 static void sys_spi_write_txbuf(u8_t * buf, int len)
 {
-	virtual_addr_t addr = 0x01c05000;
+	virtual_addr_t addr = 0x01c68000;
 	int i;
 
 	if(!buf)
@@ -153,7 +180,7 @@ static void sys_spi_write_txbuf(u8_t * buf, int len)
 
 static int sys_spi_transfer(void * txbuf, void * rxbuf, int len)
 {
-	virtual_addr_t addr = 0x01c05000;
+	virtual_addr_t addr = 0x01c68000;
 	int count = len;
 	u8_t * tx = txbuf;
 	u8_t * rx = rxbuf;
@@ -191,7 +218,7 @@ static int sys_spi_write_then_read(void * txbuf, int txlen, void * rxbuf, int rx
 	return 0;
 }
 
-void sys_spi_flash_read(int addr, void * buf, int count)
+void sys_spinor_read(int addr, void * buf, int count)
 {
 	u8_t tx[4];
 

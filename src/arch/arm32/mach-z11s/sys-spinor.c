@@ -1,5 +1,5 @@
 /*
- * sys-spi-flash.c
+ * sys-spinor.c
  *
  * Copyright(c) 2007-2019 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -44,7 +44,7 @@ enum {
 	SPI_RXD	= 0x300,
 };
 
-void sys_spi_flash_init(void)
+void sys_spinor_init(void)
 {
 	virtual_addr_t addr;
 	u32_t val;
@@ -131,7 +131,7 @@ void sys_spi_flash_init(void)
 	write32(addr + SPI_FCR, val);
 }
 
-void sys_spi_flash_exit(void)
+void sys_spinor_exit(void)
 {
 	virtual_addr_t addr = 0x01c68000;
 	u32_t val;
@@ -218,7 +218,7 @@ static int sys_spi_write_then_read(void * txbuf, int txlen, void * rxbuf, int rx
 	return 0;
 }
 
-void sys_spi_flash_read(int addr, void * buf, int count)
+void sys_spinor_read(int addr, void * buf, int count)
 {
 	u8_t tx[4];
 

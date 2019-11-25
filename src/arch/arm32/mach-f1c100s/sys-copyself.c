@@ -35,9 +35,9 @@ extern void return_to_fel(void);
 extern void sys_mmu_init(void);
 extern void sys_uart_putc(char c);
 extern void sys_decompress(char * src, int slen, char * dst, int dlen);
-extern void sys_spi_flash_init(void);
-extern void sys_spi_flash_exit(void);
-extern void sys_spi_flash_read(int addr, void * buf, int count);
+extern void sys_spinor_init(void);
+extern void sys_spinor_exit(void);
+extern void sys_spinor_read(int addr, void * buf, int count);
 
 enum {
 	ZFLAG_LZ4_COMPRESS			= (1 << 0),
@@ -110,16 +110,16 @@ void sys_copyself(void)
 		size = &__image_end - &__image_start;
 		sys_mmu_init();
 
-		sys_spi_flash_init();
-		sys_spi_flash_read(16384, &z, sizeof(struct zdesc_t));
-		sys_spi_flash_exit();
+		sys_spinor_init();
+		sys_spinor_read(16384, &z, sizeof(struct zdesc_t));
+		sys_spinor_exit();
 		if((z.magic[0] == 'Z') && (z.magic[1] == 'B') && (z.magic[2] == 'L') && (z.magic[3] == '!'))
 		{
 			csize = (z.csize[0] << 24) | (z.csize[1] << 16) | (z.csize[2] << 8) | (z.csize[3] << 0);
 			dsize = (z.dsize[0] << 24) | (z.dsize[1] << 16) | (z.dsize[2] << 8) | (z.dsize[3] << 0);
-			sys_spi_flash_init();
-			sys_spi_flash_read(16384 + sizeof(struct zdesc_t), tmp, csize);
-			sys_spi_flash_exit();
+			sys_spinor_init();
+			sys_spinor_read(16384 + sizeof(struct zdesc_t), tmp, csize);
+			sys_spinor_exit();
 			if(z.flag & ZFLAG_LZ4_COMPRESS)
 				sys_decompress(tmp, csize, mem, dsize);
 			else
@@ -127,9 +127,9 @@ void sys_copyself(void)
 		}
 		else
 		{
-			sys_spi_flash_init();
-			sys_spi_flash_read(0, mem, size);
-			sys_spi_flash_exit();
+			sys_spinor_init();
+			sys_spinor_read(0, mem, size);
+			sys_spinor_exit();
 		}
 	}
 	else if(d == BOOT_DEVICE_MMC)

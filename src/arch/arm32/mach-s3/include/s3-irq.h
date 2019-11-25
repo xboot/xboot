@@ -69,6 +69,10 @@ extern "C" {
 #define S3_IRQ_GPIOB7			(167)
 #define S3_IRQ_GPIOB8			(168)
 #define S3_IRQ_GPIOB9			(169)
+#define S3_IRQ_GPIOB10			(170)
+#define S3_IRQ_GPIOB11			(171)
+#define S3_IRQ_GPIOB12			(172)
+#define S3_IRQ_GPIOB13			(173)
 
 #define S3_IRQ_GPIOG0			(192)
 #define S3_IRQ_GPIOG1			(193)
@@ -76,6 +80,14 @@ extern "C" {
 #define S3_IRQ_GPIOG3			(195)
 #define S3_IRQ_GPIOG4			(196)
 #define S3_IRQ_GPIOG5			(197)
+#define S3_IRQ_GPIOG6			(197)
+#define S3_IRQ_GPIOG7			(198)
+#define S3_IRQ_GPIOG8			(199)
+#define S3_IRQ_GPIOG9			(200)
+#define S3_IRQ_GPIOG10			(201)
+#define S3_IRQ_GPIOG11			(202)
+#define S3_IRQ_GPIOG12			(203)
+#define S3_IRQ_GPIOG13			(204)
 
 #ifdef __cplusplus
 }

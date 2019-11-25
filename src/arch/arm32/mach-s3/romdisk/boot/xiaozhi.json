@@ -235,25 +235,31 @@
 
 	"irq-s3-gpio@0x01c20a20": {
 		"interrupt-base": 160,
-		"interrupt-count": 10,
+		"interrupt-count": 14,
 		"interrupt-parent": 47
 	},
 
 	"irq-s3-gpio@0x01c20a40": {
 		"interrupt-base": 192,
-		"interrupt-count": 6,
+		"interrupt-count": 14,
 		"interrupt-parent": 49
 	},
 
 	"gpio-s3@0x01c20824": {
 		"gpio-base": 32,
-		"gpio-count": 10,
+		"gpio-count": 14,
 		"interrupt-offset": 160
 	},
 
 	"gpio-s3@0x01c20848": {
 		"gpio-base": 64,
-		"gpio-count": 4,
+		"gpio-count": 11,
+		"interrupt-offset": -1
+	},
+
+	"gpio-s3@0x01c2086c": {
+		"gpio-base": 96,
+		"gpio-count": 22,
 		"interrupt-offset": -1
 	},
 
@@ -271,7 +277,7 @@
 
 	"gpio-s3@0x01c208d8": {
 		"gpio-base": 192,
-		"gpio-count": 6,
+		"gpio-count": 14,
 		"interrupt-offset": 192
 	},
 

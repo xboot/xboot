@@ -26,12 +26,12 @@ static void wboxtest_run(struct wboxtest_t * wbt, int count)
 
 	if(wbt && (count > 0))
 	{
-		printf("\033[43;37m[%s]-[%s]\033[0m\r\n", wbt->group, wbt->name);
+		wboxtest_print("\033[43;37m[%s]-[%s]\033[0m\r\n", wbt->group, wbt->name);
 		data = wbt->setup(wbt);
 		for(i = 0; i < count; i++)
 		{
 			if(count > 1)
-				printf("\033[44;37m[%d]\033[0m\r\n", i);
+				wboxtest_print("\033[44;37m[%d]\033[0m\r\n", i);
 			wbt->run(wbt, data);
 		}
 		wbt->clean(wbt, data);
@@ -179,7 +179,7 @@ void wboxtest_list(void)
 	slist_for_each_entry(e, sl)
 	{
 		pos = (struct wboxtest_t *)e->priv;
-		printf("[%s]-[%s]\r\n", pos->group, pos->name);
+		wboxtest_print("[%s]-[%s]\r\n", pos->group, pos->name);
 	}
 	slist_free(sl);
 }
@@ -191,7 +191,28 @@ int wboxtest_random_int(int a, int b)
 	return (int)(r + a);
 }
 
-unsigned char * wboxtest_random_buffer(unsigned char * buf, int len)
+char * wboxtest_random_string(char * buf, int len)
+{
+	char c;
+	int i;
+
+	if(buf && len > 0)
+	{
+		for(i = 0; i < len;)
+		{
+			c = rand() & 0x7f;
+			if(isupper(c) || islower(c))
+			{
+				buf[i] = c;
+				i++;
+			}
+		}
+		buf[len] = '\0';
+	}
+	return buf;
+}
+
+char * wboxtest_random_buffer(char * buf, int len)
 {
 	int i;
 

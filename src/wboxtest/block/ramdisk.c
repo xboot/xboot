@@ -60,7 +60,7 @@ static void ramdisk_run(struct wboxtest_t * wbt, void * data)
 {
 	struct wbt_ramdisk_pdata_t * pdat = (struct wbt_ramdisk_pdata_t *)data;
 	u64_t blkno, blkcnt;
-	unsigned char * buf1, * buf2;
+	char * buf1, * buf2;
 	int len;
 
 	if(pdat)
@@ -79,15 +79,15 @@ static void ramdisk_run(struct wboxtest_t * wbt, void * data)
 		}
 
 		wboxtest_random_buffer(buf1, len);
-		pdat->blk->write(pdat->blk, buf1, blkno, blkcnt);
+		pdat->blk->write(pdat->blk, (u8_t *)buf1, blkno, blkcnt);
 		pdat->blk->sync(pdat->blk);
-		pdat->blk->read(pdat->blk, buf2, blkno, blkcnt);
+		pdat->blk->read(pdat->blk, (u8_t *)buf2, blkno, blkcnt);
 		assert_memory_equal(buf1, buf2, len);
 
 		wboxtest_random_buffer(buf1, len);
-		block_write(pdat->blk, buf1, block_size(pdat->blk) * blkno, block_size(pdat->blk) * blkcnt);
+		block_write(pdat->blk, (u8_t *)buf1, block_size(pdat->blk) * blkno, block_size(pdat->blk) * blkcnt);
 		block_sync(pdat->blk);
-		block_read(pdat->blk, buf2, block_size(pdat->blk) * blkno, block_size(pdat->blk) * blkcnt);
+		block_read(pdat->blk, (u8_t *)buf2, block_size(pdat->blk) * blkno, block_size(pdat->blk) * blkcnt);
 		assert_memory_equal(buf1, buf2, len);
 
 		free(buf1);

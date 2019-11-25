@@ -46,12 +46,6 @@ static ssize_t wboxtest_write_test(struct kobj_t * kobj, void * buf, size_t size
 	return size;
 }
 
-void __wboxtest_print(int cond, char * expr, const char * file, int line)
-{
-	int len = printf(" [%s:%d] { %s }", file, line, expr);
-	printf("%*s\r\n", 80 + 12 - 6 - len, cond ? "\033[42;37m[OKAY]\033[0m" : "\033[41;37m[FAIL]\033[0m");
-}
-
 struct wboxtest_t * search_wboxtest(const char * group, const char * name)
 {
 	struct wboxtest_t * pos;
@@ -188,6 +182,42 @@ void wboxtest_list(void)
 		printf("[%s]-[%s]\r\n", pos->group, pos->name);
 	}
 	slist_free(sl);
+}
+
+int wboxtest_random_int(int a, int b)
+{
+	double r = (double)rand() * (1.0 / ((double)RAND_MAX + 1.0));
+	r *= (double)(b - a) + 1.0;
+	return (int)(r + a);
+}
+
+unsigned char * wboxtest_random_buffer(unsigned char * buf, int len)
+{
+	int i;
+
+	if(buf && len > 0)
+	{
+		for(i = 0; i < len; i++)
+			buf[i] = rand() & 0xff;
+	}
+	return buf;
+}
+
+int wboxtest_print(const char * fmt, ...)
+{
+	char buf[SZ_4K];
+	va_list ap;
+
+	va_start(ap, fmt);
+	vsnprintf(buf, SZ_4K, fmt, ap);
+	va_end(ap);
+	return printf(buf);
+}
+
+void wboxtest_assert(int cond, char * expr, const char * file, int line)
+{
+	int len = wboxtest_print(" [%s:%d] { %s }", file, line, expr);
+	wboxtest_print("%*s\r\n", 80 + 12 - 6 - len, cond ? "\033[42;37m[OKAY]\033[0m" : "\033[41;37m[FAIL]\033[0m");
 }
 
 static __init void wboxtest_pure_init(void)

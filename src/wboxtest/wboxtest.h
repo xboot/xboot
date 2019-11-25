@@ -19,21 +19,6 @@ struct wboxtest_t
 	void (*run)(struct wboxtest_t * wbt, void * data);
 };
 
-void __wboxtest_print(int cond, char * expr, const char * file, int line);
-
-#define assert_null(x)						do { __wboxtest_print(((x) == NULL), #x, __FILE__, __LINE__); } while(0);
-#define assert_not_null(x)					do { __wboxtest_print(((x) != NULL), #x, __FILE__, __LINE__); } while(0);
-#define assert_true(x)						do { __wboxtest_print((x), #x, __FILE__, __LINE__); } while(0);
-#define assert_false(x)						do { __wboxtest_print((!(x)), #x, __FILE__, __LINE__); } while(0);
-#define assert_equal(a, b)					do { __wboxtest_print(((a) == (b)), #a" == "#b, __FILE__, __LINE__); } while(0);
-#define assert_not_equal(a, b)				do { __wboxtest_print(((a) != (b)), #a" != "#b, __FILE__, __LINE__); } while(0);
-#define assert_string_equal(a, b)			do { __wboxtest_print((strcmp((a), (b)) == 0), "S["#a" == "#b"]", __FILE__, __LINE__); } while(0);
-#define assert_string_not_equal(a, b)		do { __wboxtest_print((strcmp((a), (b)) != 0), "S["#a" != "#b"]", __FILE__, __LINE__); } while(0);
-#define assert_memory_equal(a, b, l)		do { __wboxtest_print((memcmp((a), (b), (l)) == 0), "M["#a" == "#b"]", __FILE__, __LINE__); } while(0);
-#define assert_memory_not_equal(a, b, l)	do { __wboxtest_print((memcmp((a), (b), (l)) != 0), "M["#a" != "#b"]", __FILE__, __LINE__); } while(0);
-#define assert_inrange(v, min, max)			do { __wboxtest_print((((v) >= (min)) && ((v) <= (max))), #v"><["#min", "#max"]", __FILE__, __LINE__); } while(0);
-#define assert_not_inrange(v, min, max)		do { __wboxtest_print((((v) < (min)) && ((v) > (max))), #v"<>["#min", "#max"]", __FILE__, __LINE__); } while(0);
-
 struct wboxtest_t * search_wboxtest(const char * group, const char * name);
 bool_t register_wboxtest(struct wboxtest_t * wbt);
 bool_t unregister_wboxtest(struct wboxtest_t * wbt);
@@ -41,6 +26,24 @@ void wboxtest_run_group_name(const char * group, const char * name, int count);
 void wboxtest_run_group(const char * group, int count);
 void wboxtest_run_all(int count);
 void wboxtest_list(void);
+
+#define assert_null(x)						do { wboxtest_assert(((x) == NULL), #x, __FILE__, __LINE__); } while(0);
+#define assert_not_null(x)					do { wboxtest_assert(((x) != NULL), #x, __FILE__, __LINE__); } while(0);
+#define assert_true(x)						do { wboxtest_assert((x), #x, __FILE__, __LINE__); } while(0);
+#define assert_false(x)						do { wboxtest_assert((!(x)), #x, __FILE__, __LINE__); } while(0);
+#define assert_equal(a, b)					do { wboxtest_assert(((a) == (b)), #a" == "#b, __FILE__, __LINE__); } while(0);
+#define assert_not_equal(a, b)				do { wboxtest_assert(((a) != (b)), #a" != "#b, __FILE__, __LINE__); } while(0);
+#define assert_string_equal(a, b)			do { wboxtest_assert((strcmp((a), (b)) == 0), "S["#a" == "#b"]", __FILE__, __LINE__); } while(0);
+#define assert_string_not_equal(a, b)		do { wboxtest_assert((strcmp((a), (b)) != 0), "S["#a" != "#b"]", __FILE__, __LINE__); } while(0);
+#define assert_memory_equal(a, b, l)		do { wboxtest_assert((memcmp((a), (b), (l)) == 0), "M["#a" == "#b"]", __FILE__, __LINE__); } while(0);
+#define assert_memory_not_equal(a, b, l)	do { wboxtest_assert((memcmp((a), (b), (l)) != 0), "M["#a" != "#b"]", __FILE__, __LINE__); } while(0);
+#define assert_inrange(v, min, max)			do { wboxtest_assert((((v) >= (min)) && ((v) <= (max))), #v"><["#min", "#max"]", __FILE__, __LINE__); } while(0);
+#define assert_not_inrange(v, min, max)		do { wboxtest_assert((((v) < (min)) && ((v) > (max))), #v"<>["#min", "#max"]", __FILE__, __LINE__); } while(0);
+
+int wboxtest_random_int(int a, int b);
+unsigned char * wboxtest_random_buffer(unsigned char * buf, int len);
+int wboxtest_print(const char * fmt, ...);
+void wboxtest_assert(int cond, char * expr, const char * file, int line);
 
 #ifdef __cplusplus
 }

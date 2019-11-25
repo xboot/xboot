@@ -236,6 +236,7 @@ SRCDIRS		+=	external/chipmunk-7.0.3/src
 ifneq ($(strip $(WBOXTEST)),)
 INCDIRS		+=	wboxtest
 SRCDIRS		+=	wboxtest \
+				wboxtest/block \
 				wboxtest/stdio
 endif
 

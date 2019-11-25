@@ -1,5 +1,5 @@
 /*
- * driver/i2c-at24c02.c
+ * driver/nvmem/nvmem-at24c02.c
  *
  * Copyright(c) 2007-2019 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -30,7 +30,7 @@
 #include <i2c/i2c.h>
 #include <nvmem/nvmem.h>
 
-struct i2c_at24c02_pdata_t {
+struct nvmem_at24c02_pdata_t {
 	struct i2c_device_t * dev;
 	int capacity;
 };
@@ -71,15 +71,15 @@ static bool_t at24c02_write_byte(struct i2c_device_t * dev, uint8_t addr, uint8_
 	return TRUE;
 }
 
-static int i2c_at24c02_capacity(struct nvmem_t * m)
+static int nvmem_at24c02_capacity(struct nvmem_t * m)
 {
-	struct i2c_at24c02_pdata_t * pdat = (struct i2c_at24c02_pdata_t *)m->priv;
+	struct nvmem_at24c02_pdata_t * pdat = (struct nvmem_at24c02_pdata_t *)m->priv;
 	return pdat->capacity;
 }
 
-static int i2c_at24c02_read(struct nvmem_t * m, void * buf, int offset, int count)
+static int nvmem_at24c02_read(struct nvmem_t * m, void * buf, int offset, int count)
 {
-	struct i2c_at24c02_pdata_t * pdat = (struct i2c_at24c02_pdata_t *)m->priv;
+	struct nvmem_at24c02_pdata_t * pdat = (struct nvmem_at24c02_pdata_t *)m->priv;
 	uint8_t * p = buf;
 	int i;
 
@@ -91,9 +91,9 @@ static int i2c_at24c02_read(struct nvmem_t * m, void * buf, int offset, int coun
 	return i;
 }
 
-static int i2c_at24c02_write(struct nvmem_t * m, void * buf, int offset, int count)
+static int nvmem_at24c02_write(struct nvmem_t * m, void * buf, int offset, int count)
 {
-	struct i2c_at24c02_pdata_t * pdat = (struct i2c_at24c02_pdata_t *)m->priv;
+	struct nvmem_at24c02_pdata_t * pdat = (struct nvmem_at24c02_pdata_t *)m->priv;
 	uint8_t * p = buf;
 	int i;
 
@@ -105,9 +105,9 @@ static int i2c_at24c02_write(struct nvmem_t * m, void * buf, int offset, int cou
 	return i;
 }
 
-static struct device_t * i2c_at24c02_probe(struct driver_t * drv, struct dtnode_t * n)
+static struct device_t * nvmem_at24c02_probe(struct driver_t * drv, struct dtnode_t * n)
 {
-	struct i2c_at24c02_pdata_t * pdat;
+	struct nvmem_at24c02_pdata_t * pdat;
 	struct nvmem_t * m;
 	struct device_t * dev;
 	struct i2c_device_t * i2cdev;
@@ -123,7 +123,7 @@ static struct device_t * i2c_at24c02_probe(struct driver_t * drv, struct dtnode_
 		return NULL;
 	}
 
-	pdat = malloc(sizeof(struct i2c_at24c02_pdata_t));
+	pdat = malloc(sizeof(struct nvmem_at24c02_pdata_t));
 	if(!pdat)
 	{
 		i2c_device_free(i2cdev);
@@ -142,9 +142,9 @@ static struct device_t * i2c_at24c02_probe(struct driver_t * drv, struct dtnode_
 	pdat->capacity = 256;
 
 	m->name = alloc_device_name(dt_read_name(n), -1);
-	m->capacity = i2c_at24c02_capacity;
-	m->read = i2c_at24c02_read;
-	m->write = i2c_at24c02_write;
+	m->capacity = nvmem_at24c02_capacity;
+	m->read = nvmem_at24c02_read;
+	m->write = nvmem_at24c02_write;
 	m->priv = pdat;
 
 	if(!(dev = register_nvmem(m, drv)))
@@ -158,10 +158,10 @@ static struct device_t * i2c_at24c02_probe(struct driver_t * drv, struct dtnode_
 	return dev;
 }
 
-static void i2c_at24c02_remove(struct device_t * dev)
+static void nvmem_at24c02_remove(struct device_t * dev)
 {
 	struct nvmem_t * m = (struct nvmem_t *)dev->priv;
-	struct i2c_at24c02_pdata_t * pdat = (struct i2c_at24c02_pdata_t *)m->priv;
+	struct nvmem_at24c02_pdata_t * pdat = (struct nvmem_at24c02_pdata_t *)m->priv;
 
 	if(m)
 	{
@@ -173,31 +173,31 @@ static void i2c_at24c02_remove(struct device_t * dev)
 	}
 }
 
-static void i2c_at24c02_suspend(struct device_t * dev)
+static void nvmem_at24c02_suspend(struct device_t * dev)
 {
 }
 
-static void i2c_at24c02_resume(struct device_t * dev)
+static void nvmem_at24c02_resume(struct device_t * dev)
 {
 }
 
-static struct driver_t i2c_at24c02 = {
-	.name		= "i2c-at24c02",
-	.probe		= i2c_at24c02_probe,
-	.remove		= i2c_at24c02_remove,
-	.suspend	= i2c_at24c02_suspend,
-	.resume		= i2c_at24c02_resume,
+static struct driver_t nvmem_at24c02 = {
+	.name		= "nvmem-at24c02",
+	.probe		= nvmem_at24c02_probe,
+	.remove		= nvmem_at24c02_remove,
+	.suspend	= nvmem_at24c02_suspend,
+	.resume		= nvmem_at24c02_resume,
 };
 
-static __init void i2c_at24c02_driver_init(void)
+static __init void nvmem_at24c02_driver_init(void)
 {
-	register_driver(&i2c_at24c02);
+	register_driver(&nvmem_at24c02);
 }
 
-static __exit void i2c_at24c02_driver_exit(void)
+static __exit void nvmem_at24c02_driver_exit(void)
 {
-	unregister_driver(&i2c_at24c02);
+	unregister_driver(&nvmem_at24c02);
 }
 
-driver_initcall(i2c_at24c02_driver_init);
-driver_exitcall(i2c_at24c02_driver_exit);
+driver_initcall(nvmem_at24c02_driver_init);
+driver_exitcall(nvmem_at24c02_driver_exit);

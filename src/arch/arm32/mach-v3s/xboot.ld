@@ -28,7 +28,7 @@ SECTIONS
 		.obj/arch/arm32/mach-v3s/sys-uart.o (.text*)
 		.obj/arch/arm32/mach-v3s/sys-clock.o (.text*)
 		.obj/arch/arm32/mach-v3s/sys-dram.o (.text*)
-		.obj/arch/arm32/mach-v3s/sys-spi-flash.o (.text*)
+		.obj/arch/arm32/mach-v3s/sys-spinor.o (.text*)
 		.obj/arch/arm32/mach-v3s/sys-copyself.o (.text*)
 		PROVIDE(__spl_end = .);
 		*(.text*)

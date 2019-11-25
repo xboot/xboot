@@ -312,10 +312,10 @@ clean : xclean
 # Include the dependency files, should be place the last of makefile
 #
 sinclude $(shell $(MKDIR) $(X_OBJDIRS) $(X_OUT)						\
+			&& $(RM) .obj/init/version.o							\
 			&& $(RM) .obj/romdisk									\
 			&& $(RM) .obj/romdisk.cpio								\
-			&& $(RM) .obj/init/version.o							\
-			&& $(RM) .obj/driver/block/romdisk-data.o				\
+			&& $(RM) .obj/driver/block/romdisk.o					\
 			&& $(CP) romdisk .obj									\
 			&& $(CP) arch/$(ARCH)/$(MACH)/romdisk .obj				\
 			&& $(CD) .obj/romdisk									\

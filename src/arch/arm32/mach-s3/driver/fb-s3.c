@@ -253,8 +253,7 @@ static inline void fb_s3_cfg_gpios(int base, int n, int cfg, enum gpio_pull_t pu
 
 static inline void fb_s3_init(struct fb_s3_pdata_t * pdat)
 {
-	fb_s3_cfg_gpios(S3_GPIOE0, 20, 0x3, GPIO_PULL_NONE, GPIO_DRV_STRONG);
-	fb_s3_cfg_gpios(S3_GPIOE23, 2, 0x3, GPIO_PULL_NONE, GPIO_DRV_STRONG);
+	fb_s3_cfg_gpios(S3_GPIOD0, 22, 0x2, GPIO_PULL_NONE, GPIO_DRV_STRONG);
 
 	s3_tcon_disable(pdat);
 	s3_de_set_mode(pdat);

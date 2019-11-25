@@ -56,8 +56,8 @@ static void subsys_init_romdisk(void)
 
 	length = sprintf(json,
 		"{\"blk-romdisk@0\":{\"address\":%lld,\"size\":%lld}}",
-		(virtual_addr_t)(&__romdisk_start),
-		(virtual_size_t)(&__romdisk_end - &__romdisk_start));
+		(unsigned long long)((virtual_addr_t)(&__romdisk_start)),
+		(unsigned long long)((virtual_size_t)(&__romdisk_end - &__romdisk_start)));
 	probe_device(json, length, NULL);
 }
 

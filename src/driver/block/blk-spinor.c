@@ -752,7 +752,7 @@ static struct device_t * blk_spinor_probe(struct driver_t * drv, struct dtnode_t
 	{
 		char buffer[64];
 		char * name;
-		u64_t offset, length;
+		u64_t offset, length, maxlen;
 
 		for(i = 0; i < npart; i++)
 		{
@@ -760,15 +760,16 @@ static struct device_t * blk_spinor_probe(struct driver_t * drv, struct dtnode_t
 			name = dt_read_string(&o, "name", NULL);
 			if(!name)
 			{
-				snprintf(buffer, sizeof(buffer), "unkown%d", i);
+				snprintf(buffer, sizeof(buffer), "p%d", i);
 				name = buffer;
 			}
 			offset = dt_read_long(&o, "offset", 0);
 			if(offset < block_capacity(blk))
 			{
 				length = dt_read_long(&o, "length", 0);
-				if(length == 0)
-					length = block_capacity(blk) - offset;
+				maxlen = block_capacity(blk) - offset;
+				if((length <= 0) || (length > maxlen))
+					length = maxlen;
 				register_sub_block(blk, offset, length, name, drv);
 			}
 		}

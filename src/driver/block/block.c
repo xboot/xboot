@@ -90,6 +90,9 @@ struct device_t * register_block(struct block_t * blk, struct driver_t * drv)
 	if(!blk || !blk->name)
 		return NULL;
 
+	if(!blk->read || !blk->write || !blk->sync)
+		return NULL;
+
 	dev = malloc(sizeof(struct device_t));
 	if(!dev)
 		return NULL;

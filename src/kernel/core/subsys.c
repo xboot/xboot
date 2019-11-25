@@ -55,15 +55,15 @@ static void subsys_init_romdisk(void)
 	int length;
 
 	length = sprintf(json,
-		"{\"romdisk@0\":{\"address\":%lld,\"size\":%lld}}",
-		(unsigned long long)(&__romdisk_start),
-		(unsigned long long)(&__romdisk_end - &__romdisk_start));
+		"{\"blk-romdisk@0\":{\"address\":%lld,\"size\":%lld}}",
+		(virtual_addr_t)(&__romdisk_start),
+		(virtual_size_t)(&__romdisk_end - &__romdisk_start));
 	probe_device(json, length, NULL);
 }
 
 static void subsys_init_rootfs(void)
 {
-	vfs_mount("romdisk.0", "/", "cpio", MOUNT_RDONLY);
+	vfs_mount("blk-romdisk.0", "/", "cpio", MOUNT_RDONLY);
 	vfs_mount(NULL, "/sys", "sys", MOUNT_RDONLY);
 	vfs_mount(NULL, "/tmp", "ram", MOUNT_RW);
 	vfs_mount(NULL, "/storage", "ram", MOUNT_RW);

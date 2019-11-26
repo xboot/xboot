@@ -495,6 +495,31 @@ void surface_clear(struct surface_t * s, struct color_t * c, int x, int y, int w
 	}
 }
 
+void surface_set_pixel(struct surface_t * s, int x, int y, struct color_t * c)
+{
+	if(c && s && (x < s->width) && (y < s->height))
+	{
+		uint32_t * p = (uint32_t *)s->pixels + y * (s->stride >> 2) + x;
+		*p = color_get_premult(c);
+	}
+}
+
+void surface_get_pixel(struct surface_t * s, int x, int y, struct color_t * c)
+{
+	if(c)
+	{
+		if(s && (x < s->width) && (y < s->height))
+		{
+			uint32_t * p = (uint32_t *)s->pixels + y * (s->stride >> 2) + x;
+			color_set_premult(c, *p);
+		}
+		else
+		{
+			memset(&c, 0, sizeof(struct color_t));
+		}
+	}
+}
+
 static void png_xfs_read_data(png_structp png, png_bytep data, size_t length)
 {
 	size_t check;

@@ -237,6 +237,7 @@ ifneq ($(strip $(WBOXTEST)),)
 INCDIRS		+=	wboxtest
 SRCDIRS		+=	wboxtest \
 				wboxtest/block \
+				wboxtest/graphic \
 				wboxtest/stdio
 endif
 

@@ -233,7 +233,7 @@ void window_free(struct window_t * w)
 	if(w->wm->wcount <= 0)
 		window_manager_free(w->wm);
 	hmap_free(w->map);
-	surface_free(w->s);
+	framebuffer_destroy_surface(w->wm->fb, w->s);
 	region_list_free(w->rl);
 	free(w);
 }

@@ -50,7 +50,7 @@ static void draw_line(struct window_t * w, void * o)
 	p1.x = wboxtest_random_int(0, surface_get_width(s));
 	p1.y = wboxtest_random_int(0, surface_get_height(s));
 	color_init(&c, rand() & 0xff, rand() & 0xff, rand() & 0xff, 255);
-	thickness = wboxtest_random_int(0, 20);
+	thickness = wboxtest_random_int(0, 50);
 
 	surface_shape_line(s, NULL, &p0, &p1, thickness, &c);
 }

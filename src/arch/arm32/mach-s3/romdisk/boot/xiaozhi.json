@@ -320,10 +320,10 @@
 	"uart-16550@0x01c28400": {
 		"clock-name": "link-uart1",
 		"reset": 145,
-		"txd-gpio": 149,
-		"txd-gpio-config": 4,
-		"rxd-gpio": 150,
-		"rxd-gpio-config": 4,
+		"txd-gpio": 198,
+		"txd-gpio-config": 2,
+		"rxd-gpio": 199,
+		"rxd-gpio-config": 2,
 		"baud-rates": 115200,
 		"data-bits": 8,
 		"parity-bits": 0,
@@ -357,10 +357,10 @@
 		"clock-name": "link-i2c1",
 		"clock-frequency": 400000,
 		"reset": 129,
-		"sda-gpio": -1,
-		"sda-gpio-config": -1,
-		"scl-gpio": -1,
-		"scl-gpio-config": -1
+		"sda-gpio": 150,
+		"sda-gpio-config": 3,
+		"scl-gpio": 149,
+		"scl-gpio-config": 3
 	},
 
 	"spi-s3@0x01c68000": {
@@ -427,41 +427,6 @@
 			{ "min-voltage": 500000, "max-voltage": 700000, "key-code": 10 },
 			{ "min-voltage": 700000, "max-voltage": 900000, "key-code": 11 }
 		]
-	},
-	
-	"ts-ns2009@0": {
-		"i2c-bus": "i2c-s3.0",
-		"slave-address": 72,
-		"median-filter-length": 5,
-		"mean-filter-length": 5,
-		"calibration": [14052, 21, -2411064, -67, 8461, -1219628, 65536],
-		"poll-interval-ms": 10
-	},
-
-	"led-gpio@0": {
-		"gpio": 194,
-		"gpio-config": 1,
-		"active-low": true,
-		"default-brightness": 0
-	},
-
-	"led-gpio@1": {
-		"gpio": 192,
-		"gpio-config": 1,
-		"active-low": true,
-		"default-brightness": 0
-	},
-
-	"led-gpio@2": {
-		"gpio": 193,
-		"gpio-config": 1,
-		"active-low": true,
-		"default-brightness": 0
-	},
-
-	"ledtrigger-heartbeat@0": {
-		"led-name": "led-gpio.0",
-		"period-ms": 1260
 	},
 
 	"led-pwm-bl@0": {

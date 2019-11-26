@@ -76,17 +76,25 @@ static void draw_color_noise(struct window_t * w, void * o)
 static void noise_run(struct wboxtest_t * wbt, void * data)
 {
 	struct wbt_noise_pdata_t * pdat = (struct wbt_noise_pdata_t *)data;
-	int frame = 1200;
+	int frame = 600;
 
 	if(pdat)
 	{
-		frame = 1200;
+		frame = 600;
 		while(frame-- > 0)
+		{
+			ktime_t timeout = ktime_add_ms(ktime_get(), 16);
 			window_present(pdat->w, &pdat->c, pdat, draw_gray_noise);
+			while(ktime_before(ktime_get(), timeout));
+		}
 
-		frame = 1200;
+		frame = 600;
 		while(frame-- > 0)
+		{
+			ktime_t timeout = ktime_add_ms(ktime_get(), 16);
 			window_present(pdat->w, &pdat->c, pdat, draw_color_noise);
+			while(ktime_before(ktime_get(), timeout));
+		}
 	}
 }
 

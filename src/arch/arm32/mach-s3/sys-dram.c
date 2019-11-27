@@ -88,7 +88,7 @@ struct s3_dram_ctl_reg_t {
 	u32_t rfshtmg;		/* 0x90 refresh timing */
 	u32_t rfshctl1;		/* 0x94 */
 	u32_t pwrtmg;		/* 0x98 */
-	u8_t  res3[0x20];	/* 0x9c */
+	u8_t res3[0x20];	/* 0x9c */
 	u32_t dqsgmr;		/* 0xbc */
 	u32_t dtcr;			/* 0xc0 */
 	u32_t dtar[4];		/* 0xc4 */
@@ -326,8 +326,7 @@ static void mctl_dq_delay(u32_t read, u32_t write)
 
 	for(i = 0; i < 4; i++)
 	{
-		val = DATX_IOCR_WRITE_DELAY((write >> (i * 4)) & 0xf) |
-		      DATX_IOCR_READ_DELAY(((read >> (i * 4)) & 0xf) * 2);
+		val = DATX_IOCR_WRITE_DELAY((write >> (i * 4)) & 0xf) | DATX_IOCR_READ_DELAY(((read >> (i * 4)) & 0xf) * 2);
 		for(j = DATX_IOCR_DQ(0); j <= DATX_IOCR_DM; j++)
 			write32((virtual_addr_t)&ctl->datx[i].iocr[j], val);
 	}
@@ -335,8 +334,7 @@ static void mctl_dq_delay(u32_t read, u32_t write)
 	clrbits_le32(&ctl->pgcr[0], 1 << 26);
 	for(i = 0; i < 4; i++)
 	{
-		val = DATX_IOCR_WRITE_DELAY((write >> (16 + i * 4)) & 0xf) |
-		      DATX_IOCR_READ_DELAY((read >> (16 + i * 4)) & 0xf);
+		val = DATX_IOCR_WRITE_DELAY((write >> (16 + i * 4)) & 0xf) | DATX_IOCR_READ_DELAY((read >> (16 + i * 4)) & 0xf);
 		write32((virtual_addr_t)&ctl->datx[i].iocr[DATX_IOCR_DQS], val);
 		write32((virtual_addr_t)&ctl->datx[i].iocr[DATX_IOCR_DQSN], val);
 	}
@@ -380,42 +378,42 @@ static void mctl_set_master_priority(void)
 static void mctl_set_timing_params(struct dram_para_t * para)
 {
 	struct s3_dram_ctl_reg_t * ctl = (struct s3_dram_ctl_reg_t *)S3_DRAM_CTL_BASE;
-	u8_t tccd = 1;
+	u8_t tccd = 2;
 	u8_t tfaw = ns_to_t(50);
-	u8_t trrd = max(ns_to_t(10), 2);
-	u8_t trcd = ns_to_t(20);
-	u8_t trc = ns_to_t(65);
-	u8_t txp = 2;
-	u8_t twtr = max(ns_to_t(8), 2);
-	u8_t trtp = max(ns_to_t(8), 2);
+	u8_t trrd = max(ns_to_t(10), 4);
+	u8_t trcd = ns_to_t(15);
+	u8_t trc = ns_to_t(53);
+	u8_t txp = max(ns_to_t(8), 3);
+	u8_t twtr = max(ns_to_t(8), 4);
+	u8_t trtp = max(ns_to_t(8), 4);
 	u8_t twr = max(ns_to_t(15), 3);
 	u8_t trp = ns_to_t(15);
-	u8_t tras = ns_to_t(45);
+	u8_t tras = ns_to_t(38);
 	u16_t trefi = ns_to_t(7800) / 32;
-	u16_t trfc = ns_to_t(328);
+	u16_t trfc = ns_to_t(350);
 	u8_t tmrw = 0;
-	u8_t tmrd = 2;
+	u8_t tmrd = 4;
 	u8_t tmod = 12;
 	u8_t tcke = 3;
 	u8_t tcksrx = 5;
 	u8_t tcksre = 5;
 	u8_t tckesr = 4;
-	u8_t trasmax = 27;
-	u8_t tcl = 3; 										/* CL 12 */
-	u8_t tcwl = 3; 										/* CWL 8 */
-	u8_t t_rdata_en = 1;
-	u8_t wr_latency = 1;
-	u32_t tdinit0 = (400 * CONFIG_DRAM_CLK) + 1;		/* 400us */
-	u32_t tdinit1 = (500 * CONFIG_DRAM_CLK) / 1000 + 1;	/* 500ns */
+	u8_t trasmax = 24;
+	u8_t tcl = 6;										/* CL 12 */
+	u8_t tcwl = 4;										/* CWL 8 */
+	u8_t t_rdata_en = 4;
+	u8_t wr_latency = 2;
+	u32_t tdinit0 = (500 * CONFIG_DRAM_CLK) + 1;		/* 500us */
+	u32_t tdinit1 = (360 * CONFIG_DRAM_CLK) / 1000 + 1;	/* 360ns */
 	u32_t tdinit2 = (200 * CONFIG_DRAM_CLK) + 1;		/* 200us */
 	u32_t tdinit3 = (1 * CONFIG_DRAM_CLK) + 1;			/* 1us */
 	u8_t twtp = tcwl + 2 + twr;							/* WL + BL / 2 + tWR */
 	u8_t twr2rd = tcwl + 2 + twtr;						/* WL + BL / 2 + tWTR */
 	u8_t trd2wr = tcl + 2 + 1 - tcwl;					/* RL + BL / 2 + 2 - WL */
 
-	write32((virtual_addr_t)&ctl->mr[0], 0x263);		/* CL=11, WR=12 */
-	write32((virtual_addr_t)&ctl->mr[1], 0x4);
-	write32((virtual_addr_t)&ctl->mr[2], 0x0);			/* CWL=8 */
+	write32((virtual_addr_t)&ctl->mr[0], 0x1c70);		/* CL=11, WR=12 */
+	write32((virtual_addr_t)&ctl->mr[1], 0x40);
+	write32((virtual_addr_t)&ctl->mr[2], 0x18);			/* CWL=8 */
 	write32((virtual_addr_t)&ctl->mr[3], 0x0);
 
 	/* Set DRAM timing */
@@ -448,8 +446,7 @@ static void mctl_zq_calibration(struct dram_para_t * para)
 	u8_t zq;
 	int i;
 
-	if((read32(0x01c20000 + 0x24) & 0xff) == 0 &&
-	    (read32(0x01c20000 + 0xf0) & 0x1) == 0)
+	if(((read32(0x01c00000 + 0x24) & 0xff) == 0) && ((read32(0x01c00000 + 0xf0) & 0x1) == 0))
 	{
 		clrsetbits_le32(&ctl->zqcr, 0xffff, CONFIG_DRAM_ZQ & 0xffff);
 
@@ -471,7 +468,7 @@ static void mctl_zq_calibration(struct dram_para_t * para)
 	{
 		write32((virtual_addr_t)&ctl->zqdr[2], 0x0a0a0a0a);
 
-		for(i = 0; i < 4; i++)
+		for(i = 0; i < 6; i++)
 		{
 			zq = (CONFIG_DRAM_ZQ >> (i * 4)) & 0xf;
 			write32((virtual_addr_t)&ctl->zqcr, (zq << 20) | (zq << 16) | (zq << 12) | (zq << 8) | (zq << 4) | (zq << 0));
@@ -491,6 +488,7 @@ static void mctl_zq_calibration(struct dram_para_t * para)
 
 		write32((virtual_addr_t)&ctl->zqdr[0], (zq_val[1] << 16) | zq_val[0]);
 		write32((virtual_addr_t)&ctl->zqdr[1], (zq_val[3] << 16) | zq_val[2]);
+		write32((virtual_addr_t)&ctl->zqdr[2], (zq_val[5] << 16) | zq_val[4]);
 	}
 }
 
@@ -498,11 +496,9 @@ static void mctl_set_cr(struct dram_para_t * para)
 {
 	struct s3_dram_com_reg_t * com = (struct s3_dram_com_reg_t *)S3_DRAM_COM_BASE;
 
-	write32((virtual_addr_t)&com->cr, MCTL_CR_BL8 |
-		MCTL_CR_2T |
-		(para->bank_bits == 3 ? MCTL_CR_EIGHT_BANKS : MCTL_CR_FOUR_BANKS) |
-		MCTL_CR_DDR2 |
-		MCTL_CR_32BIT |
+	write32((virtual_addr_t)&com->cr, MCTL_CR_BL8 | MCTL_CR_2T |
+		MCTL_CR_DDR3 | MCTL_CR_EIGHT_BANKS |
+		MCTL_CR_BUS_WIDTH(para->bus_width) |
 		MCTL_CR_INTERLEAVED |
 		(para->dual_rank ? MCTL_CR_DUAL_RANK : MCTL_CR_SINGLE_RANK) |
 		MCTL_CR_PAGE_SIZE(para->page_size) |
@@ -559,13 +555,13 @@ static void mctl_sys_init(struct dram_para_t * para)
 	val |= (0x1 << 14);
 	write32(S3_CCU_BASE + CCU_BUS_CLK_GATE0, val);
 
-	val = read32(S3_CCU_BASE + CCU_MBUS_CLK);
-	val |= (0x1 << 31);
-	write32(S3_CCU_BASE + CCU_MBUS_CLK, val);
-
 	val = read32(S3_CCU_BASE + CCU_MBUS_RST);
 	val |= (0x1 << 31);
 	write32(S3_CCU_BASE + CCU_MBUS_RST, val);
+
+	val = read32(S3_CCU_BASE + CCU_MBUS_CLK);
+	val |= (0x1 << 31);
+	write32(S3_CCU_BASE + CCU_MBUS_CLK, val);
 
 	val = read32(S3_CCU_BASE + CCU_DRAM_CFG);
 	val |= (0x1 << 31);
@@ -616,19 +612,17 @@ static int mctl_channel_init(struct dram_para_t * para)
 		sdelay(50);
 	}
 	mctl_zq_calibration(para);
-	mctl_phy_init(PIR_PLLINIT | PIR_DCAL | PIR_PHYRST | PIR_DRAMINIT | PIR_QSGATE);
+	mctl_phy_init(PIR_PLLINIT | PIR_DCAL | PIR_PHYRST | PIR_DRAMRST | PIR_DRAMINIT | PIR_QSGATE);
 
 	if(read32((virtual_addr_t)&ctl->pgsr[0]) & (0xfe << 20))
 	{
-		if(((read32((virtual_addr_t)&ctl->datx[0].gsr[0]) >> 24) & 0x2) ||
-		    ((read32((virtual_addr_t)&ctl->datx[1].gsr[0]) >> 24) & 0x2))
+		if(((read32((virtual_addr_t)&ctl->datx[0].gsr[0]) >> 24) & 0x2) || ((read32((virtual_addr_t)&ctl->datx[1].gsr[0]) >> 24) & 0x2))
 		{
 			clrsetbits_le32(&ctl->dtcr, 0xf << 24, 0x1 << 24);
 			para->dual_rank = 0;
 		}
 
-		if(((read32((virtual_addr_t)&ctl->datx[2].gsr[0]) >> 24) & 0x1) ||
-		    ((read32((virtual_addr_t)&ctl->datx[3].gsr[0]) >> 24) & 0x1))
+		if(((read32((virtual_addr_t)&ctl->datx[2].gsr[0]) >> 24) & 0x1) || ((read32((virtual_addr_t)&ctl->datx[3].gsr[0]) >> 24) & 0x1))
 		{
 			write32((virtual_addr_t)&ctl->datx[2].gcr, 0x0);
 			write32((virtual_addr_t)&ctl->datx[3].gcr, 0x0);
@@ -661,7 +655,6 @@ static void mctl_auto_detect_dram_size(struct dram_para_t * para)
 	para->page_size = 512;
 	para->row_bits = 16;
 	para->bank_bits = 2;
-
 	mctl_set_cr(para);
 	for(para->row_bits = 11; para->row_bits < 16; para->row_bits++)
 	{
@@ -669,9 +662,16 @@ static void mctl_auto_detect_dram_size(struct dram_para_t * para)
 			break;
 	}
 
+	para->bank_bits = 3;
+	mctl_set_cr(para);
+	for(para->bank_bits = 2; para->bank_bits < 3; para->bank_bits++)
+	{
+		if(mctl_mem_matches((1 << para->bank_bits) * para->page_size))
+			break;
+	}
+
 	para->page_size = 8192;
 	mctl_set_cr(para);
-
 	for(para->page_size = 512; para->page_size < 8192; para->page_size *= 2)
 	{
 		if(mctl_mem_matches(para->page_size))
@@ -684,8 +684,8 @@ void sys_dram_init(void)
 	struct s3_dram_com_reg_t * com = (struct s3_dram_com_reg_t *)S3_DRAM_COM_BASE;
 	struct s3_dram_ctl_reg_t * ctl = (struct s3_dram_ctl_reg_t *)S3_DRAM_CTL_BASE;
 	struct dram_para_t para = {
-		.read_delays = 0x00007878,
-		.write_delays = 0x6a440000,
+		.read_delays = 0x00007979,
+		.write_delays = 0x6aaa0000,
 		.dual_rank = 0,
 		.bus_width = 32,
 		.row_bits = 15,
@@ -709,9 +709,8 @@ void sys_dram_init(void)
 	else
 		write32((virtual_addr_t)&ctl->odtmap, 0x00000201);
 	sdelay(1);
-	write32((virtual_addr_t)&ctl->odtcfg, 0x04000400);
+	write32((virtual_addr_t)&ctl->odtcfg, 0x0c000400);
 
-	clrbits_le32(&ctl->pgcr[2], (1 << 13));
 	setbits_le32(&com->cccr, 1 << 31);
 	sdelay(10);
 	mctl_auto_detect_dram_size(&para);

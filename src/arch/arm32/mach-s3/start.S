@@ -174,7 +174,7 @@ reset:
 	/* Initial system uart, clock and ddr */
 	bl sys_uart_init
 	bl sys_clock_init
-//	bl sys_dram_init
+	bl sys_dram_init
 
 	/* Initialize stacks */
 	mrc p15, 0, r4, c0, c0, 5

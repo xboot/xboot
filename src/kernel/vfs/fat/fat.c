@@ -501,8 +501,8 @@ static int fatfs_chmod(struct vfs_node_t * n, u32_t mode)
 
 	node->parent_dent.file_attributes = fileattr;
 	node->parent_dent.laccess_date_day = day;
-	node->parent_dent.laccess_date_month = day;
-	node->parent_dent.laccess_date_year = day;
+	node->parent_dent.laccess_date_month = mon;
+	node->parent_dent.laccess_date_year = year;
 	node->parent_dent_dirty = TRUE;
 
 	n->v_mode &= ~(S_IRWXU | S_IRWXG | S_IRWXO);

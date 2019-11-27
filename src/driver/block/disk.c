@@ -120,7 +120,7 @@ struct device_t * register_disk(struct disk_t * disk, struct driver_t * drv)
 	dev->name = strdup(disk->name);
 	dev->type = DEVICE_TYPE_DISK;
 	dev->driver = drv;
-	dev->priv = (void *)disk;
+	dev->priv = disk;
 	dev->kobj = kobj_alloc_directory(dev->name);
 	list_for_each_entry_safe(ppos, pn, &(disk->part.entry), entry)
 	{

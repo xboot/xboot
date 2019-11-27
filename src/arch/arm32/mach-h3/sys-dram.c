@@ -724,7 +724,7 @@ static void mctl_auto_detect_dram_size(struct dram_para_t * para)
 	mctl_set_cr(para);
 	for(para->bank_bits = 2; para->bank_bits < 3; para->bank_bits++)
 	{
-		if (mctl_mem_matches((1 << para->bank_bits) * para->page_size))
+		if(mctl_mem_matches((1 << para->bank_bits) * para->page_size))
 			break;
 	}
 

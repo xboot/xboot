@@ -88,7 +88,7 @@ struct v3s_dram_ctl_reg_t {
 	u32_t rfshtmg;		/* 0x90 refresh timing */
 	u32_t rfshctl1;		/* 0x94 */
 	u32_t pwrtmg;		/* 0x98 */
-	u8_t  res3[0x20];	/* 0x9c */
+	u8_t res3[0x20];	/* 0x9c */
 	u32_t dqsgmr;		/* 0xbc */
 	u32_t dtcr;			/* 0xc0 */
 	u32_t dtar[4];		/* 0xc4 */
@@ -326,8 +326,7 @@ static void mctl_dq_delay(u32_t read, u32_t write)
 
 	for(i = 0; i < 4; i++)
 	{
-		val = DATX_IOCR_WRITE_DELAY((write >> (i * 4)) & 0xf) |
-		      DATX_IOCR_READ_DELAY(((read >> (i * 4)) & 0xf) * 2);
+		val = DATX_IOCR_WRITE_DELAY((write >> (i * 4)) & 0xf) | DATX_IOCR_READ_DELAY(((read >> (i * 4)) & 0xf) * 2);
 		for(j = DATX_IOCR_DQ(0); j <= DATX_IOCR_DM; j++)
 			write32((virtual_addr_t)&ctl->datx[i].iocr[j], val);
 	}
@@ -335,8 +334,7 @@ static void mctl_dq_delay(u32_t read, u32_t write)
 	clrbits_le32(&ctl->pgcr[0], 1 << 26);
 	for(i = 0; i < 4; i++)
 	{
-		val = DATX_IOCR_WRITE_DELAY((write >> (16 + i * 4)) & 0xf) |
-		      DATX_IOCR_READ_DELAY((read >> (16 + i * 4)) & 0xf);
+		val = DATX_IOCR_WRITE_DELAY((write >> (16 + i * 4)) & 0xf) | DATX_IOCR_READ_DELAY((read >> (16 + i * 4)) & 0xf);
 		write32((virtual_addr_t)&ctl->datx[i].iocr[DATX_IOCR_DQS], val);
 		write32((virtual_addr_t)&ctl->datx[i].iocr[DATX_IOCR_DQSN], val);
 	}
@@ -448,8 +446,7 @@ static void mctl_zq_calibration(struct dram_para_t * para)
 	u8_t zq;
 	int i;
 
-	if((read32(0x01c20000 + 0x24) & 0xff) == 0 &&
-	    (read32(0x01c20000 + 0xf0) & 0x1) == 0)
+	if(((read32(0x01c00000 + 0x24) & 0xff) == 0) && ((read32(0x01c00000 + 0xf0) & 0x1) == 0))
 	{
 		clrsetbits_le32(&ctl->zqcr, 0xffff, CONFIG_DRAM_ZQ & 0xffff);
 
@@ -620,15 +617,13 @@ static int mctl_channel_init(struct dram_para_t * para)
 
 	if(read32((virtual_addr_t)&ctl->pgsr[0]) & (0xfe << 20))
 	{
-		if(((read32((virtual_addr_t)&ctl->datx[0].gsr[0]) >> 24) & 0x2) ||
-		    ((read32((virtual_addr_t)&ctl->datx[1].gsr[0]) >> 24) & 0x2))
+		if(((read32((virtual_addr_t)&ctl->datx[0].gsr[0]) >> 24) & 0x2) || ((read32((virtual_addr_t)&ctl->datx[1].gsr[0]) >> 24) & 0x2))
 		{
 			clrsetbits_le32(&ctl->dtcr, 0xf << 24, 0x1 << 24);
 			para->dual_rank = 0;
 		}
 
-		if(((read32((virtual_addr_t)&ctl->datx[2].gsr[0]) >> 24) & 0x1) ||
-		    ((read32((virtual_addr_t)&ctl->datx[3].gsr[0]) >> 24) & 0x1))
+		if(((read32((virtual_addr_t)&ctl->datx[2].gsr[0]) >> 24) & 0x1) || ((read32((virtual_addr_t)&ctl->datx[3].gsr[0]) >> 24) & 0x1))
 		{
 			write32((virtual_addr_t)&ctl->datx[2].gcr, 0x0);
 			write32((virtual_addr_t)&ctl->datx[3].gcr, 0x0);

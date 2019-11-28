@@ -36,24 +36,6 @@ struct record_t
 	char * value;
 };
 
-static char * trim(char * s)
-{
-	char * e;
-
-	if(s)
-	{
-		while(isspace(*s))
-			s++;
-		if(*s == 0)
-			return s;
-		e = s + strlen(s) - 1;
-		while((e > s) && isspace(*e))
-			e--;
-		*(e + 1) = 0;
-	}
-	return s;
-}
-
 static struct hlist_head * kvdb_hash(struct kvdb_t * db, const char * key)
 {
 	return &db->hash[shash(key) % db->hash_size];
@@ -237,8 +219,8 @@ void kvdb_from_string(struct kvdb_t * db, char * str)
 	{
 		if(strchr(r, '='))
 		{
-			k = trim(strsep(&r, "="));
-			v = trim(r);
+			k = strim(strsep(&r, "="));
+			v = strim(r);
 			k = (k && strcmp(k, "") != 0) ? k : NULL;
 			v = (v && strcmp(v, "") != 0) ? v : NULL;
 			if(k && v)

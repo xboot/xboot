@@ -31,24 +31,6 @@
 extern unsigned char __romdisk_start;
 extern unsigned char __romdisk_end;
 
-static char * trim(char * s)
-{
-	char * e;
-
-	if(s)
-	{
-		while(isspace(*s))
-			s++;
-		if(*s == 0)
-			return s;
-		e = s + strlen(s) - 1;
-		while((e > s) && isspace(*e))
-			e--;
-		*(e + 1) = 0;
-	}
-	return s;
-}
-
 static void subsys_init_romdisk(void)
 {
 	char json[256];
@@ -116,8 +98,8 @@ static void subsys_init_private(void)
 		{
 			if(strchr(r, ':'))
 			{
-				dev = trim(strsep(&r, ":"));
-				type = trim(r);
+				dev = strim(strsep(&r, ":"));
+				type = strim(r);
 				dev = (dev && strcmp(dev, "") != 0) ? dev : NULL;
 				type = (type && strcmp(type, "") != 0) ? type : NULL;
 				if(dev && type)

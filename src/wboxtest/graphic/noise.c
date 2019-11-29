@@ -20,7 +20,10 @@ static void * noise_setup(struct wboxtest_t * wbt)
 
 	pdat->w = window_alloc(NULL, NULL, pdat);
 	if(!pdat->w)
+	{
+		free(pdat);
 		return NULL;
+	}
 	color_init(&pdat->c, 255, 255, 255, 255);
 
 	return pdat;

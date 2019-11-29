@@ -237,6 +237,9 @@ SRCDIRS		+=	external/cairo-1.17.2
 INCDIRS		+=	external/chipmunk-7.0.3/include
 SRCDIRS		+=	external/chipmunk-7.0.3/src
 
+INCDIRS		+= 	external/tinymembench
+SRCDIRS		+=	external/tinymembench
+
 #
 # Add whitebox test
 #

@@ -29,12 +29,12 @@
 #include <xboot.h>
 #include <console/console.h>
 
-static ssize_t __console_dummy_read(struct console_t * console, unsigned char * buf, size_t count)
+static ssize_t __console_dummy_read(struct console_t * con, unsigned char * buf, size_t count)
 {
 	return 0;
 }
 
-static ssize_t __console_dummy_write(struct console_t * console, const unsigned char * buf, size_t count)
+static ssize_t __console_dummy_write(struct console_t * con, const unsigned char * buf, size_t count)
 {
 	return 0;
 }
@@ -49,18 +49,17 @@ static spinlock_t __console_lock = SPIN_LOCK_INIT();
 
 static ssize_t console_read_active(struct kobj_t * kobj, void * buf, size_t size)
 {
-	struct console_t * console = (struct console_t *)kobj->priv;
-
-	return sprintf(buf, "%d", (__console == console) ? 1 : 0);
+	struct console_t * con = (struct console_t *)kobj->priv;
+	return sprintf(buf, "%d", (__console == con) ? 1 : 0);
 }
 
 static ssize_t console_write_active(struct kobj_t * kobj, void * buf, size_t size)
 {
-	struct console_t * console = (struct console_t *)kobj->priv;
+	struct console_t * con = (struct console_t *)kobj->priv;
 	irq_flags_t flags;
 
 	spin_lock_irqsave(&__console_lock, flags);
-	__console = console;
+	__console = con;
 	spin_unlock_irqrestore(&__console_lock, flags);
 
 	return size;
@@ -86,24 +85,24 @@ struct console_t * search_first_console(void)
 	return (struct console_t *)dev->priv;
 }
 
-struct device_t * register_console(struct console_t * console, struct driver_t * drv)
+struct device_t * register_console(struct console_t * con, struct driver_t * drv)
 {
 	struct device_t * dev;
 	irq_flags_t flags;
 
-	if(!console || !console->name)
+	if(!con || !con->name)
 		return NULL;
 
 	dev = malloc(sizeof(struct device_t));
 	if(!dev)
 		return NULL;
 
-	dev->name = strdup(console->name);
+	dev->name = strdup(con->name);
 	dev->type = DEVICE_TYPE_CONSOLE;
 	dev->driver = drv;
-	dev->priv = console;
+	dev->priv = con;
 	dev->kobj = kobj_alloc_directory(dev->name);
-	kobj_add_regular(dev->kobj, "active", console_read_active, console_write_active, console);
+	kobj_add_regular(dev->kobj, "active", console_read_active, console_write_active, con);
 
 	if(!register_device(dev))
 	{
@@ -115,24 +114,24 @@ struct device_t * register_console(struct console_t * console, struct driver_t *
 	if(__console == &__console_dummy)
 	{
 		spin_lock_irqsave(&__console_lock, flags);
-		__console = console;
+		__console = con;
 		spin_unlock_irqrestore(&__console_lock, flags);
 	}
 	return dev;
 }
 
-void unregister_console(struct console_t * console)
+void unregister_console(struct console_t * con)
 {
 	struct device_t * dev;
 	struct console_t * c;
 	irq_flags_t flags;
 
-	if(console && console->name)
+	if(con && con->name)
 	{
-		dev = search_device(console->name, DEVICE_TYPE_CONSOLE);
+		dev = search_device(con->name, DEVICE_TYPE_CONSOLE);
 		if(dev && unregister_device(dev))
 		{
-			if(__console == console)
+			if(__console == con)
 			{
 				if(!(c = search_first_console()))
 					c = &__console_dummy;

@@ -34,22 +34,22 @@ struct console_uart_pdata_t {
 	struct uart_t * uart;
 };
 
-static ssize_t console_uart_read(struct console_t * console, unsigned char * buf, size_t count)
+static ssize_t console_uart_read(struct console_t * con, unsigned char * buf, size_t count)
 {
-	struct console_uart_pdata_t * pdat = (struct console_uart_pdata_t *)console->priv;
+	struct console_uart_pdata_t * pdat = (struct console_uart_pdata_t *)con->priv;
 	return pdat->uart->read(pdat->uart, (u8_t *)buf, count);
 }
 
-static ssize_t console_uart_write(struct console_t * console, const unsigned char * buf, size_t count)
+static ssize_t console_uart_write(struct console_t * con, const unsigned char * buf, size_t count)
 {
-	struct console_uart_pdata_t * pdat = (struct console_uart_pdata_t *)console->priv;
+	struct console_uart_pdata_t * pdat = (struct console_uart_pdata_t *)con->priv;
 	return pdat->uart->write(pdat->uart, (const u8_t *)buf, count);
 }
 
 static struct device_t * console_uart_probe(struct driver_t * drv, struct dtnode_t * n)
 {
 	struct console_uart_pdata_t * pdat;
-	struct console_t * console;
+	struct console_t * con;
 	struct device_t * dev;
 	struct uart_t * uart = search_uart(dt_read_string(n, "uart-bus", NULL));
 
@@ -60,8 +60,8 @@ static struct device_t * console_uart_probe(struct driver_t * drv, struct dtnode
 	if(!pdat)
 		return NULL;
 
-	console = malloc(sizeof(struct console_t));
-	if(!console)
+	con = malloc(sizeof(struct console_t));
+	if(!con)
 	{
 		free(pdat);
 		return NULL;
@@ -69,16 +69,16 @@ static struct device_t * console_uart_probe(struct driver_t * drv, struct dtnode
 
 	pdat->uart = uart;
 
-	console->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
-	console->read = console_uart_read;
-	console->write = console_uart_write;
-	console->priv = pdat;
+	con->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
+	con->read = console_uart_read;
+	con->write = console_uart_write;
+	con->priv = pdat;
 
-	if(!(dev = register_console(console, drv)))
+	if(!(dev = register_console(con, drv)))
 	{
-		free_device_name(console->name);
-		free(console->priv);
-		free(console);
+		free_device_name(con->name);
+		free(con->priv);
+		free(con);
 		return NULL;
 	}
 	return dev;
@@ -86,14 +86,14 @@ static struct device_t * console_uart_probe(struct driver_t * drv, struct dtnode
 
 static void console_uart_remove(struct device_t * dev)
 {
-	struct console_t * console = (struct console_t *)dev->priv;
+	struct console_t * con = (struct console_t *)dev->priv;
 
-	if(console)
+	if(con)
 	{
-		unregister_console(console);
-		free_device_name(console->name);
-		free(console->priv);
-		free(console);
+		unregister_console(con);
+		free_device_name(con->name);
+		free(con->priv);
+		free(con);
 	}
 }
 

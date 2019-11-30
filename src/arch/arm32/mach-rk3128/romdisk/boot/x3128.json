@@ -403,7 +403,6 @@
 		"speed": 0,
 		"cd-gpio": -1,
 		"cd-gpio-config": -1,
-		"removable": false,
 		"max-clock-frequency": 25000000
 	},
 

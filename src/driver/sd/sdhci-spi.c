@@ -31,6 +31,22 @@
 #include <gpio/gpio.h>
 #include <sd/sdhci.h>
 
+/*
+ * SDHCI - SDCard SPI Mode Driver
+ *
+ * Example:
+ *	"sdhci-spi@0": {
+ *		"spi-bus": "spi-gpio.0",
+ *		"chip-select": 0,
+ *		"type": 0,
+ *		"mode": 0,
+ *		"speed": 0,
+ *		"cd-gpio": -1,
+ *		"cd-gpio-config": -1,
+ *		"max-clock-frequency": 25000000
+ *	},
+ */
+
 struct sdhci_spi_pdata_t {
 	struct spi_device_t * dev;
 	int cd;
@@ -155,6 +171,11 @@ static bool_t sdhci_spi_transfer(struct sdhci_t * sdhci, struct sdhci_cmd_t * cm
 	{
 		memset(&tx[0], 0xff, 10);
 		spi_device_write_then_read(pdat->dev, &tx[0], 10, 0, 0);
+	}
+	else
+	{
+		tx[0] = 0xff;
+		spi_device_write_then_read(pdat->dev, &tx[0], 1, 0, 0);
 	}
 
 	spi_device_select(pdat->dev);
@@ -344,8 +365,8 @@ static bool_t sdhci_spi_transfer(struct sdhci_t * sdhci, struct sdhci_cmd_t * cm
 	}
 	spi_device_deselect(pdat->dev);
 
-	memset(&tx[0], 0xff, 8);
-	spi_device_write_then_read(pdat->dev, &tx[0], 8, 0, 0);
+	tx[0] = 0xff;
+	spi_device_write_then_read(pdat->dev, &tx[0], 1, 0, 0);
 	return ret;
 }
 
@@ -382,8 +403,8 @@ static struct device_t * sdhci_spi_probe(struct driver_t * drv, struct dtnode_t 
 	sdhci->name = alloc_device_name(dt_read_name(n), -1);
 	sdhci->voltage = MMC_VDD_27_36;
 	sdhci->width = MMC_BUS_WIDTH_1;
-	sdhci->clock = (u32_t)dt_read_long(n, "max-clock-frequency", 1 * 1000 * 1000);
-	sdhci->removable = dt_read_bool(n, "removable", 0) ? TRUE : FALSE;
+	sdhci->clock = (u32_t)dt_read_long(n, "max-clock-frequency", 25 * 1000 * 1000);
+	sdhci->removable = (pdat->cd >= 0) ? TRUE : FALSE;
 	sdhci->isspi = TRUE;
 	sdhci->detect = sdhci_spi_detect;
 	sdhci->setvoltage = sdhci_spi_setvoltage;

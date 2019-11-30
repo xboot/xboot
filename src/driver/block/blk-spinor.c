@@ -313,7 +313,7 @@ static bool_t blk_spinor_detect(struct spi_device_t * dev, struct spinor_info_t 
 		info->opcode_write = OPCODE_PROG;
 		return TRUE;
 	}
-	else if(blk_spinor_read_id(dev, &id))
+	else if(blk_spinor_read_id(dev, &id) && (id != 0xffffff) && (id != 0))
 	{
 		for(i = 0; i < ARRAY_SIZE(blk_spinor_infos); i++)
 		{

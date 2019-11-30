@@ -114,13 +114,18 @@ static void h3_spi_write_txbuf(struct spi_h3_pdata_t * pdat, u8_t * buf, int len
 {
 	int i;
 
-	if(!buf)
-		len = 0;
-
 	write32(pdat->virt + SPI_MTC, len & 0xffffff);
 	write32(pdat->virt + SPI_BCC, len & 0xffffff);
-	for(i = 0; i < len; ++i)
-		write8(pdat->virt + SPI_TXD, *buf++);
+	if(buf)
+	{
+		for(i = 0; i < len; i++)
+			write8(pdat->virt + SPI_TXD, *buf++);
+	}
+	else
+	{
+		for(i = 0; i < len; i++)
+			write8(pdat->virt + SPI_TXD, 0xff);
+	}
 }
 
 static int h3_spi_xfer(struct spi_h3_pdata_t * pdat, struct spi_msg_t * msg)

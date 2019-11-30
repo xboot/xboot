@@ -142,13 +142,18 @@ static void sys_spi_write_txbuf(u8_t * buf, int len)
 	virtual_addr_t addr = 0x01c05000;
 	int i;
 
-	if(!buf)
-		len = 0;
-
 	write32(addr + SPI_MTC, len & 0xffffff);
 	write32(addr + SPI_BCC, len & 0xffffff);
-	for(i = 0; i < len; ++i)
-		write8(addr + SPI_TXD, *buf++);
+	if(buf)
+	{
+		for(i = 0; i < len; i++)
+			write8(addr + SPI_TXD, *buf++);
+	}
+	else
+	{
+		for(i = 0; i < len; i++)
+			write8(addr + SPI_TXD, 0xff);
+	}
 }
 
 static int sys_spi_transfer(void * txbuf, void * rxbuf, int len)

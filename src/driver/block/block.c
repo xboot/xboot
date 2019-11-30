@@ -30,7 +30,7 @@
 
 struct sub_block_pdata_t
 {
-	u64_t from;
+	u64_t blkno;
 	struct block_t * pblk;
 };
 
@@ -56,14 +56,14 @@ static u64_t sub_block_read(struct block_t * blk, u8_t * buf, u64_t blkno, u64_t
 {
 	struct sub_block_pdata_t * pdat = (struct sub_block_pdata_t *)(blk->priv);
 	struct block_t * pblk = pdat->pblk;
-	return (pblk->read(pblk, buf, blkno + pdat->from, blkcnt));
+	return (pblk->read(pblk, buf, blkno + pdat->blkno, blkcnt));
 }
 
 static u64_t sub_block_write(struct block_t * blk, u8_t * buf, u64_t blkno, u64_t blkcnt)
 {
 	struct sub_block_pdata_t * pdat = (struct sub_block_pdata_t *)(blk->priv);
 	struct block_t * pblk = pdat->pblk;
-	return (pblk->write(pblk, buf, blkno + pdat->from, blkcnt));
+	return (pblk->write(pblk, buf, blkno + pdat->blkno, blkcnt));
 }
 
 static void sub_block_sync(struct block_t * blk)
@@ -166,7 +166,7 @@ struct device_t * register_sub_block(struct block_t * pblk, u64_t offset, u64_t 
 	}
 
 	snprintf(buffer, sizeof(buffer), "%s.%s", pblk->name, name);
-	pdat->from = blkno;
+	pdat->blkno = blkno;
 	pdat->pblk = pblk;
 
 	blk->name = strdup(buffer);

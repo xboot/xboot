@@ -607,9 +607,8 @@ static void sdcard_blk_sync(struct block_t * blk)
 {
 }
 
-static int sdcard_disk_timer_function(struct timer_t * timer, void * data)
+static void sdcard_scan(struct sdcard_pdata_t * pdat)
 {
-	struct sdcard_pdata_t * pdat = (struct sdcard_pdata_t *)(data);
 	char buf[256];
 
 	if(!pdat->online)
@@ -618,7 +617,7 @@ static int sdcard_disk_timer_function(struct timer_t * timer, void * data)
 		{
 			if(sdcard_detect(pdat->hci, &pdat->card))
 			{
-				snprintf(buf, sizeof(buf), "card.%s", pdat->hci->name);
+				snprintf(buf, sizeof(buf), "%s.sdcard", pdat->hci->name);
 				pdat->blk.name = strdup(buf);
 				pdat->blk.blksz = pdat->card.read_bl_len;
 				pdat->blk.blkcnt = pdat->card.capacity / pdat->card.read_bl_len;
@@ -626,12 +625,15 @@ static int sdcard_disk_timer_function(struct timer_t * timer, void * data)
 				pdat->blk.write = sdcard_blk_write;
 				pdat->blk.sync = sdcard_blk_sync;
 				pdat->blk.priv = pdat;
-				if(!register_block(&pdat->blk, NULL))
-					free_device_name(pdat->blk.name);
+				if(register_block(&pdat->blk, NULL))
+				{
+					partition_map(&pdat->blk);
+					pdat->online = TRUE;
+				}
 				else
 				{
-					pdat->online = TRUE;
-					partition_map(&pdat->blk);
+					free(pdat->blk.name);
+					pdat->blk.name = NULL;
 				}
 			}
 		}
@@ -640,13 +642,19 @@ static int sdcard_disk_timer_function(struct timer_t * timer, void * data)
 	{
 		if(!sdhci_detect(pdat->hci))
 		{
+			unregister_sub_block(&pdat->blk);
 			unregister_block(&pdat->blk);
-			free_device_name(pdat->blk.name);
+			free(pdat->blk.name);
+			pdat->blk.name = NULL;
 			pdat->online = FALSE;
 		}
 	}
-	if(!pdat->hci->removable)
-		return 0;
+}
+
+static int sdcard_timer_function(struct timer_t * timer, void * data)
+{
+	struct sdcard_pdata_t * pdat = (struct sdcard_pdata_t *)(data);
+	sdcard_scan(pdat);
 	timer_forward_now(timer, ms_to_ktime(2000));
 	return 1;
 }
@@ -662,8 +670,12 @@ void * sdcard_probe(struct sdhci_t * hci)
 
 	pdat->hci = hci;
 	pdat->online = FALSE;
-	timer_init(&pdat->timer, sdcard_disk_timer_function, pdat);
-	timer_start_now(&pdat->timer, ms_to_ktime(100));
+	sdcard_scan(pdat);
+	if(pdat->hci->removable)
+	{
+		timer_init(&pdat->timer, sdcard_timer_function, pdat);
+		timer_start_now(&pdat->timer, ms_to_ktime(2000));
+	}
 	return pdat;
 }
 
@@ -673,11 +685,13 @@ void sdcard_remove(void * card)
 
 	if(pdat)
 	{
-		timer_cancel(&pdat->timer);
-		if(pdat->online)
+		if(pdat->hci->removable)
+			timer_cancel(&pdat->timer);
+		if(pdat->online && search_block(pdat->blk.name))
 		{
+			unregister_sub_block(&pdat->blk);
 			unregister_block(&pdat->blk);
-			free_device_name(pdat->blk.name);
+			free(pdat->blk.name);
 		}
 		free(pdat);
 	}

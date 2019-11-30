@@ -59,8 +59,11 @@ static bool_t is_extended(uint8_t type)
 static bool_t mbr_map(struct block_t * pblk)
 {
 	struct mbr_header_t mbr;
+	struct device_t * dev;
+	struct block_t * blk;
 	u64_t offset, length;
-	char name[64];
+	char nbuf[64];
+	char sbuf[64];
 	int i;
 
 	if(!pblk || !pblk->name || (block_capacity(pblk) <= 0))
@@ -75,14 +78,21 @@ static bool_t mbr_map(struct block_t * pblk)
 	if((mbr.entry[0].type == 0xee) || (mbr.entry[1].type == 0xee) || (mbr.entry[2].type == 0xee) || (mbr.entry[3].type == 0xee))
 		return FALSE;
 
+	LOG("Found mbr partition:");
+	LOG("  0x%016Lx ~ 0x%016Lx %s %*s- %s", 0ULL, block_capacity(pblk) - 1, ssize(sbuf, block_capacity(pblk)), 9 - strlen(sbuf), "", pblk->name);
 	for(i = 0; i < 4; i++)
 	{
 		if((mbr.entry[i].type != 0) && (!is_extended(mbr.entry[i].type)))
 		{
-			snprintf(name, sizeof(name), "p%d", i);
+			snprintf(nbuf, sizeof(nbuf), "p%d", i);
 			offset = block_size(pblk) * ((mbr.entry[i].start[3] << 24) | (mbr.entry[i].start[2] << 16) | (mbr.entry[i].start[1] << 8) | (mbr.entry[i].start[0] << 0));
 			length = block_size(pblk) * ((mbr.entry[i].length[3] << 24) | (mbr.entry[i].length[2] << 16) | (mbr.entry[i].length[1] << 8) | (mbr.entry[i].length[0] << 0));
-			register_sub_block(pblk, offset, length, name);
+			dev = register_sub_block(pblk, offset, length, nbuf);
+			if(dev)
+			{
+				blk = (struct block_t *)dev->priv;
+				LOG("  0x%016Lx ~ 0x%016Lx %s %*s- %s", offset, offset + length - 1, ssize(sbuf, length), 9 - strlen(sbuf), "", blk->name);
+			}
 		}
 	}
 	return TRUE;

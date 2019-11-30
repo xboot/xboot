@@ -164,7 +164,7 @@ static int spi_gpio_bitbang_xfer_8(struct spi_gpio_pdata_t * pdat,
 
 	while(count > 0)
 	{
-		val = 0;
+		val = 0xff;
 		if(tx)
 			val = *tx++;
 		val = txrx(pdat, val, bits, ns);
@@ -187,7 +187,7 @@ static int spi_gpio_bitbang_xfer_16(struct spi_gpio_pdata_t * pdat,
 
 	while(count > 1)
 	{
-		val = 0;
+		val = 0xffff;
 		if(tx)
 			val = *tx++;
 		val = txrx(pdat, val, bits, ns);
@@ -210,7 +210,7 @@ static int spi_gpio_bitbang_xfer_32(struct spi_gpio_pdata_t * pdat,
 
 	while(count > 3)
 	{
-		val = 0;
+		val = 0xffffffff;
 		if(tx)
 			val = *tx++;
 		val = txrx(pdat, val, bits, ns);

@@ -75,18 +75,14 @@ struct gpt_header_t {
 	uint8_t part_crc[4];
 } __attribute__ ((packed));
 
-static bool_t gpt_map(struct disk_t * disk)
+static bool_t gpt_map(struct block_t * pblk)
 {
 	struct mbr_header_t mbr;
-	struct partition_t * part;
 
-	if(!disk || !disk->name)
+	if(!pblk || !pblk->name || (block_capacity(pblk) <= 0))
 		return FALSE;
 
-	if(!disk->size || !disk->count)
-		return FALSE;
-
-	if(disk_read(disk, (uint8_t *)(&mbr), 0, sizeof(struct mbr_header_t)) != sizeof(struct mbr_header_t))
+	if(block_read(pblk, (uint8_t *)(&mbr), 0, sizeof(struct mbr_header_t)) != sizeof(struct mbr_header_t))
 		return FALSE;
 
 	if((mbr.signature[0] != 0x55) || mbr.signature[1] != 0xaa)
@@ -95,7 +91,6 @@ static bool_t gpt_map(struct disk_t * disk)
 	if((mbr.entry[0].type != 0xee) && (mbr.entry[1].type != 0xee) && (mbr.entry[2].type != 0xee) && (mbr.entry[3].type != 0xee))
 		return FALSE;
 
-	//TODO
 	return FALSE;
 }
 

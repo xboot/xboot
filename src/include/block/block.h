@@ -72,7 +72,7 @@ static inline u64_t block_available_length(struct block_t * blk, u64_t blkno, u6
 struct block_t * search_block(const char * name);
 struct device_t * register_block(struct block_t * blk, struct driver_t * drv);
 void unregister_block(struct block_t * blk);
-struct device_t * register_sub_block(struct block_t * pblk, u64_t offset, u64_t length, const char * name, struct driver_t * drv);
+struct device_t * register_sub_block(struct block_t * pblk, u64_t offset, u64_t length, const char * name);
 void unregister_sub_block(struct block_t * pblk);
 
 u64_t block_read(struct block_t * blk, u8_t * buf, u64_t offset, u64_t count);

@@ -93,30 +93,16 @@ bool_t unregister_partition_map(struct partition_map_t * map)
 	return TRUE;
 }
 
-bool_t partition_map(struct disk_t * disk)
+void partition_map(struct block_t * pblk)
 {
 	struct partition_map_t * pos, * n;
-	struct partition_t * ppos, * pn;
-	int i = 0;
 
-	if(!disk || !disk->name)
-		return FALSE;
-
-	if(!disk->size || !disk->count)
-		return FALSE;
-
-	init_list_head(&(disk->part.entry));
-
-	list_for_each_entry_safe(pos, n, &__partition_map_list, list)
+	if(pblk && pblk->name && (block_capacity(pblk) > 0))
 	{
-		if(pos->map(disk))
-			break;
+		list_for_each_entry_safe(pos, n, &__partition_map_list, list)
+		{
+			if(pos->map(pblk))
+				break;
+		}
 	}
-
-	list_for_each_entry_safe(ppos, pn, &(disk->part.entry), entry)
-	{
-		if(!ppos->name || (strlen(ppos->name) == 0))
-			snprintf(ppos->name, sizeof(ppos->name), "p%d", i++);
-	}
-	return TRUE;
 }

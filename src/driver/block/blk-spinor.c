@@ -770,7 +770,7 @@ static struct device_t * blk_spinor_probe(struct driver_t * drv, struct dtnode_t
 				maxlen = block_capacity(blk) - offset;
 				if((length <= 0) || (length > maxlen))
 					length = maxlen;
-				register_sub_block(blk, offset, length, name, drv);
+				register_sub_block(blk, offset, length, name);
 			}
 		}
 	}

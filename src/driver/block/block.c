@@ -132,7 +132,7 @@ void unregister_block(struct block_t * blk)
 	}
 }
 
-struct device_t * register_sub_block(struct block_t * pblk, u64_t offset, u64_t length, const char * name, struct driver_t * drv)
+struct device_t * register_sub_block(struct block_t * pblk, u64_t offset, u64_t length, const char * name)
 {
 	struct device_t * dev;
 	struct block_t * blk;
@@ -177,7 +177,7 @@ struct device_t * register_sub_block(struct block_t * pblk, u64_t offset, u64_t 
 	blk->sync = sub_block_sync;
 	blk->priv = pdat;
 
-	if(!(dev = register_block(blk, drv)))
+	if(!(dev = register_block(blk, NULL)))
 	{
 		free(blk->priv);
 		free(blk->name);

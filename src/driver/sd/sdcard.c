@@ -27,7 +27,7 @@
  */
 
 #include <xboot.h>
-#include <block/disk.h>
+#include <block/partition.h>
 #include <sd/sdhci.h>
 #include <sd/sdcard.h>
 
@@ -50,7 +50,7 @@ struct sdcard_t
 
 struct sdcard_pdata_t
 {
-	struct disk_t disk;
+	struct block_t blk;
 	struct sdcard_t card;
 	struct timer_t timer;
 	struct sdhci_t * hci;
@@ -565,45 +565,45 @@ static bool_t sdcard_detect(struct sdhci_t * hci, struct sdcard_t * card)
 	return TRUE;
 }
 
-static u64_t sdcard_disk_read(struct disk_t * disk, u8_t * buf, u64_t sector, u64_t count)
+static u64_t sdcard_blk_read(struct block_t * blk, u8_t * buf, u64_t blkno, u64_t blkcnt)
 {
-	struct sdcard_pdata_t * pdat = (struct sdcard_pdata_t *)(disk->priv);
+	struct sdcard_pdata_t * pdat = (struct sdcard_pdata_t *)(blk->priv);
 	struct sdhci_t * hci = pdat->hci;
 	struct sdcard_t * card = &pdat->card;
-	u64_t cnt, blks = count;
+	u64_t cnt, blks = blkcnt;
 
 	while(blks > 0)
 	{
 		cnt = (blks > 65535) ?  65535 : blks;
-		if(mmc_read_blocks(hci, card, buf, sector, cnt) != cnt)
+		if(mmc_read_blocks(hci, card, buf, blkno, cnt) != cnt)
 			return 0;
 		blks -= cnt;
-		sector += cnt;
+		blkno += cnt;
 		buf += cnt * card->read_bl_len;
 	}
-	return count;
+	return blkcnt;
 }
 
-static u64_t sdcard_disk_write(struct disk_t * disk, u8_t * buf, u64_t sector, u64_t count)
+static u64_t sdcard_blk_write(struct block_t * blk, u8_t * buf, u64_t blkno, u64_t blkcnt)
 {
-	struct sdcard_pdata_t * pdat = (struct sdcard_pdata_t *)(disk->priv);
+	struct sdcard_pdata_t * pdat = (struct sdcard_pdata_t *)(blk->priv);
 	struct sdhci_t * hci = pdat->hci;
 	struct sdcard_t * card = &pdat->card;
-	u64_t cnt, blks = count;
+	u64_t cnt, blks = blkcnt;
 
 	while(blks > 0)
 	{
 		cnt = (blks > 65535) ?  65535 : blks;
-		if(mmc_write_blocks(hci, card, buf, sector, cnt) != cnt)
+		if(mmc_write_blocks(hci, card, buf, blkno, cnt) != cnt)
 			return 0;
 		blks -= cnt;
-		sector += cnt;
+		blkno += cnt;
 		buf += cnt * card->write_bl_len;
 	}
-	return count;
+	return blkcnt;
 }
 
-static void sdcard_disk_sync(struct disk_t * disk)
+static void sdcard_blk_sync(struct block_t * blk)
 {
 }
 
@@ -619,17 +619,20 @@ static int sdcard_disk_timer_function(struct timer_t * timer, void * data)
 			if(sdcard_detect(pdat->hci, &pdat->card))
 			{
 				snprintf(buf, sizeof(buf), "card.%s", pdat->hci->name);
-				pdat->disk.name = strdup(buf);
-				pdat->disk.size = pdat->card.read_bl_len;
-				pdat->disk.count = pdat->card.capacity / pdat->card.read_bl_len;
-				pdat->disk.read = sdcard_disk_read;
-				pdat->disk.write = sdcard_disk_write;
-				pdat->disk.sync = sdcard_disk_sync;
-				pdat->disk.priv = pdat;
-				if(!register_disk(&pdat->disk, NULL))
-					free_device_name(pdat->disk.name);
+				pdat->blk.name = strdup(buf);
+				pdat->blk.blksz = pdat->card.read_bl_len;
+				pdat->blk.blkcnt = pdat->card.capacity / pdat->card.read_bl_len;
+				pdat->blk.read = sdcard_blk_read;
+				pdat->blk.write = sdcard_blk_write;
+				pdat->blk.sync = sdcard_blk_sync;
+				pdat->blk.priv = pdat;
+				if(!register_block(&pdat->blk, NULL))
+					free_device_name(pdat->blk.name);
 				else
+				{
 					pdat->online = TRUE;
+					partition_map(&pdat->blk);
+				}
 			}
 		}
 	}
@@ -637,8 +640,8 @@ static int sdcard_disk_timer_function(struct timer_t * timer, void * data)
 	{
 		if(!sdhci_detect(pdat->hci))
 		{
-			unregister_disk(&pdat->disk);
-			free_device_name(pdat->disk.name);
+			unregister_block(&pdat->blk);
+			free_device_name(pdat->blk.name);
 			pdat->online = FALSE;
 		}
 	}
@@ -673,8 +676,8 @@ void sdcard_remove(void * card)
 		timer_cancel(&pdat->timer);
 		if(pdat->online)
 		{
-			unregister_disk(&pdat->disk);
-			free_device_name(pdat->disk.name);
+			unregister_block(&pdat->blk);
+			free_device_name(pdat->blk.name);
 		}
 		free(pdat);
 	}

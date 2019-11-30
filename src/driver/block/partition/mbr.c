@@ -56,19 +56,17 @@ static bool_t is_extended(uint8_t type)
 	return FALSE;
 }
 
-static bool_t mbr_map(struct disk_t * disk)
+static bool_t mbr_map(struct block_t * pblk)
 {
 	struct mbr_header_t mbr;
-	struct partition_t * part;
+	u64_t offset, length;
+	char name[64];
 	int i;
 
-	if(!disk || !disk->name)
+	if(!pblk || !pblk->name || (block_capacity(pblk) <= 0))
 		return FALSE;
 
-	if(!disk->size || !disk->count)
-		return FALSE;
-
-	if(disk_read(disk, (uint8_t *)(&mbr), 0, sizeof(struct mbr_header_t)) != sizeof(struct mbr_header_t))
+	if(block_read(pblk, (uint8_t *)(&mbr), 0, sizeof(struct mbr_header_t)) != sizeof(struct mbr_header_t))
 		return FALSE;
 
 	if((mbr.signature[0] != 0x55) || mbr.signature[1] != 0xaa)
@@ -81,15 +79,10 @@ static bool_t mbr_map(struct disk_t * disk)
 	{
 		if((mbr.entry[i].type != 0) && (!is_extended(mbr.entry[i].type)))
 		{
-			part = malloc(sizeof(struct partition_t));
-			if(!part)
-				return FALSE;
-
-			strlcpy(part->name, "", sizeof(part->name));
-			part->from = ((mbr.entry[i].start[3] << 24) | (mbr.entry[i].start[2] << 16) | (mbr.entry[i].start[1] << 8) | (mbr.entry[i].start[0] << 0));
-			part->to = part->from + ((mbr.entry[i].length[3] << 24) | (mbr.entry[i].length[2] << 16) | (mbr.entry[i].length[1] << 8) | (mbr.entry[i].length[0] << 0)) - 1;
-			part->size = disk->size;
-			list_add_tail(&part->entry, &(disk->part.entry));
+			snprintf(name, sizeof(name), "p%d", i);
+			offset = block_size(pblk) * ((mbr.entry[i].start[3] << 24) | (mbr.entry[i].start[2] << 16) | (mbr.entry[i].start[1] << 8) | (mbr.entry[i].start[0] << 0));
+			length = block_size(pblk) * ((mbr.entry[i].length[3] << 24) | (mbr.entry[i].length[2] << 16) | (mbr.entry[i].length[1] << 8) | (mbr.entry[i].length[0] << 0));
+			register_sub_block(pblk, offset, length, name);
 		}
 	}
 	return TRUE;

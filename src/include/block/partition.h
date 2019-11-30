@@ -6,19 +6,18 @@ extern "C" {
 #endif
 
 #include <xboot.h>
-#include <block/disk.h>
 
 struct partition_map_t
 {
 	struct kobj_t * kobj;
 	struct list_head list;
 	char * name;
-	bool_t (*map)(struct disk_t * disk);
+	bool_t (*map)(struct block_t * pblk);
 };
 
 bool_t register_partition_map(struct partition_map_t * map);
 bool_t unregister_partition_map(struct partition_map_t * map);
-bool_t partition_map(struct disk_t * disk);
+void partition_map(struct block_t * pblk);
 
 #ifdef __cplusplus
 }

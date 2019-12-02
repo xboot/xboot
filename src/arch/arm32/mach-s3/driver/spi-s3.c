@@ -199,13 +199,13 @@ static struct device_t * spi_s3_probe(struct driver_t * drv, struct dtnode_t * n
 
 	pdat = malloc(sizeof(struct spi_s3_pdata_t));
 	if(!pdat)
-		return FALSE;
+		return NULL;
 
 	spi = malloc(sizeof(struct spi_t));
 	if(!spi)
 	{
 		free(pdat);
-		return FALSE;
+		return NULL;
 	}
 
 	clk_enable(clk);

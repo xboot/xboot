@@ -385,7 +385,7 @@ static struct device_t * sdhci_spi_probe(struct driver_t * drv, struct dtnode_t 
 	if(!pdat)
 	{
 		spi_device_free(spidev);
-		return FALSE;
+		return NULL;
 	}
 
 	sdhci = malloc(sizeof(struct sdhci_t));
@@ -393,7 +393,7 @@ static struct device_t * sdhci_spi_probe(struct driver_t * drv, struct dtnode_t 
 	{
 		spi_device_free(spidev);
 		free(pdat);
-		return FALSE;
+		return NULL;
 	}
 
 	pdat->dev = spidev;

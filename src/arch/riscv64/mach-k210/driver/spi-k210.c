@@ -302,13 +302,13 @@ static struct device_t * spi_k210_probe(struct driver_t * drv, struct dtnode_t *
 
 	pdat = malloc(sizeof(struct spi_k210_pdata_t));
 	if(!pdat)
-		return FALSE;
+		return NULL;
 
 	spi = malloc(sizeof(struct spi_t));
 	if(!spi)
 	{
 		free(pdat);
-		return FALSE;
+		return NULL;
 	}
 
 	pdat->virt = virt;

@@ -231,13 +231,13 @@ static struct device_t * i2c_h2_probe(struct driver_t * drv, struct dtnode_t * n
 
 	pdat = malloc(sizeof(struct i2c_h2_pdata_t));
 	if(!pdat)
-		return FALSE;
+		return NULL;
 
 	i2c = malloc(sizeof(struct i2c_t));
 	if(!i2c)
 	{
 		free(pdat);
-		return FALSE;
+		return NULL;
 	}
 
 	pdat->virt = virt;

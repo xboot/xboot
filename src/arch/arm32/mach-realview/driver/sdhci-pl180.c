@@ -297,13 +297,13 @@ static struct device_t * sdhci_pl180_probe(struct driver_t * drv, struct dtnode_
 
 	pdat = malloc(sizeof(struct sdhci_pl180_pdata_t));
 	if(!pdat)
-		return FALSE;
+		return NULL;
 
 	sdhci = malloc(sizeof(struct sdhci_t));
 	if(!sdhci)
 	{
 		free(pdat);
-		return FALSE;
+		return NULL;
 	}
 
 	pdat->virt = virt;

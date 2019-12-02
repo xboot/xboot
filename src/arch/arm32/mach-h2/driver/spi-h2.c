@@ -199,13 +199,13 @@ static struct device_t * spi_h2_probe(struct driver_t * drv, struct dtnode_t * n
 
 	pdat = malloc(sizeof(struct spi_h2_pdata_t));
 	if(!pdat)
-		return FALSE;
+		return NULL;
 
 	spi = malloc(sizeof(struct spi_t));
 	if(!spi)
 	{
 		free(pdat);
-		return FALSE;
+		return NULL;
 	}
 
 	clk_enable(clk);

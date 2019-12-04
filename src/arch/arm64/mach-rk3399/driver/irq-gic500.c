@@ -55,7 +55,7 @@ enum {
 	GICD_SGIR 		= 0x0f00,
 	GICD_CPENDSGIR 	= 0x0f10,
 	GICD_SPENDSGIR 	= 0x0f20,
-	GICD_IROUTER 	= 0x6000,
+	GICD_IROUTER 	= 0x6100,
 	GICD_IDREGS 	= 0xffd0,
 
 	GICR_CTLR 		= (0x100000 + 0x0000),
@@ -133,19 +133,15 @@ static void irq_gic500_settype(struct irqchip_t * chip, int offset, enum irq_typ
 
 static void irq_gic500_dispatch(struct irqchip_t * chip)
 {
-	printf("irq_gic500_dispatch\r\n");
-#if 0
-	struct irq_gic500_pdata_t * pdat = (struct irq_gic500_pdata_t *)chip->priv;
-
-	int irq = read32(pdat->virt + CPU_INTACK) & 0x3ff;
+	int irq = arm64_read_sysreg(S3_0_C12_C12_0) & 0x3ff;
 	int offset = irq - chip->base;
 
 	if((offset >= 0) && (offset < chip->nirq))
 	{
 		(chip->handler[offset].func)(chip->handler[offset].data);
-		write32(pdat->virt + CPU_EOI, irq);
+		arm64_write_sysreg(S3_0_C12_C12_1, (uint64_t)irq);
+		arm64_write_sysreg(S3_0_C12_C11_1, (uint64_t)irq);
 	}
-#endif
 }
 
 static u64_t gic_mpidr_to_affinity(unsigned long mpidr)

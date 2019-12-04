@@ -246,7 +246,7 @@
 	"reset-rk3399@0xff750110": { "reset-base": 336, "reset-count": 14 },
 	"reset-rk3399@0xff750114": { "reset-base": 352, "reset-count": 15 },
 
-	"irq-gic500@0xfee00000": { "interrupt-base": 32, "interrupt-count": 160 },
+	"irq-gic500@0xfee00000": { "interrupt-base": 16, "interrupt-count": 176 },
 
 	"irq-rk3399-gpio@0xff720000": { "interrupt-base": 192, "interrupt-count": 14, "interrupt-parent": 46 },
 	"irq-rk3399-gpio@0xff730000": { "interrupt-base": 224, "interrupt-count": 25, "interrupt-parent": 47 },
@@ -263,6 +263,11 @@
 	"adc-rk3399@0xff100000": {
 		"clock-name": "link-saradc",
 		"reference-voltage": 1800000
+	},
+
+	"ce-armv8-timer": {
+		"clock-frequency": -1,
+		"interrupt": 30
 	},
 
 	"cs-armv8-timer": {

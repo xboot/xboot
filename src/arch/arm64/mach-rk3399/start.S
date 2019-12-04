@@ -30,6 +30,50 @@
 #include <linkage.h>
 
 /*
+ * Branch according to exception level
+ */
+.macro switch_el, xreg, el3_label, el2_label, el1_label
+	mrs \xreg, CurrentEL
+	cmp \xreg, 0xc
+	b.eq \el3_label
+	cmp \xreg, 0x8
+	b.eq \el2_label
+	cmp \xreg, 0x4
+	b.eq \el1_label
+.endm
+
+/*
+ * Branch if current processor is a slave
+ */
+.macro branch_if_slave, xreg, slave_label
+	mrs \xreg, mpidr_el1
+	tst \xreg, #0xff
+	b.ne \slave_label
+	lsr \xreg, \xreg, #8
+	tst \xreg, #0xff
+	b.ne \slave_label
+	lsr \xreg, \xreg, #8
+	tst \xreg, #0xff
+	b.ne \slave_label
+	lsr \xreg, \xreg, #16
+	tst \xreg, #0xff
+	b.ne \slave_label
+.endm
+
+/*
+ * Branch if current processor is a master
+ */
+.macro	branch_if_master, xreg1, xreg2, master_label
+	mrs \xreg1, mpidr_el1
+	lsr \xreg2, \xreg1, #32
+	lsl \xreg2, \xreg2, #32
+	lsl \xreg1, \xreg1, #40
+	lsr \xreg1, \xreg1, #40
+	orr \xreg1, \xreg1, \xreg2
+	cbz \xreg1, \master_label
+.endm
+
+/*
  * Vector entry
  */
 .macro ventry label
@@ -148,74 +192,81 @@ vectors:
  * The actual reset code
  */
 reset:
-	/* Check processor id, stop all slave cores */
-	mrs x0, mpidr_el1
-	and x0, x0, #0xff
-	cbz x0, 2f
-1:  wfe
-	b 1b
-2:	nop
+	/* Reset the sctrl register */
+	switch_el x1, 3f, 2f, 1f
+3:	mrs x0, sctlr_el3
+	b 0f
+2:	mrs x0, sctlr_el2
+	b 0f
+1:	mrs x0, sctlr_el1
+0:	ldr x1, =0xfdfffffa
+	and x0, x0, x1
+	switch_el x1, 7f, 6f, 5f
+7:	msr sctlr_el3, x0
+	b 4f
+6:	msr sctlr_el2, x0
+	b 4f
+5:	msr sctlr_el1, x0
+4:	dsb sy
+	isb
+
+	/* Invalidate all tlb entries */
+	switch_el x1, 3f, 2f, 1f
+3:	tlbi alle3
+	dsb sy
+	isb
+	b 0f
+2:	tlbi alle2
+	dsb sy
+	isb
+	b 0f
+1:	tlbi vmalle1
+	dsb sy
+	isb
+0:	nop
 
 	/*
 	 * Initial system with exception level
 	 */
-	adr x0, vectors
-	mrs x1, CurrentEL
-	cmp x1, 0xc
-	b.eq 3f
-	cmp x1, 0x8
-	b.eq 2f
-	cmp x1, 0x4
-	b.eq 1f
-3:	msr vbar_el3, x0		/* Set el3 vbar */
+	ldr x0, =vectors
+	switch_el x1, 3f, 2f, 1f
+3:	msr vbar_el3, x0			/* Set el3 vbar */
+	mrs x2, scr_el3
+	orr x2, x2, #0xf			/* Enable non-secure, irq, fiq and ea */
+	msr scr_el3, x2
+	msr cptr_el3, xzr			/* Enable fp/simd */
+	ldr x2, =24000000
+	msr cntfrq_el0, x2			/* Initialize cntfrq */
+2:	msr vbar_el2, x0			/* Set el2 vbar */
 	mov x2, #0x33ff
-	msr cptr_el3, x2		/* Disable el3 coprocessor traps */
-	ldr x2, =19200000
-	msr cntfrq_el0, x2		/* Initialize cntfrq */
-	mov x2, #0x5b1
-	msr scr_el3, x2			/* Set el2 to 64bit, hvc enable, smc disable, disable routing, non-secure */
-2:	msr vbar_el2, x0		/* Set el2 vbar */
-	mov x2, #0x33ff
-	msr cptr_el2, x2		/* Disable el2 coprocessor traps */
-	mrs x2, cnthctl_el2
-	orr x2, x2, #3
-	msr cnthctl_el2, x2		/* Enable cntp for el1 */
-	msr cntvoff_el2, xzr	/* Virtual offset to zero */
-	mrs x2, hcr_el2
-	orr x2, x2, #(1 << 31)	/* Set el1 to 64bit */
-	orr x2, x2, #(1 << 1)	/* Hardwired swio */
-	msr hcr_el2, x2
-1:	msr vbar_el1, x0		/* Set el1 vbar */
+	msr cptr_el2, x2			/* Enable fp/simd */
+1:	msr vbar_el1, x0			/* Set el1 vbar */
 	ldr x2, _stack_el1_end
-	msr sp_el1, x2			/* Sel el1 stack */
-	mrs x2, cpacr_el1
-	orr x2, x2, #(3 << 20)
-	msr cpacr_el1, x2		/* Enable fp/simd */
+	msr sp_el1, x2				/* Sel el1 stack */
+	mov x2, #3 << 20
+	msr cpacr_el1, x2			/* Enable fp/simd */
 0:	ldr x2, _stack_el0_end
-	msr sp_el0, x2			/* Sel el0 stack */
+	msr sp_el0, x2				/* Sel el0 stack */
 
-	/*
-	 * Change exception level to el1
-	 */
-/*	mrs x1, CurrentEL
-	cmp x1, 0xc
-	b.eq 3f
-	cmp x1, 0x8
-	b.eq 2f
-	cmp x1, 0x4
-	b.eq 1f
-3:	mov x2, #0x3c9
-	msr spsr_el3, x2
-	adr x2, 2f
-	msr elr_el3, x2
-	eret
-2:	mov x2, #0x3c5
-	msr spsr_el2, x2
-	adr x2, 1f
-	msr elr_el2, x2
-	eret
-1:	nop
-*/
+	/* Enable smpen bit for coherency */
+	switch_el x1, 3f, 0f, 0f
+3:	mrs x2, S3_1_c15_c2_1
+	orr x2, x2, #0x40
+	msr S3_1_c15_c2_1, x2
+0:	nop
+
+	/* Processor specific initial */
+	branch_if_slave x0, 1f
+	ldr x0, =0xfee00000
+	bl gic_init_secure
+1:	ldr x0, =0xfef00000
+	bl gic_init_secure_percpu
+
+	branch_if_master x0, x1, master_cpu
+slave_cpu:
+1:  wfe
+	b 1b
+master_cpu:
 
 	/* Enable instruction cache */
 	mrs x0, sctlr_el1
@@ -265,6 +316,81 @@ _main:
 	mov x1, #0;
 	bl xboot_main
 	b _main
+
+	/* Initialize secure copy of gic at el3 */
+gic_init_secure:
+	mov w9, #0x37
+	str w9, [x0, 0x0000]
+	ldr w9, [x0, 0x0004]
+	and w10, w9, #0x1f
+	cbz w10, 1f
+	add x11, x0, (0x0080 + 4)
+	add x12, x0, (0x0d00 + 4)
+	mov w9, #~0
+0:	str w9, [x11], #0x4
+	str wzr, [x12], #0x4
+	sub w10, w10, #0x1
+	cbnz w10, 0b
+1:	ret
+
+	/* Initialize secure copy of gic at el3 for per cpu */
+gic_init_secure_percpu:
+	mrs x10, mpidr_el1
+	lsr x9, x10, #32
+	bfi x10, x9, #24, #8
+	mov x9, x0
+1:	ldr x11, [x9, 0x0008]
+	lsr x11, x11, #32
+	cmp w10, w11
+	b.eq 2f
+	add x9, x9, #(2 << 16)
+	b 1b
+2:	mov w10, #~0x2
+	ldr w11, [x9, 0x0014]
+	and w11, w11, w10
+	str w11, [x9, 0x0014]
+	dsb st
+	isb
+3:	ldr w10, [x9, 0x0014]
+	tbnz w10, #2, 3b
+	add x10, x9, #(1 << 16)
+	mov w11, #~0
+	str w11, [x10, 0x0080]
+	str wzr, [x10, 0x0d00]
+	mov w11, #0x1
+	str w11, [x10, 0x0100]
+
+	switch_el x0, el3_sre, el2_sre, el1_sre
+el3_sre:
+	mrs x10, S3_6_C12_C12_5
+	orr x10, x10, #0xf
+	msr S3_6_C12_C12_5, x10
+	isb
+el2_sre:
+	mrs x10, S3_4_C12_C9_5
+	orr x10, x10, #0xf
+	msr S3_4_C12_C9_5, x10
+	isb
+el1_sre:
+	mrs x0, CurrentEL
+	cmp x0, 0xc
+	b.ne el1_ctlr
+el3_ctlr:
+	mov x10, #0x3
+	msr S3_6_C12_C12_7, x10
+	isb
+	msr S3_6_C12_C12_4, xzr
+	isb
+el1_ctlr:
+	mov x10, #0x3
+	msr S3_0_C12_C12_7, x10
+	isb
+	msr S3_0_C12_C12_4, xzr
+	isb
+	mov x10, #0xf0
+	msr S3_0_C4_C6_0, x10
+	isb
+	ret
 
 	.align 6
 el1_sync:

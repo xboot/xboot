@@ -103,7 +103,7 @@ static int mach_keygen(struct machine_t * mach, const char * msg, void * key)
 
 static struct machine_t yi_smart_camera = {
 	.name 		= "yi-smart-camera",
-	.desc 		= "XiaoMi YI Smart Camera Based On Hi3518e",
+	.desc 		= "XiaoMi YI Smart Camera Based On Hi3518ev100",
 	.detect 	= mach_detect,
 	.memmap		= mach_memmap,
 	.smpinit	= mach_smpinit,

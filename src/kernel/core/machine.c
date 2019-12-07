@@ -196,20 +196,20 @@ inline __attribute__((always_inline)) struct machine_t * get_machine(void)
 	return __machine;
 }
 
-void machine_smpinit(int cpu)
+void machine_smpinit(void)
 {
 	struct machine_t * mach = get_machine();
 
-	if(mach && mach->smpinit)
-		mach->smpinit(mach, cpu);
+	if(mach && mach->smpinit && (CONFIG_MAX_SMP_CPUS > 1))
+		mach->smpinit(mach);
 }
 
-void machine_smpboot(int cpu, void (*func)(int cpu))
+void machine_smpboot(void (*func)(void))
 {
 	struct machine_t * mach = get_machine();
 
-	if(mach && mach->smpboot)
-		mach->smpboot(mach, cpu, func);
+	if(mach && mach->smpboot && (CONFIG_MAX_SMP_CPUS > 1))
+		mach->smpboot(mach, func);
 }
 
 void machine_shutdown(void)

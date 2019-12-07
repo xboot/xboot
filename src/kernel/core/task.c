@@ -395,14 +395,12 @@ static void idle_task(struct task_t * task, void * data)
 	}
 }
 
-static void smpboot_entry_func(int cpu)
+static void smpboot_entry_func(void)
 {
+	machine_smpinit();
+
 	struct scheduler_t * sched = scheduler_self();
-	struct task_t * task, * next;
-
-	machine_smpinit(cpu);
-
-	task = task_create(sched, "idle", idle_task, (void *)(unsigned long)cpu, SZ_8K, 0);
+	struct task_t * task = task_create(sched, "idle", idle_task, (void *)(unsigned long)(smp_processor_id()), SZ_8K, 0);
 	spin_lock(&sched->lock);
 	sched->weight -= task->weight;
 	task->nice = 26;
@@ -412,7 +410,7 @@ static void smpboot_entry_func(int cpu)
 	spin_unlock(&sched->lock);
 	task_resume(task);
 
-	next = scheduler_next_ready_task(sched);
+	struct task_t * next = scheduler_next_ready_task(sched);
 	if(next)
 	{
 		sched->running = next;
@@ -425,18 +423,10 @@ static void smpboot_entry_func(int cpu)
 
 void scheduler_loop(void)
 {
+	machine_smpboot(smpboot_entry_func);
+
 	struct scheduler_t * sched = scheduler_self();
-	struct task_t * task, * next;
-	int cpu = smp_processor_id();
-	int i;
-
-	for(i = 0; i < CONFIG_MAX_SMP_CPUS; i++)
-	{
-		if(i != cpu)
-			machine_smpboot(i, smpboot_entry_func);
-	}
-
-	task = task_create(sched, "idle", idle_task, (void *)(unsigned long)cpu, SZ_8K, 0);
+	struct task_t * task = task_create(sched, "idle", idle_task, (void *)(unsigned long)smp_processor_id(), SZ_8K, 0);
 	spin_lock(&sched->lock);
 	sched->weight -= task->weight;
 	task->nice = 26;
@@ -446,7 +436,7 @@ void scheduler_loop(void)
 	spin_unlock(&sched->lock);
 	task_resume(task);
 
-	next = scheduler_next_ready_task(sched);
+	struct task_t * next = scheduler_next_ready_task(sched);
 	if(next)
 	{
 		sched->running = next;

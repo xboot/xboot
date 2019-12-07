@@ -54,12 +54,14 @@ void sys_smp_secondary_startup(int cpu)
 	}
 }
 
-void sys_smp_secondary_boot(int cpu, void (*func)(int cpu))
+void sys_smp_secondary_boot(void (*func)(void))
 {
 	struct smp_boot_entry_t * e = &__smp_boot_entry[0];
+	int i;
 
-	if(cpu < 0 || cpu >= CONFIG_MAX_SMP_CPUS)
-		return;
-	e[cpu].func = func;
-	atomic_cmpxchg(&e[cpu].atomic, 0, 1);
+	for(i = 0; i < CONFIG_MAX_SMP_CPUS; i++)
+	{
+		e[i].func = func;
+		atomic_cmpxchg(&e[i].atomic, 0, 1);
+	}
 }

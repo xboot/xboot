@@ -29,7 +29,7 @@
 #include <xboot.h>
 
 struct smp_boot_entry_t {
-	void (*func)(int cpu);
+	void (*func)(void);
 	atomic_t atomic;
 };
 struct smp_boot_entry_t __smp_boot_entry[CONFIG_MAX_SMP_CPUS];
@@ -50,7 +50,7 @@ void sys_smp_secondary_startup(int cpu)
 		{
 		}
 		if(e[cpu].func)
-			e[cpu].func(cpu);
+			e[cpu].func();
 	}
 }
 

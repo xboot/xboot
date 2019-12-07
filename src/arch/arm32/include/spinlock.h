@@ -9,7 +9,7 @@ extern "C" {
 #include <barrier.h>
 #include <irqflags.h>
 
-#if defined(CONFIG_MAX_SMP_CPUS) && (CONFIG_MAX_SMP_CPUS > 1) && !defined(__SANDBOX__)
+#if defined(CONFIG_MAX_SMP_CPUS) && (CONFIG_MAX_SMP_CPUS > 1) && (__ARM32_ARCH__ >= 6) && !defined(__SANDBOX__)
 static inline int arch_spin_trylock(spinlock_t * lock)
 {
 	unsigned int tmp;

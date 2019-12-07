@@ -9,7 +9,7 @@ extern "C" {
 #include <barrier.h>
 #include <irqflags.h>
 
-#if 0 // FIXME!!!
+#if defined(CONFIG_MAX_SMP_CPUS) && (CONFIG_MAX_SMP_CPUS > 1)
 static inline void atomic_add(atomic_t * a, int v)
 {
 	unsigned int tmp;

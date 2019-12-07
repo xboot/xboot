@@ -248,7 +248,7 @@ _master:
 	ldr r2, =0x10080004
 	str r1, [r2]
 	/* Wakeup the slave core */
-	dmb
+	dsb
 	sev
 
 	/* Initial system jtag and uart */

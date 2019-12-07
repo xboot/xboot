@@ -48,6 +48,7 @@ static void mach_memmap(struct machine_t * mach)
 
 static void mach_smpinit(struct machine_t * mach)
 {
+	mmu_enable(mach);
 }
 
 static void mach_smpboot(struct machine_t * mach, void (*func)(void))
@@ -61,7 +62,6 @@ static void mach_smpboot(struct machine_t * mach, void (*func)(void))
 		c1 = read32(phys_to_virt(0x10080014));
 		c2 = read32(phys_to_virt(0x10080018));
 		c3 = read32(phys_to_virt(0x1008001c));
-		smp_mb();
 	} while((c0 != f) || (c1 != f) || (c2 != f) || (c3 != f));
 
 	/* Set boot informations */
@@ -72,7 +72,7 @@ static void mach_smpboot(struct machine_t * mach, void (*func)(void))
 	write32(phys_to_virt(0x1008001c), 0xcafebabe);
 
 	/* Startup all cpu cores */
-	smp_mb();
+	__asm__ __volatile__ ("dsb" : : : "memory");
 	__asm__ __volatile__ ("sev" : : : "memory");
 }
 

@@ -7,6 +7,7 @@ extern "C" {
 
 #include <types.h>
 #include <barrier.h>
+#include <irqflags.h>
 
 static inline void atomic_add(atomic_t * a, int v)
 {

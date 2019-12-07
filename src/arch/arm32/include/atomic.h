@@ -135,10 +135,10 @@ static inline int atomic_cmp_exchange(atomic_t * a, int o, int n)
 
 	do {
 		__asm__ __volatile__ (
-"ldrex %1, [%3]\n"
-"mov %0, #0\n"
-"teq %1, %4\n"
-"strexeq %0, %5, [%3]\n"
+"	ldrex %1, [%3]\n"
+"	mov %0, #0\n"
+"	teq %1, %4\n"
+"	strexeq %0, %5, [%3]\n"
 	: "=&r" (res), "=&r" (pre), "+Qo" (a->counter)
 	: "r" (&a->counter), "Ir" (o), "r" (n)
 	: "cc");

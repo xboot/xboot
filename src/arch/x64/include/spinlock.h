@@ -8,33 +8,38 @@ extern "C" {
 #include <types.h>
 #include <barrier.h>
 #include <irqflags.h>
-#include <smp.h>
 
 #if defined(CONFIG_MAX_SMP_CPUS) && (CONFIG_MAX_SMP_CPUS > 1) && !defined(__SANDBOX__)
 static inline int arch_spin_trylock(spinlock_t * lock)
 {
-	return 0;
+	lock->lock = 1;
+	return 1;
 }
 
 static inline void arch_spin_lock(spinlock_t * lock)
 {
+	lock->lock = 1;
 }
 
 static inline void arch_spin_unlock(spinlock_t * lock)
 {
+	lock->lock = 0;
 }
 #else
 static inline int arch_spin_trylock(spinlock_t * lock)
 {
-	return 0;
+	lock->lock = 1;
+	return 1;
 }
 
 static inline void arch_spin_lock(spinlock_t * lock)
 {
+	lock->lock = 1;
 }
 
 static inline void arch_spin_unlock(spinlock_t * lock)
 {
+	lock->lock = 0;
 }
 #endif
 

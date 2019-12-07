@@ -46,6 +46,7 @@ static void mach_memmap(struct machine_t * mach)
 	machine_mmap(mach, "dma", 0x34000000, 0x34000000, SZ_1M * 32, MAP_TYPE_NCNB);
 	machine_mmap(mach, "heap", 0x36000000, 0x36000000, SZ_1M * 160, MAP_TYPE_CB);
 	mmu_setup(mach);
+	mmu_enable(mach);
 }
 
 static void mach_smpinit(struct machine_t * mach)

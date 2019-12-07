@@ -31,12 +31,17 @@ void mmu_setup(struct machine_t * mach)
 	{
 		map_l1_section(0x00000000, 0x00000000, SZ_2G, 0);
 		map_l1_section(0x80000000, 0x80000000, SZ_2G, 0);
-
 		list_for_each_entry_safe(pos, n, &mach->mmap, list)
 		{
 			map_l1_section(pos->virt, pos->phys, pos->size, pos->type);
 		}
+	}
+}
 
+void mmu_enable(struct machine_t * mach)
+{
+	if(mach)
+	{
 		arm32_ttb_set((u32_t)(__mmu_ttb));
 		arm32_tlb_invalidate();
 		arm32_domain_set(0x3);

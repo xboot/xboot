@@ -15,6 +15,7 @@ enum {
 };
 
 void mmu_setup(struct machine_t * mach);
+void mmu_enable(struct machine_t * mach);
 
 #ifdef __cplusplus
 }

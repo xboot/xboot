@@ -51,6 +51,28 @@ static void mach_smpinit(struct machine_t * mach)
 
 static void mach_smpboot(struct machine_t * mach, void (*func)(void))
 {
+	uint32_t c0, c1, c2, c3;
+	uint32_t f = 0xdeadbeef;
+
+	/* Wait for all cpu cores have ready */
+	do {
+		c0 = read32(phys_to_virt(0x10080010));
+		c1 = read32(phys_to_virt(0x10080014));
+		c2 = read32(phys_to_virt(0x10080018));
+		c3 = read32(phys_to_virt(0x1008001c));
+		smp_mb();
+	} while((c0 != f) || (c1 != f) || (c2 != f) || (c3 != f));
+
+	/* Set boot informations */
+	write32(phys_to_virt(0x1008000c), (u32_t)func);
+	write32(phys_to_virt(0x10080010), 0xcafebabe);
+	write32(phys_to_virt(0x10080014), 0xcafebabe);
+	write32(phys_to_virt(0x10080018), 0xcafebabe);
+	write32(phys_to_virt(0x1008001c), 0xcafebabe);
+
+	/* Startup all cpu cores */
+	smp_mb();
+	__asm__ __volatile__ ("sev" : : : "memory");
 }
 
 static void mach_shutdown(struct machine_t * mach)

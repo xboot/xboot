@@ -43,8 +43,8 @@ char * ctime(const time_t * t);
 size_t strftime(char * s, size_t max, const char * fmt, const struct tm * t);
 int gettimeofday(struct timeval * tv, void * tz);
 
-struct tm * __time_to_tm(time_t t, struct tm * tm);
-time_t __tm_to_time(struct tm * tm);
+int __secs_to_tm(long long t, struct tm * tm);
+long long __tm_to_secs(const struct tm * tm);
 
 #ifdef __cplusplus
 }

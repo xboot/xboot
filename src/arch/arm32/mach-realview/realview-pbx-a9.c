@@ -1,5 +1,5 @@
 /*
- * realview-pb-a8.c
+ * realview-pbx-a9.c
  *
  * Copyright(c) 2007-2019 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -40,10 +40,33 @@ static int mach_detect(struct machine_t * mach)
 
 static void mach_smpinit(struct machine_t * mach)
 {
+	extern void mmu_enable(void);
+	mmu_enable();
 }
 
 static void mach_smpboot(struct machine_t * mach, void (*func)(void))
 {
+	uint32_t c0, c1, c2, c3;
+	uint32_t f = 0xdeadbeef;
+
+	/* Wait for all cpu cores have ready */
+	do {
+		c0 = read32(phys_to_virt(0x00000040));
+		c1 = read32(phys_to_virt(0x00000044));
+		c2 = read32(phys_to_virt(0x00000048));
+		c3 = read32(phys_to_virt(0x0000004c));
+	} while((c0 != f) || (c1 != f) || (c2 != f) || (c3 != f));
+
+	/* Set boot informations */
+	write32(phys_to_virt(0x0000003c), (u32_t)func);
+	write32(phys_to_virt(0x00000040), 0xcafebabe);
+	write32(phys_to_virt(0x00000044), 0xcafebabe);
+	write32(phys_to_virt(0x00000048), 0xcafebabe);
+	write32(phys_to_virt(0x0000004c), 0xcafebabe);
+
+	/* Startup all cpu cores */
+	__asm__ __volatile__ ("dsb" : : : "memory");
+	__asm__ __volatile__ ("sev" : : : "memory");
 }
 
 static void mach_shutdown(struct machine_t * mach)
@@ -105,9 +128,9 @@ static int mach_keygen(struct machine_t * mach, const char * msg, void * key)
 	return 0;
 }
 
-static struct machine_t realview_pb_a8 = {
-	.name 		= "realview-pb-a8",
-	.desc 		= "ARM RealView Platform Baseboard For Cortex-A8",
+static struct machine_t realview_pbx_a9 = {
+	.name 		= "realview-pbx-a9",
+	.desc 		= "ARM RealView Platform Baseboard Explore for Cortex-A9",
 	.detect 	= mach_detect,
 	.smpinit	= mach_smpinit,
 	.smpboot	= mach_smpboot,
@@ -120,15 +143,15 @@ static struct machine_t realview_pb_a8 = {
 	.keygen		= mach_keygen,
 };
 
-static __init void realview_pb_a8_machine_init(void)
+static __init void realview_pbx_a9_machine_init(void)
 {
-	register_machine(&realview_pb_a8);
+	register_machine(&realview_pbx_a9);
 }
 
-static __exit void realview_pb_a8_machine_exit(void)
+static __exit void realview_pbx_a9_machine_exit(void)
 {
-	unregister_machine(&realview_pb_a8);
+	unregister_machine(&realview_pbx_a9);
 }
 
-machine_initcall(realview_pb_a8_machine_init);
-machine_exitcall(realview_pb_a8_machine_exit);
+machine_initcall(realview_pbx_a9_machine_init);
+machine_exitcall(realview_pbx_a9_machine_exit);

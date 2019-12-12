@@ -110,6 +110,12 @@ _fiq:
 	.word fiq
 
 /*
+ * The smp spin table
+ */
+ 	.long 0
+	.long 0, 0, 0, 0
+
+/*
  * The actual reset code
  */
 reset:
@@ -131,7 +137,7 @@ reset:
 	/* Initialize stacks */
 	mrc p15, 0, r4, c0, c0, 5
 	and r4, r4, #0xf
-	mov r5, #CONFIG_MAX_SMP_CPUS
+	mov r5, #4
 
 	ldr r0, _stack_und_start
 	ldr r1, _stack_und_end
@@ -198,6 +204,29 @@ reset:
 	ldr sp, _stack_srv_end
 	sub sp, sp, r2
 
+	/* Initail smp by precessor id */
+	mrc p15, 0, r0, c0, c0, 5
+	and r0, #3
+	mov r4, #4
+	mul r4, r4, r0
+	ldr r3, =0x00000040		/* New boot flag address */
+	add r3, r3, r4
+	ldr r1, =0xdeadbeef
+	str r1, [r3]
+	ldr r2, =0xcafebabe
+	mov r4, #0
+	cmp r0, r4
+	beq _master
+_slave:
+	ldr r1, [r3]
+	cmp r1, r2
+	wfene
+	bne _slave
+	ldr r3, =0x0000003c		/* New boot function address */
+	ldr pc, [r3]
+_master:
+	nop
+
 	/* Copyself to link address */
 	adr r0, _start
 	ldr r1, =_start
@@ -260,7 +289,7 @@ udiv32:
 	lsr r2, r2, #1
 	lsrs r3, r3, #1
 	bcc 2b
-3:	mov pc,lr
+3:	mov pc, lr
 
 /*
  * Exception handlers

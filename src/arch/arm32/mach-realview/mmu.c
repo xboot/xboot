@@ -58,7 +58,7 @@ void mmu_setup(void)
 
 	map_l1_section(0x00000000, 0x00000000, SZ_2G, 0);
 	map_l1_section(0x80000000, 0x80000000, SZ_2G, 0);
-	map_l1_section(0x70000000, 0x70000000, SZ_256M, MAP_TYPE_CB);
+	map_l1_section(0x00000000, 0x00000000, SZ_256M, MAP_TYPE_CB);
 	map_l1_section((virtual_addr_t)&__dma_start, (physical_addr_t)&__dma_start, (physical_size_t)(&__dma_end - &__dma_start), MAP_TYPE_NCNB);
 }
 

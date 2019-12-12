@@ -6,7 +6,7 @@
 	"clk-fixed@4": { "name": "timclk", "rate": 1000000 },
 	"clk-fixed@5": { "name": "refclk", "rate": 32768 },
 
-	"irq-gic@0x1e000000": {
+	"irq-gic@0x1f000000": {
 		"interrupt-base": 32,
 		"interrupt-count": 32
 	},

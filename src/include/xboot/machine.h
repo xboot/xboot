@@ -35,7 +35,6 @@ struct machine_t {
 	const char * desc;
 
 	int (*detect)(struct machine_t * mach);
-	void (*memmap)(struct machine_t * mach);
 	void (*smpinit)(struct machine_t * mach);
 	void (*smpboot)(struct machine_t * mach, void (*func)(void));
 	void (*shutdown)(struct machine_t * mach);
@@ -47,9 +46,9 @@ struct machine_t {
 	int (*keygen)(struct machine_t * mach, const char * msg, void * key);
 };
 
-bool_t machine_mmap(struct machine_t * mach, const char * name, virtual_addr_t virt, physical_addr_t phys, physical_size_t size, int type);
 bool_t register_machine(struct machine_t * mach);
 bool_t unregister_machine(struct machine_t * mach);
+bool_t machine_mmap(struct machine_t * mach, const char * name, virtual_addr_t virt, physical_addr_t phys, physical_size_t size, int type);
 struct machine_t * get_machine(void);
 void machine_smpinit(void);
 void machine_smpboot(void (*func)(void));

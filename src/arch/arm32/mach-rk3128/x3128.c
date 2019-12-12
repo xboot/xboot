@@ -27,7 +27,6 @@
  */
 
 #include <xboot.h>
-#include <mmu.h>
 #include <rk3128/reg-cru.h>
 #include <rk3128/reg-grf.h>
 #include <rk3128/reg-pmu.h>
@@ -37,18 +36,10 @@ static int mach_detect(struct machine_t * mach)
 	return 1;
 }
 
-static void mach_memmap(struct machine_t * mach)
-{
-	machine_mmap(mach, "ram", 0x60000000, 0x60000000, SZ_128M, MAP_TYPE_CB);
-	machine_mmap(mach, "dma", 0x68000000, 0x68000000, SZ_128M, MAP_TYPE_NCNB);
-	machine_mmap(mach, "heap", 0x70000000, 0x70000000, SZ_256M, MAP_TYPE_CB);
-	mmu_setup(mach);
-	mmu_enable(mach);
-}
-
 static void mach_smpinit(struct machine_t * mach)
 {
-	mmu_enable(mach);
+	extern void mmu_enable(void);
+	mmu_enable();
 }
 
 static void mach_smpboot(struct machine_t * mach, void (*func)(void))
@@ -120,7 +111,6 @@ static struct machine_t x3128 = {
 	.name 		= "x3128",
 	.desc 		= "X3128 Based On RK3128 SOC",
 	.detect 	= mach_detect,
-	.memmap		= mach_memmap,
 	.smpinit	= mach_smpinit,
 	.smpboot	= mach_smpboot,
 	.shutdown	= mach_shutdown,

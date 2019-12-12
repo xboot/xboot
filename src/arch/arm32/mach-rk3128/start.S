@@ -278,6 +278,8 @@ _master:
 	ldr r1, =_main
 	mov pc, r1
 _main:
+	bl mmu_setup
+	bl mmu_enable
 	mov r0, #0
 	mov r1, #0
 	bl xboot_main

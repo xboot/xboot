@@ -119,10 +119,6 @@ bool_t register_machine(struct machine_t * mach)
 	if(!__machine && (mach->detect(mach) > 0))
 	{
 		__machine = mach;
-		if(mach->memmap)
-		{
-			mach->memmap(mach);
-		}
 		if(mach->logger)
 		{
 			for(i = 0; i < 5; i++)

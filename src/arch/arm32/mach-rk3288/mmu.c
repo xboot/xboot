@@ -1,5 +1,5 @@
 /*
- * sys-mmu.c
+ * mmu.c
  *
  * Copyright(c) 2007-2019 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -26,10 +26,19 @@
  *
  */
 
-#include <xboot.h>
+#include <xboot/machine.h>
 #include <arm32.h>
 
-static void map_l1_section(uint32_t * ttb, virtual_addr_t virt, physical_addr_t phys, physical_size_t size, int type)
+enum {
+	MAP_TYPE_NCNB	= 0x0,
+	MAP_TYPE_NCB	= 0x1,
+	MAP_TYPE_CNB	= 0x2,
+	MAP_TYPE_CB		= 0x3,
+};
+
+static uint32_t __mmu_ttb[4096] __attribute__((aligned(0x4000)));
+
+static void map_l1_section(virtual_addr_t virt, physical_addr_t phys, physical_size_t size, int type)
 {
 	physical_size_t i;
 
@@ -39,18 +48,23 @@ static void map_l1_section(uint32_t * ttb, virtual_addr_t virt, physical_addr_t 
 	type &= 0x3;
 
 	for(i = size; i > 0; i--, virt++, phys++)
-		ttb[virt] = (phys << 20) | (1 << 16) | (0x3 << 10) | (0x0 << 5) | (type << 2) | (0x2 << 0);
+		__mmu_ttb[virt] = (phys << 20) | (1 << 16) | (0x3 << 10) | (0x0 << 5) | (type << 2) | (0x2 << 0);
 }
 
-void sys_mmu_init(void)
+void mmu_setup(void)
 {
-	uint32_t * ttb = (uint32_t *)(0x80000000 + SZ_1M * 31);
+	extern unsigned char __dma_start;
+	extern unsigned char __dma_end;
 
-	map_l1_section(ttb, 0x00000000, 0x00000000, SZ_2G, 0);
-	map_l1_section(ttb, 0x80000000, 0x80000000, SZ_2G, 0);
-	map_l1_section(ttb, 0x80000000, 0x80000000, SZ_1M * 32, 3);
+	map_l1_section(0x00000000, 0x00000000, SZ_2G, 0);
+	map_l1_section(0x80000000, 0x80000000, SZ_2G, 0);
+	map_l1_section(0x60000000, 0x60000000, SZ_512M, MAP_TYPE_CB);
+	map_l1_section((virtual_addr_t)&__dma_start, (physical_addr_t)&__dma_start, (physical_size_t)(&__dma_end - &__dma_start), MAP_TYPE_NCNB);
+}
 
-	arm32_ttb_set((uint32_t)(ttb));
+void mmu_enable(void)
+{
+	arm32_ttb_set((uint32_t)(__mmu_ttb));
 	arm32_tlb_invalidate();
 	arm32_domain_set(0x3);
 	arm32_mmu_enable();

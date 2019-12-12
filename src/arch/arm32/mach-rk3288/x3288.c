@@ -27,7 +27,6 @@
  */
 
 #include <xboot.h>
-#include <mmu.h>
 #include <rk3288/reg-cru.h>
 #include <rk3288/reg-grf.h>
 #include <rk3288/reg-pmu.h>
@@ -49,15 +48,6 @@ static int mach_detect(struct machine_t * mach)
 	write32(phys_to_virt(RK3288_GRF_BASE + GRF_IO_VSEL), val);
 
 	return 1;
-}
-
-static void mach_memmap(struct machine_t * mach)
-{
-	machine_mmap(mach, "ram", 0x60000000, 0x60000000, SZ_128M, MAP_TYPE_CB);
-	machine_mmap(mach, "dma", 0x68000000, 0x68000000, SZ_128M, MAP_TYPE_NCNB);
-	machine_mmap(mach, "heap", 0x70000000, 0x70000000, SZ_256M, MAP_TYPE_CB);
-	mmu_setup(mach);
-	mmu_enable(mach);
 }
 
 static void mach_smpinit(struct machine_t * mach)
@@ -112,7 +102,6 @@ static struct machine_t x3288 = {
 	.name 		= "x3288",
 	.desc 		= "X3288 Based On RK3288 SOC",
 	.detect 	= mach_detect,
-	.memmap		= mach_memmap,
 	.smpinit	= mach_smpinit,
 	.smpboot	= mach_smpboot,
 	.shutdown	= mach_shutdown,

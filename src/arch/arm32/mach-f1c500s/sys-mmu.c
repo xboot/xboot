@@ -39,7 +39,7 @@ static void map_l1_section(uint32_t * ttb, virtual_addr_t virt, physical_addr_t 
 	type &= 0x3;
 
 	for(i = size; i > 0; i--, virt++, phys++)
-		ttb[virt] = (phys << 20) | (0x3 << 10) | (0x0 << 5) | (type << 2) | (0x2 << 0);
+		ttb[virt] = (phys << 20) | (1 << 16) | (0x3 << 10) | (0x0 << 5) | (type << 2) | (0x2 << 0);
 }
 
 void sys_mmu_init(void)

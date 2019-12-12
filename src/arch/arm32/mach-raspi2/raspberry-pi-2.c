@@ -27,21 +27,11 @@
  */
 
 #include <xboot.h>
-#include <mmu.h>
 #include <bcm2836-mbox.h>
 
 static int mach_detect(struct machine_t * mach)
 {
 	return 1;
-}
-
-static void mach_memmap(struct machine_t * mach)
-{
-	machine_mmap(mach, "ram", 0x00000000, 0x00000000, SZ_128M, MAP_TYPE_CB);
-	machine_mmap(mach, "dma", 0x08000000, 0x08000000, SZ_128M, MAP_TYPE_NCNB);
-	machine_mmap(mach, "heap", 0x10000000, 0x10000000, SZ_256M, MAP_TYPE_CB);
-	mmu_setup(mach);
-	mmu_enable(mach);
 }
 
 static void mach_smpinit(struct machine_t * mach)
@@ -119,7 +109,6 @@ static struct machine_t raspberry_pi_2 = {
 	.name 		= "raspberry-pi-2",
 	.desc 		= "Raspberry Pi 2 Model B",
 	.detect 	= mach_detect,
-	.memmap		= mach_memmap,
 	.smpinit	= mach_smpinit,
 	.smpboot	= mach_smpboot,
 	.shutdown	= mach_shutdown,

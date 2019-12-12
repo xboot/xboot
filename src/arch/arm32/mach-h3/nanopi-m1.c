@@ -27,7 +27,6 @@
  */
 
 #include <xboot.h>
-#include <mmu.h>
 
 static u32_t sram_read_id(virtual_addr_t virt)
 {
@@ -74,15 +73,6 @@ static int mach_detect(struct machine_t * mach)
 		}
 	}
 	return 0;
-}
-
-static void mach_memmap(struct machine_t * mach)
-{
-	machine_mmap(mach, "ram", 0x40000000, 0x40000000, SZ_128M, MAP_TYPE_CB);
-	machine_mmap(mach, "dma", 0x48000000, 0x48000000, SZ_128M, MAP_TYPE_NCNB);
-	machine_mmap(mach, "heap", 0x50000000, 0x50000000, SZ_256M, MAP_TYPE_CB);
-	mmu_setup(mach);
-	mmu_enable(mach);
 }
 
 static void mach_smpinit(struct machine_t * mach)
@@ -144,7 +134,6 @@ static struct machine_t nanopi_m1 = {
 	.name 		= "nanopi-m1",
 	.desc 		= "NanoPi M1 Based On Allwinner H3 SOC",
 	.detect 	= mach_detect,
-	.memmap		= mach_memmap,
 	.smpinit	= mach_smpinit,
 	.smpboot	= mach_smpboot,
 	.shutdown	= mach_shutdown,

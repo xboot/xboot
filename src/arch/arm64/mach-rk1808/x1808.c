@@ -35,10 +35,6 @@ static int mach_detect(struct machine_t * mach)
 	return 1;
 }
 
-static void mach_memmap(struct machine_t * mach)
-{
-}
-
 static void mach_smpinit(struct machine_t * mach)
 {
 }
@@ -91,7 +87,6 @@ static struct machine_t x1808 = {
 	.name 		= "x1808",
 	.desc 		= "X1808 Based On RK1808 SOC",
 	.detect 	= mach_detect,
-	.memmap		= mach_memmap,
 	.smpinit	= mach_smpinit,
 	.smpboot	= mach_smpboot,
 	.shutdown	= mach_shutdown,

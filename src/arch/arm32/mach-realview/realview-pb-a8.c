@@ -27,7 +27,6 @@
  */
 
 #include <xboot.h>
-#include <mmu.h>
 #include <realview/reg-sysctl.h>
 
 static int mach_detect(struct machine_t * mach)
@@ -37,16 +36,6 @@ static int mach_detect(struct machine_t * mach)
 	if(((read32(virt + SYSCTL_ID) >> 16) & 0xfff) == 0x178)
 		return 1;
 	return 0;
-}
-
-static void mach_memmap(struct machine_t * mach)
-{
-	machine_mmap(mach, "rom", 0x70000000, 0x70000000, SZ_32M, MAP_TYPE_CB);
-	machine_mmap(mach, "ram", 0x72000000, 0x72000000, SZ_32M, MAP_TYPE_CB);
-	machine_mmap(mach, "dma", 0x74000000, 0x74000000, SZ_64M, MAP_TYPE_NCNB);
-	machine_mmap(mach, "heap", 0x78000000, 0x78000000, SZ_128M, MAP_TYPE_CB);
-	mmu_setup(mach);
-	mmu_enable(mach);
 }
 
 static void mach_smpinit(struct machine_t * mach)
@@ -120,7 +109,6 @@ static struct machine_t realview_pb_a8 = {
 	.name 		= "realview-pb-a8",
 	.desc 		= "ARM RealView Platform Baseboard For Cortex-A8",
 	.detect 	= mach_detect,
-	.memmap		= mach_memmap,
 	.smpinit	= mach_smpinit,
 	.smpboot	= mach_smpboot,
 	.shutdown	= mach_shutdown,

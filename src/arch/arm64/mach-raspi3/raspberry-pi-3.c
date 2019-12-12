@@ -34,10 +34,6 @@ static int mach_detect(struct machine_t * mach)
 	return 1;
 }
 
-static void mach_memmap(struct machine_t * mach)
-{
-}
-
 static void mach_smpinit(struct machine_t * mach)
 {
 }
@@ -129,7 +125,6 @@ static struct machine_t raspberry_pi_3 = {
 	.name 		= "raspberry-pi-3",
 	.desc 		= "Raspberry Pi 3 Model B",
 	.detect 	= mach_detect,
-	.memmap		= mach_memmap,
 	.smpinit	= mach_smpinit,
 	.smpboot	= mach_smpboot,
 	.shutdown	= mach_shutdown,

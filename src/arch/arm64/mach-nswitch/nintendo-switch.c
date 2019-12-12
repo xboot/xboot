@@ -33,10 +33,6 @@ static int mach_detect(struct machine_t * mach)
 	return 1;
 }
 
-static void mach_memmap(struct machine_t * mach)
-{
-}
-
 static void mach_smpinit(struct machine_t * mach)
 {
 }
@@ -89,7 +85,6 @@ static struct machine_t nintendo_switch = {
 	.name 		= "nintendo-switch",
 	.desc 		= "Nintendo Switch Tv Game Console",
 	.detect 	= mach_detect,
-	.memmap		= mach_memmap,
 	.smpinit	= mach_smpinit,
 	.smpboot	= mach_smpboot,
 	.shutdown	= mach_shutdown,

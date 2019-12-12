@@ -27,22 +27,12 @@
  */
 
 #include <xboot.h>
-#include <mmu.h>
 
 static int mach_detect(struct machine_t * mach)
 {
 	virtual_addr_t virt = phys_to_virt(0x1002330c);
 	write32(virt, (read32(virt) & ~(0x3 << 8)) | (0x3 << 8));
 	return 1;
-}
-
-static void mach_memmap(struct machine_t * mach)
-{
-	machine_mmap(mach, "ram", 0x40000000, 0x40000000, SZ_128M, MAP_TYPE_CB);
-	machine_mmap(mach, "dma", 0x48000000, 0x48000000, SZ_128M, MAP_TYPE_NCNB);
-	machine_mmap(mach, "heap", 0x50000000, 0x50000000, SZ_256M, MAP_TYPE_CB);
-	mmu_setup(mach);
-	mmu_enable(mach);
 }
 
 static void mach_smpinit(struct machine_t * mach)
@@ -108,7 +98,6 @@ static struct machine_t x4412 = {
 	.name 		= "x4412",
 	.desc 		= "X4412 Based On Samsung Exynos4412",
 	.detect 	= mach_detect,
-	.memmap		= mach_memmap,
 	.smpinit	= mach_smpinit,
 	.smpboot	= mach_smpboot,
 	.shutdown	= mach_shutdown,

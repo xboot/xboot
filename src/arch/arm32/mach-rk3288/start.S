@@ -133,6 +133,11 @@ reset:
 	bic r0, #(1 << 13)
 	mcr p15, 0, r0, c1, c0, 0
 
+	/* Enable SMP mode for dcache, by setting bit 6 of auxiliary ctl reg */
+	mrc p15, 0, r0, c1, c0, 1
+	orr r0, r0, #(1 << 6)
+	mcr p15, 0, r0, c1, c0, 1
+
 	/* Enable neon/vfp unit */
 	mrc p15, 0, r0, c1, c0, 2
 	orr r0, r0, #(0xf << 20)
@@ -142,31 +147,74 @@ reset:
 	vmsr fpexc, r0
 
 	/* Initialize stacks */
+	mrc p15, 0, r4, c0, c0, 5
+	and r4, r4, #0xf
+	mov r5, #4
+
+	ldr r0, _stack_und_start
+	ldr r1, _stack_und_end
+	sub r0, r1, r0
+	mov r1, r5
+	bl udiv32
+	mul r2, r0, r4
 	mrs r0, cpsr
 	bic r0, r0, #0x1f
 	orr r1, r0, #0x1b
 	msr cpsr_cxsf, r1
 	ldr sp, _stack_und_end
+	sub sp, sp, r2
 
+	ldr r0, _stack_abt_start
+	ldr r1, _stack_abt_end
+	sub r0, r1, r0
+	mov r1, r5
+	bl udiv32
+	mul r2, r0, r4
+	mrs r0, cpsr
 	bic r0, r0, #0x1f
 	orr r1, r0, #0x17
 	msr cpsr_cxsf, r1
 	ldr sp, _stack_abt_end
+	sub sp, sp, r2
 
+	ldr r0, _stack_irq_start
+	ldr r1, _stack_irq_end
+	sub r0, r1, r0
+	mov r1, r5
+	bl udiv32
+	mul r2, r0, r4
+	mrs r0, cpsr
 	bic r0, r0, #0x1f
 	orr r1, r0, #0x12
 	msr cpsr_cxsf, r1
 	ldr sp, _stack_irq_end
+	sub sp, sp, r2
 
+	ldr r0, _stack_fiq_start
+	ldr r1, _stack_fiq_end
+	sub r0, r1, r0
+	mov r1, r5
+	bl udiv32
+	mul r2, r0, r4
+	mrs r0, cpsr
 	bic r0, r0, #0x1f
 	orr r1, r0, #0x11
 	msr cpsr_cxsf, r1
 	ldr sp, _stack_fiq_end
+	sub sp, sp, r2
 
+	ldr r0, _stack_srv_start
+	ldr r1, _stack_srv_end
+	sub r0, r1, r0
+	mov r1, r5
+	bl udiv32
+	mul r2, r0, r4
+	mrs r0, cpsr
 	bic r0, r0, #0x1f
 	orr r1, r0, #0x13
 	msr cpsr_cxsf, r1
 	ldr sp, _stack_srv_end
+	sub sp, sp, r2
 
 	/* Copyself to link address */
 	adr r0, _start
@@ -195,6 +243,28 @@ _main:
 	bl mmu_enable
 	bl xboot_main
 	b _main
+
+	.global udiv32
+udiv32:
+	cmp r1, #0
+	beq 3f
+	mov r2, r1
+	mov r1, r0
+	mov r0, #0
+	mov r3, #1
+1:	cmp r2, #0
+	blt 2f
+	cmp r2, r1
+	lslls r2, r2, #1
+	lslls r3, r3, #1
+	bls 1b
+2:	cmp r1, r2
+	subge r1, r1, r2
+	addge r0, r0, r3
+	lsr r2, r2, #1
+	lsrs r3, r3, #1
+	bcc 2b
+3:	mov pc, lr
 
 /*
  * Exception handlers
@@ -261,13 +331,23 @@ _bss_start:
 	.long __bss_start
 _bss_end:
 	.long __bss_end
+_stack_und_start:
+	.long __stack_und_start
 _stack_und_end:
 	.long __stack_und_end
+_stack_abt_start:
+	.long __stack_abt_start
 _stack_abt_end:
 	.long __stack_abt_end
+_stack_irq_start:
+	.long __stack_irq_start
 _stack_irq_end:
 	.long __stack_irq_end
+_stack_fiq_start:
+	.long __stack_fiq_start
 _stack_fiq_end:
 	.long __stack_fiq_end
+_stack_srv_start:
+	.long __stack_srv_start
 _stack_srv_end:
 	.long __stack_srv_end

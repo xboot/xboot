@@ -26,8 +26,6 @@
  *
  */
 
-#include <xconfigs.h>
-
 .macro save_regs
 	str lr, [sp, #-4]
 	mrs lr, spsr_all
@@ -110,9 +108,9 @@ _fiq:
 	.word fiq
 
 /*
- * The smp spin table
+ * The smp jump tables
  */
- 	.long 0
+	.long 0
 	.long 0, 0, 0, 0
 
 /*

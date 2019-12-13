@@ -26,8 +26,6 @@
  *
  */
 
-#include <xconfigs.h>
-
 .macro save_regs
 	str lr, [sp, #-4]
 	mrs lr, spsr_all

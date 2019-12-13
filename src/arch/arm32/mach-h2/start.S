@@ -118,6 +118,12 @@ _fiq:
 	.word fiq
 
 /*
+ * The smp jump tables
+ */
+	.long 0
+	.long 0, 0, 0, 0
+
+/*
  * The actual reset code
  */
 reset:
@@ -134,6 +140,7 @@ reset:
 	mrc p15, 0, lr, c1, c0, 0
 	str lr, [r0, #20]
 
+entry:
 	/* Enter svc mode cleanly and mask interrupts */
 	mrs r0, cpsr
 	eor r0, r0, #0x1a
@@ -180,10 +187,126 @@ reset:
 	ldr r1, =0x7f
 	str r1, [r0]
 
-	/* Initial system uart, clock and ddr */
+	/* Initial system uart, clock and ddr using master */
+	mrc p15, 0, r0, c0, c0, 5
+	ands r0, #3
+	bne 1f
 	bl sys_uart_init
 	bl sys_clock_init
 	bl sys_dram_init
+1:	nop
+
+	/* Initialize stacks */
+	mrc p15, 0, r4, c0, c0, 5
+	and r4, r4, #0xf
+	mov r5, #4
+
+	ldr r0, _stack_und_start
+	ldr r1, _stack_und_end
+	sub r0, r1, r0
+	mov r1, r5
+	bl udiv32
+	mul r2, r0, r4
+	mrs r0, cpsr
+	bic r0, r0, #0x1f
+	orr r1, r0, #0x1b
+	msr cpsr_cxsf, r1
+	ldr sp, _stack_und_end
+	sub sp, sp, r2
+
+	ldr r0, _stack_abt_start
+	ldr r1, _stack_abt_end
+	sub r0, r1, r0
+	mov r1, r5
+	bl udiv32
+	mul r2, r0, r4
+	mrs r0, cpsr
+	bic r0, r0, #0x1f
+	orr r1, r0, #0x17
+	msr cpsr_cxsf, r1
+	ldr sp, _stack_abt_end
+	sub sp, sp, r2
+
+	ldr r0, _stack_irq_start
+	ldr r1, _stack_irq_end
+	sub r0, r1, r0
+	mov r1, r5
+	bl udiv32
+	mul r2, r0, r4
+	mrs r0, cpsr
+	bic r0, r0, #0x1f
+	orr r1, r0, #0x12
+	msr cpsr_cxsf, r1
+	ldr sp, _stack_irq_end
+	sub sp, sp, r2
+
+	ldr r0, _stack_fiq_start
+	ldr r1, _stack_fiq_end
+	sub r0, r1, r0
+	mov r1, r5
+	bl udiv32
+	mul r2, r0, r4
+	mrs r0, cpsr
+	bic r0, r0, #0x1f
+	orr r1, r0, #0x11
+	msr cpsr_cxsf, r1
+	ldr sp, _stack_fiq_end
+	sub sp, sp, r2
+
+	ldr r0, _stack_srv_start
+	ldr r1, _stack_srv_end
+	sub r0, r1, r0
+	mov r1, r5
+	bl udiv32
+	mul r2, r0, r4
+	mrs r0, cpsr
+	bic r0, r0, #0x1f
+	orr r1, r0, #0x13
+	msr cpsr_cxsf, r1
+	ldr sp, _stack_srv_end
+	sub sp, sp, r2
+
+	/* Initail smp by precessor id */
+	mrc p15, 0, r0, c0, c0, 5
+	and r0, #3
+	mov r4, #4
+	mul r4, r4, r0
+	ldr r3, =0x000000a0		/* New boot flag address */
+	add r3, r3, r4
+	ldr r1, =0xdeadbeef
+	str r1, [r3]
+	ldr r2, =0xcafebabe
+	mov r4, #0
+	cmp r0, r4
+	beq _master
+_slave:
+	ldr r1, [r3]
+	cmp r1, r2
+	wfene
+	bne _slave
+	bl mmu_enable
+	ldr r3, =0x0000009c		/* New boot function address */
+	ldr pc, [r3]
+_master:
+	/* Set the slave core's boot function */
+	ldr r3, =0x01f01c00
+	ldr r2, =entry
+	str r2, [r3, #0x1a4]
+	/* Wakeup the slave core 1 */
+	ldr r2, =0x0
+	str r2, [r3, #0x80]
+	ldr r2, =0x3
+	str r2, [r3, #0x80]
+	/* Wakeup the slave core 2 */
+	ldr r2, =0x0
+	str r2, [r3, #0xc0]
+	ldr r2, =0x3
+	str r2, [r3, #0xc0]
+	/* Wakeup the slave core 3 */
+	ldr r2, =0x0
+	str r2, [r3, #0x100]
+	ldr r2, =0x3
+	str r2, [r3, #0x100]
 
 	/* Copyself to link address */
 	adr r0, _start
@@ -192,33 +315,6 @@ reset:
 	beq 1f
 	bl sys_copyself
 1:	nop
-
-	/* Initialize stacks */
-	mrs r0, cpsr
-	bic r0, r0, #0x1f
-	orr r1, r0, #0x1b
-	msr cpsr_cxsf, r1
-	ldr sp, _stack_und_end
-
-	bic r0, r0, #0x1f
-	orr r1, r0, #0x17
-	msr cpsr_cxsf, r1
-	ldr sp, _stack_abt_end
-
-	bic r0, r0, #0x1f
-	orr r1, r0, #0x12
-	msr cpsr_cxsf, r1
-	ldr sp, _stack_irq_end
-
-	bic r0, r0, #0x1f
-	orr r1, r0, #0x11
-	msr cpsr_cxsf, r1
-	ldr sp, _stack_fiq_end
-
-	bic r0, r0, #0x1f
-	orr r1, r0, #0x13
-	msr cpsr_cxsf, r1
-	ldr sp, _stack_srv_end
 
 	/* Clear bss section */
 	ldr r0, _bss_start
@@ -237,6 +333,28 @@ _main:
 	mov r1, #0
 	bl xboot_main
 	b _main
+
+	.global udiv32
+udiv32:
+	cmp r1, #0
+	beq 3f
+	mov r2, r1
+	mov r1, r0
+	mov r0, #0
+	mov r3, #1
+1:	cmp r2, #0
+	blt 2f
+	cmp r2, r1
+	lslls r2, r2, #1
+	lslls r3, r3, #1
+	bls 1b
+2:	cmp r1, r2
+	subge r1, r1, r2
+	addge r0, r0, r3
+	lsr r2, r2, #1
+	lsrs r3, r3, #1
+	bcc 2b
+3:	mov pc, lr
 
 	.global return_to_fel
 return_to_fel:
@@ -318,13 +436,23 @@ _bss_start:
 	.long __bss_start
 _bss_end:
 	.long __bss_end
+_stack_und_start:
+	.long __stack_und_start
 _stack_und_end:
 	.long __stack_und_end
+_stack_abt_start:
+	.long __stack_abt_start
 _stack_abt_end:
 	.long __stack_abt_end
+_stack_irq_start:
+	.long __stack_irq_start
 _stack_irq_end:
 	.long __stack_irq_end
+_stack_fiq_start:
+	.long __stack_fiq_start
 _stack_fiq_end:
 	.long __stack_fiq_end
+_stack_srv_start:
+	.long __stack_srv_start
 _stack_srv_end:
 	.long __stack_srv_end

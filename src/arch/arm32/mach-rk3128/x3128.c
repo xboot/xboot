@@ -38,8 +38,6 @@ static int mach_detect(struct machine_t * mach)
 
 static void mach_smpinit(struct machine_t * mach)
 {
-	extern void mmu_enable(void);
-	mmu_enable();
 }
 
 static void mach_smpboot(struct machine_t * mach, void (*func)(void))

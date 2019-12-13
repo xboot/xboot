@@ -220,6 +220,7 @@ _slave:
 	cmp r1, r2
 	wfene
 	bne _slave
+	bl mmu_enable
 	ldr r3, =0x0000003c		/* New boot function address */
 	ldr pc, [r3]
 _master:

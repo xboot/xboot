@@ -29,7 +29,7 @@
 #include <xboot.h>
 #include <init.h>
 
-int xboot_main(int argc, char * argv[])
+void xboot_main(void)
 {
 	/* Do initial memory */
 	do_init_mem();
@@ -62,7 +62,4 @@ int xboot_main(int argc, char * argv[])
 
 	/* Do all exit calls */
 	do_exitcalls();
-
-	/* Xboot return */
-	return 0;
 }

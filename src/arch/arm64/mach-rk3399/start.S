@@ -312,8 +312,6 @@ master_cpu:
 	ldr x1, =_main
 	br x1
 _main:
-	mov x0, #0;
-	mov x1, #0;
 	bl xboot_main
 	b _main
 

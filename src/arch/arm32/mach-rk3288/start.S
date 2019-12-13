@@ -216,6 +216,40 @@ reset:
 	ldr sp, _stack_srv_end
 	sub sp, sp, r2
 
+	/* Initail smp by precessor id */
+	mrc p15, 0, r0, c0, c0, 5
+	and r0, #3
+	mov r4, #4
+	mul r4, r4, r0
+	ldr r3, =0xff700010		/* New boot flag address */
+	add r3, r3, r4
+	ldr r1, =0xdeadbeef
+	str r1, [r3]
+	ldr r2, =0xcafebabe
+	mov r4, #0
+	cmp r0, r4
+	beq _master
+_slave:
+	ldr r1, [r3]
+	cmp r1, r2
+	wfene
+	bne _slave
+	bl mmu_enable
+	ldr r3, =0xff70000c		/* New boot function address */
+	ldr pc, [r3]
+_master:
+	/* Set the slave core's boot function */
+	ldr r1, =_start
+	ldr r2, =0xff700008
+	str r1, [r2]
+	/* Set the slave core's boot flag */
+	ldr r1, =0xdeadbeaf
+	ldr r2, =0xff700004
+	str r1, [r2]
+	/* Wakeup the slave core */
+	dsb
+	sev
+
 	/* Copyself to link address */
 	adr r0, _start
 	ldr r1, =_start

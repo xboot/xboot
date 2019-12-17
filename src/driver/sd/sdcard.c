@@ -581,7 +581,7 @@ static u64_t sdcard_blk_read(struct block_t * blk, u8_t * buf, u64_t blkno, u64_
 
 	while(blks > 0)
 	{
-		cnt = (blks > 65535) ?  65535 : blks;
+		cnt = (blks > 127) ? 127 : blks;
 		if(mmc_read_blocks(hci, card, buf, blkno, cnt) != cnt)
 			return 0;
 		blks -= cnt;
@@ -600,7 +600,7 @@ static u64_t sdcard_blk_write(struct block_t * blk, u8_t * buf, u64_t blkno, u64
 
 	while(blks > 0)
 	{
-		cnt = (blks > 65535) ?  65535 : blks;
+		cnt = (blks > 127) ? 127 : blks;
 		if(mmc_write_blocks(hci, card, buf, blkno, cnt) != cnt)
 			return 0;
 		blks -= cnt;

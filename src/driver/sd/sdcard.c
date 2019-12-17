@@ -308,7 +308,6 @@ static u64_t mmc_read_blocks(struct sdhci_t * hci, struct sdcard_t * card, u8_t 
 	dat.blkcnt = blkcnt;
 	if(!sdhci_transfer(hci, &cmd, &dat))
 		return 0;
-
 	if(blkcnt > 1)
 	{
 		cmd.cmdidx = MMC_STOP_TRANSMISSION;
@@ -340,6 +339,14 @@ static u64_t mmc_write_blocks(struct sdhci_t * hci, struct sdcard_t * card, u8_t
 	dat.blkcnt = blkcnt;
 	if(!sdhci_transfer(hci, &cmd, &dat))
 		return 0;
+	if(blkcnt > 1)
+	{
+		cmd.cmdidx = MMC_STOP_TRANSMISSION;
+		cmd.cmdarg = 0;
+		cmd.resptype = MMC_RSP_R1B;
+		if(!sdhci_transfer(hci, &cmd, NULL))
+			return 0;
+	}
 	return blkcnt;
 }
 

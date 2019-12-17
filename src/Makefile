@@ -179,6 +179,17 @@ SRCDIRS		+=	external/lua-5.3.5
 INCDIRS		+= 	external/lua-cjson-2.1.0
 SRCDIRS		+=	external/lua-cjson-2.1.0
 
+INCDIRS		+= 	external/lwip-2.1.2/include \
+				external/lwip-2.1.2/ports/include
+SRCDIRS		+=	external/lwip-2.1.2/api \
+				external/lwip-2.1.2/core \
+				external/lwip-2.1.2/core/ipv4 \
+				external/lwip-2.1.2/core/ipv6 \
+				external/lwip-2.1.2/netif \
+				external/lwip-2.1.2/netif/ppp \
+				external/lwip-2.1.2/netif/ppp/polarssl \
+				external/lwip-2.1.2/ports
+
 INCDIRS		+= 	external/freetype-2.10.1/include \
 				external/freetype-2.10.1/src/autofit \
 				external/freetype-2.10.1/src/base \

@@ -26,8 +26,7 @@
  *
  */
 
-#include <xboot/machine.h>
-#include <arm32.h>
+#include <cache.h>
 
 enum {
 	MAP_TYPE_NCNB	= 0x0,
@@ -37,6 +36,25 @@ enum {
 };
 
 static uint32_t __mmu_ttb[4096] __attribute__((aligned(0x4000)));
+
+static inline void mmu_ttb_set(uint32_t base)
+{
+	__asm__ __volatile__("mcr p15, 0, %0, c2, c0, 0" : : "r" (base) : "memory");
+}
+
+static inline void mmu_domain_set(uint32_t domain)
+{
+	__asm__ __volatile__("mcr p15, 0, %0, c3, c0, 0" : : "r" (domain) : "memory");
+}
+
+static inline void mmu_inv_tlb(void)
+{
+	__asm__ __volatile__("mcr p15, 0, %0, c8, c7, 0" : : "r" (0));
+	__asm__ __volatile__("mcr p15, 0, %0, c8, c6, 0" : : "r" (0));
+	__asm__ __volatile__("mcr p15, 0, %0, c8, c5, 0" : : "r" (0));
+	dsb();
+	isb();
+}
 
 static void map_l1_section(virtual_addr_t virt, physical_addr_t phys, physical_size_t size, int type)
 {
@@ -64,9 +82,12 @@ void mmu_setup(void)
 
 void mmu_enable(void)
 {
-	arm32_ttb_set((uint32_t)(__mmu_ttb));
-	arm32_tlb_invalidate();
-	arm32_domain_set(0x3);
+	mmu_ttb_set((uint32_t)(__mmu_ttb));
+	cache_inv_range(0, ~0);
+	outer_cache_enable();
+	outer_cache_inv_range(0, ~0);
+	mmu_inv_tlb();
+	mmu_domain_set(0x3);
 	arm32_mmu_enable();
 	arm32_icache_enable();
 	arm32_dcache_enable();

@@ -92,36 +92,6 @@ static inline void arm32_icache_disable(void)
 	arm32_write_p15_c1(value & ~(1 << 12));
 }
 
-static inline void arm32_ttb_set(uint32_t base)
-{
-	__asm__ __volatile__(
-		"mcr p15, 0, %0, c2, c0, 0"
-		:
-		: "r" (base)
-		: "memory");
-}
-
-static inline void arm32_domain_set(uint32_t domain)
-{
-	__asm__ __volatile__(
-		"mcr p15, 0, %0, c3, c0, 0"
-		:
-		: "r" (domain)
-		: "memory");
-}
-
-static inline void arm32_tlb_invalidate(void)
-{
-	__asm__ __volatile__(
-		"mov r0, #0\n"
-		"mcr p15, 0, r0, c7, c10, 4\n"
-		"mcr p15, 0, r0, c8, c6, 0\n"
-		"mcr p15, 0, r0, c8, c5, 0\n"
-		:
-		:
-		: "r0");
-}
-
 #ifdef __cplusplus
 }
 #endif

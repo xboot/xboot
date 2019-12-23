@@ -5,7 +5,7 @@
 .PHONY: all clean
 
 all:
-	@$(MAKE) -C src all
+	@$(MAKE) -s -C src all
 
 clean:
-	@$(MAKE) -C src clean
+	@$(MAKE) -s -C src clean

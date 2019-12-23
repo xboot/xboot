@@ -5,6 +5,9 @@
 #
 # You can pass CROSS_COMPILE, PLATFORM and WBOXTEST variable.
 #
+
+all :
+
 CROSS_COMPILE	?=
 PLATFORM		?=
 WBOXTEST		?=
@@ -272,26 +275,44 @@ X_NAME		:=	$(patsubst %, $(X_OUT)/%, xboot)
 X_INCDIRS	:=	$(patsubst %, -I %, $(INCDIRS))
 X_LIBDIRS	:=	$(patsubst %, -L %, $(LIBDIRS))
 X_SRCDIRS	:=	$(patsubst %, %, $(SRCDIRS))
+X_ARCHSRC	:=	$(filter arch/%, $(X_SRCDIRS))
 X_OBJDIRS	:=	$(patsubst %, .obj/%, $(X_SRCDIRS))
 
-X_SFILES	:=	$(foreach dir, $(X_SRCDIRS), $(wildcard $(dir)/*.S))
-X_CFILES	:=	$(foreach dir, $(X_SRCDIRS), $(wildcard $(dir)/*.c))
-
-X_SDEPS		:=	$(patsubst %, .obj/%, $(X_SFILES:.S=.o.d))
-X_CDEPS		:=	$(patsubst %, .obj/%, $(X_CFILES:.c=.o.d))
-X_DEPS		:=	$(X_SDEPS) $(X_CDEPS)
+X_SFILES	:=	$(foreach dir, $(X_ARCHSRC), $(wildcard $(dir)/*.S))
+X_CFILES	:=	$(foreach dir, $(X_ARCHSRC), $(wildcard $(dir)/*.c))
 
 X_SOBJS		:=	$(patsubst %, .obj/%, $(X_SFILES:.S=.o))
 X_COBJS		:=	$(patsubst %, .obj/%, $(X_CFILES:.c=.o))
 X_OBJS		:=	$(X_SOBJS) $(X_COBJS)
+X_OBJS		+=	$(foreach dir, $(filter-out arch/%, $(X_SRCDIRS)), $(dir)/built-in.o)
 
-VPATH		:=	$(X_OBJDIRS)
-.PHONY:	all clean xbegin xend xclean
+VPATH		:=	.obj
+.PHONY:	all clean xbegin xend xclean prepare $(X_SRCDIRS)
+
+export AS CC CXX LD AR X_ASFLAGS X_CFLAGS X_INCDIRS
 
 #
 # Xboot rules
 #
-all : xbegin $(X_NAME) xend
+all: xend
+
+xend : $(X_NAME)
+
+$(X_SRCDIRS) : xbegin
+
+xbegin : prepare
+
+prepare :
+	@echo [PREPARE]
+	@$(MKDIR) $(X_OBJDIRS) $(X_OUT) \
+	&& $(RM) .obj/init/version.o \
+	&& $(RM) .obj/driver/block/romdisk.o \
+	&& $(RM) .obj/romdisk \
+	&& $(RM) .obj/romdisk.cpio \
+	&& $(CP) romdisk .obj \
+	&& $(CP) arch/$(ARCH)/$(MACH)/romdisk .obj \
+	&& $(CD) .obj/romdisk \
+	&& $(FIND) . -not -name . | $(CPIO) > ../romdisk.cpio
 
 $(X_NAME) : $(X_OBJS)
 	@echo [LD] Linking $@
@@ -299,28 +320,13 @@ $(X_NAME) : $(X_OBJS)
 	@echo [OC] Objcopying $@.bin
 	@$(OC) -v -O binary $@ $@.bin
 
-$(X_SOBJS) : .obj/%.o : %.S
-	@echo [AS] $<
-	@$(AS) $(X_ASFLAGS) -MD -MP -MF $@.d $(X_INCDIRS) -c $< -o $@
+$(X_OBJS) : $(X_SRCDIRS) ;
 
-$(X_COBJS) : .obj/%.o : %.c
-	@echo [CC] $<
-	@$(CC) $(X_CFLAGS) -MD -MP -MF $@.d $(X_INCDIRS) -c $< -o $@
+$(X_ARCHSRC) :
+	@$(MAKE) -s -f build.mk X_SRCDIR=$@ X_NAME=
+
+$(filter-out $(X_ARCHSRC), $(X_SRCDIRS)) :
+	@$(MAKE) -s -f build.mk X_SRCDIR=$@ X_NAME=$@/built-in.o
 
 clean : xclean
 	@$(RM) .obj $(X_OUT)
-
-#
-# Include the dependency files, should be place the last of makefile
-#
-sinclude $(shell $(MKDIR) $(X_OBJDIRS) $(X_OUT) \
-			&& $(RM) .obj/init/version.o \
-			&& $(RM) .obj/driver/block/romdisk.o \
-			&& $(RM) .obj/romdisk \
-			&& $(RM) .obj/romdisk.cpio \
-			&& $(CP) romdisk .obj \
-			&& $(CP) arch/$(ARCH)/$(MACH)/romdisk .obj \
-			&& $(CD) .obj/romdisk \
-			&& $(FIND) . -not -name . | $(CPIO) > ../romdisk.cpio \
-			&& $(CD) ../..) \
-			$(X_DEPS)

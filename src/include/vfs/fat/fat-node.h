@@ -7,7 +7,6 @@ extern "C" {
 
 #include <vfs/fat/fat.h>
 
-#define FAT_NODE_LOOKUP_SIZE	(4)
 
 /*
  * Information for accessing a FAT file/directory
@@ -30,13 +29,6 @@ struct fatfs_node_t {
 	u8_t *cached_data;
 	u32_t cached_clust;
 	bool_t cached_dirty;
-
-	/* Child directory entry lookup table */
-	u32_t lookup_victim;
-	char lookup_name[FAT_NODE_LOOKUP_SIZE][VFS_MAX_NAME];
-	u32_t lookup_off[FAT_NODE_LOOKUP_SIZE];
-	u32_t lookup_len[FAT_NODE_LOOKUP_SIZE];
-	struct fat_dirent_t lookup_dent[FAT_NODE_LOOKUP_SIZE];
 };
 
 u32_t fatfs_node_get_size(struct fatfs_node_t * node);

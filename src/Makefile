@@ -57,6 +57,9 @@ endif
 ifeq ($(strip $(ARCH)), arm64)
 DEFINES		+=	-D__ARM64__
 endif
+ifeq ($(strip $(ARCH)), riscv64)
+DEFINES		+=	-D__RISCV64__
+endif
 ifeq ($(strip $(ARCH)), x64)
 DEFINES		+=	-D__X64__
 endif
@@ -248,6 +251,7 @@ CC			:=	$(CROSS_COMPILE)gcc
 CXX			:=	$(CROSS_COMPILE)g++
 LD			:=	$(CROSS_COMPILE)ld
 AR			:=	$(CROSS_COMPILE)ar
+SZ			:=	$(CROSS_COMPILE)size
 OC			:=	$(CROSS_COMPILE)objcopy
 OD			:=	$(CROSS_COMPILE)objdump
 MKDIR		:=	mkdir -p
@@ -282,7 +286,7 @@ X_SOBJS		:=	$(patsubst %, .obj/%, $(X_SFILES:.S=.o))
 X_COBJS		:=	$(patsubst %, .obj/%, $(X_CFILES:.c=.o))
 X_OBJS		:=	$(X_SOBJS) $(X_COBJS) $(foreach dir, $(X_OTHERS), .obj/$(dir)/built-in.o)
 
-.PHONY: all clean xbegin xend xclean romdisk
+.PHONY: all clean romdisk xbegin xend xclean $(X_NAME) $(X_ARCHS) $(X_OTHERS)
 export AS CC LD X_ASFLAGS X_CFLAGS X_INCDIRS
 
 #

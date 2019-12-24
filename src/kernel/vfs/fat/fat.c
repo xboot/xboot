@@ -177,8 +177,10 @@ static int fatfs_truncate(struct vfs_node_t * n, s64_t off)
 	int rc;
 	struct fatfs_node_t * node = n->v_data;
 
-	if((u32_t) off <= fatfs_node_get_size(node))
+	if((u32_t) off > fatfs_node_get_size(node))
 		return -1;
+	else if((u32_t) off == fatfs_node_get_size(node))
+		return 0;
 
 	rc = fatfs_node_truncate(node, (u32_t) off);
 	if(rc)

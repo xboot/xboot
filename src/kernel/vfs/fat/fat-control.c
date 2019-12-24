@@ -434,62 +434,14 @@ static int __fatfs_control_alloc_first_cluster(struct fatfs_control_t * ctrl, u3
 static int __fatfs_control_append_free_cluster(struct fatfs_control_t *ctrl, u32_t clust, u32_t *newclust)
 {
 	int rc;
-	bool_t found;
-	u32_t current, next, first, last;
 
-	if(!__fatfs_control_valid_cluster(ctrl, clust))
-		return -1;
-
-	rc = __fatfs_control_get_next_cluster(ctrl, clust, &next);
+	rc = __fatfs_control_alloc_first_cluster(ctrl, newclust);
 	if(rc)
 		return rc;
 
-	while(__fatfs_control_valid_cluster(ctrl, next))
-	{
-		clust = next;
-
-		rc = __fatfs_control_get_next_cluster(ctrl, clust, &next);
-		if(rc)
-			return rc;
-	}
-
-	found = FALSE;
-	first = __fatfs_control_first_valid_cluster(ctrl);
-	last = __fatfs_control_last_valid_cluster(ctrl);
-	current = clust + 1;
-	while(1)
-	{
-		if(clust == current)
-			break;
-
-		rc = __fatfs_control_get_next_cluster(ctrl, current, &next);
-		if(rc)
-			return rc;
-
-		if(next == 0x0)
-		{
-			found = TRUE;
-			break;
-		}
-
-		current++;
-		if(current > last)
-			current = first;
-	}
-
-	if(!found)
-		return -1;
-
-	rc = __fatfs_control_set_last_cluster(ctrl, current);
+	rc = __fatfs_control_set_next_cluster(ctrl, clust, *newclust);
 	if(rc)
 		return rc;
-
-	rc = __fatfs_control_set_next_cluster(ctrl, clust, current);
-	if(rc)
-		return rc;
-
-	if(newclust)
-		*newclust = clust;
 
 	return 0;
 }

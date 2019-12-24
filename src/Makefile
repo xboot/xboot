@@ -239,6 +239,7 @@ INCDIRS		+=	wboxtest
 SRCDIRS		+=	wboxtest \
 				wboxtest/benchmark \
 				wboxtest/block \
+				wboxtest/crypto \
 				wboxtest/graphic \
 				wboxtest/stdio
 endif

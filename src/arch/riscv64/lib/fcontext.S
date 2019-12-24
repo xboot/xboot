@@ -66,7 +66,7 @@ make_fcontext:
 
 	/* save address of finish as return-address for context-function */
 	/* will be entered after context-function returns (ra register) */
-	la a4, finish
+	lla a4, finish
 	sd a4, 0xc0(a0)
 
 	/* return pointer to context-data (a0) */

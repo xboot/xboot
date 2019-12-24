@@ -197,7 +197,7 @@ int vfs_mount(const char * dev, const char * dir, const char * fsname, u32_t fla
 int vfs_unmount(const char * path);
 int vfs_sync(void);
 struct vfs_mount_t * vfs_mount_get(int index);
-u32_t vfs_mount_count(void);
+int vfs_mount_count(void);
 int vfs_open(const char * path, u32_t flags, u32_t mode);
 int vfs_close(int fd);
 u64_t vfs_read(int fd, void * buf, u64_t len);

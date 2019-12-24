@@ -749,10 +749,10 @@ struct vfs_mount_t * vfs_mount_get(int index)
 	return m;
 }
 
-u32_t vfs_mount_count(void)
+int vfs_mount_count(void)
 {
 	struct vfs_mount_t * m;
-	u32_t ret = 0;
+	int ret = 0;
 
 	mutex_lock(&mnt_list_lock);
 	list_for_each_entry(m, &mnt_list, m_link)

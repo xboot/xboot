@@ -145,7 +145,6 @@ static int ram_mount(struct vfs_mount_t * m, const char * dev, u32_t flags)
 	if(!rn)
 		return -1;
 
-	m->m_flags = flags & MOUNT_MASK;
 	m->m_root->v_data = (void *)rn;
 	m->m_data = NULL;
 

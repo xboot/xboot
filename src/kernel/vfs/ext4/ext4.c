@@ -120,10 +120,10 @@ int ext4fs_mount(struct vfs_mount_t * m, const char * dev, u32_t flags)
 
 	/* Save control as mount point data */
 	m->m_data = ctrl;
-
 	return 0;
 
-	fail: free(ctrl);
+fail:
+	free(ctrl);
 	return rc;
 }
 

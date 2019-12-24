@@ -191,7 +191,7 @@ static int tar_mount(struct vfs_mount_t * m, const char * dev, u32_t flags)
 	if(strncmp((const char *)(header.magic), "ustar", 5) != 0)
 		return -1;
 
-	m->m_flags = MOUNT_RDONLY;
+	m->m_flags |= MOUNT_RO;
 	m->m_root->v_data = NULL;
 	m->m_data = NULL;
 

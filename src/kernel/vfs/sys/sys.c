@@ -34,7 +34,7 @@ static int sys_mount(struct vfs_mount_t * m, const char * dev, u32_t flags)
 	if(dev)
 		return -1;
 
-	m->m_flags = flags & MOUNT_MASK;
+	m->m_flags |= MOUNT_RO;
 	m->m_root->v_data = (void *)kobj_get_root();
 	m->m_data = NULL;
 	return 0;

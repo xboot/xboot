@@ -146,9 +146,9 @@ struct vfs_node_t {
 };
 
 enum {
-	MOUNT_RDONLY	= 0x1,
-	MOUNT_RW		= 0x2,
-	MOUNT_MASK		= 0x3,
+	MOUNT_RW	= (0 << 0),
+	MOUNT_RO	= (1 << 0),
+	MOUNT_MASK	= (1 << 0),
 };
 
 struct vfs_mount_t {

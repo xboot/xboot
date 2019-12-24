@@ -363,7 +363,7 @@ static int vfs_node_access(struct vfs_node_t * n, u32_t mode)
 
 	if(mode & W_OK)
 	{
-		if(n->v_mount->m_flags & MOUNT_RDONLY)
+		if(n->v_mount->m_flags & MOUNT_RO)
 			return -1;
 
 		if(!(m & (S_IWUSR | S_IWGRP | S_IWOTH)))
@@ -564,7 +564,7 @@ int vfs_mount(const char * dev, const char * dir, const char * fsname, u32_t fla
 	struct vfs_node_t * n, * n_covered;
 	int err;
 
-	if(!dir || *dir == '\0' || !(flags & MOUNT_MASK))
+	if(!dir || *dir == '\0')
 		return -1;
 
 	if(!(fs = search_filesystem(fsname)))
@@ -628,7 +628,7 @@ int vfs_mount(const char * dev, const char * dir, const char * fsname, u32_t fla
 	m->m_root = n;
 
 	mutex_lock(&m->m_lock);
-	err = m->m_fs->mount(m, dev, flags);
+	err = m->m_fs->mount(m, dev, flags & MOUNT_MASK);
 	mutex_unlock(&m->m_lock);
 	if(err != 0)
 	{
@@ -639,7 +639,7 @@ int vfs_mount(const char * dev, const char * dir, const char * fsname, u32_t fla
 		return err;
 	}
 
-	if(m->m_flags & MOUNT_RDONLY)
+	if(m->m_flags & MOUNT_RO)
 		m->m_root->v_mode &= ~(S_IWUSR|S_IWGRP|S_IWOTH);
 
 	mutex_lock(&mnt_list_lock);

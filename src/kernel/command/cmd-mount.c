@@ -31,8 +31,30 @@
 
 static void usage(void)
 {
+	struct vfs_mount_t * m;
+	struct block_t * bdev;
+	struct slist_t * sl, * e;
+	int i, cnt;
+
 	printf("usage:\r\n");
 	printf("    mount <-t fstype> [-o option] <dev> <dir>\r\n");
+
+	printf("mount:\r\n");
+	sl = slist_alloc();
+	cnt = vfs_mount_count();
+	for(i = 0; i < cnt; i++)
+	{
+		m = vfs_mount_get(i);
+		slist_add(sl, m, "%s", m->m_path);
+	}
+	slist_sort(sl);
+	slist_for_each_entry(e, sl)
+	{
+		m = (struct vfs_mount_t *)e->priv;
+		bdev = (struct block_t *)m->m_dev;
+		printf("%-8s |%-4s |%-10s |%-48s\r\n", m->m_path, m->m_fs->name, (m->m_flags & MOUNT_RO) ? "read-only" : "read-write", bdev ? bdev->name : "none");
+	}
+	slist_free(sl);
 }
 
 static int do_mount(int argc, char ** argv)
@@ -41,7 +63,6 @@ static int do_mount(int argc, char ** argv)
 	char * fstype = NULL;
 	char * dev = NULL;
 	char * dir = NULL;
-	u32_t mflag;
 	int ro = 0;
 	int i, index = 0;
 	int fd;
@@ -119,12 +140,7 @@ static int do_mount(int argc, char ** argv)
 		}
 	}
 
-	if(ro)
-		mflag = MOUNT_RDONLY;
-	else
-		mflag = MOUNT_RW;
-
-	if(vfs_mount(dev, fpath, fstype, (mflag & MOUNT_MASK)) != 0)
+	if(vfs_mount(dev, fpath, fstype, ro ? MOUNT_RO : MOUNT_RW) != 0)
 	{
 		printf("Fail to mount '%s' filesystem on special device '%s'\r\n", fstype, dev ? dev : "none");
 		return -1;

@@ -45,8 +45,8 @@ static void subsys_init_romdisk(void)
 
 static void subsys_init_rootfs(void)
 {
-	vfs_mount("blk-romdisk.0", "/", "cpio", MOUNT_RDONLY);
-	vfs_mount(NULL, "/sys", "sys", MOUNT_RDONLY);
+	vfs_mount("blk-romdisk.0", "/", "cpio", MOUNT_RO);
+	vfs_mount(NULL, "/sys", "sys", MOUNT_RO);
 	vfs_mount(NULL, "/tmp", "ram", MOUNT_RW);
 	vfs_mount(NULL, "/storage", "ram", MOUNT_RW);
 }

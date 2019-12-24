@@ -135,7 +135,7 @@ static int cpio_mount(struct vfs_mount_t * m, const char * dev, u32_t flags)
 	if(strncmp((const char *)header.c_magic, "070701", 6) != 0)
 		return -1;
 
-	m->m_flags = MOUNT_RDONLY;
+	m->m_flags |= MOUNT_RO;
 	m->m_root->v_data = NULL;
 	m->m_data = NULL;
 

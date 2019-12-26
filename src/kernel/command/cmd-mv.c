@@ -32,7 +32,7 @@
 static void usage(void)
 {
 	printf("usage:\r\n");
-	printf("    mv <SRC> <DST>\r\n");
+	printf("    mv [-v] <SRC> <DST>\r\n");
 }
 
 static int do_mv(int argc, char ** argv)
@@ -40,25 +40,48 @@ static int do_mv(int argc, char ** argv)
 	struct vfs_stat_t st1, st2;
 	char spath[VFS_MAX_PATH];
 	char dpath[VFS_MAX_PATH];
-	char path[VFS_MAX_PATH];
+	char tpath[VFS_MAX_PATH];
 	char * p;
+	int verbose = 0;
+	int i, index = 0;
 
-	if(argc != 3)
+	if(argc < 3)
 	{
 		usage();
 		return -1;
 	}
 
-	if(shell_realpath(argv[1], spath) < 0)
+	for(i = 1; i < argc; i++)
 	{
-		printf("mv: %s: Can not convert to realpath\r\n", argv[1]);
-		return -1;
-	}
-
-	if(shell_realpath(argv[2], dpath) < 0)
-	{
-		printf("mv: %s: Can not convert to realpath\r\n", argv[2]);
-		return -1;
+		if(!strcmp(argv[i], "-v"))
+		{
+			verbose = 1;
+		}
+		else
+		{
+			if(index == 0)
+			{
+				if(shell_realpath(argv[i], spath) < 0)
+				{
+					usage();
+					return -1;
+				}
+			}
+			else if(index == 1)
+			{
+				if(shell_realpath(argv[i], dpath) < 0)
+				{
+					usage();
+					return -1;
+				}
+			}
+			else if(index >= 2)
+			{
+				usage();
+				return -1;
+			}
+			index++;
+		}
 	}
 
 	if(vfs_stat(spath, &st1) != 0)
@@ -67,28 +90,25 @@ static int do_mv(int argc, char ** argv)
 		return -1;
 	}
 
-	if(!S_ISREG(st1.st_mode) && !S_ISDIR(st1.st_mode))
-	{
-		printf("mv: invalid type\r\n");
-		return -1;
-	}
-
 	if(!vfs_stat(dpath, &st2) && S_ISDIR(st2.st_mode))
 	{
 		p = strrchr(spath, '/');
 		p = p ? p + 1 : spath;
-		strlcpy(path, dpath, sizeof(path));
+		strlcpy(tpath, dpath, sizeof(tpath));
 		if(strcmp(dpath, "/"))
-			strlcat(path, "/", sizeof(path));
-		strlcat(path, p, sizeof(path));
-		strlcpy(dpath, path, sizeof(path));
+			strlcat(tpath, "/", sizeof(tpath));
+		strlcat(tpath, p, sizeof(tpath));
+		strlcpy(dpath, tpath, sizeof(tpath));
 	}
 
-    if(vfs_rename(spath, dpath) != 0)
-    {
-    	printf("mv: failed to move file or directory %s to %s\r\n", spath, dpath);
-    	return -1;
-    }
+	if(vfs_rename(spath, dpath) != 0)
+	{
+		printf("mv: failed to move file or directory %s to %s\r\n", spath, dpath);
+		return -1;
+	}
+	if(verbose)
+		printf("'%s' -> '%s'\r\n", spath, dpath);
+
 	return 0;
 }
 

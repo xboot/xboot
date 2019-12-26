@@ -32,40 +32,108 @@
 static void usage(void)
 {
 	printf("usage:\r\n");
-	printf("    rm [OPTION] FILE...\r\n");
+	printf("    rm [-v] <DIRECTORY>...\r\n");
+}
+
+int remove_tree(const char * path, int verbose)
+{
+	struct vfs_stat_t st;
+	struct vfs_dirent_t dir;
+	char * buf;
+	int fd, plen, len;
+	int r = -1, r2 = -1;
+
+	if((fd = vfs_opendir(path)) >= 0)
+	{
+		plen = strlen(path);
+		r = 0;
+		while(!r && (vfs_readdir(fd, &dir) >= 0))
+		{
+			if(!strcmp(dir.d_name, ".") || !strcmp(dir.d_name, ".."))
+				continue;
+			len = plen + strlen(dir.d_name) + 2;
+			if((buf = malloc(len)))
+			{
+				snprintf(buf, len, "%s/%s", path, dir.d_name);
+				if(!vfs_stat(buf, &st))
+				{
+					if(S_ISDIR(st.st_mode))
+					{
+						r2 = remove_tree(buf, verbose);
+					}
+					else
+					{
+						r2 = vfs_unlink(buf);
+						if(r2 < 0)
+							printf("cannot remove: '%s'\r\n", buf);
+						else if(verbose)
+							printf("removed: '%s'\r\n", buf);
+					}
+				}
+				free(buf);
+			}
+			r = r2;
+		}
+		vfs_closedir(fd);
+	}
+	if(!r)
+	{
+		r = vfs_rmdir(path);
+		if(r < 0)
+			printf("cannot remove directory: '%s'\r\n", path);
+		else if(verbose)
+			printf("removed directory: '%s'\r\n", path);
+	}
+	return r;
 }
 
 static int do_rm(int argc, char ** argv)
 {
 	struct vfs_stat_t st;
 	char fpath[VFS_MAX_PATH];
-	int ret;
+	char ** v;
+	int verbose = 0;
+	int c = 0;
 	int i;
 
-	if(argc < 2)
-	{
-		usage();
+	if(!(v = malloc(sizeof(char *) * argc)))
 		return -1;
-	}
 
 	for(i = 1; i < argc; i++)
 	{
-		if(shell_realpath(argv[i], fpath) < 0)
-			continue;
-	    if(vfs_stat(fpath, &st) >= 0)
-	    {
-	        if(S_ISDIR(st.st_mode))
-	            ret = vfs_rmdir(fpath);
-	        else
-	            ret = vfs_unlink(fpath);
-			if(ret != 0)
-				printf("rm: cannot remove %s: No such file or directory\r\n", fpath);
-	    }
-	    else
-	    {
-	    	printf("rm: cannot stat file or directory %s\r\n", fpath);
-	    }
+		if(strcmp(argv[i], "-v") == 0)
+			verbose = 1;
+		else
+			v[c++] = argv[i];
 	}
+
+	if(c == 0)
+	{
+		usage();
+		free(v);
+		return -1;
+	}
+
+	for(i = 0; i < c; i++)
+	{
+		if(shell_realpath(v[i], fpath) < 0)
+			continue;
+		if(vfs_stat(fpath, &st) >= 0)
+		{
+			if(S_ISDIR(st.st_mode))
+			{
+				remove_tree(fpath, verbose);
+			}
+			else
+			{
+				if(vfs_unlink(fpath) < 0)
+					printf("cannot remove: '%s'\r\n", fpath);
+				else if(verbose)
+					printf("removed: '%s'\r\n", fpath);
+			}
+		}
+	}
+	free(v);
 
 	return 0;
 }

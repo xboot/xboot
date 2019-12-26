@@ -29,66 +29,211 @@
 #include <xboot.h>
 #include <command/command.h>
 
-#if	0
 static void usage(void)
 {
 	printf("usage:\r\n");
-	printf("    cp ...\r\n");
+	printf("    cp [-v] <SOURCE> <DIRECTORY>\r\n");
+}
+
+static int make_directory(const char * dir)
+{
+	struct vfs_stat_t st;
+	char * s = strdup(dir);
+	char * path = s;
+	char c;
+	int ret = 0;
+
+	do {
+		c = 0;
+		while(*s)
+		{
+			if(*s == '/')
+			{
+				do {
+					++s;
+				} while(*s == '/');
+				c = *s;
+				*s = 0;
+				break;
+			}
+			++s;
+		}
+		if(vfs_stat(path, &st) < 0)
+		{
+			if(vfs_mkdir(path, 0755) < 0)
+			{
+				ret = -1;
+				break;
+			}
+		}
+		if(!c)
+			goto out;
+		*s = c;
+	} while(1);
+out:
+	free(path);
+	return ret;
+}
+
+static int copy_file(const char * src, const char * dst, int verbose)
+{
+	struct vfs_stat_t st;
+	char * buf;
+	int sfd, dfd;
+	int flags;
+	u64_t n;
+
+	sfd = vfs_open(src, O_RDONLY, 0);
+	if(sfd < 0)
+	{
+		printf("could not open %s\r\n", src);
+		return -1;
+	}
+
+	flags = O_WRONLY | O_CREAT;
+	if((vfs_stat(dst, &st) >= 0) && S_ISREG(st.st_mode))
+	{
+		flags |= O_TRUNC;
+	}
+	dfd = vfs_open(dst, flags, 0755);
+	if(dfd < 0)
+	{
+		printf("could not open %s\r\n", dst);
+		vfs_close(sfd);
+		return -1;
+	}
+
+	if(!(buf = malloc(SZ_64K)))
+	{
+		vfs_close(sfd);
+		vfs_close(dfd);
+		return -1;
+	}
+
+	if(verbose)
+		printf("'%s' -> '%s'\r\n", src, dst);
+	while((n = vfs_read(sfd, buf, SZ_64K)) > 0)
+	{
+		vfs_write(dfd, buf, n);
+	}
+
+	free(buf);
+	vfs_close(sfd);
+	vfs_close(dfd);
+
+	return 0;
+}
+
+static int copy_recursive(const char * src, const char * dst, int verbose)
+{
+	struct vfs_stat_t st;
+	struct vfs_dirent_t dir;
+	char * from, * to;
+	int fd;
+	int ret;
+
+	ret = vfs_stat(src, &st);
+	if(ret)
+		return ret;
+
+	if(!S_ISDIR(st.st_mode))
+		return copy_file(src, dst, verbose);
+
+	ret = make_directory(dst);
+	if(ret)
+		return ret;
+
+	fd = vfs_opendir(src);
+	if(!fd)
+		return -1;
+
+	while(vfs_readdir(fd, &dir) >= 0)
+	{
+		if(!strcmp(dir.d_name, ".") || !strcmp(dir.d_name, ".."))
+			continue;
+		from = malloc(strlen(src) + strlen(dir.d_name) + 2);
+		to = malloc(strlen(dst) + strlen(dir.d_name) + 2);
+		if(from && to)
+		{
+			sprintf(from, "%s/%s", src, dir.d_name);
+			sprintf(to, "%s/%s", dst, dir.d_name);
+			ret = copy_recursive(from, to, verbose);
+			if(ret)
+				break;
+		}
+		if(from)
+			free(from);
+		if(to)
+			free(to);
+	}
+	vfs_closedir(fd);
+
+	return ret;
 }
 
 static int do_cp(int argc, char ** argv)
 {
-	//FIXME
-	/*
-	s8_t buf[128];
-	s32_t fd1, fd2;
-	s64_t done, wrote;
+	struct vfs_stat_t st;
+	char spath[VFS_MAX_PATH];
+	char dpath[VFS_MAX_PATH];
+	char tpath[VFS_MAX_PATH];
+	char ** v;
+	int exist = 0;
+	int verbose = 0;
+	int c = 0;
+	int i;
 
-	if(argc != 3)
+	if(!(v = malloc(sizeof(char *) * argc)))
+		return -1;
+
+	for(i = 1; i < argc; i++)
 	{
-		printf("usage:\r\n    cp SOURCE DEST\r\n");
+		if(strcmp(argv[i], "-v") == 0)
+			verbose = 1;
+		else
+			v[c++] = argv[i];
+	}
+	if(c < 2)
+	{
+		usage();
+		free(v);
 		return -1;
 	}
+	if((shell_realpath(v[c - 1], dpath) >= 0) && vfs_stat(dpath, &st) >= 0)
+	{
+		if(S_ISDIR(st.st_mode))
+		{
+			exist = 1;
+		}
+		else
+		{
+			usage();
+			free(v);
+			return -1;
+		}
+	}
+	if(!exist && make_directory(dpath))
+	{
+		usage();
+		free(v);
+		return -1;
+	}
+	for(i = 0; i < c - 1; i++)
+	{
+		if(shell_realpath(v[i], spath) >= 0)
+		{
+			sprintf(tpath, "%s/%s", dpath, basename(v[i]));
+			copy_recursive(spath, tpath, verbose);
+		}
+	}
+	free(v);
 
-    if(access((const char *)argv[1], F_OK) != 0)
-    {
-    	printf("1\r\n");
-    }
-
-    if(access((const char *)argv[2], F_OK) != 0)
-    {
-    	printf("2\r\n");
-    }
-
-    fd1 = open((const char *)argv[1], O_RDONLY);
-    if(fd1 < 0)
-    	printf("3\r\n");
-
-    fd2 = open((const char *)argv[2], O_WRONLY|O_CREAT );
-    if( fd2 < 0 )
-    	printf("4\r\n");
-
-    for(;;)
-    {
-        done = read( fd1, buf, 128);
-
-        if( done == 0 ) break;
-
-        wrote = write( fd2, buf, done );
-
-        if( wrote != done )
-        	break;
-    }
-
-    close( fd1 );
-    close( fd2 );
-*/
 	return 0;
 }
 
 static struct command_t cmd_cp = {
 	.name	= "cp",
-	.desc	= "copy file",
+	.desc	= "copy files and directories",
 	.usage	= usage,
 	.exec	= do_cp,
 };
@@ -105,5 +250,3 @@ static __exit void cp_cmd_exit(void)
 
 command_initcall(cp_cmd_init);
 command_exitcall(cp_cmd_exit);
-
-#endif

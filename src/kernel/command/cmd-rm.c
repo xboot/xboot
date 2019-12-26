@@ -35,7 +35,7 @@ static void usage(void)
 	printf("    rm [-v] <DIRECTORY>...\r\n");
 }
 
-int remove_tree(const char * path, int verbose)
+static int rmdir_recursive(const char * path, int verbose)
 {
 	struct vfs_stat_t st;
 	struct vfs_dirent_t dir;
@@ -59,15 +59,15 @@ int remove_tree(const char * path, int verbose)
 				{
 					if(S_ISDIR(st.st_mode))
 					{
-						r2 = remove_tree(buf, verbose);
+						r2 = rmdir_recursive(buf, verbose);
 					}
 					else
 					{
 						r2 = vfs_unlink(buf);
 						if(r2 < 0)
-							printf("cannot remove: '%s'\r\n", buf);
+							printf("cannot remove '%s'\r\n", buf);
 						else if(verbose)
-							printf("removed: '%s'\r\n", buf);
+							printf("removed '%s'\r\n", buf);
 					}
 				}
 				free(buf);
@@ -80,9 +80,9 @@ int remove_tree(const char * path, int verbose)
 	{
 		r = vfs_rmdir(path);
 		if(r < 0)
-			printf("cannot remove directory: '%s'\r\n", path);
+			printf("cannot remove '%s'\r\n", path);
 		else if(verbose)
-			printf("removed directory: '%s'\r\n", path);
+			printf("removed '%s'\r\n", path);
 	}
 	return r;
 }
@@ -122,14 +122,14 @@ static int do_rm(int argc, char ** argv)
 		{
 			if(S_ISDIR(st.st_mode))
 			{
-				remove_tree(fpath, verbose);
+				rmdir_recursive(fpath, verbose);
 			}
 			else
 			{
 				if(vfs_unlink(fpath) < 0)
-					printf("cannot remove: '%s'\r\n", fpath);
+					printf("cannot remove '%s'\r\n", fpath);
 				else if(verbose)
-					printf("removed: '%s'\r\n", fpath);
+					printf("removed '%s'\r\n", fpath);
 			}
 		}
 	}

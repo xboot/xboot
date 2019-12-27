@@ -511,23 +511,26 @@ static void rl_complete_file(struct rl_buf_t * rl, char * utf8, char * p)
 	char * bname;
 	char * dname;
 	u32_t * ucs4;
-	int cnt = 0;
+	char * str;
+	int cnt = 0, min = INT_MAX, m, pl;
 	int len = 0, t, i, l;
 	int fd;
 
 	if(shell_realpath(p, path) >= 0)
 	{
-		if((vfs_stat(path, &st) >= 0) && S_ISDIR(st.st_mode))
+		if(((strlen(p) > 0) && (p[strlen(p) - 1] == '/')) && ((vfs_stat(path, &st) >= 0) && S_ISDIR(st.st_mode)))
 		{
 			strlcpy(dpath, path, sizeof(dpath));
-			bname = ".";
+			bname = "";
 			dname = dpath;
+			pl = strlen(dname);
 		}
 		else
 		{
 			strlcpy(dpath, path, sizeof(dpath));
 			bname = basename(dpath);
 			dname = dirname(dpath);
+			pl = strlen(bname);
 		}
 		if((vfs_stat(dname, &st) >= 0) && S_ISDIR(st.st_mode))
 		{
@@ -541,7 +544,7 @@ static void rl_complete_file(struct rl_buf_t * rl, char * utf8, char * p)
 					snprintf(tmp, sizeof(tmp), "%s/%s", dname, dir.d_name);
 					if(!vfs_stat(tmp, &st))
 					{
-						if(!strncmp(bname, ".", strlen(bname)) || !strncmp(bname, dir.d_name, strlen(bname)))
+						if(!strncmp(bname, dir.d_name, strlen(bname)))
 						{
 							if(S_ISDIR(st.st_mode))
 								slist_add(sl, NULL, "%s/", dir.d_name);
@@ -554,42 +557,49 @@ static void rl_complete_file(struct rl_buf_t * rl, char * utf8, char * p)
 				vfs_closedir(fd);
 			}
 			slist_sort(sl);
-			if(cnt > 1)
+			if(cnt > 0)
 			{
+				str = ((struct slist_t *)list_first_entry(&sl->list, struct slist_t, list))->key;
 				slist_for_each_entry(e, sl)
 				{
-					l = strlen(e->key) + 4;
-					if(l > len)
-						len = l;
+					m = strspn(e->key, str);
+					if(m < min)
+						min = m;
 				}
-				t = 80 / (len + 1);
-				if(t == 0)
-					t = 1;
-				i = 0;
-				printf("\r\n");
-				slist_for_each_entry(e, sl)
+				if((cnt == 1) || (min > pl))
 				{
-					if(!(++i % t))
-						printf("%s\r\n", e->key);
-					else
-						printf("%-*s", len, e->key);
+					if((e = (struct slist_t *)list_first_entry_or_null(&sl->list, struct slist_t, list)))
+					{
+						e->key[min] = 0;
+						l = utf8_to_ucs4_alloc(&e->key[pl], &ucs4, NULL);
+						ucs4[l] = 0;
+						rl_insert(rl, ucs4);
+						free(ucs4);
+					}
 				}
-				if(i % t)
+				else
+				{
+					slist_for_each_entry(e, sl)
+					{
+						l = strlen(e->key) + 4;
+						if(l > len)
+							len = l;
+					}
+					t = 80 / (len + 1);
+					if(t == 0)
+						t = 1;
+					i = 0;
 					printf("\r\n");
-				printf("%s%s", rl->prompt ? rl->prompt : "", utf8);
-			}
-			else if(cnt == 1)
-			{
-				e = (struct slist_t *)list_first_entry_or_null(&sl->list, struct slist_t, list);
-				if(e)
-				{
-					if(!strcmp(bname, "."))
-						l = utf8_to_ucs4_alloc(&e->key[strlen(dname)], &ucs4, NULL);
-					else
-						l = utf8_to_ucs4_alloc(&e->key[strlen(bname)], &ucs4, NULL);
-					ucs4[l] = 0;
-					rl_insert(rl, ucs4);
-					free(ucs4);
+					slist_for_each_entry(e, sl)
+					{
+						if(!(++i % t))
+							printf("%s\r\n", e->key);
+						else
+							printf("%-*s", len, e->key);
+					}
+					if(i % t)
+						printf("\r\n");
+					printf("%s%s", rl->prompt ? rl->prompt : "", utf8);
 				}
 			}
 			slist_free(sl);
@@ -602,52 +612,64 @@ static void rl_complete_command(struct rl_buf_t * rl, char * utf8, char * p)
 	struct command_t * pos, * n;
 	struct slist_t * sl, * e;
 	u32_t * ucs4;
-	int cnt = 0;
+	char * str;
+	int cnt = 0, min = INT_MAX, m, pl;
 	int len = 0, t, i, l;
 
+	pl = strlen(p);
 	sl = slist_alloc();
 	list_for_each_entry_safe(pos, n, &__command_list, list)
 	{
-		if(!strncmp(p, pos->name, strlen(p)))
+		if(!strncmp(p, pos->name, pl))
 		{
 			slist_add(sl, pos, "%s", pos->name);
 			cnt++;
 		}
 	}
 	slist_sort(sl);
-	if(cnt > 1)
+	if(cnt > 0)
 	{
+		str = ((struct slist_t *)list_first_entry(&sl->list, struct slist_t, list))->key;
 		slist_for_each_entry(e, sl)
 		{
-			l = strlen(e->key) + 4;
-			if(l > len)
-				len = l;
+			m = strspn(e->key, str);
+			if(m < min)
+				min = m;
 		}
-		t = 80 / (len + 1);
-		if(t == 0)
-			t = 1;
-		i = 0;
-		printf("\r\n");
-		slist_for_each_entry(e, sl)
+		if((cnt == 1) || (min > pl))
 		{
-			if(!(++i % t))
-				printf("%s\r\n", e->key);
-			else
-				printf("%-*s", len, e->key);
+			if((e = (struct slist_t *)list_first_entry_or_null(&sl->list, struct slist_t, list)))
+			{
+				e->key[min] = 0;
+				l = utf8_to_ucs4_alloc(&e->key[pl], &ucs4, NULL);
+				ucs4[l] = 0;
+				rl_insert(rl, ucs4);
+				free(ucs4);
+			}
 		}
-		if(i % t)
+		else
+		{
+			slist_for_each_entry(e, sl)
+			{
+				l = strlen(e->key) + 4;
+				if(l > len)
+					len = l;
+			}
+			t = 80 / (len + 1);
+			if(t == 0)
+				t = 1;
+			i = 0;
 			printf("\r\n");
-		printf("%s%s", rl->prompt ? rl->prompt : "", utf8);
-	}
-	else if(cnt == 1)
-	{
-		e = (struct slist_t *)list_first_entry_or_null(&sl->list, struct slist_t, list);
-		if(e)
-		{
-			l = utf8_to_ucs4_alloc(&e->key[strlen(p)], &ucs4, NULL);
-			ucs4[l] = 0;
-			rl_insert(rl, ucs4);
-			free(ucs4);
+			slist_for_each_entry(e, sl)
+			{
+				if(!(++i % t))
+					printf("%s\r\n", e->key);
+				else
+					printf("%-*s", len, e->key);
+			}
+			if(i % t)
+				printf("\r\n");
+			printf("%s%s", rl->prompt ? rl->prompt : "", utf8);
 		}
 	}
 	slist_free(sl);

@@ -598,18 +598,15 @@ EXPORT_SYMBOL(ucs4_to_utf8_alloc);
 
 ssize_t utf8_to_ucs4_alloc(const char * src, u32_t ** dst, u32_t ** pos)
 {
-	ssize_t len = strlen((char *)src);
+	ssize_t len = strlen(src);
 
-	*dst = malloc(len * sizeof(u32_t));
-
-	if(!*dst)
-		return -1;
-
-	len = utf8_to_ucs4(*dst, len, src, -1, 0);
-
-	if(pos)
-		*pos = *dst + len;
-
+	*dst = malloc((len + 1) * sizeof(u32_t));
+	if(*dst)
+	{
+		len = utf8_to_ucs4(*dst, len, src, -1, 0);
+		if(pos)
+			*pos = *dst + len;
+	}
 	return len;
 }
 EXPORT_SYMBOL(utf8_to_ucs4_alloc);

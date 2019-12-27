@@ -27,6 +27,7 @@
  */
 
 #include <xboot.h>
+#include <command/command.h>
 #include <shell/readline.h>
 
 enum esc_state_t {
@@ -36,6 +37,7 @@ enum esc_state_t {
 };
 
 struct rl_buf_t {
+	char * prompt;
 	u32_t * buf;
 	u32_t * cut;
 	int bsize;
@@ -327,13 +329,11 @@ static struct rl_buf_t * rl_alloc(const char * prompt)
 {
 	struct rl_buf_t * rl;
 
-	if(prompt)
-		printf("%s", prompt);
-
 	rl = malloc(sizeof(struct rl_buf_t));
 	if(!rl)
 		return NULL;
 
+	rl->prompt = strdup(prompt);
 	rl->bsize = 128;
 	rl->buf = malloc(sizeof(u32_t) * rl->bsize);
 	rl->cut = NULL;
@@ -346,15 +346,20 @@ static struct rl_buf_t * rl_alloc(const char * prompt)
 
 	if(!rl->buf)
 	{
+		if(rl->prompt)
+			free(rl->prompt);
 		free(rl);
 		return NULL;
 	}
-
+	if(rl->prompt)
+		printf("%s", rl->prompt);
 	return rl;
 }
 
 static void rl_free(struct rl_buf_t * rl)
 {
+	if(rl->prompt)
+		free(rl->prompt);
 	if(rl->cut)
 		free(rl->cut);
 	free(rl->buf);
@@ -495,6 +500,193 @@ static bool_t rl_getcode(struct rl_buf_t * rl, u32_t * code)
 	return FALSE;
 }
 
+static void rl_complete_file(struct rl_buf_t * rl, char * utf8, char * p)
+{
+	struct vfs_stat_t st;
+	struct vfs_dirent_t dir;
+	struct slist_t * sl, * e;
+	char path[VFS_MAX_PATH];
+	char dpath[VFS_MAX_PATH];
+	char tmp[VFS_MAX_PATH];
+	char * bname;
+	char * dname;
+	u32_t * ucs4;
+	int cnt = 0;
+	int len = 0, t, i, l;
+	int fd;
+
+	if(shell_realpath(p, path) >= 0)
+	{
+		if((vfs_stat(path, &st) >= 0) && S_ISDIR(st.st_mode))
+		{
+			strlcpy(dpath, path, sizeof(dpath));
+			bname = ".";
+			dname = dpath;
+		}
+		else
+		{
+			strlcpy(dpath, path, sizeof(dpath));
+			bname = basename(dpath);
+			dname = dirname(dpath);
+		}
+		if((vfs_stat(dname, &st) >= 0) && S_ISDIR(st.st_mode))
+		{
+			sl = slist_alloc();
+			if((fd = vfs_opendir(dname)) >= 0)
+			{
+				while(vfs_readdir(fd, &dir) >= 0)
+				{
+					if(!strcmp(dir.d_name, ".") || !strcmp(dir.d_name, ".."))
+						continue;
+					snprintf(tmp, sizeof(tmp), "%s/%s", dname, dir.d_name);
+					if(!vfs_stat(tmp, &st))
+					{
+						if(!strncmp(bname, ".", strlen(bname)) || !strncmp(bname, dir.d_name, strlen(bname)))
+						{
+							if(S_ISDIR(st.st_mode))
+								slist_add(sl, NULL, "%s/", dir.d_name);
+							else
+								slist_add(sl, NULL, "%s", dir.d_name);
+							cnt++;
+						}
+					}
+				}
+				vfs_closedir(fd);
+			}
+			slist_sort(sl);
+			if(cnt > 1)
+			{
+				slist_for_each_entry(e, sl)
+				{
+					l = strlen(e->key) + 4;
+					if(l > len)
+						len = l;
+				}
+				t = 80 / (len + 1);
+				if(t == 0)
+					t = 1;
+				i = 0;
+				printf("\r\n");
+				slist_for_each_entry(e, sl)
+				{
+					if(!(++i % t))
+						printf("%s\r\n", e->key);
+					else
+						printf("%-*s", len, e->key);
+				}
+				if(i % t)
+					printf("\r\n");
+				printf("%s%s", rl->prompt ? rl->prompt : "", utf8);
+			}
+			else if(cnt == 1)
+			{
+				e = (struct slist_t *)list_first_entry_or_null(&sl->list, struct slist_t, list);
+				if(e)
+				{
+					if(!strcmp(bname, "."))
+						l = utf8_to_ucs4_alloc(&e->key[strlen(dname)], &ucs4, NULL);
+					else
+						l = utf8_to_ucs4_alloc(&e->key[strlen(bname)], &ucs4, NULL);
+					ucs4[l] = 0;
+					rl_insert(rl, ucs4);
+					free(ucs4);
+				}
+			}
+			slist_free(sl);
+		}
+	}
+}
+
+static void rl_complete_command(struct rl_buf_t * rl, char * utf8, char * p)
+{
+	struct command_t * pos, * n;
+	struct slist_t * sl, * e;
+	u32_t * ucs4;
+	int cnt = 0;
+	int len = 0, t, i, l;
+
+	sl = slist_alloc();
+	list_for_each_entry_safe(pos, n, &__command_list, list)
+	{
+		if(!strncmp(p, pos->name, strlen(p)))
+		{
+			slist_add(sl, pos, "%s", pos->name);
+			cnt++;
+		}
+	}
+	slist_sort(sl);
+	if(cnt > 1)
+	{
+		slist_for_each_entry(e, sl)
+		{
+			l = strlen(e->key) + 4;
+			if(l > len)
+				len = l;
+		}
+		t = 80 / (len + 1);
+		if(t == 0)
+			t = 1;
+		i = 0;
+		printf("\r\n");
+		slist_for_each_entry(e, sl)
+		{
+			if(!(++i % t))
+				printf("%s\r\n", e->key);
+			else
+				printf("%-*s", len, e->key);
+		}
+		if(i % t)
+			printf("\r\n");
+		printf("%s%s", rl->prompt ? rl->prompt : "", utf8);
+	}
+	else if(cnt == 1)
+	{
+		e = (struct slist_t *)list_first_entry_or_null(&sl->list, struct slist_t, list);
+		if(e)
+		{
+			l = utf8_to_ucs4_alloc(&e->key[strlen(p)], &ucs4, NULL);
+			ucs4[l] = 0;
+			rl_insert(rl, ucs4);
+			free(ucs4);
+		}
+	}
+	slist_free(sl);
+}
+
+static void rl_complete(struct rl_buf_t * rl)
+{
+	char * utf8;
+	char * p, * q;
+
+	if(rl->len > 0)
+	{
+		utf8 = ucs4_to_utf8_alloc(rl->buf, rl->len);
+		p = strrchr(utf8, ';');
+		if(!p)
+			p = utf8;
+		else
+			p++;
+		while(*p == ' ')
+			p++;
+		if(p && (strchr(p, '.') || strchr(p, '/')))
+		{
+			if((q = strrchr(p, ' ')))
+				p = ++q;
+			rl_complete_file(rl, utf8, p);
+		}
+		else if((q = strrchr(p, ' ')))
+		{
+			p = ++q;
+			rl_complete_file(rl, utf8, p);
+		}
+		else
+		{
+			rl_complete_command(rl, utf8, p);
+		}
+		free(utf8);
+	}
+}
+
 static bool_t readline_handle(struct rl_buf_t * rl, u32_t code)
 {
 	u32_t * p;
@@ -544,6 +736,8 @@ static bool_t readline_handle(struct rl_buf_t * rl, u32_t code)
 		break;
 
 	case 0x9: 	/* ctrl-i: tab */
+		if(rl->len > 0)
+			rl_complete(rl);
 		break;
 
 	case 0xb: 	/* ctrl-k: delete everything from the cursor to the end of the line */

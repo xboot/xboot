@@ -259,9 +259,9 @@ static void rl_cursor_end(struct rl_buf_t * rl)
 	}
 }
 
-static void rl_insert(struct rl_buf_t * rl, u32_t * str)
+static void rl_insert(struct rl_buf_t * rl, u32_t * s)
 {
-	int len = ucs4_strlen(str);
+	int len = ucs4_strlen(s);
 
 	if(len <= 0)
 		return;
@@ -278,7 +278,7 @@ static void rl_insert(struct rl_buf_t * rl, u32_t * str)
 	if(len + rl->len < rl->bsize)
 	{
 		memmove(rl->buf + rl->pos + len, rl->buf + rl->pos, (rl->len - rl->pos + 1) * sizeof(u32_t));
-		memmove (rl->buf + rl->pos, str, len * sizeof(u32_t));
+		memmove (rl->buf + rl->pos, s, len * sizeof(u32_t));
 
 		rl->pos = rl->pos + len;
 		rl->len = rl->len + len;
@@ -506,32 +506,28 @@ static void rl_complete_file(struct rl_buf_t * rl, char * utf8, char * p)
 	struct vfs_dirent_t dir;
 	struct slist_t * sl, * e;
 	char path[VFS_MAX_PATH];
-	char dpath[VFS_MAX_PATH];
 	char tmp[VFS_MAX_PATH];
 	char * bname;
 	char * dname;
 	u32_t * ucs4;
-	char * str;
+	char * s;
 	int cnt = 0, min = INT_MAX, m, pl;
 	int len = 0, t, i, l;
 	int fd;
 
 	if(shell_realpath(p, path) >= 0)
 	{
-		if(((strlen(p) > 0) && (p[strlen(p) - 1] == '/')) && ((vfs_stat(path, &st) >= 0) && S_ISDIR(st.st_mode)))
+		if((strlen(p) > 0) && (p[strlen(p) - 1] == '/'))
 		{
-			strlcpy(dpath, path, sizeof(dpath));
 			bname = "";
-			dname = dpath;
-			pl = strlen(dname);
+			dname = path;
 		}
 		else
 		{
-			strlcpy(dpath, path, sizeof(dpath));
-			bname = basename(dpath);
-			dname = dirname(dpath);
-			pl = strlen(bname);
+			bname = basename(path);
+			dname = dirname(path);
 		}
+		pl = strlen(bname);
 		if((vfs_stat(dname, &st) >= 0) && S_ISDIR(st.st_mode))
 		{
 			sl = slist_alloc();
@@ -559,10 +555,12 @@ static void rl_complete_file(struct rl_buf_t * rl, char * utf8, char * p)
 			slist_sort(sl);
 			if(cnt > 0)
 			{
-				str = ((struct slist_t *)list_first_entry(&sl->list, struct slist_t, list))->key;
+				s = ((struct slist_t *)list_first_entry(&sl->list, struct slist_t, list))->key;
 				slist_for_each_entry(e, sl)
 				{
-					m = strspn(e->key, str);
+					m = 0;
+					while((s[m] == e->key[m]) && (s[m] != '\0'))
+						m++;
 					if(m < min)
 						min = m;
 				}
@@ -612,7 +610,7 @@ static void rl_complete_command(struct rl_buf_t * rl, char * utf8, char * p)
 	struct command_t * pos, * n;
 	struct slist_t * sl, * e;
 	u32_t * ucs4;
-	char * str;
+	char * s;
 	int cnt = 0, min = INT_MAX, m, pl;
 	int len = 0, t, i, l;
 
@@ -629,10 +627,12 @@ static void rl_complete_command(struct rl_buf_t * rl, char * utf8, char * p)
 	slist_sort(sl);
 	if(cnt > 0)
 	{
-		str = ((struct slist_t *)list_first_entry(&sl->list, struct slist_t, list))->key;
+		s = ((struct slist_t *)list_first_entry(&sl->list, struct slist_t, list))->key;
 		slist_for_each_entry(e, sl)
 		{
-			m = strspn(e->key, str);
+			m = 0;
+			while((s[m] == e->key[m]) && (s[m] != '\0'))
+				m++;
 			if(m < min)
 				min = m;
 		}

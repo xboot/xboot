@@ -10,8 +10,8 @@ enum {
 	EXIT_FAILURE	= 1,
 };
 
-void abort(void);
-void exit(int code);
+void __attribute__((__noreturn__)) abort(void);
+void __attribute__((__noreturn__)) exit(int code);
 
 #ifdef __cplusplus
 }

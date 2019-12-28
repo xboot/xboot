@@ -5,7 +5,7 @@
 #include <exit.h>
 #include <xboot/module.h>
 
-void abort(void)
+void __attribute__((__noreturn__)) abort(void)
 {
 	 while(1);
 }

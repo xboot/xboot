@@ -5,7 +5,7 @@
 #include <exit.h>
 #include <xboot/module.h>
 
-void exit(int code)
+void __attribute__((__noreturn__)) exit(int code)
 {
 	while(1);
 }

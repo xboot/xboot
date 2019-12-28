@@ -278,7 +278,7 @@ static void rl_insert(struct rl_buf_t * rl, u32_t * s)
 	if(len + rl->len < rl->bsize)
 	{
 		memmove(rl->buf + rl->pos + len, rl->buf + rl->pos, (rl->len - rl->pos + 1) * sizeof(u32_t));
-		memmove (rl->buf + rl->pos, s, len * sizeof(u32_t));
+		memmove(rl->buf + rl->pos, s, len * sizeof(u32_t));
 
 		rl->pos = rl->pos + len;
 		rl->len = rl->len + len;
@@ -505,8 +505,8 @@ static void rl_complete_file(struct rl_buf_t * rl, char * utf8, char * p)
 	struct vfs_stat_t st;
 	struct vfs_dirent_t dir;
 	struct slist_t * sl, * e;
+	char fpath[VFS_MAX_PATH];
 	char path[VFS_MAX_PATH];
-	char tmp[VFS_MAX_PATH];
 	char * bname;
 	char * dname;
 	u32_t * ucs4;
@@ -515,17 +515,17 @@ static void rl_complete_file(struct rl_buf_t * rl, char * utf8, char * p)
 	int len = 0, t, i, l;
 	int fd;
 
-	if(shell_realpath(p, path) >= 0)
+	if(shell_realpath(p, fpath) >= 0)
 	{
 		if((strlen(p) > 0) && (p[strlen(p) - 1] == '/'))
 		{
 			bname = "";
-			dname = path;
+			dname = fpath;
 		}
 		else
 		{
-			bname = basename(path);
-			dname = dirname(path);
+			bname = basename(fpath);
+			dname = dirname(fpath);
 		}
 		pl = strlen(bname);
 		if((vfs_stat(dname, &st) >= 0) && S_ISDIR(st.st_mode))
@@ -537,8 +537,8 @@ static void rl_complete_file(struct rl_buf_t * rl, char * utf8, char * p)
 				{
 					if(!strcmp(dir.d_name, ".") || !strcmp(dir.d_name, ".."))
 						continue;
-					snprintf(tmp, sizeof(tmp), "%s/%s", dname, dir.d_name);
-					if(!vfs_stat(tmp, &st))
+					snprintf(path, sizeof(path), "%s/%s", dname, dir.d_name);
+					if(!vfs_stat(path, &st))
 					{
 						if(!strncmp(bname, dir.d_name, strlen(bname)))
 						{

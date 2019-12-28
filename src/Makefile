@@ -241,6 +241,7 @@ SRCDIRS		+=	wboxtest \
 				wboxtest/block \
 				wboxtest/crypto \
 				wboxtest/graphic \
+				wboxtest/path \
 				wboxtest/stdio
 endif
 

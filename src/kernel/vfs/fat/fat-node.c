@@ -170,18 +170,40 @@ static int fatfs_node_clear_cluster(struct fatfs_node_t * node, u32_t clust)
 	return 0;
 }
 
+static int fatfs_node_nth_cluster(struct fatfs_node_t * node, u32_t clust, u32_t pos, u32_t * next)
+{
+	int rc;
+	struct fatfs_control_t * ctrl = node->ctrl;
+
+	rc = fatfs_control_nth_cluster(ctrl, clust, pos, next);
+
+	if(!rc)
+	{
+		node->cur_pos += pos * ctrl->bytes_per_cluster;
+		node->cur_cluster = *next;
+	}
+
+	return rc;
+}
+
+static int fatfs_node_next_cluster(struct fatfs_node_t * node, u32_t clust, u32_t * next)
+{
+	return fatfs_node_nth_cluster(node, clust, 1, next);
+}
+
 static int fatfs_node_auto_alloc_next_cluster(struct fatfs_node_t * node, u32_t clust, u32_t * next)
 {
 	int rc;
 	struct fatfs_control_t * ctrl = node->ctrl;
 	u32_t cl = clust;
+
 	/* Go to next cluster */
-	rc = fatfs_control_nth_cluster(ctrl, clust, 1, next);
+	rc = fatfs_node_next_cluster(node, clust, next);
 	if(!rc)
 		return 0;
 
 	/* Add new cluster */
-	if(clust != 0)
+	if(fatfs_control_valid_cluster(ctrl, clust))
 	{
 		rc = fatfs_control_append_free_cluster(ctrl, cl, next);
 	}
@@ -193,12 +215,32 @@ static int fatfs_node_auto_alloc_next_cluster(struct fatfs_node_t * node, u32_t 
 	if(rc)
 		return rc;
 
+	node->cur_pos += ctrl->bytes_per_cluster;
+	node->cur_cluster = *next;
+
 	rc = fatfs_node_clear_cluster(node, *next);
 
 	if(rc)
 		return rc;
 
 	return 0;
+}
+
+static void fatfs_node_fast_jump_cluster(struct fatfs_node_t * node, u32_t pos, u32_t * cl_pos, u32_t * cl_num)
+{
+	struct fatfs_control_t *ctrl = node->ctrl;
+
+	/* Jump to current pos if pos >= cur_cluster*/
+	if(pos >= node->cur_pos)
+	{
+		*cl_pos = udiv32(pos - node->cur_pos, ctrl->bytes_per_cluster);
+		*cl_num = node->cur_cluster;
+	}
+	else
+	{
+		*cl_pos = udiv32(pos, ctrl->bytes_per_cluster);
+		*cl_num = node->first_cluster;
+	}
 }
 
 u32_t fatfs_node_read(struct fatfs_node_t * node, u32_t pos, u32_t len, u8_t * buf)
@@ -222,13 +264,13 @@ u32_t fatfs_node_read(struct fatfs_node_t * node, u32_t pos, u32_t len, u8_t * b
 		return block_read(ctrl->bdev, (u8_t *) buf, roff, rlen);
 	}
 
-	rstartcl = udiv32(pos, ctrl->bytes_per_cluster);
+	fatfs_node_fast_jump_cluster(node, pos, &rstartcl, &cl_num);
 
-	if(fatfs_control_nth_cluster(ctrl, node->first_cluster, rstartcl, &cl_num))
+	if(fatfs_node_nth_cluster(node, cl_num, rstartcl, &cl_num))
 		return 0;
 
 	r = 0;
-	cl_off = umod64(pos + r, ctrl->bytes_per_cluster);
+	cl_off = umod32(pos + r, ctrl->bytes_per_cluster);
 	do
 	{
 		/* Current cluster info */
@@ -247,7 +289,7 @@ u32_t fatfs_node_read(struct fatfs_node_t * node, u32_t pos, u32_t len, u8_t * b
 		r += cl_len;
 		buf += cl_len;
 		cl_off -= cl_off;
-	} while(r < len && !fatfs_control_nth_cluster(ctrl, cl_num, 1, &cl_num));
+	} while(r < len && !fatfs_node_next_cluster(node, cl_num, &cl_num));
 
 	return r;
 }
@@ -273,8 +315,6 @@ u32_t fatfs_node_write(struct fatfs_node_t * node, u32_t pos, u32_t len, u8_t * 
 		return block_write(ctrl->bdev, (u8_t *) buf, woff, wlen);
 	}
 
-	wstartcl = udiv32(pos, ctrl->bytes_per_cluster);
-
 	/* If first cluster is zero then allocate first cluster */
 	if(node->first_cluster == 0)
 	{
@@ -283,14 +323,17 @@ u32_t fatfs_node_write(struct fatfs_node_t * node, u32_t pos, u32_t len, u8_t * 
 			return 0;
 
 		node->first_cluster = cl_num;
+		node->cur_cluster = cl_num;
+		node->cur_pos = 0;
 
 		/* Update the first cluster */
 		node->parent_dent.first_cluster_hi = ((node->first_cluster >> 16) & 0xFFFF);
 		node->parent_dent.first_cluster_lo = (node->first_cluster & 0xFFFF);
 	}
 
+	fatfs_node_fast_jump_cluster(node, pos, &wstartcl, &cl_num);
+
 	/* Make room for new data by appending free clusters */
-	cl_num = node->first_cluster;
 	for(int i = 0; i < wstartcl; i++)
 	{
 		rc = fatfs_node_auto_alloc_next_cluster(node, cl_num, &cl_num);
@@ -299,7 +342,7 @@ u32_t fatfs_node_write(struct fatfs_node_t * node, u32_t pos, u32_t len, u8_t * 
 	}
 
 	w = 0;
-	cl_off = umod64(pos + w, ctrl->bytes_per_cluster);
+	cl_off = umod32(pos + w, ctrl->bytes_per_cluster);
 	do
 	{
 		/* Current cluster info */
@@ -348,7 +391,7 @@ done:
 int fatfs_node_truncate(struct fatfs_node_t * node, u32_t pos)
 {
 	int rc;
-	u32_t cl_pos, cl_off, cl_num;
+	u32_t cl_pos, cl_num, t_pos;
 	u32_t year, mon, day, hour, min, sec;
 	struct fatfs_control_t * ctrl = node->ctrl;
 
@@ -359,12 +402,10 @@ int fatfs_node_truncate(struct fatfs_node_t * node, u32_t pos)
 	}
 
 	/* Determine last cluster after truncation */
-	cl_pos = udiv32(pos, ctrl->bytes_per_cluster);
-	cl_off = pos - cl_pos * ctrl->bytes_per_cluster;
-	if(cl_off)
-		cl_pos += 1;
+	t_pos = udiv32(pos + ctrl->bytes_per_cluster - 1, ctrl->bytes_per_cluster);
+	fatfs_node_fast_jump_cluster(node, t_pos + ctrl->bytes_per_cluster - 1, &cl_pos, &cl_num);
 
-	rc = fatfs_control_nth_cluster(ctrl, node->first_cluster, cl_pos, &cl_num);
+	rc = fatfs_control_nth_cluster(ctrl, cl_num, cl_pos, &cl_num);
 	if(rc)
 		return rc;
 
@@ -379,15 +420,22 @@ int fatfs_node_truncate(struct fatfs_node_t * node, u32_t pos)
 	if(cl_pos == 0)
 	{
 		node->first_cluster = 0;
+		node->cur_cluster = 0;
+		node->cur_pos = 0;
 	}
 	else
 	{
-		rc = fatfs_control_nth_cluster(ctrl, node->first_cluster, cl_pos - 1, &cl_num);
+		/* if go here, t_pos >= node->first_cluster */
+		t_pos -= ctrl->bytes_per_cluster;
+		fatfs_node_fast_jump_cluster(node, t_pos, &cl_pos, &cl_num);
+		rc = fatfs_control_nth_cluster(ctrl, cl_num, cl_pos, &cl_num);
 		if(rc)
 			return rc;
 		rc = fatfs_control_set_last_cluster(ctrl, cl_num);
 		if(rc)
 			return rc;
+		node->cur_cluster = cl_num;
+		node->cur_pos = t_pos;
 	}
 
 	/* Update node size */
@@ -440,6 +488,8 @@ int fatfs_node_init(struct fatfs_control_t * ctrl, struct fatfs_node_t * node)
 	memset(&node->parent_dent, 0, sizeof(struct fat_dirent_t));
 	node->parent_dent_dirty = FALSE;
 	node->first_cluster = 0;
+	node->cur_cluster = 0;
+	node->cur_pos = 0;
 
 	node->cached_clust = 0;
 	node->cached_data = NULL;

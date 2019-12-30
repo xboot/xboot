@@ -396,14 +396,23 @@ static int __fatfs_control_nth_cluster(struct fatfs_control_t * ctrl, u32_t clus
 	return 0;
 }
 
-static int __fatfs_control_alloc_first_cluster(struct fatfs_control_t * ctrl, u32_t * newclust)
+static int __fatfs_control_alloc_cluster(struct fatfs_control_t * ctrl, u32_t clust, u32_t * newclust)
 {
 	int rc;
 	bool_t found;
 	u32_t current, next, first, last;
 
 	found = FALSE;
-	first = __fatfs_control_first_valid_cluster(ctrl);
+
+	if(__fatfs_control_valid_cluster(ctrl, clust))
+	{
+		first = clust;
+	}
+	else
+	{
+		first = __fatfs_control_first_valid_cluster(ctrl);
+	}
+
 	last = __fatfs_control_last_valid_cluster(ctrl);
 	for(current = first; current <= last; current++)
 	{
@@ -435,7 +444,7 @@ static int __fatfs_control_append_free_cluster(struct fatfs_control_t *ctrl, u32
 {
 	int rc;
 
-	rc = __fatfs_control_alloc_first_cluster(ctrl, newclust);
+	rc = __fatfs_control_alloc_cluster(ctrl, clust, newclust);
 	if(rc)
 		return rc;
 
@@ -552,7 +561,7 @@ int fatfs_control_alloc_first_cluster(struct fatfs_control_t * ctrl, u32_t * new
 	int rc;
 
 	mutex_lock(&ctrl->fat_cache_lock);
-	rc = __fatfs_control_alloc_first_cluster(ctrl, newclust);
+	rc = __fatfs_control_alloc_cluster(ctrl, 0, newclust);
 	mutex_unlock(&ctrl->fat_cache_lock);
 
 	return rc;

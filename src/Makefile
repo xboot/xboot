@@ -13,35 +13,36 @@ WBOXTEST		?=
 # Get platform information about ARCH and MACH from PLATFORM variable.
 #
 ifeq ($(words $(subst -, , $(PLATFORM))), 2)
-ARCH		:= $(word 1, $(subst -, , $(PLATFORM)))
-MACH		:= mach-$(word 2, $(subst -, , $(PLATFORM)))
+ARCH			:= $(word 1, $(subst -, , $(PLATFORM)))
+MACH			:= mach-$(word 2, $(subst -, , $(PLATFORM)))
 else
-ARCH		:= x64
-MACH		:= mach-sandbox
+ARCH			:= x64
+MACH			:= mach-sandbox
 endif
 
 #
 # System environment variable.
 #
-ifneq (,$(findstring Linux, $(shell uname -a)))
-HOSTOS		:= linux
-endif
-ifneq (,$(findstring windows, $(shell uname -a)))
-HOSTOS		:= windows
+ifeq ($(OS), Windows_NT)
+	HOSTOS		:= windows
+else
+	ifneq (,$(findstring Linux, $(shell uname -a)))
+		HOSTOS	:= linux
+	endif
 endif
 
 #
 # Load default variables.
 #
-ASFLAGS		:= -g -ggdb -Wall -O0
-CFLAGS		:= -g -ggdb -Wall -O0
-LDFLAGS		:= -T arch/$(ARCH)/$(MACH)/xboot.ld -nostdlib
-MCFLAGS		:=
+ASFLAGS			:= -g -ggdb -Wall -O0
+CFLAGS			:= -g -ggdb -Wall -O0
+LDFLAGS			:= -T arch/$(ARCH)/$(MACH)/xboot.ld -nostdlib
+MCFLAGS			:=
 
-LIBDIRS		:=
-LIBS 		:=
-INCDIRS		:=
-SRCDIRS		:=
+LIBDIRS			:=
+LIBS 			:=
+INCDIRS			:=
+SRCDIRS			:=
 
 #
 # Override default variables.

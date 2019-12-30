@@ -606,8 +606,9 @@ ssize_t utf8_to_ucs4_alloc(const char * src, u32_t ** dst, u32_t ** pos)
 		len = utf8_to_ucs4(*dst, len, src, -1, 0);
 		if(pos)
 			*pos = *dst + len;
+		return len;
 	}
-	return len;
+	return 0;
 }
 EXPORT_SYMBOL(utf8_to_ucs4_alloc);
 

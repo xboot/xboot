@@ -569,10 +569,12 @@ static void rl_complete_file(struct rl_buf_t * rl, char * utf8, char * p)
 					if((e = (struct slist_t *)list_first_entry_or_null(&sl->list, struct slist_t, list)))
 					{
 						e->key[min] = 0;
-						l = utf8_to_ucs4_alloc(&e->key[pl], &ucs4, NULL);
-						ucs4[l] = 0;
-						rl_insert(rl, ucs4);
-						free(ucs4);
+						if((l = utf8_to_ucs4_alloc(&e->key[pl], &ucs4, NULL)) > 0)
+						{
+							ucs4[l] = 0;
+							rl_insert(rl, ucs4);
+							free(ucs4);
+						}
 					}
 				}
 				else
@@ -641,10 +643,12 @@ static void rl_complete_command(struct rl_buf_t * rl, char * utf8, char * p)
 			if((e = (struct slist_t *)list_first_entry_or_null(&sl->list, struct slist_t, list)))
 			{
 				e->key[min] = 0;
-				l = utf8_to_ucs4_alloc(&e->key[pl], &ucs4, NULL);
-				ucs4[l] = 0;
-				rl_insert(rl, ucs4);
-				free(ucs4);
+				if((l = utf8_to_ucs4_alloc(&e->key[pl], &ucs4, NULL)) > 0)
+				{
+					ucs4[l] = 0;
+					rl_insert(rl, ucs4);
+					free(ucs4);
+				}
 			}
 		}
 		else

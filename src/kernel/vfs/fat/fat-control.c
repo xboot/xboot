@@ -476,35 +476,25 @@ static int __fatfs_control_truncate_clusters(struct fatfs_control_t *ctrl, u32_t
 	return 0;
 }
 
-static s64_t fatfs_wallclock_mktime(unsigned int year0, unsigned int mon0, unsigned int day, unsigned int hour, unsigned int min, unsigned int sec)
+static s64_t fatfs_wallclock_mktime(unsigned int year, unsigned int mon, unsigned int day, unsigned int hour, unsigned int min, unsigned int sec)
 {
-	unsigned int year = year0, mon = mon0;
-	u64_t ret;
+	struct tm ti;
+	time_t t;
+	ti.tm_sec = sec;
+	ti.tm_min = min;
+	ti.tm_hour = hour;
+	ti.tm_mday = day;
+	ti.tm_mon = mon;
+	ti.tm_year = year;
 
-	if(0 >= (int)(mon -= 2))
-	{
-		mon += 12;
-		year -= 1;
-	}
+	t = mktime(&ti);
 
-	ret = (u64_t)(year / 4 - year / 100 + year / 400 + 367 * mon / 12 + day);
-	ret += (u64_t)(year) * 365 - 719499;
-
-	ret *= (u64_t)24;
-	ret += hour;
-
-	ret *= (u64_t)60;
-	ret += min;
-
-	ret *= (u64_t)60;
-	ret += sec;
-
-	return (s64_t)ret;
+	return (s64_t)t;
 }
 
 u32_t fatfs_pack_timestamp(u32_t year, u32_t mon, u32_t day, u32_t hour, u32_t min, u32_t sec)
 {
-	return (u32_t)fatfs_wallclock_mktime(1980+year, mon, day, hour, min, sec);
+	return (u32_t)fatfs_wallclock_mktime(1980 - 1900 + year, mon, day, hour, min, sec);
 }
 
 void fatfs_current_timestamp(u32_t * year, u32_t * mon, u32_t * day, u32_t * hour, u32_t * min, u32_t * sec)
@@ -516,7 +506,36 @@ void fatfs_current_timestamp(u32_t * year, u32_t * mon, u32_t * day, u32_t * hou
 	ti = localtime(&t);
 
 	if(year)
-		*year = ti->tm_year + 1900 - 1980;
+	{
+		if(ti->tm_year < 80)
+			*year = 0;
+		else
+			*year = ti->tm_year + 1900 - 1980;
+	}
+	if(mon)
+		*mon = ti->tm_mon;
+	if(day)
+		*day = ti->tm_mday;
+	if(hour)
+		*hour = ti->tm_hour;
+	if(min)
+		*min = ti->tm_min;
+	if(sec)
+		*sec = ti->tm_sec;
+}
+
+void fatfs_timestamp(time_t *t, u32_t * year, u32_t * mon, u32_t * day, u32_t * hour, u32_t * min, u32_t * sec)
+{
+	struct tm * ti;
+	ti = localtime(t);
+
+	if(year)
+	{
+		if(ti->tm_year < 80)
+			*year = 0;
+		else
+			*year = ti->tm_year + 1900 - 1980;
+	}
 	if(mon)
 		*mon = ti->tm_mon;
 	if(day)

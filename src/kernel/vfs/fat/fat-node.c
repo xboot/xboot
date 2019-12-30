@@ -300,7 +300,6 @@ u32_t fatfs_node_write(struct fatfs_node_t * node, u32_t pos, u32_t len, u8_t * 
 	u64_t woff, wlen;
 	u32_t w = 0, wstartcl;
 	u32_t cl_off, cl_num, cl_len;
-	u32_t year, mon, day, hour, min, sec;
 	struct fatfs_control_t *ctrl = node->ctrl;
 
 	if(!node->parent && ctrl->type != FAT_TYPE_32)
@@ -326,9 +325,8 @@ u32_t fatfs_node_write(struct fatfs_node_t * node, u32_t pos, u32_t len, u8_t * 
 		node->cur_cluster = cl_num;
 		node->cur_pos = 0;
 
-		/* Update the first cluster */
-		node->parent_dent.first_cluster_hi = ((node->first_cluster >> 16) & 0xFFFF);
-		node->parent_dent.first_cluster_lo = (node->first_cluster & 0xFFFF);
+		/* Mark node directory entry as dirty */
+		node->parent_dent_dirty = TRUE;
 	}
 
 	fatfs_node_fast_jump_cluster(node, pos, &wstartcl, &cl_num);
@@ -338,7 +336,7 @@ u32_t fatfs_node_write(struct fatfs_node_t * node, u32_t pos, u32_t len, u8_t * 
 	{
 		rc = fatfs_node_auto_alloc_next_cluster(node, cl_num, &cl_num);
 		if(rc)
-			goto done;
+			return 0;
 	}
 
 	w = 0;
@@ -363,25 +361,6 @@ u32_t fatfs_node_write(struct fatfs_node_t * node, u32_t pos, u32_t len, u8_t * 
 		cl_off -= cl_off;
 	} while(w < len && !fatfs_node_auto_alloc_next_cluster(node, cl_num, &cl_num));
 
-done:
-	/* Update node size */
-	if(!(node->parent_dent.file_attributes & FAT_DIRENT_SUBDIR))
-	{
-		if(le32_to_cpu(node->parent_dent.file_size) < (pos + w))
-		{
-			node->parent_dent.file_size = le32_to_cpu(pos + w);
-		}
-	}
-
-	/* Update node modify time */
-	fatfs_current_timestamp(&year, &mon, &day, &hour, &min, &sec);
-	node->parent_dent.lmodify_date_year = year;
-	node->parent_dent.lmodify_date_month = mon;
-	node->parent_dent.lmodify_date_day = day;
-	node->parent_dent.lmodify_time_hours = min;
-	node->parent_dent.lmodify_time_minutes = min;
-	node->parent_dent.lmodify_time_seconds = sec;
-
 	/* Mark node directory entry as dirty */
 	node->parent_dent_dirty = TRUE;
 
@@ -392,7 +371,6 @@ int fatfs_node_truncate(struct fatfs_node_t * node, u32_t pos)
 {
 	int rc;
 	u32_t cl_pos, cl_num, t_pos;
-	u32_t year, mon, day, hour, min, sec;
 	struct fatfs_control_t * ctrl = node->ctrl;
 
 	if(!node->parent && ctrl->type != FAT_TYPE_32)
@@ -437,26 +415,6 @@ int fatfs_node_truncate(struct fatfs_node_t * node, u32_t pos)
 		node->cur_cluster = cl_num;
 		node->cur_pos = t_pos;
 	}
-
-	/* Update node size */
-	if(!(node->parent_dent.file_attributes & FAT_DIRENT_SUBDIR))
-	{
-		if(pos < le32_to_cpu(node->parent_dent.file_size))
-			node->parent_dent.file_size = le32_to_cpu(pos);
-	}
-
-	/* Update the first cluster */
-	node->parent_dent.first_cluster_hi = ((node->first_cluster >> 16) & 0xFFFF);
-	node->parent_dent.first_cluster_lo = (node->first_cluster & 0xFFFF);
-
-	/* Update node modify time */
-	fatfs_current_timestamp(&year, &mon, &day, &hour, &min, &sec);
-	node->parent_dent.lmodify_date_year = year;
-	node->parent_dent.lmodify_date_month = mon;
-	node->parent_dent.lmodify_date_day = day;
-	node->parent_dent.lmodify_time_hours = min;
-	node->parent_dent.lmodify_time_minutes = min;
-	node->parent_dent.lmodify_time_seconds = sec;
 
 	/* Mark node directory entry as dirty */
 	node->parent_dent_dirty = TRUE;

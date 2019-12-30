@@ -70,6 +70,8 @@ static int fatfs_mount(struct vfs_mount_t * m, const char * dev)
 		root->parent_dent.first_cluster_hi = 0x0;
 		root->parent_dent.file_size = 0x0;
 	}
+	root->cur_cluster = root->first_cluster;
+	root->cur_pos = 0;
 	root->parent_dent_dirty = FALSE;
 
 	/* Handcraft the root vfs node */
@@ -237,6 +239,8 @@ static int fatfs_lookup(struct vfs_node_t * dn, const char * name, struct vfs_no
 		node->first_cluster = 0;
 	}
 	node->first_cluster |= le16_to_cpu(dent.first_cluster_lo);
+	node->cur_cluster = node->first_cluster;
+	node->cur_pos = 0;
 
 	n->v_mode = 0;
 

@@ -52,6 +52,7 @@ struct fatfs_control_t {
 
 u32_t fatfs_pack_timestamp(u32_t year, u32_t mon, u32_t day, u32_t hour, u32_t min, u32_t sec);
 void fatfs_current_timestamp(u32_t * year, u32_t * mon, u32_t * day, u32_t * hour, u32_t * min, u32_t * sec);
+void fatfs_timestamp(time_t *t, u32_t * year, u32_t * mon, u32_t * day, u32_t * hour, u32_t * min, u32_t * sec);
 bool_t fatfs_control_valid_cluster(struct fatfs_control_t * ctrl, u32_t clust);
 int fatfs_control_nth_cluster(struct fatfs_control_t * ctrl, u32_t clust, u32_t pos, u32_t * next);
 int fatfs_control_set_last_cluster(struct fatfs_control_t * ctrl, u32_t clust);

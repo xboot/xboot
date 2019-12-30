@@ -25,6 +25,10 @@ struct fatfs_node_t {
 	/* First cluster */
 	u32_t first_cluster;
 
+	/* Current cluster */
+	u32_t cur_cluster;
+	u32_t cur_pos;
+
 	/* Cached clusters */
 	u8_t *cached_data;
 	u32_t cached_clust;

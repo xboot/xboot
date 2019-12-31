@@ -17,6 +17,9 @@ struct slist_t {
 #define slist_for_each_entry(entry, sl) \
 	list_for_each_entry(entry, &(sl)->list, list)
 
+#define slist_for_each_entry_reverse(entry, sl) \
+	list_for_each_entry_reverse(entry, &(sl)->list, list)
+
 struct slist_t * slist_alloc(void);
 void slist_free(struct slist_t * sl);
 void slist_add(struct slist_t * sl, void * priv, const char * fmt, ...);

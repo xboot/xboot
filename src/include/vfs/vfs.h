@@ -97,13 +97,12 @@ struct vfs_stat_t {
 enum vfs_dirent_type_t {
 	VDT_UNK,
 	VDT_DIR,
-	VDT_REG,
-	VDT_BLK,
 	VDT_CHR,
-	VDT_FIFO,
+	VDT_BLK,
+	VDT_REG,
 	VDT_LNK,
+	VDT_FIFO,
 	VDT_SOCK,
-	VDT_WHT,
 };
 
 struct vfs_dirent_t {
@@ -119,14 +118,14 @@ enum vfs_node_flag_t {
 };
 
 enum vfs_node_type_t {
-	VNT_REG,
-	VNT_DIR,
-	VNT_BLK,
-	VNT_CHR,
-	VNT_LNK,
-	VNT_SOCK,
-	VNT_FIFO,
 	VNT_UNK,
+	VNT_DIR,
+	VNT_CHR,
+	VNT_BLK,
+	VNT_REG,
+	VNT_LNK,
+	VNT_FIFO,
+	VNT_SOCK,
 };
 
 struct vfs_node_t {

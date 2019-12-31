@@ -628,7 +628,7 @@ int vfs_mount(const char * dev, const char * dir, const char * fsname, u32_t fla
 	m->m_root = n;
 
 	mutex_lock(&m->m_lock);
-	err = m->m_fs->mount(m, dev, flags & MOUNT_MASK);
+	err = m->m_fs->mount(m, dev);
 	mutex_unlock(&m->m_lock);
 	if(err != 0)
 	{

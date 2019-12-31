@@ -30,7 +30,7 @@
 #include <vfs/ext4/ext4-node.h>
 #include <vfs/ext4/ext4.h>
 
-int ext4fs_mount(struct vfs_mount_t * m, const char * dev, u32_t flags)
+int ext4fs_mount(struct vfs_mount_t * m, const char * dev)
 {
 	int rc;
 	u16_t rootmode;

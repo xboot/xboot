@@ -173,7 +173,7 @@ static bool_t check_path(const char * path, const char * perfix, const char * na
 	return FALSE;
 }
 
-static int tar_mount(struct vfs_mount_t * m, const char * dev, u32_t flags)
+static int tar_mount(struct vfs_mount_t * m, const char * dev)
 {
 	struct tar_header_t header;
 	u64_t rd;

@@ -117,7 +117,7 @@ static bool_t check_path(const char * path, const char * prefix, const char * na
 	return TRUE;
 }
 
-static int cpio_mount(struct vfs_mount_t * m, const char * dev, u32_t flags)
+static int cpio_mount(struct vfs_mount_t * m, const char * dev)
 {
 	struct cpio_newc_header_t header;
 	u64_t rd;

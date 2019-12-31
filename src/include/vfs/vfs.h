@@ -145,9 +145,9 @@ struct vfs_node_t {
 };
 
 enum {
-	MOUNT_RW	= (0 << 0),
-	MOUNT_RO	= (1 << 0),
-	MOUNT_MASK	= (1 << 0),
+	MOUNT_RW	= (0x0 << 0),
+	MOUNT_RO	= (0x1 << 0),
+	MOUNT_MASK	= (0x1 << 0),
 };
 
 struct vfs_mount_t {
@@ -168,7 +168,7 @@ struct filesystem_t {
 	struct list_head list;
 	const char * name;
 
-	int (*mount)(struct vfs_mount_t *, const char *, u32_t);
+	int (*mount)(struct vfs_mount_t *, const char *);
 	int (*unmount)(struct vfs_mount_t *);
 	int (*msync)(struct vfs_mount_t *);
 	int (*vget)(struct vfs_mount_t *, struct vfs_node_t *);

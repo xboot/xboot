@@ -134,7 +134,7 @@ static int ramfs_rename_node(struct ram_node_t * rn, const char * name)
 	return 0;
 }
 
-static int ram_mount(struct vfs_mount_t * m, const char * dev, u32_t flags)
+static int ram_mount(struct vfs_mount_t * m, const char * dev)
 {
 	struct ram_node_t * rn;
 

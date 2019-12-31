@@ -30,7 +30,7 @@
 #include <vfs/fat/fat-node.h>
 #include <vfs/fat/fat.h>
 
-static int fatfs_mount(struct vfs_mount_t * m, const char * dev, u32_t flags)
+static int fatfs_mount(struct vfs_mount_t * m, const char * dev)
 {
 	int rc;
 	struct fatfs_control_t *ctrl;

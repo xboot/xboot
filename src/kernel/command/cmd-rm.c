@@ -35,19 +35,18 @@ static void usage(void)
 	printf("    rm [-v] <DIRECTORY>...\r\n");
 }
 
-static int rmdir_recursive(const char * path, int verbose)
+static void scandir(struct slist_t * sl, const char * path)
 {
 	struct vfs_stat_t st;
 	struct vfs_dirent_t dir;
 	char * buf;
 	int fd, plen, len;
-	int r = -1, r2 = -1;
 
 	if((fd = vfs_opendir(path)) >= 0)
 	{
+		slist_add(sl, NULL, "%s", path);
 		plen = strlen(path);
-		r = 0;
-		while(!r && (vfs_readdir(fd, &dir) >= 0))
+		while(vfs_readdir(fd, &dir) >= 0)
 		{
 			if(!strcmp(dir.d_name, ".") || !strcmp(dir.d_name, ".."))
 				continue;
@@ -58,38 +57,21 @@ static int rmdir_recursive(const char * path, int verbose)
 				if(!vfs_stat(buf, &st))
 				{
 					if(S_ISDIR(st.st_mode))
-					{
-						r2 = rmdir_recursive(buf, verbose);
-					}
+						scandir(sl, buf);
 					else
-					{
-						r2 = vfs_unlink(buf);
-						if(r2 < 0)
-							printf("cannot remove file '%s'\r\n", buf);
-						else if(verbose)
-							printf("removed '%s'\r\n", buf);
-					}
+						slist_add(sl, NULL, "%s", buf);
 				}
 				free(buf);
 			}
-			r = r2;
 		}
 		vfs_closedir(fd);
 	}
-	if(!r)
-	{
-		r = vfs_rmdir(path);
-		if(r < 0)
-			printf("cannot remove directory '%s'\r\n", path);
-		else if(verbose)
-			printf("removed '%s'\r\n", path);
-	}
-	return r;
 }
 
 static int do_rm(int argc, char ** argv)
 {
 	struct vfs_stat_t st;
+	struct slist_t * sl, * e;
 	char fpath[VFS_MAX_PATH];
 	char ** v;
 	int verbose = 0;
@@ -124,7 +106,31 @@ static int do_rm(int argc, char ** argv)
 			{
 				if(S_ISDIR(st.st_mode))
 				{
-					rmdir_recursive(fpath, verbose);
+					sl = slist_alloc();
+					scandir(sl, fpath);
+					slist_sort(sl);
+					slist_for_each_entry_reverse(e, sl)
+					{
+						if(vfs_stat(e->key, &st) >= 0)
+						{
+							if(S_ISDIR(st.st_mode))
+							{
+								if(vfs_rmdir(e->key) < 0)
+									printf("cannot remove directory '%s'\r\n", e->key);
+								else if(verbose)
+									printf("removed '%s'\r\n", e->key);
+							}
+							else
+							{
+								if(vfs_unlink(e->key) < 0)
+									printf("cannot remove file '%s'\r\n", e->key);
+								else if(verbose)
+									printf("removed '%s'\r\n", e->key);
+							}
+						}
+
+					}
+					slist_free(sl);
 				}
 				else
 				{

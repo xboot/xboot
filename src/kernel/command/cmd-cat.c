@@ -80,10 +80,10 @@ static int cat_file(const char * filename)
 	{
 		for(i = 0; i < n; i++)
 		{
-			if((buf[i] < 0x20) || (buf[i] > 0x7e))
-				putchar('.');
-			else
+			if(isprint(buf[i]) || (buf[i] == '\r') || (buf[i] == '\n') || (buf[i] == '\t') || (buf[i] == '\f'))
 				putchar(buf[i]);
+			else
+				putchar('.');
 		}
 	}
 	printf("\r\n");

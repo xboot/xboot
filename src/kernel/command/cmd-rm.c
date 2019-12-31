@@ -65,7 +65,7 @@ static int rmdir_recursive(const char * path, int verbose)
 					{
 						r2 = vfs_unlink(buf);
 						if(r2 < 0)
-							printf("cannot remove '%s'\r\n", buf);
+							printf("cannot remove file '%s'\r\n", buf);
 						else if(verbose)
 							printf("removed '%s'\r\n", buf);
 					}
@@ -80,7 +80,7 @@ static int rmdir_recursive(const char * path, int verbose)
 	{
 		r = vfs_rmdir(path);
 		if(r < 0)
-			printf("cannot remove '%s'\r\n", path);
+			printf("cannot remove directory '%s'\r\n", path);
 		else if(verbose)
 			printf("removed '%s'\r\n", path);
 	}
@@ -120,17 +120,28 @@ static int do_rm(int argc, char ** argv)
 			continue;
 		if(vfs_stat(fpath, &st) >= 0)
 		{
-			if(S_ISDIR(st.st_mode))
+			if(vfs_access(fpath, W_OK) >= 0)
 			{
-				rmdir_recursive(fpath, verbose);
+				if(S_ISDIR(st.st_mode))
+				{
+					rmdir_recursive(fpath, verbose);
+				}
+				else
+				{
+					if(vfs_unlink(fpath) < 0)
+						printf("cannot remove file '%s'\r\n", fpath);
+					else if(verbose)
+						printf("removed '%s'\r\n", fpath);
+				}
 			}
 			else
 			{
-				if(vfs_unlink(fpath) < 0)
-					printf("cannot remove '%s'\r\n", fpath);
-				else if(verbose)
-					printf("removed '%s'\r\n", fpath);
+				printf("read only '%s'\r\n", fpath);
 			}
+		}
+		else
+		{
+			printf("cannot stat '%s'\r\n", fpath);
 		}
 	}
 	free(v);

@@ -33,14 +33,16 @@
 static void usage(void)
 {
 	printf("usage:\r\n");
-	printf("    md [-b|-w|-l] address [-c count]\r\n");
+	printf("    md [-b|-w|-l|-q] address [-c count]\r\n");
 }
 
 static int do_md(int argc, char ** argv)
 {
-	s32_t base_addr = 0, nbytes = 64;
-	s32_t i, size = 1;
-	u8_t linebuf[16], line_len;
+	virtual_addr_t addr = 0;
+	char buf[16];
+	int n = 64, size = 1;
+	int i, len;
+	u8_t b; u16_t w; u32_t l; u64_t q;
 
 	if(argc < 2)
 	{
@@ -48,17 +50,19 @@ static int do_md(int argc, char ** argv)
 		return -1;
 	}
 
-	for(i=1; i<argc; i++)
+	for(i = 1; i < argc; i++)
 	{
-		if( !strcmp((const char *)argv[i],"-b") )
+		if(!strcmp(argv[i], "-b"))
 			size = 1;
-		else if( !strcmp((const char *)argv[i],"-w") )
+		else if(!strcmp(argv[i], "-w"))
 			size = 2;
-		else if( !strcmp((const char *)argv[i],"-l") )
+		else if(!strcmp(argv[i], "-l"))
 			size = 4;
-		else if( !strcmp((const char *)argv[i],"-c") && (argc > i+1))
+		else if(!strcmp(argv[i], "-q"))
+			size = 8;
+		else if(!strcmp(argv[i], "-c") && (argc > i + 1))
 		{
-			nbytes = strtoul((const char *)argv[i+1], NULL, 0);
+			n = strtoul(argv[i + 1], NULL, 0);
 			i++;
 		}
 		else if(*argv[i] == '-')
@@ -66,70 +70,80 @@ static int do_md(int argc, char ** argv)
 			usage();
 			return (-1);
 		}
-		else if(*argv[i] != '-' && strcmp((const char *)argv[i], "-") != 0)
+		else if(*argv[i] != '-' && strcmp(argv[i], "-") != 0)
 		{
-			base_addr = strtoul((const char *)argv[i], NULL, 0);
+			addr = phys_to_virt(strtoul(argv[i], NULL, 0));
 		}
 	}
-
-	if(size == 2)
+	if(size == 1)
 	{
-		base_addr = base_addr & (~0x00000001);
+		addr &= ~((virtual_addr_t)0x0);
+	}
+	else if(size == 2)
+	{
+		addr &= ~((virtual_addr_t)0x1);
 	}
 	else if(size == 4)
 	{
-		base_addr = base_addr & (~0x00000003);
+		addr &= ~((virtual_addr_t)0x3);
 	}
-
-	nbytes = nbytes * size;
-
-	while(nbytes > 0)
+	else if(size == 8)
 	{
-		line_len = (nbytes > 16) ? 16:nbytes;
+		addr &= ~((virtual_addr_t)0x7);
+	}
+	n = n * size;
 
-		printf("%08lx: ", base_addr);
+	while(n > 0)
+	{
+		len = (n > 16) ? 16 : n;
+		printf("%08lx: ", addr);
 		if(size == 1)
 		{
-			for(i=0; i<line_len; i+= size)
-				*((u8_t *)(&linebuf[i])) = *((u8_t *)(base_addr+i));
-
-			for(i=0; i<line_len; i+= size)
-				printf(" %02lx", *((u8_t *)(&linebuf[i])));
+			for(i = 0; i < len; i += size)
+			{
+				write8((virtual_addr_t)(&buf[i]), (b = read8(addr + i)));
+				printf(" %02lx", b);
+			}
 		}
 		else if(size == 2)
 		{
-			for(i=0; i<line_len; i+= size)
-				*((u16_t *)(&linebuf[i])) = *((u16_t *)(base_addr+i));
-
-			for(i=0; i<line_len; i+= size)
-				printf(" %04lx", *((u16_t *)(&linebuf[i])));
+			for(i = 0; i < len; i += size)
+			{
+				write16((virtual_addr_t)(&buf[i]), (w = read16(addr + i)));
+				printf(" %04lx", w);
+			}
 		}
 		else if(size == 4)
 		{
-			for(i=0; i<line_len; i+= size)
-				*((u32_t *)(&linebuf[i])) = *((u32_t *)(base_addr+i));
-
-			for(i=0; i<line_len; i+= size)
-				printf(" %08lx", *((u32_t *)(&linebuf[i])));
+			for(i = 0; i < len; i += size)
+			{
+				write32((virtual_addr_t)(&buf[i]), (l = read32(addr + i)));
+				printf(" %08lx", l);
+			}
 		}
-
-		printf("%*s", (16-line_len)*2+(16-line_len)/size+4, (s8_t*)"");
-		for(i=0; i<line_len; i++)
+		else if(size == 8)
 		{
-			if( (linebuf[i] < 0x20) || (linebuf[i] > 0x7e) )
+			for(i = 0; i < len; i += size)
+			{
+				write64((virtual_addr_t)(&buf[i]), (q = read64(addr + i)));
+				printf(" %016llx", q);
+			}
+		}
+		printf("%*s", (16 - len) * 2 + (16 - len) / size + 4, "");
+		for(i = 0; i < len; i++)
+		{
+			if((buf[i] < 0x20) || (buf[i] > 0x7e))
 				printf(".");
 			else
-				printf("%c", linebuf[i]);
+				printf("%c", buf[i]);
 		}
-
-		base_addr += line_len;
-		nbytes -= line_len;
+		addr += len;
+		n -= len;
 		printf("\r\n");
 
 		if(ctrlc())
 			return -1;
 	}
-
 	return 0;
 }
 

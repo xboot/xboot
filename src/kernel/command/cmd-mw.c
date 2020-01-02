@@ -33,13 +33,16 @@
 static void usage(void)
 {
 	printf("usage:\r\n");
-	printf("    mw [-b|-w|-l] address value [-c count]\r\n");
+	printf("    mw [-b|-w|-l|-q] address value [-c count]\r\n");
 }
 
 static int do_mw(int argc, char ** argv)
 {
-	u32_t base_addr = 0, value = 0, c = 1;
-	u32_t index = 0, i, size = 1;
+	virtual_addr_t addr = 0;
+	u64_t value = 0;
+	int size = 1, n = 1;
+	int index = 0;
+	int i;
 
 	if(argc < 3)
 	{
@@ -47,20 +50,22 @@ static int do_mw(int argc, char ** argv)
 		return -1;
 	}
 
-	for(i=1; i<argc; i++)
+	for(i = 1; i < argc; i++)
 	{
-		if( !strcmp((const char *)argv[i], "-b") )
+		if(!strcmp(argv[i], "-b"))
 			size = 1;
-		else if( !strcmp((const char *)argv[i], "-w") )
+		else if(!strcmp(argv[i], "-w"))
 			size = 2;
-		else if( !strcmp((const char *)argv[i], "-l") )
+		else if(!strcmp(argv[i], "-l"))
 			size = 4;
-		else if( !strcmp((const char *)argv[i], "-c") && (argc > i+1))
+		else if(!strcmp(argv[i], "-q"))
+			size = 8;
+		else if(!strcmp(argv[i], "-c") && (argc > i + 1))
 		{
-			c = strtoul((const char *)argv[i+1], NULL, 0);
-			if(c == 0)
+			n = strtoul(argv[i + 1], NULL, 0);
+			if(n == 0)
 			{
-				printf("mw: the parmater of write count is zero by '-c %s'", argv[i+1]);
+				printf("mw: the writing count is zero by '-c %s'", argv[i + 1]);
 				return -1;
 			}
 			i++;
@@ -70,12 +75,12 @@ static int do_mw(int argc, char ** argv)
 			usage();
 			return -1;
 		}
-		else if(*argv[i] != '-' && strcmp((const char *)argv[i], "-") != 0)
+		else if(*argv[i] != '-' && strcmp(argv[i], "-") != 0)
 		{
 			if(index == 0)
-				base_addr = strtoul((const char *)argv[i], NULL, 0);
+				addr = phys_to_virt(strtoul(argv[i], NULL, 0));
 			else if(index == 1)
-				value = strtoul((const char *)argv[i], NULL, 0);
+				value = strtoull(argv[i], NULL, 0);
 			else if(index >= 2)
 			{
 				printf("mw: invalid paramter '%s'\r\n", argv[i]);
@@ -85,41 +90,34 @@ static int do_mw(int argc, char ** argv)
 			index++;
 		}
 	}
-
-	if(size == 2)
+	if(size == 1)
 	{
-		if(base_addr & 0x00000001)
-		{
-			base_addr = base_addr & (~0x00000001);
-			printf("warnning: the address has been fixed to 0x%08lx.\r\n", base_addr);
-		}
+		addr &= ~((virtual_addr_t)0x0);
+	}
+	else if(size == 2)
+	{
+		addr &= ~((virtual_addr_t)0x1);
 	}
 	else if(size == 4)
 	{
-		if(base_addr & 0x00000003)
-		{
-			base_addr = base_addr & (~0x00000003);
-			printf("warnning: the address has been fixed to 0x%08lx.\r\n", base_addr);
-		}
+		addr &= ~((virtual_addr_t)0x3);
 	}
+	else if(size == 8)
+	{
+		addr &= ~((virtual_addr_t)0x7);
+	}
+	n = n * size;
 
-	c = c * size;
-
-	for(i = 0; i< c; i+=size)
+	for(i = 0; i < n; i += size)
 	{
 		if(size == 1)
-		{
-			*((u8_t *)(base_addr+i)) = value;
-		}
+			write8((virtual_addr_t)(addr + i), (u8_t)value);
 		else if(size == 2)
-		{
-			*((u16_t *)(base_addr+i)) = value;
-		}
+			write16((virtual_addr_t)(addr + i), (u16_t)value);
 		else if(size == 4)
-		{
-			*((u32_t *)(base_addr+i)) = value;
-		}
-
+			write32((virtual_addr_t)(addr + i), (u32_t)value);
+		else if(size == 8)
+			write64((virtual_addr_t)(addr + i), (u64_t)value);
 		if(ctrlc())
 			return -1;
 	}

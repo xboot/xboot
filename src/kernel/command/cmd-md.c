@@ -149,7 +149,7 @@ static int do_md(int argc, char ** argv)
 
 static struct command_t cmd_md = {
 	.name	= "md",
-	.desc	= "memory display",
+	.desc	= "dump a memory region",
 	.usage	= usage,
 	.exec	= do_md,
 };

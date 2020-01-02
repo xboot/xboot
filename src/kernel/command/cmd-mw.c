@@ -128,7 +128,7 @@ static int do_mw(int argc, char ** argv)
 
 static struct command_t cmd_mw = {
 	.name	= "mw",
-	.desc	= "memory write",
+	.desc	= "write values to memory region",
 	.usage	= usage,
 	.exec	= do_mw,
 };

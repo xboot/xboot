@@ -833,6 +833,8 @@ int vfs_open(const char * path, u32_t flags, u32_t mode)
 			mode |= S_IFREG;
 			mutex_lock(&dn->v_lock);
 			err = dn->v_mount->m_fs->create(dn, filename, mode);
+			if(!err)
+				err = dn->v_mount->m_fs->sync(dn);
 			mutex_unlock(&dn->v_lock);
 			vfs_node_release(dn);
 			if(err)

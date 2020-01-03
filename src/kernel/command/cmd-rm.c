@@ -128,7 +128,6 @@ static int do_rm(int argc, char ** argv)
 									printf("removed '%s'\r\n", e->key);
 							}
 						}
-
 					}
 					slist_free(sl);
 				}

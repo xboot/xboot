@@ -504,7 +504,7 @@ struct json_value_t * json_parse(const char * json, size_t length, char * errbuf
 						continue;
 
 					case 't':
-						if((end - state.ptr) < 3
+						if((end - state.ptr) <= 3
 								|| *(++state.ptr) != 'r'
 								|| *(++state.ptr) != 'u'
 								|| *(++state.ptr) != 'e')
@@ -519,7 +519,7 @@ struct json_value_t * json_parse(const char * json, size_t length, char * errbuf
 						break;
 
 					case 'f':
-						if((end - state.ptr) < 4
+						if((end - state.ptr) <= 4
 								|| *(++state.ptr) != 'a'
 								|| *(++state.ptr) != 'l'
 								|| *(++state.ptr) != 's'
@@ -533,7 +533,7 @@ struct json_value_t * json_parse(const char * json, size_t length, char * errbuf
 						break;
 
 					case 'n':
-						if((end - state.ptr) < 3
+						if((end - state.ptr) <= 3
 								|| *(++state.ptr) != 'u'
 								|| *(++state.ptr) != 'l'
 								|| *(++state.ptr) != 'l')

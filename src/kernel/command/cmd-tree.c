@@ -39,42 +39,33 @@ static void showtree(const char * path, int depth)
 {
 	struct vfs_stat_t st;
 	struct vfs_dirent_t dir;
-	struct slist_t * sl, * e;
 	char * buf;
-	int fd, plen, len;
-	int i;
+	int fd, len;
+	int i, l;
 
-	if((fd = vfs_opendir(path)) >= 0)
+	if(((len = strlen(path)) > 0) && ((fd = vfs_opendir(path)) >= 0))
 	{
 		if(depth == 0)
 			printf("%s\r\n", path);
-		plen = strlen(path);
-		sl = slist_alloc();
 		while(vfs_readdir(fd, &dir) >= 0)
 		{
 			if(!strcmp(dir.d_name, ".") || !strcmp(dir.d_name, ".."))
 				continue;
-			slist_add(sl, NULL, "%s", dir.d_name);
-		}
-		slist_sort(sl);
-		slist_for_each_entry(e, sl)
-		{
-			len = plen + strlen(dir.d_name) + 2;
-			if((buf = malloc(len)))
+			l = len + strlen(dir.d_name) + 2;
+			if((buf = malloc(l)))
 			{
-				snprintf(buf, len, "%s/%s", path, e->key);
+				snprintf(buf, l, "%s%s%s", path, (path[len - 1] == '/') ? "" : "/", dir.d_name);
 				if(!vfs_stat(buf, &st))
 				{
 					for(i = 0; i < depth; i++)
 						printf("|   ");
-					printf("|-- %s\r\n", e->key);
+					printf("|-- %s\r\n", dir.d_name);
 					if(S_ISDIR(st.st_mode))
 						showtree(buf, depth + 1);
 				}
 				free(buf);
 			}
 		}
-		slist_free(sl);
 		vfs_closedir(fd);
 	}
 }

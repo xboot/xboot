@@ -40,20 +40,20 @@ static void scandir(struct slist_t * sl, const char * path)
 	struct vfs_stat_t st;
 	struct vfs_dirent_t dir;
 	char * buf;
-	int fd, plen, len;
+	int fd, len;
+	int l;
 
-	if((fd = vfs_opendir(path)) >= 0)
+	if(((len = strlen(path)) > 0) && ((fd = vfs_opendir(path)) >= 0))
 	{
 		slist_add(sl, NULL, "%s", path);
-		plen = strlen(path);
 		while(vfs_readdir(fd, &dir) >= 0)
 		{
 			if(!strcmp(dir.d_name, ".") || !strcmp(dir.d_name, ".."))
 				continue;
-			len = plen + strlen(dir.d_name) + 2;
-			if((buf = malloc(len)))
+			l = len + strlen(dir.d_name) + 2;
+			if((buf = malloc(l)))
 			{
-				snprintf(buf, len, "%s/%s", path, dir.d_name);
+				snprintf(buf, l, "%s%s%s", path, (path[len - 1] == '/') ? "" : "/", dir.d_name);
 				if(!vfs_stat(buf, &st))
 				{
 					if(S_ISDIR(st.st_mode))

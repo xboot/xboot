@@ -10,21 +10,22 @@
 #include <json.h>
 
 enum {
-	FLAG_NEXT             = 1 << 0,
-	FLAG_REPROC           = 1 << 1,
-	FLAG_NEED_COMMA       = 1 << 2,
-	FLAG_SEEK_VALUE       = 1 << 3,
-	FLAG_ESCAPED          = 1 << 4,
-	FLAG_STRING           = 1 << 5,
-	FLAG_NEED_COLON       = 1 << 6,
-	FLAG_DONE             = 1 << 7,
-	FLAG_NUM_NEGATIVE     = 1 << 8,
-	FLAG_NUM_ZERO         = 1 << 9,
-	FLAG_NUM_E            = 1 << 10,
-	FLAG_NUM_E_GOT_SIGN   = 1 << 11,
-	FLAG_NUM_E_NEGATIVE   = 1 << 12,
-	FLAG_LINE_COMMENT     = 1 << 13,
-	FLAG_BLOCK_COMMENT    = 1 << 14,
+	FLAG_NEXT				= 1 << 0,
+	FLAG_REPROC				= 1 << 1,
+	FLAG_NEED_COMMA			= 1 << 2,
+	FLAG_SEEK_VALUE			= 1 << 3,
+	FLAG_ESCAPED			= 1 << 4,
+	FLAG_STRING				= 1 << 5,
+	FLAG_NEED_COLON			= 1 << 6,
+	FLAG_DONE				= 1 << 7,
+	FLAG_NUM_NEGATIVE		= 1 << 8,
+	FLAG_NUM_ZERO			= 1 << 9,
+	FLAG_NUM_E				= 1 << 10,
+	FLAG_NUM_E_GOT_SIGN		= 1 << 11,
+	FLAG_NUM_E_NEGATIVE		= 1 << 12,
+	FLAG_LINE_COMMENT		= 1 << 13,
+	FLAG_BLOCK_COMMENT		= 1 << 14,
+	FLAG_NUM_GOT_DECIMAL	= 1 << 15,
 };
 
 struct json_state_t
@@ -142,9 +143,9 @@ struct json_value_t * json_parse(const char * json, size_t length, char * errbuf
 	const char * end;
 	struct json_value_t * top, * root, * alloc = 0;
 	struct json_state_t state = { 0 };
-	long flags;
-	long num_digits = 0, num_e = 0;
-	int64_t num_fraction = 0;
+	long flags = 0;
+	double num_digits = 0, num_e = 0;
+	double num_fraction = 0;
 
 	if (length >= 3 && ((unsigned char)json[0]) == 0xef
 					&& ((unsigned char)json[1]) == 0xbb
@@ -659,10 +660,21 @@ struct json_value_t * json_parse(const char * json, size_t length, char * errbuf
 								num_e = (num_e * 10) + (b - '0');
 								continue;
 							}
+							if(((9223372036854775807LL - (b - '0')) / 10) < top->u.integer)
+							{
+								--num_digits;
+								--state.ptr;
+								top->type = JSON_DOUBLE;
+								top->u.dbl = (double)top->u.integer;
+								continue;
+							}
 							top->u.integer = (top->u.integer * 10) + (b - '0');
 							continue;
 						}
-						num_fraction = (num_fraction * 10) + (b - '0');
+						if(flags & FLAG_NUM_GOT_DECIMAL)
+							num_fraction = (num_fraction * 10) + (b - '0');
+						else
+							top->u.dbl = (top->u.dbl * 10) + (b - '0');
 						continue;
 					}
 
@@ -685,6 +697,7 @@ struct json_value_t * json_parse(const char * json, size_t length, char * errbuf
 						}
 						top->type = JSON_DOUBLE;
 						top->u.dbl = (double)top->u.integer;
+						flags |= FLAG_NUM_GOT_DECIMAL;
 						num_digits = 0;
 						continue;
 					}
@@ -698,7 +711,7 @@ struct json_value_t * json_parse(const char * json, size_t length, char * errbuf
 								sprintf(error, "%d:%d: Expected digit after `.`", state.cur_line, state.cur_col);
 								goto e_failed;
 							}
-							top->u.dbl += ((double) num_fraction) / (pow(10.0, (double) num_digits));
+							top->u.dbl += num_fraction / pow(10.0, num_digits);
 						}
 
 						if(b == 'e' || b == 'E')
@@ -721,7 +734,7 @@ struct json_value_t * json_parse(const char * json, size_t length, char * errbuf
 							sprintf(error, "%d:%d: Expected digit after `e`", state.cur_line, state.cur_col);
 							goto e_failed;
 						}
-						top->u.dbl *= pow(10.0, (double)(flags & FLAG_NUM_E_NEGATIVE ? -num_e : num_e));
+						top->u.dbl *= pow(10.0, (flags & FLAG_NUM_E_NEGATIVE ? -num_e : num_e));
 					}
 
 					if(flags & FLAG_NUM_NEGATIVE)

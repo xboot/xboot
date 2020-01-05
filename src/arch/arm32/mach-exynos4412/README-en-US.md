@@ -8,13 +8,13 @@ make clean
 make CROSS_COMPILE=/path/to/arm-linux-gnueabihf- PLATFORM=arm32-exynos4412
 ```
 
-## Brun to SDCARD
+## Burn to SDCARD
 ```shell
 sudo dd if=xboot.bin of=/dev/sdb bs=512 seek=1 conv=sync
 ```
 
 ## Running
-Config OM pin to boot from sdcard mode, Insert sdcard then power on, The uart3 will showing some debug message.
+Config OM pin to boot from sdcard mode, insert sdcard, and then power on. The uart3 will showing some debug messages.
 
 # Navigation Pages
 
@@ -22,11 +22,11 @@ Config OM pin to boot from sdcard mode, Insert sdcard then power on, The uart3 w
 
   https://xboot.github.io/
 
-* XBOOT source code(open source completely),registered in `github`,please `star` and `fork` a copy directly,if you want to merge it, just sent `pull request`
+* XBOOT source code (completely open source), registered in `github`, please `star` and `fork` a copy directly, if you want to merge it, just sent a `pull request`
 
   https://github.com/xboot/xboot
 
-* XBOOT show case pages，In XBOOT show case page,you can have an intuitive feel.
+* XBOOT show case pages. In XBOOT show case page you can have an intuitive feel.
 
   https://github.com/xboot/xboot/blob/master/documents/xboot-show-case-en-US.md
 
@@ -38,8 +38,8 @@ Config OM pin to boot from sdcard mode, Insert sdcard then power on, The uart3 w
 
   https://github.com/xboot/xboot/blob/master/documents/xboot-application-development-guide-en-US.md
 
-* XBOOT official tencent qq group,many big brother, welcome to join us.
+* XBOOT official tencent qq group, many big brother, welcome to join us.
 
   [658250248](https://jq.qq.com/?_wv=1027&k=5BOkXYO) (2000 peoples)
 
-* You can isuse us if you have any question.
+* You can create an `issue` if you have any question.

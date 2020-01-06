@@ -141,6 +141,11 @@ static bool_t sdhci_spi_detect(struct sdhci_t * sdhci)
 	return TRUE;
 }
 
+static bool_t sdhci_spi_reset(struct sdhci_t * sdhci)
+{
+	return TRUE;
+}
+
 static bool_t sdhci_spi_setvoltage(struct sdhci_t * sdhci, u32_t voltage)
 {
 	return TRUE;
@@ -407,6 +412,7 @@ static struct device_t * sdhci_spi_probe(struct driver_t * drv, struct dtnode_t 
 	sdhci->removable = (pdat->cd >= 0) ? TRUE : FALSE;
 	sdhci->isspi = TRUE;
 	sdhci->detect = sdhci_spi_detect;
+	sdhci->reset = sdhci_spi_reset;
 	sdhci->setvoltage = sdhci_spi_setvoltage;
 	sdhci->setwidth = sdhci_spi_setwidth;
 	sdhci->setclock = sdhci_spi_setclock;

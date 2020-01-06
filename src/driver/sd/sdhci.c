@@ -93,6 +93,13 @@ bool_t sdhci_detect(struct sdhci_t * hci)
 	return FALSE;
 }
 
+bool_t sdhci_reset(struct sdhci_t * hci)
+{
+	if(hci && hci->reset)
+		return hci->reset(hci);
+	return FALSE;
+}
+
 bool_t sdhci_set_voltage(struct sdhci_t * hci, u32_t voltage)
 {
 	if(hci && hci->setvoltage)

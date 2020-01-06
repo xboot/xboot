@@ -158,7 +158,7 @@ static unsigned int extract_year(struct sdcard_t * card)
 
 static bool_t go_idle_state(struct sdhci_t * hci)
 {
-	struct sdhci_cmd_t cmd;
+	struct sdhci_cmd_t cmd = {0};
 
 	cmd.cmdidx = MMC_GO_IDLE_STATE;
 	cmd.cmdarg = 0;
@@ -169,9 +169,51 @@ static bool_t go_idle_state(struct sdhci_t * hci)
 	return sdhci_transfer(hci, &cmd, NULL);
 }
 
+static bool_t sd_send_status(struct sdhci_t * hci, struct sdcard_t * card, int timeout)
+{
+	struct sdhci_cmd_t cmd = {0};
+	bool_t ret;
+
+	cmd.cmdidx = MMC_SEND_STATUS;
+	cmd.resptype = MMC_RSP_R1;
+	cmd.cmdarg = card->rca << 16;
+
+	do {
+		ret = sdhci_transfer(hci, &cmd, NULL);
+
+		switch (R1_CURRENT_STATE(cmd.response[0])) {
+		case R1_STATE_IDLE:
+		case R1_STATE_READY:
+		case R1_STATE_STBY:
+		case R1_STATE_TRAN:
+		case R1_STATE_PRG:
+			//LOG("Card state=%d", R1_CURRENT_STATE(cmd.response[0]));
+			break;
+		default:
+			/* In all other states, it's illegal to issue HPI */
+			LOG("Illegal card state=%d\n", R1_CURRENT_STATE(cmd.response[0]));
+			return FALSE;
+		}
+
+		if (ret == FALSE)
+			return FALSE;
+		else if (cmd.response[0] & R1_READY_FOR_DATA)
+			break;
+
+		udelay(1000);
+	} while (timeout--);
+
+	if (!timeout) {
+		LOG("Timeout waiting card ready\n");
+		return FALSE;
+	}
+
+	return 0;
+}
+
 static bool_t sd_send_if_cond(struct sdhci_t * hci, struct sdcard_t * card)
 {
-	struct sdhci_cmd_t cmd;
+	struct sdhci_cmd_t cmd = {0};
 
 	cmd.cmdidx = SD_CMD_SEND_IF_COND;
 	if(hci->voltage & MMC_VDD_27_36)
@@ -193,7 +235,7 @@ static bool_t sd_send_if_cond(struct sdhci_t * hci, struct sdcard_t * card)
 
 static bool_t sd_send_op_cond(struct sdhci_t * hci, struct sdcard_t * card)
 {
-	struct sdhci_cmd_t cmd;
+	struct sdhci_cmd_t cmd = {0};
 	int timeout = 1000;
 
 	do {
@@ -223,8 +265,15 @@ static bool_t sd_send_op_cond(struct sdhci_t * hci, struct sdcard_t * card)
 				cmd.cmdarg |= OCR_HCS;
 			cmd.resptype = MMC_RSP_R1;
 		}
-		if(sdhci_transfer(hci, &cmd, NULL))
+		if(!sdhci_transfer(hci, &cmd, NULL))
 			break;
+
+		if(!hci->isspi)
+		{
+			/* Card Power up status bit */
+			if(cmd.response[0] & OCR_BUSY)
+				break;
+		}
 	} while(timeout--);
 
 	if(timeout <= 0)
@@ -249,7 +298,7 @@ static bool_t sd_send_op_cond(struct sdhci_t * hci, struct sdcard_t * card)
 
 static bool_t mmc_send_op_cond(struct sdhci_t * hci, struct sdcard_t * card)
 {
-	struct sdhci_cmd_t cmd;
+	struct sdhci_cmd_t cmd = {0};
 	int timeout = 1000;
 
 	if(!go_idle_state(hci))
@@ -290,8 +339,8 @@ static bool_t mmc_send_op_cond(struct sdhci_t * hci, struct sdcard_t * card)
 
 static u64_t mmc_read_blocks(struct sdhci_t * hci, struct sdcard_t * card, u8_t * buf, u64_t start, u64_t blkcnt)
 {
-	struct sdhci_cmd_t cmd;
-	struct sdhci_data_t dat;
+	struct sdhci_cmd_t cmd = {0};
+	struct sdhci_data_t dat = {0};
 
 	if(blkcnt > 1)
 		cmd.cmdidx = MMC_READ_MULTIPLE_BLOCK;
@@ -316,13 +365,16 @@ static u64_t mmc_read_blocks(struct sdhci_t * hci, struct sdcard_t * card, u8_t 
 		if(!sdhci_transfer(hci, &cmd, NULL))
 			return 0;
 	}
+
+	/* Waiting for the ready status */
+	sd_send_status(hci, card, 1000);
 	return blkcnt;
 }
 
 static u64_t mmc_write_blocks(struct sdhci_t * hci, struct sdcard_t * card, u8_t * buf, u64_t start, u64_t blkcnt)
 {
-	struct sdhci_cmd_t cmd;
-	struct sdhci_data_t dat;
+	struct sdhci_cmd_t cmd = {0};
+	struct sdhci_data_t dat = {0};
 
 	if(blkcnt > 1)
 		cmd.cmdidx = MMC_WRITE_MULTIPLE_BLOCK;
@@ -347,13 +399,16 @@ static u64_t mmc_write_blocks(struct sdhci_t * hci, struct sdcard_t * card, u8_t
 		if(!sdhci_transfer(hci, &cmd, NULL))
 			return 0;
 	}
+
+	/* Waiting for the ready status */
+	sd_send_status(hci, card, 1000);
 	return blkcnt;
 }
 
 static bool_t sdcard_detect(struct sdhci_t * hci, struct sdcard_t * card)
 {
-	struct sdhci_cmd_t cmd;
-	struct sdhci_data_t dat;
+	struct sdhci_cmd_t cmd = {0};
+	struct sdhci_data_t dat = {0};
 	char scap[32];
 	u64_t csize, cmult;
 	u32_t unit, time;
@@ -428,6 +483,9 @@ static bool_t sdcard_detect(struct sdhci_t * hci, struct sdcard_t * card)
 		if(!sdhci_transfer(hci, &cmd, NULL))
 			return FALSE;
 	}
+
+	/* Waiting for the ready status */
+	sd_send_status(hci, card, 1000);
 
 	if(card->version == MMC_VERSION_UNKNOWN)
 	{

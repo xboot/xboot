@@ -188,10 +188,13 @@ struct filesystem_t {
 	int (*chmod)(struct vfs_node_t *, u32_t);
 };
 
+extern struct list_head __filesystem_list;
+
 struct filesystem_t * search_filesystem(const char * name);
 bool_t register_filesystem(struct filesystem_t * fs);
 bool_t unregister_filesystem(struct filesystem_t * fs);
 
+void vfs_force_unmount(struct vfs_mount_t * m);
 int vfs_mount(const char * dev, const char * dir, const char * fsname, u32_t flags);
 int vfs_unmount(const char * path);
 int vfs_sync(void);

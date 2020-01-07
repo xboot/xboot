@@ -29,7 +29,7 @@
 #include <xboot.h>
 #include <vfs/vfs.h>
 
-static struct list_head __filesystem_list = {
+struct list_head __filesystem_list = {
 	.next = &__filesystem_list,
 	.prev = &__filesystem_list,
 };
@@ -483,7 +483,7 @@ static int vfs_node_acquire(const char * path, struct vfs_node_t ** np)
 	return 0;
 }
 
-static void vfs_force_unmount(struct vfs_mount_t * m)
+void vfs_force_unmount(struct vfs_mount_t * m)
 {
 	struct vfs_mount_t * tm;
 	struct vfs_node_t * n;

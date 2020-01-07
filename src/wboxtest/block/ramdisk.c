@@ -66,7 +66,7 @@ static void ramdisk_run(struct wboxtest_t * wbt, void * data)
 	if(pdat)
 	{
 		blkno = wboxtest_random_int(0, block_count(pdat->blk) - 1);
-		blkcnt = wboxtest_random_int(1, block_count(pdat->blk));
+		blkcnt = wboxtest_random_int(1, min(block_count(pdat->blk), SZ_1M / block_size(pdat->blk)));
 		blkcnt = block_available_count(pdat->blk, blkno, blkcnt);
 
 		len = block_size(pdat->blk) * blkcnt;

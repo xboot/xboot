@@ -37,6 +37,9 @@ int ext4fs_mount(struct vfs_mount_t * m, const char * dev)
 	struct ext4fs_control_t *ctrl;
 	struct ext4fs_node_t *root;
 
+	if(dev == NULL)
+		return -1;
+
 	ctrl = calloc(1, sizeof(struct ext4fs_control_t));
 	if(!ctrl)
 	{

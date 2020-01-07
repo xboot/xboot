@@ -32,9 +32,12 @@
 
 static int fatfs_mount(struct vfs_mount_t * m, const char * dev)
 {
+	struct fatfs_control_t * ctrl;
+	struct fatfs_node_t * root;
 	int rc;
-	struct fatfs_control_t *ctrl;
-	struct fatfs_node_t *root;
+
+	if(dev == NULL)
+		return -1;
 
 	ctrl = calloc(1, sizeof(struct fatfs_control_t));
 	if(!ctrl)

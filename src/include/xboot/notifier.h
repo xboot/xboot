@@ -12,7 +12,6 @@ extern "C" {
 struct notifier_t {
 	struct notifier_t * next;
 	int priority;
-	void * data;
 	int (*call)(struct notifier_t * n, int cmd, void * arg);
 };
 

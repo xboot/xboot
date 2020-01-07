@@ -6,6 +6,7 @@ extern "C" {
 #endif
 
 void do_showlogo(void);
+void do_automount(void);
 void do_autoboot(void);
 
 #ifdef __cplusplus

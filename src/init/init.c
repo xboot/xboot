@@ -70,6 +70,110 @@ void do_showlogo(void)
 	}
 }
 
+static int nm_call(struct notifier_t * n, int cmd, void * arg)
+{
+	struct device_t * dev = (struct device_t *)arg;
+	struct filesystem_t * fpos, * fn;
+	struct vfs_stat_t st;
+	struct vfs_mount_t * m;
+	char fpath[VFS_MAX_PATH];
+	int i, cnt;
+
+	if(dev && (dev->type == DEVICE_TYPE_BLOCK))
+	{
+		switch(cmd)
+		{
+		case NOTIFIER_DEVICE_ADD:
+			cnt = vfs_mount_count();
+			for(i = 0; i < cnt; i++)
+			{
+				m = vfs_mount_get(i);
+				if(m->m_dev == (struct block_t *)dev->priv)
+					return 0;
+			}
+			sprintf(fpath, "/storage/%s", dev->name);
+			if(vfs_stat(fpath, &st) < 0)
+				vfs_mkdir(fpath, 0755);
+			list_for_each_entry_safe(fpos, fn, &__filesystem_list, list)
+			{
+				if(vfs_mount(dev->name, fpath, fpos->name, MOUNT_RW) == 0)
+					return 0;
+			}
+			vfs_rmdir(fpath);
+			break;
+		case NOTIFIER_DEVICE_REMOVE:
+			cnt = vfs_mount_count();
+			for(i = 0; i < cnt; i++)
+			{
+				m = vfs_mount_get(i);
+				if(m->m_dev == (struct block_t *)dev->priv)
+				{
+					vfs_force_unmount(m);
+					break;
+				}
+			}
+			sprintf(fpath, "/storage/%s", dev->name);
+			if(vfs_stat(fpath, &st) == 0 && S_ISDIR(st.st_mode))
+				vfs_rmdir(fpath);
+			break;
+		case NOTIFIER_DEVICE_SUSPEND:
+			break;
+		case NOTIFIER_DEVICE_RESUME:
+			break;
+		default:
+			break;
+		}
+	}
+	return 0;
+}
+
+static struct notifier_t nm = {
+	.priority	= 100,
+	.call		= nm_call,
+};
+
+void do_automount(void)
+{
+	struct filesystem_t * fpos, * fn;
+	struct device_t * dpos, * dn;
+	struct vfs_stat_t st;
+	struct vfs_mount_t * m;
+	char fpath[VFS_MAX_PATH];
+	int i, cnt, found, mounted;
+
+	list_for_each_entry_safe(dpos, dn, &__device_head[DEVICE_TYPE_BLOCK], head)
+	{
+		cnt = vfs_mount_count();
+		for(i = 0, found = 0; i < cnt; i++)
+		{
+			m = vfs_mount_get(i);
+			if(m->m_dev == (struct block_t *)dpos->priv)
+			{
+				found = 1;
+				break;
+			}
+		}
+		if(!found)
+		{
+			sprintf(fpath, "/storage/%s", dpos->name);
+			if(vfs_stat(fpath, &st) < 0)
+				vfs_mkdir(fpath, 0755);
+			mounted = 0;
+			list_for_each_entry_safe(fpos, fn, &__filesystem_list, list)
+			{
+				if(vfs_mount(dpos->name, fpath, fpos->name, MOUNT_RW) == 0)
+				{
+					mounted = 1;
+					break;
+				}
+			}
+			if(!mounted)
+				vfs_rmdir(fpath);
+		}
+	}
+	register_device_notifier(&nm);
+}
+
 static void __do_autoboot(void)
 {
 	int delay = CONFIG_AUTO_BOOT_DELAY * 1000;

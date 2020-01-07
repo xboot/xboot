@@ -46,6 +46,9 @@ void xboot_main(void)
 	/* Do show logo */
 	do_showlogo();
 
+	/* Do auto mount */
+	do_automount();
+
 	/* Do auto boot */
 	do_autoboot();
 

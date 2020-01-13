@@ -523,7 +523,7 @@ static struct device_t * sdhci_f1c100s_probe(struct driver_t * drv, struct dtnod
 	sdhci->name = alloc_device_name(dt_read_name(n), -1);
 	sdhci->voltage = MMC_VDD_27_36;
 	sdhci->width = MMC_BUS_WIDTH_4;
-	sdhci->clock = 52 * 1000 * 1000;
+	sdhci->clock = (u32_t)dt_read_long(n, "max-clock-frequency", 25 * 1000 * 1000);
 	sdhci->removable = (pdat->cd >= 0) ? TRUE : FALSE;
 	sdhci->isspi = FALSE;
 	sdhci->detect = sdhci_f1c100s_detect;

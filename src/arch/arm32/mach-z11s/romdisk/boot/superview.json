@@ -373,6 +373,7 @@
 	"sdhci-v3s@0x01c0f000": {
 		"clock-name": "link-sdmmc0",
 		"reset": 8,
+		"max-clock-frequency": 2000000,
 		"clk-gpio": 162,
 		"clk-gpio-config": 2,
 		"cmd-gpio": 163,

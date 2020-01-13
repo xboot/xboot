@@ -213,7 +213,7 @@ static bool_t v3s_transfer_command(struct sdhci_v3s_pdata_t * pdat, struct sdhci
 
 	if(cmd->cmdidx == MMC_STOP_TRANSMISSION)
 	{
-		timeout = 0x4ffffff;
+		timeout = 10000;
 		do {
 			status = read32(pdat->virt + SD_STAR);
 			if(!timeout--)
@@ -252,7 +252,7 @@ static bool_t v3s_transfer_command(struct sdhci_v3s_pdata_t * pdat, struct sdhci
 		write32(pdat->virt + SD_GCTL, read32(pdat->virt + SD_GCTL) | 0x80000000);
 	write32(pdat->virt + SD_CMDR, cmdval | cmd->cmdidx);
 
-	timeout = 0xffffff;
+	timeout = 10000;
 	do {
 		status = read32(pdat->virt + SD_RISR);
 		if(!timeout-- || (status & SDXC_INTERRUPT_ERROR_BIT))
@@ -265,7 +265,7 @@ static bool_t v3s_transfer_command(struct sdhci_v3s_pdata_t * pdat, struct sdhci
 
 	if(cmd->resptype & MMC_RSP_BUSY)
 	{
-		timeout = 0x4ffffff;
+		timeout = 10000;
 		do {
 			status = read32(pdat->virt + SD_STAR);
 			if(!timeout--)
@@ -437,7 +437,7 @@ static bool_t sdhci_v3s_setwidth(struct sdhci_t * sdhci, u32_t width)
 static bool_t sdhci_v3s_update_clk(struct sdhci_v3s_pdata_t * pdat)
 {
 	u32_t cmd = (1U << 31) | (1 << 21) | (1 << 13);
-	u32_t timeout = 0xfffff;
+	int timeout = 10000;
 
 	write32(pdat->virt + SD_CMDR, cmd);
 	while((read32(pdat->virt + SD_CMDR) & 0x80000000) && timeout--);

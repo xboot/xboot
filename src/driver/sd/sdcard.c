@@ -194,7 +194,7 @@ static bool_t sd_send_if_cond(struct sdhci_t * hci, struct sdcard_t * card)
 static bool_t sd_send_op_cond(struct sdhci_t * hci, struct sdcard_t * card)
 {
 	struct sdhci_cmd_t cmd = { 0 };
-	int timeout = 1000;
+	int retries = 100;
 
 	do {
 		cmd.cmdidx = MMC_APP_CMD;
@@ -227,9 +227,9 @@ static bool_t sd_send_op_cond(struct sdhci_t * hci, struct sdcard_t * card)
 			if(!sdhci_transfer(hci, &cmd, NULL) || (cmd.response[0] & OCR_BUSY))
 				break;
 		}
-	} while(timeout--);
+	} while(retries--);
 
-	if(timeout <= 0)
+	if(retries <= 0)
 		return FALSE;
 
 	if(card->version != SD_VERSION_2)
@@ -252,7 +252,7 @@ static bool_t sd_send_op_cond(struct sdhci_t * hci, struct sdcard_t * card)
 static bool_t mmc_send_op_cond(struct sdhci_t * hci, struct sdcard_t * card)
 {
 	struct sdhci_cmd_t cmd = { 0 };
-	int timeout = 1000;
+	int retries = 100;
 
 	if(!go_idle_state(hci))
 		return FALSE;
@@ -270,9 +270,9 @@ static bool_t mmc_send_op_cond(struct sdhci_t * hci, struct sdcard_t * card)
 		cmd.resptype = MMC_RSP_R3;
 	 	if(!sdhci_transfer(hci, &cmd, NULL))
 	 		return FALSE;
-	} while (!(cmd.response[0] & OCR_BUSY) && timeout--);
+	} while (!(cmd.response[0] & OCR_BUSY) && retries--);
 
-	if(timeout <= 0)
+	if(retries <= 0)
 		return FALSE;
 
 	if(hci->isspi)
@@ -293,7 +293,7 @@ static bool_t mmc_send_op_cond(struct sdhci_t * hci, struct sdcard_t * card)
 static int mmc_status(struct sdhci_t * hci, struct sdcard_t * card)
 {
 	struct sdhci_cmd_t cmd = { 0 };
-	int retries = 1000;
+	int retries = 100;
 
 	cmd.cmdidx = MMC_SEND_STATUS;
 	cmd.resptype = MMC_RSP_R1;

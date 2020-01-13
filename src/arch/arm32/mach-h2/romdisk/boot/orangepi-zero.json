@@ -188,6 +188,51 @@
 	"clk-link": { "parent": "osc24m", "name": "link-pwm" },
 	"clk-link": { "parent": "osc24m-750", "name": "link-wdt" },
 
+	"clk-mux@0x01c20088": {
+		"parent": [
+			{ "name": "osc24m", "value": 0 },
+			{ "name": "pll-periph0", "value": 1 },
+			{ "name": "pll-periph1", "value": 2 }
+		],
+		"name": "mux-sdmmc0", "shift": 24, "width": 2,
+		"default": { "parent": "pll-periph0" }
+	},
+	"clk-ratio@0x01c20088": { "parent": "mux-sdmmc0", "name": "ratio-sdmmc0", "shift": 16, "width": 2 },
+	"clk-divider@0x01c20088": { "parent": "ratio-sdmmc0", "name": "div-sdmmc0", "shift": 0, "width": 4, "divider-one-based": true, "default": { "rate": 50000000 } },
+	"clk-gate@0x01c20088": {"parent": "div-sdmmc0", "name": "gate-sdmmc0", "shift": 31, "invert": false },
+	"clk-gate@0x01c20060": {"parent": "gate-sdmmc0", "name": "gate-bus-sdmmc0", "shift": 8, "invert": false },
+	"clk-link": { "parent": "gate-bus-sdmmc0", "name": "link-sdmmc0" },
+
+	"clk-mux@0x01c2008c": {
+		"parent": [
+			{ "name": "osc24m", "value": 0 },
+			{ "name": "pll-periph0", "value": 1 },
+			{ "name": "pll-periph1", "value": 2 }
+		],
+		"name": "mux-sdmmc1", "shift": 24, "width": 2,
+		"default": { "parent": "pll-periph0" }
+	},
+	"clk-ratio@0x01c2008c": { "parent": "mux-sdmmc1", "name": "ratio-sdmmc1", "shift": 16, "width": 2 },
+	"clk-divider@0x01c2008c": { "parent": "ratio-sdmmc1", "name": "div-sdmmc1", "shift": 0, "width": 4, "divider-one-based": true, "default": { "rate": 50000000 } },
+	"clk-gate@0x01c2008c": {"parent": "div-sdmmc1", "name": "gate-sdmmc1", "shift": 31, "invert": false },
+	"clk-gate@0x01c20060": {"parent": "gate-sdmmc1", "name": "gate-bus-sdmmc1", "shift": 9, "invert": false },
+	"clk-link": { "parent": "gate-bus-sdmmc1", "name": "link-sdmmc1" },
+
+	"clk-mux@0x01c20090": {
+		"parent": [
+			{ "name": "osc24m", "value": 0 },
+			{ "name": "pll-periph0", "value": 1 },
+			{ "name": "pll-periph1", "value": 2 }
+		],
+		"name": "mux-sdmmc2", "shift": 24, "width": 2,
+		"default": { "parent": "pll-periph0" }
+	},
+	"clk-ratio@0x01c20090": { "parent": "mux-sdmmc2", "name": "ratio-sdmmc2", "shift": 16, "width": 2 },
+	"clk-divider@0x01c20090": { "parent": "ratio-sdmmc2", "name": "div-sdmmc2", "shift": 0, "width": 4, "divider-one-based": true, "default": { "rate": 50000000 } },
+	"clk-gate@0x01c20090": {"parent": "div-sdmmc2", "name": "gate-sdmmc2", "shift": 31, "invert": false },
+	"clk-gate@0x01c20060": {"parent": "gate-sdmmc2", "name": "gate-bus-sdmmc2", "shift": 10, "invert": false },
+	"clk-link": { "parent": "gate-bus-sdmmc2", "name": "link-sdmmc2" },
+
 	"reset-h2@0x01c202c0": {
 		"reset-base": 0,
 		"reset-count": 32
@@ -415,6 +460,33 @@
 		"miso-gpio-config": 2,
 		"cs-gpio": 13,
 		"cs-gpio-config": 2
+	},
+
+	"sdhci-h2@0x01c0f000": {
+		"clock-name": "link-sdmmc0",
+		"reset": 8,
+		"clk-gpio": 162,
+		"clk-gpio-config": 2,
+		"cmd-gpio": 163,
+		"cmd-gpio-config": 2,
+		"dat0-gpio": 161,
+		"dat0-gpio-config": 2,
+		"dat1-gpio": 160,
+		"dat1-gpio-config": 2,
+		"dat2-gpio": 165,
+		"dat2-gpio-config": 2,
+		"dat3-gpio": 164,
+		"dat3-gpio-config": 2,
+		"dat4-gpio": -1,
+		"dat4-gpio-config": -1,
+		"dat5-gpio": -1,
+		"dat5-gpio-config": -1,
+		"dat6-gpio": -1,
+		"dat6-gpio-config": -1,
+		"dat7-gpio": -1,
+		"dat7-gpio-config": -1,
+		"cd-gpio": 166,
+		"cd-gpio-config": 0
 	},
 
 	"blk-spinor@0": {

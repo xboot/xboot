@@ -393,8 +393,8 @@
 		"dat6-gpio-config": -1,
 		"dat7-gpio": -1,
 		"dat7-gpio-config": -1,
-		"cd-gpio": -1,
-		"cd-gpio-config": -1
+		"cd-gpio": 166,
+		"cd-gpio-config": 0
 	},
 
 	"blk-spinor@0": {

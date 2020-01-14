@@ -29,93 +29,164 @@
 #include <xboot.h>
 #include <dma/dma.h>
 
-static void * __dma_pool = NULL;
-static spinlock_t __dma_lock = SPIN_LOCK_INIT();
-
-void * dma_alloc_coherent(unsigned long size)
+static ssize_t dmachip_read_base(struct kobj_t * kobj, void * buf, size_t size)
 {
+	struct dmachip_t * chip = (struct dmachip_t *)kobj->priv;
+	return sprintf(buf, "%d", chip->base);
+}
+
+static ssize_t dmachip_read_ndma(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct dmachip_t * chip = (struct dmachip_t *)kobj->priv;
+	return sprintf(buf, "%d", chip->ndma);
+}
+
+struct dmachip_t * search_dmachip(int dma)
+{
+	struct device_t * pos, * n;
+	struct dmachip_t * chip;
+
+	list_for_each_entry_safe(pos, n, &__device_head[DEVICE_TYPE_DMACHIP], head)
+	{
+		chip = (struct dmachip_t *)(pos->priv);
+		if((dma >= chip->base) && (dma < (chip->base + chip->ndma)))
+			return chip;
+	}
+	return NULL;
+}
+
+struct device_t * register_dmachip(struct dmachip_t * chip, struct driver_t * drv)
+{
+	struct device_t * dev;
 	irq_flags_t flags;
-	void * m;
+	int i;
 
-	spin_lock_irqsave(&__dma_lock, flags);
-	m = mm_memalign(__dma_pool, SZ_4K, size);
-	spin_unlock_irqrestore(&__dma_lock, flags);
+	if(!chip || !chip->name)
+		return NULL;
 
-	return m;
+	if(chip->base < 0 || chip->ndma <= 0)
+		return NULL;
+
+	dev = malloc(sizeof(struct device_t));
+	if(!dev)
+		return NULL;
+
+	for(i = 0; i < chip->ndma; i++)
+	{
+		spin_lock_init(&chip->channel[i].lock);
+		spin_lock_irqsave(&chip->channel[i].lock, flags);
+		chip->channel[i].src = NULL;
+		chip->channel[i].dst = NULL;
+		chip->channel[i].size = 0;
+		chip->channel[i].len = 0;
+		chip->channel[i].data = NULL;
+		chip->channel[i].complete = NULL;
+		if(chip->stop)
+			chip->stop(chip, i);
+		spin_unlock_irqrestore(&chip->channel[i].lock, flags);
+	}
+	dev->name = strdup(chip->name);
+	dev->type = DEVICE_TYPE_DMACHIP;
+	dev->driver = drv;
+	dev->priv = chip;
+	dev->kobj = kobj_alloc_directory(dev->name);
+	kobj_add_regular(dev->kobj, "base", dmachip_read_base, NULL, chip);
+	kobj_add_regular(dev->kobj, "ndma", dmachip_read_ndma, NULL, chip);
+
+	if(!register_device(dev))
+	{
+		kobj_remove_self(dev->kobj);
+		free(dev->name);
+		free(dev);
+		return NULL;
+	}
+	return dev;
 }
 
-void dma_free_coherent(void * addr)
+void unregister_dmachip(struct dmachip_t * chip)
 {
+	struct device_t * dev;
 	irq_flags_t flags;
+	int i;
 
-	spin_lock_irqsave(&__dma_lock, flags);
-	mm_free(__dma_pool, addr);
-	spin_unlock_irqrestore(&__dma_lock, flags);
+	if(chip && chip->name && (chip->base >= 0) && (chip->ndma > 0))
+	{
+		dev = search_device(chip->name, DEVICE_TYPE_DMACHIP);
+		if(dev && unregister_device(dev))
+		{
+			for(i = 0; i < chip->ndma; i++)
+			{
+				spin_lock_irqsave(&chip->channel[i].lock, flags);
+				if(chip->stop)
+					chip->stop(chip, i);
+				chip->channel[i].src = NULL;
+				chip->channel[i].dst = NULL;
+				chip->channel[i].size = 0;
+				chip->channel[i].len = 0;
+				chip->channel[i].data = NULL;
+				chip->channel[i].complete = NULL;
+				spin_unlock_irqrestore(&chip->channel[i].lock, flags);
+			}
+			kobj_remove_self(dev->kobj);
+			free(dev->name);
+			free(dev);
+		}
+	}
 }
 
-void * dma_alloc_noncoherent(unsigned long size)
+bool_t dma_is_valid(int dma)
 {
+	return search_dmachip(dma) ? TRUE : FALSE;
+}
+
+void dma_start(int dma, void * src, void * dst, int size, void (*complete)(void *), void * data)
+{
+	struct dmachip_t * chip = search_dmachip(dma);
 	irq_flags_t flags;
-	void * m;
+	int offset;
 
-	spin_lock_irqsave(&__dma_lock, flags);
-	m = memalign(SZ_4K, size);
-	spin_unlock_irqrestore(&__dma_lock, flags);
-
-	return m;
+	if(chip && src && dst && (size > 0))
+	{
+		offset = dma - chip->base;
+		spin_lock_irqsave(&chip->channel[offset].lock, flags);
+		chip->channel[offset].src = src;
+		chip->channel[offset].dst = dst;
+		chip->channel[offset].size = size;
+		chip->channel[offset].len = 0;
+		chip->channel[offset].data = data;
+		chip->channel[offset].complete = complete;
+		spin_unlock_irqrestore(&chip->channel[offset].lock, flags);
+		if(chip->start)
+			chip->start(chip, offset);
+	}
 }
 
-void dma_free_noncoherent(void * addr)
+void dma_stop(int dma)
 {
+	struct dmachip_t * chip = search_dmachip(dma);
 	irq_flags_t flags;
+	int offset;
 
-	spin_lock_irqsave(&__dma_lock, flags);
-	free(addr);
-	spin_unlock_irqrestore(&__dma_lock, flags);
+	if(chip)
+	{
+		offset = dma - chip->base;
+		if(chip->stop)
+			chip->stop(chip, offset);
+		spin_lock_irqsave(&chip->channel[offset].lock, flags);
+		chip->channel[offset].src = NULL;
+		chip->channel[offset].dst = NULL;
+		chip->channel[offset].size = 0;
+		chip->channel[offset].len = 0;
+		chip->channel[offset].data = NULL;
+		chip->channel[offset].complete = NULL;
+		spin_unlock_irqrestore(&chip->channel[offset].lock, flags);
+	}
 }
 
-static void __dma_cache_sync(void * addr, unsigned long size, int dir)
+void dma_wait(int dma)
 {
+	struct dmachip_t * chip = search_dmachip(dma);
+
+	if(chip && chip->wait)
+		chip->wait(chip, dma - chip->base);
 }
-extern __typeof(__dma_cache_sync) dma_cache_sync __attribute__((weak, alias("__dma_cache_sync")));
-
-static struct kobj_t * search_class_memory_kobj(void)
-{
-	struct kobj_t * kclass = kobj_search_directory_with_create(kobj_get_root(), "class");
-	return kobj_search_directory_with_create(kclass, "memory");
-}
-
-static ssize_t memory_read_dmainfo(struct kobj_t * kobj, void * buf, size_t size)
-{
-	void * mm = (void *)kobj->priv;
-	size_t mused, mfree;
-	char * p = buf;
-	int len = 0;
-
-	mm_info(mm, &mused, &mfree);
-	len += sprintf((char *)(p + len), " dma used: %ld\r\n", mused);
-	len += sprintf((char *)(p + len), " dma free: %ld\r\n", mfree);
-	return len;
-}
-
-static __init void dma_pure_init(void)
-{
-	void * dma;
-	size_t size;
-
-#ifdef __SANDBOX__
-	static char __dma_buf[CONFIG_DMA_MEMORY_SIZE];
-	dma = (void *)&__dma_buf;
-	size = (size_t)(sizeof(__dma_buf));
-#else
-	extern unsigned char __dma_start;
-	extern unsigned char __dma_end;
-	dma = (void *)&__dma_start;
-	size = (size_t)(&__dma_end - &__dma_start);
-#endif
-
-	spin_lock_init(&__dma_lock);
-	__dma_pool = mm_create(dma, size);
-	kobj_add_regular(search_class_memory_kobj(), "dmainfo", memory_read_dmainfo, NULL, mm_get(__dma_pool));
-}
-pure_initcall(dma_pure_init);

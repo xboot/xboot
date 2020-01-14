@@ -102,9 +102,9 @@ void unregister_resetchip(struct resetchip_t * chip)
 	}
 }
 
-int reset_is_valid(int reset)
+int reset_is_valid(int rst)
 {
-	return search_resetchip(reset) ? 1 : 0;
+	return search_resetchip(rst) ? 1 : 0;
 }
 
 void reset_assert(int rst)

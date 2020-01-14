@@ -15,7 +15,6 @@ struct resetchip_t
 
 	void (*assert)(struct resetchip_t * chip, int offset);
 	void (*deassert)(struct resetchip_t * chip, int offset);
-
 	void * priv;
 };
 

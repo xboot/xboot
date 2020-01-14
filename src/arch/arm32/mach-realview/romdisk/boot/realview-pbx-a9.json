@@ -11,6 +11,13 @@
 		"interrupt-count": 32
 	},
 
+	"dma-pl081@0x10030000": {
+		"clock-name": "xtal",
+		"interrupt": 56,
+		"dma-base": 0,
+		"dma-count": 2
+	},
+
 	"gpio-pl061@0x10013000": {
 		"gpio-base": 0,
 		"gpio-count": 8,

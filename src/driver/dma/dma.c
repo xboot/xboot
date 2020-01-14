@@ -75,14 +75,15 @@ struct device_t * register_dmachip(struct dmachip_t * chip, struct driver_t * dr
 	{
 		spin_lock_init(&chip->channel[i].lock);
 		spin_lock_irqsave(&chip->channel[i].lock, flags);
+		if(chip->stop)
+			chip->stop(chip, i);
 		chip->channel[i].src = NULL;
 		chip->channel[i].dst = NULL;
 		chip->channel[i].size = 0;
+		chip->channel[i].flag = 0;
 		chip->channel[i].len = 0;
 		chip->channel[i].data = NULL;
 		chip->channel[i].complete = NULL;
-		if(chip->stop)
-			chip->stop(chip, i);
 		spin_unlock_irqrestore(&chip->channel[i].lock, flags);
 	}
 	dev->name = strdup(chip->name);
@@ -122,6 +123,7 @@ void unregister_dmachip(struct dmachip_t * chip)
 				chip->channel[i].src = NULL;
 				chip->channel[i].dst = NULL;
 				chip->channel[i].size = 0;
+				chip->channel[i].flag = 0;
 				chip->channel[i].len = 0;
 				chip->channel[i].data = NULL;
 				chip->channel[i].complete = NULL;
@@ -139,25 +141,31 @@ bool_t dma_is_valid(int dma)
 	return search_dmachip(dma) ? TRUE : FALSE;
 }
 
-void dma_start(int dma, void * src, void * dst, int size, void (*complete)(void *), void * data)
+void dma_start(int dma, void * src, void * dst, int size, int flag, void (*complete)(void *), void * data)
 {
 	struct dmachip_t * chip = search_dmachip(dma);
 	irq_flags_t flags;
 	int offset;
 
-	if(chip && src && dst && (size > 0))
+	if(chip && src && dst && (src != dst) && (size > 0))
 	{
+		if(chip->busying)
+		{
+			while(chip->busying(chip, dma - chip->base))
+				task_yield();
+		}
 		offset = dma - chip->base;
 		spin_lock_irqsave(&chip->channel[offset].lock, flags);
 		chip->channel[offset].src = src;
 		chip->channel[offset].dst = dst;
 		chip->channel[offset].size = size;
+		chip->channel[offset].flag = flag;
 		chip->channel[offset].len = 0;
 		chip->channel[offset].data = data;
 		chip->channel[offset].complete = complete;
-		spin_unlock_irqrestore(&chip->channel[offset].lock, flags);
 		if(chip->start)
 			chip->start(chip, offset);
+		spin_unlock_irqrestore(&chip->channel[offset].lock, flags);
 	}
 }
 
@@ -170,12 +178,13 @@ void dma_stop(int dma)
 	if(chip)
 	{
 		offset = dma - chip->base;
+		spin_lock_irqsave(&chip->channel[offset].lock, flags);
 		if(chip->stop)
 			chip->stop(chip, offset);
-		spin_lock_irqsave(&chip->channel[offset].lock, flags);
 		chip->channel[offset].src = NULL;
 		chip->channel[offset].dst = NULL;
 		chip->channel[offset].size = 0;
+		chip->channel[offset].flag = 0;
 		chip->channel[offset].len = 0;
 		chip->channel[offset].data = NULL;
 		chip->channel[offset].complete = NULL;
@@ -187,6 +196,9 @@ void dma_wait(int dma)
 {
 	struct dmachip_t * chip = search_dmachip(dma);
 
-	if(chip && chip->wait)
-		chip->wait(chip, dma - chip->base);
+	if(chip && chip->busying)
+	{
+		while(chip->busying(chip, dma - chip->base))
+			task_yield();
+	}
 }

@@ -11,6 +11,9 @@
 	"clk-fixed-factor@0": { "parent": "bpll", "name": "axi", "mult": 1, "div": 2 },
 	"clk-fixed-factor@1": { "parent": "bpll", "name": "apb", "mult": 1, "div": 4 },
 
+	"clk-gate@0x200300e0": {"parent": "apb", "name": "gate-dma", "shift": 1, "invert": false, "default": { "enable": true } },
+	"clk-link": { "parent": "gate-dma", "name": "link-dma" },
+
 	"clk-mux@0x20050000": {
 		"parent": [
 			{ "name": "osc3m", "value": 0 },
@@ -58,6 +61,14 @@
 	"clk-link": { "parent": "osc3m", "name": "link-uart2" },
 
 	"irq-pl190@0x10140000": { "interrupt-base":  0, "interrupt-count": 32 },
+
+	"dma-pl080@0x100d0000": {
+		"clock-name": "link-dma",
+		"reset": -1,
+		"interrupt": 14,
+		"dma-base": 0,
+		"dma-count": 4
+	},
 
 	"gpio-hi3518e@0x20140000": { "gpio-base":  0, "gpio-count": 8, "interrupt-offset": -1 },
 	"gpio-hi3518e@0x20150000": { "gpio-base":  8, "gpio-count": 8, "interrupt-offset": -1 },

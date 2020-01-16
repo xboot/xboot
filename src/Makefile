@@ -241,6 +241,7 @@ SRCDIRS		+=	wboxtest \
 				wboxtest/benchmark \
 				wboxtest/block \
 				wboxtest/crypto \
+				wboxtest/dma \
 				wboxtest/graphic \
 				wboxtest/path \
 				wboxtest/stdio

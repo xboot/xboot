@@ -12,7 +12,8 @@
 	},
 
 	"dma-pl081@0x10030000": {
-		"clock-name": "xtal",
+		"clock-name": "mclk",
+		"reset": -1,
 		"interrupt": 56,
 		"dma-base": 0,
 		"dma-count": 2

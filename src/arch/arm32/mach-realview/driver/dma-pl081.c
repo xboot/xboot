@@ -28,6 +28,7 @@
 
 #include <xboot.h>
 #include <clk/clk.h>
+#include <reset/reset.h>
 #include <interrupt/interrupt.h>
 #include <dma/dma.h>
 
@@ -104,6 +105,7 @@ struct dma_pl081_pdata_t
 	virtual_addr_t virt;
 	char * clk;
 	int irq;
+	int reset;
 	int base;
 	int ndma;
 	int tsize;
@@ -413,6 +415,7 @@ static struct device_t * dma_pl081_probe(struct driver_t * drv, struct dtnode_t 
 
 	pdat->virt = virt;
 	pdat->clk = strdup(clk);
+	pdat->reset = dt_read_int(n, "reset", -1);
 	pdat->irq = irq;
 	pdat->base = base;
 	pdat->ndma = ndma;
@@ -427,8 +430,9 @@ static struct device_t * dma_pl081_probe(struct driver_t * drv, struct dtnode_t 
 	chip->busying = dma_pl081_busying;
 	chip->priv = pdat;
 
-	request_irq(pdat->irq, dma_pl081_interrupt, IRQ_TYPE_NONE, chip);
 	clk_enable(pdat->clk);
+	if(pdat->reset >= 0)
+		reset_deassert(pdat->reset);
 	for(i = 0; i < pdat->ndma; i++)
 	{
 		write32(pdat->virt + PL081_CH_SRC(i), 0);
@@ -440,6 +444,7 @@ static struct device_t * dma_pl081_probe(struct driver_t * drv, struct dtnode_t 
 	write32(pdat->virt + PL081_TC_CLEAR, 0x3);
 	write32(pdat->virt + PL081_ERR_CLEAR, 0x3);
 	write32(pdat->virt + PL081_CFG, 0x0);
+	request_irq(pdat->irq, dma_pl081_interrupt, IRQ_TYPE_NONE, chip);
 
 	if(!(dev = register_dmachip(chip, drv)))
 	{

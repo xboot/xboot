@@ -1,5 +1,5 @@
 /*
- * wboxtest/dma/dmacpy.c
+ * wboxtest/dma/dmacpy-8bit.c
  */
 
 #include <dma/dma.h>
@@ -95,7 +95,7 @@ static void dmacpy_run(struct wboxtest_t * wbt, void * data)
 
 static struct wboxtest_t wbt_dmacpy = {
 	.group	= "dma",
-	.name	= "dmacpy",
+	.name	= "dmacpy-8bit",
 	.setup	= dmacpy_setup,
 	.clean	= dmacpy_clean,
 	.run	= dmacpy_run,

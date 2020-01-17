@@ -118,7 +118,7 @@ static u32_t get_pl080_ctl(struct dma_channel_t * ch, int tsize)
 
 	size = min(tsize, ch->size - ch->len) / (1 << DMA_G_SRC_WIDTH(ch->flag));
 	ctl = PL080_CCTL_ITC | PL080_CCTL_TSIZE(size);
-	switch(DMA_S_SRC_INC(ch->flag))
+	switch(DMA_G_SRC_INC(ch->flag))
 	{
 	case DMA_INCREASE:
 		ctl |= PL080_CCTL_SI;
@@ -127,7 +127,7 @@ static u32_t get_pl080_ctl(struct dma_channel_t * ch, int tsize)
 	default:
 		break;
 	}
-	switch(DMA_S_DST_INC(ch->flag))
+	switch(DMA_G_DST_INC(ch->flag))
 	{
 	case DMA_INCREASE:
 		ctl |= PL080_CCTL_DI;
@@ -136,7 +136,7 @@ static u32_t get_pl080_ctl(struct dma_channel_t * ch, int tsize)
 	default:
 		break;
 	}
-	switch(DMA_S_SRC_WIDTH(ch->flag))
+	switch(DMA_G_SRC_WIDTH(ch->flag))
 	{
 	case DMA_WIDTH_8BIT:
 		ctl |= PL080_CCTL_SWIDTH(PL080_WIDTH_8);
@@ -151,7 +151,7 @@ static u32_t get_pl080_ctl(struct dma_channel_t * ch, int tsize)
 	default:
 		break;
 	}
-	switch(DMA_S_DST_WIDTH(ch->flag))
+	switch(DMA_G_DST_WIDTH(ch->flag))
 	{
 	case DMA_WIDTH_8BIT:
 		ctl |= PL080_CCTL_DWIDTH(PL080_WIDTH_8);
@@ -166,7 +166,7 @@ static u32_t get_pl080_ctl(struct dma_channel_t * ch, int tsize)
 	default:
 		break;
 	}
-	switch(DMA_S_SRC_BURST(ch->flag))
+	switch(DMA_G_SRC_BURST(ch->flag))
 	{
 	case DMA_BURST_SIZE_1:
 		ctl |= PL080_CCTL_SBSIZE(PL080_BSIZE_1);
@@ -203,7 +203,7 @@ static u32_t get_pl080_ctl(struct dma_channel_t * ch, int tsize)
 	default:
 		break;
 	}
-	switch(DMA_S_DST_BURST(ch->flag))
+	switch(DMA_G_DST_BURST(ch->flag))
 	{
 	case DMA_BURST_SIZE_1:
 		ctl |= PL080_CCTL_DBSIZE(PL080_BSIZE_1);
@@ -247,7 +247,7 @@ static u32_t get_pl080_cfg(struct dma_channel_t * ch)
 {
 	u32_t cfg;
 
-	cfg = PL080_CCFG_ITC | PL080_CCFG_IE | PL080_CCFG_DST(DMA_G_DST_PORT(ch->flag)) | PL080_CCFG_SRC(DMA_G_SRC_PORT(ch->flag)) | PL080_CCFG_EN;
+	cfg = PL080_CCFG_ITC | PL080_CCFG_IE | PL080_CCFG_DST(DMA_G_DST_PORT(ch->flag)) | PL080_CCFG_SRC(DMA_G_SRC_PORT(ch->flag));
 	switch(DMA_G_TYPE(ch->flag))
 	{
 	case DMA_TYPE_MEMTOMEM:
@@ -279,12 +279,15 @@ static void dma_pl080_start(struct dmachip_t * chip, int offset)
 	ch = &chip->channel[offset];
 	while(read32(pdat->virt + PL080_EN_CHAN) & (1 << offset));
 	while(read32(pdat->virt + PL080_CH_CFG(offset)) & (PL080_CCFG_ACTIVE | PL080_CCFG_EN));
+	smp_mb();
 	write32(pdat->virt + PL080_CH_SRC(offset), (u32_t)(ch->src + ch->len));
 	write32(pdat->virt + PL080_CH_DST(offset), (u32_t)(ch->dst + ch->len));
 	write32(pdat->virt + PL080_CH_LLI(offset), 0);
 	write32(pdat->virt + PL080_CH_CTL(offset), get_pl080_ctl(ch, pdat->tsize));
 	write32(pdat->virt + PL080_CH_CFG(offset), get_pl080_cfg(ch));
+	write32(pdat->virt + PL080_CH_CFG(offset), read32(pdat->virt + PL080_CH_CFG(offset)) | PL080_CCFG_EN);
 	write32(pdat->virt + PL080_CFG, read32(pdat->virt + PL080_CFG) | (1 << 0));
+	smp_mb();
 }
 
 static void dma_pl080_stop(struct dmachip_t * chip, int offset)
@@ -303,9 +306,11 @@ static void dma_pl080_stop(struct dmachip_t * chip, int offset)
 		val = read32(pdat->virt + PL080_CH_CFG(offset));
 	} while(val & PL080_CCFG_ACTIVE);
 
+	smp_mb();
 	val = read32(pdat->virt + PL080_CH_CFG(offset));
 	val &= ~PL080_CCFG_EN;
 	write32(pdat->virt + PL080_CH_CFG(offset), val);
+	smp_mb();
 }
 
 static int dma_pl080_busying(struct dmachip_t * chip, int offset)
@@ -350,22 +355,23 @@ static void dma_pl080_interrupt(void * data)
 				{
 					while(read32(pdat->virt + PL080_EN_CHAN) & (1 << i));
 					while(read32(pdat->virt + PL080_CH_CFG(i)) & (PL080_CCFG_ACTIVE | PL080_CCFG_EN));
+					smp_mb();
 					write32(pdat->virt + PL080_CH_SRC(i), (u32_t)(ch->src + ch->len));
 					write32(pdat->virt + PL080_CH_DST(i), (u32_t)(ch->dst + ch->len));
 					write32(pdat->virt + PL080_CH_LLI(i), 0);
 					write32(pdat->virt + PL080_CH_CTL(i), get_pl080_ctl(ch, pdat->tsize));
 					write32(pdat->virt + PL080_CH_CFG(i), get_pl080_cfg(ch));
+					write32(pdat->virt + PL080_CH_CFG(i), read32(pdat->virt + PL080_CH_CFG(i)) | PL080_CCFG_EN);
 					write32(pdat->virt + PL080_CFG, read32(pdat->virt + PL080_CFG) | (1 << 0));
+					smp_mb();
 				}
 				else
 				{
 					while(read32(pdat->virt + PL080_EN_CHAN) & (1 << i));
 					while(read32(pdat->virt + PL080_CH_CFG(i)) & (PL080_CCFG_ACTIVE | PL080_CCFG_EN));
-					write32(pdat->virt + PL080_CH_SRC(i), 0);
-					write32(pdat->virt + PL080_CH_DST(i), 0);
-					write32(pdat->virt + PL080_CH_LLI(i), 0);
-					write32(pdat->virt + PL080_CH_CTL(i), 0);
-					write32(pdat->virt + PL080_CH_CFG(i), 0);
+					smp_mb();
+					write32(pdat->virt + PL080_CH_CFG(i), read32(pdat->virt + PL080_CH_CFG(i)) & ~PL080_CCFG_EN);
+					smp_mb();
 					if(ch->complete)
 						ch->complete(ch->data);
 				}
@@ -433,6 +439,11 @@ static struct device_t * dma_pl080_probe(struct driver_t * drv, struct dtnode_t 
 	clk_enable(pdat->clk);
 	if(pdat->reset >= 0)
 		reset_deassert(pdat->reset);
+	request_irq(pdat->irq, dma_pl080_interrupt, IRQ_TYPE_NONE, chip);
+	write32(pdat->virt + PL080_CFG, 0x0);
+	write32(pdat->virt + PL080_TC_CLEAR, (1 << pdat->ndma) - 1);
+	write32(pdat->virt + PL080_ERR_CLEAR, (1 << pdat->ndma) - 1);
+	write32(pdat->virt + PL080_SYNC, 0x0);
 	for(i = 0; i < pdat->ndma; i++)
 	{
 		write32(pdat->virt + PL080_CH_SRC(i), 0);
@@ -441,10 +452,6 @@ static struct device_t * dma_pl080_probe(struct driver_t * drv, struct dtnode_t 
 		write32(pdat->virt + PL080_CH_CTL(i), 0);
 		write32(pdat->virt + PL080_CH_CFG(i), 0);
 	}
-	write32(pdat->virt + PL080_TC_CLEAR, 0xff);
-	write32(pdat->virt + PL080_ERR_CLEAR, 0xff);
-	write32(pdat->virt + PL080_CFG, 0x0);
-	request_irq(pdat->irq, dma_pl080_interrupt, IRQ_TYPE_NONE, chip);
 
 	if(!(dev = register_dmachip(chip, drv)))
 	{

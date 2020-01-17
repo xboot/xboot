@@ -149,12 +149,9 @@ void dma_start(int dma, void * src, void * dst, int size, int flag, void (*compl
 
 	if(chip && src && dst && (src != dst) && (size > 0))
 	{
-		if(chip->busying)
-		{
-			while(chip->busying(chip, dma - chip->base))
-				task_yield();
-		}
 		offset = dma - chip->base;
+		if(chip->busying)
+			while(chip->busying(chip, offset));
 		spin_lock_irqsave(&chip->channel[offset].lock, flags);
 		chip->channel[offset].src = src;
 		chip->channel[offset].dst = dst;
@@ -195,10 +192,12 @@ void dma_stop(int dma)
 void dma_wait(int dma)
 {
 	struct dmachip_t * chip = search_dmachip(dma);
+	int offset;
 
 	if(chip && chip->busying)
 	{
-		while(chip->busying(chip, dma - chip->base))
+		offset = dma - chip->base;
+		while(chip->busying(chip, offset))
 			task_yield();
 	}
 }

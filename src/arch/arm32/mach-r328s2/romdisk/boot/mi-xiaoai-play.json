@@ -1,0 +1,66 @@
+{
+	"clk-fixed@0": { "name": "osc24m", "rate": 24000000 },
+	"clk-fixed@1": { "name": "osc32k", "rate": 32768 },
+	"clk-fixed@2": { "name": "iosc", "rate": 16000000 },
+
+	"clk-link": { "parent": "osc24m", "name": "link-uart0" },
+	"clk-link": { "parent": "osc24m", "name": "link-uart1" },
+	"clk-link": { "parent": "osc24m", "name": "link-uart2" },
+	"clk-link": { "parent": "osc24m", "name": "link-uart3" },
+
+	"uart-16550@0x05000000": {
+		"clock-name": "link-uart0",
+		"reset": -1,
+		"txd-gpio": -1,
+		"txd-gpio-config": -1,
+		"rxd-gpio": -1,
+		"rxd-gpio-config": -1,
+		"baud-rates": 115200,
+		"data-bits": 8,
+		"parity-bits": 0,
+		"stop-bits": 1
+	},
+
+	"uart-16550@0x05000400": {
+		"clock-name": "link-uart1",
+		"reset": -1,
+		"txd-gpio": -1,
+		"txd-gpio-config": -1,
+		"rxd-gpio": -1,
+		"rxd-gpio-config": -1,
+		"baud-rates": 115200,
+		"data-bits": 8,
+		"parity-bits": 0,
+		"stop-bits": 1
+	},
+	
+	"uart-16550@0x05000800": {
+		"clock-name": "link-uart2",
+		"reset": -1,
+		"txd-gpio": -1,
+		"txd-gpio-config": -1,
+		"rxd-gpio": -1,
+		"rxd-gpio-config": -1,
+		"baud-rates": 115200,
+		"data-bits": 8,
+		"parity-bits": 0,
+		"stop-bits": 1
+	},
+	
+	"uart-16550@0x05000c00": {
+		"clock-name": "link-uart3",
+		"reset": -1,
+		"txd-gpio": -1,
+		"txd-gpio-config": -1,
+		"rxd-gpio": -1,
+		"rxd-gpio-config": -1,
+		"baud-rates": 115200,
+		"data-bits": 8,
+		"parity-bits": 0,
+		"stop-bits": 1
+	},
+
+	"console-uart@0": {
+		"uart-bus": "uart-16550.0"
+	}
+}

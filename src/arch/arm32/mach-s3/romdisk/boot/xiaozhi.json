@@ -56,6 +56,9 @@
 		"name": "ahb2", "shift": 0, "width": 2
 	},
 
+	"clk-gate@0x01c20060": {"parent": "ahb1", "name": "gate-dma", "shift": 6, "invert": false, "default": { "enable": true } },
+	"clk-link": { "parent": "gate-dma", "name": "link-dma" },
+
 	"clk-gate@0x01c2006c": {"parent": "apb2", "name": "gate-bus-uart0", "shift": 16, "invert": false },
 	"clk-gate@0x01c2006c": {"parent": "apb2", "name": "gate-bus-uart1", "shift": 17, "invert": false },
 	"clk-gate@0x01c2006c": {"parent": "apb2", "name": "gate-bus-uart2", "shift": 18, "invert": false },
@@ -243,6 +246,14 @@
 		"interrupt-base": 192,
 		"interrupt-count": 14,
 		"interrupt-parent": 49
+	},
+
+	"dma-s3@0x01c02000": {
+		"clock-name": "link-dma",
+		"reset": 6,
+		"interrupt": 82,
+		"dma-base": 0,
+		"dma-count": 8
 	},
 
 	"gpio-s3@0x01c20824": {

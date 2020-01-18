@@ -11,7 +11,7 @@
 		"interrupt-count": 32
 	},
 
-	"dma-pl081@0x10030000": {
+	"dma-pl08x@0x10030000": {
 		"clock-name": "mclk",
 		"reset": -1,
 		"interrupt": 56,

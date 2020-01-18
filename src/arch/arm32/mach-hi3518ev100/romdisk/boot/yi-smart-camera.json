@@ -62,7 +62,7 @@
 
 	"irq-pl190@0x10140000": { "interrupt-base":  0, "interrupt-count": 32 },
 
-	"dma-pl080@0x100d0000": {
+	"dma-pl08x@0x100d0000": {
 		"clock-name": "link-dma",
 		"reset": -1,
 		"interrupt": 14,

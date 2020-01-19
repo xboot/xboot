@@ -31,11 +31,11 @@
 #include <watchdog/watchdog.h>
 
 enum {
-	WDG_IRQ_EN		= 0x00,
+	WDG_IRQ_EN	= 0x00,
 	WDG_IRQ_STA	= 0x04,
-	WDG_CTRL		= 0x10,
+	WDG_CTRL	= 0x10,
 	WDG_CFG		= 0x14,
-	WDG_MODE		= 0x18,
+	WDG_MODE	= 0x18,
 };
 
 struct wdg_f1c100s_pdata_t {

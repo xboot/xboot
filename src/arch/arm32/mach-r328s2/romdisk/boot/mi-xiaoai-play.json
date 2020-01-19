@@ -3,10 +3,15 @@
 	"clk-fixed@1": { "name": "osc32k", "rate": 32768 },
 	"clk-fixed@2": { "name": "iosc", "rate": 16000000 },
 
+	"clk-fixed-factor@0": { "parent": "osc24m", "name": "osc24m-750", "mult": 1, "div": 750 },
+
 	"clk-link": { "parent": "osc24m", "name": "link-uart0" },
 	"clk-link": { "parent": "osc24m", "name": "link-uart1" },
 	"clk-link": { "parent": "osc24m", "name": "link-uart2" },
 	"clk-link": { "parent": "osc24m", "name": "link-uart3" },
+
+	"clk-link": { "parent": "osc24m", "name": "link-pwm" },
+	"clk-link": { "parent": "osc24m-750", "name": "link-wdt" },
 
 	"uart-16550@0x05000000": {
 		"clock-name": "link-uart0",
@@ -58,6 +63,10 @@
 		"data-bits": 8,
 		"parity-bits": 0,
 		"stop-bits": 1
+	},
+
+	"wdg-r328@0x030090a0": {
+		"clock-name": "link-wdt"
 	},
 
 	"console-uart@0": {

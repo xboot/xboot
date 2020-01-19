@@ -1,9 +1,17 @@
 {
-	"clk-fixed@0": { "name": "osc24m", "rate": 24000000 },
-	"clk-fixed@1": { "name": "osc32k", "rate": 32768 },
-	"clk-fixed@2": { "name": "iosc", "rate": 16000000 },
+	"clk-fixed@0": { "name": "iosc", "rate": 16000000 },
+	"clk-fixed@1": { "name": "osc24m", "rate": 24000000 },
+	"clk-fixed@2": { "name": "osc48m", "rate": 48000000 },
+	"clk-fixed@3": { "name": "osc32k", "rate": 32768 },
+
+	"clk-r328-pll@0": { "parent": "osc24m", "name": "pll-cpu", "channel": 0 },
+	"clk-r328-pll@1": { "parent": "osc24m", "name": "pll-ddr", "channel": 1 },
+	"clk-r328-pll@2": { "parent": "osc24m", "name": "pll-periph0", "channel": 2 },
+	"clk-r328-pll@3": { "parent": "osc24m", "name": "pll-periph1", "channel": 3 },
+	"clk-r328-pll@4": { "parent": "osc24m", "name": "pll-audio", "channel": 4 },
 
 	"clk-fixed-factor@0": { "parent": "osc24m", "name": "osc24m-750", "mult": 1, "div": 750 },
+	"clk-fixed-factor@1": { "parent": "iosc", "name": "losc", "mult": 1, "div": 512 },
 
 	"clk-link": { "parent": "osc24m", "name": "link-uart0" },
 	"clk-link": { "parent": "osc24m", "name": "link-uart1" },

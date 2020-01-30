@@ -29,6 +29,7 @@ extern "C" {
 #include <sys/poll.h>
 #include <linux/fb.h>
 #include <linux/input.h>
+#include <alsa/asoundlib.h>
 #include <SDL.h>
 
 #ifdef __cplusplus

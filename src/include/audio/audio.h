@@ -26,6 +26,9 @@ struct audio_t
 	/* Audio capture stop */
 	void (*capture_stop)(struct audio_t * audio);
 
+	/* Ioctl interface */
+	int (*ioctl)(struct audio_t * audio, const char * cmd, void * arg);
+
 	/* Private data */
 	void * priv;
 };

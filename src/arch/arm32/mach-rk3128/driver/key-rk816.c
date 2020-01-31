@@ -163,7 +163,7 @@ static void key_rk816_interrupt(void * data)
 	}
 }
 
-static int key_rk816_ioctl(struct input_t * input, int cmd, void * arg)
+static int key_rk816_ioctl(struct input_t * input, const char * cmd, void * arg)
 {
 	return -1;
 }

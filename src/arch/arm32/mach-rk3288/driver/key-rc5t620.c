@@ -143,7 +143,7 @@ static void key_rc5t620_interrupt(void * data)
 	rc5t620_write(pdat->dev, RC5T620_PWRIRQ, val);
 }
 
-static int key_rc5t620_ioctl(struct input_t * input, int cmd, void * arg)
+static int key_rc5t620_ioctl(struct input_t * input, const char * cmd, void * arg)
 {
 	return -1;
 }

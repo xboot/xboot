@@ -175,20 +175,20 @@ static void tsc2007_interrupt(void * data)
 	timer_start_now(&pdat->timer, ms_to_ktime(1));
 }
 
-static int ts_tsc2007_ioctl(struct input_t * input, int cmd, void * arg)
+static int ts_tsc2007_ioctl(struct input_t * input, const char * cmd, void * arg)
 {
 	struct ts_tsc2007_pdata_t * pdat = (struct ts_tsc2007_pdata_t *)input->priv;
 
-	switch(cmd)
+	switch(shash(cmd))
 	{
-	case INPUT_IOCTL_TOUCHSCEEN_SET_CALIBRATION:
+	case 0x50460f76: /* "touchscreen-set-calibration" */
 		if(arg)
 		{
 			tsfilter_setcal(pdat->filter, (int *)arg);
 			return 0;
 		}
 		break;
-	case INPUT_IOCTL_TOUCHSCEEN_GET_CALIBRATION:
+	case 0xa8ecea6a: /* "touchscreen-get-calibration" */
 		if(arg)
 		{
 			memcpy(arg, pdat->filter->cal, sizeof(int) * 7);

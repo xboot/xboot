@@ -199,7 +199,7 @@ static void cb_joystick_button_up(void * device, unsigned int button)
 	push_event(&e);
 }
 
-static int input_sandbox_sdl_ioctl(struct input_t * input, int cmd, void * arg)
+static int input_sandbox_sdl_ioctl(struct input_t * input, const char * cmd, void * arg)
 {
 	return -1;
 }

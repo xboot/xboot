@@ -62,7 +62,7 @@ static void rc_gpio_interrupt(void * data)
 	}
 }
 
-static int rc_gpio_ioctl(struct input_t * input, int cmd, void * arg)
+static int rc_gpio_ioctl(struct input_t * input, const char * cmd, void * arg)
 {
 	return -1;
 }

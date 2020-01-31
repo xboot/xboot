@@ -189,11 +189,11 @@ struct window_t * window_alloc(const char * fb, const char * input, void * data)
 			if(dev)
 			{
 				hmap_add(w->map, r, dev);
-				if(input_ioctl(dev, INPUT_IOCTL_MOUSE_GET_RANGE, &range[0]) >= 0)
+				if(input_ioctl(dev, "mouse-get-range", &range[0]) >= 0)
 				{
 					range[0] = framebuffer_get_width(w->wm->fb);
 					range[1] = framebuffer_get_height(w->wm->fb);
-					input_ioctl(dev, INPUT_IOCTL_MOUSE_SET_RANGE, &range[0]);
+					input_ioctl(dev, "mouse-set-range", &range[0]);
 				}
 			}
 		}
@@ -203,11 +203,11 @@ struct window_t * window_alloc(const char * fb, const char * input, void * data)
 		w->map = NULL;
 		list_for_each_entry_safe(pos, n, &__device_head[DEVICE_TYPE_INPUT], head)
 		{
-			if(input_ioctl(pos->priv, INPUT_IOCTL_MOUSE_GET_RANGE, &range[0]) >= 0)
+			if(input_ioctl(pos->priv, "mouse-get-range", &range[0]) >= 0)
 			{
 				range[0] = framebuffer_get_width(w->wm->fb);
 				range[1] = framebuffer_get_height(w->wm->fb);
-				input_ioctl(pos->priv, INPUT_IOCTL_MOUSE_SET_RANGE, &range[0]);
+				input_ioctl(pos->priv, "mouse-set-range", &range[0]);
 			}
 		}
 	}

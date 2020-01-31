@@ -95,7 +95,7 @@ static int key_adc_timer_function(struct timer_t * timer, void * data)
 	return 1;
 }
 
-static int key_adc_ioctl(struct input_t * input, int cmd, void * arg)
+static int key_adc_ioctl(struct input_t * input, const char * cmd, void * arg)
 {
 	return -1;
 }

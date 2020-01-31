@@ -5232,7 +5232,7 @@ static void gslx680_interrupt(void * data)
 	enable_irq(pdat->irq);
 }
 
-static int ts_gslx680_ioctl(struct input_t * input, int cmd, void * arg)
+static int ts_gslx680_ioctl(struct input_t * input, const char * cmd, void * arg)
 {
 	return -1;
 }

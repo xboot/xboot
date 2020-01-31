@@ -117,7 +117,7 @@ static void key_h3_lradc_interrupt(void * data)
 	write32(pdat->virt + LRADC_INTS, ints);
 }
 
-static int key_h3_lradc_ioctl(struct input_t * input, int cmd, void * arg)
+static int key_h3_lradc_ioctl(struct input_t * input, const char * cmd, void * arg)
 {
 	return -1;
 }

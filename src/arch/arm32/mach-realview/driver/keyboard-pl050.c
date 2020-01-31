@@ -361,7 +361,7 @@ static void keyboard_pl050_interrupt(void * data)
 	}
 }
 
-static int keyboard_pl050_ioctl(struct input_t * input, int cmd, void * arg)
+static int keyboard_pl050_ioctl(struct input_t * input, const char * cmd, void * arg)
 {
 	return -1;
 }

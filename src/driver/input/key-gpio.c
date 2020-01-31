@@ -68,7 +68,7 @@ static void key_gpio_interrupt_function(void * data)
 	}
 }
 
-static int key_gpio_ioctl(struct input_t * input, int cmd, void * arg)
+static int key_gpio_ioctl(struct input_t * input, const char * cmd, void * arg)
 {
 	return -1;
 }

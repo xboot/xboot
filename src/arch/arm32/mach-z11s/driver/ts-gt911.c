@@ -207,7 +207,7 @@ static void gt911_interrupt(void * data)
 	enable_irq(pdat->irq);
 }
 
-static int ts_gt911_ioctl(struct input_t * input, int cmd, void * arg)
+static int ts_gt911_ioctl(struct input_t * input, const char * cmd, void * arg)
 {
 	return -1;
 }

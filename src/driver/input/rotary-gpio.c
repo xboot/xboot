@@ -164,7 +164,7 @@ static void rotary_gpio_quarter_period_irq(void * data)
 	push_event_rotary_turn(input, pdat->dir ? 1 : -1);
 }
 
-static int rotary_gpio_ioctl(struct input_t * input, int cmd, void * arg)
+static int rotary_gpio_ioctl(struct input_t * input, const char * cmd, void * arg)
 {
 	return -1;
 }

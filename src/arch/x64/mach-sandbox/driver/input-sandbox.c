@@ -199,35 +199,35 @@ static void cb_joystick_button_up(void * device, unsigned int button)
 	push_event(&e);
 }
 
-static int input_sandbox_ioctl(struct input_t * input, int cmd, void * arg)
+static int input_sandbox_ioctl(struct input_t * input, const char * cmd, void * arg)
 {
 	struct input_sandbox_pdata_t * pdat = (struct input_sandbox_pdata_t *)input->priv;
 	int * p = arg;
 
-	switch(cmd)
+	switch(shash(cmd))
 	{
-	case INPUT_IOCTL_MOUSE_SET_RANGE:
+	case 0x431aa221: /* "mouse-set-range" */
 		if(p)
 		{
 			sandbox_event_mouse_set_range(pdat->ctx, p[0], p[1]);
 			return 0;
 		}
 		break;
-	case INPUT_IOCTL_MOUSE_GET_RANGE:
+	case 0xcd455615: /* "mouse-get-range" */
 		if(p)
 		{
 			sandbox_event_mouse_get_range(pdat->ctx, &p[0], &p[1]);
 			return 0;
 		}
 		break;
-	case INPUT_IOCTL_MOUSE_SET_SENSITIVITY:
+	case 0xe818d6df: /* "mouse-set-sensitivity" */
 		if(p)
 		{
 			sandbox_event_mouse_set_sensitivity(pdat->ctx, clamp(p[0], 1, 11));
 			return 0;
 		}
 		break;
-	case INPUT_IOCTL_MOUSE_GET_SENSITIVITY:
+	case 0x40bfb1d3: /* "mouse-get-sensitivity" */
 		if(p)
 		{
 			sandbox_event_mouse_get_sensitivity(pdat->ctx, &p[0]);

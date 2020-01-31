@@ -179,14 +179,14 @@ static void mouse_pl050_interrupt(void * data)
 	}
 }
 
-static int mouse_pl050_ioctl(struct input_t * input, int cmd, void * arg)
+static int mouse_pl050_ioctl(struct input_t * input, const char * cmd, void * arg)
 {
 	struct mouse_pl050_pdata_t * pdat = (struct mouse_pl050_pdata_t *)input->priv;
 	int * p = arg;
 
-	switch(cmd)
+	switch(shash(cmd))
 	{
-	case INPUT_IOCTL_MOUSE_SET_RANGE:
+	case 0x431aa221: /* "mouse-set-range" */
 		if(p)
 		{
 			pdat->xmax = p[0];
@@ -194,7 +194,7 @@ static int mouse_pl050_ioctl(struct input_t * input, int cmd, void * arg)
 			return 0;
 		}
 		break;
-	case INPUT_IOCTL_MOUSE_GET_RANGE:
+	case 0xcd455615: /* "mouse-get-range" */
 		if(p)
 		{
 			p[0] = pdat->xmax;
@@ -202,14 +202,14 @@ static int mouse_pl050_ioctl(struct input_t * input, int cmd, void * arg)
 			return 0;
 		}
 		break;
-	case INPUT_IOCTL_MOUSE_SET_SENSITIVITY:
+	case 0xe818d6df: /* "mouse-set-sensitivity" */
 		if(p)
 		{
 			pdat->sensitivity = clamp(p[0], 1, 11);
 			return 0;
 		}
 		break;
-	case INPUT_IOCTL_MOUSE_GET_SENSITIVITY:
+	case 0x40bfb1d3: /* "mouse-get-sensitivity" */
 		if(p)
 		{
 			p[0] = pdat->sensitivity;

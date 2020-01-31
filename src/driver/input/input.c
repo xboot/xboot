@@ -82,7 +82,7 @@ void unregister_input(struct input_t * input)
 	}
 }
 
-int input_ioctl(struct input_t * input, int cmd, void * arg)
+int input_ioctl(struct input_t * input, const char * cmd, void * arg)
 {
 	if(input && input->ioctl)
 		return input->ioctl(input, cmd, arg);

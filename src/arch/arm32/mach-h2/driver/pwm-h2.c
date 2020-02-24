@@ -61,6 +61,11 @@ struct pwm_h2_pdata_t
 	int channel;
 	int pwm;
 	int pwmcfg;
+
+	int enable;
+	int duty;
+	int period;
+	int polarity;
 };
 
 static void pwm_h2_config(struct pwm_t * pwm, int duty, int period, int polarity)
@@ -72,14 +77,15 @@ static void pwm_h2_config(struct pwm_t * pwm, int duty, int period, int polarity
 	u32_t prescaler = 0;
 	u32_t ctrl;
 
-	if(pwm->__duty != duty || pwm->__period != period)
+	if(pdat->duty != duty || pdat->period != period)
 	{
+		pdat->duty = duty;
+		pdat->period = period;
 		prescaler = 0xf;
 		div = rate * period + 1000000000 / 2;
 		div = div / 1000000000;
 		if(div - 1 > 0xffff)
 			prescaler = 0;
-
 		if(prescaler == 0)
 		{
 			for(prescaler = 0; prescaler < 0xf; prescaler++)
@@ -99,12 +105,10 @@ static void pwm_h2_config(struct pwm_t * pwm, int duty, int period, int polarity
 				return;
 			}
 		}
-
 		prd = div;
 		div *= duty;
 		div = div / period;
 		dty = div;
-
 		gate = (read32(pdat->virt + PWM_CTRL) & PWM_BIT(pdat->channel, 6)) ? 1 : 0;
 		if(gate)
 		{
@@ -124,9 +128,9 @@ static void pwm_h2_config(struct pwm_t * pwm, int duty, int period, int polarity
 			write32(pdat->virt + PWM_CTRL, ctrl);
 		}
 	}
-
-	if(pwm->__polarity != polarity)
+	if(pdat->polarity != polarity)
 	{
+		pdat->polarity = polarity;
 		ctrl = read32(pdat->virt + PWM_CTRL);
 		if(polarity)
 			ctrl |= PWM_BIT(pdat->channel, 5);
@@ -141,14 +145,17 @@ static void pwm_h2_enable(struct pwm_t * pwm)
 	struct pwm_h2_pdata_t * pdat = (struct pwm_h2_pdata_t *)pwm->priv;
 	u32_t ctrl;
 
-	if((pdat->pwm >= 0) && (pdat->pwmcfg >= 0))
-		gpio_set_cfg(pdat->pwm, pdat->pwmcfg);
-	clk_enable(pdat->clk);
-
-	ctrl = read32(pdat->virt + PWM_CTRL);
-	ctrl |= PWM_BIT(pdat->channel, 4);
-	ctrl |= PWM_BIT(pdat->channel, 6);
-	write32(pdat->virt + PWM_CTRL, ctrl);
+	if(pdat->enable != 1)
+	{
+		pdat->enable = 1;
+		if((pdat->pwm >= 0) && (pdat->pwmcfg >= 0))
+			gpio_set_cfg(pdat->pwm, pdat->pwmcfg);
+		clk_enable(pdat->clk);
+		ctrl = read32(pdat->virt + PWM_CTRL);
+		ctrl |= PWM_BIT(pdat->channel, 4);
+		ctrl |= PWM_BIT(pdat->channel, 6);
+		write32(pdat->virt + PWM_CTRL, ctrl);
+	}
 }
 
 static void pwm_h2_disable(struct pwm_t * pwm)
@@ -156,11 +163,15 @@ static void pwm_h2_disable(struct pwm_t * pwm)
 	struct pwm_h2_pdata_t * pdat = (struct pwm_h2_pdata_t *)pwm->priv;
 	u32_t ctrl;
 
-	ctrl = read32(pdat->virt + PWM_CTRL);
-	ctrl &= ~PWM_BIT(pdat->channel, 4);
-	ctrl &= ~PWM_BIT(pdat->channel, 6);
-	write32(pdat->virt + PWM_CTRL, ctrl);
-	clk_disable(pdat->clk);
+	if(pdat->enable != 0)
+	{
+		pdat->enable = 0;
+		ctrl = read32(pdat->virt + PWM_CTRL);
+		ctrl &= ~PWM_BIT(pdat->channel, 4);
+		ctrl &= ~PWM_BIT(pdat->channel, 6);
+		write32(pdat->virt + PWM_CTRL, ctrl);
+		clk_disable(pdat->clk);
+	}
 }
 
 static struct device_t * pwm_h2_probe(struct driver_t * drv, struct dtnode_t * n)
@@ -194,6 +205,10 @@ static struct device_t * pwm_h2_probe(struct driver_t * drv, struct dtnode_t * n
 	pdat->channel = channel;
 	pdat->pwm = dt_read_int(n, "pwm-gpio", -1);
 	pdat->pwmcfg = dt_read_int(n, "pwm-gpio-config", -1);
+	pdat->enable = -1;
+	pdat->duty = 500 * 1000;
+	pdat->period = 1000 * 1000;
+	pdat->polarity = 0;
 
 	pwm->name = alloc_device_name(dt_read_name(n), -1);
 	pwm->config = pwm_h2_config;

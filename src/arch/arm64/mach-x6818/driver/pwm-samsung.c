@@ -50,6 +50,11 @@ struct pwm_samsung_pdata_t
 	int channel;
 	int pwm;
 	int pwmcfg;
+
+	int enable;
+	int duty;
+	int period;
+	int polarity;
 };
 
 static u64_t pwm_samsung_calc_tin(struct pwm_t * pwm, u32_t period)
@@ -78,32 +83,30 @@ static void pwm_samsung_config(struct pwm_t * pwm, int duty, int period, int pol
 	u32_t tcnt, tcmp;
 	u32_t tcon;
 
-	if((pwm->__duty != duty) || (pwm->__period != period))
+	if(pdat->duty != duty || pdat->period != period)
 	{
 		rate = pwm_samsung_calc_tin(pwm, period);
-
-		if(pwm->__duty != duty)
+		if(pdat->duty != duty)
 		{
+			pdat->duty = duty;
 			tcmp = rate * duty / 1000000000L;
 			write32(pdat->virt + PWM_TCMPB(pdat->channel), tcmp);
 		}
-
-		if(pwm->__period != period)
+		if(pdat->period != period)
 		{
+			pdat->period = period;
 			tcnt = rate * period / 1000000000L;
 			write32(pdat->virt + PWM_TCNTB(pdat->channel), tcnt);
 		}
-
 		tcon = read32(pdat->virt + PWM_TCON);
 		tcon |= TCON_MANUALUPDATE(pdat->channel);
 		write32(pdat->virt + PWM_TCON, tcon);
-
 		tcon &= ~TCON_MANUALUPDATE(pdat->channel);
 		write32(pdat->virt + PWM_TCON, tcon);
 	}
-
-	if(pwm->__polarity != polarity)
+	if(pdat->polarity != polarity)
 	{
+		pdat->polarity = polarity;
 		tcon = read32(pdat->virt + PWM_TCON);
 		if(polarity)
 			tcon |= TCON_INVERT(pdat->channel);
@@ -118,19 +121,21 @@ static void pwm_samsung_enable(struct pwm_t * pwm)
 	struct pwm_samsung_pdata_t * pdat = (struct pwm_samsung_pdata_t *)pwm->priv;
 	u32_t tcon;
 
-	if((pdat->pwm >= 0) && (pdat->pwmcfg >= 0))
-		gpio_set_cfg(pdat->pwm, pdat->pwmcfg);
-	clk_enable(pdat->clk);
-
-	tcon = read32(pdat->virt + PWM_TCON);
-	tcon &= ~(TCON_AUTORELOAD(pdat->channel) | TCON_START(pdat->channel));
-	tcon |= TCON_MANUALUPDATE(pdat->channel);
-	write32(pdat->virt + PWM_TCON, tcon);
-
-	tcon = read32(pdat->virt + PWM_TCON);
-	tcon &= ~TCON_MANUALUPDATE(pdat->channel);
-	tcon |= TCON_AUTORELOAD(pdat->channel) | TCON_START(pdat->channel);
-	write32(pdat->virt + PWM_TCON, tcon);
+	if(pdat->enable != 1)
+	{
+		pdat->enable = 1;
+		if((pdat->pwm >= 0) && (pdat->pwmcfg >= 0))
+			gpio_set_cfg(pdat->pwm, pdat->pwmcfg);
+		clk_enable(pdat->clk);
+		tcon = read32(pdat->virt + PWM_TCON);
+		tcon &= ~(TCON_AUTORELOAD(pdat->channel) | TCON_START(pdat->channel));
+		tcon |= TCON_MANUALUPDATE(pdat->channel);
+		write32(pdat->virt + PWM_TCON, tcon);
+		tcon = read32(pdat->virt + PWM_TCON);
+		tcon &= ~TCON_MANUALUPDATE(pdat->channel);
+		tcon |= TCON_AUTORELOAD(pdat->channel) | TCON_START(pdat->channel);
+		write32(pdat->virt + PWM_TCON, tcon);
+	}
 }
 
 static void pwm_samsung_disable(struct pwm_t * pwm)
@@ -138,10 +143,14 @@ static void pwm_samsung_disable(struct pwm_t * pwm)
 	struct pwm_samsung_pdata_t * pdat = (struct pwm_samsung_pdata_t *)pwm->priv;
 	u32_t tcon;
 
-	tcon = read32(pdat->virt + PWM_TCON);
-	tcon &= ~(TCON_AUTORELOAD(pdat->channel) | TCON_START(pdat->channel));
-	write32(pdat->virt + PWM_TCON, tcon);
-	clk_disable(pdat->clk);
+	if(pdat->enable != 0)
+	{
+		pdat->enable = 0;
+		tcon = read32(pdat->virt + PWM_TCON);
+		tcon &= ~(TCON_AUTORELOAD(pdat->channel) | TCON_START(pdat->channel));
+		write32(pdat->virt + PWM_TCON, tcon);
+		clk_disable(pdat->clk);
+	}
 }
 
 static struct device_t * pwm_samsung_probe(struct driver_t * drv, struct dtnode_t * n)
@@ -175,6 +184,10 @@ static struct device_t * pwm_samsung_probe(struct driver_t * drv, struct dtnode_
 	pdat->channel = channel;
 	pdat->pwm = dt_read_int(n, "pwm-gpio", -1);
 	pdat->pwmcfg = dt_read_int(n, "pwm-gpio-config", -1);
+	pdat->enable = -1;
+	pdat->duty = 500 * 1000;
+	pdat->period = 1000 * 1000;
+	pdat->polarity = 0;
 
 	pwm->name = alloc_device_name(dt_read_name(n), -1);
 	pwm->config = pwm_samsung_config;

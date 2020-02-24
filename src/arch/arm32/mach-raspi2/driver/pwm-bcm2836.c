@@ -47,26 +47,36 @@ struct pwm_bcm2836_pdata_t
 	int channel;
 	int pwm;
 	int pwmcfg;
+
+	int enable;
+	int duty;
+	int period;
+	int polarity;
 };
 
 static void pwm_bcm2836_config(struct pwm_t * pwm, int duty, int period, int polarity)
 {
 	struct pwm_bcm2836_pdata_t * pdat = (struct pwm_bcm2836_pdata_t *)pwm->priv;
-	unsigned long scaler = (unsigned long)(1000000000ULL / clk_get_rate(pdat->clk));
+	unsigned long scaler;
 	u32_t ctrl;
 
-	if(pwm->__duty != duty)
+	if(pdat->duty != duty || pdat->period != period)
 	{
-		write32(pdat->virt + PWM_DUTY(pdat->channel), duty / scaler);
+		scaler = (unsigned long)(1000000000ULL / clk_get_rate(pdat->clk));
+		if(pdat->duty != duty)
+		{
+			pdat->duty = duty;
+			write32(pdat->virt + PWM_DUTY(pdat->channel), duty / scaler);
+		}
+		if(pdat->period != period)
+		{
+			pdat->period = period;
+			write32(pdat->virt + PWM_PERIOD(pdat->channel), period /scaler);
+		}
 	}
-
-	if(pwm->__period != period)
+	if(pdat->polarity != polarity)
 	{
-		write32(pdat->virt + PWM_PERIOD(pdat->channel), period /scaler);
-	}
-
-	if(pwm->__polarity != polarity)
-	{
+		pdat->polarity = polarity;
 		ctrl = read32(pdat->virt + PWM_CTRL);
 		if(polarity)
 			ctrl |= (0x10 << PWM_CTRL_SHIFT(pdat->channel));
@@ -81,13 +91,16 @@ static void pwm_bcm2836_enable(struct pwm_t * pwm)
 	struct pwm_bcm2836_pdata_t * pdat = (struct pwm_bcm2836_pdata_t *)pwm->priv;
 	u32_t ctrl;
 
-	gpio_set_cfg(pdat->pwm, pdat->pwmcfg);
-	clk_enable(pdat->clk);
-
-	ctrl = read32(pdat->virt + PWM_CTRL);
-	ctrl &= ~(PWM_CTRL_MASK << PWM_CTRL_SHIFT(pdat->channel));
-	ctrl |= (0x81 << PWM_CTRL_SHIFT(pdat->channel));
-	write32(pdat->virt + PWM_CTRL, ctrl);
+	if(pdat->enable != 1)
+	{
+		pdat->enable = 1;
+		gpio_set_cfg(pdat->pwm, pdat->pwmcfg);
+		clk_enable(pdat->clk);
+		ctrl = read32(pdat->virt + PWM_CTRL);
+		ctrl &= ~(PWM_CTRL_MASK << PWM_CTRL_SHIFT(pdat->channel));
+		ctrl |= (0x81 << PWM_CTRL_SHIFT(pdat->channel));
+		write32(pdat->virt + PWM_CTRL, ctrl);
+	}
 }
 
 static void pwm_bcm2836_disable(struct pwm_t * pwm)
@@ -95,11 +108,15 @@ static void pwm_bcm2836_disable(struct pwm_t * pwm)
 	struct pwm_bcm2836_pdata_t * pdat = (struct pwm_bcm2836_pdata_t *)pwm->priv;
 	u32_t ctrl;
 
-	ctrl = read32(pdat->virt + PWM_CTRL);
-	ctrl &= ~(PWM_CTRL_MASK << PWM_CTRL_SHIFT(pdat->channel));
-	ctrl |= (0x00 << PWM_CTRL_SHIFT(pdat->channel));
-	write32(pdat->virt + PWM_CTRL, ctrl);
-	clk_disable(pdat->clk);
+	if(pdat->enable != 0)
+	{
+		pdat->enable = 0;
+		ctrl = read32(pdat->virt + PWM_CTRL);
+		ctrl &= ~(PWM_CTRL_MASK << PWM_CTRL_SHIFT(pdat->channel));
+		ctrl |= (0x00 << PWM_CTRL_SHIFT(pdat->channel));
+		write32(pdat->virt + PWM_CTRL, ctrl);
+		clk_disable(pdat->clk);
+	}
 }
 
 static struct device_t * pwm_bcm2836_probe(struct driver_t * drv, struct dtnode_t * n)
@@ -133,6 +150,10 @@ static struct device_t * pwm_bcm2836_probe(struct driver_t * drv, struct dtnode_
 	pdat->channel = channel;
 	pdat->pwm = dt_read_int(n, "pwm-gpio", -1);
 	pdat->pwmcfg = dt_read_int(n, "pwm-gpio-config", -1);
+	pdat->enable = -1;
+	pdat->duty = 500 * 1000;
+	pdat->period = 1000 * 1000;
+	pdat->polarity = 0;
 
 	pwm->name = alloc_device_name(dt_read_name(n), -1);
 	pwm->config = pwm_bcm2836_config;

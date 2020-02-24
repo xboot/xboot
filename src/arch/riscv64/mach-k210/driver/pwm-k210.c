@@ -49,27 +49,47 @@ struct pwm_k210_pdata_t
 	int channel;
 	int pwm;
 	int pwmcfg;
+
+	int enable;
+	int duty;
+	int period;
+	int polarity;
 };
 
 static void pwm_k210_config(struct pwm_t * pwm, int duty, int period, int polarity)
 {
 	struct pwm_k210_pdata_t * pdat = (struct pwm_k210_pdata_t *)pwm->priv;
-	u64_t rate = clk_get_rate(pdat->clk);
+	u64_t rate;
 
-	write32(pdat->virt + PWM_LOAD(pdat->channel), (u32_t)(rate * duty / 1000000000L));
-	write32(pdat->virt + PWM_LOAD2(pdat->channel), (u32_t)(rate * period / 1000000000L));
+	if((pdat->duty != duty) || (pdat->period != period) || (pdat->polarity != polarity))
+	{
+		pdat->duty = duty;
+		pdat->period = period;
+		pdat->polarity = polarity;
+		rate = clk_get_rate(pdat->clk);
+		write32(pdat->virt + PWM_LOAD(pdat->channel), (u32_t)(rate * duty / 1000000000L));
+		write32(pdat->virt + PWM_LOAD2(pdat->channel), (u32_t)(rate * period / 1000000000L));
+	}
 }
 
 static void pwm_k210_enable(struct pwm_t * pwm)
 {
 	struct pwm_k210_pdata_t * pdat = (struct pwm_k210_pdata_t *)pwm->priv;
-	write32(pdat->virt + PWM_CTRL(pdat->channel), (1 << 3) | (1 << 2) | (1 << 1) | (1 << 0));
+	if(pdat->enable != 1)
+	{
+		pdat->enable = 1;
+		write32(pdat->virt + PWM_CTRL(pdat->channel), (1 << 3) | (1 << 2) | (1 << 1) | (1 << 0));
+	}
 }
 
 static void pwm_k210_disable(struct pwm_t * pwm)
 {
 	struct pwm_k210_pdata_t * pdat = (struct pwm_k210_pdata_t *)pwm->priv;
-	write32(pdat->virt + PWM_CTRL(pdat->channel), (1 << 2));
+	if(pdat->enable != 0)
+	{
+		pdat->enable = 0;
+		write32(pdat->virt + PWM_CTRL(pdat->channel), (1 << 2));
+	}
 }
 
 static struct device_t * pwm_k210_probe(struct driver_t * drv, struct dtnode_t * n)
@@ -104,6 +124,10 @@ static struct device_t * pwm_k210_probe(struct driver_t * drv, struct dtnode_t *
 	pdat->channel = channel;
 	pdat->pwm = dt_read_int(n, "pwm-gpio", -1);
 	pdat->pwmcfg = dt_read_int(n, "pwm-gpio-config", -1);
+	pdat->enable = -1;
+	pdat->duty = 500 * 1000;
+	pdat->period = 1000 * 1000;
+	pdat->polarity = 0;
 
 	pwm->name = alloc_device_name(dt_read_name(n), -1);
 	pwm->config = pwm_k210_config;

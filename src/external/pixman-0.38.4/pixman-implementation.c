@@ -392,6 +392,7 @@ static pixman_implementation_t * __pixman_default_imp(pixman_implementation_t * 
 extern __typeof(__pixman_default_imp) _pixman_x64_get_implementations __attribute__((weak, alias("__pixman_default_imp")));
 extern __typeof(__pixman_default_imp) _pixman_arm32_get_implementations __attribute__((weak, alias("__pixman_default_imp")));
 extern __typeof(__pixman_default_imp) _pixman_arm64_get_implementations __attribute__((weak, alias("__pixman_default_imp")));
+extern __typeof(__pixman_default_imp) _pixman_riscv64_get_implementations __attribute__((weak, alias("__pixman_default_imp")));
 
 pixman_implementation_t *
 _pixman_choose_implementation (void)
@@ -406,6 +407,7 @@ _pixman_choose_implementation (void)
 	imp = _pixman_x64_get_implementations (imp);
 	imp = _pixman_arm32_get_implementations (imp);
 	imp = _pixman_arm64_get_implementations (imp);
+	imp = _pixman_riscv64_get_implementations (imp);
 
 	imp = _pixman_implementation_create_noop (imp);
 

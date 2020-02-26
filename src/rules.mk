@@ -16,7 +16,11 @@ all : $(OBJS)
 endif
 
 $(NAME) : $(OBJS)
+ifneq ($(strip $(OBJS)),)
 	$(LD) -r -o $@ $^
+else
+	@$(AR) -rcs $@
+endif
 
 $(SOBJS) : .obj/%.o : %.S
 	@echo [AS] $<

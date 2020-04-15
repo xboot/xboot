@@ -21,10 +21,39 @@
 	"clk-link": { "parent": "osc24m", "name": "link-pwm" },
 	"clk-link": { "parent": "osc24m-750", "name": "link-wdt" },
 
+	"irq-gic400@0x03020000": {
+		"interrupt-base": 32,
+		"interrupt-count": 160
+	},
+
+	"irq-r328-gpio@0x0300b220": {
+		"interrupt-base": 192,
+		"interrupt-count": 14,
+		"interrupt-parent": 75
+	},
+
+	"irq-r328-gpio@0x0300b280": {
+		"interrupt-base": 224,
+		"interrupt-count": 7,
+		"interrupt-parent": 76
+	},
+
+	"irq-r328-gpio@0x0300b2c0": {
+		"interrupt-base": 256,
+		"interrupt-count": 16,
+		"interrupt-parent": 78
+	},
+
+	"irq-r328-gpio@0x0300b2e0": {
+		"interrupt-base": 288,
+		"interrupt-count": 10,
+		"interrupt-parent": 79
+	},
+
 	"gpio-r328@0x0300b024": {
 		"gpio-base": 32,
 		"gpio-count": 14,
-		"interrupt-offset": -1
+		"interrupt-offset": 192
 	},
 
 	"gpio-r328@0x0300b048": {
@@ -32,23 +61,23 @@
 		"gpio-count": 7,
 		"interrupt-offset": -1
 	},
-	
+
 	"gpio-r328@0x0300b090": {
 		"gpio-base": 128,
 		"gpio-count": 7,
-		"interrupt-offset": -1
+		"interrupt-offset": 224
 	},
 
 	"gpio-r328@0x0300b0d8": {
 		"gpio-base": 192,
 		"gpio-count": 16,
-		"interrupt-offset": -1
+		"interrupt-offset": 256
 	},
 
 	"gpio-r328@0x0300b0fc": {
 		"gpio-base": 224,
 		"gpio-count": 10,
-		"interrupt-offset": -1
+		"interrupt-offset": 288
 	},
 
 	"uart-16550@0x05000000": {

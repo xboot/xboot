@@ -21,6 +21,36 @@
 	"clk-link": { "parent": "osc24m", "name": "link-pwm" },
 	"clk-link": { "parent": "osc24m-750", "name": "link-wdt" },
 
+	"gpio-r328@0x0300b024": {
+		"gpio-base": 32,
+		"gpio-count": 14,
+		"interrupt-offset": -1
+	},
+
+	"gpio-r328@0x0300b048": {
+		"gpio-base": 64,
+		"gpio-count": 7,
+		"interrupt-offset": -1
+	},
+	
+	"gpio-r328@0x0300b090": {
+		"gpio-base": 128,
+		"gpio-count": 7,
+		"interrupt-offset": -1
+	},
+
+	"gpio-r328@0x0300b0d8": {
+		"gpio-base": 192,
+		"gpio-count": 16,
+		"interrupt-offset": -1
+	},
+
+	"gpio-r328@0x0300b0fc": {
+		"gpio-base": 224,
+		"gpio-count": 10,
+		"interrupt-offset": -1
+	},
+
 	"uart-16550@0x05000000": {
 		"clock-name": "link-uart0",
 		"reset": -1,

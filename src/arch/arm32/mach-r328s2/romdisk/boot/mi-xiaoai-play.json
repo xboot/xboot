@@ -35,6 +35,28 @@
 	"clk-link": { "parent": "osc24m", "name": "link-uart2" },
 	"clk-link": { "parent": "osc24m", "name": "link-uart3" },
 
+	"clk-mux@0x03009010": {
+		"parent": [
+			{ "name": "mux-rtc32k", "value": 0 },
+			{ "name": "osc24m", "value": 1 }
+		],
+		"name": "mux-timer0", "shift": 2, "width": 2,
+		"default": { "parent": "osc24m" }
+	},
+	"clk-ratio@0x03009010": { "parent": "mux-timer0", "name": "ratio-timer0", "shift": 4, "width": 3 },
+	"clk-link": { "parent": "ratio-timer0", "name": "link-timer0" },
+
+	"clk-mux@0x03009020": {
+		"parent": [
+			{ "name": "mux-rtc32k", "value": 0 },
+			{ "name": "osc24m", "value": 1 }
+		],
+		"name": "mux-timer1", "shift": 2, "width": 2,
+		"default": { "parent": "osc24m" }
+	},
+	"clk-ratio@0x03009020": { "parent": "mux-timer1", "name": "ratio-timer1", "shift": 4, "width": 3 },
+	"clk-link": { "parent": "ratio-timer1", "name": "link-timer1" },
+
 	"clk-link": { "parent": "osc24m", "name": "link-pwm" },
 	"clk-link": { "parent": "osc24m-750", "name": "link-wdt" },
 
@@ -71,6 +93,15 @@
 	"gpio-r328@0x0300b090": { "gpio-base": 128, "gpio-count":  7, "interrupt-offset": 224 },
 	"gpio-r328@0x0300b0d8": { "gpio-base": 192, "gpio-count": 16, "interrupt-offset": 256 },
 	"gpio-r328@0x0300b0fc": { "gpio-base": 224, "gpio-count": 10, "interrupt-offset": 288 },
+
+	"ce-r328-timer@0x03009000": {
+		"clock-name": "link-timer0",
+		"interrupt": 117
+	},
+
+	"cs-r328-timer@0x03009000": {
+		"clock-name": "link-timer1"
+	},
 
 	"uart-16550@0x05000000": {
 		"clock-name": "link-uart0",

@@ -159,6 +159,17 @@
 		"clock-name": "link-wdt"
 	},
 
+	"key-r328-lradc@0x05070800": {
+		"interrupt": 82,
+		"reference-voltage": 3000000,
+		"keys": [
+			{ "min-voltage": 100000, "max-voltage": 300000, "key-code": 6 },
+			{ "min-voltage": 300000, "max-voltage": 500000, "key-code": 7 },
+			{ "min-voltage": 500000, "max-voltage": 700000, "key-code": 10 },
+			{ "min-voltage": 700000, "max-voltage": 900000, "key-code": 11 }
+		]
+	},
+
 	"console-uart@0": {
 		"uart-bus": "uart-16550.0"
 	}

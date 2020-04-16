@@ -195,7 +195,7 @@ static struct device_t * battery_adc_probe(struct driver_t * drv, struct dtnode_
 
 	for(i = 0; i < ndc; i++)
 	{
-		dt_read_array_object(n, "charging-curve", i, &o);
+		dt_read_array_object(n, "discharging-curve", i, &o);
 		dc[i].voltage = dt_read_int(&o, "voltage", -1);
 		dc[i].level = dt_read_int(&o, "level", -1);
 	}

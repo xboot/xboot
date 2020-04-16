@@ -21,72 +21,47 @@
 	"clk-link": { "parent": "osc24m", "name": "link-pwm" },
 	"clk-link": { "parent": "osc24m-750", "name": "link-wdt" },
 
-	"irq-gic400@0x03020000": {
-		"interrupt-base": 32,
-		"interrupt-count": 160
-	},
+	"reset-r328@0x03001068c": { "reset-base":   0, "reset-count": 32 },
+	"reset-r328@0x03001070c": { "reset-base":  32, "reset-count": 32 },
+	"reset-r328@0x03001073c": { "reset-base":  64, "reset-count": 32 },
+	"reset-r328@0x03001078c": { "reset-base":  96, "reset-count": 32 },
+	"reset-r328@0x03001079c": { "reset-base": 128, "reset-count": 32 },
+	"reset-r328@0x0300107ac": { "reset-base": 160, "reset-count": 32 },
+	"reset-r328@0x03001080c": { "reset-base": 192, "reset-count": 32 },
+	"reset-r328@0x03001084c": { "reset-base": 224, "reset-count": 32 },
+	"reset-r328@0x03001090c": { "reset-base": 256, "reset-count": 32 },
+	"reset-r328@0x03001091c": { "reset-base": 288, "reset-count": 32 },
+	"reset-r328@0x03001096c": { "reset-base": 320, "reset-count": 32 },
+	"reset-r328@0x0300109ec": { "reset-base": 352, "reset-count": 32 },
+	"reset-r328@0x0300109fc": { "reset-base": 384, "reset-count": 32 },
+	"reset-r328@0x030010a1c": { "reset-base": 416, "reset-count": 32 },
+	"reset-r328@0x030010a2c": { "reset-base": 448, "reset-count": 32 },
+	"reset-r328@0x030010a4c": { "reset-base": 480, "reset-count": 32 },
+	"reset-r328@0x030010a5c": { "reset-base": 512, "reset-count": 32 },
+	"reset-r328@0x030010a8c": { "reset-base": 544, "reset-count": 32 },
+	"reset-r328@0x030010acc": { "reset-base": 576, "reset-count": 32 },
+	"reset-r328@0x030010adc": { "reset-base": 608, "reset-count": 32 },
+	"reset-r328@0x030010bfc": { "reset-base": 640, "reset-count": 32 },
 
-	"irq-r328-gpio@0x0300b220": {
-		"interrupt-base": 192,
-		"interrupt-count": 14,
-		"interrupt-parent": 75
-	},
+	"irq-gic400@0x03020000": { "interrupt-base": 32, "interrupt-count": 160 },
+	"irq-r328-gpio@0x0300b220": { "interrupt-base": 192, "interrupt-count": 14, "interrupt-parent": 75 },
+	"irq-r328-gpio@0x0300b280": { "interrupt-base": 224, "interrupt-count":  7, "interrupt-parent": 76 },
+	"irq-r328-gpio@0x0300b2c0": { "interrupt-base": 256, "interrupt-count": 16, "interrupt-parent": 78 },
+	"irq-r328-gpio@0x0300b2e0": { "interrupt-base": 288, "interrupt-count": 10, "interrupt-parent": 79 },
 
-	"irq-r328-gpio@0x0300b280": {
-		"interrupt-base": 224,
-		"interrupt-count": 7,
-		"interrupt-parent": 76
-	},
-
-	"irq-r328-gpio@0x0300b2c0": {
-		"interrupt-base": 256,
-		"interrupt-count": 16,
-		"interrupt-parent": 78
-	},
-
-	"irq-r328-gpio@0x0300b2e0": {
-		"interrupt-base": 288,
-		"interrupt-count": 10,
-		"interrupt-parent": 79
-	},
-
-	"gpio-r328@0x0300b024": {
-		"gpio-base": 32,
-		"gpio-count": 14,
-		"interrupt-offset": 192
-	},
-
-	"gpio-r328@0x0300b048": {
-		"gpio-base": 64,
-		"gpio-count": 7,
-		"interrupt-offset": -1
-	},
-
-	"gpio-r328@0x0300b090": {
-		"gpio-base": 128,
-		"gpio-count": 7,
-		"interrupt-offset": 224
-	},
-
-	"gpio-r328@0x0300b0d8": {
-		"gpio-base": 192,
-		"gpio-count": 16,
-		"interrupt-offset": 256
-	},
-
-	"gpio-r328@0x0300b0fc": {
-		"gpio-base": 224,
-		"gpio-count": 10,
-		"interrupt-offset": 288
-	},
+	"gpio-r328@0x0300b024": { "gpio-base":  32, "gpio-count": 14, "interrupt-offset": 192 },
+	"gpio-r328@0x0300b048": { "gpio-base":  64, "gpio-count":  7, "interrupt-offset":  -1 },
+	"gpio-r328@0x0300b090": { "gpio-base": 128, "gpio-count":  7, "interrupt-offset": 224 },
+	"gpio-r328@0x0300b0d8": { "gpio-base": 192, "gpio-count": 16, "interrupt-offset": 256 },
+	"gpio-r328@0x0300b0fc": { "gpio-base": 224, "gpio-count": 10, "interrupt-offset": 288 },
 
 	"uart-16550@0x05000000": {
 		"clock-name": "link-uart0",
-		"reset": -1,
-		"txd-gpio": -1,
-		"txd-gpio-config": -1,
-		"rxd-gpio": -1,
-		"rxd-gpio-config": -1,
+		"reset": 272,
+		"txd-gpio": 224,
+		"txd-gpio-config": 3,
+		"rxd-gpio": 225,
+		"rxd-gpio-config": 3,
 		"baud-rates": 115200,
 		"data-bits": 8,
 		"parity-bits": 0,
@@ -95,11 +70,11 @@
 
 	"uart-16550@0x05000400": {
 		"clock-name": "link-uart1",
-		"reset": -1,
-		"txd-gpio": -1,
-		"txd-gpio-config": -1,
-		"rxd-gpio": -1,
-		"rxd-gpio-config": -1,
+		"reset": 273,
+		"txd-gpio": 198,
+		"txd-gpio-config": 2,
+		"rxd-gpio": 199,
+		"rxd-gpio-config": 2,
 		"baud-rates": 115200,
 		"data-bits": 8,
 		"parity-bits": 0,
@@ -108,11 +83,11 @@
 	
 	"uart-16550@0x05000800": {
 		"clock-name": "link-uart2",
-		"reset": -1,
-		"txd-gpio": -1,
-		"txd-gpio-config": -1,
-		"rxd-gpio": -1,
-		"rxd-gpio-config": -1,
+		"reset": 274,
+		"txd-gpio": 131,
+		"txd-gpio-config": 2,
+		"rxd-gpio": 132,
+		"rxd-gpio-config": 2,
 		"baud-rates": 115200,
 		"data-bits": 8,
 		"parity-bits": 0,
@@ -121,11 +96,11 @@
 	
 	"uart-16550@0x05000c00": {
 		"clock-name": "link-uart3",
-		"reset": -1,
-		"txd-gpio": -1,
-		"txd-gpio-config": -1,
-		"rxd-gpio": -1,
-		"rxd-gpio-config": -1,
+		"reset": 275,
+		"txd-gpio": 228,
+		"txd-gpio-config": 2,
+		"rxd-gpio": 229,
+		"rxd-gpio-config": 2,
 		"baud-rates": 115200,
 		"data-bits": 8,
 		"parity-bits": 0,

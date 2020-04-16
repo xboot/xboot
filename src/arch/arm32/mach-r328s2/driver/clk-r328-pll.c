@@ -68,60 +68,52 @@ static u64_t clk_r328_pll_get_rate(struct clk_t * clk, u64_t prate)
 	{
 	case 0:
 		r = read32(pdat->virt + CCU_PLL_CPU);
-		n = ((r >> 8) & 0x1f) + 1;
-		k = ((r >> 4) & 0x3) + 1;
+		n = ((r >> 8) & 0xff) + 1;
 		m = ((r >> 0) & 0x3) + 1;
 		p = (r >> 16) & 0x3;
-		rate = (u64_t)(((prate * n * k) >> p) / m);
+		rate = (u64_t)(((prate * n) >> p) / m);
 		break;
 
 	case 1:
 		r = read32(pdat->virt + CCU_PLL_DDR);
-		n = ((r >> 8) & 0x1f) + 1;
-		k = ((r >> 4) & 0x3) + 1;
-		m = ((r >> 0) & 0x3) + 1;
-		rate = (u64_t)((prate * n * k) / m);
+		n = ((r >> 8) & 0xff) + 1;
+		k = ((r >> 1) & 0x1) + 1;
+		m = ((r >> 0) & 0x1) + 1;
+		rate = (u64_t)(prate / k / m);
 		break;
 
 	case 2:
 		r = read32(pdat->virt + CCU_PLL_PERIPH0);
-		if(r & (1 << 25))
-			rate = prate;
-		else
-		{
-			n = ((r >> 8) & 0x1f) + 1;
-			k = ((r >> 4) & 0x3) + 1;
-			m = ((r >> 0) & 0x3) + 1;
-			rate = (u64_t)((prate * n * k) / 2);
-		}
+		n = ((r >> 8) & 0xff) + 1;
+		k = ((r >> 1) & 0x1) + 1;
+		m = ((r >> 0) & 0x1) + 1;
+		rate = (u64_t)(prate / k / m);
 		break;
 
 	case 3:
 		r = read32(pdat->virt + CCU_PLL_PERIPH1);
-		if(r & (1 << 25))
-			rate = prate;
-		else
-		{
-			n = ((r >> 8) & 0x1f) + 1;
-			k = ((r >> 4) & 0x3) + 1;
-			m = ((r >> 0) & 0x3) + 1;
-			rate = (u64_t)((prate * n * k) / 2);
-		}
+		n = ((r >> 8) & 0xff) + 1;
+		k = ((r >> 1) & 0x1) + 1;
+		m = ((r >> 0) & 0x1) + 1;
+		rate = (u64_t)(prate / k / m);
 		break;
 
 	case 4:
 		r = read32(pdat->virt + CCU_PLL_AUDIO);
-		if(r & (1 << 24))
-			n = ((r >> 8) & 0xf) + 1;
-		else
-			n = ((r >> 8) & 0x7f) + 1;
-		m = ((r >> 0) & 0x1f) + 1;
-		p = ((r >> 16) & 0xf) + 1;
-		rate = (u64_t)((prate * n) / (p * m));
+		p = ((r >> 16) & 0x3f) + 1;
+		n = ((r >> 8) & 0xff) + 1;
+		k = ((r >> 1) & 0x1) + 1;
+		m = ((r >> 0) & 0x1) + 1;
+		rate = (u64_t)(prate * n / k / m / p);
 		break;
 
 	case 5:
-		rate = (u64_t)24576000;
+		r = read32(pdat->virt + CCU_PLL_32K);
+		p = ((r >> 16) & 0x3f) + 1;
+		n = ((r >> 8) & 0xff) + 1;
+		k = ((r >> 1) & 0x1) + 1;
+		m = ((r >> 0) & 0x1) + 1;
+		rate = (u64_t)(prate * n / k / m / p);
 		break;
 
 	default:

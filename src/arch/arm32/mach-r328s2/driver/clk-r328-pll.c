@@ -120,6 +120,10 @@ static u64_t clk_r328_pll_get_rate(struct clk_t * clk, u64_t prate)
 		rate = (u64_t)((prate * n) / (p * m));
 		break;
 
+	case 5:
+		rate = (u64_t)24576000;
+		break;
+
 	default:
 		break;
 	}
@@ -137,7 +141,7 @@ static struct device_t * clk_r328_pll_probe(struct driver_t * drv, struct dtnode
 	char * name = dt_read_string(n, "name", NULL);
 	int channel = dt_read_int(n, "channel", -1);
 
-	if(channel < 0 || channel > 8)
+	if(channel < 0 || channel > 5)
 		return NULL;
 
 	if(!parent || !name)

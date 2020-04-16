@@ -1,17 +1,34 @@
 {
-	"clk-fixed@0": { "name": "iosc", "rate": 16000000 },
-	"clk-fixed@1": { "name": "osc24m", "rate": 24000000 },
-	"clk-fixed@2": { "name": "osc48m", "rate": 48000000 },
-	"clk-fixed@3": { "name": "osc32k", "rate": 32768 },
+	"clk-fixed@0": { "name": "losc", "rate": 32768 },
+	"clk-fixed@1": { "name": "iosc", "rate": 16000000 },
+	"clk-fixed@2": { "name": "osc24m", "rate": 24000000 },
+	"clk-fixed@3": { "name": "osc48m", "rate": 48000000 },
 
 	"clk-r328-pll@0": { "parent": "osc24m", "name": "pll-cpu", "channel": 0 },
 	"clk-r328-pll@1": { "parent": "osc24m", "name": "pll-ddr", "channel": 1 },
 	"clk-r328-pll@2": { "parent": "osc24m", "name": "pll-periph0", "channel": 2 },
 	"clk-r328-pll@3": { "parent": "osc24m", "name": "pll-periph1", "channel": 3 },
 	"clk-r328-pll@4": { "parent": "osc24m", "name": "pll-audio", "channel": 4 },
+	"clk-r328-pll@5": { "parent": "osc24m", "name": "pll-32k", "channel": 5 },
 
-	"clk-fixed-factor@0": { "parent": "osc24m", "name": "osc24m-750", "mult": 1, "div": 750 },
-	"clk-fixed-factor@1": { "parent": "iosc", "name": "losc", "mult": 1, "div": 512 },
+	"clk-fixed-factor@0": { "parent": "pll-32k", "name": "pll-32k-750", "mult": 1, "div": 750 },
+	"clk-fixed-factor@1": { "parent": "iosc", "name": "iosc-512", "mult": 1, "div": 512 },
+	"clk-fixed-factor@2": { "parent": "osc24m", "name": "osc24m-750", "mult": 1, "div": 750 },
+
+	"clk-mux@0x03001f40": {
+		"parent": [
+			{ "name": "losc", "value": 0 },
+			{ "name": "pll-32k-750", "value": 1 }
+		],
+		"name": "mux-losc", "shift": 1, "width": 1
+	},
+	"clk-mux@0x07000000": {
+		"parent": [
+			{ "name": "iosc-512", "value": 0 },
+			{ "name": "mux-losc", "value": 1 }
+		],
+		"name": "mux-rtc32k", "shift": 0, "width": 1
+	},
 
 	"clk-link": { "parent": "osc24m", "name": "link-uart0" },
 	"clk-link": { "parent": "osc24m", "name": "link-uart1" },
@@ -80,7 +97,7 @@
 		"parity-bits": 0,
 		"stop-bits": 1
 	},
-	
+
 	"uart-16550@0x05000800": {
 		"clock-name": "link-uart2",
 		"reset": 274,
@@ -93,7 +110,7 @@
 		"parity-bits": 0,
 		"stop-bits": 1
 	},
-	
+
 	"uart-16550@0x05000c00": {
 		"clock-name": "link-uart3",
 		"reset": 275,

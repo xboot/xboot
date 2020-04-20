@@ -18,11 +18,7 @@ struct xui_context_t {
 	struct region_t clip;
 	struct color_t c;
 
-	struct mu_Context mu;
-
-/*	struct region_t clip;
-	struct color_t bgcolor;
-	struct fifo_t * cmdfifo;*/
+	struct mu_context_t mu;
 };
 
 struct xui_context_t * xui_context_alloc(const char * fb, const char * input, struct color_t * c);

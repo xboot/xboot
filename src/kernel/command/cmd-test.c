@@ -25,7 +25,7 @@ static void write_log(const char *text)
 	logbuf_updated = 1;
 }
 
-static void test_window(mu_Context *ctx)
+static void test_window(struct mu_context_t *ctx)
 {
 	/* do window */
 	if(mu_begin_window(ctx, "Demo Window", mu_rect(40, 40, 300, 450)))
@@ -170,7 +170,7 @@ static void test_window(mu_Context *ctx)
 	}
 }
 
-static void log_window(mu_Context *ctx)
+static void log_window(struct mu_context_t *ctx)
 {
 	if(mu_begin_window(ctx, "Log Window", mu_rect(350, 40, 300, 200)))
 	{
@@ -210,7 +210,7 @@ static void log_window(mu_Context *ctx)
 	}
 }
 
-static int uint8_slider(mu_Context *ctx, unsigned char *value, int low, int high) {
+static int uint8_slider(struct mu_context_t *ctx, unsigned char *value, int low, int high) {
   static float tmp;
   mu_push_id(ctx, &value, sizeof(value));
   tmp = *value;
@@ -221,7 +221,7 @@ static int uint8_slider(mu_Context *ctx, unsigned char *value, int low, int high
 }
 
 
-static void style_window(mu_Context *ctx) {
+static void style_window(struct mu_context_t *ctx) {
 	static struct { const char *label; int idx; } colors[] = {
 		{ "text:",         MU_COLOR_TEXT        },
 		{ "border:",       MU_COLOR_BORDER      },

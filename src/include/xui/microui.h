@@ -96,14 +96,12 @@ enum {
   MU_KEY_RETURN       = (1 << 4)
 };
 
-typedef struct mu_Context mu_Context;
 typedef MU_REAL mu_Real;
 typedef void * mu_Font;
 
 typedef struct { int x, y; } mu_Vec2;
 typedef struct { int x, y, w, h; } mu_Rect;
 typedef struct { unsigned char r, g, b, a; } mu_Color;
-typedef struct { unsigned int id; int last_update; } mu_PoolItem;
 
 typedef struct { int type, size; } mu_BaseCommand;
 typedef struct { mu_BaseCommand base; void *dst; } mu_JumpCommand;
@@ -122,6 +120,12 @@ typedef union
 	mu_TextCommand text;
 	mu_IconCommand icon;
 } mu_Command;
+
+struct xui_poolitem_t
+{
+	unsigned int id;
+	int last_update;
+};
 
 struct xui_layout_t {
 	mu_Rect body;
@@ -148,7 +152,7 @@ struct xui_container_t
 	int open;
 };
 
-typedef struct
+struct xui_style_t
 {
 	mu_Font font;
 	mu_Vec2 size;
@@ -159,17 +163,17 @@ typedef struct
 	int scrollbar_size;
 	int thumb_size;
 	mu_Color colors[MU_COLOR_MAX];
-} mu_Style;
+};
 
-struct mu_Context
+struct mu_context_t
 {
 	/* callbacks */
 	int (*text_width)(mu_Font font, const char *str, int len);
 	int (*text_height)(mu_Font font);
-	void (*draw_frame)(mu_Context *ctx, mu_Rect rect, int colorid);
+	void (*draw_frame)(struct mu_context_t *ctx, mu_Rect rect, int colorid);
 	/* core state */
-	mu_Style _style;
-	mu_Style *style;
+	struct xui_style_t _style;
+	struct xui_style_t *style;
 	unsigned int hover;
 	unsigned int focus;
 	unsigned int last_id;
@@ -196,9 +200,9 @@ struct mu_Context
 	mu_stack(struct xui_layout_t, MU_LAYOUTSTACK_SIZE)
 	layout_stack;
 	/* retained state pools */
-	mu_PoolItem container_pool[MU_CONTAINERPOOL_SIZE];
+	struct xui_poolitem_t container_pool[MU_CONTAINERPOOL_SIZE];
 	struct xui_container_t containers[MU_CONTAINERPOOL_SIZE];
-	mu_PoolItem treenode_pool[MU_TREENODEPOOL_SIZE];
+	struct xui_poolitem_t treenode_pool[MU_TREENODEPOOL_SIZE];
 	/* input state */
 	mu_Vec2 mouse_pos;
 	mu_Vec2 last_mouse_pos;
@@ -215,53 +219,53 @@ mu_Vec2 mu_vec2(int x, int y);
 mu_Rect mu_rect(int x, int y, int w, int h);
 mu_Color mu_color(int r, int g, int b, int a);
 
-void mu_init(mu_Context *ctx);
-void mu_begin(mu_Context *ctx);
-void mu_end(mu_Context *ctx);
-void mu_set_focus(mu_Context *ctx, unsigned int id);
-unsigned int mu_get_id(mu_Context *ctx, const void *data, int size);
-void mu_push_id(mu_Context *ctx, const void *data, int size);
-void mu_pop_id(mu_Context *ctx);
-void mu_push_clip_rect(mu_Context *ctx, mu_Rect rect);
-void mu_pop_clip_rect(mu_Context *ctx);
-mu_Rect mu_get_clip_rect(mu_Context *ctx);
-int mu_check_clip(mu_Context *ctx, mu_Rect r);
-struct xui_container_t* mu_get_current_container(mu_Context *ctx);
-struct xui_container_t* mu_get_container(mu_Context *ctx, const char *name);
-void mu_bring_to_front(mu_Context *ctx, struct xui_container_t *cnt);
+void mu_init(struct mu_context_t *ctx);
+void mu_begin(struct mu_context_t *ctx);
+void mu_end(struct mu_context_t *ctx);
+void mu_set_focus(struct mu_context_t *ctx, unsigned int id);
+unsigned int mu_get_id(struct mu_context_t *ctx, const void *data, int size);
+void mu_push_id(struct mu_context_t *ctx, const void *data, int size);
+void mu_pop_id(struct mu_context_t *ctx);
+void mu_push_clip_rect(struct mu_context_t *ctx, mu_Rect rect);
+void mu_pop_clip_rect(struct mu_context_t *ctx);
+mu_Rect mu_get_clip_rect(struct mu_context_t *ctx);
+int mu_check_clip(struct mu_context_t *ctx, mu_Rect r);
+struct xui_container_t* mu_get_current_container(struct mu_context_t *ctx);
+struct xui_container_t* mu_get_container(struct mu_context_t *ctx, const char *name);
+void mu_bring_to_front(struct mu_context_t *ctx, struct xui_container_t *cnt);
 
-int mu_pool_init(mu_Context *ctx, mu_PoolItem *items, int len, unsigned int id);
-int mu_pool_get(mu_Context *ctx, mu_PoolItem *items, int len, unsigned int id);
-void mu_pool_update(mu_Context *ctx, mu_PoolItem *items, int idx);
+int mu_pool_init(struct mu_context_t *ctx, struct xui_poolitem_t *items, int len, unsigned int id);
+int mu_pool_get(struct mu_context_t *ctx, struct xui_poolitem_t *items, int len, unsigned int id);
+void mu_pool_update(struct mu_context_t *ctx, struct xui_poolitem_t *items, int idx);
 
-void mu_input_mousemove(mu_Context *ctx, int x, int y);
-void mu_input_mousedown(mu_Context *ctx, int x, int y, int btn);
-void mu_input_mouseup(mu_Context *ctx, int x, int y, int btn);
-void mu_input_scroll(mu_Context *ctx, int x, int y);
-void mu_input_keydown(mu_Context *ctx, int key);
-void mu_input_keyup(mu_Context *ctx, int key);
-void mu_input_text(mu_Context *ctx, const char *text);
+void mu_input_mousemove(struct mu_context_t *ctx, int x, int y);
+void mu_input_mousedown(struct mu_context_t *ctx, int x, int y, int btn);
+void mu_input_mouseup(struct mu_context_t *ctx, int x, int y, int btn);
+void mu_input_scroll(struct mu_context_t *ctx, int x, int y);
+void mu_input_keydown(struct mu_context_t *ctx, int key);
+void mu_input_keyup(struct mu_context_t *ctx, int key);
+void mu_input_text(struct mu_context_t *ctx, const char *text);
 
-mu_Command* mu_push_command(mu_Context *ctx, int type, int size);
-int mu_next_command(mu_Context *ctx, mu_Command **cmd);
-void mu_set_clip(mu_Context *ctx, mu_Rect rect);
-void mu_draw_rect(mu_Context *ctx, mu_Rect rect, mu_Color color);
-void mu_draw_box(mu_Context *ctx, mu_Rect rect, mu_Color color);
-void mu_draw_text(mu_Context *ctx, mu_Font font, const char *str, int len, mu_Vec2 pos, mu_Color color);
-void mu_draw_icon(mu_Context *ctx, int id, mu_Rect rect, mu_Color color);
+mu_Command* mu_push_command(struct mu_context_t *ctx, int type, int size);
+int mu_next_command(struct mu_context_t *ctx, mu_Command **cmd);
+void mu_set_clip(struct mu_context_t *ctx, mu_Rect rect);
+void mu_draw_rect(struct mu_context_t *ctx, mu_Rect rect, mu_Color color);
+void mu_draw_box(struct mu_context_t *ctx, mu_Rect rect, mu_Color color);
+void mu_draw_text(struct mu_context_t *ctx, mu_Font font, const char *str, int len, mu_Vec2 pos, mu_Color color);
+void mu_draw_icon(struct mu_context_t *ctx, int id, mu_Rect rect, mu_Color color);
 
-void mu_layout_row(mu_Context *ctx, int items, const int *widths, int height);
-void mu_layout_width(mu_Context *ctx, int width);
-void mu_layout_height(mu_Context *ctx, int height);
-void mu_layout_begin_column(mu_Context *ctx);
-void mu_layout_end_column(mu_Context *ctx);
-void mu_layout_set_next(mu_Context *ctx, mu_Rect r, int relative);
-mu_Rect mu_layout_next(mu_Context *ctx);
+void mu_layout_row(struct mu_context_t *ctx, int items, const int *widths, int height);
+void mu_layout_width(struct mu_context_t *ctx, int width);
+void mu_layout_height(struct mu_context_t *ctx, int height);
+void mu_layout_begin_column(struct mu_context_t *ctx);
+void mu_layout_end_column(struct mu_context_t *ctx);
+void mu_layout_set_next(struct mu_context_t *ctx, mu_Rect r, int relative);
+mu_Rect mu_layout_next(struct mu_context_t *ctx);
 
-void mu_draw_control_frame(mu_Context *ctx, unsigned int id, mu_Rect rect, int colorid, int opt);
-void mu_draw_control_text(mu_Context *ctx, const char *str, mu_Rect rect, int colorid, int opt);
-int mu_mouse_over(mu_Context *ctx, mu_Rect rect);
-void mu_update_control(mu_Context *ctx, unsigned int id, mu_Rect rect, int opt);
+void mu_draw_control_frame(struct mu_context_t *ctx, unsigned int id, mu_Rect rect, int colorid, int opt);
+void mu_draw_control_text(struct mu_context_t *ctx, const char *str, mu_Rect rect, int colorid, int opt);
+int mu_mouse_over(struct mu_context_t *ctx, mu_Rect rect);
+void mu_update_control(struct mu_context_t *ctx, unsigned int id, mu_Rect rect, int opt);
 
 #define mu_button(ctx, label)             mu_button_ex(ctx, label, 0, MU_OPT_ALIGNCENTER)
 #define mu_textbox(ctx, buf, bufsz)       mu_textbox_ex(ctx, buf, bufsz, 0)
@@ -272,23 +276,23 @@ void mu_update_control(mu_Context *ctx, unsigned int id, mu_Rect rect, int opt);
 #define mu_begin_window(ctx, title, rect) mu_begin_window_ex(ctx, title, rect, 0)
 #define mu_begin_panel(ctx, name)         mu_begin_panel_ex(ctx, name, 0)
 
-void mu_text(mu_Context *ctx, const char *text);
-void mu_label(mu_Context *ctx, const char *text);
-int mu_button_ex(mu_Context *ctx, const char *label, int icon, int opt);
-int mu_checkbox(mu_Context *ctx, const char *label, int *state);
-int mu_textbox_raw(mu_Context *ctx, char *buf, int bufsz, unsigned int id, mu_Rect r, int opt);
-int mu_textbox_ex(mu_Context *ctx, char *buf, int bufsz, int opt);
-int mu_slider_ex(mu_Context *ctx, mu_Real *value, mu_Real low, mu_Real high, mu_Real step, const char *fmt, int opt);
-int mu_number_ex(mu_Context *ctx, mu_Real *value, mu_Real step, const char *fmt, int opt);
-int mu_header_ex(mu_Context *ctx, const char *label, int opt);
-int mu_begin_treenode_ex(mu_Context *ctx, const char *label, int opt);
-void mu_end_treenode(mu_Context *ctx);
-int mu_begin_window_ex(mu_Context *ctx, const char *title, mu_Rect rect, int opt);
-void mu_end_window(mu_Context *ctx);
-void mu_open_popup(mu_Context *ctx, const char *name);
-int mu_begin_popup(mu_Context *ctx, const char *name);
-void mu_end_popup(mu_Context *ctx);
-void mu_begin_panel_ex(mu_Context *ctx, const char *name, int opt);
-void mu_end_panel(mu_Context *ctx);
+void mu_text(struct mu_context_t *ctx, const char *text);
+void mu_label(struct mu_context_t *ctx, const char *text);
+int mu_button_ex(struct mu_context_t *ctx, const char *label, int icon, int opt);
+int mu_checkbox(struct mu_context_t *ctx, const char *label, int *state);
+int mu_textbox_raw(struct mu_context_t *ctx, char *buf, int bufsz, unsigned int id, mu_Rect r, int opt);
+int mu_textbox_ex(struct mu_context_t *ctx, char *buf, int bufsz, int opt);
+int mu_slider_ex(struct mu_context_t *ctx, mu_Real *value, mu_Real low, mu_Real high, mu_Real step, const char *fmt, int opt);
+int mu_number_ex(struct mu_context_t *ctx, mu_Real *value, mu_Real step, const char *fmt, int opt);
+int mu_header_ex(struct mu_context_t *ctx, const char *label, int opt);
+int mu_begin_treenode_ex(struct mu_context_t *ctx, const char *label, int opt);
+void mu_end_treenode(struct mu_context_t *ctx);
+int mu_begin_window_ex(struct mu_context_t *ctx, const char *title, mu_Rect rect, int opt);
+void mu_end_window(struct mu_context_t *ctx);
+void mu_open_popup(struct mu_context_t *ctx, const char *name);
+int mu_begin_popup(struct mu_context_t *ctx, const char *name);
+void mu_end_popup(struct mu_context_t *ctx);
+void mu_begin_panel_ex(struct mu_context_t *ctx, const char *name, int opt);
+void mu_end_panel(struct mu_context_t *ctx);
 
 #endif

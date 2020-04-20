@@ -8,7 +8,6 @@
 #include <shell/ctrlc.h>
 #include <input/input.h>
 #include <input/keyboard.h>
-#include <xui/microui.h>
 #include <xui/xui.h>
 
 static char logbuf[64000];
@@ -25,7 +24,7 @@ static void write_log(const char *text)
 	logbuf_updated = 1;
 }
 
-static void test_window(struct mu_context_t *ctx)
+static void test_window(struct xui_context_t *ctx)
 {
 	/* do window */
 	if(mu_begin_window(ctx, "Demo Window", mu_rect(40, 40, 300, 450)))
@@ -170,7 +169,7 @@ static void test_window(struct mu_context_t *ctx)
 	}
 }
 
-static void log_window(struct mu_context_t *ctx)
+static void log_window(struct xui_context_t *ctx)
 {
 	if(mu_begin_window(ctx, "Log Window", mu_rect(350, 40, 300, 200)))
 	{
@@ -210,7 +209,7 @@ static void log_window(struct mu_context_t *ctx)
 	}
 }
 
-static int uint8_slider(struct mu_context_t *ctx, unsigned char *value, int low, int high) {
+static int uint8_slider(struct xui_context_t *ctx, unsigned char *value, int low, int high) {
   static float tmp;
   mu_push_id(ctx, &value, sizeof(value));
   tmp = *value;
@@ -221,7 +220,7 @@ static int uint8_slider(struct mu_context_t *ctx, unsigned char *value, int low,
 }
 
 
-static void style_window(struct mu_context_t *ctx) {
+static void style_window(struct xui_context_t *ctx) {
 	static struct { const char *label; int idx; } colors[] = {
 		{ "text:",         MU_COLOR_TEXT        },
 		{ "border:",       MU_COLOR_BORDER      },
@@ -247,11 +246,11 @@ static void style_window(struct mu_context_t *ctx) {
 		for(int i = 0; colors[i].label; i++)
 		{
 			mu_label(ctx, colors[i].label);
-			uint8_slider(ctx, &ctx->style->colors[i].r, 0, 255);
-			uint8_slider(ctx, &ctx->style->colors[i].g, 0, 255);
-			uint8_slider(ctx, &ctx->style->colors[i].b, 0, 255);
-			uint8_slider(ctx, &ctx->style->colors[i].a, 0, 255);
-			mu_draw_rect(ctx, mu_layout_next(ctx), ctx->style->colors[i]);
+			uint8_slider(ctx, &ctx->style.colors[i].r, 0, 255);
+			uint8_slider(ctx, &ctx->style.colors[i].g, 0, 255);
+			uint8_slider(ctx, &ctx->style.colors[i].b, 0, 255);
+			uint8_slider(ctx, &ctx->style.colors[i].a, 0, 255);
+			mu_draw_rect(ctx, mu_layout_next(ctx), ctx->style.colors[i]);
 		}
 		mu_end_window(ctx);
 	}
@@ -259,11 +258,11 @@ static void style_window(struct mu_context_t *ctx) {
 
 static void process_frame(struct xui_context_t * ctx)
 {
-	mu_begin(&ctx->mu);
-	style_window(&ctx->mu);
-	log_window(&ctx->mu);
-	test_window(&ctx->mu);
-	mu_end(&ctx->mu);
+	mu_begin(ctx);
+	style_window(ctx);
+	log_window(ctx);
+	test_window(ctx);
+	mu_end(ctx);
 }
 
 static void usage(void)
@@ -274,9 +273,7 @@ static void usage(void)
 
 static int do_test(int argc, char ** argv)
 {
-	struct color_t c;
-	color_init(&c, 90, 95, 100, 255);
-	struct xui_context_t * ctx = xui_context_alloc(NULL, NULL, &c);
+	struct xui_context_t * ctx = xui_context_alloc(NULL, NULL, NULL);
 
 	xui_loop(ctx, process_frame);
 	xui_context_free(ctx);

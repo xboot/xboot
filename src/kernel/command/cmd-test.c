@@ -30,8 +30,8 @@ static void test_window(struct xui_context_t *ctx)
 	if(mu_begin_window(ctx, "Demo Window", mu_rect(40, 40, 300, 450)))
 	{
 		struct xui_container_t *win = mu_get_current_container(ctx);
-		win->rect.w = mu_max(win->rect.w, 240);
-		win->rect.h = mu_max(win->rect.h, 300);
+		win->rect.w = max(win->rect.w, 240);
+		win->rect.h = max(win->rect.h, 300);
 
 		/* window info */
 		if(mu_header(ctx, "Window Info"))

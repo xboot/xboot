@@ -65,10 +65,10 @@ static mu_Rect expand_rect(mu_Rect rect, int n) {
 
 
 static mu_Rect intersect_rects(mu_Rect r1, mu_Rect r2) {
-  int x1 = mu_max(r1.x, r2.x);
-  int y1 = mu_max(r1.y, r2.y);
-  int x2 = mu_min(r1.x + r1.w, r2.x + r2.w);
-  int y2 = mu_min(r1.y + r1.h, r2.y + r2.h);
+  int x1 = max(r1.x, r2.x);
+  int y1 = max(r1.y, r2.y);
+  int x2 = min(r1.x + r1.w, r2.x + r2.w);
+  int y2 = min(r1.y + r1.h, r2.y + r2.h);
   if (x2 < x1) { x2 = x1; }
   if (y2 < y1) { y2 = y1; }
   return mu_rect(x1, y1, x2 - x1, y2 - y1);
@@ -676,10 +676,10 @@ void mu_layout_end_column(struct xui_context_t *ctx) {
   pop(ctx->layout_stack);
   /* inherit position/next_row/max from child layout if they are greater */
   a = get_layout(ctx);
-  a->position.x = mu_max(a->position.x, b->position.x + b->body.x - a->body.x);
-  a->next_row = mu_max(a->next_row, b->next_row + b->body.y - a->body.y);
-  a->max.x = mu_max(a->max.x, b->max.x);
-  a->max.y = mu_max(a->max.y, b->max.y);
+  a->position.x = max(a->position.x, b->position.x + b->body.x - a->body.x);
+  a->next_row = max(a->next_row, b->next_row + b->body.y - a->body.y);
+  a->max.x = max(a->max.x, b->max.x);
+  a->max.y = max(a->max.y, b->max.y);
 }
 
 
@@ -748,15 +748,15 @@ mu_Rect mu_layout_next(struct xui_context_t *ctx) {
 
   /* update position */
   layout->position.x += res.w + style->spacing;
-  layout->next_row = mu_max(layout->next_row, res.y + res.h + style->spacing);
+  layout->next_row = max(layout->next_row, res.y + res.h + style->spacing);
 
   /* apply body offset */
   res.x += layout->body.x;
   res.y += layout->body.y;
 
   /* update max position */
-  layout->max.x = mu_max(layout->max.x, res.x + res.w);
-  layout->max.y = mu_max(layout->max.y, res.y + res.h);
+  layout->max.x = max(layout->max.x, res.x + res.w);
+  layout->max.y = max(layout->max.y, res.y + res.h);
 
   return (ctx->last_rect = res);
 }
@@ -916,7 +916,7 @@ int mu_textbox_raw(struct xui_context_t *ctx, char *buf, int bufsz, unsigned int
   if (ctx->focus == id) {
     /* handle text input */
     int len = strlen(buf);
-    int n = mu_min(bufsz - len - 1, (int) strlen(ctx->input_text));
+    int n = min(bufsz - len - 1, (int) strlen(ctx->input_text));
     if (n > 0) {
       memcpy(buf + len, ctx->input_text, n);
       len += n;
@@ -945,7 +945,7 @@ int mu_textbox_raw(struct xui_context_t *ctx, char *buf, int bufsz, unsigned int
     int textw = ctx->text_width(font, buf, -1);
     int texth = ctx->text_height(font);
     int ofx = r.w - ctx->style.padding - textw - 1;
-    int textx = r.x + mu_min(ofx, ctx->style.padding);
+    int textx = r.x + min(ofx, ctx->style.padding);
     int texty = r.y + (r.h - texth) / 2;
     mu_push_clip_rect(ctx, r);
     mu_draw_text(ctx, font, buf, -1, mu_vec2(textx, texty), color);
@@ -1009,7 +1009,7 @@ int mu_slider_ex(struct xui_context_t *ctx, mu_Real *value, mu_Real low, mu_Real
     if (step) { v = (((v + step / 2) / step)) * step; }
   }
   /* clamp and store value, update res */
-  *value = v = mu_clamp(v, low, high);
+  *value = v = clamp(v, low, high);
   if (last != v) { res |= MU_RES_CHANGE; }
 
   /* draw base */
@@ -1141,12 +1141,12 @@ void mu_end_treenode(struct xui_context_t *ctx) {
         cnt->scroll.y += ctx->mouse_delta.y * cs.y / base.h;                \
       }                                                                     \
       /* clamp scroll to limits */                                          \
-      cnt->scroll.y = mu_clamp(cnt->scroll.y, 0, maxscroll);                \
+      cnt->scroll.y = clamp(cnt->scroll.y, 0, maxscroll);  	                \
                                                                             \
       /* draw base and thumb */                                             \
       ctx->draw_frame(ctx, base, MU_COLOR_SCROLLBASE);                      \
       thumb = base;                                                         \
-      thumb.h = mu_max(ctx->style.thumb_size, base.h * b->h / cs.y);       \
+      thumb.h = max(ctx->style.thumb_size, base.h * b->h / cs.y);       \
       thumb.y += cnt->scroll.y * (base.h - thumb.h) / maxscroll;            \
       ctx->draw_frame(ctx, thumb, MU_COLOR_SCROLLTHUMB);                    \
                                                                             \
@@ -1273,8 +1273,8 @@ int mu_begin_window_ex(struct xui_context_t *ctx, const char *title, mu_Rect rec
     mu_Rect r = mu_rect(rect.x + rect.w - sz, rect.y + rect.h - sz, sz, sz);
     mu_update_control(ctx, id, r, opt);
     if (id == ctx->focus && ctx->mouse_down == MU_MOUSE_LEFT) {
-      cnt->rect.w = mu_max(96, cnt->rect.w + ctx->mouse_delta.x);
-      cnt->rect.h = mu_max(64, cnt->rect.h + ctx->mouse_delta.y);
+      cnt->rect.w = max(96, cnt->rect.w + ctx->mouse_delta.x);
+      cnt->rect.h = max(64, cnt->rect.h + ctx->mouse_delta.y);
     }
   }
 

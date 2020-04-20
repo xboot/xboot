@@ -25,11 +25,6 @@ extern "C" {
 #define MU_SLIDER_FMT           "%.2f"
 #define MU_MAX_FMT              127
 
-#define mu_stack(T, n)          struct { int idx; T items[n]; }
-#define mu_min(a, b)            ((a) < (b) ? (a) : (b))
-#define mu_max(a, b)            ((a) > (b) ? (a) : (b))
-#define mu_clamp(x, a, b)       mu_min(b, mu_max(a, x))
-
 enum {
 	MU_CLIP_PART = 1,
 	MU_CLIP_ALL,
@@ -233,23 +228,46 @@ struct xui_context_t {
 	/*
 	 * Stack
 	 */
-	mu_stack(char, MU_COMMANDLIST_SIZE)
-	command_list;
-	mu_stack(struct xui_container_t *, MU_ROOTLIST_SIZE)
-	root_list;
-	mu_stack(struct xui_container_t *, MU_CONTAINERSTACK_SIZE)
-	container_stack;
-	mu_stack(mu_Rect, MU_CLIPSTACK_SIZE)
-	clip_stack;
-	mu_stack(unsigned int, MU_IDSTACK_SIZE)
-	id_stack;
-	mu_stack(struct xui_layout_t, MU_LAYOUTSTACK_SIZE)
-	layout_stack;
-	/* retained state pools */
+	struct {
+		int idx;
+		char items[MU_COMMANDLIST_SIZE];
+	} command_list;
+
+	struct {
+		int idx;
+		struct xui_container_t * items[MU_ROOTLIST_SIZE];
+	} root_list;
+
+	struct {
+		int idx;
+		struct xui_container_t * items[MU_CONTAINERSTACK_SIZE];
+	} container_stack;
+
+	struct {
+		int idx;
+		mu_Rect items[MU_CLIPSTACK_SIZE];
+	} clip_stack;
+
+	struct {
+		int idx;
+		unsigned int items[MU_IDSTACK_SIZE];
+	} id_stack;
+
+	struct {
+		int idx;
+		struct xui_layout_t items[MU_LAYOUTSTACK_SIZE];
+	} layout_stack;
+
+	/*
+	 * Retained state pool
+	 */
 	struct xui_pool_item_t container_pool[MU_CONTAINERPOOL_SIZE];
 	struct xui_container_t containers[MU_CONTAINERPOOL_SIZE];
 	struct xui_pool_item_t treenode_pool[MU_TREENODEPOOL_SIZE];
-	/* input state */
+
+	/*
+	 * Input state
+	 */
 	mu_Vec2 mouse_pos;
 	mu_Vec2 last_mouse_pos;
 	mu_Vec2 mouse_delta;
@@ -260,7 +278,9 @@ struct xui_context_t {
 	int key_pressed;
 	char input_text[32];
 
-	/* callbacks */
+	/*
+	 * Callback
+	 */
 	int (*text_width)(mu_Font font, const char *str, int len);
 	int (*text_height)(mu_Font font);
 	void (*draw_frame)(struct xui_context_t *ctx, mu_Rect rect, int colorid);

@@ -9,6 +9,7 @@
 #include <input/input.h>
 #include <input/keyboard.h>
 #include <xui/microui.h>
+#include <xui/xui.h>
 
 static char logbuf[64000];
 static int logbuf_updated = 0;
@@ -29,14 +30,14 @@ static void test_window(mu_Context *ctx)
 	/* do window */
 	if(mu_begin_window(ctx, "Demo Window", mu_rect(40, 40, 300, 450)))
 	{
-		mu_Container *win = mu_get_current_container(ctx);
+		struct xui_container_t *win = mu_get_current_container(ctx);
 		win->rect.w = mu_max(win->rect.w, 240);
 		win->rect.h = mu_max(win->rect.h, 300);
 
 		/* window info */
 		if(mu_header(ctx, "Window Info"))
 		{
-			mu_Container *win = mu_get_current_container(ctx);
+			struct xui_container_t *win = mu_get_current_container(ctx);
 			char buf[64];
 			mu_layout_row(ctx, 2, (int[] ) { 54, -1 }, 0);
 			mu_label(ctx, "Position:");
@@ -176,7 +177,7 @@ static void log_window(mu_Context *ctx)
 		/* output text panel */
 		mu_layout_row(ctx, 1, (int[] ) { -1 }, -25);
 		mu_begin_panel(ctx, "Log Output");
-		mu_Container *panel = mu_get_current_container(ctx);
+		struct xui_container_t *panel = mu_get_current_container(ctx);
 		mu_layout_row(ctx, 1, (int[] ) { -1 }, -1);
 		mu_text(ctx, logbuf);
 		mu_end_panel(ctx);
@@ -256,27 +257,13 @@ static void style_window(mu_Context *ctx) {
 	}
 }
 
-static void process_frame(mu_Context *ctx)
+static void process_frame(struct xui_context_t * ctx)
 {
-	mu_begin(ctx);
-	style_window(ctx);
-	log_window(ctx);
-	test_window(ctx);
-	mu_end(ctx);
-}
-
-static int text_width(mu_Font font, const char *text, int len)
-{
-	if(len == -1)
-	{
-		len = strlen(text);
-	}
-	return 16 * len;
-}
-
-static int text_height(mu_Font font)
-{
-	return 16;
+	mu_begin(&ctx->mu);
+	style_window(&ctx->mu);
+	log_window(&ctx->mu);
+	test_window(&ctx->mu);
+	mu_end(&ctx->mu);
 }
 
 static void usage(void)
@@ -285,104 +272,14 @@ static void usage(void)
 	printf("    test [args ...]\r\n");
 }
 
-struct surface_t * s;
-static void ttt_draw(struct window_t * w, void * o)
-{
-	mu_Context * ctx = (mu_Context *)o;
-    mu_Command * cmd = NULL;
-    struct color_t c;
-
-	while(mu_next_command(ctx, &cmd))
-	{
-		switch(cmd->type)
-		{
-		case MU_COMMAND_TEXT:
-/*			cairo_save(cr);
-			cairo_set_font_size(cr, 16);
-			cairo_set_source_rgb(cr, cmd->text.color.r / 255.0, cmd->text.color.g / 255.0, cmd->text.color.b / 255.0);
-			cairo_move_to(cr, cmd->text.pos.x, cmd->text.pos.y + 16);
-			cairo_show_text(cr, cmd->text.str);
-			cairo_restore(cr);*/
-			break;
-		case MU_COMMAND_RECT:
-			c.r = cmd->rect.color.r;
-			c.g = cmd->rect.color.g;
-			c.b = cmd->rect.color.b;
-			c.a = 255;
-			surface_shape_rectangle(s, NULL, cmd->rect.rect.x, cmd->rect.rect.y, cmd->rect.rect.w, cmd->rect.rect.h, 0, 0, &c);
-			break;
-		case MU_COMMAND_ICON:
-			//r_draw_icon(cmd->icon.id, cmd->icon.rect, cmd->icon.color);
-			break;
-		case MU_COMMAND_CLIP:
-			//r_set_clip_rect(cmd->clip.rect);
-			break;
-		}
-	}
-}
-
 static int do_test(int argc, char ** argv)
 {
-	struct window_t * w = window_alloc(NULL, NULL, NULL);
-	struct font_context_t * f = font_context_alloc();
-	struct event_t e;
-	struct color_t bgcolor;
+	struct color_t c;
+	color_init(&c, 90, 95, 100, 255);
+	struct xui_context_t * ctx = xui_context_alloc(NULL, NULL, &c);
 
-	s = w->s;
-	color_init(&bgcolor, 255, 255, 255, 255);
-
-	/* init microui */
-	mu_Context * ctx = malloc(sizeof(mu_Context));
-	mu_init(ctx);
-	ctx->text_width = text_width;
-	ctx->text_height = text_height;
-
-	while(1)
-	{
-		if(ctrlc())
-			break;
-
-		if(window_pump_event(w, &e))
-		{
-			switch(e.type)
-			{
-			case EVENT_TYPE_KEY_DOWN:
-				mu_input_keydown(ctx, e.e.key_down.key);
-				break;
-			case EVENT_TYPE_KEY_UP:
-				mu_input_keyup(ctx, e.e.key_up.key);
-				break;
-			case EVENT_TYPE_MOUSE_DOWN:
-				mu_input_mousedown(ctx, e.e.mouse_down.x, e.e.mouse_down.y, e.e.mouse_down.button);
-				break;
-			case EVENT_TYPE_MOUSE_MOVE:
-				mu_input_mousemove(ctx, e.e.mouse_move.x, e.e.mouse_move.y);
-				break;
-			case EVENT_TYPE_MOUSE_UP:
-				mu_input_mouseup(ctx, e.e.mouse_up.x, e.e.mouse_up.y, e.e.mouse_up.button);
-				break;
-			case EVENT_TYPE_MOUSE_WHEEL:
-				mu_input_scroll(ctx, 0, e.e.mouse_wheel.dy * -30);
-				break;
-			default:
-				break;
-			}
-		}
-
-	    /* process frame */
-	    process_frame(ctx);
-
-		if(window_is_active(w))
-		{
-			w->wm->refresh = 1;
-			window_present(w, &bgcolor, ctx, ttt_draw);
-		}
-	}
-
-	window_free(w);
-	font_context_free(f);
-	free(ctx);
-
+	xui_loop(ctx, process_frame);
+	xui_context_free(ctx);
 	return 0;
 }
 

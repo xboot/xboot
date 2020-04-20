@@ -29,6 +29,140 @@
 #include <xboot.h>
 #include <xui/xui.h>
 
+static int text_width(mu_Font font, const char *text, int len)
+{
+	if(len == -1)
+	{
+		len = strlen(text);
+	}
+	return 16 * len;
+}
+
+static int text_height(mu_Font font)
+{
+	return 16;
+}
+
+struct xui_context_t * xui_context_alloc(const char * fb, const char * input, struct color_t * c)
+{
+	struct xui_context_t * ctx;
+
+	ctx = malloc(sizeof(struct xui_context_t));
+	if(!ctx)
+		return NULL;
+
+	memset(ctx, 0, sizeof(struct xui_context_t));
+	ctx->w = window_alloc(fb, input, ctx);
+	ctx->f = font_context_alloc();
+	region_init(&ctx->clip, 0, 0, window_get_width(ctx->w), window_get_height(ctx->w));
+	if(c)
+		memcpy(&ctx->c, c, sizeof(struct color_t));
+	else
+		color_init(&ctx->c, 255, 255, 255, 255);
+
+	mu_init(&ctx->mu);
+	ctx->mu.text_width = text_width;
+	ctx->mu.text_height = text_height;
+	return ctx;
+}
+
+void xui_context_free(struct xui_context_t * ctx)
+{
+	if(ctx)
+	{
+		window_free(ctx->w);
+		font_context_free(ctx->f);
+		free(ctx);
+	}
+}
+
+static void xui_draw(struct window_t * w, void * o)
+{
+	struct xui_context_t * ctx = (struct xui_context_t *)o;
+	struct surface_t * s = ctx->w->s;
+	struct region_t * clip = &ctx->clip;
+//	struct xui_command_t cmd;
+    mu_Command * cmd = NULL;
+    struct color_t c;
+
+	while(mu_next_command(&ctx->mu, &cmd))
+	{
+		switch(cmd->type)
+		{
+		case MU_COMMAND_TEXT:
+/*			cairo_save(cr);
+			cairo_set_font_size(cr, 16);
+			cairo_set_source_rgb(cr, cmd->text.color.r / 255.0, cmd->text.color.g / 255.0, cmd->text.color.b / 255.0);
+			cairo_move_to(cr, cmd->text.pos.x, cmd->text.pos.y + 16);
+			cairo_show_text(cr, cmd->text.str);
+			cairo_restore(cr);*/
+			break;
+		case MU_COMMAND_RECT:
+			c.r = cmd->rect.color.r;
+			c.g = cmd->rect.color.g;
+			c.b = cmd->rect.color.b;
+			c.a = 255;
+			surface_shape_rectangle(s, clip, cmd->rect.rect.x, cmd->rect.rect.y, cmd->rect.rect.w, cmd->rect.rect.h, 0, 0, &c);
+			break;
+		case MU_COMMAND_ICON:
+			//r_draw_icon(cmd->icon.id, cmd->icon.rect, cmd->icon.color);
+			break;
+		case MU_COMMAND_CLIP:
+			{
+				struct region_t a, b;
+				region_init(&a, cmd->clip.rect.x, cmd->clip.rect.y, cmd->clip.rect.w, cmd->clip.rect.h);
+				region_init(&b, 0, 0, window_get_width(ctx->w), window_get_height(ctx->w));
+				region_intersect(clip, &a, &b);
+			}
+			break;
+		}
+	}
+}
+
+void xui_loop(struct xui_context_t * ctx, void (*func)(struct xui_context_t *))
+{
+	struct event_t e;
+
+	while(1)
+	{
+		if(window_pump_event(ctx->w, &e))
+		{
+			switch(e.type)
+			{
+			case EVENT_TYPE_KEY_DOWN:
+				mu_input_keydown(&ctx->mu, e.e.key_down.key);
+				break;
+			case EVENT_TYPE_KEY_UP:
+				mu_input_keyup(&ctx->mu, e.e.key_up.key);
+				break;
+			case EVENT_TYPE_MOUSE_DOWN:
+				mu_input_mousedown(&ctx->mu, e.e.mouse_down.x, e.e.mouse_down.y, e.e.mouse_down.button);
+				break;
+			case EVENT_TYPE_MOUSE_MOVE:
+				mu_input_mousemove(&ctx->mu, e.e.mouse_move.x, e.e.mouse_move.y);
+				break;
+			case EVENT_TYPE_MOUSE_UP:
+				mu_input_mouseup(&ctx->mu, e.e.mouse_up.x, e.e.mouse_up.y, e.e.mouse_up.button);
+				break;
+			case EVENT_TYPE_MOUSE_WHEEL:
+				mu_input_scroll(&ctx->mu, e.e.mouse_wheel.dx * 30, e.e.mouse_wheel.dy * -30);
+				break;
+			default:
+				break;
+			}
+		}
+		if(func)
+			func(ctx);
+		if(window_is_active(ctx->w))
+		{
+			ctx->w->wm->refresh = 1;
+			window_present(ctx->w, &ctx->c, ctx, xui_draw);
+		}
+		task_yield();
+	}
+}
+
+#if 0
 struct xui_context_t * xui_context_alloc(const char * fb, const char * input, struct color_t * c)
 {
 	struct xui_context_t * ctx;
@@ -221,3 +355,5 @@ void xui_loop(struct xui_context_t * ctx, void (*func)(struct xui_context_t *))
 		task_yield();
 	}
 }
+
+#endif

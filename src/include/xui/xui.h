@@ -10,7 +10,27 @@ extern "C" {
 #include <graphic/region.h>
 #include <graphic/color.h>
 #include <graphic/font.h>
+#include <xui/microui.h>
 
+struct xui_context_t {
+	struct window_t * w;
+	struct font_context_t * f;
+	struct region_t clip;
+	struct color_t c;
+
+	struct mu_Context mu;
+
+/*	struct region_t clip;
+	struct color_t bgcolor;
+	struct fifo_t * cmdfifo;*/
+};
+
+struct xui_context_t * xui_context_alloc(const char * fb, const char * input, struct color_t * c);
+void xui_context_free(struct xui_context_t * ctx);
+
+void xui_loop(struct xui_context_t * ctx, void (*func)(struct xui_context_t *));
+
+#if 0
 struct xui_context_t {
 	struct window_t * w;
 	struct font_context_t * f;
@@ -105,6 +125,7 @@ void xui_push_ellipse(struct xui_context_t * ctx, int x, int y, int w, int h, in
 void xui_push_arc(struct xui_context_t * ctx, int x, int y, int radius, int a1, int a2, int thickness, struct color_t * c);
 
 void xui_loop(struct xui_context_t * ctx, void (*func)(struct xui_context_t *));
+#endif
 
 #ifdef __cplusplus
 }

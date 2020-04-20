@@ -1,25 +1,3 @@
-/*
-** Copyright (c) 2020 rxi
-**
-** Permission is hereby granted, free of charge, to any person obtaining a copy
-** of this software and associated documentation files (the "Software"), to
-** deal in the Software without restriction, including without limitation the
-** rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-** sell copies of the Software, and to permit persons to whom the Software is
-** furnished to do so, subject to the following conditions:
-**
-** The above copyright notice and this permission notice shall be included in
-** all copies or substantial portions of the Software.
-**
-** THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-** IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-** FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-** AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-** LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-** FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-** IN THE SOFTWARE.
-*/
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -149,7 +127,7 @@ void mu_begin(mu_Context *ctx) {
 
 
 static int compare_zindex(const void *a, const void *b) {
-  return (*(mu_Container**) a)->zindex - (*(mu_Container**) b)->zindex;
+  return (*(struct xui_container_t**) a)->zindex - (*(struct xui_container_t**) b)->zindex;
 }
 
 
@@ -188,18 +166,18 @@ void mu_end(mu_Context *ctx) {
 
   /* sort root containers by zindex */
   n = ctx->root_list.idx;
-  qsort(ctx->root_list.items, n, sizeof(mu_Container*), compare_zindex);
+  qsort(ctx->root_list.items, n, sizeof(struct xui_container_t*), compare_zindex);
 
   /* set root container jump commands */
   for (i = 0; i < n; i++) {
-    mu_Container *cnt = ctx->root_list.items[i];
+    struct xui_container_t *cnt = ctx->root_list.items[i];
     /* if this is the first container then make the first command jump to it.
     ** otherwise set the previous container's tail to jump to this one */
     if (i == 0) {
       mu_Command *cmd = (mu_Command*) ctx->command_list.items;
       cmd->jump.dst = (char*) cnt->head + sizeof(mu_JumpCommand);
     } else {
-      mu_Container *prev = ctx->root_list.items[i - 1];
+      struct xui_container_t *prev = ctx->root_list.items[i - 1];
       prev->tail->jump.dst = (char*) cnt->head + sizeof(mu_JumpCommand);
     }
     /* make the last container's tail jump to the end of command list */
@@ -210,7 +188,7 @@ void mu_end(mu_Context *ctx) {
 }
 
 
-void mu_set_focus(mu_Context *ctx, mu_Id id) {
+void mu_set_focus(mu_Context *ctx, unsigned int id) {
   ctx->focus = id;
   ctx->updated_focus = 1;
 }
@@ -219,7 +197,7 @@ void mu_set_focus(mu_Context *ctx, mu_Id id) {
 /* 32bit fnv-1a hash */
 #define HASH_INITIAL 2166136261
 
-static void hash(mu_Id *hash, const void *data, int size) {
+static void hash(unsigned int *hash, const void *data, int size) {
   const unsigned char *p = data;
   while (size--) {
     *hash = (*hash ^ *p++) * 16777619;
@@ -227,9 +205,9 @@ static void hash(mu_Id *hash, const void *data, int size) {
 }
 
 
-mu_Id mu_get_id(mu_Context *ctx, const void *data, int size) {
+unsigned int mu_get_id(mu_Context *ctx, const void *data, int size) {
   int idx = ctx->id_stack.idx;
-  mu_Id res = (idx > 0) ? ctx->id_stack.items[idx - 1] : HASH_INITIAL;
+  unsigned int res = (idx > 0) ? ctx->id_stack.items[idx - 1] : HASH_INITIAL;
   hash(&res, data, size);
   ctx->last_id = res;
   return res;
@@ -274,7 +252,7 @@ int mu_check_clip(mu_Context *ctx, mu_Rect r) {
 
 
 static void push_layout(mu_Context *ctx, mu_Rect body, mu_Vec2 scroll) {
-  mu_Layout layout;
+  struct xui_layout_t layout;
   int width = 0;
   memset(&layout, 0, sizeof(layout));
   layout.body = mu_rect(body.x - scroll.x, body.y - scroll.y, body.w, body.h);
@@ -284,14 +262,14 @@ static void push_layout(mu_Context *ctx, mu_Rect body, mu_Vec2 scroll) {
 }
 
 
-static mu_Layout* get_layout(mu_Context *ctx) {
+static struct xui_layout_t* get_layout(mu_Context *ctx) {
   return &ctx->layout_stack.items[ctx->layout_stack.idx - 1];
 }
 
 
 static void pop_container(mu_Context *ctx) {
-  mu_Container *cnt = mu_get_current_container(ctx);
-  mu_Layout *layout = get_layout(ctx);
+  struct xui_container_t *cnt = mu_get_current_container(ctx);
+  struct xui_layout_t *layout = get_layout(ctx);
   cnt->content_size.x = layout->max.x - layout->body.x;
   cnt->content_size.y = layout->max.y - layout->body.y;
   /* pop container, layout and id */
@@ -301,14 +279,14 @@ static void pop_container(mu_Context *ctx) {
 }
 
 
-mu_Container* mu_get_current_container(mu_Context *ctx) {
+struct xui_container_t* mu_get_current_container(mu_Context *ctx) {
   expect(ctx->container_stack.idx > 0);
   return ctx->container_stack.items[ ctx->container_stack.idx - 1 ];
 }
 
 
-static mu_Container* get_container(mu_Context *ctx, mu_Id id, int opt) {
-  mu_Container *cnt;
+static struct xui_container_t* get_container(mu_Context *ctx, unsigned int id, int opt) {
+  struct xui_container_t *cnt;
   /* try to get existing container from pool */
   int idx = mu_pool_get(ctx, ctx->container_pool, MU_CONTAINERPOOL_SIZE, id);
   if (idx >= 0) {
@@ -328,13 +306,13 @@ static mu_Container* get_container(mu_Context *ctx, mu_Id id, int opt) {
 }
 
 
-mu_Container* mu_get_container(mu_Context *ctx, const char *name) {
-  mu_Id id = mu_get_id(ctx, name, strlen(name));
+struct xui_container_t* mu_get_container(mu_Context *ctx, const char *name) {
+  unsigned int id = mu_get_id(ctx, name, strlen(name));
   return get_container(ctx, id, 0);
 }
 
 
-void mu_bring_to_front(mu_Context *ctx, mu_Container *cnt) {
+void mu_bring_to_front(mu_Context *ctx, struct xui_container_t *cnt) {
   cnt->zindex = ++ctx->last_zindex;
 }
 
@@ -343,7 +321,7 @@ void mu_bring_to_front(mu_Context *ctx, mu_Container *cnt) {
 ** pool
 **============================================================================*/
 
-int mu_pool_init(mu_Context *ctx, mu_PoolItem *items, int len, mu_Id id) {
+int mu_pool_init(mu_Context *ctx, mu_PoolItem *items, int len, unsigned int id) {
   int i, n = -1, f = ctx->frame;
   for (i = 0; i < len; i++) {
     if (items[i].last_update < f) {
@@ -358,7 +336,7 @@ int mu_pool_init(mu_Context *ctx, mu_PoolItem *items, int len, mu_Id id) {
 }
 
 
-int mu_pool_get(mu_Context *ctx, mu_PoolItem *items, int len, mu_Id id) {
+int mu_pool_get(mu_Context *ctx, mu_PoolItem *items, int len, unsigned int id) {
   int i;
   unused(ctx);
   for (i = 0; i < len; i++) {
@@ -533,7 +511,7 @@ void mu_layout_begin_column(mu_Context *ctx) {
 
 
 void mu_layout_end_column(mu_Context *ctx) {
-  mu_Layout *a, *b;
+  struct xui_layout_t *a, *b;
   b = get_layout(ctx);
   pop(ctx->layout_stack);
   /* inherit position/next_row/max from child layout if they are greater */
@@ -546,7 +524,7 @@ void mu_layout_end_column(mu_Context *ctx) {
 
 
 void mu_layout_row(mu_Context *ctx, int items, const int *widths, int height) {
-  mu_Layout *layout = get_layout(ctx);
+  struct xui_layout_t *layout = get_layout(ctx);
   if (widths) {
     expect(items <= MU_MAX_WIDTHS);
     memcpy(layout->widths, widths, items * sizeof(widths[0]));
@@ -569,14 +547,14 @@ void mu_layout_height(mu_Context *ctx, int height) {
 
 
 void mu_layout_set_next(mu_Context *ctx, mu_Rect r, int relative) {
-  mu_Layout *layout = get_layout(ctx);
+  struct xui_layout_t *layout = get_layout(ctx);
   layout->next = r;
   layout->next_type = relative ? RELATIVE : ABSOLUTE;
 }
 
 
 mu_Rect mu_layout_next(mu_Context *ctx) {
-  mu_Layout *layout = get_layout(ctx);
+  struct xui_layout_t *layout = get_layout(ctx);
   mu_Style *style = ctx->style;
   mu_Rect res;
 
@@ -640,7 +618,7 @@ static int in_hover_root(mu_Context *ctx) {
 }
 
 
-void mu_draw_control_frame(mu_Context *ctx, mu_Id id, mu_Rect rect,
+void mu_draw_control_frame(mu_Context *ctx, unsigned int id, mu_Rect rect,
   int colorid, int opt)
 {
   if (opt & MU_OPT_NOFRAME) { return; }
@@ -676,7 +654,7 @@ int mu_mouse_over(mu_Context *ctx, mu_Rect rect) {
 }
 
 
-void mu_update_control(mu_Context *ctx, mu_Id id, mu_Rect rect, int opt) {
+void mu_update_control(mu_Context *ctx, unsigned int id, mu_Rect rect, int opt) {
   int mouseover = mu_mouse_over(ctx, rect);
 
   if (ctx->focus == id) { ctx->updated_focus = 1; }
@@ -731,7 +709,7 @@ void mu_label(mu_Context *ctx, const char *text) {
 
 int mu_button_ex(mu_Context *ctx, const char *label, int icon, int opt) {
   int res = 0;
-  mu_Id id = label ? mu_get_id(ctx, label, strlen(label))
+  unsigned int id = label ? mu_get_id(ctx, label, strlen(label))
                    : mu_get_id(ctx, &icon, sizeof(icon));
   mu_Rect r = mu_layout_next(ctx);
   mu_update_control(ctx, id, r, opt);
@@ -749,7 +727,7 @@ int mu_button_ex(mu_Context *ctx, const char *label, int icon, int opt) {
 
 int mu_checkbox(mu_Context *ctx, const char *label, int *state) {
   int res = 0;
-  mu_Id id = mu_get_id(ctx, &state, sizeof(state));
+  unsigned int id = mu_get_id(ctx, &state, sizeof(state));
   mu_Rect r = mu_layout_next(ctx);
   mu_Rect box = mu_rect(r.x, r.y, r.h, r.h);
   mu_update_control(ctx, id, r, 0);
@@ -769,7 +747,7 @@ int mu_checkbox(mu_Context *ctx, const char *label, int *state) {
 }
 
 
-int mu_textbox_raw(mu_Context *ctx, char *buf, int bufsz, mu_Id id, mu_Rect r,
+int mu_textbox_raw(mu_Context *ctx, char *buf, int bufsz, unsigned int id, mu_Rect r,
   int opt)
 {
   int res = 0;
@@ -821,7 +799,7 @@ int mu_textbox_raw(mu_Context *ctx, char *buf, int bufsz, mu_Id id, mu_Rect r,
 }
 
 
-static int number_textbox(mu_Context *ctx, mu_Real *value, mu_Rect r, mu_Id id) {
+static int number_textbox(mu_Context *ctx, mu_Real *value, mu_Rect r, unsigned int id) {
   if (ctx->mouse_pressed == MU_MOUSE_LEFT && ctx->key_down & MU_KEY_SHIFT &&
       ctx->hover == id
   ) {
@@ -843,7 +821,7 @@ static int number_textbox(mu_Context *ctx, mu_Real *value, mu_Rect r, mu_Id id) 
 
 
 int mu_textbox_ex(mu_Context *ctx, char *buf, int bufsz, int opt) {
-  mu_Id id = mu_get_id(ctx, &buf, sizeof(buf));
+  unsigned int id = mu_get_id(ctx, &buf, sizeof(buf));
   mu_Rect r = mu_layout_next(ctx);
   return mu_textbox_raw(ctx, buf, bufsz, id, r, opt);
 }
@@ -856,7 +834,7 @@ int mu_slider_ex(mu_Context *ctx, mu_Real *value, mu_Real low, mu_Real high,
   mu_Rect thumb;
   int x, w, res = 0;
   mu_Real last = *value, v = last;
-  mu_Id id = mu_get_id(ctx, &value, sizeof(value));
+  unsigned int id = mu_get_id(ctx, &value, sizeof(value));
   mu_Rect base = mu_layout_next(ctx);
 
   /* handle text input mode */
@@ -894,7 +872,7 @@ int mu_number_ex(mu_Context *ctx, mu_Real *value, mu_Real step,
 {
   char buf[MU_MAX_FMT + 1];
   int res = 0;
-  mu_Id id = mu_get_id(ctx, &value, sizeof(value));
+  unsigned int id = mu_get_id(ctx, &value, sizeof(value));
   mu_Rect base = mu_layout_next(ctx);
   mu_Real last = *value;
 
@@ -924,7 +902,7 @@ int mu_number_ex(mu_Context *ctx, mu_Real *value, mu_Real step,
 static int header(mu_Context *ctx, const char *label, int istreenode, int opt) {
   mu_Rect r;
   int active, expanded;
-  mu_Id id = mu_get_id(ctx, label, strlen(label));
+  unsigned int id = mu_get_id(ctx, label, strlen(label));
   int idx = mu_pool_get(ctx, ctx->treenode_pool, MU_TREENODEPOOL_SIZE, id);
   int width = -1;
   mu_layout_row(ctx, 1, &width, 0);
@@ -990,7 +968,7 @@ void mu_end_treenode(mu_Context *ctx) {
                                                                             \
     if (maxscroll > 0 && b->h > 0) {                                        \
       mu_Rect base, thumb;                                                  \
-      mu_Id id = mu_get_id(ctx, "!scrollbar" #y, 11);                       \
+      unsigned int id = mu_get_id(ctx, "!scrollbar" #y, 11);                       \
                                                                             \
       /* get sizing / positioning */                                        \
       base = *b;                                                            \
@@ -1021,7 +999,7 @@ void mu_end_treenode(mu_Context *ctx) {
   } while (0)
 
 
-static void scrollbars(mu_Context *ctx, mu_Container *cnt, mu_Rect *body) {
+static void scrollbars(mu_Context *ctx, struct xui_container_t *cnt, mu_Rect *body) {
   int sz = ctx->style->scrollbar_size;
   mu_Vec2 cs = cnt->content_size;
   cs.x += ctx->style->padding * 2;
@@ -1039,7 +1017,7 @@ static void scrollbars(mu_Context *ctx, mu_Container *cnt, mu_Rect *body) {
 
 
 static void push_container_body(
-  mu_Context *ctx, mu_Container *cnt, mu_Rect body, int opt
+  mu_Context *ctx, struct xui_container_t *cnt, mu_Rect body, int opt
 ) {
   if (~opt & MU_OPT_NOSCROLL) { scrollbars(ctx, cnt, &body); }
   push_layout(ctx, expand_rect(body, -ctx->style->padding), cnt->scroll);
@@ -1047,7 +1025,7 @@ static void push_container_body(
 }
 
 
-static void begin_root_container(mu_Context *ctx, mu_Container *cnt) {
+static void begin_root_container(mu_Context *ctx, struct xui_container_t *cnt) {
   push(ctx->container_stack, cnt);
   /* push container to roots list and push head command */
   push(ctx->root_list, cnt);
@@ -1069,7 +1047,7 @@ static void begin_root_container(mu_Context *ctx, mu_Container *cnt) {
 static void end_root_container(mu_Context *ctx) {
   /* push tail 'goto' jump command and set head 'skip' command. the final steps
   ** on initing these are done in mu_end() */
-  mu_Container *cnt = mu_get_current_container(ctx);
+  struct xui_container_t *cnt = mu_get_current_container(ctx);
   cnt->tail = push_jump(ctx, NULL);
   cnt->head->jump.dst = ctx->command_list.items + ctx->command_list.idx;
   /* pop base clip rect and container */
@@ -1080,8 +1058,8 @@ static void end_root_container(mu_Context *ctx) {
 
 int mu_begin_window_ex(mu_Context *ctx, const char *title, mu_Rect rect, int opt) {
   mu_Rect body;
-  mu_Id id = mu_get_id(ctx, title, strlen(title));
-  mu_Container *cnt = get_container(ctx, id, opt);
+  unsigned int id = mu_get_id(ctx, title, strlen(title));
+  struct xui_container_t *cnt = get_container(ctx, id, opt);
   if (!cnt || !cnt->open) { return 0; }
   push(ctx->id_stack, id);
 
@@ -1102,7 +1080,7 @@ int mu_begin_window_ex(mu_Context *ctx, const char *title, mu_Rect rect, int opt
 
     /* do title text */
     if (~opt & MU_OPT_NOTITLE) {
-      mu_Id id = mu_get_id(ctx, "!title", 6);
+      unsigned int id = mu_get_id(ctx, "!title", 6);
       mu_update_control(ctx, id, tr, opt);
       mu_draw_control_text(ctx, title, tr, MU_COLOR_TITLETEXT, opt);
       if (id == ctx->focus && ctx->mouse_down == MU_MOUSE_LEFT) {
@@ -1115,7 +1093,7 @@ int mu_begin_window_ex(mu_Context *ctx, const char *title, mu_Rect rect, int opt
 
     /* do `close` button */
     if (~opt & MU_OPT_NOCLOSE) {
-      mu_Id id = mu_get_id(ctx, "!close", 6);
+      unsigned int id = mu_get_id(ctx, "!close", 6);
       mu_Rect r = mu_rect(tr.x + tr.w - tr.h, tr.y, tr.h, tr.h);
       tr.w -= r.w;
       mu_draw_icon(ctx, MU_ICON_CLOSE, r, ctx->style->colors[MU_COLOR_TITLETEXT]);
@@ -1131,7 +1109,7 @@ int mu_begin_window_ex(mu_Context *ctx, const char *title, mu_Rect rect, int opt
   /* do `resize` handle */
   if (~opt & MU_OPT_NORESIZE) {
     int sz = ctx->style->title_height;
-    mu_Id id = mu_get_id(ctx, "!resize", 7);
+    unsigned int id = mu_get_id(ctx, "!resize", 7);
     mu_Rect r = mu_rect(rect.x + rect.w - sz, rect.y + rect.h - sz, sz, sz);
     mu_update_control(ctx, id, r, opt);
     if (id == ctx->focus && ctx->mouse_down == MU_MOUSE_LEFT) {
@@ -1164,7 +1142,7 @@ void mu_end_window(mu_Context *ctx) {
 
 
 void mu_open_popup(mu_Context *ctx, const char *name) {
-  mu_Container *cnt = mu_get_container(ctx, name);
+  struct xui_container_t *cnt = mu_get_container(ctx, name);
   /* set as hover root so popup isn't closed in begin_window_ex()  */
   ctx->hover_root = ctx->next_hover_root = cnt;
   /* position at mouse cursor, open and bring-to-front */
@@ -1187,7 +1165,7 @@ void mu_end_popup(mu_Context *ctx) {
 
 
 void mu_begin_panel_ex(mu_Context *ctx, const char *name, int opt) {
-  mu_Container *cnt;
+  struct xui_container_t *cnt;
   mu_push_id(ctx, name, strlen(name));
   cnt = get_container(ctx, ctx->last_id, opt);
   cnt->rect = mu_layout_next(ctx);

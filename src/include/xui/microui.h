@@ -1,14 +1,5 @@
-/*
-** Copyright (c) 2020 rxi
-**
-** This library is free software; you can redistribute it and/or modify it
-** under the terms of the MIT license. See `microui.c` for details.
-*/
-
 #ifndef MICROUI_H
 #define MICROUI_H
-
-#define MU_VERSION "2.01"
 
 #define MU_COMMANDLIST_SIZE     (256 * 1024)
 #define MU_ROOTLIST_SIZE        32
@@ -105,16 +96,14 @@ enum {
   MU_KEY_RETURN       = (1 << 4)
 };
 
-
 typedef struct mu_Context mu_Context;
-typedef unsigned mu_Id;
 typedef MU_REAL mu_Real;
-typedef void* mu_Font;
+typedef void * mu_Font;
 
 typedef struct { int x, y; } mu_Vec2;
 typedef struct { int x, y, w, h; } mu_Rect;
 typedef struct { unsigned char r, g, b, a; } mu_Color;
-typedef struct { mu_Id id; int last_update; } mu_PoolItem;
+typedef struct { unsigned int id; int last_update; } mu_PoolItem;
 
 typedef struct { int type, size; } mu_BaseCommand;
 typedef struct { mu_BaseCommand base; void *dst; } mu_JumpCommand;
@@ -134,8 +123,7 @@ typedef union
 	mu_IconCommand icon;
 } mu_Command;
 
-typedef struct
-{
+struct xui_layout_t {
 	mu_Rect body;
 	mu_Rect next;
 	mu_Vec2 position;
@@ -147,18 +135,18 @@ typedef struct
 	int next_row;
 	int next_type;
 	int indent;
-} mu_Layout;
+};
 
-typedef struct
+struct xui_container_t
 {
-	mu_Command *head, *tail;
+	mu_Command * head, * tail;
 	mu_Rect rect;
 	mu_Rect body;
 	mu_Vec2 content_size;
 	mu_Vec2 scroll;
 	int zindex;
 	int open;
-} mu_Container;
+};
 
 typedef struct
 {
@@ -182,34 +170,34 @@ struct mu_Context
 	/* core state */
 	mu_Style _style;
 	mu_Style *style;
-	mu_Id hover;
-	mu_Id focus;
-	mu_Id last_id;
+	unsigned int hover;
+	unsigned int focus;
+	unsigned int last_id;
 	mu_Rect last_rect;
 	int last_zindex;
 	int updated_focus;
 	int frame;
-	mu_Container *hover_root;
-	mu_Container *next_hover_root;
-	mu_Container *scroll_target;
+	struct xui_container_t *hover_root;
+	struct xui_container_t *next_hover_root;
+	struct xui_container_t *scroll_target;
 	char number_edit_buf[MU_MAX_FMT];
-	mu_Id number_edit;
+	unsigned int number_edit;
 	/* stacks */
 	mu_stack(char, MU_COMMANDLIST_SIZE)
 	command_list;
-	mu_stack(mu_Container*, MU_ROOTLIST_SIZE)
+	mu_stack(struct xui_container_t*, MU_ROOTLIST_SIZE)
 	root_list;
-	mu_stack(mu_Container*, MU_CONTAINERSTACK_SIZE)
+	mu_stack(struct xui_container_t*, MU_CONTAINERSTACK_SIZE)
 	container_stack;
 	mu_stack(mu_Rect, MU_CLIPSTACK_SIZE)
 	clip_stack;
-	mu_stack(mu_Id, MU_IDSTACK_SIZE)
+	mu_stack(unsigned int, MU_IDSTACK_SIZE)
 	id_stack;
-	mu_stack(mu_Layout, MU_LAYOUTSTACK_SIZE)
+	mu_stack(struct xui_layout_t, MU_LAYOUTSTACK_SIZE)
 	layout_stack;
 	/* retained state pools */
 	mu_PoolItem container_pool[MU_CONTAINERPOOL_SIZE];
-	mu_Container containers[MU_CONTAINERPOOL_SIZE];
+	struct xui_container_t containers[MU_CONTAINERPOOL_SIZE];
 	mu_PoolItem treenode_pool[MU_TREENODEPOOL_SIZE];
 	/* input state */
 	mu_Vec2 mouse_pos;
@@ -230,20 +218,20 @@ mu_Color mu_color(int r, int g, int b, int a);
 void mu_init(mu_Context *ctx);
 void mu_begin(mu_Context *ctx);
 void mu_end(mu_Context *ctx);
-void mu_set_focus(mu_Context *ctx, mu_Id id);
-mu_Id mu_get_id(mu_Context *ctx, const void *data, int size);
+void mu_set_focus(mu_Context *ctx, unsigned int id);
+unsigned int mu_get_id(mu_Context *ctx, const void *data, int size);
 void mu_push_id(mu_Context *ctx, const void *data, int size);
 void mu_pop_id(mu_Context *ctx);
 void mu_push_clip_rect(mu_Context *ctx, mu_Rect rect);
 void mu_pop_clip_rect(mu_Context *ctx);
 mu_Rect mu_get_clip_rect(mu_Context *ctx);
 int mu_check_clip(mu_Context *ctx, mu_Rect r);
-mu_Container* mu_get_current_container(mu_Context *ctx);
-mu_Container* mu_get_container(mu_Context *ctx, const char *name);
-void mu_bring_to_front(mu_Context *ctx, mu_Container *cnt);
+struct xui_container_t* mu_get_current_container(mu_Context *ctx);
+struct xui_container_t* mu_get_container(mu_Context *ctx, const char *name);
+void mu_bring_to_front(mu_Context *ctx, struct xui_container_t *cnt);
 
-int mu_pool_init(mu_Context *ctx, mu_PoolItem *items, int len, mu_Id id);
-int mu_pool_get(mu_Context *ctx, mu_PoolItem *items, int len, mu_Id id);
+int mu_pool_init(mu_Context *ctx, mu_PoolItem *items, int len, unsigned int id);
+int mu_pool_get(mu_Context *ctx, mu_PoolItem *items, int len, unsigned int id);
 void mu_pool_update(mu_Context *ctx, mu_PoolItem *items, int idx);
 
 void mu_input_mousemove(mu_Context *ctx, int x, int y);
@@ -270,10 +258,10 @@ void mu_layout_end_column(mu_Context *ctx);
 void mu_layout_set_next(mu_Context *ctx, mu_Rect r, int relative);
 mu_Rect mu_layout_next(mu_Context *ctx);
 
-void mu_draw_control_frame(mu_Context *ctx, mu_Id id, mu_Rect rect, int colorid, int opt);
+void mu_draw_control_frame(mu_Context *ctx, unsigned int id, mu_Rect rect, int colorid, int opt);
 void mu_draw_control_text(mu_Context *ctx, const char *str, mu_Rect rect, int colorid, int opt);
 int mu_mouse_over(mu_Context *ctx, mu_Rect rect);
-void mu_update_control(mu_Context *ctx, mu_Id id, mu_Rect rect, int opt);
+void mu_update_control(mu_Context *ctx, unsigned int id, mu_Rect rect, int opt);
 
 #define mu_button(ctx, label)             mu_button_ex(ctx, label, 0, MU_OPT_ALIGNCENTER)
 #define mu_textbox(ctx, buf, bufsz)       mu_textbox_ex(ctx, buf, bufsz, 0)
@@ -288,7 +276,7 @@ void mu_text(mu_Context *ctx, const char *text);
 void mu_label(mu_Context *ctx, const char *text);
 int mu_button_ex(mu_Context *ctx, const char *label, int icon, int opt);
 int mu_checkbox(mu_Context *ctx, const char *label, int *state);
-int mu_textbox_raw(mu_Context *ctx, char *buf, int bufsz, mu_Id id, mu_Rect r, int opt);
+int mu_textbox_raw(mu_Context *ctx, char *buf, int bufsz, unsigned int id, mu_Rect r, int opt);
 int mu_textbox_ex(mu_Context *ctx, char *buf, int bufsz, int opt);
 int mu_slider_ex(mu_Context *ctx, mu_Real *value, mu_Real low, mu_Real high, mu_Real step, const char *fmt, int opt);
 int mu_number_ex(mu_Context *ctx, mu_Real *value, mu_Real step, const char *fmt, int opt);

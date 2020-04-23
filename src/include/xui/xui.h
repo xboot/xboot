@@ -20,7 +20,6 @@ extern "C" {
 #define MU_CONTAINERPOOL_SIZE   48
 #define MU_TREENODEPOOL_SIZE    48
 #define MU_MAX_WIDTHS           16
-#define MU_REAL                 float
 #define MU_REAL_FMT             "%.3g"
 #define MU_SLIDER_FMT           "%.2f"
 #define MU_MAX_FMT              127
@@ -92,9 +91,6 @@ enum {
 	MU_KEY_RETURN       = (1 << 4),
 };
 
-typedef MU_REAL mu_Real;
-typedef void * mu_Font;
-
 typedef struct { int x, y; } mu_Vec2;
 typedef struct { int x, y, w, h; } mu_Rect;
 typedef struct { unsigned char r, g, b, a; } mu_Color;
@@ -135,7 +131,7 @@ struct xui_command_rect_t {
 struct xui_command_text_t {
 	enum xui_command_type_t type;
 	int size;
-	mu_Font font;
+	void * font;
 	mu_Vec2 pos;
 	mu_Color color;
 	char str[1];
@@ -189,7 +185,7 @@ struct xui_container_t {
 
 struct xui_style_t {
 	struct color_t bgcol;
-	mu_Font font;
+	void * font;
 	mu_Vec2 size;
 	int padding;
 	int spacing;
@@ -281,8 +277,8 @@ struct xui_context_t {
 	/*
 	 * Callback
 	 */
-	int (*text_width)(mu_Font font, const char *str, int len);
-	int (*text_height)(mu_Font font);
+	int (*text_width)(void * font, const char *str, int len);
+	int (*text_height)(void * font);
 	void (*draw_frame)(struct xui_context_t *ctx, mu_Rect rect, int colorid);
 };
 
@@ -321,7 +317,7 @@ int xui_next_command(struct xui_context_t * ctx, union xui_command_t ** cmd);
 void xui_set_clip(struct xui_context_t * ctx, mu_Rect rect);
 void mu_draw_rect(struct xui_context_t * ctx, mu_Rect rect, mu_Color color);
 void mu_draw_box(struct xui_context_t * ctx, mu_Rect rect, mu_Color color);
-void mu_draw_text(struct xui_context_t * ctx, mu_Font font, const char * str, int len, mu_Vec2 pos, mu_Color color);
+void mu_draw_text(struct xui_context_t * ctx, void * font, const char * str, int len, mu_Vec2 pos, mu_Color color);
 void mu_draw_icon(struct xui_context_t * ctx, int id, mu_Rect rect, mu_Color color);
 
 void xui_layout_width(struct xui_context_t * ctx, int width);
@@ -352,8 +348,8 @@ int mu_button_ex(struct xui_context_t *ctx, const char *label, int icon, int opt
 int mu_checkbox(struct xui_context_t *ctx, const char *label, int *state);
 int mu_textbox_raw(struct xui_context_t *ctx, char *buf, int bufsz, unsigned int id, mu_Rect r, int opt);
 int mu_textbox_ex(struct xui_context_t *ctx, char *buf, int bufsz, int opt);
-int mu_slider_ex(struct xui_context_t *ctx, mu_Real *value, mu_Real low, mu_Real high, mu_Real step, const char *fmt, int opt);
-int mu_number_ex(struct xui_context_t *ctx, mu_Real *value, mu_Real step, const char *fmt, int opt);
+int mu_slider_ex(struct xui_context_t *ctx, float *value, float low, float high, float step, const char *fmt, int opt);
+int mu_number_ex(struct xui_context_t *ctx, float *value, float step, const char *fmt, int opt);
 int mu_header_ex(struct xui_context_t *ctx, const char *label, int opt);
 int mu_begin_treenode_ex(struct xui_context_t *ctx, const char *label, int opt);
 void mu_end_treenode(struct xui_context_t *ctx);

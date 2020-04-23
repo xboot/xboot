@@ -105,8 +105,7 @@ static void draw_frame(struct xui_context_t *ctx, mu_Rect rect, int colorid)
 	}
 }
 
-
-static int text_width(mu_Font font, const char *text, int len)
+static int text_width(void * font, const char *text, int len)
 {
 	if(len == -1)
 	{
@@ -115,7 +114,7 @@ static int text_width(mu_Font font, const char *text, int len)
 	return 16 * len;
 }
 
-static int text_height(mu_Font font)
+static int text_height(void * font)
 {
 	return 16;
 }
@@ -311,6 +310,11 @@ void xui_end(struct xui_context_t * ctx)
 {
 	int i, n;
 
+	expect(ctx->container_stack.idx == 0);
+	expect(ctx->clip_stack.idx      == 0);
+	expect(ctx->id_stack.idx        == 0);
+	expect(ctx->layout_stack.idx    == 0);
+
 	if(ctx->scroll_target)
 	{
 		ctx->scroll_target->scroll.x += ctx->scroll_delta.x;
@@ -348,7 +352,7 @@ void xui_end(struct xui_context_t * ctx)
 		else
 		{
 			struct xui_container_t * prev = ctx->root_list.items[i - 1];
-			prev->tail->jump.addr = (char*)c->head + sizeof(struct xui_command_jump_t);
+			prev->tail->jump.addr = (char *)c->head + sizeof(struct xui_command_jump_t);
 		}
 		if(i == n - 1)
 		{
@@ -582,11 +586,11 @@ int xui_next_command(struct xui_context_t * ctx, union xui_command_t ** cmd)
 {
 	if(*cmd)
 	{
-		*cmd = (union xui_command_t*)(((char*)*cmd) + (*cmd)->base.size);
+		*cmd = (union xui_command_t *)(((char *)*cmd) + (*cmd)->base.size);
 	}
 	else
 	{
-		*cmd = (union xui_command_t*)ctx->command_list.items;
+		*cmd = (union xui_command_t *)ctx->command_list.items;
 	}
 	while((char *)(*cmd) != ctx->command_list.items + ctx->command_list.idx)
 	{
@@ -614,7 +618,7 @@ void xui_set_clip(struct xui_context_t * ctx, mu_Rect rect)
 	cmd->clip.rect = rect;
 }
 
-void mu_draw_text(struct xui_context_t * ctx, mu_Font font, const char * str, int len, mu_Vec2 pos, mu_Color color)
+void mu_draw_text(struct xui_context_t * ctx, void * font, const char * str, int len, mu_Vec2 pos, mu_Color color)
 {
 	union xui_command_t *cmd;
 	mu_Rect rect = mu_rect(pos.x, pos.y, ctx->text_width(font, str, len), ctx->text_height(font));
@@ -722,8 +726,8 @@ void xui_layout_set_next(struct xui_context_t * ctx, mu_Rect r, int relative)
 
 mu_Rect xui_layout_next(struct xui_context_t * ctx)
 {
-	struct xui_layout_t *layout = get_layout(ctx);
-	struct xui_style_t *style = &ctx->style;
+	struct xui_layout_t * layout = get_layout(ctx);
+	struct xui_style_t * style = &ctx->style;
 	mu_Rect res;
 
 	if(layout->next_type)
@@ -791,7 +795,7 @@ void xui_draw_control_frame(struct xui_context_t * ctx, unsigned int id, mu_Rect
 void xui_draw_control_text(struct xui_context_t * ctx, const char * str, mu_Rect rect, int colorid, int opt)
 {
 	mu_Vec2 pos;
-	mu_Font font = ctx->style.font;
+	void * font = ctx->style.font;
 	int tw = ctx->text_width(font, str, -1);
 	mu_push_clip_rect(ctx, rect);
 	pos.y = rect.y + (rect.h - ctx->text_height(font)) / 2;
@@ -839,7 +843,7 @@ void xui_update_control(struct xui_context_t *ctx, unsigned int id, mu_Rect rect
 void mu_text(struct xui_context_t *ctx, const char *text) {
   const char *start, *end, *p = text;
   int width = -1;
-  mu_Font font = ctx->style.font;
+  void * font = ctx->style.font;
   mu_Color color = ctx->style.colors[MU_COLOR_TEXT];
   xui_layout_begin_column(ctx);
   xui_layout_row(ctx, 1, &width, ctx->text_height(font));
@@ -941,7 +945,7 @@ int mu_textbox_raw(struct xui_context_t *ctx, char *buf, int bufsz, unsigned int
   xui_draw_control_frame(ctx, id, r, MU_COLOR_BASE, opt);
   if (ctx->focus == id) {
     mu_Color color = ctx->style.colors[MU_COLOR_TEXT];
-    mu_Font font = ctx->style.font;
+    void * font = ctx->style.font;
     int textw = ctx->text_width(font, buf, -1);
     int texth = ctx->text_height(font);
     int ofx = r.w - ctx->style.padding - textw - 1;
@@ -959,7 +963,7 @@ int mu_textbox_raw(struct xui_context_t *ctx, char *buf, int bufsz, unsigned int
 }
 
 
-static int number_textbox(struct xui_context_t *ctx, mu_Real *value, mu_Rect r, unsigned int id) {
+static int number_textbox(struct xui_context_t *ctx, float *value, mu_Rect r, unsigned int id) {
   if (ctx->mouse_pressed == MU_MOUSE_LEFT && (ctx->key_down & MU_KEY_SHIFT) &&
       ctx->hover == id
   ) {
@@ -987,13 +991,13 @@ int mu_textbox_ex(struct xui_context_t *ctx, char *buf, int bufsz, int opt) {
 }
 
 
-int mu_slider_ex(struct xui_context_t *ctx, mu_Real *value, mu_Real low, mu_Real high,
-  mu_Real step, const char *fmt, int opt)
+int mu_slider_ex(struct xui_context_t *ctx, float *value, float low, float high,
+  float step, const char *fmt, int opt)
 {
   char buf[MU_MAX_FMT + 1];
   mu_Rect thumb;
   int x, w, res = 0;
-  mu_Real last = *value, v = last;
+  float last = *value, v = last;
   unsigned int id = xui_get_id(ctx, &value, sizeof(value));
   mu_Rect base = xui_layout_next(ctx);
 
@@ -1027,14 +1031,14 @@ int mu_slider_ex(struct xui_context_t *ctx, mu_Real *value, mu_Real low, mu_Real
 }
 
 
-int mu_number_ex(struct xui_context_t *ctx, mu_Real *value, mu_Real step,
+int mu_number_ex(struct xui_context_t *ctx, float *value, float step,
   const char *fmt, int opt)
 {
   char buf[MU_MAX_FMT + 1];
   int res = 0;
   unsigned int id = xui_get_id(ctx, &value, sizeof(value));
   mu_Rect base = xui_layout_next(ctx);
-  mu_Real last = *value;
+  float last = *value;
 
   /* handle text input mode */
   if (number_textbox(ctx, value, base, id)) { return res; }
@@ -1318,11 +1322,9 @@ int mu_begin_popup(struct xui_context_t *ctx, const char *name) {
   return mu_begin_window_ex(ctx, name, mu_rect(0, 0, 0, 0), opt);
 }
 
-
 void mu_end_popup(struct xui_context_t *ctx) {
   mu_end_window(ctx);
 }
-
 
 void mu_begin_panel_ex(struct xui_context_t *ctx, const char *name, int opt) {
   struct xui_container_t *c;
@@ -1336,7 +1338,6 @@ void mu_begin_panel_ex(struct xui_context_t *ctx, const char *name, int opt) {
   push_container_body(ctx, c, c->rect, opt);
   mu_push_clip_rect(ctx, c->body);
 }
-
 
 void mu_end_panel(struct xui_context_t *ctx) {
   mu_pop_clip_rect(ctx);

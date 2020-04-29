@@ -160,7 +160,6 @@ static void xui_draw(struct window_t * w, void * o)
 	struct surface_t * s = ctx->w->s;
 	struct region_t * clip = &ctx->clip;
     union xui_command_t * cmd = NULL;
-    struct color_t c;
 
 	while(xui_next_command(ctx, &cmd))
 	{
@@ -177,11 +176,7 @@ static void xui_draw(struct window_t * w, void * o)
 			}
 			break;
 		case XUI_COMMAND_TYPE_RECT:
-			c.r = cmd->rect.color.r;
-			c.g = cmd->rect.color.g;
-			c.b = cmd->rect.color.b;
-			c.a = 255;
-			surface_shape_rectangle(s, clip, cmd->rect.rect.x, cmd->rect.rect.y, cmd->rect.rect.w, cmd->rect.rect.h, 0, 0, &c);
+			surface_shape_rectangle(s, clip, cmd->rect.rect.x, cmd->rect.rect.y, cmd->rect.rect.w, cmd->rect.rect.h, 0, 0, &cmd->rect.color);
 			break;
 		case XUI_COMMAND_TYPE_TEXT:
 			font_draw(s, clip, cmd->text.pos.x, cmd->text.pos.y, cmd->text.str, &cmd->text.color);

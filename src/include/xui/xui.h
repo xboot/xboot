@@ -91,7 +91,6 @@ enum {
 	MU_KEY_RETURN       = (1 << 4),
 };
 
-typedef struct { int x, y; } mu_Vec2;
 typedef struct { int x, y, w, h; } mu_Rect;
 
 enum xui_command_type_t {
@@ -183,7 +182,10 @@ struct xui_container_t {
 	mu_Rect body;
 	int content_width;
 	int content_height;
-	mu_Vec2 scroll_abc;
+	struct
+	{
+		int x, y;
+	} scroll_abc;
 	int zindex;
 	int open;
 };
@@ -367,7 +369,6 @@ void mu_end_popup(struct xui_context_t *ctx);
 void mu_begin_panel_ex(struct xui_context_t *ctx, const char *name, int opt);
 void mu_end_panel(struct xui_context_t *ctx);
 
-mu_Vec2 mu_vec2(int x, int y);
 mu_Rect mu_rect(int x, int y, int w, int h);
 
 #ifdef __cplusplus

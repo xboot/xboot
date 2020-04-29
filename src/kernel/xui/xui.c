@@ -264,13 +264,6 @@ void xui_loop(struct xui_context_t * ctx, void (*func)(struct xui_context_t *))
 
 static mu_Rect unclipped_rect = { 0, 0, 0x1000000, 0x1000000 };
 
-mu_Vec2 mu_vec2(int x, int y) {
-  mu_Vec2 res;
-  res.x = x; res.y = y;
-  return res;
-}
-
-
 mu_Rect mu_rect(int x, int y, int w, int h) {
   mu_Rect res;
   res.x = x; res.y = y; res.w = w; res.h = h;

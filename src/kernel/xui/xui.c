@@ -309,8 +309,8 @@ void xui_end(struct xui_context_t * ctx)
 
 	if(ctx->scroll_target)
 	{
-		ctx->scroll_target->scroll.x += ctx->scroll_delta_x;
-		ctx->scroll_target->scroll.y += ctx->scroll_delta_y;
+		ctx->scroll_target->scroll_abc.x += ctx->scroll_delta_x;
+		ctx->scroll_target->scroll_abc.y += ctx->scroll_delta_y;
 	}
 
 	if(!ctx->updated_focus)
@@ -431,7 +431,8 @@ static void push_layout(struct xui_context_t * ctx, mu_Rect body, int scrollx, i
 	int width = 0;
 	memset(&layout, 0, sizeof(layout));
 	layout.body = mu_rect(body.x - scrollx, body.y - scrolly, body.w, body.h);
-	layout.max = mu_vec2(-0x1000000, -0x1000000);
+	layout.max_width = -0x1000000;
+	layout.max_height = -0x1000000;
 	push(ctx->layout_stack, layout);
 	xui_layout_row(ctx, 1, &width, 0);
 }
@@ -445,8 +446,8 @@ static void pop_container(struct xui_context_t * ctx)
 {
 	struct xui_container_t * c = xui_get_current_container(ctx);
 	struct xui_layout_t * layout = get_layout(ctx);
-	c->content_width = layout->max.x - layout->body.x;
-	c->content_height = layout->max.y - layout->body.y;
+	c->content_width = layout->max_width - layout->body.x;
+	c->content_height = layout->max_height - layout->body.y;
 	pop(ctx->container_stack);
 	pop(ctx->layout_stack);
 	xui_pop_id(ctx);
@@ -674,12 +675,12 @@ enum { RELATIVE = 1, ABSOLUTE = 2 };
 
 void xui_layout_width(struct xui_context_t * ctx, int width)
 {
-	get_layout(ctx)->size.x = width;
+	get_layout(ctx)->size_width = width;
 }
 
 void xui_layout_height(struct xui_context_t * ctx, int height)
 {
-	get_layout(ctx)->size.y = height;
+	get_layout(ctx)->size_height = height;
 }
 
 void xui_layout_row(struct xui_context_t * ctx, int items, const int * widths, int height)
@@ -691,8 +692,9 @@ void xui_layout_row(struct xui_context_t * ctx, int items, const int * widths, i
 		memcpy(layout->widths, widths, items * sizeof(widths[0]));
 	}
 	layout->items = items;
-	layout->position = mu_vec2(layout->indent, layout->next_row);
-	layout->size.y = height;
+	layout->position_x = layout->indent;
+	layout->position_y = layout->next_row;
+	layout->size_height = height;
 	layout->item_index = 0;
 }
 
@@ -707,10 +709,10 @@ void xui_layout_end_column(struct xui_context_t * ctx)
 	b = get_layout(ctx);
 	pop(ctx->layout_stack);
 	a = get_layout(ctx);
-	a->position.x = max(a->position.x, b->position.x + b->body.x - a->body.x);
+	a->position_x = max(a->position_x, b->position_x + b->body.x - a->body.x);
 	a->next_row = max(a->next_row, b->next_row + b->body.y - a->body.y);
-	a->max.x = max(a->max.x, b->max.x);
-	a->max.y = max(a->max.y, b->max.y);
+	a->max_width = max(a->max_width, b->max_width);
+	a->max_height = max(a->max_height, b->max_height);
 }
 
 void xui_layout_set_next(struct xui_context_t * ctx, mu_Rect r, int relative)
@@ -737,13 +739,13 @@ mu_Rect xui_layout_next(struct xui_context_t * ctx)
 	else
 	{
 		if(layout->item_index == layout->items)
-			xui_layout_row(ctx, layout->items, NULL, layout->size.y);
+			xui_layout_row(ctx, layout->items, NULL, layout->size_height);
 
-		res.x = layout->position.x;
-		res.y = layout->position.y;
+		res.x = layout->position_x;
+		res.y = layout->position_y;
 
-		res.w = layout->items > 0 ? layout->widths[layout->item_index] : layout->size.x;
-		res.h = layout->size.y;
+		res.w = layout->items > 0 ? layout->widths[layout->item_index] : layout->size_width;
+		res.h = layout->size_height;
 		if(res.w == 0)
 			res.w = style->width + style->padding * 2;
 		if(res.h == 0)
@@ -755,14 +757,14 @@ mu_Rect xui_layout_next(struct xui_context_t * ctx)
 		layout->item_index++;
 	}
 
-	layout->position.x += res.w + style->spacing;
+	layout->position_x += res.w + style->spacing;
 	layout->next_row = max(layout->next_row, res.y + res.h + style->spacing);
 
 	res.x += layout->body.x;
 	res.y += layout->body.y;
 
-	layout->max.x = max(layout->max.x, res.x + res.w);
-	layout->max.y = max(layout->max.y, res.y + res.h);
+	layout->max_width = max(layout->max_width, res.x + res.w);
+	layout->max_height = max(layout->max_height, res.y + res.h);
 
 	return (ctx->last_rect = res);
 }
@@ -1190,23 +1192,23 @@ void mu_end_treenode(struct xui_context_t *ctx)
       /* handle input */                                                    \
       xui_update_control(ctx, id, base, 0);                                  \
       if (ctx->focus == id && ctx->mouse_down == MU_MOUSE_LEFT) {           \
-        c->scroll.y += ctx->mouse_delta_y * height / base.h;                \
+        c->scroll_abc.y += ctx->mouse_delta_y * height / base.h;                \
       }                                                                     \
       /* clamp scroll to limits */                                          \
-      c->scroll.y = clamp(c->scroll.y, 0, maxscroll);  	                \
+      c->scroll_abc.y = clamp(c->scroll_abc.y, 0, maxscroll);  	                \
                                                                             \
       /* draw base and thumb */                                             \
       ctx->draw_frame(ctx, base, MU_COLOR_SCROLLBASE);                      \
       thumb = base;                                                         \
       thumb.h = max(ctx->style.thumb_size, base.h * b->h / height);       \
-      thumb.y += c->scroll.y * (base.h - thumb.h) / maxscroll;            \
+      thumb.y += c->scroll_abc.y * (base.h - thumb.h) / maxscroll;            \
       ctx->draw_frame(ctx, thumb, MU_COLOR_SCROLLTHUMB);                    \
                                                                             \
       /* set this as the scroll_target (will get scrolled on mousewheel) */ \
       /* if the mouse is over it */                                         \
       if (xui_mouse_over(ctx, *b)) { ctx->scroll_target = c; }             \
     } else {                                                                \
-      c->scroll.y = 0;                                                    \
+      c->scroll_abc.y = 0;                                                    \
     }                                                                       \
   } while (0)
 
@@ -1240,7 +1242,7 @@ static void push_container_body(struct xui_context_t *ctx, struct xui_container_
 	{
 		scrollbars(ctx, c, &body);
 	}
-	push_layout(ctx, expand_rect(body, -ctx->style.padding), c->scroll.x, c->scroll.y);
+	push_layout(ctx, expand_rect(body, -ctx->style.padding), c->scroll_abc.x, c->scroll_abc.y);
 	c->body = body;
 }
 

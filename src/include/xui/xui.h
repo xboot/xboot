@@ -166,9 +166,9 @@ struct xui_pool_item_t {
 struct xui_layout_t {
 	mu_Rect body;
 	mu_Rect next;
-	mu_Vec2 position;
-	mu_Vec2 size;
-	mu_Vec2 max;
+	int position_x, position_y;
+	int size_width, size_height;
+	int max_width, max_height;
 	int widths[MU_MAX_WIDTHS];
 	int items;
 	int item_index;
@@ -183,7 +183,7 @@ struct xui_container_t {
 	mu_Rect body;
 	int content_width;
 	int content_height;
-	mu_Vec2 scroll;
+	mu_Vec2 scroll_abc;
 	int zindex;
 	int open;
 };

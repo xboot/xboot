@@ -93,7 +93,6 @@ enum {
 
 typedef struct { int x, y; } mu_Vec2;
 typedef struct { int x, y, w, h; } mu_Rect;
-typedef struct { unsigned char r, g, b, a; } mu_Color;
 
 enum xui_command_type_t {
 	XUI_COMMAND_TYPE_BASE	= 0,
@@ -112,37 +111,42 @@ struct xui_command_base_t {
 struct xui_command_jump_t {
 	enum xui_command_type_t type;
 	int size;
+
 	void * addr;
 };
 
 struct xui_command_clip_t {
 	enum xui_command_type_t type;
 	int size;
+
 	mu_Rect rect;
 };
 
 struct xui_command_rect_t {
 	enum xui_command_type_t type;
 	int size;
+
 	mu_Rect rect;
-	mu_Color color;
+	struct color_t color;
 };
 
 struct xui_command_text_t {
 	enum xui_command_type_t type;
 	int size;
 	void * font;
+
 	mu_Vec2 pos;
-	mu_Color color;
+	struct color_t color;
 	char str[1];
 };
 
 struct xui_command_icon_t {
 	enum xui_command_type_t type;
 	int size;
-	mu_Rect rect;
+
 	int id;
-	mu_Color color;
+	mu_Rect rect;
+	struct color_t color;
 };
 
 union xui_command_t {
@@ -193,7 +197,7 @@ struct xui_style_t {
 	int title_height;
 	int scrollbar_size;
 	int thumb_size;
-	mu_Color colors[MU_COLOR_MAX];
+	struct color_t colors[MU_COLOR_MAX];
 };
 
 struct xui_context_t {
@@ -315,10 +319,10 @@ void mu_input_text(struct xui_context_t * ctx, const char * text);
 union xui_command_t * xui_push_command(struct xui_context_t * ctx, enum xui_command_type_t type, int size);
 int xui_next_command(struct xui_context_t * ctx, union xui_command_t ** cmd);
 void xui_set_clip(struct xui_context_t * ctx, mu_Rect rect);
-void mu_draw_rect(struct xui_context_t * ctx, mu_Rect rect, mu_Color color);
-void mu_draw_box(struct xui_context_t * ctx, mu_Rect rect, mu_Color color);
-void mu_draw_text(struct xui_context_t * ctx, void * font, const char * str, int len, mu_Vec2 pos, mu_Color color);
-void mu_draw_icon(struct xui_context_t * ctx, int id, mu_Rect rect, mu_Color color);
+void mu_draw_rect(struct xui_context_t * ctx, mu_Rect rect, struct color_t * c);
+void mu_draw_box(struct xui_context_t * ctx, mu_Rect rect, struct color_t * c);
+void mu_draw_text(struct xui_context_t * ctx, void * font, const char * str, int len, mu_Vec2 pos, struct color_t * c);
+void mu_draw_icon(struct xui_context_t * ctx, int id, mu_Rect rect, struct color_t * c);
 
 void xui_layout_width(struct xui_context_t * ctx, int width);
 void xui_layout_height(struct xui_context_t  *ctx, int height);
@@ -363,7 +367,6 @@ void mu_end_panel(struct xui_context_t *ctx);
 
 mu_Vec2 mu_vec2(int x, int y);
 mu_Rect mu_rect(int x, int y, int w, int h);
-mu_Color mu_color(int r, int g, int b, int a);
 
 #ifdef __cplusplus
 }

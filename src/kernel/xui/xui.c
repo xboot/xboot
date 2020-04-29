@@ -74,26 +74,30 @@ static mu_Rect intersect_rects(mu_Rect r1, mu_Rect r2) {
   return mu_rect(x1, y1, x2 - x1, y2 - y1);
 }
 
-void mu_draw_rect(struct xui_context_t *ctx, mu_Rect rect, mu_Color color) {
-  union xui_command_t *cmd;
-  rect = intersect_rects(rect, mu_get_clip_rect(ctx));
-  if (rect.w > 0 && rect.h > 0) {
-    cmd = xui_push_command(ctx, XUI_COMMAND_TYPE_RECT, sizeof(struct xui_command_rect_t));
-    cmd->rect.rect = rect;
-    cmd->rect.color = color;
-  }
+void mu_draw_rect(struct xui_context_t * ctx, mu_Rect rect, struct color_t * c)
+{
+	union xui_command_t *cmd;
+	rect = intersect_rects(rect, mu_get_clip_rect(ctx));
+	if(rect.w > 0 && rect.h > 0)
+	{
+		cmd = xui_push_command(ctx, XUI_COMMAND_TYPE_RECT, sizeof(struct xui_command_rect_t));
+		cmd->rect.rect = rect;
+		memcpy(&cmd->rect.color, c, sizeof(struct color_t));
+	}
 }
 
-void mu_draw_box(struct xui_context_t *ctx, mu_Rect rect, mu_Color color) {
-  mu_draw_rect(ctx, mu_rect(rect.x + 1, rect.y, rect.w - 2, 1), color);
-  mu_draw_rect(ctx, mu_rect(rect.x + 1, rect.y + rect.h - 1, rect.w - 2, 1), color);
-  mu_draw_rect(ctx, mu_rect(rect.x, rect.y, 1, rect.h), color);
-  mu_draw_rect(ctx, mu_rect(rect.x + rect.w - 1, rect.y, 1, rect.h), color);
+void mu_draw_box(struct xui_context_t *ctx, mu_Rect rect, struct color_t * c)
+{
+	mu_draw_rect(ctx, mu_rect(rect.x + 1, rect.y, rect.w - 2, 1), c);
+	mu_draw_rect(ctx, mu_rect(rect.x + 1, rect.y + rect.h - 1, rect.w - 2, 1), c);
+	mu_draw_rect(ctx, mu_rect(rect.x, rect.y, 1, rect.h), c);
+	mu_draw_rect(ctx, mu_rect(rect.x + rect.w - 1, rect.y, 1, rect.h), c);
 }
 
 static void draw_frame(struct xui_context_t *ctx, mu_Rect rect, int colorid)
 {
-	mu_draw_rect(ctx, rect, ctx->style.colors[colorid]);
+	struct color_t * c = &ctx->style.colors[colorid];
+	mu_draw_rect(ctx, rect, c);
 	if(colorid == MU_COLOR_SCROLLBASE || colorid == MU_COLOR_SCROLLTHUMB || colorid == MU_COLOR_TITLEBG)
 	{
 		return;
@@ -101,7 +105,7 @@ static void draw_frame(struct xui_context_t *ctx, mu_Rect rect, int colorid)
 	/* draw border */
 	if(ctx->style.colors[MU_COLOR_BORDER].a)
 	{
-		mu_draw_box(ctx, expand_rect(rect, 1), ctx->style.colors[MU_COLOR_BORDER]);
+		mu_draw_box(ctx, expand_rect(rect, 1), &ctx->style.colors[MU_COLOR_BORDER]);
 	}
 }
 
@@ -111,7 +115,7 @@ static int text_width(void * font, const char *text, int len)
 	{
 		len = strlen(text);
 	}
-	return 16 * len;
+	return 8 * len;
 }
 
 static int text_height(void * font)
@@ -180,12 +184,7 @@ static void xui_draw(struct window_t * w, void * o)
 			surface_shape_rectangle(s, clip, cmd->rect.rect.x, cmd->rect.rect.y, cmd->rect.rect.w, cmd->rect.rect.h, 0, 0, &c);
 			break;
 		case XUI_COMMAND_TYPE_TEXT:
-/*			cairo_save(cr);
-			cairo_set_font_size(cr, 16);
-			cairo_set_source_rgb(cr, cmd->text.color.r / 255.0, cmd->text.color.g / 255.0, cmd->text.color.b / 255.0);
-			cairo_move_to(cr, cmd->text.pos.x, cmd->text.pos.y + 16);
-			cairo_show_text(cr, cmd->text.str);
-			cairo_restore(cr);*/
+			font_draw(s, clip, cmd->text.pos.x, cmd->text.pos.y, cmd->text.str, &cmd->text.color);
 			break;
 		case XUI_COMMAND_TYPE_ICON:
 			//r_draw_icon(cmd->icon.id, cmd->icon.rect, cmd->icon.color);
@@ -276,14 +275,6 @@ mu_Rect mu_rect(int x, int y, int w, int h) {
   res.x = x; res.y = y; res.w = w; res.h = h;
   return res;
 }
-
-
-mu_Color mu_color(int r, int g, int b, int a) {
-  mu_Color res;
-  res.r = r; res.g = g; res.b = b; res.a = a;
-  return res;
-}
-
 
 static int rect_overlaps_vec2(mu_Rect r, mu_Vec2 p) {
   return p.x >= r.x && p.x < r.x + r.w && p.y >= r.y && p.y < r.y + r.h;
@@ -618,7 +609,7 @@ void xui_set_clip(struct xui_context_t * ctx, mu_Rect rect)
 	cmd->clip.rect = rect;
 }
 
-void mu_draw_text(struct xui_context_t * ctx, void * font, const char * str, int len, mu_Vec2 pos, mu_Color color)
+void mu_draw_text(struct xui_context_t * ctx, void * font, const char * str, int len, mu_Vec2 pos, struct color_t * c)
 {
 	union xui_command_t *cmd;
 	mu_Rect rect = mu_rect(pos.x, pos.y, ctx->text_width(font, str, len), ctx->text_height(font));
@@ -640,7 +631,7 @@ void mu_draw_text(struct xui_context_t * ctx, void * font, const char * str, int
 	memcpy(cmd->text.str, str, len);
 	cmd->text.str[len] = '\0';
 	cmd->text.pos = pos;
-	cmd->text.color = color;
+	memcpy(&cmd->text.color, c, sizeof(struct color_t));
 	cmd->text.font = font;
 	/* reset clipping if it was set */
 	if(clipped)
@@ -649,7 +640,7 @@ void mu_draw_text(struct xui_context_t * ctx, void * font, const char * str, int
 	}
 }
 
-void mu_draw_icon(struct xui_context_t *ctx, int id, mu_Rect rect, mu_Color color)
+void mu_draw_icon(struct xui_context_t *ctx, int id, mu_Rect rect, struct color_t * c)
 {
 	union xui_command_t *cmd;
 	/* do clip command if the rect isn't fully contained within the cliprect */
@@ -666,7 +657,7 @@ void mu_draw_icon(struct xui_context_t *ctx, int id, mu_Rect rect, mu_Color colo
 	cmd = xui_push_command(ctx, XUI_COMMAND_TYPE_ICON, sizeof(struct xui_command_icon_t));
 	cmd->icon.id = id;
 	cmd->icon.rect = rect;
-	cmd->icon.color = color;
+	memcpy(&cmd->icon.color, c, sizeof(struct color_t));
 	/* reset clipping if it was set */
 	if(clipped)
 	{
@@ -805,7 +796,7 @@ void xui_draw_control_text(struct xui_context_t * ctx, const char * str, mu_Rect
 		pos.x = rect.x + rect.w - tw - ctx->style.padding;
 	else
 		pos.x = rect.x + ctx->style.padding;
-	mu_draw_text(ctx, font, str, -1, pos, ctx->style.colors[colorid]);
+	mu_draw_text(ctx, font, str, -1, pos, &ctx->style.colors[colorid]);
 	mu_pop_clip_rect(ctx);
 }
 
@@ -840,29 +831,38 @@ void xui_update_control(struct xui_context_t *ctx, unsigned int id, mu_Rect rect
 	}
 }
 
-void mu_text(struct xui_context_t *ctx, const char *text) {
-  const char *start, *end, *p = text;
-  int width = -1;
-  void * font = ctx->style.font;
-  mu_Color color = ctx->style.colors[MU_COLOR_TEXT];
-  xui_layout_begin_column(ctx);
-  xui_layout_row(ctx, 1, &width, ctx->text_height(font));
-  do {
-    mu_Rect r = xui_layout_next(ctx);
-    int w = 0;
-    start = end = p;
-    do {
-      const char* word = p;
-      while (*p && *p != ' ' && *p != '\n') { p++; }
-      w += ctx->text_width(font, word, p - word);
-      if (w > r.w && end != start) { break; }
-      w += ctx->text_width(font, p, 1);
-      end = p++;
-    } while (*end && *end != '\n');
-    mu_draw_text(ctx, font, start, end - start, mu_vec2(r.x, r.y), color);
-    p = end + 1;
-  } while (*end);
-  xui_layout_end_column(ctx);
+void mu_text(struct xui_context_t * ctx, const char * text)
+{
+	const char *start, *end, *p = text;
+	int width = -1;
+	void * font = ctx->style.font;
+	struct color_t * c = &ctx->style.colors[MU_COLOR_TEXT];
+	xui_layout_begin_column(ctx);
+	xui_layout_row(ctx, 1, &width, ctx->text_height(font));
+	do
+	{
+		mu_Rect r = xui_layout_next(ctx);
+		int w = 0;
+		start = end = p;
+		do
+		{
+			const char* word = p;
+			while(*p && *p != ' ' && *p != '\n')
+			{
+				p++;
+			}
+			w += ctx->text_width(font, word, p - word);
+			if(w > r.w && end != start)
+			{
+				break;
+			}
+			w += ctx->text_width(font, p, 1);
+			end = p++;
+		}while(*end && *end != '\n');
+		mu_draw_text(ctx, font, start, end - start, mu_vec2(r.x, r.y), c);
+		p = end + 1;
+	}while(*end);
+	xui_layout_end_column(ctx);
 }
 
 
@@ -884,7 +884,7 @@ int mu_button_ex(struct xui_context_t *ctx, const char *label, int icon, int opt
   /* draw */
   xui_draw_control_frame(ctx, id, r, MU_COLOR_BUTTON, opt);
   if (label) { xui_draw_control_text(ctx, label, r, MU_COLOR_TEXT, opt); }
-  if (icon) { mu_draw_icon(ctx, icon, r, ctx->style.colors[MU_COLOR_TEXT]); }
+  if (icon) { mu_draw_icon(ctx, icon, r, &ctx->style.colors[MU_COLOR_TEXT]); }
   return res;
 }
 
@@ -903,7 +903,7 @@ int mu_checkbox(struct xui_context_t *ctx, const char *label, int *state) {
   /* draw */
   xui_draw_control_frame(ctx, id, box, MU_COLOR_BASE, 0);
   if (*state) {
-    mu_draw_icon(ctx, MU_ICON_CHECK, box, ctx->style.colors[MU_COLOR_TEXT]);
+    mu_draw_icon(ctx, MU_ICON_CHECK, box, &ctx->style.colors[MU_COLOR_TEXT]);
   }
   r = mu_rect(r.x + box.w, r.y, r.w - box.w, r.h);
   xui_draw_control_text(ctx, label, r, MU_COLOR_TEXT, 0);
@@ -944,7 +944,7 @@ int mu_textbox_raw(struct xui_context_t *ctx, char *buf, int bufsz, unsigned int
   /* draw */
   xui_draw_control_frame(ctx, id, r, MU_COLOR_BASE, opt);
   if (ctx->focus == id) {
-    mu_Color color = ctx->style.colors[MU_COLOR_TEXT];
+    struct color_t * c = &ctx->style.colors[MU_COLOR_TEXT];
     void * font = ctx->style.font;
     int textw = ctx->text_width(font, buf, -1);
     int texth = ctx->text_height(font);
@@ -952,8 +952,8 @@ int mu_textbox_raw(struct xui_context_t *ctx, char *buf, int bufsz, unsigned int
     int textx = r.x + min(ofx, ctx->style.padding);
     int texty = r.y + (r.h - texth) / 2;
     mu_push_clip_rect(ctx, r);
-    mu_draw_text(ctx, font, buf, -1, mu_vec2(textx, texty), color);
-    mu_draw_rect(ctx, mu_rect(textx + textw, texty, 1, texth), color);
+    mu_draw_text(ctx, font, buf, -1, mu_vec2(textx, texty), c);
+    mu_draw_rect(ctx, mu_rect(textx + textw, texty, 1, texth), c);
     mu_pop_clip_rect(ctx);
   } else {
     xui_draw_control_text(ctx, buf, r, MU_COLOR_TEXT, opt);
@@ -1095,7 +1095,7 @@ static int header(struct xui_context_t *ctx, const char *label, int istreenode, 
   }
   mu_draw_icon(
     ctx, expanded ? MU_ICON_EXPANDED : MU_ICON_COLLAPSED,
-    mu_rect(r.x, r.y, r.h, r.h), ctx->style.colors[MU_COLOR_TEXT]);
+    mu_rect(r.x, r.y, r.h, r.h), &ctx->style.colors[MU_COLOR_TEXT]);
   r.x += r.h - ctx->style.padding;
   r.w -= r.h - ctx->style.padding;
   xui_draw_control_text(ctx, label, r, MU_COLOR_TEXT, 0);
@@ -1260,7 +1260,7 @@ int mu_begin_window_ex(struct xui_context_t *ctx, const char *title, mu_Rect rec
       unsigned int id = xui_get_id(ctx, "!close", 6);
       mu_Rect r = mu_rect(tr.x + tr.w - tr.h, tr.y, tr.h, tr.h);
       tr.w -= r.w;
-      mu_draw_icon(ctx, MU_ICON_CLOSE, r, ctx->style.colors[MU_COLOR_TITLETEXT]);
+      mu_draw_icon(ctx, MU_ICON_CLOSE, r, &ctx->style.colors[MU_COLOR_TITLETEXT]);
       xui_update_control(ctx, id, r, opt);
       if (ctx->mouse_pressed == MU_MOUSE_LEFT && id == ctx->focus) {
         c->open = 0;

@@ -135,7 +135,7 @@ struct xui_command_text_t {
 	int size;
 	void * font;
 
-	mu_Vec2 pos;
+	int x, y;
 	struct color_t color;
 	char str[1];
 };
@@ -268,10 +268,10 @@ struct xui_context_t {
 	/*
 	 * Input state
 	 */
-	mu_Vec2 mouse_pos;
-	mu_Vec2 last_mouse_pos;
-	mu_Vec2 mouse_delta;
-	mu_Vec2 scroll_delta;
+	int mouse_pos_x, mouse_pos_y;
+	int last_mouse_pos_x, last_mouse_pos_y;
+	int mouse_delta_x, mouse_delta_y;
+	int scroll_delta_x, scroll_delta_y;
 	int mouse_down;
 	int mouse_pressed;
 	int key_down;
@@ -321,7 +321,7 @@ int xui_next_command(struct xui_context_t * ctx, union xui_command_t ** cmd);
 void xui_set_clip(struct xui_context_t * ctx, mu_Rect rect);
 void mu_draw_rect(struct xui_context_t * ctx, mu_Rect rect, struct color_t * c);
 void mu_draw_box(struct xui_context_t * ctx, mu_Rect rect, struct color_t * c);
-void mu_draw_text(struct xui_context_t * ctx, void * font, const char * str, int len, mu_Vec2 pos, struct color_t * c);
+void mu_draw_text(struct xui_context_t * ctx, void * font, const char * str, int len, int x, int y, struct color_t * c);
 void mu_draw_icon(struct xui_context_t * ctx, int id, mu_Rect rect, struct color_t * c);
 
 void xui_layout_width(struct xui_context_t * ctx, int width);

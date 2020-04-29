@@ -184,7 +184,7 @@ static void log_window(struct xui_context_t *ctx)
 		mu_end_panel(ctx);
 		if(logbuf_updated)
 		{
-			panel->scroll.y = panel->content_size.y;
+			panel->scroll.y = panel->content_height;
 			logbuf_updated = 0;
 		}
 

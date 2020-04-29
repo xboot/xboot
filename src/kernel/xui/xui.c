@@ -425,12 +425,12 @@ int mu_check_clip(struct xui_context_t * ctx, mu_Rect r)
 	return MU_CLIP_PART;
 }
 
-static void push_layout(struct xui_context_t * ctx, mu_Rect body, mu_Vec2 scroll)
+static void push_layout(struct xui_context_t * ctx, mu_Rect body, int scrollx, int scrolly)
 {
 	struct xui_layout_t layout;
 	int width = 0;
 	memset(&layout, 0, sizeof(layout));
-	layout.body = mu_rect(body.x - scroll.x, body.y - scroll.y, body.w, body.h);
+	layout.body = mu_rect(body.x - scrollx, body.y - scrolly, body.w, body.h);
 	layout.max = mu_vec2(-0x1000000, -0x1000000);
 	push(ctx->layout_stack, layout);
 	xui_layout_row(ctx, 1, &width, 0);
@@ -445,8 +445,8 @@ static void pop_container(struct xui_context_t * ctx)
 {
 	struct xui_container_t * c = xui_get_current_container(ctx);
 	struct xui_layout_t * layout = get_layout(ctx);
-	c->content_size.x = layout->max.x - layout->body.x;
-	c->content_size.y = layout->max.y - layout->body.y;
+	c->content_width = layout->max.x - layout->body.x;
+	c->content_height = layout->max.y - layout->body.y;
 	pop(ctx->container_stack);
 	pop(ctx->layout_stack);
 	xui_pop_id(ctx);
@@ -698,7 +698,7 @@ void xui_layout_row(struct xui_context_t * ctx, int items, const int * widths, i
 
 void xui_layout_begin_column(struct xui_context_t * ctx)
 {
-	push_layout(ctx, xui_layout_next(ctx), mu_vec2(0, 0));
+	push_layout(ctx, xui_layout_next(ctx), 0, 0);
 }
 
 void xui_layout_end_column(struct xui_context_t * ctx)
@@ -1173,10 +1173,10 @@ void mu_end_treenode(struct xui_context_t *ctx)
 }
 
 
-#define scrollbar(ctx, c, b, cs, x, y, w, h)                              \
+#define scrollbar(ctx, c, b, width, height, x, y, w, h)                              \
   do {                                                                      \
     /* only add scrollbar if content size is larger than body */            \
-    int maxscroll = cs.y - b->h;                                            \
+    int maxscroll = height - b->h;                                            \
                                                                             \
     if (maxscroll > 0 && b->h > 0) {                                        \
       mu_Rect base, thumb;                                                  \
@@ -1190,7 +1190,7 @@ void mu_end_treenode(struct xui_context_t *ctx)
       /* handle input */                                                    \
       xui_update_control(ctx, id, base, 0);                                  \
       if (ctx->focus == id && ctx->mouse_down == MU_MOUSE_LEFT) {           \
-        c->scroll.y += ctx->mouse_delta_y * cs.y / base.h;                \
+        c->scroll.y += ctx->mouse_delta_y * height / base.h;                \
       }                                                                     \
       /* clamp scroll to limits */                                          \
       c->scroll.y = clamp(c->scroll.y, 0, maxscroll);  	                \
@@ -1198,7 +1198,7 @@ void mu_end_treenode(struct xui_context_t *ctx)
       /* draw base and thumb */                                             \
       ctx->draw_frame(ctx, base, MU_COLOR_SCROLLBASE);                      \
       thumb = base;                                                         \
-      thumb.h = max(ctx->style.thumb_size, base.h * b->h / cs.y);       \
+      thumb.h = max(ctx->style.thumb_size, base.h * b->h / height);       \
       thumb.y += c->scroll.y * (base.h - thumb.h) / maxscroll;            \
       ctx->draw_frame(ctx, thumb, MU_COLOR_SCROLLTHUMB);                    \
                                                                             \
@@ -1210,26 +1210,27 @@ void mu_end_treenode(struct xui_context_t *ctx)
     }                                                                       \
   } while (0)
 
-static void scrollbars(struct xui_context_t *ctx, struct xui_container_t *c, mu_Rect *body)
+static void scrollbars(struct xui_context_t * ctx, struct xui_container_t * c, mu_Rect * body)
 {
 	int sz = ctx->style.scrollbar_size;
-	mu_Vec2 cs = c->content_size;
-	cs.x += ctx->style.padding * 2;
-	cs.y += ctx->style.padding * 2;
+	int width = c->content_width;
+	int height = c->content_height;
+	width += ctx->style.padding * 2;
+	height += ctx->style.padding * 2;
 	mu_push_clip_rect(ctx, *body);
 	/* resize body to make room for scrollbars */
-	if(cs.y > c->body.h)
+	if(height > c->body.h)
 	{
 		body->w -= sz;
 	}
-	if(cs.x > c->body.w)
+	if(width > c->body.w)
 	{
 		body->h -= sz;
 	}
 	/* to create a horizontal or vertical scrollbar almost-identical code is
 	 ** used; only the references to `x|y` `w|h` need to be switched */
-	scrollbar(ctx, c, body, cs, x, y, w, h);
-	scrollbar(ctx, c, body, cs, y, x, h, w);
+	scrollbar(ctx, c, body, width, height, x, y, w, h);
+	scrollbar(ctx, c, body, width, height, y, x, h, w);
 	mu_pop_clip_rect(ctx);
 }
 
@@ -1239,7 +1240,7 @@ static void push_container_body(struct xui_context_t *ctx, struct xui_container_
 	{
 		scrollbars(ctx, c, &body);
 	}
-	push_layout(ctx, expand_rect(body, -ctx->style.padding), c->scroll);
+	push_layout(ctx, expand_rect(body, -ctx->style.padding), c->scroll.x, c->scroll.y);
 	c->body = body;
 }
 
@@ -1354,8 +1355,8 @@ int mu_begin_window_ex(struct xui_context_t *ctx, const char *title, mu_Rect rec
 	if(opt & MU_OPT_AUTOSIZE)
 	{
 		mu_Rect r = get_layout(ctx)->body;
-		c->rect.w = c->content_size.x + (c->rect.w - r.w);
-		c->rect.h = c->content_size.y + (c->rect.h - r.h);
+		c->rect.w = c->content_width + (c->rect.w - r.w);
+		c->rect.h = c->content_height + (c->rect.h - r.h);
 	}
 
 	/* close if this is a popup window and elsewhere was clicked */

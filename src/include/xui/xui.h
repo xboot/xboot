@@ -181,7 +181,8 @@ struct xui_container_t {
 	union xui_command_t * head, * tail;
 	mu_Rect rect;
 	mu_Rect body;
-	mu_Vec2 content_size;
+	int content_width;
+	int content_height;
 	mu_Vec2 scroll;
 	int zindex;
 	int open;

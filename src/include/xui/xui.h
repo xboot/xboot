@@ -190,7 +190,8 @@ struct xui_container_t {
 struct xui_style_t {
 	struct color_t bgcol;
 	void * font;
-	mu_Vec2 size;
+	int width;
+	int height;
 	int padding;
 	int spacing;
 	int indent;

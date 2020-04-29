@@ -37,11 +37,17 @@ static struct xui_style_t xui_style_default = {
 		.a = 255,
 	},
 
-	/* font | size | padding | spacing | indent */
-	NULL, { 68, 10 }, 5, 4, 24,
-	/* title_height | scrollbar_size | thumb_size */
-	24, 12, 8,
-	{
+	.font = NULL,
+	.width = 68,
+	.height = 10,
+	.padding = 5,
+	.spacing = 4,
+	.indent = 24,
+	.title_height = 24,
+	.scrollbar_size = 12,
+	.thumb_size = 8,
+
+	.colors = {
 		{ 230, 230, 230, 255 }, /* MU_COLOR_TEXT */
 		{ 25,  25,  25,  255 }, /* MU_COLOR_BORDER */
 		{ 50,  50,  50,  255 }, /* MU_COLOR_WINDOWBG */
@@ -739,9 +745,9 @@ mu_Rect xui_layout_next(struct xui_context_t * ctx)
 		res.w = layout->items > 0 ? layout->widths[layout->item_index] : layout->size.x;
 		res.h = layout->size.y;
 		if(res.w == 0)
-			res.w = style->size.x + style->padding * 2;
+			res.w = style->width + style->padding * 2;
 		if(res.h == 0)
-			res.h = style->size.y + style->padding * 2;
+			res.h = style->height + style->padding * 2;
 		if(res.w < 0)
 			res.w += layout->body.w - res.x + 1;
 		if(res.h < 0)
@@ -864,263 +870,306 @@ void mu_text(struct xui_context_t * ctx, const char * text)
 	xui_layout_end_column(ctx);
 }
 
-
-void mu_label(struct xui_context_t *ctx, const char *text) {
-  xui_draw_control_text(ctx, text, xui_layout_next(ctx), MU_COLOR_TEXT, 0);
-}
-
-
-int mu_button_ex(struct xui_context_t *ctx, const char *label, int icon, int opt) {
-  int res = 0;
-  unsigned int id = label ? xui_get_id(ctx, label, strlen(label))
-                   : xui_get_id(ctx, &icon, sizeof(icon));
-  mu_Rect r = xui_layout_next(ctx);
-  xui_update_control(ctx, id, r, opt);
-  /* handle click */
-  if (ctx->mouse_pressed == MU_MOUSE_LEFT && ctx->focus == id) {
-    res |= MU_RES_SUBMIT;
-  }
-  /* draw */
-  xui_draw_control_frame(ctx, id, r, MU_COLOR_BUTTON, opt);
-  if (label) { xui_draw_control_text(ctx, label, r, MU_COLOR_TEXT, opt); }
-  if (icon) { mu_draw_icon(ctx, icon, r, &ctx->style.colors[MU_COLOR_TEXT]); }
-  return res;
-}
-
-
-int mu_checkbox(struct xui_context_t *ctx, const char *label, int *state) {
-  int res = 0;
-  unsigned int id = xui_get_id(ctx, &state, sizeof(state));
-  mu_Rect r = xui_layout_next(ctx);
-  mu_Rect box = mu_rect(r.x, r.y, r.h, r.h);
-  xui_update_control(ctx, id, r, 0);
-  /* handle click */
-  if (ctx->mouse_pressed == MU_MOUSE_LEFT && ctx->focus == id) {
-    res |= MU_RES_CHANGE;
-    *state = !*state;
-  }
-  /* draw */
-  xui_draw_control_frame(ctx, id, box, MU_COLOR_BASE, 0);
-  if (*state) {
-    mu_draw_icon(ctx, MU_ICON_CHECK, box, &ctx->style.colors[MU_COLOR_TEXT]);
-  }
-  r = mu_rect(r.x + box.w, r.y, r.w - box.w, r.h);
-  xui_draw_control_text(ctx, label, r, MU_COLOR_TEXT, 0);
-  return res;
-}
-
-
-int mu_textbox_raw(struct xui_context_t *ctx, char *buf, int bufsz, unsigned int id, mu_Rect r,
-  int opt)
+void mu_label(struct xui_context_t *ctx, const char *text)
 {
-  int res = 0;
-  xui_update_control(ctx, id, r, opt | MU_OPT_HOLDFOCUS);
-
-  if (ctx->focus == id) {
-    /* handle text input */
-    int len = strlen(buf);
-    int n = min(bufsz - len - 1, (int) strlen(ctx->input_text));
-    if (n > 0) {
-      memcpy(buf + len, ctx->input_text, n);
-      len += n;
-      buf[len] = '\0';
-      res |= MU_RES_CHANGE;
-    }
-    /* handle backspace */
-    if ((ctx->key_pressed & MU_KEY_BACKSPACE) && len > 0) {
-      /* skip utf-8 continuation bytes */
-      while ((buf[--len] & 0xc0) == 0x80 && len > 0);
-      buf[len] = '\0';
-      res |= MU_RES_CHANGE;
-    }
-    /* handle return */
-    if (ctx->key_pressed & MU_KEY_RETURN) {
-      xui_set_focus(ctx, 0);
-      res |= MU_RES_SUBMIT;
-    }
-  }
-
-  /* draw */
-  xui_draw_control_frame(ctx, id, r, MU_COLOR_BASE, opt);
-  if (ctx->focus == id) {
-    struct color_t * c = &ctx->style.colors[MU_COLOR_TEXT];
-    void * font = ctx->style.font;
-    int textw = ctx->text_width(font, buf, -1);
-    int texth = ctx->text_height(font);
-    int ofx = r.w - ctx->style.padding - textw - 1;
-    int textx = r.x + min(ofx, ctx->style.padding);
-    int texty = r.y + (r.h - texth) / 2;
-    mu_push_clip_rect(ctx, r);
-    mu_draw_text(ctx, font, buf, -1, textx, texty, c);
-    mu_draw_rect(ctx, mu_rect(textx + textw, texty, 1, texth), c);
-    mu_pop_clip_rect(ctx);
-  } else {
-    xui_draw_control_text(ctx, buf, r, MU_COLOR_TEXT, opt);
-  }
-
-  return res;
+	xui_draw_control_text(ctx, text, xui_layout_next(ctx), MU_COLOR_TEXT, 0);
 }
 
-
-static int number_textbox(struct xui_context_t *ctx, float *value, mu_Rect r, unsigned int id) {
-  if (ctx->mouse_pressed == MU_MOUSE_LEFT && (ctx->key_down & MU_KEY_SHIFT) &&
-      ctx->hover == id
-  ) {
-    ctx->number_edit = id;
-    sprintf(ctx->number_edit_buf, MU_REAL_FMT, *value);
-  }
-  if (ctx->number_edit == id) {
-    int res = mu_textbox_raw(
-      ctx, ctx->number_edit_buf, sizeof(ctx->number_edit_buf), id, r, 0);
-    if ((res & MU_RES_SUBMIT) || ctx->focus != id) {
-      *value = strtod(ctx->number_edit_buf, NULL);
-      ctx->number_edit = 0;
-    } else {
-      return 1;
-    }
-  }
-  return 0;
-}
-
-
-int mu_textbox_ex(struct xui_context_t *ctx, char *buf, int bufsz, int opt) {
-  unsigned int id = xui_get_id(ctx, &buf, sizeof(buf));
-  mu_Rect r = xui_layout_next(ctx);
-  return mu_textbox_raw(ctx, buf, bufsz, id, r, opt);
-}
-
-
-int mu_slider_ex(struct xui_context_t *ctx, float *value, float low, float high,
-  float step, const char *fmt, int opt)
+int mu_button_ex(struct xui_context_t *ctx, const char *label, int icon, int opt)
 {
-  char buf[MU_MAX_FMT + 1];
-  mu_Rect thumb;
-  int x, w, res = 0;
-  float last = *value, v = last;
-  unsigned int id = xui_get_id(ctx, &value, sizeof(value));
-  mu_Rect base = xui_layout_next(ctx);
-
-  /* handle text input mode */
-  if (number_textbox(ctx, &v, base, id)) { return res; }
-
-  /* handle normal mode */
-  xui_update_control(ctx, id, base, opt);
-
-  /* handle input */
-  if (ctx->focus == id && ctx->mouse_down == MU_MOUSE_LEFT) {
-    v = low + (ctx->mouse_pos_x - base.x) * (high - low) / base.w;
-    if (step) { v = (((v + step / 2) / step)) * step; }
-  }
-  /* clamp and store value, update res */
-  *value = v = clamp(v, low, high);
-  if (last != v) { res |= MU_RES_CHANGE; }
-
-  /* draw base */
-  xui_draw_control_frame(ctx, id, base, MU_COLOR_BASE, opt);
-  /* draw thumb */
-  w = ctx->style.thumb_size;
-  x = (v - low) * (base.w - w) / (high - low);
-  thumb = mu_rect(base.x + x, base.y, w, base.h);
-  xui_draw_control_frame(ctx, id, thumb, MU_COLOR_BUTTON, opt);
-  /* draw text  */
-  sprintf(buf, fmt, v);
-  xui_draw_control_text(ctx, buf, base, MU_COLOR_TEXT, opt);
-
-  return res;
+	int res = 0;
+	unsigned int id = label ? xui_get_id(ctx, label, strlen(label)) : xui_get_id(ctx, &icon, sizeof(icon));
+	mu_Rect r = xui_layout_next(ctx);
+	xui_update_control(ctx, id, r, opt);
+	/* handle click */
+	if(ctx->mouse_pressed == MU_MOUSE_LEFT && ctx->focus == id)
+	{
+		res |= MU_RES_SUBMIT;
+	}
+	/* draw */
+	xui_draw_control_frame(ctx, id, r, MU_COLOR_BUTTON, opt);
+	if(label)
+	{
+		xui_draw_control_text(ctx, label, r, MU_COLOR_TEXT, opt);
+	}
+	if(icon)
+	{
+		mu_draw_icon(ctx, icon, r, &ctx->style.colors[MU_COLOR_TEXT]);
+	}
+	return res;
 }
 
-
-int mu_number_ex(struct xui_context_t *ctx, float *value, float step,
-  const char *fmt, int opt)
+int mu_checkbox(struct xui_context_t *ctx, const char *label, int *state)
 {
-  char buf[MU_MAX_FMT + 1];
-  int res = 0;
-  unsigned int id = xui_get_id(ctx, &value, sizeof(value));
-  mu_Rect base = xui_layout_next(ctx);
-  float last = *value;
-
-  /* handle text input mode */
-  if (number_textbox(ctx, value, base, id)) { return res; }
-
-  /* handle normal mode */
-  xui_update_control(ctx, id, base, opt);
-
-  /* handle input */
-  if (ctx->focus == id && ctx->mouse_down == MU_MOUSE_LEFT) {
-    *value += ctx->mouse_delta_x * step;
-  }
-  /* set flag if value changed */
-  if (*value != last) { res |= MU_RES_CHANGE; }
-
-  /* draw base */
-  xui_draw_control_frame(ctx, id, base, MU_COLOR_BASE, opt);
-  /* draw text  */
-  sprintf(buf, fmt, *value);
-  xui_draw_control_text(ctx, buf, base, MU_COLOR_TEXT, opt);
-
-  return res;
+	int res = 0;
+	unsigned int id = xui_get_id(ctx, &state, sizeof(state));
+	mu_Rect r = xui_layout_next(ctx);
+	mu_Rect box = mu_rect(r.x, r.y, r.h, r.h);
+	xui_update_control(ctx, id, r, 0);
+	/* handle click */
+	if(ctx->mouse_pressed == MU_MOUSE_LEFT && ctx->focus == id)
+	{
+		res |= MU_RES_CHANGE;
+		*state = !*state;
+	}
+	/* draw */
+	xui_draw_control_frame(ctx, id, box, MU_COLOR_BASE, 0);
+	if(*state)
+	{
+		mu_draw_icon(ctx, MU_ICON_CHECK, box, &ctx->style.colors[MU_COLOR_TEXT]);
+	}
+	r = mu_rect(r.x + box.w, r.y, r.w - box.w, r.h);
+	xui_draw_control_text(ctx, label, r, MU_COLOR_TEXT, 0);
+	return res;
 }
 
+int mu_textbox_raw(struct xui_context_t *ctx, char *buf, int bufsz, unsigned int id, mu_Rect r, int opt)
+{
+	int res = 0;
+	xui_update_control(ctx, id, r, opt | MU_OPT_HOLDFOCUS);
 
-static int header(struct xui_context_t *ctx, const char *label, int istreenode, int opt) {
-  mu_Rect r;
-  int active, expanded;
-  unsigned int id = xui_get_id(ctx, label, strlen(label));
-  int idx = xui_pool_get(ctx, ctx->treenode_pool, MU_TREENODEPOOL_SIZE, id);
-  int width = -1;
-  xui_layout_row(ctx, 1, &width, 0);
+	if(ctx->focus == id)
+	{
+		/* handle text input */
+		int len = strlen(buf);
+		int n = min(bufsz - len - 1, (int ) strlen(ctx->input_text));
+		if(n > 0)
+		{
+			memcpy(buf + len, ctx->input_text, n);
+			len += n;
+			buf[len] = '\0';
+			res |= MU_RES_CHANGE;
+		}
+		/* handle backspace */
+		if((ctx->key_pressed & MU_KEY_BACKSPACE) && len > 0)
+		{
+			/* skip utf-8 continuation bytes */
+			while((buf[--len] & 0xc0) == 0x80 && len > 0)
+				;
+			buf[len] = '\0';
+			res |= MU_RES_CHANGE;
+		}
+		/* handle return */
+		if(ctx->key_pressed & MU_KEY_RETURN)
+		{
+			xui_set_focus(ctx, 0);
+			res |= MU_RES_SUBMIT;
+		}
+	}
 
-  active = (idx >= 0);
-  expanded = (opt & MU_OPT_EXPANDED) ? !active : active;
-  r = xui_layout_next(ctx);
-  xui_update_control(ctx, id, r, 0);
+	/* draw */
+	xui_draw_control_frame(ctx, id, r, MU_COLOR_BASE, opt);
+	if(ctx->focus == id)
+	{
+		struct color_t * c = &ctx->style.colors[MU_COLOR_TEXT];
+		void * font = ctx->style.font;
+		int textw = ctx->text_width(font, buf, -1);
+		int texth = ctx->text_height(font);
+		int ofx = r.w - ctx->style.padding - textw - 1;
+		int textx = r.x + min(ofx, ctx->style.padding);
+		int texty = r.y + (r.h - texth) / 2;
+		mu_push_clip_rect(ctx, r);
+		mu_draw_text(ctx, font, buf, -1, textx, texty, c);
+		mu_draw_rect(ctx, mu_rect(textx + textw, texty, 1, texth), c);
+		mu_pop_clip_rect(ctx);
+	}
+	else
+	{
+		xui_draw_control_text(ctx, buf, r, MU_COLOR_TEXT, opt);
+	}
 
-  /* handle click */
-  active ^= (ctx->mouse_pressed == MU_MOUSE_LEFT && ctx->focus == id);
-
-  /* update pool ref */
-  if (idx >= 0) {
-    if (active) { xui_pool_update(ctx, ctx->treenode_pool, idx); }
-           else { memset(&ctx->treenode_pool[idx], 0, sizeof(struct xui_pool_item_t)); }
-  } else if (active) {
-    xui_pool_init(ctx, ctx->treenode_pool, MU_TREENODEPOOL_SIZE, id);
-  }
-
-  /* draw */
-  if (istreenode) {
-    if (ctx->hover == id) { ctx->draw_frame(ctx, r, MU_COLOR_BUTTONHOVER); }
-  } else {
-    xui_draw_control_frame(ctx, id, r, MU_COLOR_BUTTON, 0);
-  }
-  mu_draw_icon(
-    ctx, expanded ? MU_ICON_EXPANDED : MU_ICON_COLLAPSED,
-    mu_rect(r.x, r.y, r.h, r.h), &ctx->style.colors[MU_COLOR_TEXT]);
-  r.x += r.h - ctx->style.padding;
-  r.w -= r.h - ctx->style.padding;
-  xui_draw_control_text(ctx, label, r, MU_COLOR_TEXT, 0);
-
-  return expanded ? MU_RES_ACTIVE : 0;
+	return res;
 }
 
-
-int mu_header_ex(struct xui_context_t *ctx, const char *label, int opt) {
-  return header(ctx, label, 0, opt);
+static int number_textbox(struct xui_context_t *ctx, float *value, mu_Rect r, unsigned int id)
+{
+	if(ctx->mouse_pressed == MU_MOUSE_LEFT && (ctx->key_down & MU_KEY_SHIFT) && ctx->hover == id)
+	{
+		ctx->number_edit = id;
+		sprintf(ctx->number_edit_buf, MU_REAL_FMT, *value);
+	}
+	if(ctx->number_edit == id)
+	{
+		int res = mu_textbox_raw(ctx, ctx->number_edit_buf, sizeof(ctx->number_edit_buf), id, r, 0);
+		if((res & MU_RES_SUBMIT) || ctx->focus != id)
+		{
+			*value = strtod(ctx->number_edit_buf, NULL);
+			ctx->number_edit = 0;
+		}
+		else
+		{
+			return 1;
+		}
+	}
+	return 0;
 }
 
-
-int mu_begin_treenode_ex(struct xui_context_t *ctx, const char *label, int opt) {
-  int res = header(ctx, label, 1, opt);
-  if (res & MU_RES_ACTIVE) {
-    get_layout(ctx)->indent += ctx->style.indent;
-    push(ctx->id_stack, ctx->last_id);
-  }
-  return res;
+int mu_textbox_ex(struct xui_context_t *ctx, char *buf, int bufsz, int opt)
+{
+	unsigned int id = xui_get_id(ctx, &buf, sizeof(buf));
+	mu_Rect r = xui_layout_next(ctx);
+	return mu_textbox_raw(ctx, buf, bufsz, id, r, opt);
 }
 
+int mu_slider_ex(struct xui_context_t *ctx, float *value, float low, float high, float step, const char *fmt, int opt)
+{
+	char buf[MU_MAX_FMT + 1];
+	mu_Rect thumb;
+	int x, w, res = 0;
+	float last = *value, v = last;
+	unsigned int id = xui_get_id(ctx, &value, sizeof(value));
+	mu_Rect base = xui_layout_next(ctx);
 
-void mu_end_treenode(struct xui_context_t *ctx) {
-  get_layout(ctx)->indent -= ctx->style.indent;
-  xui_pop_id(ctx);
+	/* handle text input mode */
+	if(number_textbox(ctx, &v, base, id))
+	{
+		return res;
+	}
+
+	/* handle normal mode */
+	xui_update_control(ctx, id, base, opt);
+
+	/* handle input */
+	if(ctx->focus == id && ctx->mouse_down == MU_MOUSE_LEFT)
+	{
+		v = low + (ctx->mouse_pos_x - base.x) * (high - low) / base.w;
+		if(step)
+		{
+			v = (((v + step / 2) / step)) * step;
+		}
+	}
+	/* clamp and store value, update res */
+	*value = v = clamp(v, low, high);
+	if(last != v)
+	{
+		res |= MU_RES_CHANGE;
+	}
+
+	/* draw base */
+	xui_draw_control_frame(ctx, id, base, MU_COLOR_BASE, opt);
+	/* draw thumb */
+	w = ctx->style.thumb_size;
+	x = (v - low) * (base.w - w) / (high - low);
+	thumb = mu_rect(base.x + x, base.y, w, base.h);
+	xui_draw_control_frame(ctx, id, thumb, MU_COLOR_BUTTON, opt);
+	/* draw text  */
+	sprintf(buf, fmt, v);
+	xui_draw_control_text(ctx, buf, base, MU_COLOR_TEXT, opt);
+
+	return res;
+}
+
+int mu_number_ex(struct xui_context_t *ctx, float *value, float step, const char *fmt, int opt)
+{
+	char buf[MU_MAX_FMT + 1];
+	int res = 0;
+	unsigned int id = xui_get_id(ctx, &value, sizeof(value));
+	mu_Rect base = xui_layout_next(ctx);
+	float last = *value;
+
+	/* handle text input mode */
+	if(number_textbox(ctx, value, base, id))
+	{
+		return res;
+	}
+
+	/* handle normal mode */
+	xui_update_control(ctx, id, base, opt);
+
+	/* handle input */
+	if(ctx->focus == id && ctx->mouse_down == MU_MOUSE_LEFT)
+	{
+		*value += ctx->mouse_delta_x * step;
+	}
+	/* set flag if value changed */
+	if(*value != last)
+	{
+		res |= MU_RES_CHANGE;
+	}
+
+	/* draw base */
+	xui_draw_control_frame(ctx, id, base, MU_COLOR_BASE, opt);
+	/* draw text  */
+	sprintf(buf, fmt, *value);
+	xui_draw_control_text(ctx, buf, base, MU_COLOR_TEXT, opt);
+
+	return res;
+}
+
+static int header(struct xui_context_t *ctx, const char *label, int istreenode, int opt)
+{
+	mu_Rect r;
+	int active, expanded;
+	unsigned int id = xui_get_id(ctx, label, strlen(label));
+	int idx = xui_pool_get(ctx, ctx->treenode_pool, MU_TREENODEPOOL_SIZE, id);
+	int width = -1;
+	xui_layout_row(ctx, 1, &width, 0);
+
+	active = (idx >= 0);
+	expanded = (opt & MU_OPT_EXPANDED) ? !active : active;
+	r = xui_layout_next(ctx);
+	xui_update_control(ctx, id, r, 0);
+
+	/* handle click */
+	active ^= (ctx->mouse_pressed == MU_MOUSE_LEFT && ctx->focus == id);
+
+	/* update pool ref */
+	if(idx >= 0)
+	{
+		if(active)
+		{
+			xui_pool_update(ctx, ctx->treenode_pool, idx);
+		}
+		else
+		{
+			memset(&ctx->treenode_pool[idx], 0, sizeof(struct xui_pool_item_t));
+		}
+	}
+	else if(active)
+	{
+		xui_pool_init(ctx, ctx->treenode_pool, MU_TREENODEPOOL_SIZE, id);
+	}
+
+	/* draw */
+	if(istreenode)
+	{
+		if(ctx->hover == id)
+		{
+			ctx->draw_frame(ctx, r, MU_COLOR_BUTTONHOVER);
+		}
+	}
+	else
+	{
+		xui_draw_control_frame(ctx, id, r, MU_COLOR_BUTTON, 0);
+	}
+	mu_draw_icon(ctx, expanded ? MU_ICON_EXPANDED : MU_ICON_COLLAPSED, mu_rect(r.x, r.y, r.h, r.h), &ctx->style.colors[MU_COLOR_TEXT]);
+	r.x += r.h - ctx->style.padding;
+	r.w -= r.h - ctx->style.padding;
+	xui_draw_control_text(ctx, label, r, MU_COLOR_TEXT, 0);
+
+	return expanded ? MU_RES_ACTIVE : 0;
+}
+
+int mu_header_ex(struct xui_context_t *ctx, const char *label, int opt)
+{
+	return header(ctx, label, 0, opt);
+}
+
+int mu_begin_treenode_ex(struct xui_context_t *ctx, const char *label, int opt)
+{
+	int res = header(ctx, label, 1, opt);
+	if(res & MU_RES_ACTIVE)
+	{
+		get_layout(ctx)->indent += ctx->style.indent;
+		push(ctx->id_stack, ctx->last_id);
+	}
+	return res;
+}
+
+void mu_end_treenode(struct xui_context_t *ctx)
+{
+	get_layout(ctx)->indent -= ctx->style.indent;
+	xui_pop_id(ctx);
 }
 
 
@@ -1161,184 +1210,209 @@ void mu_end_treenode(struct xui_context_t *ctx) {
     }                                                                       \
   } while (0)
 
-
-static void scrollbars(struct xui_context_t *ctx, struct xui_container_t *c, mu_Rect *body) {
-  int sz = ctx->style.scrollbar_size;
-  mu_Vec2 cs = c->content_size;
-  cs.x += ctx->style.padding * 2;
-  cs.y += ctx->style.padding * 2;
-  mu_push_clip_rect(ctx, *body);
-  /* resize body to make room for scrollbars */
-  if (cs.y > c->body.h) { body->w -= sz; }
-  if (cs.x > c->body.w) { body->h -= sz; }
-  /* to create a horizontal or vertical scrollbar almost-identical code is
-  ** used; only the references to `x|y` `w|h` need to be switched */
-  scrollbar(ctx, c, body, cs, x, y, w, h);
-  scrollbar(ctx, c, body, cs, y, x, h, w);
-  mu_pop_clip_rect(ctx);
+static void scrollbars(struct xui_context_t *ctx, struct xui_container_t *c, mu_Rect *body)
+{
+	int sz = ctx->style.scrollbar_size;
+	mu_Vec2 cs = c->content_size;
+	cs.x += ctx->style.padding * 2;
+	cs.y += ctx->style.padding * 2;
+	mu_push_clip_rect(ctx, *body);
+	/* resize body to make room for scrollbars */
+	if(cs.y > c->body.h)
+	{
+		body->w -= sz;
+	}
+	if(cs.x > c->body.w)
+	{
+		body->h -= sz;
+	}
+	/* to create a horizontal or vertical scrollbar almost-identical code is
+	 ** used; only the references to `x|y` `w|h` need to be switched */
+	scrollbar(ctx, c, body, cs, x, y, w, h);
+	scrollbar(ctx, c, body, cs, y, x, h, w);
+	mu_pop_clip_rect(ctx);
 }
 
-
-static void push_container_body(
-  struct xui_context_t *ctx, struct xui_container_t *c, mu_Rect body, int opt
-) {
-  if (~opt & MU_OPT_NOSCROLL) { scrollbars(ctx, c, &body); }
-  push_layout(ctx, expand_rect(body, -ctx->style.padding), c->scroll);
-  c->body = body;
+static void push_container_body(struct xui_context_t *ctx, struct xui_container_t *c, mu_Rect body, int opt)
+{
+	if(~opt & MU_OPT_NOSCROLL)
+	{
+		scrollbars(ctx, c, &body);
+	}
+	push_layout(ctx, expand_rect(body, -ctx->style.padding), c->scroll);
+	c->body = body;
 }
 
-
-static void begin_root_container(struct xui_context_t *ctx, struct xui_container_t *c) {
-  push(ctx->container_stack, c);
-  /* push container to roots list and push head command */
-  push(ctx->root_list, c);
-  c->head = push_jump(ctx, NULL);
-  /* set as hover root if the mouse is overlapping this container and it has a
-  ** higher zindex than the current hover root */
-  if (rect_overlaps_vec2(c->rect, ctx->mouse_pos_x, ctx->mouse_pos_y) &&
-      (!ctx->next_hover_root || c->zindex > ctx->next_hover_root->zindex)
-  ) {
-    ctx->next_hover_root = c;
-  }
-  /* clipping is reset here in case a root-container is made within
-  ** another root-containers's begin/end block; this prevents the inner
-  ** root-container being clipped to the outer */
-  push(ctx->clip_stack, unclipped_rect);
+static void begin_root_container(struct xui_context_t *ctx, struct xui_container_t *c)
+{
+	push(ctx->container_stack, c);
+	/* push container to roots list and push head command */
+	push(ctx->root_list, c);
+	c->head = push_jump(ctx, NULL);
+	/* set as hover root if the mouse is overlapping this container and it has a
+	 ** higher zindex than the current hover root */
+	if(rect_overlaps_vec2(c->rect, ctx->mouse_pos_x, ctx->mouse_pos_y) && (!ctx->next_hover_root || c->zindex > ctx->next_hover_root->zindex))
+	{
+		ctx->next_hover_root = c;
+	}
+	/* clipping is reset here in case a root-container is made within
+	 ** another root-containers's begin/end block; this prevents the inner
+	 ** root-container being clipped to the outer */
+	push(ctx->clip_stack, unclipped_rect);
 }
 
-
-static void end_root_container(struct xui_context_t *ctx) {
-  /* push tail 'goto' jump command and set head 'skip' command. the final steps
-  ** on initing these are done in xui_end() */
-  struct xui_container_t *c = xui_get_current_container(ctx);
-  c->tail = push_jump(ctx, NULL);
-  c->head->jump.addr = ctx->command_list.items + ctx->command_list.idx;
-  /* pop base clip rect and container */
-  mu_pop_clip_rect(ctx);
-  pop_container(ctx);
+static void end_root_container(struct xui_context_t *ctx)
+{
+	/* push tail 'goto' jump command and set head 'skip' command. the final steps
+	 ** on initing these are done in xui_end() */
+	struct xui_container_t *c = xui_get_current_container(ctx);
+	c->tail = push_jump(ctx, NULL);
+	c->head->jump.addr = ctx->command_list.items + ctx->command_list.idx;
+	/* pop base clip rect and container */
+	mu_pop_clip_rect(ctx);
+	pop_container(ctx);
 }
 
+int mu_begin_window_ex(struct xui_context_t *ctx, const char *title, mu_Rect rect, int opt)
+{
+	mu_Rect body;
+	unsigned int id = xui_get_id(ctx, title, strlen(title));
+	struct xui_container_t *c = get_container(ctx, id, opt);
+	if(!c || !c->open)
+	{
+		return 0;
+	}
+	push(ctx->id_stack, id);
 
-int mu_begin_window_ex(struct xui_context_t *ctx, const char *title, mu_Rect rect, int opt) {
-  mu_Rect body;
-  unsigned int id = xui_get_id(ctx, title, strlen(title));
-  struct xui_container_t *c = get_container(ctx, id, opt);
-  if (!c || !c->open) { return 0; }
-  push(ctx->id_stack, id);
+	if(c->rect.w == 0)
+	{
+		c->rect = rect;
+	}
+	begin_root_container(ctx, c);
+	rect = body = c->rect;
 
-  if (c->rect.w == 0) { c->rect = rect; }
-  begin_root_container(ctx, c);
-  rect = body = c->rect;
+	/* draw frame */
+	if(~opt & MU_OPT_NOFRAME)
+	{
+		ctx->draw_frame(ctx, rect, MU_COLOR_WINDOWBG);
+	}
 
-  /* draw frame */
-  if (~opt & MU_OPT_NOFRAME) {
-    ctx->draw_frame(ctx, rect, MU_COLOR_WINDOWBG);
-  }
+	/* do title bar */
+	if(~opt & MU_OPT_NOTITLE)
+	{
+		mu_Rect tr = rect;
+		tr.h = ctx->style.title_height;
+		ctx->draw_frame(ctx, tr, MU_COLOR_TITLEBG);
 
-  /* do title bar */
-  if (~opt & MU_OPT_NOTITLE) {
-    mu_Rect tr = rect;
-    tr.h = ctx->style.title_height;
-    ctx->draw_frame(ctx, tr, MU_COLOR_TITLEBG);
+		/* do title text */
+		if(~opt & MU_OPT_NOTITLE)
+		{
+			unsigned int id = xui_get_id(ctx, "!title", 6);
+			xui_update_control(ctx, id, tr, opt);
+			xui_draw_control_text(ctx, title, tr, MU_COLOR_TITLETEXT, opt);
+			if(id == ctx->focus && ctx->mouse_down == MU_MOUSE_LEFT)
+			{
+				c->rect.x += ctx->mouse_delta_x;
+				c->rect.y += ctx->mouse_delta_y;
+			}
+			body.y += tr.h;
+			body.h -= tr.h;
+		}
 
-    /* do title text */
-    if (~opt & MU_OPT_NOTITLE) {
-      unsigned int id = xui_get_id(ctx, "!title", 6);
-      xui_update_control(ctx, id, tr, opt);
-      xui_draw_control_text(ctx, title, tr, MU_COLOR_TITLETEXT, opt);
-      if (id == ctx->focus && ctx->mouse_down == MU_MOUSE_LEFT) {
-        c->rect.x += ctx->mouse_delta_x;
-        c->rect.y += ctx->mouse_delta_y;
-      }
-      body.y += tr.h;
-      body.h -= tr.h;
-    }
+		/* do `close` button */
+		if(~opt & MU_OPT_NOCLOSE)
+		{
+			unsigned int id = xui_get_id(ctx, "!close", 6);
+			mu_Rect r = mu_rect(tr.x + tr.w - tr.h, tr.y, tr.h, tr.h);
+			tr.w -= r.w;
+			mu_draw_icon(ctx, MU_ICON_CLOSE, r, &ctx->style.colors[MU_COLOR_TITLETEXT]);
+			xui_update_control(ctx, id, r, opt);
+			if(ctx->mouse_pressed == MU_MOUSE_LEFT && id == ctx->focus)
+			{
+				c->open = 0;
+			}
+		}
+	}
 
-    /* do `close` button */
-    if (~opt & MU_OPT_NOCLOSE) {
-      unsigned int id = xui_get_id(ctx, "!close", 6);
-      mu_Rect r = mu_rect(tr.x + tr.w - tr.h, tr.y, tr.h, tr.h);
-      tr.w -= r.w;
-      mu_draw_icon(ctx, MU_ICON_CLOSE, r, &ctx->style.colors[MU_COLOR_TITLETEXT]);
-      xui_update_control(ctx, id, r, opt);
-      if (ctx->mouse_pressed == MU_MOUSE_LEFT && id == ctx->focus) {
-        c->open = 0;
-      }
-    }
-  }
+	push_container_body(ctx, c, body, opt);
 
-  push_container_body(ctx, c, body, opt);
+	/* do `resize` handle */
+	if(~opt & MU_OPT_NORESIZE)
+	{
+		int sz = ctx->style.title_height;
+		unsigned int id = xui_get_id(ctx, "!resize", 7);
+		mu_Rect r = mu_rect(rect.x + rect.w - sz, rect.y + rect.h - sz, sz, sz);
+		xui_update_control(ctx, id, r, opt);
+		if(id == ctx->focus && ctx->mouse_down == MU_MOUSE_LEFT)
+		{
+			c->rect.w = max(96, c->rect.w + ctx->mouse_delta_x);
+			c->rect.h = max(64, c->rect.h + ctx->mouse_delta_y);
+		}
+	}
 
-  /* do `resize` handle */
-  if (~opt & MU_OPT_NORESIZE) {
-    int sz = ctx->style.title_height;
-    unsigned int id = xui_get_id(ctx, "!resize", 7);
-    mu_Rect r = mu_rect(rect.x + rect.w - sz, rect.y + rect.h - sz, sz, sz);
-    xui_update_control(ctx, id, r, opt);
-    if (id == ctx->focus && ctx->mouse_down == MU_MOUSE_LEFT) {
-      c->rect.w = max(96, c->rect.w + ctx->mouse_delta_x);
-      c->rect.h = max(64, c->rect.h + ctx->mouse_delta_y);
-    }
-  }
+	/* resize to content size */
+	if(opt & MU_OPT_AUTOSIZE)
+	{
+		mu_Rect r = get_layout(ctx)->body;
+		c->rect.w = c->content_size.x + (c->rect.w - r.w);
+		c->rect.h = c->content_size.y + (c->rect.h - r.h);
+	}
 
-  /* resize to content size */
-  if (opt & MU_OPT_AUTOSIZE) {
-    mu_Rect r = get_layout(ctx)->body;
-    c->rect.w = c->content_size.x + (c->rect.w - r.w);
-    c->rect.h = c->content_size.y + (c->rect.h - r.h);
-  }
+	/* close if this is a popup window and elsewhere was clicked */
+	if((opt & MU_OPT_POPUP) && ctx->mouse_pressed && ctx->hover_root != c)
+	{
+		c->open = 0;
+	}
 
-  /* close if this is a popup window and elsewhere was clicked */
-  if ((opt & MU_OPT_POPUP) && ctx->mouse_pressed && ctx->hover_root != c) {
-    c->open = 0;
-  }
-
-  mu_push_clip_rect(ctx, c->body);
-  return MU_RES_ACTIVE;
+	mu_push_clip_rect(ctx, c->body);
+	return MU_RES_ACTIVE;
 }
 
-
-void mu_end_window(struct xui_context_t *ctx) {
-  mu_pop_clip_rect(ctx);
-  end_root_container(ctx);
+void mu_end_window(struct xui_context_t *ctx)
+{
+	mu_pop_clip_rect(ctx);
+	end_root_container(ctx);
 }
 
-
-void mu_open_popup(struct xui_context_t *ctx, const char *name) {
-  struct xui_container_t *c = xui_get_container(ctx, name);
-  /* set as hover root so popup isn't closed in begin_window_ex()  */
-  ctx->hover_root = ctx->next_hover_root = c;
-  /* position at mouse cursor, open and bring-to-front */
-  c->rect = mu_rect(ctx->mouse_pos_x, ctx->mouse_pos_y, 1, 1);
-  c->open = 1;
-  xui_set_front(ctx, c);
+void mu_open_popup(struct xui_context_t *ctx, const char *name)
+{
+	struct xui_container_t *c = xui_get_container(ctx, name);
+	/* set as hover root so popup isn't closed in begin_window_ex()  */
+	ctx->hover_root = ctx->next_hover_root = c;
+	/* position at mouse cursor, open and bring-to-front */
+	c->rect = mu_rect(ctx->mouse_pos_x, ctx->mouse_pos_y, 1, 1);
+	c->open = 1;
+	xui_set_front(ctx, c);
 }
 
-
-int mu_begin_popup(struct xui_context_t *ctx, const char *name) {
-  int opt = MU_OPT_POPUP | MU_OPT_AUTOSIZE | MU_OPT_NORESIZE |
-            MU_OPT_NOSCROLL | MU_OPT_NOTITLE | MU_OPT_CLOSED;
-  return mu_begin_window_ex(ctx, name, mu_rect(0, 0, 0, 0), opt);
+int mu_begin_popup(struct xui_context_t *ctx, const char *name)
+{
+	int opt = MU_OPT_POPUP | MU_OPT_AUTOSIZE | MU_OPT_NORESIZE | MU_OPT_NOSCROLL | MU_OPT_NOTITLE | MU_OPT_CLOSED;
+	return mu_begin_window_ex(ctx, name, mu_rect(0, 0, 0, 0), opt);
 }
 
-void mu_end_popup(struct xui_context_t *ctx) {
-  mu_end_window(ctx);
+void mu_end_popup(struct xui_context_t *ctx)
+{
+	mu_end_window(ctx);
 }
 
-void mu_begin_panel_ex(struct xui_context_t *ctx, const char *name, int opt) {
-  struct xui_container_t *c;
-  xui_push_id(ctx, name, strlen(name));
-  c = get_container(ctx, ctx->last_id, opt);
-  c->rect = xui_layout_next(ctx);
-  if (~opt & MU_OPT_NOFRAME) {
-    ctx->draw_frame(ctx, c->rect, MU_COLOR_PANELBG);
-  }
-  push(ctx->container_stack, c);
-  push_container_body(ctx, c, c->rect, opt);
-  mu_push_clip_rect(ctx, c->body);
+void mu_begin_panel_ex(struct xui_context_t *ctx, const char *name, int opt)
+{
+	struct xui_container_t *c;
+	xui_push_id(ctx, name, strlen(name));
+	c = get_container(ctx, ctx->last_id, opt);
+	c->rect = xui_layout_next(ctx);
+	if(~opt & MU_OPT_NOFRAME)
+	{
+		ctx->draw_frame(ctx, c->rect, MU_COLOR_PANELBG);
+	}
+	push(ctx->container_stack, c);
+	push_container_body(ctx, c, c->rect, opt);
+	mu_push_clip_rect(ctx, c->body);
 }
 
-void mu_end_panel(struct xui_context_t *ctx) {
-  mu_pop_clip_rect(ctx);
-  pop_container(ctx);
+void mu_end_panel(struct xui_context_t *ctx)
+{
+	mu_pop_clip_rect(ctx);
+	pop_container(ctx);
 }

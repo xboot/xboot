@@ -321,8 +321,8 @@ void xui_input_text(struct xui_context_t * ctx, const char * text);
 union xui_command_t * xui_push_command(struct xui_context_t * ctx, enum xui_command_type_t type, int size);
 int xui_next_command(struct xui_context_t * ctx, union xui_command_t ** cmd);
 void xui_set_clip(struct xui_context_t * ctx, struct region_t * r);
-void xui_draw_rect(struct xui_context_t * ctx, struct region_t rect, struct color_t * c);
-void xui_draw_box(struct xui_context_t * ctx, struct region_t rect, struct color_t * c);
+void xui_draw_rect(struct xui_context_t * ctx, struct region_t * r, struct color_t * c);
+void xui_draw_box(struct xui_context_t * ctx, struct region_t * r, struct color_t * c);
 void xui_draw_text(struct xui_context_t * ctx, void * font, const char * str, int len, int x, int y, struct color_t * c);
 void xui_draw_icon(struct xui_context_t * ctx, int id, struct region_t * r, struct color_t * c);
 
@@ -334,10 +334,10 @@ void xui_layout_end_column(struct xui_context_t * ctx);
 void xui_layout_set_next(struct xui_context_t * ctx, struct region_t * r, int relative);
 struct region_t * xui_layout_next(struct xui_context_t * ctx);
 
-void xui_draw_control_frame(struct xui_context_t * ctx, unsigned int id, struct region_t rect, int cid, int opt);
-void xui_draw_control_text(struct xui_context_t * ctx, const char * str, struct region_t rect, int cid, int opt);
-int xui_mouse_over(struct xui_context_t * ctx, struct region_t rect);
-void xui_update_control(struct xui_context_t * ctx, unsigned int id, struct region_t rect, int opt);
+void xui_draw_control_frame(struct xui_context_t * ctx, unsigned int id, struct region_t * r, int cid, int opt);
+void xui_draw_control_text(struct xui_context_t * ctx, const char * str, struct region_t * r, int cid, int opt);
+int xui_mouse_over(struct xui_context_t * ctx, struct region_t * r);
+void xui_update_control(struct xui_context_t * ctx, unsigned int id, struct region_t * r, int opt);
 
 #define mu_button(ctx, label)             mu_button_ex(ctx, label, 0, XUI_OPT_ALIGNCENTER)
 #define mu_textbox(ctx, buf, bufsz)       mu_textbox_ex(ctx, buf, bufsz, 0)

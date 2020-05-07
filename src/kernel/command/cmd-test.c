@@ -27,7 +27,7 @@ static void write_log(const char *text)
 static void test_window(struct xui_context_t * ctx)
 {
 	/* do window */
-	if(mu_begin_window(ctx, "Demo Window", mu_rect(40, 40, 300, 450)))
+	if(xui_begin_window(ctx, "Demo Window", &(struct region_t){40, 40, 300, 450}))
 	{
 		struct xui_container_t *win = xui_get_current_container(ctx);
 		win->rect.w = max(win->rect.w, 240);
@@ -48,7 +48,7 @@ static void test_window(struct xui_context_t * ctx)
 		}
 
 		/* labels + buttons */
-		if(mu_header_ex(ctx, "Test Buttons", MU_OPT_EXPANDED))
+		if(mu_header_ex(ctx, "Test Buttons", XUI_OPT_EXPANDED))
 		{
 			xui_layout_row(ctx, 3, (int[] ) { 86, -110, -1 }, 0);
 			mu_label(ctx, "Test buttons 1:");
@@ -67,18 +67,18 @@ static void test_window(struct xui_context_t * ctx)
 			}
 			if(mu_button(ctx, "Popup"))
 			{
-				mu_open_popup(ctx, "Test Popup");
+				xui_open_popup(ctx, "Test Popup");
 			}
-			if(mu_begin_popup(ctx, "Test Popup"))
+			if(xui_begin_popup(ctx, "Test Popup"))
 			{
 				mu_button(ctx, "Hello");
 				mu_button(ctx, "World");
-				mu_end_popup(ctx);
+				xui_end_popup(ctx);
 			}
 		}
 
 		/* tree */
-		if(mu_header_ex(ctx, "Tree and Text", MU_OPT_EXPANDED))
+		if(mu_header_ex(ctx, "Tree and Text", XUI_OPT_EXPANDED))
 		{
 			xui_layout_row(ctx, 2, (int[] ) { 140, -1 }, 0);
 			xui_layout_begin_column(ctx);
@@ -144,7 +144,7 @@ static void test_window(struct xui_context_t * ctx)
 		}
 
 		/* background color sliders */
-		if(mu_header_ex(ctx, "Background Color", MU_OPT_EXPANDED))
+		if(mu_header_ex(ctx, "Background Color", XUI_OPT_EXPANDED))
 		{
 			xui_layout_row(ctx, 2, (int[] ) { -78, -1 }, 74);
 			/* sliders */
@@ -158,30 +158,31 @@ static void test_window(struct xui_context_t * ctx)
 			mu_slider(ctx, &bg[2], 0, 255);
 			xui_layout_end_column(ctx);
 			/* color preview */
-			mu_Rect r = xui_layout_next(ctx);
+			struct region_t r = xui_layout_next(ctx);
 			struct color_t c;
 			color_init(&c, bg[0], bg[1], bg[2], 255);
 			mu_draw_rect(ctx, r, &c);
 			char buf[32];
 			sprintf(buf, "#%02X%02X%02X", (int)bg[0], (int)bg[1], (int)bg[2]);
-			xui_draw_control_text(ctx, buf, r, MU_COLOR_TEXT, MU_OPT_ALIGNCENTER);
+			xui_draw_control_text(ctx, buf, r, XUI_COLOR_TEXT, XUI_OPT_ALIGNCENTER);
 		}
 
-		mu_end_window(ctx);
+		xui_end_window(ctx);
 	}
 }
 
 static void log_window(struct xui_context_t *ctx)
 {
-	if(mu_begin_window(ctx, "Log Window", mu_rect(350, 40, 300, 200)))
+
+	if(xui_begin_window(ctx, "Log Window", &(struct region_t){350, 40, 300, 200}))
 	{
 		/* output text panel */
 		xui_layout_row(ctx, 1, (int[] ) { -1 }, -25);
-		mu_begin_panel(ctx, "Log Output");
-		struct xui_container_t *panel = xui_get_current_container(ctx);
+		xui_begin_panel(ctx, "Log Output");
+		struct xui_container_t * panel = xui_get_current_container(ctx);
 		xui_layout_row(ctx, 1, (int[] ) { -1 }, -1);
 		mu_text(ctx, logbuf);
-		mu_end_panel(ctx);
+		xui_end_panel(ctx);
 		if(logbuf_updated)
 		{
 			panel->scroll_abc.y = panel->content_height;
@@ -192,7 +193,7 @@ static void log_window(struct xui_context_t *ctx)
 		static char buf[128];
 		int submitted = 0;
 		xui_layout_row(ctx, 2, (int[] ) { -70, -1 }, 0);
-		if(mu_textbox(ctx, buf, sizeof(buf)) & MU_RES_SUBMIT)
+		if(mu_textbox(ctx, buf, sizeof(buf)) & XUI_RES_SUBMIT)
 		{
 			xui_set_focus(ctx, ctx->last_id);
 			submitted = 1;
@@ -207,7 +208,7 @@ static void log_window(struct xui_context_t *ctx)
 			buf[0] = '\0';
 		}
 
-		mu_end_window(ctx);
+		xui_end_window(ctx);
 	}
 }
 
@@ -215,33 +216,33 @@ static int uint8_slider(struct xui_context_t *ctx, unsigned char *value, int low
   static float tmp;
   xui_push_id(ctx, &value, sizeof(value));
   tmp = *value;
-  int res = mu_slider_ex(ctx, &tmp, low, high, 0, "%.0f", MU_OPT_ALIGNCENTER);
+  int res = mu_slider_ex(ctx, &tmp, low, high, 0, "%.0f", XUI_OPT_ALIGNCENTER);
   *value = tmp;
   xui_pop_id(ctx);
   return res;
 }
 
 
-static void style_window(struct xui_context_t *ctx) {
-	static struct { const char *label; int idx; } colors[] = {
-		{ "text:",         MU_COLOR_TEXT        },
-		{ "border:",       MU_COLOR_BORDER      },
-		{ "windowbg:",     MU_COLOR_WINDOWBG    },
-		{ "titlebg:",      MU_COLOR_TITLEBG     },
-		{ "titletext:",    MU_COLOR_TITLETEXT   },
-		{ "panelbg:",      MU_COLOR_PANELBG     },
-		{ "button:",       MU_COLOR_BUTTON      },
-		{ "buttonhover:",  MU_COLOR_BUTTONHOVER },
-		{ "buttonfocus:",  MU_COLOR_BUTTONFOCUS },
-		{ "base:",         MU_COLOR_BASE        },
-		{ "basehover:",    MU_COLOR_BASEHOVER   },
-		{ "basefocus:",    MU_COLOR_BASEFOCUS   },
-		{ "scrollbase:",   MU_COLOR_SCROLLBASE  },
-		{ "scrollthumb:",  MU_COLOR_SCROLLTHUMB },
+static void style_window(struct xui_context_t * ctx) {
+	static struct { const char * label; int idx; } colors[] = {
+		{ "text:",         XUI_COLOR_TEXT        },
+		{ "border:",       XUI_COLOR_BORDER      },
+		{ "window:",		XUI_COLOR_WINDOW	},
+		{ "titlebg:",      XUI_COLOR_TITLEBG     },
+		{ "titletext:",    XUI_COLOR_TITLETEXT   },
+		{ "panel:",			XUI_COLOR_PANEL		},
+		{ "button:",       XUI_COLOR_BUTTON      },
+		{ "buttonhover:",  XUI_COLOR_BUTTONHOVER },
+		{ "buttonfocus:",  XUI_COLOR_BUTTONFOCUS },
+		{ "base:",         XUI_COLOR_BASE        },
+		{ "basehover:",    XUI_COLOR_BASEHOVER   },
+		{ "basefocus:",    XUI_COLOR_BASEFOCUS   },
+		{ "scrollbase:",   XUI_COLOR_SCROLLBASE  },
+		{ "scrollthumb:",  XUI_COLOR_SCROLLTHUMB },
 		{ NULL }
 	};
 
-	if(mu_begin_window(ctx, "Style Editor", mu_rect(350, 250, 300, 240)))
+	if(xui_begin_window(ctx, "Style Editor", &(struct region_t){350, 250, 300, 240}))
 	{
 		int sw = xui_get_current_container(ctx)->body.w * 0.14;
 		xui_layout_row(ctx, 6, (int[] ) { 80, sw, sw, sw, sw, -1 }, 0);
@@ -254,7 +255,7 @@ static void style_window(struct xui_context_t *ctx) {
 			uint8_slider(ctx, &ctx->style.colors[i].a, 0, 255);
 			mu_draw_rect(ctx, xui_layout_next(ctx), &ctx->style.colors[i]);
 		}
-		mu_end_window(ctx);
+		xui_end_window(ctx);
 	}
 }
 
@@ -273,12 +274,19 @@ static void usage(void)
 	printf("    test [args ...]\r\n");
 }
 
-static int do_test(int argc, char ** argv)
+static void xui_test_task(struct task_t * task, void * data)
 {
 	struct xui_context_t * ctx = xui_context_alloc(NULL, NULL, NULL);
-
 	xui_loop(ctx, process_frame);
 	xui_context_free(ctx);
+}
+
+static int do_test(int argc, char ** argv)
+{
+	struct task_t * task;
+
+	task = task_create(NULL, "demo", xui_test_task, NULL, 0, 0);
+	task_resume(task);
 	return 0;
 }
 

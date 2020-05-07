@@ -83,11 +83,6 @@ static int rect_overlaps_vec2(struct region_t r, int x, int y) {
   return x >= r.x && x < r.x + r.w && y >= r.y && y < r.y + r.h;
 }
 
-static struct region_t expand_rect(struct region_t rect, int n) {
-  return mu_rect(rect.x - n, rect.y - n, rect.w + n * 2, rect.h + n * 2);
-}
-
-
 static struct region_t intersect_rects(struct region_t r1, struct region_t r2) {
   int x1 = max(r1.x, r2.x);
   int y1 = max(r1.y, r2.y);
@@ -129,7 +124,9 @@ static void draw_frame(struct xui_context_t * ctx, struct region_t * r, int cid)
 	/* draw border */
 	if(ctx->style.colors[XUI_COLOR_BORDER].a)
 	{
-		xui_draw_box(ctx, expand_rect(*r, 1), &ctx->style.colors[XUI_COLOR_BORDER]);
+		struct region_t region;
+		region_expand(&region, r, 1);
+		xui_draw_box(ctx, region, &ctx->style.colors[XUI_COLOR_BORDER]);
 	}
 }
 
@@ -413,12 +410,12 @@ int xui_check_clip(struct xui_context_t * ctx, struct region_t * r)
 	return MU_CLIP_PART;
 }
 
-static void push_layout(struct xui_context_t * ctx, struct region_t body, int scrollx, int scrolly)
+static void push_layout(struct xui_context_t * ctx, struct region_t * body, int scrollx, int scrolly)
 {
 	struct xui_layout_t layout;
 	int width = 0;
 	memset(&layout, 0, sizeof(layout));
-	layout.body = mu_rect(body.x - scrollx, body.y - scrolly, body.w, body.h);
+	region_init(&layout.body, body->x - scrollx, body->y - scrolly, body->w, body->h);
 	layout.max_width = -0x1000000;
 	layout.max_height = -0x1000000;
 	xui_push(ctx->layout_stack, layout);
@@ -659,7 +656,7 @@ void xui_layout_row(struct xui_context_t * ctx, int items, const int * widths, i
 
 void xui_layout_begin_column(struct xui_context_t * ctx)
 {
-	push_layout(ctx, *xui_layout_next(ctx), 0, 0);
+	push_layout(ctx, xui_layout_next(ctx), 0, 0);
 }
 
 void xui_layout_end_column(struct xui_context_t * ctx)
@@ -1202,42 +1199,31 @@ static void scrollbars(struct xui_context_t * ctx, struct xui_container_t * c, s
 	xui_pop_clip(ctx);
 }
 
-static void push_container_body(struct xui_context_t *ctx, struct xui_container_t *c, struct region_t body, int opt)
+static void push_container_body(struct xui_context_t * ctx, struct xui_container_t * c, struct region_t * body, int opt)
 {
+	struct region_t r;
 	if(~opt & XUI_OPT_NOSCROLL)
-	{
-		scrollbars(ctx, c, &body);
-	}
-	push_layout(ctx, expand_rect(body, -ctx->style.padding), c->scroll_abc.x, c->scroll_abc.y);
-	c->body = body;
+		scrollbars(ctx, c, body);
+	region_expand(&r, body, -ctx->style.padding);
+	push_layout(ctx, &r, c->scroll_abc.x, c->scroll_abc.y);
+	region_clone(&c->body, body);
 }
 
 static void begin_root_container(struct xui_context_t * ctx, struct xui_container_t * c)
 {
 	xui_push(ctx->container_stack, c);
-	/* push container to roots list and push head command */
 	xui_push(ctx->root_list, c);
 	c->head = push_jump(ctx, NULL);
-	/* set as hover root if the mouse is overlapping this container and it has a
-	 ** higher zindex than the current hover root */
 	if(rect_overlaps_vec2(c->rect, ctx->mouse_pos_x, ctx->mouse_pos_y) && (!ctx->next_hover_root || c->zindex > ctx->next_hover_root->zindex))
-	{
 		ctx->next_hover_root = c;
-	}
-	/* clipping is reset here in case a root-container is made within
-	 ** another root-containers's begin/end block; this prevents the inner
-	 ** root-container being clipped to the outer */
 	xui_push(ctx->clip_stack, unclipped_region);
 }
 
-static void end_root_container(struct xui_context_t *ctx)
+static void end_root_container(struct xui_context_t * ctx)
 {
-	/* push tail 'goto' jump command and set head 'skip' command. the final steps
-	 ** on initing these are done in xui_end() */
-	struct xui_container_t *c = xui_get_current_container(ctx);
+	struct xui_container_t * c = xui_get_current_container(ctx);
 	c->tail = push_jump(ctx, NULL);
 	c->head->jump.addr = ctx->command_list.items + ctx->command_list.idx;
-	/* pop base clip rect and container */
 	xui_pop_clip(ctx);
 	pop_container(ctx);
 }
@@ -1245,7 +1231,7 @@ static void end_root_container(struct xui_context_t *ctx)
 int xui_begin_window_ex(struct xui_context_t * ctx, const char * title, struct region_t rect, int opt)
 {
 	unsigned int id = xui_get_id(ctx, title, strlen(title));
-	struct xui_container_t *c = get_container(ctx, id, opt);
+	struct xui_container_t * c = get_container(ctx, id, opt);
 	struct region_t body;
 
 	if(!c || !c->open)
@@ -1294,7 +1280,7 @@ int xui_begin_window_ex(struct xui_context_t * ctx, const char * title, struct r
 		}
 	}
 
-	push_container_body(ctx, c, body, opt);
+	push_container_body(ctx, c, &body, opt);
 
 	if(~opt & XUI_OPT_NORESIZE)
 	{
@@ -1363,7 +1349,7 @@ void xui_begin_panel_ex(struct xui_context_t * ctx, const char * name, int opt)
 	if(~opt & XUI_OPT_NOFRAME)
 		ctx->draw_frame(ctx, &c->rect, XUI_COLOR_PANEL);
 	xui_push(ctx->container_stack, c);
-	push_container_body(ctx, c, c->rect, opt);
+	push_container_body(ctx, c, &c->rect, opt);
 	xui_push_clip(ctx, &c->body);
 }
 

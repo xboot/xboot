@@ -53,6 +53,15 @@ static inline int region_contains(struct region_t * r, struct region_t * o)
 	return 0;
 }
 
+static inline void region_expand(struct region_t * r, struct region_t * o, int n)
+{
+	r->x = o->x - n;
+	r->y = o->y - n;
+	r->w = o->w + n * 2;
+	r->h = o->h + n * 2;
+	r->area = -1;
+}
+
 static inline int region_intersect(struct region_t * r, struct region_t * a, struct region_t * b)
 {
 	int x0 = max(a->x, b->x);

@@ -828,10 +828,10 @@ int mu_checkbox(struct xui_context_t * ctx, const char * label, int * state)
 	return res;
 }
 
-int mu_textbox_raw(struct xui_context_t * ctx, char * buf, int bufsz, unsigned int id, struct region_t r, int opt)
+int mu_textbox_raw(struct xui_context_t * ctx, char * buf, int bufsz, unsigned int id, struct region_t * r, int opt)
 {
 	int res = 0;
-	xui_update_control(ctx, id, &r, opt | XUI_OPT_HOLDFOCUS);
+	xui_update_control(ctx, id, r, opt | XUI_OPT_HOLDFOCUS);
 
 	if(ctx->focus == id)
 	{
@@ -857,17 +857,17 @@ int mu_textbox_raw(struct xui_context_t * ctx, char * buf, int bufsz, unsigned i
 			res |= XUI_RES_SUBMIT;
 		}
 	}
-	xui_draw_control_frame(ctx, id, &r, XUI_COLOR_BASE, opt);
+	xui_draw_control_frame(ctx, id, r, XUI_COLOR_BASE, opt);
 	if(ctx->focus == id)
 	{
 		struct color_t * c = &ctx->style.colors[XUI_COLOR_TEXT];
 		void * font = ctx->style.font;
 		int textw = ctx->text_width(font, buf, -1);
 		int texth = ctx->text_height(font);
-		int ofx = r.w - ctx->style.padding - textw - 1;
-		int textx = r.x + min(ofx, ctx->style.padding);
-		int texty = r.y + (r.h - texth) / 2;
-		xui_push_clip(ctx, &r);
+		int ofx = r->w - ctx->style.padding - textw - 1;
+		int textx = r->x + min(ofx, ctx->style.padding);
+		int texty = r->y + (r->h - texth) / 2;
+		xui_push_clip(ctx, r);
 		xui_draw_text(ctx, font, buf, -1, textx, texty, c);
 		struct region_t region;
 		region_init(&region, textx + textw, texty, 1, texth);
@@ -876,12 +876,12 @@ int mu_textbox_raw(struct xui_context_t * ctx, char * buf, int bufsz, unsigned i
 	}
 	else
 	{
-		xui_draw_control_text(ctx, buf, &r, XUI_COLOR_TEXT, opt);
+		xui_draw_control_text(ctx, buf, r, XUI_COLOR_TEXT, opt);
 	}
 	return res;
 }
 
-static int number_textbox(struct xui_context_t * ctx, float * value, struct region_t r, unsigned int id)
+static int number_textbox(struct xui_context_t * ctx, float * value, struct region_t * r, unsigned int id)
 {
 	if(ctx->mouse_pressed == MU_MOUSE_LEFT && (ctx->key_down & MU_KEY_SHIFT) && ctx->hover == id)
 	{
@@ -904,12 +904,12 @@ static int number_textbox(struct xui_context_t * ctx, float * value, struct regi
 	return 0;
 }
 
-int mu_textbox_ex(struct xui_context_t *ctx, char *buf, int bufsz, int opt)
+int mu_textbox_ex(struct xui_context_t * ctx, char * buf, int bufsz, int opt)
 {
 	unsigned int id = xui_get_id(ctx, &buf, sizeof(buf));
 	struct region_t r;
 	region_clone(&r, xui_layout_next(ctx));
-	return mu_textbox_raw(ctx, buf, bufsz, id, r, opt);
+	return mu_textbox_raw(ctx, buf, bufsz, id, &r, opt);
 }
 
 int mu_slider_ex(struct xui_context_t * ctx, float * value, float low, float high, float step, const char * fmt, int opt)
@@ -922,12 +922,12 @@ int mu_slider_ex(struct xui_context_t * ctx, float * value, float low, float hig
 	struct region_t base;
 	region_clone(&base, xui_layout_next(ctx));
 
-	if(number_textbox(ctx, &v, base, id))
+	if(number_textbox(ctx, &v, &base, id))
 		return res;
 
 	xui_update_control(ctx, id, &base, opt);
 
-	if(ctx->focus == id && ctx->mouse_down == MU_MOUSE_LEFT)
+	if((ctx->focus == id) && (ctx->mouse_down == MU_MOUSE_LEFT))
 	{
 		v = low + (ctx->mouse_pos_x - base.x) * (high - low) / base.w;
 		if(step)
@@ -957,7 +957,7 @@ int mu_number_ex(struct xui_context_t * ctx, float * value, float step, const ch
 	region_clone(&base, xui_layout_next(ctx));
 	float last = *value;
 
-	if(number_textbox(ctx, value, base, id))
+	if(number_textbox(ctx, value, &base, id))
 		return res;
 	xui_update_control(ctx, id, &base, opt);
 	if(ctx->focus == id && ctx->mouse_down == MU_MOUSE_LEFT)

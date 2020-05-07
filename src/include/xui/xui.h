@@ -350,7 +350,7 @@ void mu_text(struct xui_context_t * ctx, const char * text);
 void mu_label(struct xui_context_t * ctx, const char * text);
 int mu_button_ex(struct xui_context_t * ctx, const char * label, int icon, int opt);
 int mu_checkbox(struct xui_context_t * ctx, const char * label, int * state);
-int mu_textbox_raw(struct xui_context_t * ctx, char * buf, int bufsz, unsigned int id, struct region_t r, int opt);
+int mu_textbox_raw(struct xui_context_t * ctx, char * buf, int bufsz, unsigned int id, struct region_t * r, int opt);
 int mu_textbox_ex(struct xui_context_t * ctx, char * buf, int bufsz, int opt);
 int mu_slider_ex(struct xui_context_t * ctx, float * value, float low, float high, float step, const char * fmt, int opt);
 int mu_number_ex(struct xui_context_t * ctx, float * value, float step, const char * fmt, int opt);

@@ -358,7 +358,7 @@ int mu_header_ex(struct xui_context_t * ctx, const char * label, int opt);
 int mu_begin_treenode_ex(struct xui_context_t * ctx, const char * label, int opt);
 void mu_end_treenode(struct xui_context_t * ctx);
 
-int xui_begin_window_ex(struct xui_context_t * ctx, const char * title, struct region_t r, int opt);
+int xui_begin_window_ex(struct xui_context_t * ctx, const char * title, struct region_t * r, int opt);
 int xui_begin_window(struct xui_context_t * ctx, const char * title, struct region_t * r);
 void xui_end_window(struct xui_context_t * ctx);
 

@@ -1122,27 +1122,29 @@ static void end_root_container(struct xui_context_t * ctx)
 	pop_container(ctx);
 }
 
-int xui_begin_window_ex(struct xui_context_t * ctx, const char * title, struct region_t rect, int opt)
+int xui_begin_window_ex(struct xui_context_t * ctx, const char * title, struct region_t * r, int opt)
 {
 	unsigned int id = xui_get_id(ctx, title, strlen(title));
 	struct xui_container_t * c = get_container(ctx, id, opt);
-	struct region_t body;
+	struct region_t body, region;
 
 	if(!c || !c->open)
 		return 0;
 	xui_push(ctx->id_stack, id);
 
 	if(c->rect.w == 0)
-		c->rect = rect;
+		region_clone(&c->rect, r);
 	begin_root_container(ctx, c);
-	rect = body = c->rect;
+	region_clone(&body, &c->rect);
+	region_clone(&region, &c->rect);
 
 	if(~opt & XUI_OPT_NOFRAME)
-		ctx->draw_frame(ctx, &rect, XUI_COLOR_WINDOW);
+		ctx->draw_frame(ctx, &region, XUI_COLOR_WINDOW);
 
 	if(~opt & XUI_OPT_NOTITLE)
 	{
-		struct region_t tr = rect;
+		struct region_t tr;
+		region_clone(&tr, &region);
 		tr.h = ctx->style.title_height;
 		ctx->draw_frame(ctx, &tr, XUI_COLOR_TITLEBG);
 
@@ -1180,7 +1182,7 @@ int xui_begin_window_ex(struct xui_context_t * ctx, const char * title, struct r
 		int sz = ctx->style.title_height;
 		unsigned int id = xui_get_id(ctx, "!resize", 7);
 		struct region_t r;
-		region_init(&r, rect.x + rect.w - sz, rect.y + rect.h - sz, sz, sz);
+		region_init(&r, region.x + region.w - sz, region.y + region.h - sz, sz, sz);
 		xui_update_control(ctx, id, &r, opt);
 		if(id == ctx->focus && ctx->mouse_down == MU_MOUSE_LEFT)
 		{
@@ -1205,7 +1207,7 @@ int xui_begin_window_ex(struct xui_context_t * ctx, const char * title, struct r
 
 int xui_begin_window(struct xui_context_t * ctx, const char * title, struct region_t * r)
 {
-	return xui_begin_window_ex(ctx, title, *r, 0);
+	return xui_begin_window_ex(ctx, title, r, 0);
 }
 
 void xui_end_window(struct xui_context_t * ctx)
@@ -1217,7 +1219,7 @@ void xui_end_window(struct xui_context_t * ctx)
 int xui_begin_popup(struct xui_context_t * ctx, const char * name)
 {
 	int opt = XUI_OPT_POPUP | XUI_OPT_AUTOSIZE | XUI_OPT_NORESIZE | XUI_OPT_NOSCROLL | XUI_OPT_NOTITLE | XUI_OPT_CLOSED;
-	return xui_begin_window_ex(ctx, name, (struct region_t){0, 0, 0, 0}, opt);
+	return xui_begin_window_ex(ctx, name, &(struct region_t){0, 0, 0, 0}, opt);
 }
 
 void xui_end_popup(struct xui_context_t * ctx)

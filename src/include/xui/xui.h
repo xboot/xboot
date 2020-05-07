@@ -299,7 +299,7 @@ void xui_set_focus(struct xui_context_t * ctx, unsigned int id);
 unsigned int xui_get_id(struct xui_context_t * ctx, const void * data, int size);
 void xui_push_id(struct xui_context_t * ctx, const void * data, int size);
 void xui_pop_id(struct xui_context_t * ctx);
-struct region_t xui_get_clip(struct xui_context_t * ctx);
+struct region_t * xui_get_clip(struct xui_context_t * ctx);
 void xui_push_clip(struct xui_context_t * ctx, struct region_t * r);
 void xui_pop_clip(struct xui_context_t * ctx);
 int xui_check_clip(struct xui_context_t * ctx, struct region_t * r);
@@ -320,19 +320,19 @@ void xui_input_text(struct xui_context_t * ctx, const char * text);
 
 union xui_command_t * xui_push_command(struct xui_context_t * ctx, enum xui_command_type_t type, int size);
 int xui_next_command(struct xui_context_t * ctx, union xui_command_t ** cmd);
-void xui_set_clip(struct xui_context_t * ctx, struct region_t rect);
-void mu_draw_rect(struct xui_context_t * ctx, struct region_t rect, struct color_t * c);
-void mu_draw_box(struct xui_context_t * ctx, struct region_t rect, struct color_t * c);
-void mu_draw_text(struct xui_context_t * ctx, void * font, const char * str, int len, int x, int y, struct color_t * c);
-void mu_draw_icon(struct xui_context_t * ctx, int id, struct region_t rect, struct color_t * c);
+void xui_set_clip(struct xui_context_t * ctx, struct region_t * r);
+void xui_draw_rect(struct xui_context_t * ctx, struct region_t rect, struct color_t * c);
+void xui_draw_box(struct xui_context_t * ctx, struct region_t rect, struct color_t * c);
+void xui_draw_text(struct xui_context_t * ctx, void * font, const char * str, int len, int x, int y, struct color_t * c);
+void xui_draw_icon(struct xui_context_t * ctx, int id, struct region_t * r, struct color_t * c);
 
 void xui_layout_width(struct xui_context_t * ctx, int width);
 void xui_layout_height(struct xui_context_t  *ctx, int height);
 void xui_layout_row(struct xui_context_t * ctx, int items, const int * widths, int height);
 void xui_layout_begin_column(struct xui_context_t * ctx);
 void xui_layout_end_column(struct xui_context_t * ctx);
-void xui_layout_set_next(struct xui_context_t * ctx, struct region_t r, int relative);
-struct region_t xui_layout_next(struct xui_context_t * ctx);
+void xui_layout_set_next(struct xui_context_t * ctx, struct region_t * r, int relative);
+struct region_t * xui_layout_next(struct xui_context_t * ctx);
 
 void xui_draw_control_frame(struct xui_context_t * ctx, unsigned int id, struct region_t rect, int cid, int opt);
 void xui_draw_control_text(struct xui_context_t * ctx, const char * str, struct region_t rect, int cid, int opt);

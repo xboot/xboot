@@ -158,10 +158,11 @@ static void test_window(struct xui_context_t * ctx)
 			mu_slider(ctx, &bg[2], 0, 255);
 			xui_layout_end_column(ctx);
 			/* color preview */
-			struct region_t r = xui_layout_next(ctx);
+			struct region_t r;
+			region_clone(&r, xui_layout_next(ctx));
 			struct color_t c;
 			color_init(&c, bg[0], bg[1], bg[2], 255);
-			mu_draw_rect(ctx, r, &c);
+			xui_draw_rect(ctx, r, &c);
 			char buf[32];
 			sprintf(buf, "#%02X%02X%02X", (int)bg[0], (int)bg[1], (int)bg[2]);
 			xui_draw_control_text(ctx, buf, r, XUI_COLOR_TEXT, XUI_OPT_ALIGNCENTER);
@@ -253,7 +254,7 @@ static void style_window(struct xui_context_t * ctx) {
 			uint8_slider(ctx, &ctx->style.colors[i].g, 0, 255);
 			uint8_slider(ctx, &ctx->style.colors[i].b, 0, 255);
 			uint8_slider(ctx, &ctx->style.colors[i].a, 0, 255);
-			mu_draw_rect(ctx, xui_layout_next(ctx), &ctx->style.colors[i]);
+			xui_draw_rect(ctx, *xui_layout_next(ctx), &ctx->style.colors[i]);
 		}
 		xui_end_window(ctx);
 	}

@@ -42,6 +42,13 @@ static inline int region_isempty(struct region_t * r)
 	return 1;
 }
 
+static inline int region_hit(struct region_t * r, int x, int y)
+{
+	if((x >= r->x) && (x < r->x + r->w) && (y >= r->y) && (y < r->y + r->h))
+		return 1;
+	return 0;
+}
+
 static inline int region_contains(struct region_t * r, struct region_t * o)
 {
 	int rr = r->x + r->w;

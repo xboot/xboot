@@ -73,16 +73,6 @@ static struct region_t unclipped_region = {
 	.area = -1,
 };
 
-struct region_t mu_rect(int x, int y, int w, int h) {
-  struct region_t res;
-  res.x = x; res.y = y; res.w = w; res.h = h;
-  return res;
-}
-
-static int rect_overlaps_vec2(struct region_t r, int x, int y) {
-  return x >= r.x && x < r.x + r.w && y >= r.y && y < r.y + r.h;
-}
-
 void xui_draw_rect(struct xui_context_t * ctx, struct region_t * r, struct color_t * c)
 {
 	struct region_t region;
@@ -562,7 +552,8 @@ void xui_set_clip(struct xui_context_t * ctx, struct region_t * r)
 void xui_draw_text(struct xui_context_t * ctx, void * font, const char * str, int len, int x, int y, struct color_t * c)
 {
 	union xui_command_t * cmd;
-	struct region_t rect = mu_rect(x, y, ctx->text_width(font, str, len), ctx->text_height(font));
+	struct region_t rect;
+	region_init(&rect, x, y, ctx->text_width(font, str, len), ctx->text_height(font));
 	int clipped = xui_check_clip(ctx, &rect);
 	if(clipped == MU_CLIP_ALL)
 		return;
@@ -733,7 +724,7 @@ void xui_draw_control_text(struct xui_context_t * ctx, const char * str, struct 
 
 int xui_mouse_over(struct xui_context_t * ctx, struct region_t * r)
 {
-	return rect_overlaps_vec2(*r, ctx->mouse_pos_x, ctx->mouse_pos_y) && rect_overlaps_vec2(*xui_get_clip(ctx), ctx->mouse_pos_x, ctx->mouse_pos_y) && in_hover_root(ctx);
+	return region_hit(r, ctx->mouse_pos_x, ctx->mouse_pos_y) && region_hit(xui_get_clip(ctx), ctx->mouse_pos_x, ctx->mouse_pos_y) && in_hover_root(ctx);
 }
 
 void xui_update_control(struct xui_context_t * ctx, unsigned int id, struct region_t * r, int opt)
@@ -821,7 +812,8 @@ int mu_checkbox(struct xui_context_t * ctx, const char * label, int * state)
 	unsigned int id = xui_get_id(ctx, &state, sizeof(state));
 	struct region_t r;
 	region_clone(&r, xui_layout_next(ctx));
-	struct region_t box = mu_rect(r.x, r.y, r.h, r.h);
+	struct region_t box;
+	region_init(&box, r.x, r.y, r.h, r.h);
 	xui_update_control(ctx, id, &r, 0);
 	if(ctx->mouse_pressed == MU_MOUSE_LEFT && ctx->focus == id)
 	{
@@ -831,7 +823,7 @@ int mu_checkbox(struct xui_context_t * ctx, const char * label, int * state)
 	xui_draw_control_frame(ctx, id, &box, XUI_COLOR_BASE, 0);
 	if(*state)
 		xui_draw_icon(ctx, MU_ICON_CHECK, &box, &ctx->style.colors[XUI_COLOR_TEXT]);
-	r = mu_rect(r.x + box.w, r.y, r.w - box.w, r.h);
+	region_init(&r, r.x + box.w, r.y, r.w - box.w, r.h);
 	xui_draw_control_text(ctx, label, &r, XUI_COLOR_TEXT, 0);
 	return res;
 }
@@ -948,7 +940,7 @@ int mu_slider_ex(struct xui_context_t * ctx, float * value, float low, float hig
 	xui_draw_control_frame(ctx, id, &base, XUI_COLOR_BASE, opt);
 	w = ctx->style.thumb_size;
 	x = (v - low) * (base.w - w) / (high - low);
-	thumb = mu_rect(base.x + x, base.y, w, base.h);
+	region_init(&thumb, base.x + x, base.y, w, base.h);
 	xui_draw_control_frame(ctx, id, &thumb, XUI_COLOR_BUTTON, opt);
 	sprintf(buf, fmt, v);
 	xui_draw_control_text(ctx, buf, &base, XUI_COLOR_TEXT, opt);
@@ -1116,7 +1108,7 @@ static void begin_root_container(struct xui_context_t * ctx, struct xui_containe
 	xui_push(ctx->container_stack, c);
 	xui_push(ctx->root_list, c);
 	c->head = push_jump(ctx, NULL);
-	if(rect_overlaps_vec2(c->rect, ctx->mouse_pos_x, ctx->mouse_pos_y) && (!ctx->next_hover_root || c->zindex > ctx->next_hover_root->zindex))
+	if(region_hit(&c->rect, ctx->mouse_pos_x, ctx->mouse_pos_y) && (!ctx->next_hover_root || c->zindex > ctx->next_hover_root->zindex))
 		ctx->next_hover_root = c;
 	xui_push(ctx->clip_stack, unclipped_region);
 }
@@ -1171,7 +1163,8 @@ int xui_begin_window_ex(struct xui_context_t * ctx, const char * title, struct r
 		if(~opt & XUI_OPT_NOCLOSE)
 		{
 			unsigned int id = xui_get_id(ctx, "!close", 6);
-			struct region_t r = mu_rect(tr.x + tr.w - tr.h, tr.y, tr.h, tr.h);
+			struct region_t r;
+			region_init(&r, tr.x + tr.w - tr.h, tr.y, tr.h, tr.h);
 			tr.w -= r.w;
 			xui_draw_icon(ctx, MU_ICON_CLOSE, &r, &ctx->style.colors[XUI_COLOR_TITLETEXT]);
 			xui_update_control(ctx, id, &r, opt);
@@ -1186,7 +1179,8 @@ int xui_begin_window_ex(struct xui_context_t * ctx, const char * title, struct r
 	{
 		int sz = ctx->style.title_height;
 		unsigned int id = xui_get_id(ctx, "!resize", 7);
-		struct region_t r = mu_rect(rect.x + rect.w - sz, rect.y + rect.h - sz, sz, sz);
+		struct region_t r;
+		region_init(&r, rect.x + rect.w - sz, rect.y + rect.h - sz, sz, sz);
 		xui_update_control(ctx, id, &r, opt);
 		if(id == ctx->focus && ctx->mouse_down == MU_MOUSE_LEFT)
 		{
@@ -1223,7 +1217,7 @@ void xui_end_window(struct xui_context_t * ctx)
 int xui_begin_popup(struct xui_context_t * ctx, const char * name)
 {
 	int opt = XUI_OPT_POPUP | XUI_OPT_AUTOSIZE | XUI_OPT_NORESIZE | XUI_OPT_NOSCROLL | XUI_OPT_NOTITLE | XUI_OPT_CLOSED;
-	return xui_begin_window_ex(ctx, name, mu_rect(0, 0, 0, 0), opt);
+	return xui_begin_window_ex(ctx, name, (struct region_t){0, 0, 0, 0}, opt);
 }
 
 void xui_end_popup(struct xui_context_t * ctx)
@@ -1235,7 +1229,7 @@ void xui_open_popup(struct xui_context_t * ctx, const char * name)
 {
 	struct xui_container_t * c = xui_get_container(ctx, name);
 	ctx->hover_root = ctx->next_hover_root = c;
-	c->rect = mu_rect(ctx->mouse_pos_x, ctx->mouse_pos_y, 1, 1);
+	region_init(&c->rect, ctx->mouse_pos_x, ctx->mouse_pos_y, 1, 1);
 	c->open = 1;
 	xui_set_front(ctx, c);
 }

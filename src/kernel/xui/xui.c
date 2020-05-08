@@ -753,7 +753,7 @@ void xui_update_control(struct xui_context_t * ctx, unsigned int id, struct regi
 	}
 }
 
-void mu_text(struct xui_context_t * ctx, const char * text)
+void xui_text(struct xui_context_t * ctx, const char * text)
 {
 	const char *start, *end, *p = text;
 	int width = -1;
@@ -780,16 +780,16 @@ void mu_text(struct xui_context_t * ctx, const char * text)
 		} while(*end && (*end != '\n'));
 		xui_draw_text(ctx, font, start, end - start, r.x, r.y, c);
 		p = end + 1;
-	}while(*end);
+	} while(*end);
 	xui_layout_end_column(ctx);
 }
 
-void mu_label(struct xui_context_t * ctx, const char * text)
+void xui_label(struct xui_context_t * ctx, const char * text)
 {
 	xui_draw_control_text(ctx, text, xui_layout_next(ctx), XUI_COLOR_TEXT, 0);
 }
 
-int mu_button_ex(struct xui_context_t * ctx, const char * label, int icon, int opt)
+int xui_button_ex(struct xui_context_t * ctx, const char * label, int icon, int opt)
 {
 	int res = 0;
 	unsigned int id = label ? xui_get_id(ctx, label, strlen(label)) : xui_get_id(ctx, &icon, sizeof(icon));
@@ -806,7 +806,12 @@ int mu_button_ex(struct xui_context_t * ctx, const char * label, int icon, int o
 	return res;
 }
 
-int mu_checkbox(struct xui_context_t * ctx, const char * label, int * state)
+int xui_button(struct xui_context_t * ctx, const char * label)
+{
+	return xui_button_ex(ctx, label, 0, XUI_OPT_ALIGNCENTER);
+}
+
+int xui_checkbox(struct xui_context_t * ctx, const char * label, int * state)
 {
 	int res = 0;
 	unsigned int id = xui_get_id(ctx, &state, sizeof(state));
@@ -828,7 +833,7 @@ int mu_checkbox(struct xui_context_t * ctx, const char * label, int * state)
 	return res;
 }
 
-int mu_textbox_raw(struct xui_context_t * ctx, char * buf, int bufsz, unsigned int id, struct region_t * r, int opt)
+int xui_textbox_raw(struct xui_context_t * ctx, char * buf, int bufsz, unsigned int id, struct region_t * r, int opt)
 {
 	int res = 0;
 	xui_update_control(ctx, id, r, opt | XUI_OPT_HOLDFOCUS);
@@ -890,7 +895,7 @@ static int number_textbox(struct xui_context_t * ctx, float * value, struct regi
 	}
 	if(ctx->number_edit == id)
 	{
-		int res = mu_textbox_raw(ctx, ctx->number_edit_buf, sizeof(ctx->number_edit_buf), id, r, 0);
+		int res = xui_textbox_raw(ctx, ctx->number_edit_buf, sizeof(ctx->number_edit_buf), id, r, 0);
 		if((res & XUI_RES_SUBMIT) || ctx->focus != id)
 		{
 			*value = strtod(ctx->number_edit_buf, NULL);
@@ -904,15 +909,20 @@ static int number_textbox(struct xui_context_t * ctx, float * value, struct regi
 	return 0;
 }
 
-int mu_textbox_ex(struct xui_context_t * ctx, char * buf, int bufsz, int opt)
+int xui_textbox_ex(struct xui_context_t * ctx, char * buf, int bufsz, int opt)
 {
 	unsigned int id = xui_get_id(ctx, &buf, sizeof(buf));
 	struct region_t r;
 	region_clone(&r, xui_layout_next(ctx));
-	return mu_textbox_raw(ctx, buf, bufsz, id, &r, opt);
+	return xui_textbox_raw(ctx, buf, bufsz, id, &r, opt);
 }
 
-int mu_slider_ex(struct xui_context_t * ctx, float * value, float low, float high, float step, const char * fmt, int opt)
+int xui_textbox(struct xui_context_t * ctx, char * buf, int bufsz)
+{
+	return xui_textbox_ex(ctx, buf, bufsz, 0);
+}
+
+int xui_slider_ex(struct xui_context_t * ctx, float * value, float low, float high, float step, const char * fmt, int opt)
 {
 	char buf[MU_MAX_FMT + 1];
 	struct region_t thumb;
@@ -948,7 +958,12 @@ int mu_slider_ex(struct xui_context_t * ctx, float * value, float low, float hig
 	return res;
 }
 
-int mu_number_ex(struct xui_context_t * ctx, float * value, float step, const char * fmt, int opt)
+int xui_slider(struct xui_context_t * ctx, float * value, float low, float high)
+{
+	return xui_slider_ex(ctx, value, low, high, 0, "%.2f", XUI_OPT_ALIGNCENTER);
+}
+
+int xui_number_ex(struct xui_context_t * ctx, float * value, float step, const char * fmt, int opt)
 {
 	char buf[MU_MAX_FMT + 1];
 	int res = 0;
@@ -969,6 +984,11 @@ int mu_number_ex(struct xui_context_t * ctx, float * value, float step, const ch
 	xui_draw_control_text(ctx, buf, &base, XUI_COLOR_TEXT, opt);
 
 	return res;
+}
+
+int xui_number(struct xui_context_t * ctx, float * value, float step)
+{
+	return xui_number_ex(ctx, value, step, "%.2f", XUI_OPT_ALIGNCENTER);
 }
 
 static int header(struct xui_context_t * ctx, const char * label, int istreenode, int opt)
@@ -1017,12 +1037,17 @@ static int header(struct xui_context_t * ctx, const char * label, int istreenode
 	return expanded ? XUI_RES_ACTIVE : 0;
 }
 
-int mu_header_ex(struct xui_context_t * ctx, const char * label, int opt)
+int xui_header_ex(struct xui_context_t * ctx, const char * label, int opt)
 {
 	return header(ctx, label, 0, opt);
 }
 
-int mu_begin_treenode_ex(struct xui_context_t * ctx, const char * label, int opt)
+int xui_header(struct xui_context_t * ctx, const char * label)
+{
+	return header(ctx, label, 0, 0);
+}
+
+int xui_begin_treenode_ex(struct xui_context_t * ctx, const char * label, int opt)
 {
 	int res = header(ctx, label, 1, opt);
 	if(res & XUI_RES_ACTIVE)
@@ -1033,7 +1058,12 @@ int mu_begin_treenode_ex(struct xui_context_t * ctx, const char * label, int opt
 	return res;
 }
 
-void mu_end_treenode(struct xui_context_t * ctx)
+int xui_begin_treenode(struct xui_context_t * ctx, const char * label)
+{
+	return xui_begin_treenode_ex(ctx, label, 0);
+}
+
+void xui_end_treenode(struct xui_context_t * ctx)
 {
 	get_layout(ctx)->indent -= ctx->style.indent;
 	xui_pop_id(ctx);

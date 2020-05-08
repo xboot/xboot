@@ -21,7 +21,6 @@ extern "C" {
 #define MU_TREENODEPOOL_SIZE    48
 #define MU_MAX_WIDTHS           16
 #define MU_REAL_FMT             "%.3g"
-#define MU_SLIDER_FMT           "%.2f"
 #define MU_MAX_FMT              127
 
 enum {
@@ -339,24 +338,31 @@ void xui_draw_control_text(struct xui_context_t * ctx, const char * str, struct 
 int xui_mouse_over(struct xui_context_t * ctx, struct region_t * r);
 void xui_update_control(struct xui_context_t * ctx, unsigned int id, struct region_t * r, int opt);
 
-#define mu_button(ctx, label)             mu_button_ex(ctx, label, 0, XUI_OPT_ALIGNCENTER)
-#define mu_textbox(ctx, buf, bufsz)       mu_textbox_ex(ctx, buf, bufsz, 0)
-#define mu_slider(ctx, value, lo, hi)     mu_slider_ex(ctx, value, lo, hi, 0, MU_SLIDER_FMT, XUI_OPT_ALIGNCENTER)
-#define mu_number(ctx, value, step)       mu_number_ex(ctx, value, step, MU_SLIDER_FMT, XUI_OPT_ALIGNCENTER)
-#define mu_header(ctx, label)             mu_header_ex(ctx, label, 0)
-#define mu_begin_treenode(ctx, label)     mu_begin_treenode_ex(ctx, label, 0)
+void xui_text(struct xui_context_t * ctx, const char * text);
 
-void mu_text(struct xui_context_t * ctx, const char * text);
-void mu_label(struct xui_context_t * ctx, const char * text);
-int mu_button_ex(struct xui_context_t * ctx, const char * label, int icon, int opt);
-int mu_checkbox(struct xui_context_t * ctx, const char * label, int * state);
-int mu_textbox_raw(struct xui_context_t * ctx, char * buf, int bufsz, unsigned int id, struct region_t * r, int opt);
-int mu_textbox_ex(struct xui_context_t * ctx, char * buf, int bufsz, int opt);
-int mu_slider_ex(struct xui_context_t * ctx, float * value, float low, float high, float step, const char * fmt, int opt);
-int mu_number_ex(struct xui_context_t * ctx, float * value, float step, const char * fmt, int opt);
-int mu_header_ex(struct xui_context_t * ctx, const char * label, int opt);
-int mu_begin_treenode_ex(struct xui_context_t * ctx, const char * label, int opt);
-void mu_end_treenode(struct xui_context_t * ctx);
+void xui_label(struct xui_context_t * ctx, const char * text);
+
+int xui_button_ex(struct xui_context_t * ctx, const char * label, int icon, int opt);
+int xui_button(struct xui_context_t * ctx, const char * label);
+
+int xui_checkbox(struct xui_context_t * ctx, const char * label, int * state);
+
+int xui_textbox_raw(struct xui_context_t * ctx, char * buf, int bufsz, unsigned int id, struct region_t * r, int opt);
+int xui_textbox_ex(struct xui_context_t * ctx, char * buf, int bufsz, int opt);
+int xui_textbox(struct xui_context_t * ctx, char * buf, int bufsz);
+
+int xui_slider_ex(struct xui_context_t * ctx, float * value, float low, float high, float step, const char * fmt, int opt);
+int xui_slider(struct xui_context_t * ctx, float * value, float low, float high);
+
+int xui_number_ex(struct xui_context_t * ctx, float * value, float step, const char * fmt, int opt);
+int xui_number(struct xui_context_t * ctx, float * value, float step);
+
+int xui_header_ex(struct xui_context_t * ctx, const char * label, int opt);
+int xui_header(struct xui_context_t * ctx, const char * label);
+
+int xui_begin_treenode_ex(struct xui_context_t * ctx, const char * label, int opt);
+int xui_begin_treenode(struct xui_context_t * ctx, const char * label);
+void xui_end_treenode(struct xui_context_t * ctx);
 
 int xui_begin_window_ex(struct xui_context_t * ctx, const char * title, struct region_t * r, int opt);
 int xui_begin_window(struct xui_context_t * ctx, const char * title, struct region_t * r);

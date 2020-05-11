@@ -114,19 +114,19 @@ static int sandbox_event_sdl_thread(void * data)
 	        	switch(e.button.button)
 	        	{
 				case SDL_BUTTON_LEFT:
-					button = 0x01;
+					button = (0x1 << 0);
 					break;
 				case SDL_BUTTON_MIDDLE:
-					button = 0x02;
+					button = (0x1 << 2);
 					break;
 				case SDL_BUTTON_RIGHT:
-					button = 0x03;
+					button = (0x1 << 1);
 					break;
 				case SDL_BUTTON_X1:
-					button = 0x04;
+					button = (0x1 << 3);
 					break;
 				case SDL_BUTTON_X2:
-					button = 0x05;
+					button = (0x1 << 4);
 					break;
 				default:
 					button = 0x00;
@@ -145,19 +145,19 @@ static int sandbox_event_sdl_thread(void * data)
 	        	switch(e.button.button)
 	        	{
 				case SDL_BUTTON_LEFT:
-					button = 0x01;
+					button = (0x1 << 0);
 					break;
 				case SDL_BUTTON_MIDDLE:
-					button = 0x03;
+					button = (0x1 << 2);
 					break;
 				case SDL_BUTTON_RIGHT:
-					button = 0x02;
+					button = (0x1 << 1);
 					break;
 				case SDL_BUTTON_X1:
-					button = 0x04;
+					button = (0x1 << 3);
 					break;
 				case SDL_BUTTON_X2:
-					button = 0x05;
+					button = (0x1 << 4);
 					break;
 				default:
 					button = 0x00;
@@ -240,49 +240,49 @@ static int sandbox_event_sdl_thread(void * data)
 				switch(e.cbutton.button)
 				{
 				case SDL_CONTROLLER_BUTTON_A:
-					button = 0x05;
+					button = (0x1 << 4);
 					break;
 				case SDL_CONTROLLER_BUTTON_B:
-					button = 0x06;
+					button = (0x1 << 5);
 					break;
 				case SDL_CONTROLLER_BUTTON_X:
-					button = 0x07;
+					button = (0x1 << 6);
 					break;
 				case SDL_CONTROLLER_BUTTON_Y:
-					button = 0x08;
+					button = (0x1 << 7);
 					break;
 				case SDL_CONTROLLER_BUTTON_BACK:
-					button = 0x09;
+					button = (0x1 << 8);
 					break;
 				case SDL_CONTROLLER_BUTTON_GUIDE:
-					button = 0x0b;
+					button = (0x1 << 9);
 					break;
 				case SDL_CONTROLLER_BUTTON_START:
-					button = 0x0a;
+					button = (0x1 << 10);
 					break;
 				case SDL_CONTROLLER_BUTTON_LEFTSTICK:
-					button = 0x0e;
+					button = (0x1 << 11);
 					break;
 				case SDL_CONTROLLER_BUTTON_RIGHTSTICK:
-					button = 0x0f;
+					button = (0x1 << 12);
 					break;
 				case SDL_CONTROLLER_BUTTON_LEFTSHOULDER:
-					button = 0x0c;
+					button = (0x1 << 13);
 					break;
 				case SDL_CONTROLLER_BUTTON_RIGHTSHOULDER:
-					button = 0x0d;
+					button = (0x1 << 14);
 					break;
 				case SDL_CONTROLLER_BUTTON_DPAD_UP:
-					button = 0x01;
+					button = (0x1 << 0);
 					break;
 				case SDL_CONTROLLER_BUTTON_DPAD_DOWN:
-					button = 0x02;
+					button = (0x1 << 1);
 					break;
 				case SDL_CONTROLLER_BUTTON_DPAD_LEFT:
-					button = 0x03;
+					button = (0x1 << 2);
 					break;
 				case SDL_CONTROLLER_BUTTON_DPAD_RIGHT:
-					button = 0x04;
+					button = (0x1 << 3);
 					break;
 				default:
 					button = 0x00;
@@ -296,49 +296,49 @@ static int sandbox_event_sdl_thread(void * data)
 				switch(e.cbutton.button)
 				{
 				case SDL_CONTROLLER_BUTTON_A:
-					button = 0x05;
+					button = (0x1 << 4);
 					break;
 				case SDL_CONTROLLER_BUTTON_B:
-					button = 0x06;
+					button = (0x1 << 5);
 					break;
 				case SDL_CONTROLLER_BUTTON_X:
-					button = 0x07;
+					button = (0x1 << 6);
 					break;
 				case SDL_CONTROLLER_BUTTON_Y:
-					button = 0x08;
+					button = (0x1 << 7);
 					break;
 				case SDL_CONTROLLER_BUTTON_BACK:
-					button = 0x09;
+					button = (0x1 << 8);
 					break;
 				case SDL_CONTROLLER_BUTTON_GUIDE:
-					button = 0x0b;
+					button = (0x1 << 9);
 					break;
 				case SDL_CONTROLLER_BUTTON_START:
-					button = 0x0a;
+					button = (0x1 << 10);
 					break;
 				case SDL_CONTROLLER_BUTTON_LEFTSTICK:
-					button = 0x0e;
+					button = (0x1 << 11);
 					break;
 				case SDL_CONTROLLER_BUTTON_RIGHTSTICK:
-					button = 0x0f;
+					button = (0x1 << 12);
 					break;
 				case SDL_CONTROLLER_BUTTON_LEFTSHOULDER:
-					button = 0x0c;
+					button = (0x1 << 13);
 					break;
 				case SDL_CONTROLLER_BUTTON_RIGHTSHOULDER:
-					button = 0x0d;
+					button = (0x1 << 14);
 					break;
 				case SDL_CONTROLLER_BUTTON_DPAD_UP:
-					button = 0x01;
+					button = (0x1 << 0);
 					break;
 				case SDL_CONTROLLER_BUTTON_DPAD_DOWN:
-					button = 0x02;
+					button = (0x1 << 1);
 					break;
 				case SDL_CONTROLLER_BUTTON_DPAD_LEFT:
-					button = 0x03;
+					button = (0x1 << 2);
 					break;
 				case SDL_CONTROLLER_BUTTON_DPAD_RIGHT:
-					button = 0x04;
+					button = (0x1 << 3);
 					break;
 				default:
 					button = 0x00;

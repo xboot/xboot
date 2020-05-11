@@ -77,17 +77,19 @@ enum {
 };
 
 enum {
-	MU_MOUSE_LEFT       = (1 << 0),
-	MU_MOUSE_RIGHT      = (1 << 1),
-	MU_MOUSE_MIDDLE     = (1 << 2),
+	XUI_MOUSE_LEFT			= (1 << 0),
+	XUI_MOUSE_RIGHT			= (1 << 1),
+	XUI_MOUSE_MIDDLE		= (1 << 2),
+	XUI_MOUSE_X1			= (1 << 3),
+	XUI_MOUSE_X2			= (1 << 4),
 };
 
 enum {
-	MU_KEY_SHIFT        = (1 << 0),
-	MU_KEY_CTRL         = (1 << 1),
-	MU_KEY_ALT          = (1 << 2),
-	MU_KEY_BACKSPACE    = (1 << 3),
-	MU_KEY_RETURN       = (1 << 4),
+	XUI_KEY_SHIFT			= (1 << 0),
+	XUI_KEY_CTRL			= (1 << 1),
+	XUI_KEY_ALT				= (1 << 2),
+	XUI_KEY_BACKSPACE		= (1 << 3),
+	XUI_KEY_RETURN			= (1 << 4),
 };
 
 enum xui_command_type_t {
@@ -308,14 +310,6 @@ struct xui_container_t * xui_get_current_container(struct xui_context_t * ctx);
 int xui_pool_init(struct xui_context_t * ctx, struct xui_pool_item_t * items, int len, unsigned int id);
 int xui_pool_get(struct xui_context_t * ctx, struct xui_pool_item_t * items, int len, unsigned int id);
 void xui_pool_update(struct xui_context_t * ctx, struct xui_pool_item_t * items, int idx);
-
-void xui_input_mousemove(struct xui_context_t * ctx, int x, int y);
-void xui_input_mousedown(struct xui_context_t * ctx, int x, int y, int btn);
-void xui_input_mouseup(struct xui_context_t * ctx, int x, int y, int btn);
-void xui_input_scroll(struct xui_context_t * ctx, int x, int y);
-void xui_input_keydown(struct xui_context_t * ctx, int key);
-void xui_input_keyup(struct xui_context_t * ctx, int key);
-void xui_input_text(struct xui_context_t * ctx, const char * text);
 
 union xui_command_t * xui_push_command(struct xui_context_t * ctx, enum xui_command_type_t type, int size);
 int xui_next_command(struct xui_context_t * ctx, union xui_command_t ** cmd);

@@ -27,15 +27,8 @@
  */
 
 #include <xboot.h>
+#include <input/keyboard.h>
 #include <xui/xui.h>
-
-static void xui_input_text(struct xui_context_t * ctx, const char * text)
-{
-	int len = strlen(ctx->input_text);
-	int size = strlen(text) + 1;
-	expect(len + size <= sizeof(ctx->input_text));
-	memcpy(ctx->input_text + len, text, size);
-}
 
 static struct xui_style_t xui_style_default = {
 	.bgcol = {
@@ -203,27 +196,160 @@ static void xui_draw(struct window_t * w, void * o)
 void xui_loop(struct xui_context_t * ctx, void (*func)(struct xui_context_t *))
 {
 	struct event_t e;
-	int btn;
+	char utf8[16];
+	int l, sz;
 
 	while(1)
 	{
-		if(window_pump_event(ctx->w, &e))
+		while(window_pump_event(ctx->w, &e))
 		{
 			switch(e.type)
 			{
 			case EVENT_TYPE_KEY_DOWN:
-				ctx->key_pressed |= e.e.key_down.key;
-				ctx->key_down |= e.e.key_down.key;
+				switch(e.e.key_down.key)
+				{
+				case KEY_POWER:
+					ctx->key_down |= XUI_KEY_POWER;
+					ctx->key_pressed |= XUI_KEY_POWER;
+					break;
+				case KEY_UP:
+					ctx->key_down |= XUI_KEY_UP;
+					ctx->key_pressed |= XUI_KEY_UP;
+					break;
+				case KEY_DOWN:
+					ctx->key_down |= XUI_KEY_DOWN;
+					ctx->key_pressed |= XUI_KEY_DOWN;
+					break;
+				case KEY_LEFT:
+					ctx->key_down |= XUI_KEY_LEFT;
+					ctx->key_pressed |= XUI_KEY_LEFT;
+					break;
+				case KEY_RIGHT:
+					ctx->key_down |= XUI_KEY_RIGHT;
+					ctx->key_pressed |= XUI_KEY_RIGHT;
+					break;
+				case KEY_VOLUME_UP:
+					ctx->key_down |= XUI_KEY_VOLUME_UP;
+					ctx->key_pressed |= XUI_KEY_VOLUME_UP;
+					break;
+				case KEY_VOLUME_DOWN:
+					ctx->key_down |= XUI_KEY_VOLUME_DOWN;
+					ctx->key_pressed |= XUI_KEY_VOLUME_DOWN;
+					break;
+				case KEY_VOLUME_MUTE:
+					ctx->key_down |= XUI_KEY_VOLUME_MUTE;
+					ctx->key_pressed |= XUI_KEY_VOLUME_MUTE;
+					break;
+				case KEY_TAB:
+					ctx->key_down |= XUI_KEY_TAB;
+					ctx->key_pressed |= XUI_KEY_TAB;
+					break;
+				case KEY_TASK:
+					ctx->key_down |= XUI_KEY_TASK;
+					ctx->key_pressed |= XUI_KEY_TASK;
+					break;
+				case KEY_HOME:
+					ctx->key_down |= XUI_KEY_HOME;
+					ctx->key_pressed |= XUI_KEY_HOME;
+					break;
+				case KEY_BACK:
+					ctx->key_down |= XUI_KEY_BACK;
+					ctx->key_pressed |= XUI_KEY_BACK;
+					break;
+				case KEY_ENTER:
+					ctx->key_down |= XUI_KEY_ENTER;
+					ctx->key_pressed |= XUI_KEY_ENTER;
+					break;
+				case KEY_L_CTRL:
+				case KEY_R_CTRL:
+					ctx->key_down |= XUI_KEY_CTRL;
+					ctx->key_pressed |= XUI_KEY_CTRL;
+					break;
+				case KEY_L_ALT:
+				case KEY_R_ALT:
+					ctx->key_down |= XUI_KEY_ALT;
+					ctx->key_pressed |= XUI_KEY_ALT;
+					break;
+				case KEY_L_SHIFT:
+				case KEY_R_SHIFT:
+					ctx->key_down |= XUI_KEY_SHIFT;
+					ctx->key_pressed |= XUI_KEY_SHIFT;
+					break;
+				default:
+					if(e.e.key_up.key >= KEY_SPACE)
+					{
+						ucs4_to_utf8(&e.e.key_up.key, 1, utf8, sizeof(utf8));
+						l = strlen(ctx->input_text);
+						sz = strlen(utf8) + 1;
+						if(l + sz <= sizeof(ctx->input_text))
+							memcpy(ctx->input_text + l, utf8, sz);
+					}
+					break;
+				}
 				break;
 			case EVENT_TYPE_KEY_UP:
-				ctx->key_down &= ~e.e.key_up.key;
+				switch(e.e.key_up.key)
+				{
+				case KEY_POWER:
+					ctx->key_down &= ~XUI_KEY_POWER;
+					break;
+				case KEY_UP:
+					ctx->key_down &= ~XUI_KEY_UP;
+					break;
+				case KEY_DOWN:
+					ctx->key_down &= ~XUI_KEY_DOWN;
+					break;
+				case KEY_LEFT:
+					ctx->key_down &= ~XUI_KEY_LEFT;
+					break;
+				case KEY_RIGHT:
+					ctx->key_down &= ~XUI_KEY_RIGHT;
+					break;
+				case KEY_VOLUME_UP:
+					ctx->key_down &= ~XUI_KEY_VOLUME_UP;
+					break;
+				case KEY_VOLUME_DOWN:
+					ctx->key_down &= ~XUI_KEY_VOLUME_DOWN;
+					break;
+				case KEY_VOLUME_MUTE:
+					ctx->key_down &= ~XUI_KEY_VOLUME_MUTE;
+					break;
+				case KEY_TAB:
+					ctx->key_down &= ~XUI_KEY_TAB;
+					break;
+				case KEY_TASK:
+					ctx->key_down &= ~XUI_KEY_TASK;
+					break;
+				case KEY_HOME:
+					ctx->key_down &= ~XUI_KEY_HOME;
+					break;
+				case KEY_BACK:
+					ctx->key_down &= ~XUI_KEY_BACK;
+					break;
+				case KEY_ENTER:
+					ctx->key_down &= ~XUI_KEY_ENTER;
+					break;
+				case KEY_L_CTRL:
+				case KEY_R_CTRL:
+					ctx->key_down &= ~XUI_KEY_CTRL;
+					break;
+				case KEY_L_ALT:
+				case KEY_R_ALT:
+					ctx->key_down &= ~XUI_KEY_ALT;
+					break;
+				case KEY_L_SHIFT:
+				case KEY_R_SHIFT:
+					ctx->key_down &= ~XUI_KEY_SHIFT;
+					break;
+				default:
+					break;
+				}
 				break;
 			case EVENT_TYPE_MOUSE_DOWN:
 				ctx->mouse_pos_x = e.e.mouse_down.x;
 				ctx->mouse_pos_y = e.e.mouse_down.y;
-				btn = 1 << (e.e.mouse_down.button - 1);
-				ctx->mouse_down |= btn;
-				ctx->mouse_pressed |= btn;
+				ctx->mouse_down |= e.e.mouse_down.button;
+				ctx->mouse_pressed |= e.e.mouse_down.button;
 				break;
 			case EVENT_TYPE_MOUSE_MOVE:
 				ctx->mouse_pos_x = e.e.mouse_move.x;
@@ -232,12 +358,11 @@ void xui_loop(struct xui_context_t * ctx, void (*func)(struct xui_context_t *))
 			case EVENT_TYPE_MOUSE_UP:
 				ctx->mouse_pos_x = e.e.mouse_up.x;
 				ctx->mouse_pos_y = e.e.mouse_up.y;
-				btn = 1 << (e.e.mouse_up.button - 1);
-				ctx->mouse_down &= ~btn;
+				ctx->mouse_down &= ~e.e.mouse_up.button;
 				break;
 			case EVENT_TYPE_MOUSE_WHEEL:
 				ctx->scroll_delta_x += e.e.mouse_wheel.dx * 30;
-				ctx->scroll_delta_y += e.e.mouse_wheel.dy * -30;
+				ctx->scroll_delta_y -= e.e.mouse_wheel.dy * 30;
 				break;
 			default:
 				break;
@@ -771,7 +896,7 @@ int xui_button_ex(struct xui_context_t * ctx, const char * label, int icon, int 
 	struct region_t r;
 	region_clone(&r, xui_layout_next(ctx));
 	xui_update_control(ctx, id, &r, opt);
-	if((ctx->mouse_pressed == XUI_MOUSE_LEFT) && (ctx->focus == id))
+	if((ctx->mouse_pressed & XUI_MOUSE_LEFT) && (ctx->focus == id))
 		res |= XUI_RES_SUBMIT;
 	xui_draw_control_frame(ctx, id, &r, XUI_COLOR_BUTTON, opt);
 	if(label)
@@ -795,7 +920,7 @@ int xui_checkbox(struct xui_context_t * ctx, const char * label, int * state)
 	struct region_t box;
 	region_init(&box, r.x, r.y, r.h, r.h);
 	xui_update_control(ctx, id, &r, 0);
-	if((ctx->mouse_pressed == XUI_MOUSE_LEFT) && (ctx->focus == id))
+	if((ctx->mouse_pressed & XUI_MOUSE_LEFT) && (ctx->focus == id))
 	{
 		res |= XUI_RES_CHANGE;
 		*state = !*state;
@@ -824,14 +949,14 @@ int xui_textbox_raw(struct xui_context_t * ctx, char * buf, int bufsz, unsigned 
 			buf[len] = '\0';
 			res |= XUI_RES_CHANGE;
 		}
-		if((ctx->key_pressed & XUI_KEY_BACKSPACE) && len > 0)
+		if((ctx->key_pressed & XUI_KEY_BACK) && len > 0)
 		{
 			while((buf[--len] & 0xc0) == 0x80 && len > 0)
 				;
 			buf[len] = '\0';
 			res |= XUI_RES_CHANGE;
 		}
-		if(ctx->key_pressed & XUI_KEY_RETURN)
+		if(ctx->key_pressed & XUI_KEY_ENTER)
 		{
 			xui_set_focus(ctx, 0);
 			res |= XUI_RES_SUBMIT;
@@ -863,7 +988,7 @@ int xui_textbox_raw(struct xui_context_t * ctx, char * buf, int bufsz, unsigned 
 
 static int number_textbox(struct xui_context_t * ctx, float * value, struct region_t * r, unsigned int id)
 {
-	if((ctx->mouse_pressed == XUI_MOUSE_LEFT) && (ctx->key_down & XUI_KEY_SHIFT) && (ctx->hover == id))
+	if((ctx->mouse_pressed & XUI_MOUSE_LEFT) && (ctx->key_down & XUI_KEY_SHIFT) && (ctx->hover == id))
 	{
 		ctx->number_edit = id;
 		sprintf(ctx->number_edit_buf, MU_REAL_FMT, *value);
@@ -912,7 +1037,7 @@ int xui_slider_ex(struct xui_context_t * ctx, float * value, float low, float hi
 
 	xui_update_control(ctx, id, &base, opt);
 
-	if((ctx->focus == id) && (ctx->mouse_down == XUI_MOUSE_LEFT))
+	if((ctx->focus == id) && (ctx->mouse_down & XUI_MOUSE_LEFT))
 	{
 		v = low + (ctx->mouse_pos_x - base.x) * (high - low) / base.w;
 		if(step)
@@ -950,7 +1075,7 @@ int xui_number_ex(struct xui_context_t * ctx, float * value, float step, const c
 	if(number_textbox(ctx, value, &base, id))
 		return res;
 	xui_update_control(ctx, id, &base, opt);
-	if((ctx->focus == id) && (ctx->mouse_down == XUI_MOUSE_LEFT))
+	if((ctx->focus == id) && (ctx->mouse_down & XUI_MOUSE_LEFT))
 		*value += ctx->mouse_delta_x * step;
 	if(*value != last)
 		res |= XUI_RES_CHANGE;
@@ -980,7 +1105,7 @@ static int header(struct xui_context_t * ctx, const char * label, int istreenode
 	region_clone(&r, xui_layout_next(ctx));
 	xui_update_control(ctx, id, &r, 0);
 
-	active ^= ((ctx->mouse_pressed == XUI_MOUSE_LEFT) && (ctx->focus == id));
+	active ^= ((ctx->mouse_pressed & XUI_MOUSE_LEFT) && (ctx->focus == id));
 
 	if(idx >= 0)
 	{
@@ -1060,7 +1185,7 @@ void xui_end_treenode(struct xui_context_t * ctx)
                                                                             \
       /* handle input */                                                    \
       xui_update_control(ctx, id, &base, 0);                                  \
-      if ((ctx->focus == id) && (ctx->mouse_down == XUI_MOUSE_LEFT)) {           \
+      if ((ctx->focus == id) && (ctx->mouse_down & XUI_MOUSE_LEFT)) {           \
         c->scroll_abc.y += ctx->mouse_delta_y * height / base.h;                \
       }                                                                     \
       /* clamp scroll to limits */                                          \
@@ -1158,7 +1283,7 @@ int xui_begin_window_ex(struct xui_context_t * ctx, const char * title, struct r
 			unsigned int id = xui_get_id(ctx, "!title", 6);
 			xui_update_control(ctx, id, &tr, opt);
 			xui_draw_control_text(ctx, title, &tr, XUI_COLOR_TITLETEXT, opt);
-			if((id == ctx->focus) && (ctx->mouse_down == XUI_MOUSE_LEFT))
+			if((id == ctx->focus) && (ctx->mouse_down & XUI_MOUSE_LEFT))
 			{
 				c->rect.x += ctx->mouse_delta_x;
 				c->rect.y += ctx->mouse_delta_y;
@@ -1175,7 +1300,7 @@ int xui_begin_window_ex(struct xui_context_t * ctx, const char * title, struct r
 			tr.w -= r.w;
 			xui_draw_icon(ctx, MU_ICON_CLOSE, &r, &ctx->style.colors[XUI_COLOR_TITLETEXT]);
 			xui_update_control(ctx, id, &r, opt);
-			if((ctx->mouse_pressed == XUI_MOUSE_LEFT) && (id == ctx->focus))
+			if((ctx->mouse_pressed & XUI_MOUSE_LEFT) && (id == ctx->focus))
 				c->open = 0;
 		}
 	}
@@ -1189,7 +1314,7 @@ int xui_begin_window_ex(struct xui_context_t * ctx, const char * title, struct r
 		struct region_t r;
 		region_init(&r, region.x + region.w - sz, region.y + region.h - sz, sz, sz);
 		xui_update_control(ctx, id, &r, opt);
-		if((id == ctx->focus) && (ctx->mouse_down == XUI_MOUSE_LEFT))
+		if((id == ctx->focus) && (ctx->mouse_down & XUI_MOUSE_LEFT))
 		{
 			c->rect.w = max(96, c->rect.w + ctx->mouse_delta_x);
 			c->rect.h = max(64, c->rect.h + ctx->mouse_delta_y);

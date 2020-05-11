@@ -77,28 +77,39 @@ enum {
 };
 
 enum {
-	XUI_MOUSE_LEFT			= (1 << 0),
-	XUI_MOUSE_RIGHT			= (1 << 1),
-	XUI_MOUSE_MIDDLE		= (1 << 2),
-	XUI_MOUSE_X1			= (1 << 3),
-	XUI_MOUSE_X2			= (1 << 4),
+	XUI_KEY_POWER			= (0x1 << 0),
+	XUI_KEY_UP				= (0x1 << 1),
+	XUI_KEY_DOWN			= (0x1 << 2),
+	XUI_KEY_LEFT			= (0x1 << 3),
+	XUI_KEY_RIGHT			= (0x1 << 4),
+	XUI_KEY_VOLUME_UP		= (0x1 << 5),
+	XUI_KEY_VOLUME_DOWN		= (0x1 << 6),
+	XUI_KEY_VOLUME_MUTE		= (0x1 << 7),
+	XUI_KEY_TAB				= (0x1 << 8),
+	XUI_KEY_TASK			= (0x1 << 9),
+	XUI_KEY_HOME			= (0x1 << 10),
+	XUI_KEY_BACK			= (0x1 << 11),
+	XUI_KEY_ENTER			= (0x1 << 12),
+	XUI_KEY_CTRL			= (0x1 << 13),
+	XUI_KEY_ALT				= (0x1 << 14),
+	XUI_KEY_SHIFT			= (0x1 << 15),
 };
 
 enum {
-	XUI_KEY_SHIFT			= (1 << 0),
-	XUI_KEY_CTRL			= (1 << 1),
-	XUI_KEY_ALT				= (1 << 2),
-	XUI_KEY_BACKSPACE		= (1 << 3),
-	XUI_KEY_RETURN			= (1 << 4),
+	XUI_MOUSE_LEFT			= (0x1 << 0),
+	XUI_MOUSE_RIGHT			= (0x1 << 1),
+	XUI_MOUSE_MIDDLE		= (0x1 << 2),
+	XUI_MOUSE_X1			= (0x1 << 3),
+	XUI_MOUSE_X2			= (0x1 << 4),
 };
 
 enum xui_command_type_t {
-	XUI_COMMAND_TYPE_BASE	= 0,
-	XUI_COMMAND_TYPE_JUMP	= 1,
-	XUI_COMMAND_TYPE_CLIP	= 2,
-	XUI_COMMAND_TYPE_RECT	= 3,
-	XUI_COMMAND_TYPE_TEXT	= 4,
-	XUI_COMMAND_TYPE_ICON	= 5,
+	XUI_COMMAND_TYPE_BASE	= 0x0,
+	XUI_COMMAND_TYPE_JUMP	= 0x1,
+	XUI_COMMAND_TYPE_CLIP	= 0x2,
+	XUI_COMMAND_TYPE_RECT	= 0x3,
+	XUI_COMMAND_TYPE_TEXT	= 0x4,
+	XUI_COMMAND_TYPE_ICON	= 0x5,
 };
 
 struct xui_command_base_t {

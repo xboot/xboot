@@ -164,7 +164,7 @@ static void test_window(struct xui_context_t * ctx)
 			xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, 0, 0, &c);
 			char buf[32];
 			sprintf(buf, "#%02X%02X%02X", (int)bg[0], (int)bg[1], (int)bg[2]);
-			xui_draw_control_text(ctx, buf, r, XUI_COLOR_TEXT, XUI_OPT_ALIGNCENTER);
+			xui_draw_control_text(ctx, buf, r, XUI_COLOR_TEXT, 0);
 		}
 
 		xui_end_window(ctx);
@@ -216,7 +216,7 @@ static int uint8_slider(struct xui_context_t *ctx, unsigned char *value, int low
   static float tmp;
   xui_push_id(ctx, &value, sizeof(value));
   tmp = *value;
-  int res = xui_slider_ex(ctx, &tmp, low, high, 0, "%.0f", XUI_OPT_ALIGNCENTER);
+  int res = xui_slider_ex(ctx, &tmp, low, high, 0, "%.0f", 0);
   *value = tmp;
   xui_pop_id(ctx);
   return res;

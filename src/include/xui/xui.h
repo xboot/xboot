@@ -6,22 +6,22 @@ extern "C" {
 #endif
 
 #include <xboot/window.h>
+#include <input/keyboard.h>
 #include <graphic/point.h>
 #include <graphic/region.h>
 #include <graphic/color.h>
 #include <graphic/font.h>
+#include <xui/font.h>
 
-#define MU_COMMANDLIST_SIZE     (256 * 1024)
-#define MU_ROOTLIST_SIZE        32
-#define MU_CONTAINERSTACK_SIZE  32
-#define MU_CLIPSTACK_SIZE       32
-#define MU_IDSTACK_SIZE         32
-#define MU_LAYOUTSTACK_SIZE     16
-#define MU_CONTAINERPOOL_SIZE   48
-#define MU_TREENODEPOOL_SIZE    48
-#define MU_MAX_WIDTHS           16
-#define MU_REAL_FMT             "%.3g"
-#define MU_MAX_FMT              127
+#define XUI_COMMAND_LIST_SIZE		(256 * 1024)
+#define XUI_ROOT_LIST_SIZE			(32)
+#define XUI_CONTAINER_STACK_SIZE	(32)
+#define XUI_CLIP_STACK_SIZE			(32)
+#define XUI_ID_STACK_SIZE			(32)
+#define XUI_LAYOUT_STACK_SIZE		(16)
+#define XUI_CONTAINER_POOL_SIZE		(48)
+#define XUI_TREENODE_POOL_SIZE		(48)
+#define XUI_MAX_WIDTHS				(16)
 
 enum {
 	XUI_COLOR_TEXT,
@@ -42,33 +42,34 @@ enum {
 };
 
 enum {
-	MU_ICON_CLOSE = 1,
-	MU_ICON_CHECK,
-	MU_ICON_COLLAPSED,
-	MU_ICON_EXPANDED,
-	MU_ICON_MAX,
+	XUI_ICON_CLOSE,
+	XUI_ICON_CHECK,
+	XUI_ICON_COLLAPSED,
+	XUI_ICON_EXPANDED,
 };
 
 enum {
-	XUI_RES_ACTIVE       = (1 << 0),
-	XUI_RES_SUBMIT       = (1 << 1),
-	XUI_RES_CHANGE       = (1 << 2),
+	XUI_RES_ACTIVE			= (0x1 << 0),
+	XUI_RES_SUBMIT			= (0x1 << 1),
+	XUI_RES_CHANGE			= (0x1 << 2),
 };
 
 enum {
-	XUI_OPT_ALIGNCENTER		= (0x1 << 0),
-	XUI_OPT_ALIGNRIGHT		= (0x1 << 1),
-	XUI_OPT_NOINTERACT		= (0x1 << 2),
-	XUI_OPT_NOFRAME			= (0x1 << 3),
-	XUI_OPT_NORESIZE		= (0x1 << 4),
-	XUI_OPT_NOSCROLL		= (0x1 << 5),
-	XUI_OPT_NOCLOSE			= (0x1 << 6),
-	XUI_OPT_NOTITLE			= (0x1 << 7),
-	XUI_OPT_HOLDFOCUS		= (0x1 << 8),
-	XUI_OPT_AUTOSIZE		= (0x1 << 9),
-	XUI_OPT_POPUP			= (0x1 << 10),
-	XUI_OPT_CLOSED			= (0x1 << 11),
-	XUI_OPT_EXPANDED		= (0x1 << 12),
+	XUI_OPT_ALIGN_LEFT		= (0x1 << 0),
+	XUI_OPT_ALIGN_RIGHT		= (0x1 << 1),
+	XUI_OPT_ALIGN_TOP		= (0x1 << 2),
+	XUI_OPT_ALIGN_BOTTOM  	= (0x1 << 3),
+	XUI_OPT_NO_INTERACT		= (0x1 << 4),
+	XUI_OPT_NO_FRAME		= (0x1 << 5),
+	XUI_OPT_NO_RESIZE		= (0x1 << 6),
+	XUI_OPT_NO_SCROLL		= (0x1 << 7),
+	XUI_OPT_NO_CLOSE		= (0x1 << 8),
+	XUI_OPT_NO_TITLE		= (0x1 << 9),
+	XUI_OPT_HOLD_FOCUS		= (0x1 << 10),
+	XUI_OPT_AUTO_SIZE		= (0x1 << 11),
+	XUI_OPT_POPUP			= (0x1 << 12),
+	XUI_OPT_CLOSED			= (0x1 << 13),
+	XUI_OPT_EXPANDED		= (0x1 << 14),
 };
 
 enum {
@@ -188,7 +189,7 @@ struct xui_layout_t {
 	int position_x, position_y;
 	int size_width, size_height;
 	int max_width, max_height;
-	int widths[MU_MAX_WIDTHS];
+	int widths[XUI_MAX_WIDTHS];
 	int items;
 	int item_index;
 	int next_row;
@@ -247,7 +248,7 @@ struct xui_context_t {
 	struct xui_container_t * hover_root;
 	struct xui_container_t * next_hover_root;
 	struct xui_container_t * scroll_target;
-	char number_edit_buf[MU_MAX_FMT];
+	char number_edit_buf[127];
 	unsigned int number_edit;
 
 	/*
@@ -255,40 +256,40 @@ struct xui_context_t {
 	 */
 	struct {
 		int idx;
-		char items[MU_COMMANDLIST_SIZE];
+		char items[XUI_COMMAND_LIST_SIZE];
 	} cmd_list;
 
 	struct {
 		int idx;
-		struct xui_container_t * items[MU_ROOTLIST_SIZE];
+		struct xui_container_t * items[XUI_ROOT_LIST_SIZE];
 	} root_list;
 
 	struct {
 		int idx;
-		struct xui_container_t * items[MU_CONTAINERSTACK_SIZE];
+		struct xui_container_t * items[XUI_CONTAINER_STACK_SIZE];
 	} container_stack;
 
 	struct {
 		int idx;
-		struct region_t items[MU_CLIPSTACK_SIZE];
+		struct region_t items[XUI_CLIP_STACK_SIZE];
 	} clip_stack;
 
 	struct {
 		int idx;
-		unsigned int items[MU_IDSTACK_SIZE];
+		unsigned int items[XUI_ID_STACK_SIZE];
 	} id_stack;
 
 	struct {
 		int idx;
-		struct xui_layout_t items[MU_LAYOUTSTACK_SIZE];
+		struct xui_layout_t items[XUI_LAYOUT_STACK_SIZE];
 	} layout_stack;
 
 	/*
 	 * Retained state pool
 	 */
-	struct xui_pool_item_t container_pool[MU_CONTAINERPOOL_SIZE];
-	struct xui_container_t containers[MU_CONTAINERPOOL_SIZE];
-	struct xui_pool_item_t treenode_pool[MU_TREENODEPOOL_SIZE];
+	struct xui_pool_item_t container_pool[XUI_CONTAINER_POOL_SIZE];
+	struct xui_container_t containers[XUI_CONTAINER_POOL_SIZE];
+	struct xui_pool_item_t treenode_pool[XUI_TREENODE_POOL_SIZE];
 
 	/*
 	 * Input state
@@ -311,15 +312,6 @@ struct xui_context_t {
 	void (*draw_frame)(struct xui_context_t * ctx, struct region_t * r, int cid);
 };
 
-void xui_draw_triangle(struct xui_context_t * ctx, struct point_t * p0, struct point_t * p1, struct point_t * p2, int thickness, struct color_t * c);
-void xui_draw_rectangle(struct xui_context_t * ctx, int x, int y, int w, int h, int radius, int thickness, struct color_t * c);
-void xui_draw_text(struct xui_context_t * ctx, void * font, const char * utf8, int len, int x, int y, struct color_t * c);
-void xui_draw_icon(struct xui_context_t * ctx, int id, struct region_t * r, struct color_t * c);
-
-struct xui_context_t * xui_context_alloc(const char * fb, const char * input, struct xui_style_t * style);
-void xui_context_free(struct xui_context_t * ctx);
-void xui_loop(struct xui_context_t * ctx, void (*func)(struct xui_context_t *));
-
 void xui_begin(struct xui_context_t * ctx);
 void xui_end(struct xui_context_t * ctx);
 void xui_set_front(struct xui_context_t * ctx, struct xui_container_t * c);
@@ -334,10 +326,6 @@ int xui_check_clip(struct xui_context_t * ctx, struct region_t * r);
 struct xui_container_t * xui_get_container(struct xui_context_t * ctx, const char * name);
 struct xui_container_t * xui_get_current_container(struct xui_context_t * ctx);
 
-int xui_pool_init(struct xui_context_t * ctx, struct xui_pool_item_t * items, int len, unsigned int id);
-int xui_pool_get(struct xui_context_t * ctx, struct xui_pool_item_t * items, int len, unsigned int id);
-void xui_pool_update(struct xui_context_t * ctx, struct xui_pool_item_t * items, int idx);
-
 void xui_layout_width(struct xui_context_t * ctx, int width);
 void xui_layout_height(struct xui_context_t * ctx, int height);
 void xui_layout_row(struct xui_context_t * ctx, int items, const int * widths, int height);
@@ -346,10 +334,31 @@ void xui_layout_end_column(struct xui_context_t * ctx);
 void xui_layout_set_next(struct xui_context_t * ctx, struct region_t * r, int relative);
 struct region_t * xui_layout_next(struct xui_context_t * ctx);
 
+void xui_draw_triangle(struct xui_context_t * ctx, struct point_t * p0, struct point_t * p1, struct point_t * p2, int thickness, struct color_t * c);
+void xui_draw_rectangle(struct xui_context_t * ctx, int x, int y, int w, int h, int radius, int thickness, struct color_t * c);
+void xui_draw_text(struct xui_context_t * ctx, void * font, const char * utf8, int len, int x, int y, struct color_t * c);
+void xui_draw_icon(struct xui_context_t * ctx, int id, struct region_t * r, struct color_t * c);
+
 void xui_draw_control_frame(struct xui_context_t * ctx, unsigned int id, struct region_t * r, int cid, int opt);
 void xui_draw_control_text(struct xui_context_t * ctx, const char * str, struct region_t * r, int cid, int opt);
-int xui_mouse_over(struct xui_context_t * ctx, struct region_t * r);
 void xui_update_control(struct xui_context_t * ctx, unsigned int id, struct region_t * r, int opt);
+
+int xui_begin_window_ex(struct xui_context_t * ctx, const char * title, struct region_t * r, int opt);
+int xui_begin_window(struct xui_context_t * ctx, const char * title, struct region_t * r);
+void xui_end_window(struct xui_context_t * ctx);
+int xui_begin_popup(struct xui_context_t * ctx, const char * name);
+void xui_end_popup(struct xui_context_t * ctx);
+void xui_open_popup(struct xui_context_t * ctx, const char * name);
+void xui_begin_panel_ex(struct xui_context_t * ctx, const char * name, int opt);
+void xui_begin_panel(struct xui_context_t * ctx, const char * name);
+void xui_end_panel(struct xui_context_t * ctx);
+int xui_begin_treenode_ex(struct xui_context_t * ctx, const char * label, int opt);
+int xui_begin_treenode(struct xui_context_t * ctx, const char * label);
+void xui_end_treenode(struct xui_context_t * ctx);
+int xui_header_ex(struct xui_context_t * ctx, const char * label, int opt);
+int xui_header(struct xui_context_t * ctx, const char * label);
+
+
 
 void xui_text(struct xui_context_t * ctx, const char * text);
 
@@ -370,24 +379,14 @@ int xui_slider(struct xui_context_t * ctx, float * value, float low, float high)
 int xui_number_ex(struct xui_context_t * ctx, float * value, float step, const char * fmt, int opt);
 int xui_number(struct xui_context_t * ctx, float * value, float step);
 
-int xui_header_ex(struct xui_context_t * ctx, const char * label, int opt);
-int xui_header(struct xui_context_t * ctx, const char * label);
 
-int xui_begin_treenode_ex(struct xui_context_t * ctx, const char * label, int opt);
-int xui_begin_treenode(struct xui_context_t * ctx, const char * label);
-void xui_end_treenode(struct xui_context_t * ctx);
 
-int xui_begin_window_ex(struct xui_context_t * ctx, const char * title, struct region_t * r, int opt);
-int xui_begin_window(struct xui_context_t * ctx, const char * title, struct region_t * r);
-void xui_end_window(struct xui_context_t * ctx);
 
-int xui_begin_popup(struct xui_context_t * ctx, const char * name);
-void xui_end_popup(struct xui_context_t * ctx);
-void xui_open_popup(struct xui_context_t * ctx, const char * name);
 
-void xui_begin_panel_ex(struct xui_context_t * ctx, const char * name, int opt);
-void xui_begin_panel(struct xui_context_t * ctx, const char * name);
-void xui_end_panel(struct xui_context_t * ctx);
+
+struct xui_context_t * xui_context_alloc(const char * fb, const char * input, struct xui_style_t * style);
+void xui_context_free(struct xui_context_t * ctx);
+void xui_loop(struct xui_context_t * ctx, void (*func)(struct xui_context_t *));
 
 #ifdef __cplusplus
 }

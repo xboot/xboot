@@ -211,14 +211,15 @@ static void log_window(struct xui_context_t *ctx)
 	}
 }
 
-static int uint8_slider(struct xui_context_t *ctx, unsigned char *value, int low, int high) {
-  static float tmp;
-  xui_push_id(ctx, &value, sizeof(value));
-  tmp = *value;
-  int res = xui_slider_ex(ctx, &tmp, low, high, 0, "%.0f", 0);
-  *value = tmp;
-  xui_pop_id(ctx);
-  return res;
+static int uint8_slider(struct xui_context_t *ctx, unsigned char *value, int low, int high)
+{
+	float tmp;
+	xui_push_id(ctx, &value, sizeof(value));
+	tmp = *value;
+	int res = xui_slider_ex(ctx, &tmp, low, high, 0, "%.0f", 0);
+	*value = tmp;
+	xui_pop_id(ctx);
+	return res;
 }
 
 

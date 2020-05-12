@@ -198,7 +198,7 @@ int xui_check_clip(struct xui_context_t * ctx, struct region_t * r)
 {
 	struct region_t * cr = xui_get_clip(ctx);
 
-	if((r->x > cr->x + cr->w) || (r->x + r->w < cr->x) || (r->y > cr->y + cr->h) || (r->y + r->h < cr->y))
+	if((r->w <= 0) || (r->h <= 0) || (r->x > cr->x + cr->w) || (r->x + r->w < cr->x) || (r->y > cr->y + cr->h) || (r->y + r->h < cr->y))
 		return 0;
 	else if((r->x >= cr->x) && (r->x + r->w <= cr->x + cr->w) && (r->y >= cr->y) && (r->y + r->h <= cr->y + cr->h))
 		return 1;

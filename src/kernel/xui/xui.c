@@ -128,42 +128,42 @@ void xui_draw_rectangle(struct xui_context_t * ctx, int x, int y, int w, int h, 
 		region_expand(&r, &r, iceil(thickness / 2));
 	if((clip = xui_check_clip(ctx, &r)))
 	{
-		if(clip > 0)
+		if(clip < 0)
 			xui_cmd_push_clip(ctx, xui_get_clip(ctx));
 		cmd = xui_cmd_push(ctx, XUI_CMD_TYPE_RECTANGLE, sizeof(struct xui_cmd_rectangle_t));
-		memcpy(&cmd->rectangle.c, c, sizeof(struct color_t));
 		cmd->rectangle.x = x;
 		cmd->rectangle.y = y;
 		cmd->rectangle.w = w;
 		cmd->rectangle.h = h;
 		cmd->rectangle.radius = radius;
 		cmd->rectangle.thickness = thickness;
-		if(clip > 0)
+		memcpy(&cmd->rectangle.c, c, sizeof(struct color_t));
+		if(clip < 0)
 			xui_cmd_push_clip(ctx, &unclipped_region);
 	}
 }
 
-void xui_draw_text(struct xui_context_t * ctx, void * font, const char * str, int len, int x, int y, struct color_t * c)
+void xui_draw_text(struct xui_context_t * ctx, void * font, const char * utf8, int len, int x, int y, struct color_t * c)
 {
 	union xui_cmd_t * cmd;
 	struct region_t r;
 	int clip;
 
-	region_init(&r, x, y, ctx->text_width(font, str, len), ctx->text_height(font));
+	region_init(&r, x, y, ctx->text_width(font, utf8, len), ctx->text_height(font));
 	if((clip = xui_check_clip(ctx, &r)))
 	{
-		if(clip > 0)
+		if(clip < 0)
 			xui_cmd_push_clip(ctx, xui_get_clip(ctx));
 		if(len < 0)
-			len = strlen(str);
+			len = strlen(utf8);
 		cmd = xui_cmd_push(ctx, XUI_CMD_TYPE_TEXT, sizeof(struct xui_cmd_text_t) + len);
-		memcpy(cmd->text.str, str, len);
-		cmd->text.str[len] = '\0';
+		cmd->text.font = font;
 		cmd->text.x = x;
 		cmd->text.y = y;
-		memcpy(&cmd->text.color, c, sizeof(struct color_t));
-		cmd->text.font = font;
-		if(clip > 0)
+		memcpy(&cmd->text.c, c, sizeof(struct color_t));
+		memcpy(cmd->text.utf8, utf8, len);
+		cmd->text.utf8[len] = 0;
+		if(clip < 0)
 			xui_cmd_push_clip(ctx, &unclipped_region);
 	}
 }
@@ -175,13 +175,16 @@ void xui_draw_icon(struct xui_context_t * ctx, int id, struct region_t * r, stru
 
 	if((clip = xui_check_clip(ctx, r)))
 	{
-		if(clip > 0)
+		if(clip < 0)
 			xui_cmd_push_clip(ctx, xui_get_clip(ctx));
 		cmd = xui_cmd_push(ctx, XUI_CMD_TYPE_ICON, sizeof(struct xui_cmd_icon_t));
 		cmd->icon.id = id;
-		region_clone(&cmd->icon.rect, r);
-		memcpy(&cmd->icon.color, c, sizeof(struct color_t));
-		if(clip > 0)
+		cmd->icon.x = r->x;
+		cmd->icon.y = r->y;
+		cmd->icon.w = r->w;
+		cmd->icon.h = r->h;
+		memcpy(&cmd->icon.c, c, sizeof(struct color_t));
+		if(clip < 0)
 			xui_cmd_push_clip(ctx, &unclipped_region);
 	}
 }
@@ -225,7 +228,8 @@ struct xui_context_t * xui_context_alloc(const char * fb, const char * input, st
 	ctx->f = font_context_alloc();
 
 	memcpy(&ctx->style, style ? style : &xui_style_default, sizeof(struct xui_style_t));
-	region_init(&ctx->clip, 0, 0, window_get_width(ctx->w), window_get_height(ctx->w));
+	region_init(&ctx->region, 0, 0, window_get_width(ctx->w), window_get_height(ctx->w));
+	region_clone(&ctx->clip, &ctx->region);
 
 	ctx->draw_frame = draw_frame;
 	ctx->text_width = text_width;
@@ -257,12 +261,8 @@ static void xui_draw(struct window_t * w, void * o)
 		case XUI_CMD_TYPE_JUMP:
 			break;
 		case XUI_CMD_TYPE_CLIP:
-			{
-				struct region_t a, b;
-				region_init(&a, cmd->clip.r.x, cmd->clip.r.y, cmd->clip.r.w, cmd->clip.r.h);
-				region_init(&b, 0, 0, window_get_width(ctx->w), window_get_height(ctx->w));
-				region_intersect(clip, &a, &b);
-			}
+			if(!region_intersect(clip, &ctx->region, &cmd->clip.r))
+				region_init(clip, 0, 0, 0, 0);
 			break;
 		case XUI_CMD_TYPE_TRIANGLE:
 			surface_shape_triangle(s, clip, &cmd->triangle.p0, &cmd->triangle.p1, &cmd->triangle.p2, cmd->triangle.thickness, &cmd->triangle.c);
@@ -271,7 +271,7 @@ static void xui_draw(struct window_t * w, void * o)
 			surface_shape_rectangle(s, clip, cmd->rectangle.x, cmd->rectangle.y, cmd->rectangle.w, cmd->rectangle.h, cmd->rectangle.radius, cmd->rectangle.thickness, &cmd->rectangle.c);
 			break;
 		case XUI_CMD_TYPE_TEXT:
-			font_draw(s, clip, cmd->text.x, cmd->text.y, cmd->text.str, &cmd->text.color);
+			font_draw(s, clip, cmd->text.x, cmd->text.y, cmd->text.utf8, &cmd->text.c);
 			break;
 		case XUI_CMD_TYPE_ICON:
 			//r_draw_icon(cmd->icon.id, cmd->icon.rect, cmd->icon.color);
@@ -596,9 +596,9 @@ int xui_check_clip(struct xui_context_t * ctx, struct region_t * r)
 	if((r->x > cr->x + cr->w) || (r->x + r->w < cr->x) || (r->y > cr->y + cr->h) || (r->y + r->h < cr->y))
 		return 0;
 	else if((r->x >= cr->x) && (r->x + r->w <= cr->x + cr->w) && (r->y >= cr->y) && (r->y + r->h <= cr->y + cr->h))
-		return -1;
-	else
 		return 1;
+	else
+		return -1;
 }
 
 static void push_layout(struct xui_context_t * ctx, struct region_t * body, int scrollx, int scrolly)
@@ -867,8 +867,7 @@ void xui_text(struct xui_context_t * ctx, const char * text)
 	struct color_t * c = &ctx->style.colors[XUI_COLOR_TEXT];
 	xui_layout_begin_column(ctx);
 	xui_layout_row(ctx, 1, &width, ctx->text_height(font));
-	do
-	{
+	do {
 		struct region_t r;
 		region_clone(&r, xui_layout_next(ctx));
 		int w = 0;

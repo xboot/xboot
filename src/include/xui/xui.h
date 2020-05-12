@@ -56,19 +56,19 @@ enum {
 };
 
 enum {
-	XUI_OPT_ALIGNCENTER  = (1 << 0),
-	XUI_OPT_ALIGNRIGHT   = (1 << 1),
-	XUI_OPT_NOINTERACT   = (1 << 2),
-	XUI_OPT_NOFRAME      = (1 << 3),
-	XUI_OPT_NORESIZE     = (1 << 4),
-	XUI_OPT_NOSCROLL     = (1 << 5),
-	XUI_OPT_NOCLOSE      = (1 << 6),
-	XUI_OPT_NOTITLE      = (1 << 7),
-	XUI_OPT_HOLDFOCUS    = (1 << 8),
-	XUI_OPT_AUTOSIZE     = (1 << 9),
-	XUI_OPT_POPUP        = (1 << 10),
-	XUI_OPT_CLOSED       = (1 << 11),
-	XUI_OPT_EXPANDED     = (1 << 12),
+	XUI_OPT_ALIGNCENTER		= (0x1 << 0),
+	XUI_OPT_ALIGNRIGHT		= (0x1 << 1),
+	XUI_OPT_NOINTERACT		= (0x1 << 2),
+	XUI_OPT_NOFRAME			= (0x1 << 3),
+	XUI_OPT_NORESIZE		= (0x1 << 4),
+	XUI_OPT_NOSCROLL		= (0x1 << 5),
+	XUI_OPT_NOCLOSE			= (0x1 << 6),
+	XUI_OPT_NOTITLE			= (0x1 << 7),
+	XUI_OPT_HOLDFOCUS		= (0x1 << 8),
+	XUI_OPT_AUTOSIZE		= (0x1 << 9),
+	XUI_OPT_POPUP			= (0x1 << 10),
+	XUI_OPT_CLOSED			= (0x1 << 11),
+	XUI_OPT_EXPANDED		= (0x1 << 12),
 };
 
 enum {
@@ -131,31 +131,31 @@ struct xui_cmd_triangle_t {
 	enum xui_cmd_type_t type;
 	int size;
 
-	struct color_t c;
 	struct point_t p0;
 	struct point_t p1;
 	struct point_t p2;
 	int thickness;
+	struct color_t c;
 };
 
 struct xui_cmd_rectangle_t {
 	enum xui_cmd_type_t type;
 	int size;
 
-	struct color_t c;
 	int x, y, w, h;
 	int radius;
 	int thickness;
+	struct color_t c;
 };
 
 struct xui_cmd_text_t {
 	enum xui_cmd_type_t type;
 	int size;
-	void * font;
 
+	void * font;
 	int x, y;
-	struct color_t color;
-	char str[1];
+	struct color_t c;
+	char utf8[1];
 };
 
 struct xui_cmd_icon_t {
@@ -163,8 +163,8 @@ struct xui_cmd_icon_t {
 	int size;
 
 	int id;
-	struct region_t rect;
-	struct color_t color;
+	int x, y, w, h;
+	struct color_t c;
 };
 
 union xui_cmd_t {
@@ -235,6 +235,7 @@ struct xui_context_t {
 	 * Core state
 	 */
 	struct xui_style_t style;
+	struct region_t region;
 	struct region_t clip;
 	unsigned int hover;
 	unsigned int focus;
@@ -312,7 +313,7 @@ struct xui_context_t {
 
 void xui_draw_triangle(struct xui_context_t * ctx, struct point_t * p0, struct point_t * p1, struct point_t * p2, int thickness, struct color_t * c);
 void xui_draw_rectangle(struct xui_context_t * ctx, int x, int y, int w, int h, int radius, int thickness, struct color_t * c);
-void xui_draw_text(struct xui_context_t * ctx, void * font, const char * str, int len, int x, int y, struct color_t * c);
+void xui_draw_text(struct xui_context_t * ctx, void * font, const char * utf8, int len, int x, int y, struct color_t * c);
 void xui_draw_icon(struct xui_context_t * ctx, int id, struct region_t * r, struct color_t * c);
 
 struct xui_context_t * xui_context_alloc(const char * fb, const char * input, struct xui_style_t * style);

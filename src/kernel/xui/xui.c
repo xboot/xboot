@@ -141,20 +141,6 @@ void xui_draw_rectangle(struct xui_context_t * ctx, int x, int y, int w, int h, 
 		if(clip > 0)
 			xui_cmd_push_clip(ctx, &unclipped_region);
 	}
-/*	struct region_t r;
-
-	region_init(&r, x, y, w, h);
-	if(region_intersect(&r, &r, xui_get_clip(ctx)))
-	{
-		union xui_cmd_t * cmd = xui_cmd_push(ctx, XUI_CMD_TYPE_RECTANGLE, sizeof(struct xui_cmd_rectangle_t));
-		memcpy(&cmd->rectangle.c, c, sizeof(struct color_t));
-		cmd->rectangle.x = r.x;
-		cmd->rectangle.y = r.y;
-		cmd->rectangle.w = r.w;
-		cmd->rectangle.h = r.h;
-		cmd->rectangle.radius = radius;
-		cmd->rectangle.thickness = thickness;
-	}*/
 }
 
 void xui_draw_text(struct xui_context_t * ctx, void * font, const char * str, int len, int x, int y, struct color_t * c)

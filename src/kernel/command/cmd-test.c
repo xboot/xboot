@@ -29,9 +29,9 @@ static void test_window(struct xui_context_t * ctx)
 	/* do window */
 	if(xui_begin_window(ctx, "Demo Window", &(struct region_t){40, 40, 300, 450}))
 	{
-		struct xui_container_t *win = xui_get_current_container(ctx);
-		win->rect.w = max(win->rect.w, 240);
-		win->rect.h = max(win->rect.h, 300);
+		struct xui_container_t * win = xui_get_current_container(ctx);
+		win->region.w = max(win->region.w, 240);
+		win->region.h = max(win->region.h, 300);
 
 		/* window info */
 		if(xui_header(ctx, "Window Info"))
@@ -40,10 +40,10 @@ static void test_window(struct xui_context_t * ctx)
 			char buf[64];
 			xui_layout_row(ctx, 2, (int[] ) { 54, -1 }, 0);
 			xui_label(ctx, "Position:");
-			sprintf(buf, "%d, %d", win->rect.x, win->rect.y);
+			sprintf(buf, "%d, %d", win->region.x, win->region.y);
 			xui_label(ctx, buf);
 			xui_label(ctx, "Size:");
-			sprintf(buf, "%d, %d", win->rect.w, win->rect.h);
+			sprintf(buf, "%d, %d", win->region.w, win->region.h);
 			xui_label(ctx, buf);
 		}
 
@@ -158,14 +158,13 @@ static void test_window(struct xui_context_t * ctx)
 			xui_slider(ctx, &bg[2], 0, 255);
 			xui_layout_end_column(ctx);
 			/* color preview */
-			struct region_t r;
-			region_clone(&r, xui_layout_next(ctx));
+			struct region_t * r = xui_layout_next(ctx);
 			struct color_t c;
 			color_init(&c, bg[0], bg[1], bg[2], 255);
-			xui_draw_rect(ctx, &r, &c);
+			xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, 0, 0, &c);
 			char buf[32];
 			sprintf(buf, "#%02X%02X%02X", (int)bg[0], (int)bg[1], (int)bg[2]);
-			xui_draw_control_text(ctx, buf, &r, XUI_COLOR_TEXT, XUI_OPT_ALIGNCENTER);
+			xui_draw_control_text(ctx, buf, r, XUI_COLOR_TEXT, XUI_OPT_ALIGNCENTER);
 		}
 
 		xui_end_window(ctx);
@@ -254,7 +253,8 @@ static void style_window(struct xui_context_t * ctx) {
 			uint8_slider(ctx, &ctx->style.colors[i].g, 0, 255);
 			uint8_slider(ctx, &ctx->style.colors[i].b, 0, 255);
 			uint8_slider(ctx, &ctx->style.colors[i].a, 0, 255);
-			xui_draw_rect(ctx, xui_layout_next(ctx), &ctx->style.colors[i]);
+			struct region_t * r = xui_layout_next(ctx);
+			xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, 0, 0, &ctx->style.colors[i]);
 		}
 		xui_end_window(ctx);
 	}

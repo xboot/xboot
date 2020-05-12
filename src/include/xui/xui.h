@@ -24,11 +24,6 @@ extern "C" {
 #define MU_MAX_FMT              127
 
 enum {
-	MU_CLIP_PART = 1,
-	MU_CLIP_ALL,
-};
-
-enum {
 	XUI_COLOR_TEXT,
 	XUI_COLOR_BORDER,
 	XUI_COLOR_WINDOW,
@@ -103,44 +98,58 @@ enum {
 	XUI_MOUSE_X2			= (0x1 << 4),
 };
 
-enum xui_command_type_t {
-	XUI_COMMAND_TYPE_BASE	= 0x0,
-	XUI_COMMAND_TYPE_JUMP	= 0x1,
-	XUI_COMMAND_TYPE_CLIP	= 0x2,
-	XUI_COMMAND_TYPE_RECT	= 0x3,
-	XUI_COMMAND_TYPE_TEXT	= 0x4,
-	XUI_COMMAND_TYPE_ICON	= 0x5,
+enum xui_cmd_type_t {
+	XUI_CMD_TYPE_BASE		= 0x0,
+	XUI_CMD_TYPE_JUMP		= 0x1,
+	XUI_CMD_TYPE_CLIP		= 0x2,
+	XUI_CMD_TYPE_TRIANGLE	= 0x3,
+	XUI_CMD_TYPE_RECTANGLE	= 0x4,
+	XUI_CMD_TYPE_TEXT		= 0x5,
+	XUI_CMD_TYPE_ICON		= 0x6,
 };
 
-struct xui_command_base_t {
-	enum xui_command_type_t type;
+struct xui_cmd_base_t {
+	enum xui_cmd_type_t type;
 	int size;
 };
 
-struct xui_command_jump_t {
-	enum xui_command_type_t type;
+struct xui_cmd_jump_t {
+	enum xui_cmd_type_t type;
 	int size;
 
 	void * addr;
 };
 
-struct xui_command_clip_t {
-	enum xui_command_type_t type;
+struct xui_cmd_clip_t {
+	enum xui_cmd_type_t type;
 	int size;
 
-	struct region_t rect;
+	struct region_t r;
 };
 
-struct xui_command_rect_t {
-	enum xui_command_type_t type;
+struct xui_cmd_triangle_t {
+	enum xui_cmd_type_t type;
 	int size;
 
-	struct region_t rect;
-	struct color_t color;
+	struct color_t c;
+	struct point_t p0;
+	struct point_t p1;
+	struct point_t p2;
+	int thickness;
 };
 
-struct xui_command_text_t {
-	enum xui_command_type_t type;
+struct xui_cmd_rectangle_t {
+	enum xui_cmd_type_t type;
+	int size;
+
+	struct color_t c;
+	int x, y, w, h;
+	int radius;
+	int thickness;
+};
+
+struct xui_cmd_text_t {
+	enum xui_cmd_type_t type;
 	int size;
 	void * font;
 
@@ -149,8 +158,8 @@ struct xui_command_text_t {
 	char str[1];
 };
 
-struct xui_command_icon_t {
-	enum xui_command_type_t type;
+struct xui_cmd_icon_t {
+	enum xui_cmd_type_t type;
 	int size;
 
 	int id;
@@ -158,13 +167,14 @@ struct xui_command_icon_t {
 	struct color_t color;
 };
 
-union xui_command_t {
-	struct xui_command_base_t base;
-	struct xui_command_jump_t jump;
-	struct xui_command_clip_t clip;
-	struct xui_command_rect_t rect;
-	struct xui_command_text_t text;
-	struct xui_command_icon_t icon;
+union xui_cmd_t {
+	struct xui_cmd_base_t base;
+	struct xui_cmd_jump_t jump;
+	struct xui_cmd_clip_t clip;
+	struct xui_cmd_triangle_t triangle;
+	struct xui_cmd_rectangle_t rectangle;
+	struct xui_cmd_text_t text;
+	struct xui_cmd_icon_t icon;
 };
 
 struct xui_pool_item_t {
@@ -187,8 +197,8 @@ struct xui_layout_t {
 };
 
 struct xui_container_t {
-	union xui_command_t * head, * tail;
-	struct region_t rect;
+	union xui_cmd_t * head, * tail;
+	struct region_t region;
 	struct region_t body;
 	int content_width;
 	int content_height;
@@ -245,7 +255,7 @@ struct xui_context_t {
 	struct {
 		int idx;
 		char items[MU_COMMANDLIST_SIZE];
-	} command_list;
+	} cmd_list;
 
 	struct {
 		int idx;
@@ -300,6 +310,11 @@ struct xui_context_t {
 	void (*draw_frame)(struct xui_context_t * ctx, struct region_t * r, int cid);
 };
 
+void xui_draw_triangle(struct xui_context_t * ctx, struct point_t * p0, struct point_t * p1, struct point_t * p2, int thickness, struct color_t * c);
+void xui_draw_rectangle(struct xui_context_t * ctx, int x, int y, int w, int h, int radius, int thickness, struct color_t * c);
+void xui_draw_text(struct xui_context_t * ctx, void * font, const char * str, int len, int x, int y, struct color_t * c);
+void xui_draw_icon(struct xui_context_t * ctx, int id, struct region_t * r, struct color_t * c);
+
 struct xui_context_t * xui_context_alloc(const char * fb, const char * input, struct xui_style_t * style);
 void xui_context_free(struct xui_context_t * ctx);
 void xui_loop(struct xui_context_t * ctx, void (*func)(struct xui_context_t *));
@@ -322,16 +337,8 @@ int xui_pool_init(struct xui_context_t * ctx, struct xui_pool_item_t * items, in
 int xui_pool_get(struct xui_context_t * ctx, struct xui_pool_item_t * items, int len, unsigned int id);
 void xui_pool_update(struct xui_context_t * ctx, struct xui_pool_item_t * items, int idx);
 
-union xui_command_t * xui_push_command(struct xui_context_t * ctx, enum xui_command_type_t type, int size);
-int xui_next_command(struct xui_context_t * ctx, union xui_command_t ** cmd);
-void xui_set_clip(struct xui_context_t * ctx, struct region_t * r);
-void xui_draw_rect(struct xui_context_t * ctx, struct region_t * r, struct color_t * c);
-void xui_draw_box(struct xui_context_t * ctx, struct region_t * r, struct color_t * c);
-void xui_draw_text(struct xui_context_t * ctx, void * font, const char * str, int len, int x, int y, struct color_t * c);
-void xui_draw_icon(struct xui_context_t * ctx, int id, struct region_t * r, struct color_t * c);
-
 void xui_layout_width(struct xui_context_t * ctx, int width);
-void xui_layout_height(struct xui_context_t  *ctx, int height);
+void xui_layout_height(struct xui_context_t * ctx, int height);
 void xui_layout_row(struct xui_context_t * ctx, int items, const int * widths, int height);
 void xui_layout_begin_column(struct xui_context_t * ctx);
 void xui_layout_end_column(struct xui_context_t * ctx);

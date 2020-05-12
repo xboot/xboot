@@ -173,7 +173,6 @@ static void test_window(struct xui_context_t * ctx)
 
 static void log_window(struct xui_context_t *ctx)
 {
-
 	if(xui_begin_window(ctx, "Log Window", &(struct region_t){350, 40, 300, 200}))
 	{
 		/* output text panel */
@@ -185,7 +184,7 @@ static void log_window(struct xui_context_t *ctx)
 		xui_end_panel(ctx);
 		if(logbuf_updated)
 		{
-			panel->scroll_abc.y = panel->content_height;
+			panel->scroll_y = panel->content_height;
 			logbuf_updated = 0;
 		}
 

@@ -103,8 +103,8 @@ void xui_end(struct xui_context_t * ctx)
 	assert(ctx->layout_stack.idx    == 0);
 	if(ctx->scroll_target)
 	{
-		ctx->scroll_target->scroll_abc.x += ctx->scroll_delta_x;
-		ctx->scroll_target->scroll_abc.y += ctx->scroll_delta_y;
+		ctx->scroll_target->scroll_x += ctx->scroll_delta_x;
+		ctx->scroll_target->scroll_y += ctx->scroll_delta_y;
 	}
 	if(!ctx->updated_focus)
 		ctx->focus = 0;
@@ -584,48 +584,15 @@ void xui_update_control(struct xui_context_t * ctx, unsigned int id, struct regi
 	}
 }
 
-#define scrollbar(ctx, c, b, width, height, x, y, w, h)                              \
-  do {                                                                      \
-    /* only add scrollbar if content size is larger than body */            \
-    int maxscroll = height - b->h;                                            \
-                                                                            \
-    if (maxscroll > 0 && b->h > 0) {                                        \
-      struct region_t base, thumb;                                                  \
-      unsigned int id = xui_get_id(ctx, "!scrollbar" #y, 11);                       \
-                                                                            \
-      /* get sizing / positioning */                                        \
-      base = *b;                                                            \
-      base.x = b->x + b->w;                                                 \
-      base.w = ctx->style.scrollbar_size;                                  \
-                                                                            \
-      /* handle input */                                                    \
-      xui_update_control(ctx, id, &base, 0);                                  \
-      if ((ctx->focus == id) && (ctx->mouse_down & XUI_MOUSE_LEFT)) {           \
-        c->scroll_abc.y += ctx->mouse_delta_y * height / base.h;                \
-      }                                                                     \
-      /* clamp scroll to limits */                                          \
-      c->scroll_abc.y = clamp(c->scroll_abc.y, 0, maxscroll);  	                \
-                                                                            \
-      /* draw base and thumb */                                             \
-      ctx->draw_frame(ctx, &base, XUI_COLOR_SCROLLBASE);                      \
-      thumb = base;                                                         \
-      thumb.h = max(ctx->style.thumb_size, base.h * b->h / height);       \
-      thumb.y += c->scroll_abc.y * (base.h - thumb.h) / maxscroll;            \
-      ctx->draw_frame(ctx, &thumb, XUI_COLOR_SCROLLTHUMB);                    \
-                                                                            \
-      /* set this as the scroll_target (will get scrolled on mousewheel) */ \
-      /* if the mouse is over it */                                         \
-      if (xui_mouse_over(ctx, b)) { ctx->scroll_target = c; }             \
-    } else {                                                                \
-      c->scroll_abc.y = 0;                                                    \
-    }                                                                       \
-  } while (0)
-
 static void scrollbars(struct xui_context_t * ctx, struct xui_container_t * c, struct region_t * body)
 {
+	struct region_t base, thumb;
 	int sz = ctx->style.scrollbar_size;
 	int width = c->content_width;
 	int height = c->content_height;
+	int maxscroll;
+	unsigned int id;
+
 	width += ctx->style.padding * 2;
 	height += ctx->style.padding * 2;
 	xui_push_clip(ctx, body);
@@ -633,8 +600,54 @@ static void scrollbars(struct xui_context_t * ctx, struct xui_container_t * c, s
 		body->w -= sz;
 	if(width > c->body.w)
 		body->h -= sz;
-	scrollbar(ctx, c, body, width, height, x, y, w, h);
-	scrollbar(ctx, c, body, width, height, y, x, h, w);
+
+	maxscroll = height - body->h;
+	if(maxscroll > 0 && body->h > 0)
+	{
+		id = xui_get_id(ctx, "!scrollbary", 11);
+		region_clone(&base, body);
+		base.x = body->x + body->w;
+		base.w = ctx->style.scrollbar_size;
+		xui_update_control(ctx, id, &base, 0);
+		if((ctx->focus == id) && (ctx->mouse_down & XUI_MOUSE_LEFT))
+			c->scroll_y += ctx->mouse_delta_y * height / base.h;
+		c->scroll_y = clamp(c->scroll_y, 0, maxscroll);
+		ctx->draw_frame(ctx, &base, XUI_COLOR_SCROLLBASE);
+		region_clone(&thumb, &base);
+		thumb.h = max(ctx->style.thumb_size, base.h * body->h / height);
+		thumb.y += c->scroll_y * (base.h - thumb.h) / maxscroll;
+		ctx->draw_frame(ctx, &thumb, XUI_COLOR_SCROLLTHUMB);
+		if(xui_mouse_over(ctx, body))
+			ctx->scroll_target = c;
+	}
+	else
+	{
+		c->scroll_y = 0;
+	}
+
+	maxscroll = width - body->w;
+	if(maxscroll > 0 && body->w > 0)
+	{
+		id = xui_get_id(ctx, "!scrollbarx", 11);
+		region_clone(&base, body);
+		base.y = body->y + body->h;
+		base.h = ctx->style.scrollbar_size;
+		xui_update_control(ctx, id, &base, 0);
+		if((ctx->focus == id) && (ctx->mouse_down & XUI_MOUSE_LEFT))
+			c->scroll_x += ctx->mouse_delta_x * width / base.w;
+		c->scroll_x = clamp(c->scroll_x, 0, maxscroll);
+		ctx->draw_frame(ctx, &base, XUI_COLOR_SCROLLBASE);
+		region_clone(&thumb, &base);
+		thumb.w = max(ctx->style.thumb_size, base.w * body->w / width);
+		thumb.x += c->scroll_x * (base.w - thumb.w) / maxscroll;
+		ctx->draw_frame(ctx, &thumb, XUI_COLOR_SCROLLTHUMB);
+		if(xui_mouse_over(ctx, body))
+			ctx->scroll_target = c;
+	}
+	else
+	{
+		c->scroll_x = 0;
+	}
 	xui_pop_clip(ctx);
 }
 
@@ -644,7 +657,7 @@ static void push_container_body(struct xui_context_t * ctx, struct xui_container
 	if(~opt & XUI_OPT_NO_SCROLL)
 		scrollbars(ctx, c, body);
 	region_expand(&r, body, -ctx->style.padding);
-	push_layout(ctx, &r, c->scroll_abc.x, c->scroll_abc.y);
+	push_layout(ctx, &r, c->scroll_x, c->scroll_y);
 	region_clone(&c->body, body);
 }
 

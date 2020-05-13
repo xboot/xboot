@@ -164,7 +164,7 @@ static void test_window(struct xui_context_t * ctx)
 			xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, 0, 0, &c);
 			char buf[32];
 			sprintf(buf, "#%02X%02X%02X", (int)bg[0], (int)bg[1], (int)bg[2]);
-			xui_control_draw_text(ctx, buf, r, XUI_COLOR_TEXT, 0);
+			xui_control_draw_text(ctx, buf, r, &ctx->style.colors[XUI_COLOR_TEXT], 0);
 		}
 
 		xui_end_window(ctx);
@@ -260,15 +260,35 @@ static void style_window(struct xui_context_t * ctx) {
 	}
 }
 
+int xui_button_test(struct xui_context_t * ctx, const char * label, int opt)
+{
+	unsigned int id = label ? xui_get_id(ctx, label, strlen(label)) : xui_get_id(ctx, &label, sizeof(label));
+	struct region_t * r = xui_layout_next(ctx);
+	int res = 0;
+
+	xui_control_update(ctx, id, r, opt);
+	if((ctx->mouse_pressed & XUI_MOUSE_LEFT) && (ctx->focus == id))
+		res |= XUI_RES_SUBMIT;
+	if(ctx->focus == id)
+		xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, 0, 0, &ctx->style.button.primary.focus.background);
+	else if(ctx->hover == id)
+		xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, 0, 0, &ctx->style.button.primary.hover.background);
+	else
+		xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, 0, 0, &ctx->style.button.primary.normal.background);
+	if(label)
+		xui_control_draw_text(ctx, label, r, &ctx->style.colors[XUI_COLOR_TEXT], opt);
+	return res;
+}
+
 void ttt_test(struct xui_context_t * ctx)
 {
 	if(xui_begin_window(ctx, "test window", NULL))
 	{
 		xui_layout_row(ctx, 2, (int[]){ 100, -1 }, 0);
-		if(xui_button(ctx, "button test1"))
+		if(xui_button_test(ctx, "button test1", 0))
 		{
 		}
-		if(xui_button(ctx, "button test2"))
+		if(xui_button_test(ctx, "button test2", 0))
 		{
 		}
 		if(xui_begin_treenode(ctx, "treenode"))
@@ -278,7 +298,7 @@ void ttt_test(struct xui_context_t * ctx)
 			xui_layout_row(ctx, 3, (int[]){ 100, 100, -1, }, 50);
 			for(int i = 0; i < 3; i++)
 			{
-				xui_button(ctx, xui_format(ctx, "button %s %d", "abc", i));
+				xui_button_test(ctx, xui_format(ctx, "button %s %d", "abc", i), 0);
 			}
 			xui_end_treenode(ctx);
 		}

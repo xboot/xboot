@@ -221,6 +221,36 @@ struct xui_style_t {
 	int scrollbar_size;
 	int thumb_size;
 	struct color_t colors[XUI_COLOR_MAX];
+
+	struct {
+		struct {
+			struct {
+				struct color_t background;
+				struct color_t border;
+				struct color_t text;
+			} normal;
+			struct {
+				struct color_t background;
+				struct color_t border;
+				struct color_t text;
+			} hover;
+			struct {
+				struct color_t background;
+				struct color_t border;
+				struct color_t text;
+			} focus;
+		} primary;
+		struct {
+		} secondary;
+		struct {
+		} success;
+		struct {
+		} info;
+		struct {
+		} warning;
+		struct {
+		} danger;
+	} button;
 };
 
 struct xui_context_t {
@@ -345,7 +375,7 @@ void xui_draw_icon(struct xui_context_t * ctx, int id, struct region_t * r, stru
 
 void xui_control_update(struct xui_context_t * ctx, unsigned int id, struct region_t * r, int opt);
 void xui_control_draw_frame(struct xui_context_t * ctx, unsigned int id, struct region_t * r, int cid, int opt);
-void xui_control_draw_text(struct xui_context_t * ctx, const char * str, struct region_t * r, int cid, int opt);
+void xui_control_draw_text(struct xui_context_t * ctx, const char * txt, struct region_t * r, struct color_t * c, int opt);
 
 int xui_begin_window_ex(struct xui_context_t * ctx, const char * title, struct region_t * r, int opt);
 int xui_begin_window(struct xui_context_t * ctx, const char * title, struct region_t * r);

@@ -65,7 +65,27 @@ static struct xui_style_t xui_style_default = {
 		{ 40,  40,  40,  255 }, /* XUI_COLOR_BASEFOCUS */
 		{ 43,  43,  43,  255 }, /* XUI_COLOR_SCROLLBASE */
 		{ 30,  30,  30,  255 }  /* XUI_COLOR_SCROLLTHUMB */
-	}
+	},
+
+	.button = {
+		.primary = {
+			.normal = {
+				.background = { 0x21, 0x96, 0xf3, 0xff },
+				.border = { 0x21, 0x96, 0xf3, 0xff },
+				.text = { 0xff, 0xff, 0xff, 0xff },
+			},
+			.hover = {
+				.background = { 0x0c, 0x83, 0xe2, 0xff },
+				.border = { 0x0c, 0x7c, 0xd5, 0xff },
+				.text = { 0xff, 0xff, 0xff, 0xff },
+			},
+			.focus = {
+				.background = { 0xfc, 0x83, 0xe2, 0xff },
+				.border = { 0x0c, 0x7c, 0xd5, 0xff },
+				.text = { 0xff, 0xff, 0xff, 0xff },
+			},
+		},
+	},
 };
 
 static struct region_t unclipped_region = {
@@ -572,10 +592,10 @@ void xui_control_draw_frame(struct xui_context_t * ctx, unsigned int id, struct 
 	ctx->draw_frame(ctx, r, cid);
 }
 
-void xui_control_draw_text(struct xui_context_t * ctx, const char * str, struct region_t * r, int cid, int opt)
+void xui_control_draw_text(struct xui_context_t * ctx, const char * txt, struct region_t * r, struct color_t * c, int opt)
 {
 	void * font = ctx->style.font;
-	int tw = ctx->text_width(font, str, -1);
+	int tw = ctx->text_width(font, txt, -1);
 	int x, y;
 	xui_push_clip(ctx, r);
 	if(opt & XUI_OPT_ALIGN_LEFT)
@@ -590,7 +610,7 @@ void xui_control_draw_text(struct xui_context_t * ctx, const char * str, struct 
 		y = r->y + r->h - ctx->text_height(font) - ctx->style.padding;
 	else
 		y = r->y + (r->h - ctx->text_height(font)) / 2;
-	xui_draw_text(ctx, font, str, -1, x, y, &ctx->style.colors[cid]);
+	xui_draw_text(ctx, font, txt, -1, x, y, c);
 	xui_pop_clip(ctx);
 }
 
@@ -716,7 +736,7 @@ int xui_begin_window_ex(struct xui_context_t * ctx, const char * title, struct r
 		{
 			unsigned int id = xui_get_id(ctx, "!title", 6);
 			xui_control_update(ctx, id, &tr, opt);
-			xui_control_draw_text(ctx, title, &tr, XUI_COLOR_TITLETEXT, opt);
+			xui_control_draw_text(ctx, title, &tr, &ctx->style.colors[XUI_COLOR_TITLETEXT], opt);
 			if((id == ctx->focus) && (ctx->mouse_down & XUI_MOUSE_LEFT))
 			{
 				c->region.x += ctx->mouse_delta_x;
@@ -858,7 +878,7 @@ static int header(struct xui_context_t * ctx, const char * label, int istreenode
 	xui_draw_icon(ctx, expanded ? XUI_ICON_EXPANDED : XUI_ICON_COLLAPSED, &region, &ctx->style.colors[XUI_COLOR_TEXT]);
 	r.x += r.h - ctx->style.padding;
 	r.w -= r.h - ctx->style.padding;
-	xui_control_draw_text(ctx, label, &r, XUI_COLOR_TEXT, XUI_OPT_ALIGN_LEFT);
+	xui_control_draw_text(ctx, label, &r, &ctx->style.colors[XUI_COLOR_TEXT], XUI_OPT_ALIGN_LEFT);
 
 	return expanded ? XUI_RES_ACTIVE : 0;
 }
@@ -906,7 +926,7 @@ int xui_button_ex(struct xui_context_t * ctx, const char * label, int icon, int 
 		res |= XUI_RES_SUBMIT;
 	xui_control_draw_frame(ctx, id, r, XUI_COLOR_BUTTON, opt);
 	if(label)
-		xui_control_draw_text(ctx, label, r, XUI_COLOR_TEXT, opt);
+		xui_control_draw_text(ctx, label, r, &ctx->style.colors[XUI_COLOR_TEXT], opt);
 	if(icon)
 		xui_draw_icon(ctx, icon, r, &ctx->style.colors[XUI_COLOR_TEXT]);
 	return res;
@@ -949,7 +969,7 @@ void xui_text(struct xui_context_t * ctx, const char * txt)
 
 void xui_label(struct xui_context_t * ctx, const char * txt)
 {
-	xui_control_draw_text(ctx, txt, xui_layout_next(ctx), XUI_COLOR_TEXT, XUI_OPT_ALIGN_LEFT);
+	xui_control_draw_text(ctx, txt, xui_layout_next(ctx), &ctx->style.colors[XUI_COLOR_TEXT], XUI_OPT_ALIGN_LEFT);
 }
 
 int xui_checkbox(struct xui_context_t * ctx, const char * label, int * state)
@@ -970,7 +990,7 @@ int xui_checkbox(struct xui_context_t * ctx, const char * label, int * state)
 	if(*state)
 		xui_draw_icon(ctx, XUI_ICON_CHECK, &box, &ctx->style.colors[XUI_COLOR_TEXT]);
 	region_init(&r, r.x + box.w, r.y, r.w - box.w, r.h);
-	xui_control_draw_text(ctx, label, &r, XUI_COLOR_TEXT, XUI_OPT_ALIGN_LEFT);
+	xui_control_draw_text(ctx, label, &r, &ctx->style.colors[XUI_COLOR_TEXT], XUI_OPT_ALIGN_LEFT);
 	return res;
 }
 
@@ -1020,7 +1040,7 @@ int xui_textbox_raw(struct xui_context_t * ctx, char * buf, int bufsz, unsigned 
 	}
 	else
 	{
-		xui_control_draw_text(ctx, buf, r, XUI_COLOR_TEXT, opt);
+		xui_control_draw_text(ctx, buf, r, &ctx->style.colors[XUI_COLOR_TEXT], opt);
 	}
 	return res;
 }
@@ -1090,7 +1110,7 @@ int xui_slider_ex(struct xui_context_t * ctx, float * value, float low, float hi
 	region_init(&thumb, base.x + x, base.y, w, base.h);
 	xui_control_draw_frame(ctx, id, &thumb, XUI_COLOR_BUTTON, opt);
 	sprintf(buf, fmt, v);
-	xui_control_draw_text(ctx, buf, &base, XUI_COLOR_TEXT, opt);
+	xui_control_draw_text(ctx, buf, &base, &ctx->style.colors[XUI_COLOR_TEXT], opt);
 
 	return res;
 }
@@ -1118,7 +1138,7 @@ int xui_number_ex(struct xui_context_t * ctx, float * value, float step, const c
 		res |= XUI_RES_CHANGE;
 	xui_control_draw_frame(ctx, id, &base, XUI_COLOR_BASE, opt);
 	sprintf(buf, fmt, *value);
-	xui_control_draw_text(ctx, buf, &base, XUI_COLOR_TEXT, opt);
+	xui_control_draw_text(ctx, buf, &base, &ctx->style.colors[XUI_COLOR_TEXT], opt);
 
 	return res;
 }

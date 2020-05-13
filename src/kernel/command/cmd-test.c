@@ -164,7 +164,7 @@ static void test_window(struct xui_context_t * ctx)
 			xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, 0, 0, &c);
 			char buf[32];
 			sprintf(buf, "#%02X%02X%02X", (int)bg[0], (int)bg[1], (int)bg[2]);
-			xui_draw_control_text(ctx, buf, r, XUI_COLOR_TEXT, 0);
+			xui_control_draw_text(ctx, buf, r, XUI_COLOR_TEXT, 0);
 		}
 
 		xui_end_window(ctx);
@@ -260,12 +260,39 @@ static void style_window(struct xui_context_t * ctx) {
 	}
 }
 
+void ttt_test(struct xui_context_t * ctx)
+{
+	if(xui_begin_window(ctx, "test window", NULL))
+	{
+		xui_layout_row(ctx, 2, (int[]){ 100, -1 }, 0);
+		if(xui_button(ctx, "button test1"))
+		{
+		}
+		if(xui_button(ctx, "button test2"))
+		{
+		}
+		if(xui_begin_treenode(ctx, "treenode"))
+		{
+			xui_layout_row(ctx, 1, (int[]){ -1, }, 100);
+			xui_header(ctx, "header");
+			xui_layout_row(ctx, 3, (int[]){ 100, 100, -1, }, 50);
+			for(int i = 0; i < 3; i++)
+			{
+				xui_button(ctx, xui_format(ctx, "button %s %d", "abc", i));
+			}
+			xui_end_treenode(ctx);
+		}
+		xui_end_window(ctx);
+	}
+}
+
 static void process_frame(struct xui_context_t * ctx)
 {
 	xui_begin(ctx);
 	style_window(ctx);
 	log_window(ctx);
 	test_window(ctx);
+	ttt_test(ctx);
 	xui_end(ctx);
 }
 

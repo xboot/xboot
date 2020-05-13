@@ -229,12 +229,12 @@ struct xui_context_t {
 	 */
 	struct window_t * w;
 	struct font_context_t * f;
+	struct region_t screen;
 
 	/*
 	 * Core state
 	 */
 	struct xui_style_t style;
-	struct region_t region;
 	struct region_t clip;
 	unsigned int hover;
 	unsigned int focus;
@@ -303,15 +303,21 @@ struct xui_context_t {
 	char input_text[32];
 
 	/*
+	 * Misc
+	 */
+	char tempbuf[4096];
+
+	/*
 	 * Callback
 	 */
-	int (*text_width)(void * font, const char * str, int len);
+	int (*text_width)(void * font, const char * txt, int len);
 	int (*text_height)(void * font);
 	void (*draw_frame)(struct xui_context_t * ctx, struct region_t * r, int cid);
 };
 
 void xui_begin(struct xui_context_t * ctx);
 void xui_end(struct xui_context_t * ctx);
+const char * xui_format(struct xui_context_t * ctx, const char * fmt, ...);
 void xui_set_front(struct xui_context_t * ctx, struct xui_container_t * c);
 void xui_set_focus(struct xui_context_t * ctx, unsigned int id);
 unsigned int xui_get_id(struct xui_context_t * ctx, const void * data, int size);
@@ -334,12 +340,12 @@ struct region_t * xui_layout_next(struct xui_context_t * ctx);
 
 void xui_draw_triangle(struct xui_context_t * ctx, struct point_t * p0, struct point_t * p1, struct point_t * p2, int thickness, struct color_t * c);
 void xui_draw_rectangle(struct xui_context_t * ctx, int x, int y, int w, int h, int radius, int thickness, struct color_t * c);
-void xui_draw_text(struct xui_context_t * ctx, void * font, const char * utf8, int len, int x, int y, struct color_t * c);
+void xui_draw_text(struct xui_context_t * ctx, void * font, const char * txt, int len, int x, int y, struct color_t * c);
 void xui_draw_icon(struct xui_context_t * ctx, int id, struct region_t * r, struct color_t * c);
 
-void xui_draw_control_frame(struct xui_context_t * ctx, unsigned int id, struct region_t * r, int cid, int opt);
-void xui_draw_control_text(struct xui_context_t * ctx, const char * str, struct region_t * r, int cid, int opt);
-void xui_update_control(struct xui_context_t * ctx, unsigned int id, struct region_t * r, int opt);
+void xui_control_draw_frame(struct xui_context_t * ctx, unsigned int id, struct region_t * r, int cid, int opt);
+void xui_control_draw_text(struct xui_context_t * ctx, const char * str, struct region_t * r, int cid, int opt);
+void xui_control_update(struct xui_context_t * ctx, unsigned int id, struct region_t * r, int opt);
 
 int xui_begin_window_ex(struct xui_context_t * ctx, const char * title, struct region_t * r, int opt);
 int xui_begin_window(struct xui_context_t * ctx, const char * title, struct region_t * r);
@@ -355,15 +361,13 @@ int xui_begin_treenode(struct xui_context_t * ctx, const char * label);
 void xui_end_treenode(struct xui_context_t * ctx);
 int xui_header_ex(struct xui_context_t * ctx, const char * label, int opt);
 int xui_header(struct xui_context_t * ctx, const char * label);
-
-
-
-void xui_text(struct xui_context_t * ctx, const char * text);
-
-void xui_label(struct xui_context_t * ctx, const char * text);
-
 int xui_button_ex(struct xui_context_t * ctx, const char * label, int icon, int opt);
 int xui_button(struct xui_context_t * ctx, const char * label);
+
+
+void xui_text(struct xui_context_t * ctx, const char * txt);
+
+void xui_label(struct xui_context_t * ctx, const char * txt);
 
 int xui_checkbox(struct xui_context_t * ctx, const char * label, int * state);
 

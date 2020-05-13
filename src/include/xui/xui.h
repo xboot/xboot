@@ -343,9 +343,9 @@ void xui_draw_rectangle(struct xui_context_t * ctx, int x, int y, int w, int h, 
 void xui_draw_text(struct xui_context_t * ctx, void * font, const char * txt, int len, int x, int y, struct color_t * c);
 void xui_draw_icon(struct xui_context_t * ctx, int id, struct region_t * r, struct color_t * c);
 
+void xui_control_update(struct xui_context_t * ctx, unsigned int id, struct region_t * r, int opt);
 void xui_control_draw_frame(struct xui_context_t * ctx, unsigned int id, struct region_t * r, int cid, int opt);
 void xui_control_draw_text(struct xui_context_t * ctx, const char * str, struct region_t * r, int cid, int opt);
-void xui_control_update(struct xui_context_t * ctx, unsigned int id, struct region_t * r, int opt);
 
 int xui_begin_window_ex(struct xui_context_t * ctx, const char * title, struct region_t * r, int opt);
 int xui_begin_window(struct xui_context_t * ctx, const char * title, struct region_t * r);

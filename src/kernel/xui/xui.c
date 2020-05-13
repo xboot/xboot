@@ -520,14 +520,6 @@ void xui_draw_icon(struct xui_context_t * ctx, int id, struct region_t * r, stru
 	}
 }
 
-void xui_control_draw_frame(struct xui_context_t * ctx, unsigned int id, struct region_t * r, int cid, int opt)
-{
-	if(opt & XUI_OPT_NO_FRAME)
-		return;
-	cid += (ctx->focus == id) ? 2 : (ctx->hover == id) ? 1 : 0;
-	ctx->draw_frame(ctx, r, cid);
-}
-
 static int in_hover_root(struct xui_context_t * ctx)
 {
 	int i = ctx->container_stack.idx;
@@ -544,6 +536,40 @@ static int in_hover_root(struct xui_context_t * ctx)
 static int xui_mouse_over(struct xui_context_t * ctx, struct region_t * r)
 {
 	return region_hit(r, ctx->mouse_pos_x, ctx->mouse_pos_y) && region_hit(xui_get_clip(ctx), ctx->mouse_pos_x, ctx->mouse_pos_y) && in_hover_root(ctx);
+}
+
+void xui_control_update(struct xui_context_t * ctx, unsigned int id, struct region_t * r, int opt)
+{
+	int over = xui_mouse_over(ctx, r);
+
+	if(ctx->focus == id)
+		ctx->updated_focus = 1;
+	if(opt & XUI_OPT_NO_INTERACT)
+		return;
+	if(over && !ctx->mouse_down)
+		ctx->hover = id;
+	if(ctx->focus == id)
+	{
+		if(ctx->mouse_pressed && !over)
+			xui_set_focus(ctx, 0);
+		if(!ctx->mouse_down && (~opt & XUI_OPT_HOLD_FOCUS))
+			xui_set_focus(ctx, 0);
+	}
+	if(ctx->hover == id)
+	{
+		if(ctx->mouse_pressed)
+			xui_set_focus(ctx, id);
+		else if(!over)
+			ctx->hover = 0;
+	}
+}
+
+void xui_control_draw_frame(struct xui_context_t * ctx, unsigned int id, struct region_t * r, int cid, int opt)
+{
+	if(opt & XUI_OPT_NO_FRAME)
+		return;
+	cid += (ctx->focus == id) ? 2 : (ctx->hover == id) ? 1 : 0;
+	ctx->draw_frame(ctx, r, cid);
 }
 
 void xui_control_draw_text(struct xui_context_t * ctx, const char * str, struct region_t * r, int cid, int opt)
@@ -566,32 +592,6 @@ void xui_control_draw_text(struct xui_context_t * ctx, const char * str, struct 
 		y = r->y + (r->h - ctx->text_height(font)) / 2;
 	xui_draw_text(ctx, font, str, -1, x, y, &ctx->style.colors[cid]);
 	xui_pop_clip(ctx);
-}
-
-void xui_control_update(struct xui_context_t * ctx, unsigned int id, struct region_t * r, int opt)
-{
-	int mouseover = xui_mouse_over(ctx, r);
-
-	if(ctx->focus == id)
-		ctx->updated_focus = 1;
-	if(opt & XUI_OPT_NO_INTERACT)
-		return;
-	if(mouseover && !ctx->mouse_down)
-		ctx->hover = id;
-	if(ctx->focus == id)
-	{
-		if(ctx->mouse_pressed && !mouseover)
-			xui_set_focus(ctx, 0);
-		if(!ctx->mouse_down && (~opt & XUI_OPT_HOLD_FOCUS))
-			xui_set_focus(ctx, 0);
-	}
-	if(ctx->hover == id)
-	{
-		if(ctx->mouse_pressed)
-			xui_set_focus(ctx, id);
-		else if(!mouseover)
-			ctx->hover = 0;
-	}
 }
 
 static void scrollbars(struct xui_context_t * ctx, struct xui_container_t * c, struct region_t * body)

@@ -24,6 +24,19 @@ extern "C" {
 #define XUI_MAX_WIDTHS				(16)
 
 enum {
+	XUI_BUTTON_PRIMARY		= (0x0 << 8),
+	XUI_BUTTON_SECONDARY	= (0x1 << 8),
+	XUI_BUTTON_SUCCESS		= (0x2 << 8),
+	XUI_BUTTON_INFO			= (0x3 << 8),
+	XUI_BUTTON_WARNING		= (0x4 << 8),
+	XUI_BUTTON_DANGER		= (0x5 << 8),
+	XUI_BUTTON_LIGHT		= (0x6 << 8),
+	XUI_BUTTON_DARK			= (0x7 << 8),
+
+	XUI_BUTTON_OUTLINE		= (0x1 << 12),
+};
+
+enum {
 	XUI_COLOR_TEXT,
 	XUI_COLOR_BORDER,
 	XUI_COLOR_WINDOW,
@@ -59,13 +72,14 @@ enum {
 	XUI_OPT_ALIGN_RIGHT		= (0x1 << 1),
 	XUI_OPT_ALIGN_TOP		= (0x1 << 2),
 	XUI_OPT_ALIGN_BOTTOM  	= (0x1 << 3),
-	XUI_OPT_NO_INTERACT		= (0x1 << 4),
-	XUI_OPT_NO_FRAME		= (0x1 << 5),
-	XUI_OPT_NO_RESIZE		= (0x1 << 6),
-	XUI_OPT_NO_SCROLL		= (0x1 << 7),
-	XUI_OPT_NO_CLOSE		= (0x1 << 8),
-	XUI_OPT_NO_TITLE		= (0x1 << 9),
-	XUI_OPT_HOLD_FOCUS		= (0x1 << 10),
+	XUI_OPT_HOLD_FOCUS		= (0x1 << 4),
+	XUI_OPT_NO_INTERACT		= (0x1 << 5),
+	XUI_OPT_NO_FRAME		= (0x1 << 6),
+	XUI_OPT_NO_RESIZE		= (0x1 << 7),
+
+	XUI_OPT_NO_SCROLL		= (0x1 << 8),
+	XUI_OPT_NO_CLOSE		= (0x1 << 9),
+	XUI_OPT_NO_TITLE		= (0x1 << 10),
 	XUI_OPT_AUTO_SIZE		= (0x1 << 11),
 	XUI_OPT_POPUP			= (0x1 << 12),
 	XUI_OPT_CLOSED			= (0x1 << 13),
@@ -209,6 +223,24 @@ struct xui_container_t {
 	int open;
 };
 
+struct xui_style_button_t {
+	struct {
+		struct color_t background;
+		struct color_t border;
+		struct color_t text;
+	} normal;
+	struct {
+		struct color_t background;
+		struct color_t border;
+		struct color_t text;
+	} hover;
+	struct {
+		struct color_t background;
+		struct color_t border;
+		struct color_t text;
+	} focus;
+};
+
 struct xui_style_t {
 	struct color_t bgcol;
 	void * font;
@@ -223,33 +255,17 @@ struct xui_style_t {
 	struct color_t colors[XUI_COLOR_MAX];
 
 	struct {
-		struct {
-			struct {
-				struct color_t background;
-				struct color_t border;
-				struct color_t text;
-			} normal;
-			struct {
-				struct color_t background;
-				struct color_t border;
-				struct color_t text;
-			} hover;
-			struct {
-				struct color_t background;
-				struct color_t border;
-				struct color_t text;
-			} focus;
-		} primary;
-		struct {
-		} secondary;
-		struct {
-		} success;
-		struct {
-		} info;
-		struct {
-		} warning;
-		struct {
-		} danger;
+		int radius;
+		int border;
+		int outline;
+		struct xui_style_button_t primary;
+		struct xui_style_button_t secondary;
+		struct xui_style_button_t success;
+		struct xui_style_button_t info;
+		struct xui_style_button_t warning;
+		struct xui_style_button_t danger;
+		struct xui_style_button_t light;
+		struct xui_style_button_t dark;
 	} button;
 };
 
@@ -374,8 +390,8 @@ void xui_draw_text(struct xui_context_t * ctx, void * font, const char * txt, in
 void xui_draw_icon(struct xui_context_t * ctx, int id, struct region_t * r, struct color_t * c);
 
 void xui_control_update(struct xui_context_t * ctx, unsigned int id, struct region_t * r, int opt);
-void xui_control_draw_frame(struct xui_context_t * ctx, unsigned int id, struct region_t * r, int cid, int opt);
 void xui_control_draw_text(struct xui_context_t * ctx, const char * txt, struct region_t * r, struct color_t * c, int opt);
+void xui_control_draw_frame(struct xui_context_t * ctx, unsigned int id, struct region_t * r, int cid, int opt);
 
 int xui_begin_window_ex(struct xui_context_t * ctx, const char * title, struct region_t * r, int opt);
 int xui_begin_window(struct xui_context_t * ctx, const char * title, struct region_t * r);
@@ -391,9 +407,7 @@ int xui_begin_treenode(struct xui_context_t * ctx, const char * label);
 void xui_end_treenode(struct xui_context_t * ctx);
 int xui_header_ex(struct xui_context_t * ctx, const char * label, int opt);
 int xui_header(struct xui_context_t * ctx, const char * label);
-int xui_button_ex(struct xui_context_t * ctx, const char * label, int icon, int opt);
-int xui_button(struct xui_context_t * ctx, const char * label);
-
+int xui_button(struct xui_context_t * ctx, const char * label, int opt);
 
 void xui_text(struct xui_context_t * ctx, const char * txt);
 

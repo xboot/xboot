@@ -32,6 +32,9 @@
 #define xui_push(stk, val)	do { assert((stk).idx < (int)(sizeof((stk).items) / sizeof(*(stk).items))); (stk).items[(stk).idx] = (val); (stk).idx++; } while(0)
 #define xui_pop(stk)		do { assert((stk).idx > 0); (stk).idx--; } while(0)
 
+/*
+ * https://designrevision.com/demo/shards/
+ */
 static struct xui_style_t xui_style_default = {
 	.bgcol = {
 		.r = 90,
@@ -53,7 +56,7 @@ static struct xui_style_t xui_style_default = {
 	.colors = {
 		{ 230, 230, 230, 255 }, /* XUI_COLOR_TEXT */
 		{ 25,  25,  25,  255 }, /* XUI_COLOR_BORDER */
-		{ 50,  50,  50,  255 }, /* XUI_COLOR_WINDOW */
+		{ 0xff, 0xff, 0xff, 0xff }, /* XUI_COLOR_WINDOW */
 		{ 25,  25,  25,  255 }, /* XUI_COLOR_TITLEBG */
 		{ 240, 240, 240, 255 }, /* XUI_COLOR_TITLETEXT */
 		{ 0,   0,   0,   0   }, /* XUI_COLOR_PANEL */
@@ -68,21 +71,143 @@ static struct xui_style_t xui_style_default = {
 	},
 
 	.button = {
+		.radius = 6,
+		.border = 6,
+		.outline = 2,
 		.primary = {
 			.normal = {
-				.background = { 0x21, 0x96, 0xf3, 0xff },
-				.border = { 0x21, 0x96, 0xf3, 0xff },
-				.text = { 0xff, 0xff, 0xff, 0xff },
+				.background = { 0x00, 0x7b, 0xff, 0xff },
+				.border = { 0x00, 0x00, 0x00, 0x00 },
+				.text = { 0xfe, 0xfe, 0xfe, 0xff },
 			},
 			.hover = {
-				.background = { 0x0c, 0x83, 0xe2, 0xff },
-				.border = { 0x0c, 0x7c, 0xd5, 0xff },
-				.text = { 0xff, 0xff, 0xff, 0xff },
+				.background = { 0x00, 0x6f, 0xe6, 0xff },
+				.border = { 0x00, 0x00, 0x00, 0x00 },
+				.text = { 0xfe, 0xfe, 0xfe, 0xff },
 			},
 			.focus = {
-				.background = { 0xfc, 0x83, 0xe2, 0xff },
-				.border = { 0x0c, 0x7c, 0xd5, 0xff },
-				.text = { 0xff, 0xff, 0xff, 0xff },
+				.background = { 0x00, 0x6f, 0xe6, 0xff },
+				.border = { 0x00, 0x6f, 0xe6, 0x60 },
+				.text = { 0xfe, 0xfe, 0xfe, 0xff },
+			},
+		},
+		.secondary = {
+			.normal = {
+				.background = { 0x5a, 0x61, 0x69, 0xff },
+				.border = { 0x00, 0x00, 0x00, 0x00 },
+				.text = { 0xfe, 0xfe, 0xfe, 0xff },
+			},
+			.hover = {
+				.background = { 0x4e, 0x54, 0x5b, 0xff },
+				.border = { 0x00, 0x00, 0x00, 0x00 },
+				.text = { 0xfe, 0xfe, 0xfe, 0xff },
+			},
+			.focus = {
+				.background = { 0x4e, 0x54, 0x5b, 0xff },
+				.border = { 0x4e, 0x54, 0x5b, 0x60 },
+				.text = { 0xfe, 0xfe, 0xfe, 0xff },
+			},
+		},
+		.success = {
+			.normal = {
+				.background = { 0x17, 0xc6, 0x71, 0xff },
+				.border = { 0x00, 0x00, 0x00, 0x00 },
+				.text = { 0xfe, 0xfe, 0xfe, 0xff },
+			},
+			.hover = {
+				.background = { 0x14, 0xaf, 0x64, 0xff },
+				.border = { 0x00, 0x00, 0x00, 0x00 },
+				.text = { 0xfe, 0xfe, 0xfe, 0xff },
+			},
+			.focus = {
+				.background = { 0x14, 0xaf, 0x64, 0xff },
+				.border = { 0x14, 0xaf, 0x64, 0x60 },
+				.text = { 0xfe, 0xfe, 0xfe, 0xff },
+			},
+		},
+		.info = {
+			.normal = {
+				.background = { 0x00, 0xb8, 0xd8, 0xff },
+				.border = { 0x00, 0x00, 0x00, 0x00 },
+				.text = { 0xfe, 0xfe, 0xfe, 0xff },
+			},
+			.hover = {
+				.background = { 0x00, 0xa2, 0xbf, 0xff },
+				.border = { 0x00, 0x00, 0x00, 0x00 },
+				.text = { 0xfe, 0xfe, 0xfe, 0xff },
+			},
+			.focus = {
+				.background = { 0x00, 0xa2, 0xbf, 0xff },
+				.border = { 0x00, 0xa2, 0xbf, 0x60 },
+				.text = { 0xfe, 0xfe, 0xfe, 0xff },
+			},
+		},
+		.warning = {
+			.normal = {
+				.background = { 0xff, 0xb4, 0x00, 0xff },
+				.border = { 0x00, 0x00, 0x00, 0x00 },
+				.text = { 0xfe, 0xfe, 0xfe, 0xff },
+			},
+			.hover = {
+				.background = { 0xe6, 0xa2, 0x00, 0xff },
+				.border = { 0x00, 0x00, 0x00, 0x00 },
+				.text = { 0xfe, 0xfe, 0xfe, 0xff },
+			},
+			.focus = {
+				.background = { 0xe6, 0xa2, 0x00, 0xff },
+				.border = { 0xe6, 0xa2, 0x00, 0x60 },
+				.text = { 0xfe, 0xfe, 0xfe, 0xff },
+			},
+		},
+		.danger = {
+			.normal = {
+				.background = { 0xc4, 0x18, 0x3c, 0xff },
+				.border = { 0x00, 0x00, 0x00, 0x00 },
+				.text = { 0xfe, 0xfe, 0xfe, 0xff },
+			},
+			.hover = {
+				.background = { 0xad, 0x15, 0x35, 0xff },
+				.border = { 0x00, 0x00, 0x00, 0x00 },
+				.text = { 0xfe, 0xfe, 0xfe, 0xff },
+			},
+			.focus = {
+				.background = { 0xad, 0x15, 0x35, 0xff },
+				.border = { 0xad, 0x15, 0x35, 0x60 },
+				.text = { 0xfe, 0xfe, 0xfe, 0xff },
+			},
+		},
+		.light = {
+			.normal = {
+				.background = { 0xe9, 0xec, 0xef, 0xff },
+				.border = { 0x00, 0x00, 0x00, 0x00 },
+				.text = { 0x74, 0x74, 0x74, 0xff },
+			},
+			.hover = {
+				.background = { 0xda, 0xdf, 0xe4, 0xff },
+				.border = { 0x00, 0x00, 0x00, 0x00 },
+				.text = { 0x74, 0x74, 0x74, 0xff },
+			},
+			.focus = {
+				.background = { 0xda, 0xdf, 0xe4, 0xff },
+				.border = { 0xda, 0xdf, 0xe4, 0x60 },
+				.text = { 0x74, 0x74, 0x74, 0xff },
+			},
+		},
+		.dark = {
+			.normal = {
+				.background = { 0x21, 0x25, 0x29, 0xff },
+				.border = { 0x00, 0x00, 0x00, 0x00 },
+				.text = { 0xfe, 0xfe, 0xfe, 0xff },
+			},
+			.hover = {
+				.background = { 0x27, 0x28, 0x29, 0xff },
+				.border = { 0x00, 0x00, 0x00, 0x00 },
+				.text = { 0xfe, 0xfe, 0xfe, 0xff },
+			},
+			.focus = {
+				.background = { 0x27, 0x28, 0x29, 0xff },
+				.border = { 0x27, 0x28, 0x29, 0x60 },
+				.text = { 0xfe, 0xfe, 0xfe, 0xff },
 			},
 		},
 	},
@@ -584,14 +709,6 @@ void xui_control_update(struct xui_context_t * ctx, unsigned int id, struct regi
 	}
 }
 
-void xui_control_draw_frame(struct xui_context_t * ctx, unsigned int id, struct region_t * r, int cid, int opt)
-{
-	if(opt & XUI_OPT_NO_FRAME)
-		return;
-	cid += (ctx->focus == id) ? 2 : (ctx->hover == id) ? 1 : 0;
-	ctx->draw_frame(ctx, r, cid);
-}
-
 void xui_control_draw_text(struct xui_context_t * ctx, const char * txt, struct region_t * r, struct color_t * c, int opt)
 {
 	void * font = ctx->style.font;
@@ -612,6 +729,14 @@ void xui_control_draw_text(struct xui_context_t * ctx, const char * txt, struct 
 		y = r->y + (r->h - ctx->text_height(font)) / 2;
 	xui_draw_text(ctx, font, txt, -1, x, y, c);
 	xui_pop_clip(ctx);
+}
+
+void xui_control_draw_frame(struct xui_context_t * ctx, unsigned int id, struct region_t * r, int cid, int opt)
+{
+	if(opt & XUI_OPT_NO_FRAME)
+		return;
+	cid += (ctx->focus == id) ? 2 : (ctx->hover == id) ? 1 : 0;
+	ctx->draw_frame(ctx, r, cid);
 }
 
 static void scrollbars(struct xui_context_t * ctx, struct xui_container_t * c, struct region_t * body)
@@ -915,26 +1040,99 @@ int xui_header(struct xui_context_t * ctx, const char * label)
 	return header(ctx, label, 0, 0);
 }
 
-int xui_button_ex(struct xui_context_t * ctx, const char * label, int icon, int opt)
+int xui_button(struct xui_context_t * ctx, const char * label, int opt)
 {
-	unsigned int id = label ? xui_get_id(ctx, label, strlen(label)) : xui_get_id(ctx, &icon, sizeof(icon));
+	unsigned int id = label ? xui_get_id(ctx, label, strlen(label)) : xui_get_id(ctx, &label, sizeof(label));
 	struct region_t * r = xui_layout_next(ctx);
+	struct xui_style_button_t * sb;
+	struct color_t * cg, * cb, * ct;
+	int radius, border;
 	int res = 0;
 
 	xui_control_update(ctx, id, r, opt);
 	if((ctx->mouse_pressed & XUI_MOUSE_LEFT) && (ctx->focus == id))
 		res |= XUI_RES_SUBMIT;
-	xui_control_draw_frame(ctx, id, r, XUI_COLOR_BUTTON, opt);
-	if(label)
-		xui_control_draw_text(ctx, label, r, &ctx->style.colors[XUI_COLOR_TEXT], opt);
-	if(icon)
-		xui_draw_icon(ctx, icon, r, &ctx->style.colors[XUI_COLOR_TEXT]);
+	radius = ctx->style.button.radius;
+	border = ctx->style.button.border;
+	switch(opt & (0xf << 8))
+	{
+	case XUI_BUTTON_PRIMARY:
+		sb = &ctx->style.button.primary;
+		break;
+	case XUI_BUTTON_SECONDARY:
+		sb = &ctx->style.button.secondary;
+		break;
+	case XUI_BUTTON_SUCCESS:
+		sb = &ctx->style.button.success;
+		break;
+	case XUI_BUTTON_INFO:
+		sb = &ctx->style.button.info;
+		break;
+	case XUI_BUTTON_WARNING:
+		sb = &ctx->style.button.warning;
+		break;
+	case XUI_BUTTON_DANGER:
+		sb = &ctx->style.button.danger;
+		break;
+	case XUI_BUTTON_LIGHT:
+		sb = &ctx->style.button.light;
+		break;
+	case XUI_BUTTON_DARK:
+		sb = &ctx->style.button.dark;
+		break;
+	default:
+		sb = &ctx->style.button.primary;
+		break;
+	}
+	if(ctx->focus == id)
+	{
+		cg = &sb->focus.background;
+		cb = &sb->focus.border;
+		ct = &sb->focus.text;
+		if(cb->a && (border > 0))
+			xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, radius, border, cb);
+		if(cg->a)
+			xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, radius, 0, cg);
+		if(label && ct->a)
+			xui_control_draw_text(ctx, label, r, ct, opt);
+	}
+	else if(ctx->hover == id)
+	{
+		cg = &sb->hover.background;
+		cb = &sb->hover.border;
+		ct = &sb->hover.text;
+		if(cb->a && (border > 0))
+			xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, radius, border, cb);
+		if(cg->a)
+			xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, radius, 0, cg);
+		if(label && ct->a)
+			xui_control_draw_text(ctx, label, r, ct, opt);
+	}
+	else
+	{
+		cg = &sb->normal.background;
+		cb = &sb->normal.border;
+		ct = &sb->normal.text;
+		if(opt & XUI_BUTTON_OUTLINE)
+		{
+			if(cg->a)
+			{
+				xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, radius, ctx->style.button.outline, cg);
+				if(label)
+					xui_control_draw_text(ctx, label, r, cg, opt);
+			}
+		}
+		else
+		{
+			if(cb->a && (border > 0))
+				xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, radius, border, cb);
+			if(cg->a)
+				xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, radius, 0, cg);
+			if(label && ct->a)
+				xui_control_draw_text(ctx, label, r, ct, opt);
+		}
+	}
 	return res;
-}
-
-int xui_button(struct xui_context_t * ctx, const char * label)
-{
-	return xui_button_ex(ctx, label, 0, 0);
 }
 
 void xui_text(struct xui_context_t * ctx, const char * txt)

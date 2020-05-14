@@ -74,15 +74,15 @@ enum {
 	XUI_OPT_ALIGN_BOTTOM  	= (0x1 << 3),
 	XUI_OPT_HOLD_FOCUS		= (0x1 << 4),
 	XUI_OPT_NO_INTERACT		= (0x1 << 5),
-	XUI_OPT_NO_FRAME		= (0x1 << 6),
-	XUI_OPT_NO_RESIZE		= (0x1 << 7),
+	XUI_OPT_CLOSED			= (0x1 << 6),
+	XUI_OPT_NO_SCROLL		= (0x1 << 7),
 
-	XUI_OPT_NO_SCROLL		= (0x1 << 8),
-	XUI_OPT_NO_CLOSE		= (0x1 << 9),
-	XUI_OPT_NO_TITLE		= (0x1 << 10),
-	XUI_OPT_AUTO_SIZE		= (0x1 << 11),
-	XUI_OPT_POPUP			= (0x1 << 12),
-	XUI_OPT_CLOSED			= (0x1 << 13),
+	XUI_OPT_NO_RESIZE		= (0x1 << 8),
+	XUI_OPT_NO_FRAME		= (0x1 << 9),
+	XUI_OPT_NO_CLOSE		= (0x1 << 10),
+	XUI_OPT_NO_TITLE		= (0x1 << 11),
+	XUI_OPT_AUTO_SIZE		= (0x1 << 12),
+	XUI_OPT_POPUP			= (0x1 << 13),
 	XUI_OPT_EXPANDED		= (0x1 << 14),
 };
 

@@ -292,6 +292,7 @@ void window_present(struct window_t * w, struct color_t * c, void * o, void (*dr
 		region_list_clear(w->rl);
 		region_list_add(w->rl, &region);
 		w->wm->refresh = 0;
+		w->wm->cursor.dirty = 0;
 	}
 	else if(w->wm->cursor.show && w->wm->cursor.dirty)
 	{

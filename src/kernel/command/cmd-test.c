@@ -211,7 +211,7 @@ static void log_window(struct xui_context_t *ctx)
 	}
 }
 
-static int uint8_slider(struct xui_context_t *ctx, unsigned char *value, int low, int high)
+static int uint8_slider(struct xui_context_t * ctx, unsigned char *value, int low, int high)
 {
 	float tmp;
 	xui_push_id(ctx, &value, sizeof(value));
@@ -222,7 +222,8 @@ static int uint8_slider(struct xui_context_t *ctx, unsigned char *value, int low
 	return res;
 }
 
-static void style_window(struct xui_context_t * ctx) {
+static void style_window(struct xui_context_t * ctx)
+{
 	static struct { const char * label; int idx; } colors[] = {
 		{ "border:",       XUI_COLOR_BORDER      },
 		{ "base:",         XUI_COLOR_BASE        },
@@ -251,8 +252,27 @@ static void style_window(struct xui_context_t * ctx) {
 
 void ttt_test(struct xui_context_t * ctx)
 {
-	if(xui_begin_window(ctx, "test window", NULL))
+	if(xui_begin_window(ctx, "Style window", NULL))
 	{
+		if(xui_header_ex(ctx, "Background Color", XUI_OPT_EXPANDED))
+		{
+			xui_layout_row(ctx, 2, (int[] ) { -78, -1 }, 74);
+			/* sliders */
+			xui_layout_begin_column(ctx);
+			xui_layout_row(ctx, 2, (int[] ) { 46, -1 }, 0);
+			xui_label(ctx, "Red:");
+			uint8_slider(ctx, &ctx->style.bgcol.r, 0, 255);
+			xui_label(ctx, "Green:");
+			uint8_slider(ctx, &ctx->style.bgcol.g, 0, 255);
+			xui_label(ctx, "Blue:");
+			uint8_slider(ctx, &ctx->style.bgcol.b, 0, 255);
+			xui_layout_end_column(ctx);
+			/* color preview */
+			struct region_t * r = xui_layout_next(ctx);
+			xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, 0, 0, &ctx->style.bgcol);
+			xui_control_draw_text(ctx, xui_format(ctx, "#%02X%02X%02X", ctx->style.bgcol.r, ctx->style.bgcol.g, ctx->style.bgcol.b), r, &ctx->style.text.text_color, 0);
+		}
+
 		xui_layout_row(ctx, 2, (int[]){ 100, -1 }, 0);
 		if(xui_button(ctx, "button test1"))
 		{

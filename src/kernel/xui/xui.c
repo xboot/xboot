@@ -49,17 +49,12 @@ static struct xui_style_t xui_style_default = {
 	.padding = 5,
 	.spacing = 4,
 	.indent = 24,
-	.scrollbar_size = 12,
-	.thumb_size = 8,
 
 	.colors = {
-		{ 0x5a, 0x60, 0x69, 0xff }, /* XUI_COLOR_TEXT */
 		{ 25,  25,  25,  255 }, /* XUI_COLOR_BORDER */
 		{ 30,  30,  30,  255 }, /* XUI_COLOR_BASE */
 		{ 35,  35,  35,  255 }, /* XUI_COLOR_BASEHOVER */
-		{ 40,  40,  40,  255 }, /* XUI_COLOR_BASEFOCUS */
-		{ 43,  43,  43,  255 }, /* XUI_COLOR_SCROLLBASE */
-		{ 30,  30,  30,  255 }  /* XUI_COLOR_SCROLLTHUMB */
+		{ 40,  40,  40,  255 },  /* XUI_COLOR_BASEFOCUS */
 	},
 
 	.window = {
@@ -73,6 +68,17 @@ static struct xui_style_t xui_style_default = {
 
 	.panel = {
 		.face_color = { 0x00, 0x00, 0x00, 0x00 },
+	},
+
+	.scroll = {
+		.scroll_size = 12,
+		.thumb_size = 8,
+		.scroll_color = { 0x5a, 0x61, 0x69, 0xff },
+		.thumb_color = { 0x17, 0xc6, 0x71, 0xff },
+	},
+
+	.text = {
+		.text_color = { 0xa0, 0xa0, 0xa0, 0xff },
 	},
 
 	.button = {
@@ -761,7 +767,7 @@ void xui_control_draw_frame(struct xui_context_t * ctx, unsigned int id, struct 
 static void scrollbars(struct xui_context_t * ctx, struct xui_container_t * c, struct region_t * body)
 {
 	struct region_t base, thumb;
-	int sz = ctx->style.scrollbar_size;
+	int sz = ctx->style.scroll.scroll_size;
 	int width = c->content_width;
 	int height = c->content_height;
 	int maxscroll;
@@ -781,16 +787,16 @@ static void scrollbars(struct xui_context_t * ctx, struct xui_container_t * c, s
 		id = xui_get_id(ctx, "!scrollbary", 11);
 		region_clone(&base, body);
 		base.x = body->x + body->w;
-		base.w = ctx->style.scrollbar_size;
+		base.w = ctx->style.scroll.scroll_size;
 		xui_control_update(ctx, id, &base, 0);
 		if((ctx->focus == id) && (ctx->mouse_down & XUI_MOUSE_LEFT))
 			c->scroll_y += ctx->mouse_delta_y * height / base.h;
 		c->scroll_y = clamp(c->scroll_y, 0, maxscroll);
-		ctx->draw_frame(ctx, &base, XUI_COLOR_SCROLLBASE);
+		xui_draw_rectangle(ctx, base.x, base.y, base.w, base.h, 0, 0, &ctx->style.scroll.scroll_color);
 		region_clone(&thumb, &base);
-		thumb.h = max(ctx->style.thumb_size, base.h * body->h / height);
+		thumb.h = max(ctx->style.scroll.thumb_size, base.h * body->h / height);
 		thumb.y += c->scroll_y * (base.h - thumb.h) / maxscroll;
-		ctx->draw_frame(ctx, &thumb, XUI_COLOR_SCROLLTHUMB);
+		xui_draw_rectangle(ctx, thumb.x, thumb.y, thumb.w, thumb.h, 0, 0, &ctx->style.scroll.thumb_color);
 		if(xui_mouse_over(ctx, body))
 			ctx->scroll_target = c;
 	}
@@ -805,16 +811,16 @@ static void scrollbars(struct xui_context_t * ctx, struct xui_container_t * c, s
 		id = xui_get_id(ctx, "!scrollbarx", 11);
 		region_clone(&base, body);
 		base.y = body->y + body->h;
-		base.h = ctx->style.scrollbar_size;
+		base.h = ctx->style.scroll.scroll_size;
 		xui_control_update(ctx, id, &base, 0);
 		if((ctx->focus == id) && (ctx->mouse_down & XUI_MOUSE_LEFT))
 			c->scroll_x += ctx->mouse_delta_x * width / base.w;
 		c->scroll_x = clamp(c->scroll_x, 0, maxscroll);
-		ctx->draw_frame(ctx, &base, XUI_COLOR_SCROLLBASE);
+		xui_draw_rectangle(ctx, base.x, base.y, base.w, base.h, 0, 0, &ctx->style.scroll.scroll_color);
 		region_clone(&thumb, &base);
-		thumb.w = max(ctx->style.thumb_size, base.w * body->w / width);
+		thumb.w = max(ctx->style.scroll.thumb_size, base.w * body->w / width);
 		thumb.x += c->scroll_x * (base.w - thumb.w) / maxscroll;
-		ctx->draw_frame(ctx, &thumb, XUI_COLOR_SCROLLTHUMB);
+		xui_draw_rectangle(ctx, thumb.x, thumb.y, thumb.w, thumb.h, 0, 0, &ctx->style.scroll.thumb_color);
 		if(xui_mouse_over(ctx, body))
 			ctx->scroll_target = c;
 	}
@@ -1021,10 +1027,10 @@ static int header(struct xui_context_t * ctx, const char * label, int istreenode
 	}
 	struct region_t region;
 	region_init(&region, r.x, r.y, r.h, r.h);
-	xui_draw_icon(ctx, expanded ? XUI_ICON_EXPANDED : XUI_ICON_COLLAPSED, &region, &ctx->style.colors[XUI_COLOR_TEXT]);
+	xui_draw_icon(ctx, expanded ? XUI_ICON_EXPANDED : XUI_ICON_COLLAPSED, &region, &ctx->style.text.text_color);
 	r.x += r.h - ctx->style.padding;
 	r.w -= r.h - ctx->style.padding;
-	xui_control_draw_text(ctx, label, &r, &ctx->style.colors[XUI_COLOR_TEXT], 0);
+	xui_control_draw_text(ctx, label, &r, &ctx->style.text.text_color, 0);
 
 	return expanded ? XUI_RES_ACTIVE : 0;
 }
@@ -1161,12 +1167,17 @@ int xui_button(struct xui_context_t * ctx, const char * label)
 	return xui_button_ex(ctx, label, XUI_BUTTON_PRIMARY | XUI_OPT_TEXT_CENTER);
 }
 
+void xui_label(struct xui_context_t * ctx, const char * txt)
+{
+	xui_control_draw_text(ctx, txt, xui_layout_next(ctx), &ctx->style.text.text_color, 0);
+}
+
 void xui_text(struct xui_context_t * ctx, const char * txt)
 {
 	const char * start, * end, * p = txt;
 	int width = -1;
 	void * font = ctx->style.font;
-	struct color_t * c = &ctx->style.colors[XUI_COLOR_TEXT];
+	struct color_t * c = &ctx->style.text.text_color;
 	xui_layout_begin_column(ctx);
 	xui_layout_row(ctx, 1, &width, ctx->text_height(font));
 	do {
@@ -1191,11 +1202,6 @@ void xui_text(struct xui_context_t * ctx, const char * txt)
 	xui_layout_end_column(ctx);
 }
 
-void xui_label(struct xui_context_t * ctx, const char * txt)
-{
-	xui_control_draw_text(ctx, txt, xui_layout_next(ctx), &ctx->style.colors[XUI_COLOR_TEXT], 0);
-}
-
 int xui_checkbox(struct xui_context_t * ctx, const char * label, int * state)
 {
 	int res = 0;
@@ -1212,9 +1218,9 @@ int xui_checkbox(struct xui_context_t * ctx, const char * label, int * state)
 	}
 	xui_control_draw_frame(ctx, id, &box, XUI_COLOR_BASE, 0);
 	if(*state)
-		xui_draw_icon(ctx, XUI_ICON_CHECK, &box, &ctx->style.colors[XUI_COLOR_TEXT]);
+		xui_draw_icon(ctx, XUI_ICON_CHECK, &box, &ctx->style.text.text_color);
 	region_init(&r, r.x + box.w, r.y, r.w - box.w, r.h);
-	xui_control_draw_text(ctx, label, &r, &ctx->style.colors[XUI_COLOR_TEXT], 0);
+	xui_control_draw_text(ctx, label, &r, &ctx->style.text.text_color, 0);
 	return res;
 }
 
@@ -1250,7 +1256,7 @@ int xui_textbox_raw(struct xui_context_t * ctx, char * buf, int bufsz, unsigned 
 	xui_control_draw_frame(ctx, id, r, XUI_COLOR_BASE, opt);
 	if(ctx->focus == id)
 	{
-		struct color_t * c = &ctx->style.colors[XUI_COLOR_TEXT];
+		struct color_t * c = &ctx->style.text.text_color;
 		void * font = ctx->style.font;
 		int textw = ctx->text_width(font, buf, -1);
 		int texth = ctx->text_height(font);
@@ -1264,7 +1270,7 @@ int xui_textbox_raw(struct xui_context_t * ctx, char * buf, int bufsz, unsigned 
 	}
 	else
 	{
-		xui_control_draw_text(ctx, buf, r, &ctx->style.colors[XUI_COLOR_TEXT], opt);
+		xui_control_draw_text(ctx, buf, r, &ctx->style.text.text_color, opt);
 	}
 	return res;
 }
@@ -1329,12 +1335,12 @@ int xui_slider_ex(struct xui_context_t * ctx, float * value, float low, float hi
 		res |= XUI_RES_CHANGE;
 
 	xui_control_draw_frame(ctx, id, &base, XUI_COLOR_BASE, opt);
-	w = ctx->style.thumb_size;
+	w = ctx->style.scroll.thumb_size;
 	x = (v - low) * (base.w - w) / (high - low);
 	region_init(&thumb, base.x + x, base.y, w, base.h);
 	xui_control_draw_frame(ctx, id, &thumb, XUI_COLOR_BASE, opt);
 	sprintf(buf, fmt, v);
-	xui_control_draw_text(ctx, buf, &base, &ctx->style.colors[XUI_COLOR_TEXT], opt);
+	xui_control_draw_text(ctx, buf, &base, &ctx->style.text.text_color, opt);
 
 	return res;
 }
@@ -1362,7 +1368,7 @@ int xui_number_ex(struct xui_context_t * ctx, float * value, float step, const c
 		res |= XUI_RES_CHANGE;
 	xui_control_draw_frame(ctx, id, &base, XUI_COLOR_BASE, opt);
 	sprintf(buf, fmt, *value);
-	xui_control_draw_text(ctx, buf, &base, &ctx->style.colors[XUI_COLOR_TEXT], opt);
+	xui_control_draw_text(ctx, buf, &base, &ctx->style.text.text_color, opt);
 
 	return res;
 }
@@ -1376,8 +1382,6 @@ static void draw_frame(struct xui_context_t * ctx, struct region_t * r, int cid)
 {
 	struct color_t * col = &ctx->style.colors[cid];
 	xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, 0, 0, col);
-	if(cid == XUI_COLOR_SCROLLBASE || cid == XUI_COLOR_SCROLLTHUMB)
-		return;
 	if(ctx->style.colors[XUI_COLOR_BORDER].a)
 	{
 		struct region_t region;

@@ -58,13 +58,10 @@ enum {
 };
 
 enum {
-	XUI_COLOR_TEXT,
 	XUI_COLOR_BORDER,
 	XUI_COLOR_BASE,
 	XUI_COLOR_BASEHOVER,
 	XUI_COLOR_BASEFOCUS,
-	XUI_COLOR_SCROLLBASE,
-	XUI_COLOR_SCROLLTHUMB,
 	XUI_COLOR_MAX,
 };
 
@@ -244,8 +241,6 @@ struct xui_style_t {
 	int padding;
 	int spacing;
 	int indent;
-	int scrollbar_size;
-	int thumb_size;
 	struct color_t colors[XUI_COLOR_MAX];
 
 	struct {
@@ -260,6 +255,17 @@ struct xui_style_t {
 	struct {
 		struct color_t face_color;
 	} panel;
+
+	struct {
+		int scroll_size;
+		int thumb_size;
+		struct color_t scroll_color;
+		struct color_t thumb_color;
+	} scroll;
+
+	struct {
+		struct color_t text_color;
+	} text;
 
 	struct {
 		int border_radius;
@@ -416,10 +422,8 @@ int xui_header_ex(struct xui_context_t * ctx, const char * label, int opt);
 int xui_header(struct xui_context_t * ctx, const char * label);
 int xui_button_ex(struct xui_context_t * ctx, const char * label, int opt);
 int xui_button(struct xui_context_t * ctx, const char * label);
-
-void xui_text(struct xui_context_t * ctx, const char * txt);
-
 void xui_label(struct xui_context_t * ctx, const char * txt);
+void xui_text(struct xui_context_t * ctx, const char * txt);
 
 int xui_checkbox(struct xui_context_t * ctx, const char * label, int * state);
 

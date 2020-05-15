@@ -164,7 +164,7 @@ static void test_window(struct xui_context_t * ctx)
 			xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, 0, 0, &c);
 			char buf[32];
 			sprintf(buf, "#%02X%02X%02X", (int)bg[0], (int)bg[1], (int)bg[2]);
-			xui_control_draw_text(ctx, buf, r, &ctx->style.colors[XUI_COLOR_TEXT], 0);
+			xui_control_draw_text(ctx, buf, r, &ctx->style.text.text_color, 0);
 		}
 
 		xui_end_window(ctx);
@@ -224,13 +224,10 @@ static int uint8_slider(struct xui_context_t *ctx, unsigned char *value, int low
 
 static void style_window(struct xui_context_t * ctx) {
 	static struct { const char * label; int idx; } colors[] = {
-		{ "text:",         XUI_COLOR_TEXT        },
 		{ "border:",       XUI_COLOR_BORDER      },
 		{ "base:",         XUI_COLOR_BASE        },
 		{ "basehover:",    XUI_COLOR_BASEHOVER   },
 		{ "basefocus:",    XUI_COLOR_BASEFOCUS   },
-		{ "scrollbase:",   XUI_COLOR_SCROLLBASE  },
-		{ "scrollthumb:",  XUI_COLOR_SCROLLTHUMB },
 		{ NULL }
 	};
 

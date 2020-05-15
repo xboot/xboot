@@ -1662,10 +1662,15 @@ void xui_loop(struct xui_context_t * ctx, void (*func)(struct xui_context_t *))
 		}
 		if(func)
 			func(ctx);
-		if(window_is_active(ctx->w))
+		ctx->cmd_hash_new = xui_get_id(ctx, &ctx->cmd_list, sizeof(int) + ctx->cmd_list.idx);
+		if((ctx->cmd_hash_old != ctx->cmd_hash_new) || (ctx->w->wm->cursor.show && ctx->w->wm->cursor.dirty))
 		{
-			ctx->w->wm->refresh = 1;
-			window_present(ctx->w, &ctx->style.bgcol, ctx, xui_draw);
+			ctx->cmd_hash_old = ctx->cmd_hash_new;
+			if(window_is_active(ctx->w))
+			{
+				ctx->w->wm->refresh = 1;
+				window_present(ctx->w, &ctx->style.bgcol, ctx, xui_draw);
+			}
 		}
 		task_yield();
 	}

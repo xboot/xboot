@@ -37,10 +37,10 @@
  */
 static struct xui_style_t xui_style_default = {
 	.bgcol = {
-		.r = 90,
-		.g = 95,
-		.b = 100,
-		.a = 255,
+		.r = 0xff,
+		.g = 0xff,
+		.b = 0xff,
+		.a = 0xff,
 	},
 
 	.font = NULL,
@@ -49,20 +49,12 @@ static struct xui_style_t xui_style_default = {
 	.padding = 5,
 	.spacing = 4,
 	.indent = 24,
-	.title_height = 24,
 	.scrollbar_size = 12,
 	.thumb_size = 8,
 
 	.colors = {
-		{ 230, 230, 230, 255 }, /* XUI_COLOR_TEXT */
+		{ 0x5a, 0x60, 0x69, 0xff }, /* XUI_COLOR_TEXT */
 		{ 25,  25,  25,  255 }, /* XUI_COLOR_BORDER */
-		{ 0xff, 0xff, 0xff, 0xff }, /* XUI_COLOR_WINDOW */
-		{ 25,  25,  25,  255 }, /* XUI_COLOR_TITLEBG */
-		{ 240, 240, 240, 255 }, /* XUI_COLOR_TITLETEXT */
-		{ 0,   0,   0,   0   }, /* XUI_COLOR_PANEL */
-		{ 75,  75,  75,  255 }, /* XUI_COLOR_BUTTON */
-		{ 95,  95,  95,  255 }, /* XUI_COLOR_BUTTONHOVER */
-		{ 115, 115, 115, 255 }, /* XUI_COLOR_BUTTONFOCUS */
 		{ 30,  30,  30,  255 }, /* XUI_COLOR_BASE */
 		{ 35,  35,  35,  255 }, /* XUI_COLOR_BASEHOVER */
 		{ 40,  40,  40,  255 }, /* XUI_COLOR_BASEFOCUS */
@@ -70,144 +62,157 @@ static struct xui_style_t xui_style_default = {
 		{ 30,  30,  30,  255 }  /* XUI_COLOR_SCROLLTHUMB */
 	},
 
+	.window = {
+		.border_width = 6,
+		.title_height = 24,
+		.face_color = { 0xf0, 0xf0, 0xf0, 0xff },
+		.border_color = { 0x00, 0x6f, 0xe6, 0xff },
+		.title_color = { 0x00, 0x7b, 0xff, 0xff },
+		.text_color = { 0x21, 0x25, 0x2a, 0xff },
+	},
+
+	.panel = {
+		.face_color = { 0x00, 0x00, 0x00, 0x00 },
+	},
+
 	.button = {
-		.radius = 6,
-		.border = 6,
-		.outline = 2,
+		.border_radius = 6,
+		.border_width = 6,
+		.outline_width = 2,
 		.primary = {
 			.normal = {
-				.background = { 0x00, 0x7b, 0xff, 0xff },
-				.border = { 0x00, 0x00, 0x00, 0x00 },
-				.text = { 0xfe, 0xfe, 0xfe, 0xff },
+				.face_color = { 0x00, 0x7b, 0xff, 0xff },
+				.border_color = { 0x00, 0x00, 0x00, 0x00 },
+				.text_color = { 0xff, 0xff, 0xff, 0xff },
 			},
 			.hover = {
-				.background = { 0x00, 0x6f, 0xe6, 0xff },
-				.border = { 0x00, 0x00, 0x00, 0x00 },
-				.text = { 0xfe, 0xfe, 0xfe, 0xff },
+				.face_color = { 0x00, 0x6f, 0xe6, 0xff },
+				.border_color = { 0x00, 0x00, 0x00, 0x00 },
+				.text_color = { 0xff, 0xff, 0xff, 0xff },
 			},
 			.focus = {
-				.background = { 0x00, 0x6f, 0xe6, 0xff },
-				.border = { 0x00, 0x6f, 0xe6, 0x60 },
-				.text = { 0xfe, 0xfe, 0xfe, 0xff },
+				.face_color = { 0x00, 0x6f, 0xe6, 0xff },
+				.border_color = { 0x00, 0x6f, 0xe6, 0x60 },
+				.text_color = { 0xff, 0xff, 0xff, 0xff },
 			},
 		},
 		.secondary = {
 			.normal = {
-				.background = { 0x5a, 0x61, 0x69, 0xff },
-				.border = { 0x00, 0x00, 0x00, 0x00 },
-				.text = { 0xfe, 0xfe, 0xfe, 0xff },
+				.face_color = { 0x5a, 0x61, 0x69, 0xff },
+				.border_color = { 0x00, 0x00, 0x00, 0x00 },
+				.text_color = { 0xff, 0xff, 0xff, 0xff },
 			},
 			.hover = {
-				.background = { 0x4e, 0x54, 0x5b, 0xff },
-				.border = { 0x00, 0x00, 0x00, 0x00 },
-				.text = { 0xfe, 0xfe, 0xfe, 0xff },
+				.face_color = { 0x4e, 0x54, 0x5b, 0xff },
+				.border_color = { 0x00, 0x00, 0x00, 0x00 },
+				.text_color = { 0xff, 0xff, 0xff, 0xff },
 			},
 			.focus = {
-				.background = { 0x4e, 0x54, 0x5b, 0xff },
-				.border = { 0x4e, 0x54, 0x5b, 0x60 },
-				.text = { 0xfe, 0xfe, 0xfe, 0xff },
+				.face_color = { 0x4e, 0x54, 0x5b, 0xff },
+				.border_color = { 0x4e, 0x54, 0x5b, 0x60 },
+				.text_color = { 0xff, 0xff, 0xff, 0xff },
 			},
 		},
 		.success = {
 			.normal = {
-				.background = { 0x17, 0xc6, 0x71, 0xff },
-				.border = { 0x00, 0x00, 0x00, 0x00 },
-				.text = { 0xfe, 0xfe, 0xfe, 0xff },
+				.face_color = { 0x17, 0xc6, 0x71, 0xff },
+				.border_color = { 0x00, 0x00, 0x00, 0x00 },
+				.text_color = { 0xff, 0xff, 0xff, 0xff },
 			},
 			.hover = {
-				.background = { 0x14, 0xaf, 0x64, 0xff },
-				.border = { 0x00, 0x00, 0x00, 0x00 },
-				.text = { 0xfe, 0xfe, 0xfe, 0xff },
+				.face_color = { 0x14, 0xaf, 0x64, 0xff },
+				.border_color = { 0x00, 0x00, 0x00, 0x00 },
+				.text_color = { 0xff, 0xff, 0xff, 0xff },
 			},
 			.focus = {
-				.background = { 0x14, 0xaf, 0x64, 0xff },
-				.border = { 0x14, 0xaf, 0x64, 0x60 },
-				.text = { 0xfe, 0xfe, 0xfe, 0xff },
+				.face_color = { 0x14, 0xaf, 0x64, 0xff },
+				.border_color = { 0x14, 0xaf, 0x64, 0x60 },
+				.text_color = { 0xff, 0xff, 0xff, 0xff },
 			},
 		},
 		.info = {
 			.normal = {
-				.background = { 0x00, 0xb8, 0xd8, 0xff },
-				.border = { 0x00, 0x00, 0x00, 0x00 },
-				.text = { 0xfe, 0xfe, 0xfe, 0xff },
+				.face_color = { 0x00, 0xb8, 0xd8, 0xff },
+				.border_color = { 0x00, 0x00, 0x00, 0x00 },
+				.text_color = { 0xff, 0xff, 0xff, 0xff },
 			},
 			.hover = {
-				.background = { 0x00, 0xa2, 0xbf, 0xff },
-				.border = { 0x00, 0x00, 0x00, 0x00 },
-				.text = { 0xfe, 0xfe, 0xfe, 0xff },
+				.face_color = { 0x00, 0xa2, 0xbf, 0xff },
+				.border_color = { 0x00, 0x00, 0x00, 0x00 },
+				.text_color = { 0xff, 0xff, 0xff, 0xff },
 			},
 			.focus = {
-				.background = { 0x00, 0xa2, 0xbf, 0xff },
-				.border = { 0x00, 0xa2, 0xbf, 0x60 },
-				.text = { 0xfe, 0xfe, 0xfe, 0xff },
+				.face_color = { 0x00, 0xa2, 0xbf, 0xff },
+				.border_color = { 0x00, 0xa2, 0xbf, 0x60 },
+				.text_color = { 0xff, 0xff, 0xff, 0xff },
 			},
 		},
 		.warning = {
 			.normal = {
-				.background = { 0xff, 0xb4, 0x00, 0xff },
-				.border = { 0x00, 0x00, 0x00, 0x00 },
-				.text = { 0xfe, 0xfe, 0xfe, 0xff },
+				.face_color = { 0xff, 0xb4, 0x00, 0xff },
+				.border_color = { 0x00, 0x00, 0x00, 0x00 },
+				.text_color = { 0xff, 0xff, 0xff, 0xff },
 			},
 			.hover = {
-				.background = { 0xe6, 0xa2, 0x00, 0xff },
-				.border = { 0x00, 0x00, 0x00, 0x00 },
-				.text = { 0xfe, 0xfe, 0xfe, 0xff },
+				.face_color = { 0xe6, 0xa2, 0x00, 0xff },
+				.border_color = { 0x00, 0x00, 0x00, 0x00 },
+				.text_color = { 0xff, 0xff, 0xff, 0xff },
 			},
 			.focus = {
-				.background = { 0xe6, 0xa2, 0x00, 0xff },
-				.border = { 0xe6, 0xa2, 0x00, 0x60 },
-				.text = { 0xfe, 0xfe, 0xfe, 0xff },
+				.face_color = { 0xe6, 0xa2, 0x00, 0xff },
+				.border_color = { 0xe6, 0xa2, 0x00, 0x60 },
+				.text_color = { 0xff, 0xff, 0xff, 0xff },
 			},
 		},
 		.danger = {
 			.normal = {
-				.background = { 0xc4, 0x18, 0x3c, 0xff },
-				.border = { 0x00, 0x00, 0x00, 0x00 },
-				.text = { 0xfe, 0xfe, 0xfe, 0xff },
+				.face_color = { 0xc4, 0x18, 0x3c, 0xff },
+				.border_color = { 0x00, 0x00, 0x00, 0x00 },
+				.text_color = { 0xff, 0xff, 0xff, 0xff },
 			},
 			.hover = {
-				.background = { 0xad, 0x15, 0x35, 0xff },
-				.border = { 0x00, 0x00, 0x00, 0x00 },
-				.text = { 0xfe, 0xfe, 0xfe, 0xff },
+				.face_color = { 0xad, 0x15, 0x35, 0xff },
+				.border_color = { 0x00, 0x00, 0x00, 0x00 },
+				.text_color = { 0xff, 0xff, 0xff, 0xff },
 			},
 			.focus = {
-				.background = { 0xad, 0x15, 0x35, 0xff },
-				.border = { 0xad, 0x15, 0x35, 0x60 },
-				.text = { 0xfe, 0xfe, 0xfe, 0xff },
+				.face_color = { 0xad, 0x15, 0x35, 0xff },
+				.border_color = { 0xad, 0x15, 0x35, 0x60 },
+				.text_color = { 0xff, 0xff, 0xff, 0xff },
 			},
 		},
 		.light = {
 			.normal = {
-				.background = { 0xe9, 0xec, 0xef, 0xff },
-				.border = { 0x00, 0x00, 0x00, 0x00 },
-				.text = { 0x74, 0x74, 0x74, 0xff },
+				.face_color = { 0xe9, 0xec, 0xef, 0xff },
+				.border_color = { 0x00, 0x00, 0x00, 0x00 },
+				.text_color = { 0x74, 0x74, 0x74, 0xff },
 			},
 			.hover = {
-				.background = { 0xda, 0xdf, 0xe4, 0xff },
-				.border = { 0x00, 0x00, 0x00, 0x00 },
-				.text = { 0x74, 0x74, 0x74, 0xff },
+				.face_color = { 0xda, 0xdf, 0xe4, 0xff },
+				.border_color = { 0x00, 0x00, 0x00, 0x00 },
+				.text_color = { 0x74, 0x74, 0x74, 0xff },
 			},
 			.focus = {
-				.background = { 0xda, 0xdf, 0xe4, 0xff },
-				.border = { 0xda, 0xdf, 0xe4, 0x60 },
-				.text = { 0x74, 0x74, 0x74, 0xff },
+				.face_color = { 0xda, 0xdf, 0xe4, 0xff },
+				.border_color = { 0xda, 0xdf, 0xe4, 0x60 },
+				.text_color = { 0x74, 0x74, 0x74, 0xff },
 			},
 		},
 		.dark = {
 			.normal = {
-				.background = { 0x21, 0x25, 0x29, 0xff },
-				.border = { 0x00, 0x00, 0x00, 0x00 },
-				.text = { 0xfe, 0xfe, 0xfe, 0xff },
+				.face_color = { 0x21, 0x25, 0x29, 0xff },
+				.border_color = { 0x00, 0x00, 0x00, 0x00 },
+				.text_color = { 0xff, 0xff, 0xff, 0xff },
 			},
 			.hover = {
-				.background = { 0x27, 0x28, 0x29, 0xff },
-				.border = { 0x00, 0x00, 0x00, 0x00 },
-				.text = { 0xfe, 0xfe, 0xfe, 0xff },
+				.face_color = { 0x27, 0x28, 0x29, 0xff },
+				.border_color = { 0x00, 0x00, 0x00, 0x00 },
+				.text_color = { 0xff, 0xff, 0xff, 0xff },
 			},
 			.focus = {
-				.background = { 0x27, 0x28, 0x29, 0xff },
-				.border = { 0x27, 0x28, 0x29, 0x60 },
-				.text = { 0xfe, 0xfe, 0xfe, 0xff },
+				.face_color = { 0x27, 0x28, 0x29, 0xff },
+				.border_color = { 0x27, 0x28, 0x29, 0x60 },
+				.text_color = { 0xff, 0xff, 0xff, 0xff },
 			},
 		},
 	},
@@ -689,7 +694,7 @@ void xui_control_update(struct xui_context_t * ctx, unsigned int id, struct regi
 
 	if(ctx->focus == id)
 		ctx->updated_focus = 1;
-	if(opt & XUI_OPT_NO_INTERACT)
+	if(opt & XUI_OPT_NOINTERACT)
 		return;
 	if(over && !ctx->mouse_down)
 		ctx->hover = id;
@@ -697,7 +702,7 @@ void xui_control_update(struct xui_context_t * ctx, unsigned int id, struct regi
 	{
 		if(ctx->mouse_pressed && !over)
 			xui_set_focus(ctx, 0);
-		if(!ctx->mouse_down && (~opt & XUI_OPT_HOLD_FOCUS))
+		if(!ctx->mouse_down && (~opt & XUI_OPT_HOLDFOCUS))
 			xui_set_focus(ctx, 0);
 	}
 	if(ctx->hover == id)
@@ -713,28 +718,42 @@ void xui_control_draw_text(struct xui_context_t * ctx, const char * txt, struct 
 {
 	void * font = ctx->style.font;
 	int tw = ctx->text_width(font, txt, -1);
+	int th = ctx->text_height(font);
 	int x, y;
 	xui_push_clip(ctx, r);
-	if(opt & XUI_OPT_ALIGN_LEFT)
+	switch(opt & (0x7 << 5))
+	{
+	case XUI_OPT_TEXT_LEFT:
 		x = r->x + ctx->style.padding;
-	else if(opt & XUI_OPT_ALIGN_RIGHT)
+		y = r->y + (r->h - th) / 2;
+		break;
+	case XUI_OPT_TEXT_RIGHT:
 		x = r->x + r->w - tw - ctx->style.padding;
-	else
+		y = r->y + (r->h - th) / 2;
+		break;
+	case XUI_OPT_TEXT_TOP:
 		x = r->x + (r->w - tw) / 2;
-	if(opt & XUI_OPT_ALIGN_TOP)
 		y = r->y + ctx->style.padding;
-	else if(opt & XUI_OPT_ALIGN_BOTTOM)
-		y = r->y + r->h - ctx->text_height(font) - ctx->style.padding;
-	else
-		y = r->y + (r->h - ctx->text_height(font)) / 2;
+		break;
+	case XUI_OPT_TEXT_BOTTOM:
+		x = r->x + (r->w - tw) / 2;
+		y = r->y + r->h - th - ctx->style.padding;
+		break;
+	case XUI_OPT_TEXT_CENTER:
+		x = r->x + (r->w - tw) / 2;
+		y = r->y + (r->h - th) / 2;
+		break;
+	default:
+		x = r->x + ctx->style.padding;
+		y = r->y + (r->h - th) / 2;
+		break;
+	}
 	xui_draw_text(ctx, font, txt, -1, x, y, c);
 	xui_pop_clip(ctx);
 }
 
 void xui_control_draw_frame(struct xui_context_t * ctx, unsigned int id, struct region_t * r, int cid, int opt)
 {
-	if(opt & XUI_OPT_NO_FRAME)
-		return;
 	cid += (ctx->focus == id) ? 2 : (ctx->hover == id) ? 1 : 0;
 	ctx->draw_frame(ctx, r, cid);
 }
@@ -809,7 +828,7 @@ static void scrollbars(struct xui_context_t * ctx, struct xui_container_t * c, s
 static void push_container_body(struct xui_context_t * ctx, struct xui_container_t * c, struct region_t * body, int opt)
 {
 	struct region_t r;
-	if(~opt & XUI_OPT_NO_SCROLL)
+	if(~opt & XUI_OPT_NOSCROLL)
 		scrollbars(ctx, c, body);
 	region_expand(&r, body, -ctx->style.padding);
 	push_layout(ctx, &r, c->scroll_x, c->scroll_y);
@@ -849,19 +868,20 @@ int xui_begin_window_ex(struct xui_context_t * ctx, const char * title, struct r
 	begin_root_container(ctx, c);
 	region_clone(&body, &c->region);
 	region_clone(&region, &c->region);
-	if(~opt & XUI_OPT_NO_FRAME)
-		ctx->draw_frame(ctx, &region, XUI_COLOR_WINDOW);
-	if(~opt & XUI_OPT_NO_TITLE)
+	if(ctx->style.window.border_color.a && (ctx->style.window.border_width > 0))
+		xui_draw_rectangle(ctx, region.x, region.y, region.w, region.h, 0, ctx->style.window.border_width, &ctx->style.window.border_color);
+	xui_draw_rectangle(ctx, region.x, region.y, region.w, region.h, 0, 0, &ctx->style.window.face_color);
+	if(~opt & XUI_WINDOW_NOTITLE)
 	{
 		struct region_t tr;
 		region_clone(&tr, &region);
-		tr.h = ctx->style.title_height;
-		ctx->draw_frame(ctx, &tr, XUI_COLOR_TITLEBG);
-		if(~opt & XUI_OPT_NO_TITLE)
+		tr.h = ctx->style.window.title_height;
+		xui_draw_rectangle(ctx, tr.x, tr.y, tr.w, tr.h, 0, 0, &ctx->style.window.title_color);
+		if(~opt & XUI_WINDOW_NOTITLE)
 		{
 			unsigned int id = xui_get_id(ctx, "!title", 6);
 			xui_control_update(ctx, id, &tr, opt);
-			xui_control_draw_text(ctx, title, &tr, &ctx->style.colors[XUI_COLOR_TITLETEXT], opt);
+			xui_control_draw_text(ctx, title, &tr, &ctx->style.window.text_color, opt);
 			if((id == ctx->focus) && (ctx->mouse_down & XUI_MOUSE_LEFT))
 			{
 				c->region.x += ctx->mouse_delta_x;
@@ -870,22 +890,22 @@ int xui_begin_window_ex(struct xui_context_t * ctx, const char * title, struct r
 			body.y += tr.h;
 			body.h -= tr.h;
 		}
-		if(~opt & XUI_OPT_NO_CLOSE)
+		if(~opt & XUI_WINDOW_NOCLOSE)
 		{
 			unsigned int id = xui_get_id(ctx, "!close", 6);
 			struct region_t r;
 			region_init(&r, tr.x + tr.w - tr.h, tr.y, tr.h, tr.h);
 			tr.w -= r.w;
-			xui_draw_icon(ctx, XUI_ICON_CLOSE, &r, &ctx->style.colors[XUI_COLOR_TITLETEXT]);
+			xui_draw_icon(ctx, XUI_ICON_CLOSE, &r, &ctx->style.window.text_color);
 			xui_control_update(ctx, id, &r, opt);
 			if((ctx->mouse_pressed & XUI_MOUSE_LEFT) && (id == ctx->focus))
 				c->open = 0;
 		}
 	}
 	push_container_body(ctx, c, &body, opt);
-	if(~opt & XUI_OPT_NO_RESIZE)
+	if(~opt & XUI_WINDOW_NORESIZE)
 	{
-		int sz = ctx->style.title_height;
+		int sz = ctx->style.window.title_height;
 		unsigned int id = xui_get_id(ctx, "!resize", 7);
 		struct region_t r;
 		region_init(&r, region.x + region.w - sz, region.y + region.h - sz, sz, sz);
@@ -896,13 +916,13 @@ int xui_begin_window_ex(struct xui_context_t * ctx, const char * title, struct r
 			c->region.h = max(64, c->region.h + ctx->mouse_delta_y);
 		}
 	}
-	if(opt & XUI_OPT_AUTO_SIZE)
+	if(opt & XUI_WINDOW_AUTOSIZE)
 	{
 		struct region_t r = get_layout(ctx)->body;
 		c->region.w = c->content_width + (c->region.w - r.w);
 		c->region.h = c->content_height + (c->region.h - r.h);
 	}
-	if((opt & XUI_OPT_POPUP) && ctx->mouse_pressed && (ctx->hover_root != c))
+	if((opt & XUI_WINDOW_POPUP) && ctx->mouse_pressed && (ctx->hover_root != c))
 		c->open = 0;
 	xui_push_clip(ctx, &c->body);
 
@@ -911,7 +931,7 @@ int xui_begin_window_ex(struct xui_context_t * ctx, const char * title, struct r
 
 int xui_begin_window(struct xui_context_t * ctx, const char * title, struct region_t * r)
 {
-	return xui_begin_window_ex(ctx, title, r, XUI_OPT_ALIGN_LEFT);
+	return xui_begin_window_ex(ctx, title, r, XUI_OPT_TEXT_LEFT);
 }
 
 void xui_end_window(struct xui_context_t * ctx)
@@ -922,8 +942,7 @@ void xui_end_window(struct xui_context_t * ctx)
 
 int xui_begin_popup(struct xui_context_t * ctx, const char * name)
 {
-	int opt = XUI_OPT_ALIGN_LEFT | XUI_OPT_POPUP | XUI_OPT_AUTO_SIZE | XUI_OPT_NO_RESIZE | XUI_OPT_NO_SCROLL | XUI_OPT_NO_TITLE | XUI_OPT_CLOSED;
-	return xui_begin_window_ex(ctx, name, &(struct region_t){0, 0, 0, 0}, opt);
+	return xui_begin_window_ex(ctx, name, NULL, XUI_WINDOW_POPUP | XUI_WINDOW_AUTOSIZE | XUI_WINDOW_NORESIZE | XUI_WINDOW_NOTITLE | XUI_OPT_NOSCROLL | XUI_OPT_CLOSED);
 }
 
 void xui_end_popup(struct xui_context_t * ctx)
@@ -943,11 +962,13 @@ void xui_open_popup(struct xui_context_t * ctx, const char * name)
 void xui_begin_panel_ex(struct xui_context_t * ctx, const char * name, int opt)
 {
 	struct xui_container_t * c;
+	struct region_t * r;
 	xui_push_id(ctx, name, strlen(name));
 	c = get_container(ctx, ctx->last_id, opt);
-	region_clone(&c->region, xui_layout_next(ctx));
-	if(~opt & XUI_OPT_NO_FRAME)
-		ctx->draw_frame(ctx, &c->region, XUI_COLOR_PANEL);
+	r = xui_layout_next(ctx);
+	region_clone(&c->region, r);
+	if(ctx->style.panel.face_color.a)
+		xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, 0, 0, &ctx->style.panel.face_color);
 	xui_push(ctx->container_stack, c);
 	push_container_body(ctx, c, &c->region, opt);
 	xui_push_clip(ctx, &c->body);
@@ -992,18 +1013,18 @@ static int header(struct xui_context_t * ctx, const char * label, int istreenode
 	if(istreenode)
 	{
 		if(ctx->hover == id)
-			ctx->draw_frame(ctx, &r, XUI_COLOR_BUTTONHOVER);
+			ctx->draw_frame(ctx, &r, XUI_COLOR_BASEHOVER);
 	}
 	else
 	{
-		xui_control_draw_frame(ctx, id, &r, XUI_COLOR_BUTTON, 0);
+		xui_control_draw_frame(ctx, id, &r, XUI_COLOR_BASE, 0);
 	}
 	struct region_t region;
 	region_init(&region, r.x, r.y, r.h, r.h);
 	xui_draw_icon(ctx, expanded ? XUI_ICON_EXPANDED : XUI_ICON_COLLAPSED, &region, &ctx->style.colors[XUI_COLOR_TEXT]);
 	r.x += r.h - ctx->style.padding;
 	r.w -= r.h - ctx->style.padding;
-	xui_control_draw_text(ctx, label, &r, &ctx->style.colors[XUI_COLOR_TEXT], XUI_OPT_ALIGN_LEFT);
+	xui_control_draw_text(ctx, label, &r, &ctx->style.colors[XUI_COLOR_TEXT], 0);
 
 	return expanded ? XUI_RES_ACTIVE : 0;
 }
@@ -1040,21 +1061,21 @@ int xui_header(struct xui_context_t * ctx, const char * label)
 	return header(ctx, label, 0, 0);
 }
 
-int xui_button(struct xui_context_t * ctx, const char * label, int opt)
+int xui_button_ex(struct xui_context_t * ctx, const char * label, int opt)
 {
 	unsigned int id = label ? xui_get_id(ctx, label, strlen(label)) : xui_get_id(ctx, &label, sizeof(label));
 	struct region_t * r = xui_layout_next(ctx);
 	struct xui_style_button_t * sb;
-	struct color_t * cg, * cb, * ct;
-	int radius, border;
+	struct color_t * fc, * bc, * tc;
+	int radius, width;
 	int res = 0;
 
 	xui_control_update(ctx, id, r, opt);
 	if((ctx->mouse_pressed & XUI_MOUSE_LEFT) && (ctx->focus == id))
 		res |= XUI_RES_SUBMIT;
-	radius = ctx->style.button.radius;
-	border = ctx->style.button.border;
-	switch(opt & (0xf << 8))
+	radius = ctx->style.button.border_radius;
+	width = ctx->style.button.border_width;
+	switch(opt & (0x7 << 8))
 	{
 	case XUI_BUTTON_PRIMARY:
 		sb = &ctx->style.button.primary;
@@ -1086,53 +1107,58 @@ int xui_button(struct xui_context_t * ctx, const char * label, int opt)
 	}
 	if(ctx->focus == id)
 	{
-		cg = &sb->focus.background;
-		cb = &sb->focus.border;
-		ct = &sb->focus.text;
-		if(cb->a && (border > 0))
-			xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, radius, border, cb);
-		if(cg->a)
-			xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, radius, 0, cg);
-		if(label && ct->a)
-			xui_control_draw_text(ctx, label, r, ct, opt);
+		fc = &sb->focus.face_color;
+		bc = &sb->focus.border_color;
+		tc = &sb->focus.text_color;
+		if(bc->a && (width > 0))
+			xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, radius, width, bc);
+		if(fc->a)
+			xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, radius, 0, fc);
+		if(label && tc->a)
+			xui_control_draw_text(ctx, label, r, tc, opt);
 	}
 	else if(ctx->hover == id)
 	{
-		cg = &sb->hover.background;
-		cb = &sb->hover.border;
-		ct = &sb->hover.text;
-		if(cb->a && (border > 0))
-			xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, radius, border, cb);
-		if(cg->a)
-			xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, radius, 0, cg);
-		if(label && ct->a)
-			xui_control_draw_text(ctx, label, r, ct, opt);
+		fc = &sb->hover.face_color;
+		bc = &sb->hover.border_color;
+		tc = &sb->hover.text_color;
+		if(bc->a && (width > 0))
+			xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, radius, width, bc);
+		if(fc->a)
+			xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, radius, 0, fc);
+		if(label && tc->a)
+			xui_control_draw_text(ctx, label, r, tc, opt);
 	}
 	else
 	{
-		cg = &sb->normal.background;
-		cb = &sb->normal.border;
-		ct = &sb->normal.text;
+		fc = &sb->normal.face_color;
+		bc = &sb->normal.border_color;
+		tc = &sb->normal.text_color;
 		if(opt & XUI_BUTTON_OUTLINE)
 		{
-			if(cg->a)
+			if(fc->a)
 			{
-				xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, radius, ctx->style.button.outline, cg);
+				xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, radius, ctx->style.button.outline_width, fc);
 				if(label)
-					xui_control_draw_text(ctx, label, r, cg, opt);
+					xui_control_draw_text(ctx, label, r, fc, opt);
 			}
 		}
 		else
 		{
-			if(cb->a && (border > 0))
-				xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, radius, border, cb);
-			if(cg->a)
-				xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, radius, 0, cg);
-			if(label && ct->a)
-				xui_control_draw_text(ctx, label, r, ct, opt);
+			if(bc->a && (width > 0))
+				xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, radius, width, bc);
+			if(fc->a)
+				xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, radius, 0, fc);
+			if(label && tc->a)
+				xui_control_draw_text(ctx, label, r, tc, opt);
 		}
 	}
 	return res;
+}
+
+int xui_button(struct xui_context_t * ctx, const char * label)
+{
+	return xui_button_ex(ctx, label, XUI_BUTTON_PRIMARY | XUI_OPT_TEXT_CENTER);
 }
 
 void xui_text(struct xui_context_t * ctx, const char * txt)
@@ -1167,7 +1193,7 @@ void xui_text(struct xui_context_t * ctx, const char * txt)
 
 void xui_label(struct xui_context_t * ctx, const char * txt)
 {
-	xui_control_draw_text(ctx, txt, xui_layout_next(ctx), &ctx->style.colors[XUI_COLOR_TEXT], XUI_OPT_ALIGN_LEFT);
+	xui_control_draw_text(ctx, txt, xui_layout_next(ctx), &ctx->style.colors[XUI_COLOR_TEXT], 0);
 }
 
 int xui_checkbox(struct xui_context_t * ctx, const char * label, int * state)
@@ -1188,14 +1214,14 @@ int xui_checkbox(struct xui_context_t * ctx, const char * label, int * state)
 	if(*state)
 		xui_draw_icon(ctx, XUI_ICON_CHECK, &box, &ctx->style.colors[XUI_COLOR_TEXT]);
 	region_init(&r, r.x + box.w, r.y, r.w - box.w, r.h);
-	xui_control_draw_text(ctx, label, &r, &ctx->style.colors[XUI_COLOR_TEXT], XUI_OPT_ALIGN_LEFT);
+	xui_control_draw_text(ctx, label, &r, &ctx->style.colors[XUI_COLOR_TEXT], 0);
 	return res;
 }
 
 int xui_textbox_raw(struct xui_context_t * ctx, char * buf, int bufsz, unsigned int id, struct region_t * r, int opt)
 {
 	int res = 0;
-	xui_control_update(ctx, id, r, opt | XUI_OPT_HOLD_FOCUS);
+	xui_control_update(ctx, id, r, opt | XUI_OPT_HOLDFOCUS);
 
 	if(ctx->focus == id)
 	{
@@ -1276,7 +1302,7 @@ int xui_textbox_ex(struct xui_context_t * ctx, char * buf, int bufsz, int opt)
 
 int xui_textbox(struct xui_context_t * ctx, char * buf, int bufsz)
 {
-	return xui_textbox_ex(ctx, buf, bufsz, XUI_OPT_ALIGN_LEFT);
+	return xui_textbox_ex(ctx, buf, bufsz, 0);
 }
 
 int xui_slider_ex(struct xui_context_t * ctx, float * value, float low, float high, float step, const char * fmt, int opt)
@@ -1306,7 +1332,7 @@ int xui_slider_ex(struct xui_context_t * ctx, float * value, float low, float hi
 	w = ctx->style.thumb_size;
 	x = (v - low) * (base.w - w) / (high - low);
 	region_init(&thumb, base.x + x, base.y, w, base.h);
-	xui_control_draw_frame(ctx, id, &thumb, XUI_COLOR_BUTTON, opt);
+	xui_control_draw_frame(ctx, id, &thumb, XUI_COLOR_BASE, opt);
 	sprintf(buf, fmt, v);
 	xui_control_draw_text(ctx, buf, &base, &ctx->style.colors[XUI_COLOR_TEXT], opt);
 
@@ -1350,7 +1376,7 @@ static void draw_frame(struct xui_context_t * ctx, struct region_t * r, int cid)
 {
 	struct color_t * col = &ctx->style.colors[cid];
 	xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, 0, 0, col);
-	if(cid == XUI_COLOR_SCROLLBASE || cid == XUI_COLOR_SCROLLTHUMB || cid == XUI_COLOR_TITLEBG)
+	if(cid == XUI_COLOR_SCROLLBASE || cid == XUI_COLOR_SCROLLTHUMB)
 		return;
 	if(ctx->style.colors[XUI_COLOR_BORDER].a)
 	{

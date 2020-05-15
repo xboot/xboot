@@ -52,27 +52,27 @@ static void test_window(struct xui_context_t * ctx)
 		{
 			xui_layout_row(ctx, 3, (int[] ) { 86, -110, -1 }, 0);
 			xui_label(ctx, "Test buttons 1:");
-			if(xui_button(ctx, "Button 1", 0))
+			if(xui_button(ctx, "Button 1"))
 			{
 				write_log("Pressed button 1");
 			}
-			if(xui_button(ctx, "Button 2", 0))
+			if(xui_button(ctx, "Button 2"))
 			{
 				write_log("Pressed button 2");
 			}
 			xui_label(ctx, "Test buttons 2:");
-			if(xui_button(ctx, "Button 3", 0))
+			if(xui_button(ctx, "Button 3"))
 			{
 				write_log("Pressed button 3");
 			}
-			if(xui_button(ctx, "Popup", 0))
+			if(xui_button(ctx, "Popup"))
 			{
 				xui_open_popup(ctx, "Test Popup");
 			}
 			if(xui_begin_popup(ctx, "Test Popup"))
 			{
-				xui_button(ctx, "Hello", 0);
-				xui_button(ctx, "World", 0);
+				xui_button(ctx, "Hello");
+				xui_button(ctx, "World");
 				xui_end_popup(ctx);
 			}
 		}
@@ -92,11 +92,11 @@ static void test_window(struct xui_context_t * ctx)
 				}
 				if(xui_begin_treenode(ctx, "Test 1b"))
 				{
-					if(xui_button(ctx, "Button 1", 0))
+					if(xui_button(ctx, "Button 1"))
 					{
 						write_log("Pressed button 1");
 					}
-					if(xui_button(ctx, "Button 2", 0))
+					if(xui_button(ctx, "Button 2"))
 					{
 						write_log("Pressed button 2");
 					}
@@ -107,19 +107,19 @@ static void test_window(struct xui_context_t * ctx)
 			if(xui_begin_treenode(ctx, "Test 2"))
 			{
 				xui_layout_row(ctx, 2, (int[] ) { 54, 54 }, 0);
-				if(xui_button(ctx, "Button 3", 0))
+				if(xui_button(ctx, "Button 3"))
 				{
 					write_log("Pressed button 3");
 				}
-				if(xui_button(ctx, "Button 4", 0))
+				if(xui_button(ctx, "Button 4"))
 				{
 					write_log("Pressed button 4");
 				}
-				if(xui_button(ctx, "Button 5", 0))
+				if(xui_button(ctx, "Button 5"))
 				{
 					write_log("Pressed button 5");
 				}
-				if(xui_button(ctx, "Button 6", 0))
+				if(xui_button(ctx, "Button 6"))
 				{
 					write_log("Pressed button 6");
 				}
@@ -197,7 +197,7 @@ static void log_window(struct xui_context_t *ctx)
 			xui_set_focus(ctx, ctx->last_id);
 			submitted = 1;
 		}
-		if(xui_button(ctx, "Submit", 0))
+		if(xui_button(ctx, "Submit"))
 		{
 			submitted = 1;
 		}
@@ -222,18 +222,10 @@ static int uint8_slider(struct xui_context_t *ctx, unsigned char *value, int low
 	return res;
 }
 
-
 static void style_window(struct xui_context_t * ctx) {
 	static struct { const char * label; int idx; } colors[] = {
 		{ "text:",         XUI_COLOR_TEXT        },
 		{ "border:",       XUI_COLOR_BORDER      },
-		{ "window:",		XUI_COLOR_WINDOW	},
-		{ "titlebg:",      XUI_COLOR_TITLEBG     },
-		{ "titletext:",    XUI_COLOR_TITLETEXT   },
-		{ "panel:",			XUI_COLOR_PANEL		},
-		{ "button:",       XUI_COLOR_BUTTON      },
-		{ "buttonhover:",  XUI_COLOR_BUTTONHOVER },
-		{ "buttonfocus:",  XUI_COLOR_BUTTONFOCUS },
 		{ "base:",         XUI_COLOR_BASE        },
 		{ "basehover:",    XUI_COLOR_BASEHOVER   },
 		{ "basefocus:",    XUI_COLOR_BASEFOCUS   },
@@ -265,24 +257,25 @@ void ttt_test(struct xui_context_t * ctx)
 	if(xui_begin_window(ctx, "test window", NULL))
 	{
 		xui_layout_row(ctx, 2, (int[]){ 100, -1 }, 0);
-		if(xui_button(ctx, "button test1", 0))
+		if(xui_button(ctx, "button test1"))
 		{
 		}
-		if(xui_button(ctx, "button test2", 0))
+		if(xui_button(ctx, "button test2"))
 		{
 		}
+		xui_header(ctx, "header");
 		if(xui_begin_treenode(ctx, "treenode"))
 		{
 			xui_layout_row(ctx, 3, (int[]){ 100, 100, -1, }, 40);
 			for(int i = 0; i < 8; i++)
 			{
-				xui_button(ctx, xui_format(ctx, "btn %s %d", "normal", i), (i << 8));
+				xui_button_ex(ctx, xui_format(ctx, "btn %s %d", "normal", i), (i << 8) | XUI_OPT_TEXT_CENTER);
 			}
 
 			xui_layout_row(ctx, 3, (int[]){ 100, 100, -1, }, 50);
 			for(int i = 0; i < 8; i++)
 			{
-				xui_button(ctx, xui_format(ctx, "btn %s %d", "outline", i), (i << 8) | XUI_BUTTON_OUTLINE);
+				xui_button_ex(ctx, xui_format(ctx, "btn %s %d", "outline", i), (i << 8) | XUI_BUTTON_OUTLINE | XUI_OPT_TEXT_CENTER);
 			}
 			xui_end_treenode(ctx);
 		}

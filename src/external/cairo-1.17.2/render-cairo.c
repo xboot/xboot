@@ -255,6 +255,7 @@ static void render_cairo_shape_rectangle(struct surface_t * s, struct region_t *
 {
 	cairo_t * cr = ((struct render_cairo_context_t *)s->pctx)->cr;
 	struct region_t r;
+	int corner;
 
 	cairo_save(cr);
 	if(clip)
@@ -271,17 +272,49 @@ static void render_cairo_shape_rectangle(struct surface_t * s, struct region_t *
 			return;
 		}
 	}
+	corner = (radius >> 16) & 0xf;
+	radius &= 0xffff;
 	if(radius > 0)
 	{
 		cairo_move_to(cr, x + radius, y);
 		cairo_line_to(cr, x + w - radius, y);
-		cairo_arc(cr, x + w - radius, y + radius, radius, - M_PI_2, 0);
+		if(corner & (1 << 1))
+		{
+			cairo_line_to(cr, x + w, y);
+			cairo_line_to(cr, x + w, y + radius);
+		}
+		else
+		{
+			cairo_arc(cr, x + w - radius, y + radius, radius, - M_PI_2, 0);
+		}
 		cairo_line_to(cr, x + w, y + h - radius);
-		cairo_arc(cr, x + w - radius, y + h - radius, radius, 0, M_PI_2);
+		if(corner & (1 << 2))
+		{
+			cairo_line_to(cr, x + w, y + h);
+			cairo_line_to(cr, w - radius, y + h);
+		}
+		else
+		{
+			cairo_arc(cr, x + w - radius, y + h - radius, radius, 0, M_PI_2);
+		}
 		cairo_line_to(cr, x + radius, y + h);
-		cairo_arc(cr, x + radius, y + h - radius, radius, M_PI_2, M_PI);
-		cairo_line_to(cr, x, y + radius);
-		cairo_arc(cr, x + radius, y + radius, radius, M_PI, M_PI + M_PI_2);
+		if(corner & (1 << 3))
+		{
+			cairo_line_to(cr, x, y + h);
+		}
+		else
+		{
+			cairo_arc(cr, x + radius, y + h - radius, radius, M_PI_2, M_PI);
+		}
+		if(corner & (1 << 0))
+		{
+			cairo_line_to(cr, x, y);
+			cairo_line_to(cr, x + radius, y);
+		}
+		else
+		{
+			cairo_arc(cr, x + radius, y + radius, radius, M_PI, M_PI + M_PI_2);
+		}
 	}
 	else
 	{

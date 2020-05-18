@@ -1278,6 +1278,7 @@ void render_default_shape_rectangle(struct surface_t * s, struct region_t * clip
 {
 	struct xvg_context_t ctx;
 	struct region_t r;
+	int corner;
 
 	region_init(&r, 0, 0, surface_get_width(s), surface_get_height(s));
 	if(clip)
@@ -1287,17 +1288,50 @@ void render_default_shape_rectangle(struct surface_t * s, struct region_t * clip
 	}
 	xvg_init(&ctx, s, &r, thickness, c);
 	xvg_reset(&ctx);
+	corner = (radius >> 16) & 0xf;
+	radius &= 0xffff;
 	if(radius > 0)
 	{
 		xvg_move_to(&ctx, x + radius, y);
 		xvg_line_to(&ctx, x + w - radius, y);
-		xvg_cubic_bezto(&ctx, x + w - radius * (1 - XVG_KAPPA90), y, x + w, y + radius * (1 - XVG_KAPPA90), x + w, y + radius);
+		if(corner & (1 << 1))
+		{
+			xvg_line_to(&ctx, x + w, y);
+			xvg_line_to(&ctx, x + w, y + radius);
+		}
+		else
+		{
+			xvg_cubic_bezto(&ctx, x + w - radius * (1 - XVG_KAPPA90), y, x + w, y + radius * (1 - XVG_KAPPA90), x + w, y + radius);
+		}
 		xvg_line_to(&ctx, x + w, y + h - radius);
-		xvg_cubic_bezto(&ctx, x + w, y + h - radius * (1 - XVG_KAPPA90), x + w - radius * (1 - XVG_KAPPA90), y + h, x + w - radius, y + h);
+		if(corner & (1 << 2))
+		{
+			xvg_line_to(&ctx, x + w, y + h);
+			xvg_line_to(&ctx, w - radius, y + h);
+		}
+		else
+		{
+			xvg_cubic_bezto(&ctx, x + w, y + h - radius * (1 - XVG_KAPPA90), x + w - radius * (1 - XVG_KAPPA90), y + h, x + w - radius, y + h);
+		}
 		xvg_line_to(&ctx, x + radius, y + h);
-		xvg_cubic_bezto(&ctx, x + radius * (1 - XVG_KAPPA90), y + h, x, y + h - radius * (1 - XVG_KAPPA90), x, y + h - radius);
+		if(corner & (1 << 3))
+		{
+			xvg_line_to(&ctx, x, y + h);
+		}
+		else
+		{
+			xvg_cubic_bezto(&ctx, x + radius * (1 - XVG_KAPPA90), y + h, x, y + h - radius * (1 - XVG_KAPPA90), x, y + h - radius);
+		}
 		xvg_line_to(&ctx, x, y + radius);
-		xvg_cubic_bezto(&ctx, x, y + radius * (1 - XVG_KAPPA90), x + radius * (1 - XVG_KAPPA90), y, x + radius, y);
+		if(corner & (1 << 0))
+		{
+			xvg_line_to(&ctx, x, y);
+			xvg_line_to(&ctx, x + radius, y);
+		}
+		else
+		{
+			xvg_cubic_bezto(&ctx, x, y + radius * (1 - XVG_KAPPA90), x + radius * (1 - XVG_KAPPA90), y, x + radius, y);
+		}
 	}
 	else
 	{

@@ -234,7 +234,7 @@ struct xui_style_button_t {
 };
 
 struct xui_style_t {
-	struct color_t bgcol;
+	struct color_t background_color;
 	void * font;
 	int width;
 	int height;

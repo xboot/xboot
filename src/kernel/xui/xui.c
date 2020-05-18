@@ -58,6 +58,7 @@ static struct xui_style_t xui_style_default = {
 	},
 
 	.window = {
+		.border_radius = 6,
 		.border_width = 6,
 		.title_height = 24,
 		.face_color = { 0xf0, 0xf0, 0xf0, 0xff },
@@ -875,14 +876,14 @@ int xui_begin_window_ex(struct xui_context_t * ctx, const char * title, struct r
 	region_clone(&body, &c->region);
 	region_clone(&region, &c->region);
 	if(ctx->style.window.border_color.a && (ctx->style.window.border_width > 0))
-		xui_draw_rectangle(ctx, region.x, region.y, region.w, region.h, 0, ctx->style.window.border_width, &ctx->style.window.border_color);
-	xui_draw_rectangle(ctx, region.x, region.y, region.w, region.h, 0, 0, &ctx->style.window.face_color);
+		xui_draw_rectangle(ctx, region.x, region.y, region.w, region.h, ctx->style.window.border_radius, ctx->style.window.border_width, &ctx->style.window.border_color);
+	xui_draw_rectangle(ctx, region.x, region.y, region.w, region.h, ctx->style.window.border_radius, 0, &ctx->style.window.face_color);
 	if(~opt & XUI_WINDOW_NOTITLE)
 	{
 		struct region_t tr;
 		region_clone(&tr, &region);
 		tr.h = ctx->style.window.title_height;
-		xui_draw_rectangle(ctx, tr.x, tr.y, tr.w, tr.h, 0, 0, &ctx->style.window.title_color);
+		xui_draw_rectangle(ctx, tr.x, tr.y, tr.w, tr.h, ctx->style.window.border_radius | (0xc << 16), 0, &ctx->style.window.title_color);
 		if(~opt & XUI_WINDOW_NOTITLE)
 		{
 			unsigned int id = xui_get_id(ctx, "!title", 6);

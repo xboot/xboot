@@ -279,6 +279,8 @@ void ttt_test(struct xui_context_t * ctx)
 		{
 		}
 		xui_header(ctx, "header");
+		static float t = 20;
+		xui_number(ctx, &t, 1);
 		if(xui_begin_treenode(ctx, "treenode"))
 		{
 			xui_layout_row(ctx, 3, (int[]){ 100, 100, -1, }, 40);

@@ -1287,50 +1287,15 @@ int xui_checkbox(struct xui_context_t * ctx, const char * label, int * state)
 	return res;
 }
 
-void xui_label(struct xui_context_t * ctx, const char * txt)
-{
-	xui_control_draw_text(ctx, txt, xui_layout_next(ctx), &ctx->style.text.text_color, 0);
-}
-
-void xui_text(struct xui_context_t * ctx, const char * txt)
-{
-	const char * start, * end, * p = txt;
-	int width = -1;
-	void * font = ctx->style.font;
-	struct color_t * c = &ctx->style.text.text_color;
-	xui_layout_begin_column(ctx);
-	xui_layout_row(ctx, 1, &width, ctx->text_height(font));
-	do {
-		struct region_t r;
-		region_clone(&r, xui_layout_next(ctx));
-		int w = 0;
-		start = end = p;
-		do
-		{
-			const char * word = p;
-			while(*p && (*p != ' ') && (*p != '\n'))
-				p++;
-			w += ctx->text_width(font, word, p - word);
-			if((w > r.w) && (end != start))
-				break;
-			w += ctx->text_width(font, p, 1);
-			end = p++;
-		} while(*end && (*end != '\n'));
-		xui_draw_text(ctx, font, start, end - start, r.x, r.y, c);
-		p = end + 1;
-	} while(*end);
-	xui_layout_end_column(ctx);
-}
-
-int xui_textbox_raw(struct xui_context_t * ctx, char * buf, int bufsz, unsigned int id, struct region_t * r, int opt)
+static int xui_textbox_raw(struct xui_context_t * ctx, char * buf, int bufsz, unsigned int id, struct region_t * r, int opt)
 {
 	int res = 0;
-	xui_control_update(ctx, id, r, opt | XUI_OPT_HOLDFOCUS);
 
+	xui_control_update(ctx, id, r, opt | XUI_OPT_HOLDFOCUS);
 	if(ctx->focus == id)
 	{
 		int len = strlen(buf);
-		int n = min(bufsz - len - 1, (int ) strlen(ctx->input_text));
+		int n = min(bufsz - len - 1, (int)strlen(ctx->input_text));
 		if(n > 0)
 		{
 			memcpy(buf + len, ctx->input_text, n);
@@ -1338,10 +1303,9 @@ int xui_textbox_raw(struct xui_context_t * ctx, char * buf, int bufsz, unsigned 
 			buf[len] = '\0';
 			res |= XUI_RES_CHANGE;
 		}
-		if((ctx->key_pressed & XUI_KEY_BACK) && len > 0)
+		if((ctx->key_pressed & XUI_KEY_BACK) && (len > 0))
 		{
-			while((buf[--len] & 0xc0) == 0x80 && len > 0)
-				;
+			while(((buf[--len] & 0xc0) == 0x80) && (len > 0));
 			buf[len] = '\0';
 			res |= XUI_RES_CHANGE;
 		}
@@ -1396,19 +1360,6 @@ static int number_textbox(struct xui_context_t * ctx, float * value, struct regi
 	return 0;
 }
 
-int xui_textbox_ex(struct xui_context_t * ctx, char * buf, int bufsz, int opt)
-{
-	unsigned int id = xui_get_id(ctx, &buf, sizeof(buf));
-	struct region_t r;
-	region_clone(&r, xui_layout_next(ctx));
-	return xui_textbox_raw(ctx, buf, bufsz, id, &r, opt);
-}
-
-int xui_textbox(struct xui_context_t * ctx, char * buf, int bufsz)
-{
-	return xui_textbox_ex(ctx, buf, bufsz, 0);
-}
-
 int xui_slider_ex(struct xui_context_t * ctx, float * value, float low, float high, float step, const char * fmt, int opt)
 {
 	char buf[128];
@@ -1446,6 +1397,54 @@ int xui_slider_ex(struct xui_context_t * ctx, float * value, float low, float hi
 int xui_slider(struct xui_context_t * ctx, float * value, float low, float high)
 {
 	return xui_slider_ex(ctx, value, low, high, 0, "%.2f", 0);
+}
+
+void xui_label(struct xui_context_t * ctx, const char * txt)
+{
+	xui_control_draw_text(ctx, txt, xui_layout_next(ctx), &ctx->style.text.text_color, 0);
+}
+
+void xui_text(struct xui_context_t * ctx, const char * txt)
+{
+	const char * start, * end, * p = txt;
+	int width = -1;
+	void * font = ctx->style.font;
+	struct color_t * c = &ctx->style.text.text_color;
+	xui_layout_begin_column(ctx);
+	xui_layout_row(ctx, 1, &width, ctx->text_height(font));
+	do {
+		struct region_t r;
+		region_clone(&r, xui_layout_next(ctx));
+		int w = 0;
+		start = end = p;
+		do
+		{
+			const char * word = p;
+			while(*p && (*p != ' ') && (*p != '\n'))
+				p++;
+			w += ctx->text_width(font, word, p - word);
+			if((w > r.w) && (end != start))
+				break;
+			w += ctx->text_width(font, p, 1);
+			end = p++;
+		} while(*end && (*end != '\n'));
+		xui_draw_text(ctx, font, start, end - start, r.x, r.y, c);
+		p = end + 1;
+	} while(*end);
+	xui_layout_end_column(ctx);
+}
+
+int xui_textbox_ex(struct xui_context_t * ctx, char * buf, int bufsz, int opt)
+{
+	unsigned int id = xui_get_id(ctx, &buf, sizeof(buf));
+	struct region_t r;
+	region_clone(&r, xui_layout_next(ctx));
+	return xui_textbox_raw(ctx, buf, bufsz, id, &r, opt);
+}
+
+int xui_textbox(struct xui_context_t * ctx, char * buf, int bufsz)
+{
+	return xui_textbox_ex(ctx, buf, bufsz, 0);
 }
 
 int xui_number_ex(struct xui_context_t * ctx, float * value, float step, const char * fmt, int opt)

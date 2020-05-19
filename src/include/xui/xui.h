@@ -472,15 +472,14 @@ int xui_button_ex(struct xui_context_t * ctx, const char * label, int opt);
 int xui_button(struct xui_context_t * ctx, const char * label);
 int xui_checkbox(struct xui_context_t * ctx, const char * label, int * state);
 
+int xui_slider_ex(struct xui_context_t * ctx, float * value, float low, float high, float step, const char * fmt, int opt);
+int xui_slider(struct xui_context_t * ctx, float * value, float low, float high);
+
 void xui_label(struct xui_context_t * ctx, const char * txt);
 void xui_text(struct xui_context_t * ctx, const char * txt);
 
-int xui_textbox_raw(struct xui_context_t * ctx, char * buf, int bufsz, unsigned int id, struct region_t * r, int opt);
 int xui_textbox_ex(struct xui_context_t * ctx, char * buf, int bufsz, int opt);
 int xui_textbox(struct xui_context_t * ctx, char * buf, int bufsz);
-
-int xui_slider_ex(struct xui_context_t * ctx, float * value, float low, float high, float step, const char * fmt, int opt);
-int xui_slider(struct xui_context_t * ctx, float * value, float low, float high);
 
 int xui_number_ex(struct xui_context_t * ctx, float * value, float step, const char * fmt, int opt);
 int xui_number(struct xui_context_t * ctx, float * value, float step);

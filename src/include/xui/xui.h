@@ -345,6 +345,9 @@ struct xui_context_t {
 	int last_zindex;
 	int updated_focus;
 	int frame;
+	unsigned int resize_id;
+	int resize_cursor_x;
+	int resize_cursor_y;
 	unsigned int cmd_hash_old;
 	unsigned int cmd_hash_new;
 	struct xui_container_t * hover_root;

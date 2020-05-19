@@ -950,8 +950,18 @@ int xui_begin_window_ex(struct xui_context_t * ctx, const char * title, struct r
 			xui_control_update(ctx, id, &tr, opt);
 			if((id == ctx->focus) && (ctx->mouse_down & XUI_MOUSE_LEFT))
 			{
-				c->region.w = max(96, c->region.w + ctx->mouse_delta_x);
-				c->region.h = max(64, c->region.h + ctx->mouse_delta_y);
+				if(ctx->resize_id != id)
+				{
+					ctx->resize_id = id;
+					ctx->resize_cursor_x = ctx->mouse_pos_x - tr.x;
+					ctx->resize_cursor_y = ctx->mouse_pos_y - tr.y;
+				}
+				c->region.w = max(96, ctx->mouse_pos_x - region.x + sz - ctx->resize_cursor_x);
+				c->region.h = max(64, ctx->mouse_pos_y - region.y + sz - ctx->resize_cursor_y);
+			}
+			else if(ctx->resize_id == id)
+			{
+				ctx->resize_id = 0;
 			}
 		}
 		if(opt & XUI_WINDOW_AUTOSIZE)
@@ -1509,6 +1519,7 @@ struct xui_context_t * xui_context_alloc(const char * fb, const char * input, st
 	ctx->draw_frame = draw_frame;
 	ctx->text_width = text_width;
 	ctx->text_height = text_height;
+
 	return ctx;
 }
 

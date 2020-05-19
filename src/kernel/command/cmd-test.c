@@ -137,9 +137,7 @@ static void test_window(struct xui_context_t * ctx)
 
 			xui_layout_begin_column(ctx);
 			xui_layout_row(ctx, 1, (int[] ) { -1 }, 0);
-			xui_text(ctx, "Lorem ipsum dolor sit amet, consectetur adipiscing "
-					"elit. Maecenas lacinia, sem eu lacinia molestie, mi risus faucibus "
-					"ipsum, eu varius magna felis a nulla.");
+			xui_text(ctx, "It very tedious that we need careful read soc datasheet when operate GPIO on soc.");
 			xui_layout_end_column(ctx);
 		}
 

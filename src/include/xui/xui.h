@@ -259,14 +259,32 @@ struct xui_style_t {
 
 	struct {
 		int scroll_size;
+		int scroll_radius;
 		int thumb_size;
+		int thumb_radius;
 		struct color_t scroll_color;
 		struct color_t thumb_color;
 	} scroll;
 
 	struct {
-		struct color_t text_color;
-	} text;
+		int border_radius;
+		int border_width;
+		struct {
+			struct color_t face_color;
+			struct color_t border_color;
+			struct color_t text_color;
+		} normal;
+		struct {
+			struct color_t face_color;
+			struct color_t border_color;
+			struct color_t text_color;
+		} hover;
+		struct {
+			struct color_t face_color;
+			struct color_t border_color;
+			struct color_t text_color;
+		} focus;
+	} treenode;
 
 	struct {
 		int border_radius;
@@ -281,6 +299,30 @@ struct xui_style_t {
 		struct xui_style_button_t light;
 		struct xui_style_button_t dark;
 	} button;
+
+	struct {
+		int border_radius;
+		int border_width;
+		struct {
+			struct color_t face_color;
+			struct color_t border_color;
+			struct color_t text_color;
+		} normal;
+		struct {
+			struct color_t face_color;
+			struct color_t border_color;
+			struct color_t text_color;
+		} hover;
+		struct {
+			struct color_t face_color;
+			struct color_t border_color;
+			struct color_t text_color;
+		} focus;
+	} checkbox;
+
+	struct {
+		struct color_t text_color;
+	} text;
 };
 
 struct xui_context_t {
@@ -347,8 +389,8 @@ struct xui_context_t {
 	/*
 	 * Retained state pool
 	 */
-	struct xui_pool_item_t container_pool[XUI_CONTAINER_POOL_SIZE];
 	struct xui_container_t containers[XUI_CONTAINER_POOL_SIZE];
+	struct xui_pool_item_t container_pool[XUI_CONTAINER_POOL_SIZE];
 	struct xui_pool_item_t treenode_pool[XUI_TREENODE_POOL_SIZE];
 
 	/*
@@ -425,10 +467,10 @@ int xui_header_ex(struct xui_context_t * ctx, const char * label, int opt);
 int xui_header(struct xui_context_t * ctx, const char * label);
 int xui_button_ex(struct xui_context_t * ctx, const char * label, int opt);
 int xui_button(struct xui_context_t * ctx, const char * label);
+int xui_checkbox(struct xui_context_t * ctx, const char * label, int * state);
+
 void xui_label(struct xui_context_t * ctx, const char * txt);
 void xui_text(struct xui_context_t * ctx, const char * txt);
-
-int xui_checkbox(struct xui_context_t * ctx, const char * label, int * state);
 
 int xui_textbox_raw(struct xui_context_t * ctx, char * buf, int bufsz, unsigned int id, struct region_t * r, int opt);
 int xui_textbox_ex(struct xui_context_t * ctx, char * buf, int bufsz, int opt);
@@ -439,11 +481,6 @@ int xui_slider(struct xui_context_t * ctx, float * value, float low, float high)
 
 int xui_number_ex(struct xui_context_t * ctx, float * value, float step, const char * fmt, int opt);
 int xui_number(struct xui_context_t * ctx, float * value, float step);
-
-
-
-
-
 
 struct xui_context_t * xui_context_alloc(const char * fb, const char * input, struct xui_style_t * style);
 void xui_context_free(struct xui_context_t * ctx);

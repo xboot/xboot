@@ -35,7 +35,7 @@
 /*
  * https://designrevision.com/demo/shards/
  */
-static struct xui_style_t xui_style_default = {
+static const struct xui_style_t xui_style_default = {
 	.background_color = { 0xff, 0xff, 0xff, 0xff },
 
 	.font = NULL,
@@ -46,10 +46,10 @@ static struct xui_style_t xui_style_default = {
 	.indent = 24,
 
 	.colors = {
-		{ 25,  25,  25,  255 }, /* XUI_COLOR_BORDER */
-		{ 30,  30,  30,  255 }, /* XUI_COLOR_BASE */
-		{ 35,  35,  35,  255 }, /* XUI_COLOR_BASEHOVER */
-		{ 40,  40,  40,  255 },  /* XUI_COLOR_BASEFOCUS */
+		{ 25,  25,  205,  255 }, /* XUI_COLOR_BORDER */
+		{ 30,  230,  30,  255 }, /* XUI_COLOR_BASE */
+		{ 235,  35,  35,  255 }, /* XUI_COLOR_BASEHOVER */
+		{ 40,  140,  140,  255 },  /* XUI_COLOR_BASEFOCUS */
 	},
 
 	.window = {
@@ -68,13 +68,31 @@ static struct xui_style_t xui_style_default = {
 
 	.scroll = {
 		.scroll_size = 12,
+		.scroll_radius = 6,
 		.thumb_size = 8,
+		.thumb_radius = 6,
 		.scroll_color = { 0x5a, 0x61, 0x69, 0xff },
 		.thumb_color = { 0x17, 0xc6, 0x71, 0xff },
 	},
 
-	.text = {
-		.text_color = { 0xa0, 0xa0, 0xa0, 0xff },
+	.treenode = {
+		.border_radius = 0,
+		.border_width = 1,
+		.normal = {
+			.face_color = { 0xc4, 0x18, 0x3c, 0xff },
+			.border_color = { 0x00, 0x00, 0x00, 0x00 },
+			.text_color = { 0xa0, 0xa0, 0xa0, 0xff },
+		},
+		.hover = {
+			.face_color = { 0xad, 0x15, 0x35, 0xff },
+			.border_color = { 0x00, 0x00, 0x00, 0x00 },
+			.text_color = { 0xa0, 0xa0, 0xa0, 0xff },
+		},
+		.focus = {
+			.face_color = { 0xad, 0x15, 0x35, 0xff },
+			.border_color = { 0xad, 0x15, 0x35, 0x60 },
+			.text_color = { 0xa0, 0xa0, 0xa0, 0xff },
+		},
 	},
 
 	.button = {
@@ -217,6 +235,30 @@ static struct xui_style_t xui_style_default = {
 				.text_color = { 0xff, 0xff, 0xff, 0xff },
 			},
 		},
+	},
+
+	.checkbox = {
+		.border_radius = 6,
+		.border_width = 2,
+		.normal = {
+			.face_color = { 0xc4, 0x18, 0x3c, 0xff },
+			.border_color = { 0x00, 0x00, 0x00, 0x00 },
+			.text_color = { 0xa0, 0xa0, 0xa0, 0xff },
+		},
+		.hover = {
+			.face_color = { 0xad, 0x15, 0x35, 0xff },
+			.border_color = { 0x00, 0x00, 0x00, 0x00 },
+			.text_color = { 0xa0, 0xa0, 0xa0, 0xff },
+		},
+		.focus = {
+			.face_color = { 0xad, 0x15, 0x35, 0xff },
+			.border_color = { 0xad, 0x15, 0x35, 0x60 },
+			.text_color = { 0xa0, 0xa0, 0xa0, 0xff },
+		},
+	},
+
+	.text = {
+		.text_color = { 0xa0, 0xa0, 0xa0, 0xff },
 	},
 };
 
@@ -788,11 +830,11 @@ static void scrollbars(struct xui_context_t * ctx, struct xui_container_t * c, s
 		if((ctx->focus == id) && (ctx->mouse_down & XUI_MOUSE_LEFT))
 			c->scroll_y += ctx->mouse_delta_y * height / base.h;
 		c->scroll_y = clamp(c->scroll_y, 0, maxscroll);
-		xui_draw_rectangle(ctx, base.x, base.y, base.w, base.h, 0, 0, &ctx->style.scroll.scroll_color);
+		xui_draw_rectangle(ctx, base.x, base.y, base.w, base.h, ctx->style.scroll.scroll_radius, 0, &ctx->style.scroll.scroll_color);
 		region_clone(&thumb, &base);
 		thumb.h = max(ctx->style.scroll.thumb_size, base.h * body->h / height);
 		thumb.y += c->scroll_y * (base.h - thumb.h) / maxscroll;
-		xui_draw_rectangle(ctx, thumb.x, thumb.y, thumb.w, thumb.h, 0, 0, &ctx->style.scroll.thumb_color);
+		xui_draw_rectangle(ctx, thumb.x, thumb.y, thumb.w, thumb.h, ctx->style.scroll.thumb_radius, 0, &ctx->style.scroll.thumb_color);
 		if(xui_mouse_over(ctx, body))
 			ctx->scroll_target = c;
 	}
@@ -812,11 +854,11 @@ static void scrollbars(struct xui_context_t * ctx, struct xui_container_t * c, s
 		if((ctx->focus == id) && (ctx->mouse_down & XUI_MOUSE_LEFT))
 			c->scroll_x += ctx->mouse_delta_x * width / base.w;
 		c->scroll_x = clamp(c->scroll_x, 0, maxscroll);
-		xui_draw_rectangle(ctx, base.x, base.y, base.w, base.h, 0, 0, &ctx->style.scroll.scroll_color);
+		xui_draw_rectangle(ctx, base.x, base.y, base.w, base.h, ctx->style.scroll.scroll_radius, 0, &ctx->style.scroll.scroll_color);
 		region_clone(&thumb, &base);
 		thumb.w = max(ctx->style.scroll.thumb_size, base.w * body->w / width);
 		thumb.x += c->scroll_x * (base.w - thumb.w) / maxscroll;
-		xui_draw_rectangle(ctx, thumb.x, thumb.y, thumb.w, thumb.h, 0, 0, &ctx->style.scroll.thumb_color);
+		xui_draw_rectangle(ctx, thumb.x, thumb.y, thumb.w, thumb.h, ctx->style.scroll.thumb_radius, 0, &ctx->style.scroll.thumb_color);
 		if(xui_mouse_over(ctx, body))
 			ctx->scroll_target = c;
 	}
@@ -988,6 +1030,8 @@ static int header(struct xui_context_t * ctx, const char * label, int istreenode
 	int idx = xui_pool_get(ctx, ctx->treenode_pool, XUI_TREENODE_POOL_SIZE, id);
 	int active, expanded;
 	struct region_t region, r;
+	struct color_t * fc, * bc, * tc;
+	int radius, width;
 
 	xui_layout_row(ctx, 1, (int[]){ -1 }, 0);
 	active = (idx >= 0);
@@ -1006,20 +1050,49 @@ static int header(struct xui_context_t * ctx, const char * label, int istreenode
 	{
 		xui_pool_init(ctx, ctx->treenode_pool, XUI_TREENODE_POOL_SIZE, id);
 	}
-	if(istreenode)
+	radius = ctx->style.treenode.border_radius;
+	width = ctx->style.treenode.border_width;
+	if(ctx->focus == id)
 	{
-		if(ctx->hover == id)
-			ctx->draw_frame(ctx, &r, XUI_COLOR_BASEHOVER);
+		fc = &ctx->style.treenode.focus.face_color;
+		bc = &ctx->style.treenode.focus.border_color;
+		tc = &ctx->style.treenode.focus.text_color;
+	}
+	else if(ctx->hover == id)
+	{
+		fc = &ctx->style.treenode.hover.face_color;
+		bc = &ctx->style.treenode.hover.border_color;
+		tc = &ctx->style.treenode.hover.text_color;
 	}
 	else
 	{
-		xui_control_draw_frame(ctx, id, &r, XUI_COLOR_BASE, 0);
+		fc = &ctx->style.treenode.normal.face_color;
+		bc = &ctx->style.treenode.normal.border_color;
+		tc = &ctx->style.treenode.normal.text_color;
+	}
+	if(istreenode)
+	{
+		if(ctx->hover == id)
+		{
+			if(bc->a && (width > 0))
+				xui_draw_rectangle(ctx, r.x, r.y, r.w, r.h, radius, width, bc);
+			if(fc->a)
+				xui_draw_rectangle(ctx, r.x, r.y, r.w, r.h, radius, 0, fc);
+		}
+	}
+	else
+	{
+		if(bc->a && (width > 0))
+			xui_draw_rectangle(ctx, r.x, r.y, r.w, r.h, radius, width, bc);
+		if(fc->a)
+			xui_draw_rectangle(ctx, r.x, r.y, r.w, r.h, radius, 0, fc);
 	}
 	region_init(&region, r.x, r.y, r.h, r.h);
-	xui_draw_icon(ctx, expanded ? XUI_ICON_EXPANDED : XUI_ICON_COLLAPSED, &region, &ctx->style.text.text_color);
+	xui_draw_icon(ctx, expanded ? XUI_ICON_EXPANDED : XUI_ICON_COLLAPSED, &region, tc);
 	r.x += r.h - ctx->style.padding;
 	r.w -= r.h - ctx->style.padding;
-	xui_control_draw_text(ctx, label, &r, &ctx->style.text.text_color, 0);
+	if(label && tc->a)
+		xui_control_draw_text(ctx, label, &r, tc, opt);
 
 	return expanded ? 1 : 0;
 }
@@ -1156,6 +1229,54 @@ int xui_button(struct xui_context_t * ctx, const char * label)
 	return xui_button_ex(ctx, label, XUI_BUTTON_PRIMARY | XUI_OPT_TEXT_CENTER);
 }
 
+int xui_checkbox(struct xui_context_t * ctx, const char * label, int * state)
+{
+	unsigned int id = xui_get_id(ctx, &state, sizeof(state));
+	int res = 0;
+	struct region_t r, box, region;
+	struct color_t * fc, * bc, * tc;
+	int radius, width;
+
+	region_clone(&r, xui_layout_next(ctx));
+	xui_control_update(ctx, id, &r, 0);
+	if((ctx->mouse_pressed & XUI_MOUSE_LEFT) && (ctx->focus == id))
+	{
+		*state = !*state;
+		res = 1;
+	}
+	radius = ctx->style.checkbox.border_radius;
+	width = ctx->style.checkbox.border_width;
+	if(ctx->focus == id)
+	{
+		fc = &ctx->style.checkbox.focus.face_color;
+		bc = &ctx->style.checkbox.focus.border_color;
+		tc = &ctx->style.checkbox.focus.text_color;
+	}
+	else if(ctx->hover == id)
+	{
+		fc = &ctx->style.checkbox.hover.face_color;
+		bc = &ctx->style.checkbox.hover.border_color;
+		tc = &ctx->style.checkbox.hover.text_color;
+	}
+	else
+	{
+		fc = &ctx->style.checkbox.normal.face_color;
+		bc = &ctx->style.checkbox.normal.border_color;
+		tc = &ctx->style.checkbox.normal.text_color;
+	}
+	region_init(&box, r.x, r.y, r.h, r.h);
+	region_init(&region, r.x + box.w, r.y, r.w - box.w, r.h);
+	if(bc->a && (width > 0))
+		xui_draw_rectangle(ctx, box.x, box.y, box.h, box.h, radius, width, bc);
+	if(fc->a)
+		xui_draw_rectangle(ctx, box.x, box.y, box.h, box.h, radius, 0, fc);
+	if(*state)
+		xui_draw_icon(ctx, XUI_ICON_CHECK, &box, &ctx->style.text.text_color);
+	if(label && tc->a)
+		xui_control_draw_text(ctx, label, &region, tc, XUI_OPT_TEXT_LEFT);
+	return res;
+}
+
 void xui_label(struct xui_context_t * ctx, const char * txt)
 {
 	xui_control_draw_text(ctx, txt, xui_layout_next(ctx), &ctx->style.text.text_color, 0);
@@ -1189,28 +1310,6 @@ void xui_text(struct xui_context_t * ctx, const char * txt)
 		p = end + 1;
 	} while(*end);
 	xui_layout_end_column(ctx);
-}
-
-int xui_checkbox(struct xui_context_t * ctx, const char * label, int * state)
-{
-	int res = 0;
-	unsigned int id = xui_get_id(ctx, &state, sizeof(state));
-	struct region_t r;
-	region_clone(&r, xui_layout_next(ctx));
-	struct region_t box;
-	region_init(&box, r.x, r.y, r.h, r.h);
-	xui_control_update(ctx, id, &r, 0);
-	if((ctx->mouse_pressed & XUI_MOUSE_LEFT) && (ctx->focus == id))
-	{
-		res |= XUI_RES_CHANGE;
-		*state = !*state;
-	}
-	xui_control_draw_frame(ctx, id, &box, XUI_COLOR_BASE, 0);
-	if(*state)
-		xui_draw_icon(ctx, XUI_ICON_CHECK, &box, &ctx->style.text.text_color);
-	region_init(&r, r.x + box.w, r.y, r.w - box.w, r.h);
-	xui_control_draw_text(ctx, label, &r, &ctx->style.text.text_color, 0);
-	return res;
 }
 
 int xui_textbox_raw(struct xui_context_t * ctx, char * buf, int bufsz, unsigned int id, struct region_t * r, int opt)

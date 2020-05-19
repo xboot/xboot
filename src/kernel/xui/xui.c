@@ -984,13 +984,12 @@ void xui_end_panel(struct xui_context_t * ctx)
 
 static int header(struct xui_context_t * ctx, const char * label, int istreenode, int opt)
 {
-	struct region_t r;
-	int active, expanded;
 	unsigned int id = xui_get_id(ctx, label, strlen(label));
 	int idx = xui_pool_get(ctx, ctx->treenode_pool, XUI_TREENODE_POOL_SIZE, id);
-	int width = -1;
-	xui_layout_row(ctx, 1, &width, 0);
+	int active, expanded;
+	struct region_t region, r;
 
+	xui_layout_row(ctx, 1, (int[]){ -1 }, 0);
 	active = (idx >= 0);
 	expanded = (opt & XUI_OPT_EXPANDED) ? !active : active;
 	region_clone(&r, xui_layout_next(ctx));
@@ -1016,20 +1015,19 @@ static int header(struct xui_context_t * ctx, const char * label, int istreenode
 	{
 		xui_control_draw_frame(ctx, id, &r, XUI_COLOR_BASE, 0);
 	}
-	struct region_t region;
 	region_init(&region, r.x, r.y, r.h, r.h);
 	xui_draw_icon(ctx, expanded ? XUI_ICON_EXPANDED : XUI_ICON_COLLAPSED, &region, &ctx->style.text.text_color);
 	r.x += r.h - ctx->style.padding;
 	r.w -= r.h - ctx->style.padding;
 	xui_control_draw_text(ctx, label, &r, &ctx->style.text.text_color, 0);
 
-	return expanded ? XUI_RES_ACTIVE : 0;
+	return expanded ? 1 : 0;
 }
 
 int xui_begin_treenode_ex(struct xui_context_t * ctx, const char * label, int opt)
 {
 	int res = header(ctx, label, 1, opt);
-	if(res & XUI_RES_ACTIVE)
+	if(res)
 	{
 		get_layout(ctx)->indent += ctx->style.indent;
 		xui_push(ctx->id_stack, ctx->last_id);

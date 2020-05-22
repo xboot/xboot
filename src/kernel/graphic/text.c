@@ -32,38 +32,32 @@
 #include <string.h>
 #include <charset.h>
 #include <graphic/surface.h>
+#include <graphic/font.h>
 #include <graphic/text.h>
-#include <ft2build.h>
-#include FT_FREETYPE_H
 
 static void calc_text_extent(struct text_t * txt)
 {
+	struct font_bitmap_t bitmap;
 	const char * p;
-	u32_t code;
-	int glyph;
-	FT_Face face;
+	uint32_t code;
 	int x = 0, y = 0, w = 0, h = 0;
 	int flag = 0;
 
 	for(p = txt->utf8; utf8_to_ucs4(&code, 1, p, -1, &p) > 0;)
 	{
-		glyph = search_glyph(txt->fctx, txt->family, code, (void **)(&face));
-		if(glyph == 0)
-			glyph = search_glyph(txt->fctx, "roboto", 0xfffd, (void **)(&face));
-		FT_Set_Pixel_Sizes(face, txt->size, txt->size);
-		FT_Load_Glyph(face, glyph, FT_LOAD_BITMAP_METRICS_ONLY);
-		w += face->glyph->metrics.horiAdvance;
-		if(face->glyph->metrics.vertAdvance > h)
-			h = face->glyph->metrics.vertAdvance;
+		font_bitmap_lookup(txt->fctx, txt->family, txt->size, code, &bitmap);
+		w += bitmap.xadvance;
+		if(bitmap.height + bitmap.yadvance > h)
+			h = bitmap.height + bitmap.yadvance;
 		if(!flag)
 		{
-			x = face->glyph->metrics.horiBearingX;
+			x = bitmap.left;
 			flag = 1;
 		}
-		if(face->glyph->metrics.horiBearingY > y)
-			y = face->glyph->metrics.horiBearingY;
+		if(bitmap.top > y)
+			y = bitmap.top;
 	}
-	region_init(&txt->e, (x >> 6) + 4, (y >> 6) + 4, (w >> 6) + 8, (h >> 6) + 8);
+	region_init(&txt->e, x, y, w, h);
 }
 
 struct text_t * text_alloc(const char * utf8, struct color_t * c, struct font_context_t * fctx, const char * family, int size)
@@ -143,7 +137,32 @@ void text_set_font_size(struct text_t * txt, int size)
 		calc_text_extent(txt);
 	}
 }
+/*
+if(font_lookup_bitmap(ctx, "roboto-bold-italic;roboto-bold;roboto-italic;roboto;font-awesome", 24, 0xfa3f, &bitmap))
+{
+	printf("width = %d\r\n", bitmap.width);
+	printf("height = %d\r\n", bitmap.height);
+	printf("left = %d\r\n", bitmap.left);
+	printf("top = %d\r\n", bitmap.top);
+	printf("pitch = %d\r\n", bitmap.pitch);
+	printf("xadvance = %d\r\n", bitmap.xadvance);
+	printf("yadvance = %d\r\n", bitmap.yadvance);
 
+	for(j = 0; j < bitmap.height; j++)
+	{
+		for(i = 0; i < bitmap.width; i++)
+		{
+			c = bitmap.buffer[j * bitmap.pitch + i];
+			if(c == 0)
+				printf("   ");
+			else
+				printf("%02x ", c);
+		}
+		printf("\r\n");
+	}
+}
+ */
+/*
 static inline void draw_font_bitmap(struct surface_t * s, struct region_t * clip, struct color_t * c, int x, int y, FT_Bitmap * bitmap)
 {
 	struct region_t r, region;
@@ -215,10 +234,14 @@ static inline void draw_font_bitmap(struct surface_t * s, struct region_t * clip
 		sp += sskip;
 	}
 }
+*/
 
 void render_default_text(struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct text_t * txt)
 {
-	const char * p;
+	struct color_t c = { 255, 0, 0, 255 };
+	surface_fill(s, clip, m, txt->e.w, txt->e.h, &c, RENDER_TYPE_GOOD);
+
+/*	const char * p;
 	u32_t code;
 	int glyph;
 	FT_Face face;
@@ -245,5 +268,5 @@ void render_default_text(struct surface_t * s, struct region_t * clip, struct ma
 		draw_font_bitmap(s, clip, &txt->c, face->glyph->bitmap_left, s->height - face->glyph->bitmap_top, &face->glyph->bitmap);
 		pen.x += face->glyph->advance.x;
 		pen.y += face->glyph->advance.y;
-	}
+	}*/
 }

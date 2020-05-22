@@ -47,23 +47,16 @@ static int m_font_install(lua_State * L)
 	struct font_context_t * f = luaL_checkudata(L, 1, MT_FONT);
 	const char * family = luaL_checkstring(L, 2);
 	const char * path = luaL_checkstring(L, 3);
-	font_install(f, family, path);
-	lua_settop(L, 1);
-	return 1;
-}
-
-static int m_font_uninstall(lua_State * L)
-{
-	struct font_context_t * f = luaL_checkudata(L, 1, MT_FONT);
-	const char * family = luaL_checkstring(L, 2);
-	font_uninstall(f, family);
+	if(is_absolute_path(path))
+		font_install(f, family, path);
+	else
+		font_install_from_xfs(f, ((struct vmctx_t *)luahelper_vmctx(L))->xfs, family, path);
 	lua_settop(L, 1);
 	return 1;
 }
 
 static const luaL_Reg m_font[] = {
 	{"install",		m_font_install},
-	{"uninstall",	m_font_uninstall},
 	{NULL,			NULL}
 };
 

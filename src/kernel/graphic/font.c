@@ -179,6 +179,7 @@ void font_context_free(struct font_context_t * ctx)
 		}
 		FTC_Manager_Done((FTC_Manager)ctx->manager);
 		FT_Done_FreeType((FT_Library)ctx->library);
+		free(ctx);
 	}
 }
 

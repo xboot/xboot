@@ -26,92 +26,24 @@
  *
  */
 
+#include <ctype.h>
+#include <stddef.h>
+#include <stdlib.h>
+#include <string.h>
+#include <charset.h>
+#include <graphic/surface.h>
+#include <graphic/text.h>
 #include <graphic/font.h>
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include FT_CACHE_MANAGER_H
 
-struct font_description_t {
-	const char * family;
-	const char * path;
+struct font_t {
+	struct list_head list;
+	struct xfs_context_t * xfs;
+	char * family;
+	char * path;
 };
-
-static struct font_description_t fdesc[] = {
-	{"roboto",				"/framework/assets/fonts/Roboto-Regular.ttf"},
-	{"roboto-italic",		"/framework/assets/fonts/Roboto-Italic.ttf"},
-	{"roboto-bold",			"/framework/assets/fonts/Roboto-Bold.ttf"},
-	{"roboto-bold-italic",	"/framework/assets/fonts/Roboto-BoldItalic.ttf"},
-	{"font-awesome",		"/framework/assets/fonts/FontAwesome.ttf"},
-};
-
-static FT_Error ftcface_requester(FTC_FaceID id, FT_Library lib, FT_Pointer data, FT_Face * face)
-{
-	struct font_context_t * ctx = (struct font_context_t *)data;
-	uint32_t faceid = (uint32_t)(unsigned long)id;
-	char key[32];
-	int i;
-
-	sprintf(key, "%d", faceid);
-	*face = hmap_search(ctx->map, key);
-	if(*face)
-		return 0;
-	for(i = 0; i < ARRAY_SIZE(fdesc); i++)
-	{
-		if(shash(fdesc[i].family) == faceid)
-		{
-			if(FT_New_Face((FT_Library)ctx->library, fdesc[i].path, 0, face) == 0)
-			{
-				FT_Select_Charmap(*face, FT_ENCODING_UNICODE);
-				hmap_add(ctx->map, key, *face);
-				return 0;
-			}
-		}
-	}
-	return -1;
-}
-
-struct font_context_t * font_context_alloc(void)
-{
-	struct font_context_t * ctx;
-
-	ctx = malloc(sizeof(struct font_context_t));
-	if(!ctx)
-		return NULL;
-	FT_Init_FreeType((FT_Library *)&ctx->library);
-	FTC_Manager_New((FT_Library)ctx->library, 0, 0, 0, ftcface_requester, ctx, (FTC_Manager *)&ctx->manager);
-	FTC_CMapCache_New((FTC_Manager)ctx->manager, (FTC_CMapCache *)&ctx->cmap);
-	FTC_SBitCache_New((FTC_Manager)ctx->manager, (FTC_SBitCache *)&ctx->sbit);
-	ctx->map = hmap_alloc(0);
-
-	return ctx;
-}
-
-void font_context_free(struct font_context_t * ctx)
-{
-	if(ctx)
-	{
-		hmap_free(ctx->map);
-		FTC_Manager_Done((FTC_Manager)ctx->manager);
-		FT_Done_FreeType((FT_Library)ctx->library);
-	}
-}
-
-void font_install(struct font_context_t * ctx, const char * family, const char * path)
-{
-	uint32_t faceid = (uint32_t)((unsigned long)shash(family));
-	char key[32];
-	FT_Face face;
-
-	sprintf(key, "%d", faceid);
-	if(ctx && path && !hmap_search(ctx->map, key))
-	{
-		if(FT_New_Face((FT_Library)ctx->library, path, 0, &face) == 0)
-		{
-			FT_Select_Charmap(face, FT_ENCODING_UNICODE);
-			hmap_add(ctx->map, key, face);
-		}
-	}
-}
 
 static unsigned long ft_xfs_stream_io(FT_Stream stream, unsigned long offset, unsigned char * buffer, unsigned long count)
 {
@@ -180,98 +112,272 @@ static FT_Error ft_new_xfs_face(struct xfs_context_t * xfs, FT_Library library, 
 	return FT_Open_Face(library, &args, index, face);
 }
 
-void font_install_from_xfs(struct font_context_t * ctx, struct xfs_context_t * xfs, const char * family, const char * path)
+static FT_Error ftcface_requester(FTC_FaceID id, FT_Library lib, FT_Pointer data, FT_Face * face)
 {
-	uint32_t faceid = (uint32_t)((unsigned long)shash(family));
-	char key[32];
-	FT_Face face;
+	struct font_context_t * ctx = (struct font_context_t *)data;
+	struct font_t * pos, * n;
 
-	sprintf(key, "%d", faceid);
-	if(ctx && xfs && path && !hmap_search(ctx->map, key))
+	list_for_each_entry_safe(pos, n, &ctx->list, list)
 	{
-		if(ft_new_xfs_face(xfs, (FT_Library)ctx->library, path, 0, &face) == 0)
+		if(shash(pos->family) == (uint32_t)(unsigned long)id)
 		{
-			FT_Select_Charmap(face, FT_ENCODING_UNICODE);
-			hmap_add(ctx->map, key, face);
+			if(pos->xfs)
+			{
+				if(ft_new_xfs_face(pos->xfs, (FT_Library)ctx->library, pos->path, 0, face) == 0)
+				{
+					FT_Select_Charmap(*face, FT_ENCODING_UNICODE);
+					return 0;
+				}
+			}
+			else
+			{
+				if(FT_New_Face((FT_Library)ctx->library, pos->path, 0, face) == 0)
+				{
+					FT_Select_Charmap(*face, FT_ENCODING_UNICODE);
+					return 0;
+				}
+			}
+		}
+	}
+	return -1;
+}
+
+struct font_context_t * font_context_alloc(void)
+{
+	struct font_context_t * ctx;
+
+	ctx = malloc(sizeof(struct font_context_t));
+	if(!ctx)
+		return NULL;
+	FT_Init_FreeType((FT_Library *)&ctx->library);
+	FTC_Manager_New((FT_Library)ctx->library, 0, 0, 0, ftcface_requester, ctx, (FTC_Manager *)&ctx->manager);
+	FTC_CMapCache_New((FTC_Manager)ctx->manager, (FTC_CMapCache *)&ctx->cmap);
+	FTC_ImageCache_New((FTC_Manager)ctx->manager, (FTC_ImageCache *)&ctx->image);
+	init_list_head(&ctx->list);
+	font_install(ctx, NULL, "roboto", "/framework/assets/fonts/Roboto-Regular.ttf");
+	font_install(ctx, NULL, "roboto-italic", "/framework/assets/fonts/Roboto-Italic.ttf");
+	font_install(ctx, NULL, "roboto-bold", "/framework/assets/fonts/Roboto-Bold.ttf");
+	font_install(ctx, NULL, "roboto-bold-italic", "/framework/assets/fonts/Roboto-BoldItalic.ttf");
+	font_install(ctx, NULL, "font-awesome", "/framework/assets/fonts/FontAwesome.ttf");
+
+	return ctx;
+}
+
+void font_context_free(struct font_context_t * ctx)
+{
+	struct font_t * pos, * n;
+
+	if(ctx)
+	{
+		list_for_each_entry_safe(pos, n, &ctx->list, list)
+		{
+			if(pos->family)
+				free(pos->family);
+			if(pos->path)
+				free(pos->path);
+			free(pos);
+		}
+		FTC_Manager_Done((FTC_Manager)ctx->manager);
+		FT_Done_FreeType((FT_Library)ctx->library);
+	}
+}
+
+void font_install(struct font_context_t * ctx, struct xfs_context_t * xfs, const char * family, const char * path)
+{
+	struct font_t * f;
+
+	if(ctx && family && path)
+	{
+		f = malloc(sizeof(struct font_t));
+		if(f)
+		{
+			f->xfs = xfs;
+			f->family = strdup(family);
+			f->path = strdup(path);
+			list_add_tail(&f->list, &ctx->list);
 		}
 	}
 }
 
-void font_bitmap_lookup(struct font_context_t * ctx, const char * family, int size, uint32_t code, struct font_bitmap_t * bitmap)
+static inline void draw_font_bitmap(struct surface_t * s, struct region_t * clip, struct color_t * c, int x, int y, FT_Bitmap * bitmap)
 {
-	FTC_ImageTypeRec type;
-	FTC_SBit sbit;
-	FT_UInt glyph;
-	char buf[512];
-	char * r, * p;
-	int i;
+	struct region_t region, r;
+	uint32_t color;
+	uint32_t * dp, dv;
+	uint8_t * sp, gray;
+	uint8_t da, dr, dg, db;
+	uint8_t sr, sg, sb, sa;
+	uint8_t ta, tr, tg, tb;
+	int dx, dy, dw, dh;
+	int sx, sy;
+	int dskip, sskip;
+	int i, j, t;
 
-	type.face_id = (FTC_FaceID)(0);
-	type.width = size;
-	type.height = size;
-	type.flags = FT_LOAD_DEFAULT | FT_LOAD_RENDER | FT_LOAD_FORCE_AUTOHINT;
+	region_init(&r, 0, 0, s->width, s->height);
+	if(clip)
+	{
+		if(!region_intersect(&r, &r, clip))
+			return;
+	}
+	region_init(&region, x, y, bitmap->width, bitmap->rows);
+	if(!region_intersect(&r, &r, &region))
+		return;
+
+	dx = r.x;
+	dy = r.y;
+	dw = r.w;
+	dh = r.h;
+	sx = r.x - x;
+	sy = r.y - y;
+	dskip = s->width - dw;
+	sskip = bitmap->pitch - dw;
+	dp = (uint32_t *)s->pixels + dy * s->width + dx;
+	sp = (uint8_t *)bitmap->buffer + sy * bitmap->pitch + sx;
+	color = (c->a << 24) | (c->r << 16) | (c->g << 8) | (c->b << 0);
+
+	for(j = 0; j < dh; j++)
+	{
+		for(i = 0; i < dw; i++)
+		{
+			gray = *sp;
+			if(gray != 0)
+			{
+				if(gray == 255)
+				{
+					*dp = color;
+				}
+				else
+				{
+					sr = idiv255(c->r * gray);
+					sg = idiv255(c->g * gray);
+					sb = idiv255(c->b * gray);
+					sa = idiv255(c->a * gray);
+					dv = *dp;
+					da = (dv >> 24) & 0xff;
+					dr = (dv >> 16) & 0xff;
+					dg = (dv >> 8) & 0xff;
+					db = (dv >> 0) & 0xff;
+					t = sa + (sa >> 8);
+					ta = (((sa + da) << 8) - da * t) >> 8;
+					tr = (((sr + dr) << 8) - dr * t) >> 8;
+					tg = (((sg + dg) << 8) - dg * t) >> 8;
+					tb = (((sb + db) << 8) - db * t) >> 8;
+					*dp = (ta << 24) | (tr << 16) | (tg << 8) | (tb << 0);
+				}
+			}
+			sp++;
+			dp++;
+		}
+		dp += dskip;
+		sp += sskip;
+	}
+}
+
+static inline FT_Glyph font_glyph_lookup(struct font_context_t * ctx, const char * family, int size, uint32_t code)
+{
+	struct font_t * pos, * n;
+	FTC_ScalerRec scaler;
+	FT_Glyph glyph;
+	FT_UInt index;
+	char buf[512];
+	char * p, * r;
+
+	scaler.width = size;
+	scaler.height = size;
+	scaler.pixel = 1;
+	scaler.x_res = 0;
+	scaler.y_res = 0;
 	strlcpy(buf, family ? family : "roboto", sizeof(buf));
 	p = buf;
 	while((r = strsep(&p, ",;:|")) != NULL)
 	{
-		type.face_id = (FTC_FaceID)((unsigned long)shash(r));
-		if((glyph = FTC_CMapCache_Lookup((FTC_CMapCache)ctx->cmap, type.face_id, -1, code)) != 0)
+		scaler.face_id = (FTC_FaceID)((unsigned long)shash(r));
+		if((index = FTC_CMapCache_Lookup((FTC_CMapCache)ctx->cmap, scaler.face_id, -1, code)) != 0)
 		{
-			if(FTC_SBitCache_Lookup((FTC_SBitCache)ctx->sbit, (FTC_ImageType)&type, glyph, &sbit, NULL) == 0)
-			{
-				bitmap->width = sbit->width;
-				bitmap->height = sbit->height;
-				bitmap->left = sbit->left;
-				bitmap->top = sbit->top;
-				bitmap->pitch = sbit->pitch;
-				bitmap->xadvance = sbit->xadvance;
-				bitmap->yadvance = sbit->yadvance;
-				bitmap->buffer = sbit->buffer;
-				return;
-			}
+			if(FTC_ImageCache_LookupScaler((FTC_ImageCache)ctx->image, &scaler, FT_LOAD_DEFAULT, index, &glyph, NULL) == 0)
+				return glyph;
 		}
 	}
-	for(i = 0; i < ARRAY_SIZE(fdesc); i++)
+	list_for_each_entry_safe(pos, n, &ctx->list, list)
 	{
-		type.face_id = (FTC_FaceID)((unsigned long)shash(fdesc[i].family));
-		if((glyph = FTC_CMapCache_Lookup((FTC_CMapCache)ctx->cmap, type.face_id, -1, code)) != 0)
+		scaler.face_id = (FTC_FaceID)((unsigned long)shash(pos->family));
+		if((index = FTC_CMapCache_Lookup((FTC_CMapCache)ctx->cmap, scaler.face_id, -1, code)) != 0)
 		{
-			if(FTC_SBitCache_Lookup((FTC_SBitCache)ctx->sbit, (FTC_ImageType)&type, glyph, &sbit, NULL) == 0)
-			{
-				bitmap->width = sbit->width;
-				bitmap->height = sbit->height;
-				bitmap->left = sbit->left;
-				bitmap->top = sbit->top;
-				bitmap->pitch = sbit->pitch;
-				bitmap->xadvance = sbit->xadvance;
-				bitmap->yadvance = sbit->yadvance;
-				bitmap->buffer = sbit->buffer;
-				return;
-			}
+			if(FTC_ImageCache_LookupScaler((FTC_ImageCache)ctx->image, &scaler, FT_LOAD_DEFAULT, index, &glyph, NULL) == 0)
+				return glyph;
 		}
 	}
-	type.face_id = (FTC_FaceID)((unsigned long)shash("roboto"));
-	if((glyph = FTC_CMapCache_Lookup((FTC_CMapCache)ctx->cmap, type.face_id, -1, 0xfffd)) != 0)
+	scaler.face_id = (FTC_FaceID)((unsigned long)shash("roboto"));
+	if((index = FTC_CMapCache_Lookup((FTC_CMapCache)ctx->cmap, scaler.face_id, -1, 0xfffd)) != 0)
 	{
-		if(FTC_SBitCache_Lookup((FTC_SBitCache)ctx->sbit, (FTC_ImageType)&type, glyph, &sbit, NULL) == 0)
+		if(FTC_ImageCache_LookupScaler((FTC_ImageCache)ctx->image, &scaler, FT_LOAD_DEFAULT, index, &glyph, NULL) == 0)
+			return glyph;
+	}
+	return NULL;
+}
+
+void calc_text_extent(struct text_t * txt)
+{
+	FT_BitmapGlyph bitmap;
+	FT_Glyph glyph, gly;
+	const char * p;
+	uint32_t code;
+	int x = 0, y = 0, w = 0, h = 0;
+	int flag = 0;
+
+	for(p = txt->utf8; utf8_to_ucs4(&code, 1, p, -1, &p) > 0;)
+	{
+		glyph = font_glyph_lookup(txt->fctx, txt->family, txt->size, code);
+		if(glyph && (FT_Glyph_Copy(glyph, &gly) == 0))
 		{
-			bitmap->width = sbit->width;
-			bitmap->height = sbit->height;
-			bitmap->left = sbit->left;
-			bitmap->top = sbit->top;
-			bitmap->pitch = sbit->pitch;
-			bitmap->xadvance = sbit->xadvance;
-			bitmap->yadvance = sbit->yadvance;
-			bitmap->buffer = sbit->buffer;
-			return;
+			FT_Glyph_To_Bitmap(&gly, FT_RENDER_MODE_NORMAL, NULL, 1);
+			bitmap = (FT_BitmapGlyph)gly;
+			w += (bitmap->root.advance.x >> 16);
+			if(bitmap->bitmap.rows + (bitmap->root.advance.y >> 16) > h)
+				h = bitmap->bitmap.rows + (bitmap->root.advance.y >> 16);
+			if(!flag)
+			{
+				x = bitmap->left;
+				flag = 1;
+			}
+			if(bitmap->top > y)
+				y = bitmap->top;
+			FT_Done_Glyph(gly);
 		}
 	}
-	bitmap->width = 0;
-	bitmap->height = 0;
-	bitmap->left = 0;
-	bitmap->top = 0;
-	bitmap->pitch = 0;
-	bitmap->xadvance = 0;
-	bitmap->yadvance = 0;
-	bitmap->buffer = NULL;
+	region_init(&txt->e, x, y, w, h);
+}
+
+void render_default_text(struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct text_t * txt)
+{
+	FT_BitmapGlyph bitmap;
+	FT_Glyph glyph, gly;
+	FT_Matrix matrix;
+	FT_Vector pen;
+	const char * p;
+	uint32_t code;
+	int tx = txt->e.x;
+	int ty = txt->e.y;
+
+	matrix.xx = (FT_Fixed)(m->a * 65536);
+	matrix.xy = -((FT_Fixed)(m->c * 65536));
+	matrix.yx = -((FT_Fixed)(m->b * 65536));
+	matrix.yy = (FT_Fixed)(m->d * 65536);
+	pen.x = (FT_Pos)((m->tx + m->a * tx + m->c * ty) * 64);
+	pen.y = (FT_Pos)((s->height - (m->ty + m->b * tx + m->d * ty)) * 64);
+
+	for(p = txt->utf8; utf8_to_ucs4(&code, 1, p, -1, &p) > 0;)
+	{
+		glyph = font_glyph_lookup(txt->fctx, txt->family, txt->size, code);
+		if(glyph && (FT_Glyph_Copy(glyph, &gly) == 0))
+		{
+			FT_Glyph_Transform(gly, &matrix, &pen);
+			FT_Glyph_To_Bitmap(&gly, FT_RENDER_MODE_NORMAL, NULL, 1);
+			bitmap = (FT_BitmapGlyph)gly;
+			draw_font_bitmap(s, clip, &txt->c, bitmap->left, s->height - bitmap->top, &bitmap->bitmap);
+			pen.x += bitmap->root.advance.x >> 10;
+			pen.y += bitmap->root.advance.y >> 10;
+			FT_Done_Glyph(gly);
+		}
+	}
 }

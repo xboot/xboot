@@ -48,9 +48,9 @@ static int m_font_install(lua_State * L)
 	const char * family = luaL_checkstring(L, 2);
 	const char * path = luaL_checkstring(L, 3);
 	if(is_absolute_path(path))
-		font_install(f, family, path);
+		font_install(f, NULL, family, path);
 	else
-		font_install_from_xfs(f, ((struct vmctx_t *)luahelper_vmctx(L))->xfs, family, path);
+		font_install(f, ((struct vmctx_t *)luahelper_vmctx(L))->xfs, family, path);
 	lua_settop(L, 1);
 	return 1;
 }

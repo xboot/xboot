@@ -42,7 +42,6 @@
 #include <framework/core/l-easing.h>
 #include <framework/core/l-event.h>
 #include <framework/core/l-event-dispatcher.h>
-#include <framework/core/l-font.h>
 #include <framework/core/l-i18n.h>
 #include <framework/core/l-image.h>
 #include <framework/core/l-matrix.h>
@@ -75,7 +74,6 @@ static void luaopen_glblibs(lua_State * L)
 		{ "Matrix",					luaopen_matrix },
 		{ "Image",					luaopen_image },
 		{ "Ninepatch",				luaopen_ninepatch },
-		{ "Font",					luaopen_font },
 		{ "Text",					luaopen_text },
 		{ "Dobject",				luaopen_dobject },
 		{ "Event",					luaopen_event },

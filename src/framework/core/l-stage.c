@@ -129,6 +129,10 @@ function M:snapshot()
 	return self._window:snapshot()
 end
 
+function M:installFont(family, path)
+	return self._window:installFont(family, path)
+end
+
 function M:loop()
 	local Event = Event
 	local window = self._window

@@ -3,13 +3,14 @@
  */
 
 #include <types.h>
+#include <stdint.h>
 #include <stddef.h>
 #include <string.h>
 #include <malloc.h>
 #include <charset.h>
 #include <xboot/module.h>
 
-static const u8_t nonspacing_table_data[26 * 64] = {
+static const uint8_t nonspacing_table_data[26 * 64] = {
 	/* 0x0000-0x01ff */
 	0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, /* 0x0000-0x003f */
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80, /* 0x0040-0x007f */
@@ -279,12 +280,12 @@ static const s8_t nonspacing_table_ind[240] = {
 	24, 25, -1, -1, -1, -1, -1, -1					/* 0x1d000-0x1dfff */
 };
 
-ssize_t utf8_to_ucs4(u32_t * dst, size_t dsz, const char * src, size_t ssz, const char ** end)
+ssize_t utf8_to_ucs4(uint32_t * dst, size_t dsz, const char * src, size_t ssz, const char ** end)
 {
-	u32_t *p = dst;
+	uint32_t *p = dst;
 	int count = 0;
-	u32_t code = 0;
-	u32_t c;
+	uint32_t code = 0;
+	uint32_t c;
 
 	if(end)
 		*end = src;
@@ -365,11 +366,11 @@ ssize_t utf8_to_ucs4(u32_t * dst, size_t dsz, const char * src, size_t ssz, cons
 }
 EXPORT_SYMBOL(utf8_to_ucs4);
 
-char * ucs4_to_utf8(u32_t * src, size_t ssz, char * dst, size_t dsz)
+char * ucs4_to_utf8(uint32_t * src, size_t ssz, char * dst, size_t dsz)
 {
 	char * destend = dst + dsz - 1;
 	char * p = dst;
-	u32_t code = 0;
+	uint32_t code = 0;
 
 	while(ssz-- && p < destend)
 	{
@@ -412,12 +413,12 @@ char * ucs4_to_utf8(u32_t * src, size_t ssz, char * dst, size_t dsz)
 }
 EXPORT_SYMBOL(ucs4_to_utf8);
 
-ssize_t utf8_to_utf16(u16_t * dst, size_t dsz, const char * src, size_t ssz, const char ** end)
+ssize_t utf8_to_utf16(uint16_t * dst, size_t dsz, const char * src, size_t ssz, const char ** end)
 {
-	u16_t *p = dst;
+	uint16_t *p = dst;
 	int count = 0;
-	u32_t code = 0;
-	u32_t c;
+	uint32_t code = 0;
+	uint32_t c;
 
 	if(end)
 		*end = src;
@@ -501,10 +502,10 @@ ssize_t utf8_to_utf16(u16_t * dst, size_t dsz, const char * src, size_t ssz, con
 }
 EXPORT_SYMBOL(utf8_to_utf16);
 
-char * utf16_to_utf8(char * dst, u16_t * src, size_t size)
+char * utf16_to_utf8(char * dst, uint16_t * src, size_t size)
 {
-	u32_t code_high = 0;
-	u32_t code;
+	uint32_t code_high = 0;
+	uint32_t code;
 
 	while(size--)
 	{
@@ -559,11 +560,11 @@ char * utf16_to_utf8(char * dst, u16_t * src, size_t size)
 }
 EXPORT_SYMBOL(utf16_to_utf8);
 
-char * ucs4_to_utf8_alloc(u32_t * src, size_t size)
+char * ucs4_to_utf8_alloc(uint32_t * src, size_t size)
 {
 	size_t remaining;
-	u32_t * ptr;
-	u32_t code;
+	uint32_t * ptr;
+	uint32_t code;
 	size_t cnt = 0;
 	char * ret;
 
@@ -596,11 +597,11 @@ char * ucs4_to_utf8_alloc(u32_t * src, size_t size)
 }
 EXPORT_SYMBOL(ucs4_to_utf8_alloc);
 
-ssize_t utf8_to_ucs4_alloc(const char * src, u32_t ** dst, u32_t ** pos)
+ssize_t utf8_to_ucs4_alloc(const char * src, uint32_t ** dst, uint32_t ** pos)
 {
 	ssize_t len = strlen(src);
 
-	*dst = malloc((len + 1) * sizeof(u32_t));
+	*dst = malloc((len + 1) * sizeof(uint32_t));
 	if(*dst)
 	{
 		len = utf8_to_ucs4(*dst, len, src, -1, 0);
@@ -612,7 +613,7 @@ ssize_t utf8_to_ucs4_alloc(const char * src, u32_t ** dst, u32_t ** pos)
 }
 EXPORT_SYMBOL(utf8_to_ucs4_alloc);
 
-int ucs4_width(u32_t uc)
+int ucs4_width(uint32_t uc)
 {
 	bool_t cjk = FALSE;
 	int ind;
@@ -668,7 +669,7 @@ EXPORT_SYMBOL(ucs4_width);
 size_t utf8_width(const char * s)
 {
 	const char * p;
-	u32_t code;
+	uint32_t code;
 	size_t width;
 	int w;
 
@@ -686,9 +687,9 @@ EXPORT_SYMBOL(utf8_width);
 
 bool_t utf8_is_valid(const char * src, size_t size)
 {
-	u32_t code = 0;
+	uint32_t code = 0;
 	int count = 0;
-	u32_t c;
+	uint32_t c;
 
 	while(size)
 	{

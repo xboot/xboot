@@ -38,8 +38,8 @@ enum esc_state_t {
 
 struct rl_buf_t {
 	char * prompt;
-	u32_t * buf;
-	u32_t * cut;
+	uint32_t * buf;
+	uint32_t * cut;
 	int bsize;
 	int pos;
 	int len;
@@ -53,7 +53,7 @@ struct rl_buf_t {
 
 struct history_list_t
 {
-	u32_t * history;
+	uint32_t * history;
 	struct list_head entry;
 };
 
@@ -66,9 +66,9 @@ static struct history_list_t __history_list = {
 static struct history_list_t * history_list = &__history_list;
 static struct history_list_t * history_current = &__history_list;
 
-static int ucs4_strlen(const u32_t * s)
+static int ucs4_strlen(const uint32_t * s)
 {
-	const u32_t * sc;
+	const uint32_t * sc;
 
 	if(!s)
 		return 0;
@@ -111,9 +111,9 @@ static void history_remove(void)
 	}
 }
 
-static void history_add(u32_t * history, int len)
+static void history_add(uint32_t * history, int len)
 {
-	u32_t * s;
+	uint32_t * s;
 	struct history_list_t * list;
 	struct list_head * pos;
 
@@ -125,7 +125,7 @@ static void history_add(u32_t * history, int len)
 	list = list_entry(pos, struct history_list_t, entry);
 	if(ucs4_strlen(list->history) == len)
 	{
-		if(memcmp(list->history, history, len * sizeof(u32_t)) == 0)
+		if(memcmp(list->history, history, len * sizeof(uint32_t)) == 0)
 			return;
 	}
 
@@ -136,7 +136,7 @@ static void history_add(u32_t * history, int len)
 		return;
 	}
 
-	s = malloc((len + 1) * sizeof(u32_t));
+	s = malloc((len + 1) * sizeof(uint32_t));
 	if(!s)
 	{
 		free(s);
@@ -147,14 +147,14 @@ static void history_add(u32_t * history, int len)
 	if(history_numberof() >= 32)
 		history_remove();
 
-	memcpy(s, history, len * sizeof(u32_t));
+	memcpy(s, history, len * sizeof(uint32_t));
 	s[len] = '\0';
 
 	list->history = s;
 	list_add(&list->entry, &history_list->entry);
 }
 
-static u32_t * history_next(void)
+static uint32_t * history_next(void)
 {
 	struct history_list_t * list;
 
@@ -175,7 +175,7 @@ static u32_t * history_next(void)
 		return NULL;
 }
 
-static u32_t * history_prev(void)
+static uint32_t * history_prev(void)
 {
 	struct history_list_t * list;
 
@@ -259,7 +259,7 @@ static void rl_cursor_end(struct rl_buf_t * rl)
 	}
 }
 
-static void rl_insert(struct rl_buf_t * rl, u32_t * s)
+static void rl_insert(struct rl_buf_t * rl, uint32_t * s)
 {
 	int len = ucs4_strlen(s);
 
@@ -269,7 +269,7 @@ static void rl_insert(struct rl_buf_t * rl, u32_t * s)
 	if(len + rl->len >= rl->bsize)
 	{
 		rl->bsize = rl->bsize * 2;
-		u32_t * p = realloc(rl->buf, sizeof(u32_t) * rl->bsize);
+		uint32_t * p = realloc(rl->buf, sizeof(uint32_t) * rl->bsize);
 		if(!p)
 			return;
 		rl->buf = p;
@@ -277,8 +277,8 @@ static void rl_insert(struct rl_buf_t * rl, u32_t * s)
 
 	if(len + rl->len < rl->bsize)
 	{
-		memmove(rl->buf + rl->pos + len, rl->buf + rl->pos, (rl->len - rl->pos + 1) * sizeof(u32_t));
-		memmove(rl->buf + rl->pos, s, len * sizeof(u32_t));
+		memmove(rl->buf + rl->pos + len, rl->buf + rl->pos, (rl->len - rl->pos + 1) * sizeof(uint32_t));
+		memmove(rl->buf + rl->pos, s, len * sizeof(uint32_t));
 
 		rl->pos = rl->pos + len;
 		rl->len = rl->len + len;
@@ -289,7 +289,7 @@ static void rl_insert(struct rl_buf_t * rl, u32_t * s)
 	}
 }
 
-static void rl_delete(struct rl_buf_t * rl, u32_t len)
+static void rl_delete(struct rl_buf_t * rl, uint32_t len)
 {
 	int n, i, w;
 
@@ -309,14 +309,14 @@ static void rl_delete(struct rl_buf_t * rl, u32_t len)
 		if(rl->cut)
 			free(rl->cut);
 
-		rl->cut = malloc((rl->len - rl->pos + 1) * sizeof(u32_t));
+		rl->cut = malloc((rl->len - rl->pos + 1) * sizeof(uint32_t));
 		if(rl->cut)
 		{
-			memcpy(rl->cut, rl->buf + rl->pos, (rl->len - rl->pos + 1) * sizeof(u32_t));
+			memcpy(rl->cut, rl->buf + rl->pos, (rl->len - rl->pos + 1) * sizeof(uint32_t));
 			rl->cut[rl->len - rl->pos] = '\0';
 		}
 
-		memmove(rl->buf + rl->pos, rl->buf + rl->pos + len, sizeof(u32_t) * (rl->len - rl->pos + 1));
+		memmove(rl->buf + rl->pos, rl->buf + rl->pos + len, sizeof(uint32_t) * (rl->len - rl->pos + 1));
 		rl->len = rl->len - len;
 		rl_cursor_save(rl);
 		rl_print(rl, rl->pos, rl->len - rl->pos);
@@ -335,7 +335,7 @@ static struct rl_buf_t * rl_alloc(const char * prompt)
 
 	rl->prompt = strdup(prompt);
 	rl->bsize = 128;
-	rl->buf = malloc(sizeof(u32_t) * rl->bsize);
+	rl->buf = malloc(sizeof(uint32_t) * rl->bsize);
 	rl->cut = NULL;
 	rl->pos = 0;
 	rl->len = 0;
@@ -366,11 +366,11 @@ static void rl_free(struct rl_buf_t * rl)
 	free(rl);
 }
 
-static bool_t rl_getcode(struct rl_buf_t * rl, u32_t * code)
+static bool_t rl_getcode(struct rl_buf_t * rl, uint32_t * code)
 {
 	unsigned char c;
 	char * rest;
-	u32_t cp;
+	uint32_t cp;
 	int ch;
 	int i;
 
@@ -509,7 +509,7 @@ static void rl_complete_file(struct rl_buf_t * rl, char * utf8, char * p)
 	char path[VFS_MAX_PATH];
 	char * bname;
 	char * dname;
-	u32_t * ucs4;
+	uint32_t * ucs4;
 	char * s;
 	int cnt = 0, min = INT_MAX, m, pl;
 	int len = 0, t, i, l;
@@ -611,7 +611,7 @@ static void rl_complete_command(struct rl_buf_t * rl, char * utf8, char * p)
 {
 	struct command_t * pos, * n;
 	struct slist_t * sl, * e;
-	u32_t * ucs4;
+	uint32_t * ucs4;
 	char * s;
 	int cnt = 0, min = INT_MAX, m, pl;
 	int len = 0, t, i, l;
@@ -713,11 +713,11 @@ static void rl_complete(struct rl_buf_t * rl)
 	}
 }
 
-static bool_t readline_handle(struct rl_buf_t * rl, u32_t code)
+static bool_t readline_handle(struct rl_buf_t * rl, uint32_t code)
 {
-	u32_t * p;
-    u32_t tmp[2];
-    u32_t n;
+	uint32_t * p;
+    uint32_t tmp[2];
+    uint32_t n;
 
 	switch(code)
 	{
@@ -851,7 +851,7 @@ char * readline(const char * prompt)
 {
 	struct rl_buf_t * rl;
 	char * utf8 = NULL;
-	u32_t code;
+	uint32_t code;
 
 	rl = rl_alloc(prompt);
 	if(!rl)

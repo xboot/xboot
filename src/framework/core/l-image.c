@@ -196,7 +196,7 @@ static int m_image_text(lua_State * L)
 	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
 	struct matrix_t * m = luaL_checkudata(L, 2, MT_MATRIX);
 	struct ltext_t * text = luaL_checkudata(L, 3, MT_TEXT);
-	surface_text(img->s, NULL, m, text->txt);
+	surface_text(img->s, NULL, m, &text->txt);
 	lua_settop(L, 1);
 	return 1;
 }

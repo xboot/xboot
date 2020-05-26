@@ -375,7 +375,7 @@ void render_default_text(struct surface_t * s, struct region_t * clip, struct ma
 			FT_Glyph_Transform(gly, &matrix, &pen);
 			FT_Glyph_To_Bitmap(&gly, FT_RENDER_MODE_NORMAL, NULL, 1);
 			bitmap = (FT_BitmapGlyph)gly;
-			draw_font_bitmap(s, clip, &txt->c, bitmap->left, s->height - bitmap->top, &bitmap->bitmap);
+			draw_font_bitmap(s, clip, txt->c, bitmap->left, s->height - bitmap->top, &bitmap->bitmap);
 			pen.x += bitmap->root.advance.x >> 10;
 			pen.y += bitmap->root.advance.y >> 10;
 			FT_Done_Glyph(gly);

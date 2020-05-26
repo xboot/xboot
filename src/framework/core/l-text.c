@@ -36,15 +36,13 @@ static int l_text_new(lua_State * L)
 	struct color_t * c = luaL_checkudata(L, 2, MT_COLOR);
 	const char * family = luaL_optstring(L, 3, NULL);
 	int size = luaL_optinteger(L, 4, 24);
-	struct text_t * txt = text_alloc(utf8, c, ((struct vmctx_t *)luahelper_vmctx(L))->f, family, size);
-	if(txt)
-	{
-		struct ltext_t * text = lua_newuserdata(L, sizeof(struct ltext_t));
-		text->txt = txt;
-		luaL_setmetatable(L, MT_TEXT);
-		return 1;
-	}
-	return 0;
+	struct ltext_t * text = lua_newuserdata(L, sizeof(struct ltext_t));
+	text->utf8 = strdup(utf8);
+	text->family = strdup(family);
+	memcpy(&text->c, c, sizeof(struct color_t));
+	text_init(&text->txt, text->utf8, -1, &text->c, ((struct vmctx_t *)luahelper_vmctx(L))->f, text->family, size);
+	luaL_setmetatable(L, MT_TEXT);
+	return 1;
 }
 
 static const luaL_Reg l_text[] = {
@@ -55,23 +53,26 @@ static const luaL_Reg l_text[] = {
 static int m_text_gc(lua_State * L)
 {
 	struct ltext_t * text = luaL_checkudata(L, 1, MT_TEXT);
-	text_free(text->txt);
+	if(text->utf8)
+		free(text->utf8);
+	if(text->family)
+		free(text->family);
 	return 0;
 }
 
 static int m_text_get_origin(lua_State * L)
 {
 	struct ltext_t * text = luaL_checkudata(L, 1, MT_TEXT);
-	lua_pushinteger(L, text->txt->e.x);
-	lua_pushinteger(L, text->txt->e.y);
+	lua_pushinteger(L, text->txt.e.x);
+	lua_pushinteger(L, text->txt.e.y);
 	return 2;
 }
 
 static int m_text_get_size(lua_State * L)
 {
 	struct ltext_t * text = luaL_checkudata(L, 1, MT_TEXT);
-	lua_pushinteger(L, text->txt->e.w);
-	lua_pushinteger(L, text->txt->e.h);
+	lua_pushinteger(L, text->txt.e.w);
+	lua_pushinteger(L, text->txt.e.h);
 	return 2;
 }
 
@@ -79,7 +80,10 @@ static int m_text_set_text(lua_State * L)
 {
 	struct ltext_t * text = luaL_checkudata(L, 1, MT_TEXT);
 	const char * utf8 = luaL_checkstring(L, 2);
-	text_set_text(text->txt, utf8);
+	if(text->utf8)
+		free(text->utf8);
+	text->utf8 = strdup(utf8);
+	text_set_text(&text->txt, text->utf8, -1);
 	lua_settop(L, 1);
 	return 1;
 }
@@ -88,7 +92,8 @@ static int m_text_set_color(lua_State * L)
 {
 	struct ltext_t * text = luaL_checkudata(L, 1, MT_TEXT);
 	struct color_t * c = luaL_checkudata(L, 2, MT_COLOR);
-	text_set_color(text->txt, c);
+	memcpy(&text->c, c, sizeof(struct color_t));
+	text_set_color(&text->txt, &text->c);
 	lua_settop(L, 1);
 	return 1;
 }
@@ -97,7 +102,10 @@ static int m_text_set_font_family(lua_State * L)
 {
 	struct ltext_t * text = luaL_checkudata(L, 1, MT_TEXT);
 	const char * family = luaL_checkstring(L, 2);
-	text_set_font_family(text->txt, family);
+	if(text->family)
+		free(text->family);
+	text->family = strdup(family);
+	text_set_font_family(&text->txt, text->family);
 	lua_settop(L, 1);
 	return 1;
 }
@@ -106,7 +114,7 @@ static int m_text_set_font_size(lua_State * L)
 {
 	struct ltext_t * text = luaL_checkudata(L, 1, MT_TEXT);
 	int size = luaL_optinteger(L, 2, 0);
-	text_set_font_size(text->txt, size);
+	text_set_font_size(&text->txt, size);
 	lua_settop(L, 1);
 	return 1;
 }

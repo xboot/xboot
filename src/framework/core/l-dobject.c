@@ -843,7 +843,7 @@ static void dobject_draw_ninepatch(struct ldobject_t * o, struct window_t * w)
 static void dobject_draw_text(struct ldobject_t * o, struct window_t * w)
 {
 	struct ltext_t * text = o->priv;
-	surface_text(w->s, dobject_parent_global_bounds(o), dobject_global_matrix(o), text->txt);
+	surface_text(w->s, dobject_parent_global_bounds(o), dobject_global_matrix(o), &text->txt);
 }
 
 static void dobject_draw_container(struct ldobject_t * o, struct window_t * w)

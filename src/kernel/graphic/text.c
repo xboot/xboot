@@ -35,49 +35,26 @@
 #include <graphic/font.h>
 #include <graphic/text.h>
 
-struct text_t * text_alloc(const char * utf8, struct color_t * c, struct font_context_t * fctx, const char * family, int size)
-{
-	struct text_t * txt;
-
-	if(!fctx)
-		return NULL;
-
-	txt = malloc(sizeof(struct text_t));
-	if(!txt)
-		return NULL;
-
-	txt->utf8 = strdup(utf8 ? utf8 : "");
-	if(c)
-		memcpy(&txt->c, c, sizeof(struct color_t));
-	else
-		color_init(&txt->c, 0xff, 0xff, 0xff, 0xff);
-	txt->fctx = fctx;
-	txt->family = strdup(family ? family : "roboto");
-	txt->size = (size > 0) ? size : 24;
-	calc_text_extent(txt);
-
-	return txt;
-}
-
-void text_free(struct text_t * txt)
+void text_init(struct text_t * txt, const char * utf8, int len, struct color_t * c, struct font_context_t * fctx, const char * family, int size)
 {
 	if(txt)
 	{
-		if(txt->utf8)
-			free(txt->utf8);
-		if(txt->family)
-			free(txt->family);
-		free(txt);
+		txt->utf8 = utf8;
+		txt->len = (len < 0) ? strlen(utf8) : len;
+		txt->c = c;
+		txt->fctx = fctx;
+		txt->family = family;
+		txt->size = (size > 0) ? size : 16;
+		calc_text_extent(txt);
 	}
 }
 
-void text_set_text(struct text_t * txt, const char * utf8)
+void text_set_text(struct text_t * txt, const char * utf8, int len)
 {
 	if(txt)
 	{
-		if(txt->utf8)
-			free(txt->utf8);
-		txt->utf8 = strdup(utf8 ? utf8 : "");
+		txt->utf8 = utf8;
+		txt->len = (len < 0) ? strlen(utf8) : len;
 		calc_text_extent(txt);
 	}
 }
@@ -85,21 +62,14 @@ void text_set_text(struct text_t * txt, const char * utf8)
 void text_set_color(struct text_t * txt, struct color_t * c)
 {
 	if(txt)
-	{
-		if(c)
-			memcpy(&txt->c, c, sizeof(struct color_t));
-		else
-			color_init(&txt->c, 0xff, 0xff, 0xff, 0xff);
-	}
+		txt->c = c;
 }
 
 void text_set_font_family(struct text_t * txt, const char * family)
 {
 	if(txt)
 	{
-		if(txt->family)
-			free(txt->family);
-		txt->utf8 = strdup(family ? family : "roboto");
+		txt->family = family;
 		calc_text_extent(txt);
 	}
 }
@@ -108,7 +78,7 @@ void text_set_font_size(struct text_t * txt, int size)
 {
 	if(txt)
 	{
-		txt->size = (size > 0) ? size : 24;
+		txt->size = (size > 0) ? size : 16;
 		calc_text_extent(txt);
 	}
 }

@@ -326,7 +326,7 @@ void calc_text_extent(struct text_t * txt)
 	int x = 0, y = 0, w = 0, h = 0;
 	int flag = 0;
 
-	for(p = txt->utf8; utf8_to_ucs4(&code, 1, p, -1, &p) > 0;)
+	for(p = txt->utf8; ((utf8_to_ucs4(&code, 1, p, -1, &p) > 0) && (p - txt->utf8 <= txt->len));)
 	{
 		glyph = font_glyph_lookup(txt->fctx, txt->family, txt->size, code);
 		if(glyph && (FT_Glyph_Copy(glyph, &gly) == 0))
@@ -367,7 +367,7 @@ void render_default_text(struct surface_t * s, struct region_t * clip, struct ma
 	pen.x = (FT_Pos)((m->tx + m->a * tx + m->c * ty) * 64);
 	pen.y = (FT_Pos)((s->height - (m->ty + m->b * tx + m->d * ty)) * 64);
 
-	for(p = txt->utf8; utf8_to_ucs4(&code, 1, p, -1, &p) > 0;)
+	for(p = txt->utf8; ((utf8_to_ucs4(&code, 1, p, -1, &p) > 0) && (p - txt->utf8 <= txt->len));)
 	{
 		glyph = font_glyph_lookup(txt->fctx, txt->family, txt->size, code);
 		if(glyph && (FT_Glyph_Copy(glyph, &gly) == 0))

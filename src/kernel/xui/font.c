@@ -2875,7 +2875,7 @@ static const uint8_t * font_glyph_unkown(uint32_t code)
 	return (const uint8_t *)&glyph[0];
 }
 
-static const uint8_t * font_glyph(uint32_t code, int * width, int * height)
+static const uint8_t * font_glyph_lookup(uint32_t code, int * width, int * height)
 {
 	const uint8_t * glyph;
 	int w = 8, h = 16;
@@ -2982,7 +2982,7 @@ void font_draw(struct surface_t * s, struct region_t * clip, int x, int y, const
 
 	for(p = utf8; utf8_to_ucs4(&code, 1, p, -1, &p) > 0;)
 	{
-		glyph = font_glyph(code, &w, &h);
+		glyph = font_glyph_lookup(code, &w, &h);
 		region_init(&r, x, y, w, h);
 		if(region_contains(&region, &r))
 			font_graph_draw(s, glyph, x, y, w, h, color);

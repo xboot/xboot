@@ -129,8 +129,8 @@ function M:snapshot()
 	return self._window:snapshot()
 end
 
-function M:installFont(family, path)
-	return self._window:installFont(family, path)
+function M:addFont(family, path)
+	return self._window:addFont(family, path)
 end
 
 function M:loop()

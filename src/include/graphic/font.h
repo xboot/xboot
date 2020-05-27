@@ -19,7 +19,8 @@ struct font_context_t {
 
 struct font_context_t * font_context_alloc(void);
 void font_context_free(struct font_context_t * ctx);
-void font_install(struct font_context_t * ctx, struct xfs_context_t * xfs, const char * family, const char * path);
+void font_add(struct font_context_t * ctx, struct xfs_context_t * xfs, const char * family, const char * path);
+void * font_glyph(struct font_context_t * ctx, const char * family, int size, uint32_t code);
 
 #ifdef __cplusplus
 }

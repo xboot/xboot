@@ -38,10 +38,28 @@
 #include FT_FREETYPE_H
 #include FT_CACHE_MANAGER_H
 
-static void calc_text_extent(struct text_t * txt)
+static inline void ucs4_extent(struct font_context_t * ctx, const char * family, int size, uint32_t code, struct region_t * e)
 {
 	FT_BitmapGlyph bitmap;
 	FT_Glyph glyph, gly;
+
+	glyph = font_glyph(ctx, family, size, code);
+	if(glyph && (FT_Glyph_Copy(glyph, &gly) == 0))
+	{
+		FT_Glyph_To_Bitmap(&gly, FT_RENDER_MODE_NORMAL, NULL, 1);
+		bitmap = (FT_BitmapGlyph)gly;
+		region_init(e, bitmap->left, bitmap->top, (bitmap->root.advance.x >> 16), (bitmap->root.advance.y >> 16) + bitmap->bitmap.rows);
+		FT_Done_Glyph(gly);
+	}
+	else
+	{
+		region_init(e, 0, 0, 0, 0);
+	}
+}
+
+static void text_extent(struct text_t * txt)
+{
+	struct region_t e;
 	const char * p;
 	uint32_t code;
 	int x = 0, y = 0, w = 0, h = 0;
@@ -49,23 +67,17 @@ static void calc_text_extent(struct text_t * txt)
 
 	for(p = txt->utf8; ((utf8_to_ucs4(&code, 1, p, -1, &p) > 0) && (p - txt->utf8 <= txt->len));)
 	{
-		glyph = (FT_Glyph)font_glyph(txt->fctx, txt->family, txt->size, code);
-		if(glyph && (FT_Glyph_Copy(glyph, &gly) == 0))
+		ucs4_extent(txt->fctx, txt->family, txt->size, code, &e);
+		w += e.w;
+		if(e.h > h)
+			h = e.h;
+		if(!flag)
 		{
-			FT_Glyph_To_Bitmap(&gly, FT_RENDER_MODE_NORMAL, NULL, 1);
-			bitmap = (FT_BitmapGlyph)gly;
-			w += (bitmap->root.advance.x >> 16);
-			if(bitmap->bitmap.rows + (bitmap->root.advance.y >> 16) > h)
-				h = bitmap->bitmap.rows + (bitmap->root.advance.y >> 16);
-			if(!flag)
-			{
-				x = bitmap->left;
-				flag = 1;
-			}
-			if(bitmap->top > y)
-				y = bitmap->top;
-			FT_Done_Glyph(gly);
+			x = e.x;
+			flag = 1;
 		}
+		if(e.y > y)
+			y = e.y;
 	}
 	region_init(&txt->e, x, y, w, h);
 }
@@ -80,7 +92,7 @@ void text_init(struct text_t * txt, const char * utf8, int len, struct color_t *
 		txt->fctx = fctx;
 		txt->family = family;
 		txt->size = (size > 0) ? size : 16;
-		calc_text_extent(txt);
+		text_extent(txt);
 	}
 }
 
@@ -90,7 +102,7 @@ void text_set_text(struct text_t * txt, const char * utf8, int len)
 	{
 		txt->utf8 = utf8;
 		txt->len = (len < 0) ? strlen(utf8) : len;
-		calc_text_extent(txt);
+		text_extent(txt);
 	}
 }
 
@@ -105,7 +117,7 @@ void text_set_font_family(struct text_t * txt, const char * family)
 	if(txt)
 	{
 		txt->family = family;
-		calc_text_extent(txt);
+		text_extent(txt);
 	}
 }
 
@@ -114,7 +126,7 @@ void text_set_font_size(struct text_t * txt, int size)
 	if(txt)
 	{
 		txt->size = (size > 0) ? size : 16;
-		calc_text_extent(txt);
+		text_extent(txt);
 	}
 }
 

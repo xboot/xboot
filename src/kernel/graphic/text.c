@@ -38,57 +38,101 @@
 #include FT_FREETYPE_H
 #include FT_CACHE_MANAGER_H
 
-static inline void ucs4_extent(struct font_context_t * ctx, const char * family, int size, uint32_t code, struct region_t * e)
+static void text_extent(struct text_t * txt)
 {
 	FT_BitmapGlyph bitmap;
 	FT_Glyph glyph, gly;
-
-	glyph = font_glyph(ctx, family, size, code);
-	if(glyph && (FT_Glyph_Copy(glyph, &gly) == 0))
-	{
-		FT_Glyph_To_Bitmap(&gly, FT_RENDER_MODE_NORMAL, NULL, 1);
-		bitmap = (FT_BitmapGlyph)gly;
-		region_init(e, bitmap->left, bitmap->top, (bitmap->root.advance.x >> 16), (bitmap->root.advance.y >> 16) + bitmap->bitmap.rows);
-		FT_Done_Glyph(gly);
-	}
-	else
-	{
-		region_init(e, 0, 0, 0, 0);
-	}
-}
-
-static void text_extent(struct text_t * txt)
-{
-	struct region_t e;
 	const char * p;
 	uint32_t code;
+	int col = 0, row = 0;
+	int tw = 0, th = 0;
 	int x = 0, y = 0, w = 0, h = 0;
-	int flag = 0;
 
 	for(p = txt->utf8; ((utf8_to_ucs4(&code, 1, p, -1, &p) > 0) && (p - txt->utf8 <= txt->len));)
 	{
-		ucs4_extent(txt->fctx, txt->family, txt->size, code, &e);
-		w += e.w;
-		if(e.h > h)
-			h = e.h;
-		if(!flag)
+		switch(code)
 		{
-			x = e.x;
-			flag = 1;
+		case '\r':
+			tw = 0;
+			th += 0;
+			if(tw > w)
+				w = tw;
+			if(th > h)
+				h = th;
+			col = 0;
+			break;
+
+		case '\n':
+			tw = 0;
+			th += txt->size;
+			if(tw > w)
+				w = tw;
+			if(th > h)
+				h = th;
+			col = 0;
+			row++;
+			break;
+
+		case '\t':
+			tw += txt->size * 2;
+			th += 0;
+			if(tw > w)
+				w = tw;
+			if(th > h)
+				h = th;
+			col++;
+			break;
+
+		default:
+			if((txt->wrap > 0) && (tw > txt->wrap))
+			{
+				tw = 0;
+				th += txt->size;
+				if(tw > w)
+					w = tw;
+				if(th > h)
+					h = th;
+				col = 0;
+				row++;
+			}
+			glyph = font_glyph(txt->fctx, txt->family, txt->size, code);
+			if(glyph && (FT_Glyph_Copy(glyph, &gly) == 0))
+			{
+				FT_Glyph_To_Bitmap(&gly, FT_RENDER_MODE_NORMAL, NULL, 1);
+				bitmap = (FT_BitmapGlyph)gly;
+				if(col == 0)
+				{
+					if(bitmap->left > x)
+						x = bitmap->left;
+				}
+				if(row == 0)
+				{
+					if(bitmap->top > y)
+						y = bitmap->top;
+				}
+				tw += (bitmap->root.advance.x >> 16);
+				th += 0;
+				if(tw > w)
+					w = tw;
+				if(th > h)
+					h = th;
+				FT_Done_Glyph(gly);
+			}
+			col++;
+			break;
 		}
-		if(e.y > y)
-			y = e.y;
 	}
-	region_init(&txt->e, x, y, w, h);
+	region_init(&txt->e, x, y, w, h + txt->size);
 }
 
-void text_init(struct text_t * txt, const char * utf8, int len, struct color_t * c, struct font_context_t * fctx, const char * family, int size)
+void text_init(struct text_t * txt, const char * utf8, int len, struct color_t * c, int wrap, struct font_context_t * fctx, const char * family, int size)
 {
 	if(txt)
 	{
 		txt->utf8 = utf8;
 		txt->len = (len < 0) ? strlen(utf8) : len;
 		txt->c = c;
+		txt->wrap = wrap;
 		txt->fctx = fctx;
 		txt->family = family;
 		txt->size = (size > 0) ? size : 16;
@@ -110,6 +154,15 @@ void text_set_color(struct text_t * txt, struct color_t * c)
 {
 	if(txt)
 		txt->c = c;
+}
+
+void text_set_wrap(struct text_t * txt, int wrap)
+{
+	if(txt)
+	{
+		txt->wrap = wrap;
+		text_extent(txt);
+	}
 }
 
 void text_set_font_family(struct text_t * txt, const char * family)
@@ -212,28 +265,68 @@ void render_default_text(struct surface_t * s, struct region_t * clip, struct ma
 	FT_Vector pen;
 	const char * p;
 	uint32_t code;
-	int tx = txt->e.x;
-	int ty = txt->e.y;
+	int tx, ty, tw;
 
 	matrix.xx = (FT_Fixed)(m->a * 65536);
 	matrix.xy = -((FT_Fixed)(m->c * 65536));
 	matrix.yx = -((FT_Fixed)(m->b * 65536));
 	matrix.yy = (FT_Fixed)(m->d * 65536);
+	tx = txt->e.x;
+	ty = txt->e.y;
+	tw = 0;
 	pen.x = (FT_Pos)((m->tx + m->a * tx + m->c * ty) * 64);
 	pen.y = (FT_Pos)((s->height - (m->ty + m->b * tx + m->d * ty)) * 64);
 
 	for(p = txt->utf8; ((utf8_to_ucs4(&code, 1, p, -1, &p) > 0) && (p - txt->utf8 <= txt->len));)
 	{
-		glyph = (FT_Glyph)font_glyph(txt->fctx, txt->family, txt->size, code);
-		if(glyph && (FT_Glyph_Copy(glyph, &gly) == 0))
+		switch(code)
 		{
-			FT_Glyph_Transform(gly, &matrix, &pen);
-			FT_Glyph_To_Bitmap(&gly, FT_RENDER_MODE_NORMAL, NULL, 1);
-			bitmap = (FT_BitmapGlyph)gly;
-			draw_font_bitmap(s, clip, txt->c, bitmap->left, s->height - bitmap->top, &bitmap->bitmap);
-			pen.x += bitmap->root.advance.x >> 10;
-			pen.y += bitmap->root.advance.y >> 10;
-			FT_Done_Glyph(gly);
+		case '\r':
+			tx = txt->e.x;
+			ty += 0;
+			tw = 0;
+			pen.x = (FT_Pos)((m->tx + m->a * tx + m->c * ty) * 64);
+			pen.y = (FT_Pos)((s->height - (m->ty + m->b * tx + m->d * ty)) * 64);
+			break;
+
+		case '\n':
+			tx = txt->e.x;
+			ty += txt->size;
+			tw = 0;
+			pen.x = (FT_Pos)((m->tx + m->a * tx + m->c * ty) * 64);
+			pen.y = (FT_Pos)((s->height - (m->ty + m->b * tx + m->d * ty)) * 64);
+			break;
+
+		case '\t':
+			tx += txt->size * 2;
+			ty += 0;
+			tw += txt->size * 2;
+			pen.x = (FT_Pos)((m->tx + m->a * tx + m->c * ty) * 64);
+			pen.y = (FT_Pos)((s->height - (m->ty + m->b * tx + m->d * ty)) * 64);
+			break;
+
+		default:
+			if((txt->wrap > 0) && (tw > txt->wrap))
+			{
+				tx = txt->e.x;
+				ty += txt->size;
+				tw = 0;
+				pen.x = (FT_Pos)((m->tx + m->a * tx + m->c * ty) * 64);
+				pen.y = (FT_Pos)((s->height - (m->ty + m->b * tx + m->d * ty)) * 64);
+			}
+			glyph = (FT_Glyph)font_glyph(txt->fctx, txt->family, txt->size, code);
+			if(glyph && (FT_Glyph_Copy(glyph, &gly) == 0))
+			{
+				tw += (glyph->advance.x >> 16);
+				FT_Glyph_Transform(gly, &matrix, &pen);
+				FT_Glyph_To_Bitmap(&gly, FT_RENDER_MODE_NORMAL, NULL, 1);
+				bitmap = (FT_BitmapGlyph)gly;
+				draw_font_bitmap(s, clip, txt->c, bitmap->left, s->height - bitmap->top, &bitmap->bitmap);
+				pen.x += bitmap->root.advance.x >> 10;
+				pen.y += bitmap->root.advance.y >> 10;
+				FT_Done_Glyph(gly);
+			}
+			break;
 		}
 	}
 }

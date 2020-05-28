@@ -31,8 +31,8 @@
 static const char display_text_lua[] = X(
 local M = Class(DisplayObject)
 
-function M:init(text, color, family, size)
-	self._text = Text.new(text or "", color, family, size)
+function M:init(text, color, wrap, family, size)
+	self._text = Text.new(text or "", color, wrap, family, size)
 	local width, height = self._text:getSize()
 	self.super:init(width, height, self._text)
 end
@@ -58,6 +58,13 @@ end
 
 function M:setColor(color)
 	self._text:setColor(color)
+	self:markDirty()
+	return self
+end
+
+function M:setWrap(wrap)
+	self._text:setWrap(wrap)
+	self.super:setSize(self._text:getSize())
 	self:markDirty()
 	return self
 end

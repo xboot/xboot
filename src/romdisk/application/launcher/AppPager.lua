@@ -69,7 +69,7 @@ function M:reload()
 				end)
 			pages[index]:addChild(item)
 
-			local label = DisplayText.new(v:getName(), self._color, self._font, self._size)
+			local label = DisplayText.new(v:getName(), self._color, 0, self._font, self._size)
 			local w, h = label:getSize()
 			label:setPosition((iw - w) / 2 + ix, iy + ih + 4)
 			pages[index]:addChild(label)

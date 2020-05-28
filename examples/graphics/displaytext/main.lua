@@ -1,6 +1,6 @@
 local DisplayText = DisplayText
 
-local txt = DisplayText.new("Hello World", Color.new("skyblue"), "roboto", 40)
+local txt = DisplayText.new("Hello World", Color.new("skyblue"), 0, "roboto", 40)
 txt:setPosition(200, 200)
 stage:addChild(txt)
 

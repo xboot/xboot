@@ -14,15 +14,17 @@ struct text_t {
 	const char * utf8;
 	int len;
 	struct color_t * c;
+	int wrap;
 	struct font_context_t * fctx;
 	const char * family;
 	int size;
 	struct region_t e;
 };
 
-void text_init(struct text_t * txt, const char * utf8, int len, struct color_t * c, struct font_context_t * fctx, const char * family, int size);
+void text_init(struct text_t * txt, const char * utf8, int len, struct color_t * c, int wrap, struct font_context_t * fctx, const char * family, int size);
 void text_set_text(struct text_t * txt, const char * utf8, int len);
 void text_set_color(struct text_t * txt, struct color_t * c);
+void text_set_wrap(struct text_t * txt, int wrap);
 void text_set_font_family(struct text_t * txt, const char * family);
 void text_set_font_size(struct text_t * txt, int size);
 

@@ -38,7 +38,7 @@
 static const struct xui_style_t xui_style_default = {
 	.background_color = { 0xff, 0xff, 0xff, 0xff },
 
-	.font = NULL,
+	.family = NULL,
 	.width = 68,
 	.height = 10,
 	.padding = 5,
@@ -668,13 +668,13 @@ void xui_draw_rectangle(struct xui_context_t * ctx, int x, int y, int w, int h, 
 	}
 }
 
-void xui_draw_text(struct xui_context_t * ctx, void * font, const char * txt, int len, int x, int y, struct color_t * c)
+void xui_draw_text(struct xui_context_t * ctx, const char * family, const char * txt, int len, int x, int y, struct color_t * c)
 {
 	union xui_cmd_t * cmd;
 	struct region_t r;
 	int clip;
 
-	region_init(&r, x, y, ctx->text_width(font, txt, len), ctx->text_height(font));
+	region_init(&r, x, y, ctx->text_width(family, txt, len), ctx->text_height(family));
 	if((clip = xui_check_clip(ctx, &r)))
 	{
 		if(clip < 0)
@@ -682,7 +682,7 @@ void xui_draw_text(struct xui_context_t * ctx, void * font, const char * txt, in
 		if(len < 0)
 			len = strlen(txt);
 		cmd = xui_cmd_push(ctx, XUI_CMD_TYPE_TEXT, sizeof(struct xui_cmd_text_t) + len);
-		cmd->text.font = font;
+		cmd->text.family = family;
 		cmd->text.x = x;
 		cmd->text.y = y;
 		memcpy(&cmd->text.c, c, sizeof(struct color_t));
@@ -760,9 +760,9 @@ void xui_control_update(struct xui_context_t * ctx, unsigned int id, struct regi
 
 void xui_control_draw_text(struct xui_context_t * ctx, const char * txt, struct region_t * r, struct color_t * c, int opt)
 {
-	void * font = ctx->style.font;
-	int tw = ctx->text_width(font, txt, -1);
-	int th = ctx->text_height(font);
+	const char * family = ctx->style.family;
+	int tw = ctx->text_width(family, txt, -1);
+	int th = ctx->text_height(family);
 	int x, y;
 	xui_push_clip(ctx, r);
 	switch(opt & (0x7 << 5))
@@ -792,7 +792,7 @@ void xui_control_draw_text(struct xui_context_t * ctx, const char * txt, struct 
 		y = r->y + (r->h - th) / 2;
 		break;
 	}
-	xui_draw_text(ctx, font, txt, -1, x, y, c);
+	xui_draw_text(ctx, family, txt, -1, x, y, c);
 	xui_pop_clip(ctx);
 }
 
@@ -1319,14 +1319,14 @@ static int xui_textbox_raw(struct xui_context_t * ctx, char * buf, int bufsz, un
 	if(ctx->focus == id)
 	{
 		struct color_t * c = &ctx->style.text.text_color;
-		void * font = ctx->style.font;
-		int textw = ctx->text_width(font, buf, -1);
-		int texth = ctx->text_height(font);
+		const char * family = ctx->style.family;
+		int textw = ctx->text_width(family, buf, -1);
+		int texth = ctx->text_height(family);
 		int ofx = r->w - ctx->style.padding - textw - 1;
 		int textx = r->x + min(ofx, ctx->style.padding);
 		int texty = r->y + (r->h - texth) / 2;
 		xui_push_clip(ctx, r);
-		xui_draw_text(ctx, font, buf, -1, textx, texty, c);
+		xui_draw_text(ctx, family, buf, -1, textx, texty, c);
 		xui_draw_rectangle(ctx, textx + textw, texty, 1, texth, 0, 0, c);
 		xui_pop_clip(ctx);
 	}
@@ -1408,10 +1408,10 @@ void xui_text(struct xui_context_t * ctx, const char * txt)
 {
 	const char * start, * end, * p = txt;
 	int width = -1;
-	void * font = ctx->style.font;
+	const char * family = ctx->style.family;
 	struct color_t * c = &ctx->style.text.text_color;
 	xui_layout_begin_column(ctx);
-	xui_layout_row(ctx, 1, &width, ctx->text_height(font));
+	xui_layout_row(ctx, 1, &width, ctx->text_height(family));
 	do {
 		struct region_t r;
 		region_clone(&r, xui_layout_next(ctx));
@@ -1422,13 +1422,13 @@ void xui_text(struct xui_context_t * ctx, const char * txt)
 			const char * word = p;
 			while(*p && (*p != ' ') && (*p != '\n'))
 				p++;
-			w += ctx->text_width(font, word, p - word);
+			w += ctx->text_width(family, word, p - word);
 			if((w > r.w) && (end != start))
 				break;
-			w += ctx->text_width(font, p, 1);
+			w += ctx->text_width(family, p, 1);
 			end = p++;
 		} while(*end && (*end != '\n'));
-		xui_draw_text(ctx, font, start, end - start, r.x, r.y, c);
+		xui_draw_text(ctx, family, start, end - start, r.x, r.y, c);
 		p = end + 1;
 	} while(*end);
 	xui_layout_end_column(ctx);
@@ -1487,14 +1487,14 @@ static void draw_frame(struct xui_context_t * ctx, struct region_t * r, int cid)
 	}
 }
 
-static int text_width(void * font, const char * txt, int len)
+static int text_width(const char * family, const char * txt, int len)
 {
 	if(len == -1)
 		len = strlen(txt);
 	return 8 * len;
 }
 
-static int text_height(void * font)
+static int text_height(const char * family)
 {
 	return 16;
 }

@@ -159,7 +159,7 @@ struct xui_cmd_text_t {
 	enum xui_cmd_type_t type;
 	int size;
 
-	void * font;
+	const char * family;
 	int x, y;
 	struct color_t c;
 	char utf8[1];
@@ -235,7 +235,7 @@ struct xui_style_button_t {
 
 struct xui_style_t {
 	struct color_t background_color;
-	void * font;
+	const char * family;
 	int width;
 	int height;
 	int padding;
@@ -417,8 +417,8 @@ struct xui_context_t {
 	/*
 	 * Callback
 	 */
-	int (*text_width)(void * font, const char * txt, int len);
-	int (*text_height)(void * font);
+	int (*text_width)(const char * family, const char * txt, int len);
+	int (*text_height)(const char * family);
 	void (*draw_frame)(struct xui_context_t * ctx, struct region_t * r, int cid);
 };
 
@@ -447,7 +447,7 @@ struct region_t * xui_layout_next(struct xui_context_t * ctx);
 
 void xui_draw_triangle(struct xui_context_t * ctx, struct point_t * p0, struct point_t * p1, struct point_t * p2, int thickness, struct color_t * c);
 void xui_draw_rectangle(struct xui_context_t * ctx, int x, int y, int w, int h, int radius, int thickness, struct color_t * c);
-void xui_draw_text(struct xui_context_t * ctx, void * font, const char * txt, int len, int x, int y, struct color_t * c);
+void xui_draw_text(struct xui_context_t * ctx, const char * family, const char * txt, int len, int x, int y, struct color_t * c);
 void xui_draw_icon(struct xui_context_t * ctx, int id, struct region_t * r, struct color_t * c);
 
 void xui_control_update(struct xui_context_t * ctx, unsigned int id, struct region_t * r, int opt);

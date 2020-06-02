@@ -150,6 +150,7 @@ struct font_context_t * font_context_alloc(void)
 	FT_Init_FreeType((FT_Library *)&ctx->library);
 	FTC_Manager_New((FT_Library)ctx->library, 0, 0, 0, ftcface_requester, ctx, (FTC_Manager *)&ctx->manager);
 	FTC_CMapCache_New((FTC_Manager)ctx->manager, (FTC_CMapCache *)&ctx->cmap);
+	FTC_SBitCache_New((FTC_Manager)ctx->manager, (FTC_SBitCache *)&ctx->sbit);
 	FTC_ImageCache_New((FTC_Manager)ctx->manager, (FTC_ImageCache *)&ctx->image);
 	init_list_head(&ctx->list);
 	font_add(ctx, NULL, "roboto", "/framework/assets/fonts/Roboto-Regular.ttf");
@@ -181,24 +182,50 @@ void font_context_free(struct font_context_t * ctx)
 	}
 }
 
-void font_add(struct font_context_t * ctx, struct xfs_context_t * xfs, const char * family, const char * path)
+void * font_lookup_bitmap(struct font_context_t * ctx, const char * family, int size, uint32_t code)
 {
-	struct font_t * f;
+	struct font_t * pos, * n;
+	FTC_ScalerRec scaler;
+	FTC_SBit sbit;
+	FT_UInt index;
+	char buf[512];
+	char * p, * r;
 
-	if(ctx && family && path)
+	scaler.width = size;
+	scaler.height = size;
+	scaler.pixel = 1;
+	scaler.x_res = 0;
+	scaler.y_res = 0;
+	strlcpy(buf, family ? family : "roboto", sizeof(buf));
+	p = buf;
+	while((r = strsep(&p, ",;:|")) != NULL)
 	{
-		f = malloc(sizeof(struct font_t));
-		if(f)
+		scaler.face_id = (FTC_FaceID)((unsigned long)shash(r));
+		if((index = FTC_CMapCache_Lookup((FTC_CMapCache)ctx->cmap, scaler.face_id, -1, code)) != 0)
 		{
-			f->xfs = xfs;
-			f->family = strdup(family);
-			f->path = strdup(path);
-			list_add_tail(&f->list, &ctx->list);
+			if(FTC_SBitCache_LookupScaler((FTC_SBitCache)ctx->sbit, &scaler, FT_LOAD_RENDER, index, &sbit, NULL) == 0)
+				return (void *)sbit;
 		}
 	}
+	list_for_each_entry_safe(pos, n, &ctx->list, list)
+	{
+		scaler.face_id = (FTC_FaceID)((unsigned long)shash(pos->family));
+		if((index = FTC_CMapCache_Lookup((FTC_CMapCache)ctx->cmap, scaler.face_id, -1, code)) != 0)
+		{
+			if(FTC_SBitCache_LookupScaler((FTC_SBitCache)ctx->sbit, &scaler, FT_LOAD_RENDER, index, &sbit, NULL) == 0)
+				return (void *)sbit;
+		}
+	}
+	scaler.face_id = (FTC_FaceID)((unsigned long)shash("roboto"));
+	if((index = FTC_CMapCache_Lookup((FTC_CMapCache)ctx->cmap, scaler.face_id, -1, 0xfffd)) != 0)
+	{
+		if(FTC_SBitCache_LookupScaler((FTC_SBitCache)ctx->sbit, &scaler, FT_LOAD_RENDER, index, &sbit, NULL) == 0)
+			return (void *)sbit;
+	}
+	return NULL;
 }
 
-void * font_glyph(struct font_context_t * ctx, const char * family, int size, uint32_t code)
+void * font_lookup_glyph(struct font_context_t * ctx, const char * family, int size, uint32_t code)
 {
 	struct font_t * pos, * n;
 	FTC_ScalerRec scaler;
@@ -239,4 +266,21 @@ void * font_glyph(struct font_context_t * ctx, const char * family, int size, ui
 			return (void *)glyph;
 	}
 	return NULL;
+}
+
+void font_add(struct font_context_t * ctx, struct xfs_context_t * xfs, const char * family, const char * path)
+{
+	struct font_t * f;
+
+	if(ctx && family && path)
+	{
+		f = malloc(sizeof(struct font_t));
+		if(f)
+		{
+			f->xfs = xfs;
+			f->family = strdup(family);
+			f->path = strdup(path);
+			list_add_tail(&f->list, &ctx->list);
+		}
+	}
 }

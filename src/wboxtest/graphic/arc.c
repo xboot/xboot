@@ -18,7 +18,7 @@ static void * arc_setup(struct wboxtest_t * wbt)
 	if(!pdat)
 		return NULL;
 
-	pdat->w = window_alloc(NULL, NULL, pdat);
+	pdat->w = window_alloc(NULL, NULL, NULL);
 	if(!pdat->w)
 	{
 		free(pdat);

@@ -1508,7 +1508,7 @@ struct xui_context_t * xui_context_alloc(const char * fb, const char * input, st
 		return NULL;
 
 	memset(ctx, 0, sizeof(struct xui_context_t));
-	ctx->w = window_alloc(fb, input, ctx);
+	ctx->w = window_alloc(fb, input, NULL);
 	ctx->f = font_context_alloc();
 	region_init(&ctx->screen, 0, 0, window_get_width(ctx->w), window_get_height(ctx->w));
 

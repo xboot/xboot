@@ -48,7 +48,7 @@ static void text_extent(struct text_t * txt)
 	int tw = 0, th = 0;
 	int x = 0, y = 0, w = 0, h = 0;
 
-	for(p = txt->utf8; ((utf8_to_ucs4(&code, 1, p, -1, &p) > 0) && (p - txt->utf8 <= txt->len));)
+	for(p = txt->utf8; (utf8_to_ucs4(&code, 1, p, -1, &p) > 0);)
 	{
 		switch(code)
 		{
@@ -128,12 +128,11 @@ static void text_extent(struct text_t * txt)
 	region_init(&txt->e, x, y, w, h + txt->size);
 }
 
-void text_init(struct text_t * txt, const char * utf8, int len, struct color_t * c, int wrap, struct font_context_t * fctx, const char * family, int size)
+void text_init(struct text_t * txt, const char * utf8, struct color_t * c, int wrap, struct font_context_t * fctx, const char * family, int size)
 {
 	if(txt)
 	{
 		txt->utf8 = utf8;
-		txt->len = (len < 0) ? strlen(utf8) : len;
 		txt->c = c;
 		txt->wrap = wrap;
 		txt->fctx = fctx;
@@ -143,12 +142,11 @@ void text_init(struct text_t * txt, const char * utf8, int len, struct color_t *
 	}
 }
 
-void text_set_text(struct text_t * txt, const char * utf8, int len)
+void text_set_text(struct text_t * txt, const char * utf8)
 {
 	if(txt)
 	{
 		txt->utf8 = utf8;
-		txt->len = (len < 0) ? strlen(utf8) : len;
 		text_extent(txt);
 	}
 }
@@ -280,7 +278,7 @@ void render_default_text(struct surface_t * s, struct region_t * clip, struct ma
 	pen.x = (FT_Pos)((m->tx + m->a * tx + m->c * ty) * 64);
 	pen.y = (FT_Pos)((s->height - (m->ty + m->b * tx + m->d * ty)) * 64);
 
-	for(p = txt->utf8; ((utf8_to_ucs4(&code, 1, p, -1, &p) > 0) && (p - txt->utf8 <= txt->len));)
+	for(p = txt->utf8; (utf8_to_ucs4(&code, 1, p, -1, &p) > 0);)
 	{
 		switch(code)
 		{

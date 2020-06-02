@@ -670,21 +670,21 @@ void xui_draw_rectangle(struct xui_context_t * ctx, int x, int y, int w, int h, 
 	}
 }
 
-void xui_draw_text(struct xui_context_t * ctx, const char * family, int size, const char * utf8, int len, int x, int y, int wrap, struct color_t * c)
+void xui_draw_text(struct xui_context_t * ctx, const char * family, int size, const char * utf8, int x, int y, int wrap, struct color_t * c)
 {
 	union xui_cmd_t * cmd;
 	struct text_t txt;
 	struct region_t r;
+	int len;
 	int clip;
 
-	text_init(&txt, utf8, len, c, wrap, ctx->f, family, size);
+	text_init(&txt, utf8, c, wrap, ctx->f, family, size);
 	region_init(&r, x, y, txt.e.w, txt.e.h);
 	if((clip = xui_check_clip(ctx, &r)))
 	{
 		if(clip < 0)
 			xui_cmd_push_clip(ctx, xui_get_clip(ctx));
-		if(len < 0)
-			len = strlen(utf8);
+		len = strlen(utf8);
 		cmd = xui_cmd_push(ctx, XUI_CMD_TYPE_TEXT, sizeof(struct xui_cmd_text_t) + len);
 		cmd->text.family = family;
 		cmd->text.sz = size;
@@ -773,7 +773,7 @@ void xui_control_draw_text(struct xui_context_t * ctx, const char * utf8, struct
 	int tw, th;
 	int x, y;
 
-	text_init(&txt, utf8, -1, c, wrap, ctx->f, family, size);
+	text_init(&txt, utf8, c, wrap, ctx->f, family, size);
 	tw = txt.e.w;
 	th = txt.e.h;
 
@@ -805,7 +805,7 @@ void xui_control_draw_text(struct xui_context_t * ctx, const char * utf8, struct
 		y = r->y + (r->h - th) / 2;
 		break;
 	}
-	xui_draw_text(ctx, family, size, utf8, -1, x, y, wrap, c);
+	xui_draw_text(ctx, family, size, utf8, x, y, wrap, c);
 	xui_pop_clip(ctx);
 }
 
@@ -1335,14 +1335,14 @@ static int xui_textbox_raw(struct xui_context_t * ctx, char * buf, int bufsz, un
 		const char * family = ctx->style.font_family;
 		int size = ctx->style.font_size;
 		struct text_t txt;
-		text_init(&txt, buf, -1, c, 0, ctx->f, family, size);
+		text_init(&txt, buf, c, 0, ctx->f, family, size);
 		int textw = txt.e.w;
 		int texth = txt.e.h;
 		int ofx = r->w - ctx->style.padding - textw - 1;
 		int textx = r->x + min(ofx, ctx->style.padding);
 		int texty = r->y + (r->h - texth) / 2;
 		xui_push_clip(ctx, r);
-		xui_draw_text(ctx, family, size, buf, -1, textx, texty, 0, c);
+		xui_draw_text(ctx, family, size, buf, textx, texty, 0, c);
 		xui_draw_rectangle(ctx, textx + textw, texty, 1, texth, 0, 0, c);
 		xui_pop_clip(ctx);
 	}
@@ -1430,10 +1430,10 @@ void xui_text(struct xui_context_t * ctx, const char * utf8)
 	int wrap;
 	xui_layout_begin_column(ctx);
 	wrap = get_layout(ctx)->body.w;
-	text_init(&txt, utf8, -1, c, wrap, ctx->f, family, size);
+	text_init(&txt, utf8, c, wrap, ctx->f, family, size);
 	xui_layout_row(ctx, 1, (int[]){ -1 }, txt.e.h);
 	r = xui_layout_next(ctx);
-	xui_draw_text(ctx, family, size, utf8, -1, r->x, r->y, wrap, c);
+	xui_draw_text(ctx, family, size, utf8, r->x, r->y, wrap, c);
 	xui_layout_end_column(ctx);
 }
 
@@ -1547,7 +1547,7 @@ static void xui_draw(struct window_t * w, void * o)
 			surface_shape_rectangle(s, clip, cmd->rectangle.x, cmd->rectangle.y, cmd->rectangle.w, cmd->rectangle.h, cmd->rectangle.radius, cmd->rectangle.thickness, &cmd->rectangle.c);
 			break;
 		case XUI_CMD_TYPE_TEXT:
-			text_init(&txt, cmd->text.utf8, -1, &cmd->text.c, cmd->text.wrap, ctx->f, cmd->text.family, cmd->text.sz);
+			text_init(&txt, cmd->text.utf8, &cmd->text.c, cmd->text.wrap, ctx->f, cmd->text.family, cmd->text.sz);
 			matrix_init_translate(&m, cmd->text.x, cmd->text.y);
 			surface_text(s, clip, &m, &txt);
 			break;

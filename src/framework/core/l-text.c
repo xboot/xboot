@@ -41,7 +41,7 @@ static int l_text_new(lua_State * L)
 	text->utf8 = strdup(utf8);
 	text->family = strdup(family);
 	memcpy(&text->c, c, sizeof(struct color_t));
-	text_init(&text->txt, text->utf8, -1, &text->c, wrap, ((struct vmctx_t *)luahelper_vmctx(L))->f, text->family, size);
+	text_init(&text->txt, text->utf8, &text->c, wrap, ((struct vmctx_t *)luahelper_vmctx(L))->f, text->family, size);
 	luaL_setmetatable(L, MT_TEXT);
 	return 1;
 }
@@ -84,7 +84,7 @@ static int m_text_set_text(lua_State * L)
 	if(text->utf8)
 		free(text->utf8);
 	text->utf8 = strdup(utf8);
-	text_set_text(&text->txt, text->utf8, -1);
+	text_set_text(&text->txt, text->utf8);
 	lua_settop(L, 1);
 	return 1;
 }

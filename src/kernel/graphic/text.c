@@ -270,9 +270,6 @@ void render_default_text(struct surface_t * s, struct region_t * clip, struct ma
 	uint32_t code;
 	int tx, ty, tw;
 
-	struct color_t c = {30, 30, 30, 255};
-	surface_fill(s, clip, m, txt->e.w, txt->e.h, &c, RENDER_TYPE_GOOD);
-
 	matrix.xx = (FT_Fixed)(m->a * 65536);
 	matrix.xy = -((FT_Fixed)(m->c * 65536));
 	matrix.yx = -((FT_Fixed)(m->b * 65536));

@@ -160,7 +160,9 @@ struct xui_cmd_text_t {
 	int size;
 
 	const char * family;
+	int sz;
 	int x, y;
+	int wrap;
 	struct color_t c;
 	char utf8[1];
 };
@@ -235,7 +237,9 @@ struct xui_style_button_t {
 
 struct xui_style_t {
 	struct color_t background_color;
-	const char * family;
+	const char * font_family;
+	int font_size;
+
 	int width;
 	int height;
 	int padding;
@@ -447,11 +451,11 @@ struct region_t * xui_layout_next(struct xui_context_t * ctx);
 
 void xui_draw_triangle(struct xui_context_t * ctx, struct point_t * p0, struct point_t * p1, struct point_t * p2, int thickness, struct color_t * c);
 void xui_draw_rectangle(struct xui_context_t * ctx, int x, int y, int w, int h, int radius, int thickness, struct color_t * c);
-void xui_draw_text(struct xui_context_t * ctx, const char * family, const char * txt, int len, int x, int y, struct color_t * c);
+void xui_draw_text(struct xui_context_t * ctx, const char * family, int size, const char * utf8, int len, int x, int y, int wrap, struct color_t * c);
 void xui_draw_icon(struct xui_context_t * ctx, int id, struct region_t * r, struct color_t * c);
 
 void xui_control_update(struct xui_context_t * ctx, unsigned int id, struct region_t * r, int opt);
-void xui_control_draw_text(struct xui_context_t * ctx, const char * txt, struct region_t * r, struct color_t * c, int opt);
+void xui_control_draw_text(struct xui_context_t * ctx, const char * utf8, struct region_t * r, struct color_t * c, int opt);
 void xui_control_draw_frame(struct xui_context_t * ctx, unsigned int id, struct region_t * r, int cid, int opt);
 
 int xui_begin_window_ex(struct xui_context_t * ctx, const char * title, struct region_t * r, int opt);
@@ -475,8 +479,8 @@ int xui_checkbox(struct xui_context_t * ctx, const char * label, int * state);
 int xui_slider_ex(struct xui_context_t * ctx, float * value, float low, float high, float step, const char * fmt, int opt);
 int xui_slider(struct xui_context_t * ctx, float * value, float low, float high);
 
-void xui_label(struct xui_context_t * ctx, const char * txt);
-void xui_text(struct xui_context_t * ctx, const char * txt);
+void xui_label(struct xui_context_t * ctx, const char * utf8);
+void xui_text(struct xui_context_t * ctx, const char * utf8);
 
 int xui_textbox_ex(struct xui_context_t * ctx, char * buf, int bufsz, int opt);
 int xui_textbox(struct xui_context_t * ctx, char * buf, int bufsz);

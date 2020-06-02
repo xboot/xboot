@@ -174,7 +174,7 @@ static void log_window(struct xui_context_t *ctx)
 	if(xui_begin_window(ctx, "Log Window", &(struct region_t){350, 40, 300, 200}))
 	{
 		/* output text panel */
-		xui_layout_row(ctx, 1, (int[] ) { -1 }, -25);
+		xui_layout_row(ctx, 1, (int[] ) { -1 }, -35);
 		xui_begin_panel(ctx, "Log Output");
 		struct xui_container_t * panel = xui_get_current_container(ctx);
 		xui_layout_row(ctx, 1, (int[] ) { -1 }, -1);

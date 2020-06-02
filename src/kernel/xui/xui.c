@@ -1490,18 +1490,6 @@ static void draw_frame(struct xui_context_t * ctx, struct region_t * r, int cid)
 	}
 }
 
-static int text_width(const char * family, const char * txt, int len)
-{
-	if(len == -1)
-		len = strlen(txt);
-	return 8 * len;
-}
-
-static int text_height(const char * family)
-{
-	return 16;
-}
-
 struct xui_context_t * xui_context_alloc(const char * fb, const char * input, struct xui_style_t * style)
 {
 	struct xui_context_t * ctx;
@@ -1519,8 +1507,6 @@ struct xui_context_t * xui_context_alloc(const char * fb, const char * input, st
 	region_clone(&ctx->clip, &ctx->screen);
 
 	ctx->draw_frame = draw_frame;
-	ctx->text_width = text_width;
-	ctx->text_height = text_height;
 
 	return ctx;
 }

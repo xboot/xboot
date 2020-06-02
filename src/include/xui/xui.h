@@ -421,8 +421,6 @@ struct xui_context_t {
 	/*
 	 * Callback
 	 */
-	int (*text_width)(const char * family, const char * txt, int len);
-	int (*text_height)(const char * family);
 	void (*draw_frame)(struct xui_context_t * ctx, struct region_t * r, int cid);
 };
 

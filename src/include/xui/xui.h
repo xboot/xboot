@@ -117,26 +117,26 @@ enum xui_cmd_type_t {
 
 struct xui_cmd_base_t {
 	enum xui_cmd_type_t type;
-	int size;
+	int len;
 };
 
 struct xui_cmd_jump_t {
 	enum xui_cmd_type_t type;
-	int size;
+	int len;
 
 	void * addr;
 };
 
 struct xui_cmd_clip_t {
 	enum xui_cmd_type_t type;
-	int size;
+	int len;
 
 	struct region_t r;
 };
 
 struct xui_cmd_triangle_t {
 	enum xui_cmd_type_t type;
-	int size;
+	int len;
 
 	struct point_t p0;
 	struct point_t p1;
@@ -147,7 +147,7 @@ struct xui_cmd_triangle_t {
 
 struct xui_cmd_rectangle_t {
 	enum xui_cmd_type_t type;
-	int size;
+	int len;
 
 	int x, y, w, h;
 	int radius;
@@ -157,10 +157,10 @@ struct xui_cmd_rectangle_t {
 
 struct xui_cmd_text_t {
 	enum xui_cmd_type_t type;
-	int size;
+	int len;
 
 	const char * family;
-	int sz;
+	int size;
 	int x, y;
 	int wrap;
 	struct color_t c;
@@ -169,7 +169,7 @@ struct xui_cmd_text_t {
 
 struct xui_cmd_icon_t {
 	enum xui_cmd_type_t type;
-	int size;
+	int len;
 
 	int id;
 	int x, y, w, h;

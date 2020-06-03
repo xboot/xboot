@@ -604,7 +604,7 @@ struct region_t * xui_layout_next(struct xui_context_t * ctx)
 static int xui_cmd_next(struct xui_context_t * ctx, union xui_cmd_t ** cmd)
 {
 	if(*cmd)
-		*cmd = (union xui_cmd_t *)(((char *)*cmd) + (*cmd)->base.size);
+		*cmd = (union xui_cmd_t *)(((char *)*cmd) + (*cmd)->base.len);
 	else
 		*cmd = (union xui_cmd_t *)ctx->cmd_list.items;
 	while((char *)(*cmd) != ctx->cmd_list.items + ctx->cmd_list.idx)
@@ -616,13 +616,13 @@ static int xui_cmd_next(struct xui_context_t * ctx, union xui_cmd_t ** cmd)
 	return 0;
 }
 
-static union xui_cmd_t * xui_cmd_push(struct xui_context_t * ctx, enum xui_cmd_type_t type, int size)
+static union xui_cmd_t * xui_cmd_push(struct xui_context_t * ctx, enum xui_cmd_type_t type, int len)
 {
 	union xui_cmd_t * cmd = (union xui_cmd_t *)(ctx->cmd_list.items + ctx->cmd_list.idx);
-	assert(ctx->cmd_list.idx + size < XUI_COMMAND_LIST_SIZE);
+	assert(ctx->cmd_list.idx + len < XUI_COMMAND_LIST_SIZE);
 	cmd->base.type = type;
-	cmd->base.size = size;
-	ctx->cmd_list.idx += size;
+	cmd->base.len = len;
+	ctx->cmd_list.idx += len;
 	return cmd;
 }
 
@@ -687,7 +687,7 @@ void xui_draw_text(struct xui_context_t * ctx, const char * family, int size, co
 		len = strlen(utf8);
 		cmd = xui_cmd_push(ctx, XUI_CMD_TYPE_TEXT, sizeof(struct xui_cmd_text_t) + len);
 		cmd->text.family = family;
-		cmd->text.sz = size;
+		cmd->text.size = size;
 		cmd->text.x = x;
 		cmd->text.y = y;
 		cmd->text.wrap = wrap;
@@ -1547,7 +1547,7 @@ static void xui_draw(struct window_t * w, void * o)
 			surface_shape_rectangle(s, clip, cmd->rectangle.x, cmd->rectangle.y, cmd->rectangle.w, cmd->rectangle.h, cmd->rectangle.radius, cmd->rectangle.thickness, &cmd->rectangle.c);
 			break;
 		case XUI_CMD_TYPE_TEXT:
-			text_init(&txt, cmd->text.utf8, &cmd->text.c, cmd->text.wrap, ctx->f, cmd->text.family, cmd->text.sz);
+			text_init(&txt, cmd->text.utf8, &cmd->text.c, cmd->text.wrap, ctx->f, cmd->text.family, cmd->text.size);
 			matrix_init_translate(&m, cmd->text.x, cmd->text.y);
 			surface_text(s, clip, &m, &txt);
 			break;

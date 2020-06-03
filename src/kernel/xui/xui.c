@@ -1753,6 +1753,7 @@ static void xui_draw(struct window_t * w, void * o)
 	struct matrix_t m;
 	struct text_t txt;
 	struct icon_t ico;
+	int size;
 
 	while(xui_cmd_next(ctx, &cmd))
 	{
@@ -1797,8 +1798,9 @@ static void xui_draw(struct window_t * w, void * o)
 			surface_text(s, clip, &m, &txt);
 			break;
 		case XUI_CMD_TYPE_ICON:
-			icon_init(&ico, cmd->icon.icon, &cmd->icon.c, ctx->f, cmd->icon.family, min(cmd->icon.w, cmd->icon.h));
-			matrix_init_translate(&m, cmd->icon.x, cmd->icon.y);
+			size = min(cmd->icon.w, cmd->icon.h);
+			icon_init(&ico, cmd->icon.icon, &cmd->icon.c, ctx->f, cmd->icon.family, size);
+			matrix_init_translate(&m, cmd->icon.x + (cmd->icon.w - size) / 2, cmd->icon.y + (cmd->icon.h - size) / 2);
 			surface_icon(s, clip, &m, &ico);
 			break;
 		default:

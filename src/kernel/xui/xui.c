@@ -920,7 +920,7 @@ void xui_draw_text(struct xui_context_t * ctx, const char * family, int size, co
 	}
 }
 
-void xui_draw_icon(struct xui_context_t * ctx, const char * family, uint32_t icon, int x, int y, int w, int h, struct color_t * c)
+void xui_draw_icon(struct xui_context_t * ctx, const char * family, uint32_t code, int x, int y, int w, int h, struct color_t * c)
 {
 	union xui_cmd_t * cmd;
 	struct region_t r;
@@ -933,7 +933,7 @@ void xui_draw_icon(struct xui_context_t * ctx, const char * family, uint32_t ico
 			xui_cmd_push_clip(ctx, xui_get_clip(ctx));
 		cmd = xui_cmd_push(ctx, XUI_CMD_TYPE_ICON, sizeof(struct xui_cmd_icon_t));
 		cmd->icon.family = family;
-		cmd->icon.icon = icon;
+		cmd->icon.code = code;
 		cmd->icon.x = x;
 		cmd->icon.y = y;
 		cmd->icon.w = w;
@@ -1799,7 +1799,7 @@ static void xui_draw(struct window_t * w, void * o)
 			break;
 		case XUI_CMD_TYPE_ICON:
 			size = min(cmd->icon.w, cmd->icon.h);
-			icon_init(&ico, cmd->icon.icon, &cmd->icon.c, ctx->f, cmd->icon.family, size);
+			icon_init(&ico, cmd->icon.code, &cmd->icon.c, ctx->f, cmd->icon.family, size);
 			matrix_init_translate(&m, cmd->icon.x + (cmd->icon.w - size) / 2, cmd->icon.y + (cmd->icon.h - size) / 2);
 			surface_icon(s, clip, &m, &ico);
 			break;

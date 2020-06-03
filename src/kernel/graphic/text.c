@@ -38,7 +38,7 @@
 #include FT_FREETYPE_H
 #include FT_CACHE_MANAGER_H
 
-static void text_extent(struct text_t * txt)
+static void text_metrics(struct text_t * txt)
 {
 	FTC_SBit sbit;
 	const char * p;
@@ -131,7 +131,7 @@ void text_init(struct text_t * txt, const char * utf8, struct color_t * c, int w
 		txt->fctx = fctx;
 		txt->family = family;
 		txt->size = (size > 0) ? size : 16;
-		text_extent(txt);
+		text_metrics(txt);
 	}
 }
 
@@ -140,7 +140,7 @@ void text_set_text(struct text_t * txt, const char * utf8)
 	if(txt)
 	{
 		txt->utf8 = utf8;
-		text_extent(txt);
+		text_metrics(txt);
 	}
 }
 
@@ -155,7 +155,7 @@ void text_set_wrap(struct text_t * txt, int wrap)
 	if(txt)
 	{
 		txt->wrap = wrap;
-		text_extent(txt);
+		text_metrics(txt);
 	}
 }
 
@@ -164,7 +164,7 @@ void text_set_family(struct text_t * txt, const char * family)
 	if(txt)
 	{
 		txt->family = family;
-		text_extent(txt);
+		text_metrics(txt);
 	}
 }
 
@@ -173,7 +173,7 @@ void text_set_size(struct text_t * txt, int size)
 	if(txt)
 	{
 		txt->size = (size > 0) ? size : 16;
-		text_extent(txt);
+		text_metrics(txt);
 	}
 }
 

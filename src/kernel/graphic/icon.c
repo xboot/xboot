@@ -38,7 +38,7 @@
 #include FT_FREETYPE_H
 #include FT_CACHE_MANAGER_H
 
-static void icon_extent(struct icon_t * ico)
+static void icon_metrics(struct icon_t * ico)
 {
 	FTC_SBit sbit;
 
@@ -58,7 +58,7 @@ void icon_init(struct icon_t * ico, uint32_t code, struct color_t * c, struct fo
 		ico->fctx = fctx;
 		ico->family = family;
 		ico->size = (size > 0) ? size : 16;
-		icon_extent(ico);
+		icon_metrics(ico);
 	}
 }
 
@@ -67,7 +67,7 @@ void icon_set_code(struct icon_t * ico, uint32_t code)
 	if(ico)
 	{
 		ico->code = code;
-		icon_extent(ico);
+		icon_metrics(ico);
 	}
 }
 
@@ -82,7 +82,7 @@ void icon_set_family(struct icon_t * ico, const char * family)
 	if(ico)
 	{
 		ico->family = family;
-		icon_extent(ico);
+		icon_metrics(ico);
 	}
 }
 
@@ -91,7 +91,7 @@ void icon_set_size(struct icon_t * ico, int size)
 	if(ico)
 	{
 		ico->size = (size > 0) ? size : 16;
-		icon_extent(ico);
+		icon_metrics(ico);
 	}
 }
 

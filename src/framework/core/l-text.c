@@ -61,22 +61,6 @@ static int m_text_gc(lua_State * L)
 	return 0;
 }
 
-static int m_text_get_origin(lua_State * L)
-{
-	struct ltext_t * text = luaL_checkudata(L, 1, MT_TEXT);
-	lua_pushinteger(L, text->txt.e.x);
-	lua_pushinteger(L, text->txt.e.y);
-	return 2;
-}
-
-static int m_text_get_size(lua_State * L)
-{
-	struct ltext_t * text = luaL_checkudata(L, 1, MT_TEXT);
-	lua_pushinteger(L, text->txt.e.w);
-	lua_pushinteger(L, text->txt.e.h);
-	return 2;
-}
-
 static int m_text_set_text(lua_State * L)
 {
 	struct ltext_t * text = luaL_checkudata(L, 1, MT_TEXT);
@@ -102,7 +86,7 @@ static int m_text_set_color(lua_State * L)
 static int m_text_set_wrap(lua_State * L)
 {
 	struct ltext_t * text = luaL_checkudata(L, 1, MT_TEXT);
-	int wrap = luaL_checkinteger(L, 2);
+	int wrap = luaL_checknumber(L, 2);
 	text_set_wrap(&text->txt, wrap);
 	lua_settop(L, 1);
 	return 1;
@@ -123,21 +107,30 @@ static int m_text_set_family(lua_State * L)
 static int m_text_set_size(lua_State * L)
 {
 	struct ltext_t * text = luaL_checkudata(L, 1, MT_TEXT);
-	int size = luaL_optinteger(L, 2, 0);
+	int size = luaL_checknumber(L, 2);
 	text_set_size(&text->txt, size);
 	lua_settop(L, 1);
 	return 1;
 }
 
+static int m_text_get_metrics(lua_State * L)
+{
+	struct ltext_t * text = luaL_checkudata(L, 1, MT_TEXT);
+	lua_pushnumber(L, text->txt.e.x);
+	lua_pushnumber(L, text->txt.e.y);
+	lua_pushnumber(L, text->txt.e.w);
+	lua_pushnumber(L, text->txt.e.h);
+	return 4;
+}
+
 static const luaL_Reg m_text[] = {
-	{"__gc",			m_text_gc},
-	{"getOrigin",		m_text_get_origin},
-	{"getSize",			m_text_get_size},
-	{"setText",			m_text_set_text},
-	{"setColor",		m_text_set_color},
-	{"setWrap",			m_text_set_wrap},
-	{"setFontFamily",	m_text_set_family},
-	{"setFontSize",		m_text_set_size},
+	{"__gc",		m_text_gc},
+	{"setText",		m_text_set_text},
+	{"setColor",	m_text_set_color},
+	{"setWrap",		m_text_set_wrap},
+	{"setFamily",	m_text_set_family},
+	{"setSize",		m_text_set_size},
+	{"getMetrics",	m_text_get_metrics},
 	{NULL, NULL}
 };
 

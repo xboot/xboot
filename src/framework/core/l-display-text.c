@@ -33,8 +33,8 @@ local M = Class(DisplayObject)
 
 function M:init(text, color, wrap, family, size)
 	self._text = Text.new(text or "", color, wrap, family, size)
-	local width, height = self._text:getSize()
-	self.super:init(width, height, self._text)
+	local x, y, w, h = self._text:getMetrics()
+	self.super:init(w, h, self._text)
 end
 
 function M:setWidth(width)
@@ -51,7 +51,8 @@ end
 
 function M:setText(text)
 	self._text:setText(text or "")
-	self.super:setSize(self._text:getSize())
+	local x, y, w, h = self._text:getMetrics()
+	self.super:setSize(w, h)
 	self:markDirty()
 	return self
 end
@@ -64,23 +65,24 @@ end
 
 function M:setWrap(wrap)
 	self._text:setWrap(wrap)
-	self.super:setSize(self._text:getSize())
+	local x, y, w, h = self._text:getMetrics()
+	self.super:setSize(w, h)
 	self:markDirty()
 	return self
 end
 
-function M:setFontFamily(family)
-	if family then
-		self._text:setFontFamily(family)
-		self.super:setSize(self._text:getSize())
-		self:markDirty()
-	end
+function M:setFamily(family)
+	self._text:setFamily(family)
+	local x, y, w, h = self._text:getMetrics()
+	self.super:setSize(w, h)
+	self:markDirty()
 	return self
 end
 
-function M:setFontSize(size)
-	self._text:setFontSize(size)
-	self.super:setSize(self._text:getSize())
+function M:setSize(size)
+	self._text:setSize(size)
+	local x, y, w, h = self._text:getMetrics()
+	self.super:setSize(w, h)
 	self:markDirty()
 	return self
 end

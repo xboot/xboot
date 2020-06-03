@@ -675,6 +675,60 @@ void xui_draw_line(struct xui_context_t * ctx, struct point_t * p0, struct point
 	}
 }
 
+void xui_draw_polyline(struct xui_context_t * ctx, struct point_t * p, int n, int thickness, struct color_t * c)
+{
+	union xui_cmd_t * cmd;
+	struct region_t r;
+	int len, i;
+	int clip;
+
+	region_init(&r, p[0].x, p[0].y, 1, 1);
+	for(i = 1; i < n; i++)
+		xui_get_bound(&r, p[i].x, p[i].y);
+	if(thickness > 1)
+		region_expand(&r, &r, iceil(thickness / 2));
+	if((clip = xui_check_clip(ctx, &r)))
+	{
+		if(clip < 0)
+			xui_cmd_push_clip(ctx, xui_get_clip(ctx));
+		len = sizeof(struct point_t) * n;
+		cmd = xui_cmd_push(ctx, XUI_CMD_TYPE_POLYLINE, sizeof(struct xui_cmd_polyline_t) + len);
+		cmd->polyline.n = n;
+		cmd->polyline.thickness = thickness;
+		memcpy(&cmd->polyline.c, c, sizeof(struct color_t));
+		memcpy(cmd->polyline.p, p, len);
+		if(clip < 0)
+			xui_cmd_push_clip(ctx, &unclipped_region);
+	}
+}
+
+void xui_draw_curve(struct xui_context_t * ctx, struct point_t * p, int n, int thickness, struct color_t * c)
+{
+	union xui_cmd_t * cmd;
+	struct region_t r;
+	int len, i;
+	int clip;
+
+	region_init(&r, p[0].x, p[0].y, 1, 1);
+	for(i = 1; i < n; i++)
+		xui_get_bound(&r, p[i].x, p[i].y);
+	if(thickness > 1)
+		region_expand(&r, &r, iceil(thickness / 2));
+	if((clip = xui_check_clip(ctx, &r)))
+	{
+		if(clip < 0)
+			xui_cmd_push_clip(ctx, xui_get_clip(ctx));
+		len = sizeof(struct point_t) * n;
+		cmd = xui_cmd_push(ctx, XUI_CMD_TYPE_CURVE, sizeof(struct xui_cmd_curve_t) + len);
+		cmd->curve.n = n;
+		cmd->curve.thickness = thickness;
+		memcpy(&cmd->curve.c, c, sizeof(struct color_t));
+		memcpy(cmd->curve.p, p, len);
+		if(clip < 0)
+			xui_cmd_push_clip(ctx, &unclipped_region);
+	}
+}
+
 void xui_draw_triangle(struct xui_context_t * ctx, struct point_t * p0, struct point_t * p1, struct point_t * p2, int thickness, struct color_t * c)
 {
 	union xui_cmd_t * cmd;
@@ -725,6 +779,108 @@ void xui_draw_rectangle(struct xui_context_t * ctx, int x, int y, int w, int h, 
 		cmd->rectangle.radius = radius;
 		cmd->rectangle.thickness = thickness;
 		memcpy(&cmd->rectangle.c, c, sizeof(struct color_t));
+		if(clip < 0)
+			xui_cmd_push_clip(ctx, &unclipped_region);
+	}
+}
+
+void xui_draw_polygon(struct xui_context_t * ctx, struct point_t * p, int n, int thickness, struct color_t * c)
+{
+	union xui_cmd_t * cmd;
+	struct region_t r;
+	int len, i;
+	int clip;
+
+	region_init(&r, p[0].x, p[0].y, 1, 1);
+	for(i = 1; i < n; i++)
+		xui_get_bound(&r, p[i].x, p[i].y);
+	if(thickness > 1)
+		region_expand(&r, &r, iceil(thickness / 2));
+	if((clip = xui_check_clip(ctx, &r)))
+	{
+		if(clip < 0)
+			xui_cmd_push_clip(ctx, xui_get_clip(ctx));
+		len = sizeof(struct point_t) * n;
+		cmd = xui_cmd_push(ctx, XUI_CMD_TYPE_POLYGON, sizeof(struct xui_cmd_polygon_t) + len);
+		cmd->polygon.n = n;
+		cmd->polygon.thickness = thickness;
+		memcpy(&cmd->polygon.c, c, sizeof(struct color_t));
+		memcpy(cmd->polygon.p, p, len);
+		if(clip < 0)
+			xui_cmd_push_clip(ctx, &unclipped_region);
+	}
+}
+
+void xui_draw_circle(struct xui_context_t * ctx, int x, int y, int radius, int thickness, struct color_t * c)
+{
+	union xui_cmd_t * cmd;
+	struct region_t r;
+	int clip;
+
+	region_init(&r, x - radius, y - radius, radius * 2, radius * 2);
+	if(thickness > 1)
+		region_expand(&r, &r, iceil(thickness / 2));
+	if((clip = xui_check_clip(ctx, &r)))
+	{
+		if(clip < 0)
+			xui_cmd_push_clip(ctx, xui_get_clip(ctx));
+		cmd = xui_cmd_push(ctx, XUI_CMD_TYPE_CIRCLE, sizeof(struct xui_cmd_circle_t));
+		cmd->circle.x = x;
+		cmd->circle.y = y;
+		cmd->circle.radius = radius;
+		cmd->circle.thickness = thickness;
+		memcpy(&cmd->circle.c, c, sizeof(struct color_t));
+		if(clip < 0)
+			xui_cmd_push_clip(ctx, &unclipped_region);
+	}
+}
+
+void xui_draw_ellipse(struct xui_context_t * ctx, int x, int y, int w, int h, int thickness, struct color_t * c)
+{
+	union xui_cmd_t * cmd;
+	struct region_t r;
+	int clip;
+
+	region_init(&r, x - w, y - h, w * 2, h * 2);
+	if(thickness > 1)
+		region_expand(&r, &r, iceil(thickness / 2));
+	if((clip = xui_check_clip(ctx, &r)))
+	{
+		if(clip < 0)
+			xui_cmd_push_clip(ctx, xui_get_clip(ctx));
+		cmd = xui_cmd_push(ctx, XUI_CMD_TYPE_ELLIPSE, sizeof(struct xui_cmd_ellipse_t));
+		cmd->ellipse.x = x;
+		cmd->ellipse.y = y;
+		cmd->ellipse.w = w;
+		cmd->ellipse.h = h;
+		cmd->ellipse.thickness = thickness;
+		memcpy(&cmd->ellipse.c, c, sizeof(struct color_t));
+		if(clip < 0)
+			xui_cmd_push_clip(ctx, &unclipped_region);
+	}
+}
+
+void xui_draw_arc(struct xui_context_t * ctx, int x, int y, int radius, int a1, int a2, int thickness, struct color_t * c)
+{
+	union xui_cmd_t * cmd;
+	struct region_t r;
+	int clip;
+
+	region_init(&r, x - radius, y - radius, radius * 2, radius * 2);
+	if(thickness > 1)
+		region_expand(&r, &r, iceil(thickness / 2));
+	if((clip = xui_check_clip(ctx, &r)))
+	{
+		if(clip < 0)
+			xui_cmd_push_clip(ctx, xui_get_clip(ctx));
+		cmd = xui_cmd_push(ctx, XUI_CMD_TYPE_ARC, sizeof(struct xui_cmd_arc_t));
+		cmd->arc.x = x;
+		cmd->arc.y = y;
+		cmd->arc.radius = radius;
+		cmd->arc.a1 = a1;
+		cmd->arc.a2 = a2;
+		cmd->arc.thickness = thickness;
+		memcpy(&cmd->arc.c, c, sizeof(struct color_t));
 		if(clip < 0)
 			xui_cmd_push_clip(ctx, &unclipped_region);
 	}
@@ -1603,11 +1759,29 @@ static void xui_draw(struct window_t * w, void * o)
 		case XUI_CMD_TYPE_LINE:
 			surface_shape_line(s, clip, &cmd->line.p0, &cmd->line.p1, cmd->line.thickness, &cmd->line.c);
 			break;
+		case XUI_CMD_TYPE_POLYLINE:
+			surface_shape_polyline(s, clip, cmd->polyline.p, cmd->polyline.n, cmd->polyline.thickness, &cmd->polyline.c);
+			break;
+		case XUI_CMD_TYPE_CURVE:
+			surface_shape_curve(s, clip, cmd->curve.p, cmd->curve.n, cmd->curve.thickness, &cmd->curve.c);
+			break;
 		case XUI_CMD_TYPE_TRIANGLE:
 			surface_shape_triangle(s, clip, &cmd->triangle.p0, &cmd->triangle.p1, &cmd->triangle.p2, cmd->triangle.thickness, &cmd->triangle.c);
 			break;
 		case XUI_CMD_TYPE_RECTANGLE:
 			surface_shape_rectangle(s, clip, cmd->rectangle.x, cmd->rectangle.y, cmd->rectangle.w, cmd->rectangle.h, cmd->rectangle.radius, cmd->rectangle.thickness, &cmd->rectangle.c);
+			break;
+		case XUI_CMD_TYPE_POLYGON:
+			surface_shape_polygon(s, clip, cmd->polygon.p, cmd->polygon.n, cmd->polygon.thickness, &cmd->polygon.c);
+			break;
+		case XUI_CMD_TYPE_CIRCLE:
+			surface_shape_circle(s, clip, cmd->circle.x, cmd->circle.y, cmd->circle.radius, cmd->circle.thickness, &cmd->circle.c);
+			break;
+		case XUI_CMD_TYPE_ELLIPSE:
+			surface_shape_ellipse(s, clip, cmd->ellipse.x, cmd->ellipse.y, cmd->ellipse.w, cmd->ellipse.h, cmd->ellipse.thickness, &cmd->ellipse.c);
+			break;
+		case XUI_CMD_TYPE_ARC:
+			surface_shape_arc(s, clip, cmd->arc.x, cmd->arc.y, cmd->arc.radius, cmd->arc.a1, cmd->arc.a2, cmd->arc.thickness, &cmd->arc.c);
 			break;
 		case XUI_CMD_TYPE_TEXT:
 			text_init(&txt, cmd->text.utf8, &cmd->text.c, cmd->text.wrap, ctx->f, cmd->text.family, cmd->text.size);

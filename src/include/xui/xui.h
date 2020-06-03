@@ -110,10 +110,16 @@ enum xui_cmd_type_t {
 	XUI_CMD_TYPE_JUMP		= 0x1,
 	XUI_CMD_TYPE_CLIP		= 0x2,
 	XUI_CMD_TYPE_LINE		= 0x3,
-	XUI_CMD_TYPE_TRIANGLE	= 0x4,
-	XUI_CMD_TYPE_RECTANGLE	= 0x5,
-	XUI_CMD_TYPE_TEXT		= 0x6,
-	XUI_CMD_TYPE_ICON		= 0x7,
+	XUI_CMD_TYPE_POLYLINE	= 0x4,
+	XUI_CMD_TYPE_CURVE		= 0x5,
+	XUI_CMD_TYPE_TRIANGLE	= 0x6,
+	XUI_CMD_TYPE_RECTANGLE	= 0x7,
+	XUI_CMD_TYPE_POLYGON	= 0x8,
+	XUI_CMD_TYPE_CIRCLE		= 0x9,
+	XUI_CMD_TYPE_ELLIPSE	= 0xa,
+	XUI_CMD_TYPE_ARC		= 0xb,
+	XUI_CMD_TYPE_TEXT		= 0xc,
+	XUI_CMD_TYPE_ICON		= 0xd,
 };
 
 struct xui_cmd_base_t {
@@ -145,6 +151,26 @@ struct xui_cmd_line_t {
 	struct color_t c;
 };
 
+struct xui_cmd_polyline_t {
+	enum xui_cmd_type_t type;
+	int len;
+
+	int n;
+	int thickness;
+	struct color_t c;
+	struct point_t p[1];
+};
+
+struct xui_cmd_curve_t {
+	enum xui_cmd_type_t type;
+	int len;
+
+	int n;
+	int thickness;
+	struct color_t c;
+	struct point_t p[1];
+};
+
 struct xui_cmd_triangle_t {
 	enum xui_cmd_type_t type;
 	int len;
@@ -162,6 +188,46 @@ struct xui_cmd_rectangle_t {
 
 	int x, y, w, h;
 	int radius;
+	int thickness;
+	struct color_t c;
+};
+
+struct xui_cmd_polygon_t {
+	enum xui_cmd_type_t type;
+	int len;
+
+	int n;
+	int thickness;
+	struct color_t c;
+	struct point_t p[1];
+};
+
+struct xui_cmd_circle_t {
+	enum xui_cmd_type_t type;
+	int len;
+
+	int x, y;
+	int radius;
+	int thickness;
+	struct color_t c;
+};
+
+struct xui_cmd_ellipse_t {
+	enum xui_cmd_type_t type;
+	int len;
+
+	int x, y, w, h;
+	int thickness;
+	struct color_t c;
+};
+
+struct xui_cmd_arc_t {
+	enum xui_cmd_type_t type;
+	int len;
+
+	int x, y;
+	int radius;
+	int a1, a2;
 	int thickness;
 	struct color_t c;
 };
@@ -192,8 +258,14 @@ union xui_cmd_t {
 	struct xui_cmd_jump_t jump;
 	struct xui_cmd_clip_t clip;
 	struct xui_cmd_line_t line;
+	struct xui_cmd_polyline_t polyline;
+	struct xui_cmd_curve_t curve;
 	struct xui_cmd_triangle_t triangle;
 	struct xui_cmd_rectangle_t rectangle;
+	struct xui_cmd_polygon_t polygon;
+	struct xui_cmd_circle_t circle;
+	struct xui_cmd_ellipse_t ellipse;
+	struct xui_cmd_arc_t arc;
 	struct xui_cmd_text_t text;
 	struct xui_cmd_icon_t icon;
 };
@@ -459,8 +531,14 @@ void xui_layout_set_next(struct xui_context_t * ctx, struct region_t * r, int re
 struct region_t * xui_layout_next(struct xui_context_t * ctx);
 
 void xui_draw_line(struct xui_context_t * ctx, struct point_t * p0, struct point_t * p1, int thickness, struct color_t * c);
+void xui_draw_polyline(struct xui_context_t * ctx, struct point_t * p, int n, int thickness, struct color_t * c);
+void xui_draw_curve(struct xui_context_t * ctx, struct point_t * p, int n, int thickness, struct color_t * c);
 void xui_draw_triangle(struct xui_context_t * ctx, struct point_t * p0, struct point_t * p1, struct point_t * p2, int thickness, struct color_t * c);
 void xui_draw_rectangle(struct xui_context_t * ctx, int x, int y, int w, int h, int radius, int thickness, struct color_t * c);
+void xui_draw_polygon(struct xui_context_t * ctx, struct point_t * p, int n, int thickness, struct color_t * c);
+void xui_draw_circle(struct xui_context_t * ctx, int x, int y, int radius, int thickness, struct color_t * c);
+void xui_draw_ellipse(struct xui_context_t * ctx, int x, int y, int w, int h, int thickness, struct color_t * c);
+void xui_draw_arc(struct xui_context_t * ctx, int x, int y, int radius, int a1, int a2, int thickness, struct color_t * c);
 void xui_draw_text(struct xui_context_t * ctx, const char * family, int size, const char * utf8, int x, int y, int wrap, struct color_t * c);
 void xui_draw_icon(struct xui_context_t * ctx, int id, struct region_t * r, struct color_t * c);
 

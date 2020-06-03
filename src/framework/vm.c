@@ -32,6 +32,7 @@
 #include <framework/core/l-assets.h>
 #include <framework/core/l-class.h>
 #include <framework/core/l-color.h>
+#include <framework/core/l-display-icon.h>
 #include <framework/core/l-display-image.h>
 #include <framework/core/l-display-ninepatch.h>
 #include <framework/core/l-display-object.h>
@@ -43,6 +44,7 @@
 #include <framework/core/l-event.h>
 #include <framework/core/l-event-dispatcher.h>
 #include <framework/core/l-i18n.h>
+#include <framework/core/l-icon.h>
 #include <framework/core/l-image.h>
 #include <framework/core/l-matrix.h>
 #include <framework/core/l-ninepatch.h>
@@ -75,6 +77,7 @@ static void luaopen_glblibs(lua_State * L)
 		{ "Image",					luaopen_image },
 		{ "Ninepatch",				luaopen_ninepatch },
 		{ "Text",					luaopen_text },
+		{ "Icon",					luaopen_icon },
 		{ "Dobject",				luaopen_dobject },
 		{ "Event",					luaopen_event },
 		{ "EventDispatcher",		luaopen_event_dispatcher },
@@ -84,6 +87,7 @@ static void luaopen_glblibs(lua_State * L)
 		{ "DisplayImage",			luaopen_display_image },
 		{ "DisplayNinepatch",		luaopen_display_ninepatch },
 		{ "DisplayText",			luaopen_display_text },
+		{ "DisplayIcon",			luaopen_display_icon },
 		{ "Timer",					luaopen_timer },
 		{ "Stage",					luaopen_stage },
 		{ "Assets",					luaopen_assets },

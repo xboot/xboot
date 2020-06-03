@@ -30,6 +30,7 @@
 #include <framework/core/l-color.h>
 #include <framework/core/l-matrix.h>
 #include <framework/core/l-text.h>
+#include <framework/core/l-icon.h>
 #include <framework/core/l-image.h>
 
 static int l_image_new(lua_State * L)
@@ -197,6 +198,16 @@ static int m_image_text(lua_State * L)
 	struct matrix_t * m = luaL_checkudata(L, 2, MT_MATRIX);
 	struct ltext_t * text = luaL_checkudata(L, 3, MT_TEXT);
 	surface_text(img->s, NULL, m, &text->txt);
+	lua_settop(L, 1);
+	return 1;
+}
+
+static int m_image_icon(lua_State * L)
+{
+	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
+	struct matrix_t * m = luaL_checkudata(L, 2, MT_MATRIX);
+	struct licon_t * icon = luaL_checkudata(L, 3, MT_ICON);
+	surface_icon(img->s, NULL, m, &icon->ico);
 	lua_settop(L, 1);
 	return 1;
 }
@@ -499,6 +510,7 @@ static const luaL_Reg m_image[] = {
 	{"blit",		m_image_blit},
 	{"fill",		m_image_fill},
 	{"text",		m_image_text},
+	{"icon",		m_image_icon},
 
 	{"line",		m_image_line},
 	{"polyline",	m_image_polyline},

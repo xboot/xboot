@@ -1752,7 +1752,7 @@ static void xui_draw(struct window_t * w, void * o)
 	union xui_cmd_t * cmd = NULL;
 	struct matrix_t m;
 	struct text_t txt;
-	char utf8[16];
+	struct icon_t ico;
 
 	while(xui_cmd_next(ctx, &cmd))
 	{
@@ -1797,10 +1797,9 @@ static void xui_draw(struct window_t * w, void * o)
 			surface_text(s, clip, &m, &txt);
 			break;
 		case XUI_CMD_TYPE_ICON:
-			ucs4_to_utf8(&cmd->icon.icon, 1, utf8, sizeof(utf8));
-			text_init(&txt, utf8, &cmd->icon.c, 0, ctx->f, cmd->icon.family, min(cmd->icon.w, cmd->icon.h));
-			matrix_init_translate(&m, cmd->icon.x + (cmd->icon.w - txt.e.w) / 2, cmd->icon.y + (cmd->icon.h - txt.e.h) / 2);
-			surface_text(s, clip, &m, &txt);
+			icon_init(&ico, cmd->icon.icon, &cmd->icon.c, ctx->f, cmd->icon.family, cmd->icon.w, cmd->icon.h);
+			matrix_init_translate(&m, cmd->icon.x, cmd->icon.y);
+			surface_icon(s, clip, &m, &ico);
 			break;
 		default:
 			break;

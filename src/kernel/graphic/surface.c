@@ -48,6 +48,7 @@ static struct render_t render_default = {
 	.blit				= render_default_blit,
 	.fill				= render_default_fill,
 	.text				= render_default_text,
+	.icon				= render_default_icon,
 
 	.shape_line			= render_default_shape_line,
 	.shape_polyline		= render_default_shape_polyline,

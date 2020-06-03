@@ -12,6 +12,7 @@ extern "C" {
 #include <graphic/color.h>
 #include <graphic/matrix.h>
 #include <graphic/text.h>
+#include <graphic/icon.h>
 #include <graphic/svg.h>
 #include <xfs/xfs.h>
 
@@ -52,6 +53,7 @@ struct render_t
 	void (*blit)(struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct surface_t * src, enum render_type_t type);
 	void (*fill)(struct surface_t * s, struct region_t * clip, struct matrix_t * m, int w, int h, struct color_t * c, enum render_type_t type);
 	void (*text)(struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct text_t * txt);
+	void (*icon)(struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct icon_t * ico);
 
 	void (*shape_line)(struct surface_t * s, struct region_t * clip, struct point_t * p0, struct point_t * p1, int thickness, struct color_t * c);
 	void (*shape_polyline)(struct surface_t * s, struct region_t * clip, struct point_t * p, int n, int thickness, struct color_t * c);
@@ -111,6 +113,11 @@ static inline void surface_fill(struct surface_t * s, struct region_t * clip, st
 static inline void surface_text(struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct text_t * txt)
 {
 	s->r->text(s, clip, m, txt);
+}
+
+static inline void surface_icon(struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct icon_t * ico)
+{
+	s->r->icon(s, clip, m, ico);
 }
 
 static inline void surface_shape_line(struct surface_t * s, struct region_t * clip, struct point_t * p0, struct point_t * p1, int thickness, struct color_t * c)
@@ -228,6 +235,7 @@ void render_default_destroy(void * pctx);
 void render_default_blit(struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct surface_t * src, enum render_type_t type);
 void render_default_fill(struct surface_t * s, struct region_t * clip, struct matrix_t * m, int w, int h, struct color_t * c, enum render_type_t type);
 void render_default_text(struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct text_t * txt);
+void render_default_icon(struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct icon_t * ico);
 void render_default_shape_line(struct surface_t * s, struct region_t * clip, struct point_t * p0, struct point_t * p1, int thickness, struct color_t * c);
 void render_default_shape_polyline(struct surface_t * s, struct region_t * clip, struct point_t * p, int n, int thickness, struct color_t * c);
 void render_default_shape_curve(struct surface_t * s, struct region_t * clip, struct point_t * p, int n, int thickness, struct color_t * c);

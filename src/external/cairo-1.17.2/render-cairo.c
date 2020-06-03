@@ -503,6 +503,7 @@ static struct render_t render_cairo = {
 	.blit				= render_cairo_blit,
 	.fill				= render_cairo_fill,
 	.text				= render_default_text,
+	.icon				= render_default_icon,
 
 	.shape_line			= render_cairo_shape_line,
 	.shape_polyline		= render_cairo_shape_polyline,

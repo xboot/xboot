@@ -400,18 +400,6 @@ void xui_pop_clip(struct xui_context_t * ctx)
 	xui_pop(ctx->clip_stack);
 }
 
-int xui_check_clip(struct xui_context_t * ctx, struct region_t * r)
-{
-	struct region_t * cr = xui_get_clip(ctx);
-
-	if((r->w <= 0) || (r->h <= 0) || (r->x > cr->x + cr->w) || (r->x + r->w < cr->x) || (r->y > cr->y + cr->h) || (r->y + r->h < cr->y))
-		return 0;
-	else if((r->x >= cr->x) && (r->x + r->w <= cr->x + cr->w) && (r->y >= cr->y) && (r->y + r->h <= cr->y + cr->h))
-		return 1;
-	else
-		return -1;
-}
-
 static int xui_pool_init(struct xui_context_t * ctx, struct xui_pool_item_t * items, int len, unsigned int id)
 {
 	int i, n = -1, f = ctx->frame;
@@ -640,8 +628,80 @@ static union xui_cmd_t * xui_cmd_push_clip(struct xui_context_t * ctx, struct re
 	return cmd;
 }
 
+static void xui_get_bound(struct region_t * r, int x, int y)
+{
+	int x0 = min(r->x, x);
+	int y0 = min(r->y, y);
+	int x1 = max(r->x + r->w, x);
+	int y1 = max(r->y + r->h, y);
+	region_init(r, x0, y0, x1 - x0, y1 - y0);
+}
+
+static int xui_check_clip(struct xui_context_t * ctx, struct region_t * r)
+{
+	struct region_t * cr = xui_get_clip(ctx);
+
+	if((r->w <= 0) || (r->h <= 0) || (r->x > cr->x + cr->w) || (r->x + r->w < cr->x) || (r->y > cr->y + cr->h) || (r->y + r->h < cr->y))
+		return 0;
+	else if((r->x >= cr->x) && (r->x + r->w <= cr->x + cr->w) && (r->y >= cr->y) && (r->y + r->h <= cr->y + cr->h))
+		return 1;
+	else
+		return -1;
+}
+
+void xui_draw_line(struct xui_context_t * ctx, struct point_t * p0, struct point_t * p1, int thickness, struct color_t * c)
+{
+	union xui_cmd_t * cmd;
+	struct region_t r;
+	int clip;
+
+	region_init(&r, p0->x, p0->y, 1, 1);
+	xui_get_bound(&r, p1->x, p1->y);
+	if(thickness > 1)
+		region_expand(&r, &r, iceil(thickness / 2));
+	if((clip = xui_check_clip(ctx, &r)))
+	{
+		if(clip < 0)
+			xui_cmd_push_clip(ctx, xui_get_clip(ctx));
+		cmd = xui_cmd_push(ctx, XUI_CMD_TYPE_LINE, sizeof(struct xui_cmd_line_t));
+		cmd->line.p0.x = p0->x;
+		cmd->line.p0.y = p0->y;
+		cmd->line.p1.x = p1->x;
+		cmd->line.p1.y = p1->y;
+		cmd->line.thickness = thickness;
+		memcpy(&cmd->line.c, c, sizeof(struct color_t));
+		if(clip < 0)
+			xui_cmd_push_clip(ctx, &unclipped_region);
+	}
+}
+
 void xui_draw_triangle(struct xui_context_t * ctx, struct point_t * p0, struct point_t * p1, struct point_t * p2, int thickness, struct color_t * c)
 {
+	union xui_cmd_t * cmd;
+	struct region_t r;
+	int clip;
+
+	region_init(&r, p0->x, p0->y, 1, 1);
+	xui_get_bound(&r, p1->x, p1->y);
+	xui_get_bound(&r, p2->x, p2->y);
+	if(thickness > 1)
+		region_expand(&r, &r, iceil(thickness / 2));
+	if((clip = xui_check_clip(ctx, &r)))
+	{
+		if(clip < 0)
+			xui_cmd_push_clip(ctx, xui_get_clip(ctx));
+		cmd = xui_cmd_push(ctx, XUI_CMD_TYPE_TRIANGLE, sizeof(struct xui_cmd_triangle_t));
+		cmd->triangle.p0.x = p0->x;
+		cmd->triangle.p0.y = p0->y;
+		cmd->triangle.p1.x = p1->x;
+		cmd->triangle.p1.y = p1->y;
+		cmd->triangle.p2.x = p2->x;
+		cmd->triangle.p2.y = p2->y;
+		cmd->triangle.thickness = thickness;
+		memcpy(&cmd->triangle.c, c, sizeof(struct color_t));
+		if(clip < 0)
+			xui_cmd_push_clip(ctx, &unclipped_region);
+	}
 }
 
 void xui_draw_rectangle(struct xui_context_t * ctx, int x, int y, int w, int h, int radius, int thickness, struct color_t * c)
@@ -1539,6 +1599,9 @@ static void xui_draw(struct window_t * w, void * o)
 		case XUI_CMD_TYPE_CLIP:
 			if(!region_intersect(clip, &ctx->screen, &cmd->clip.r))
 				region_init(clip, 0, 0, 0, 0);
+			break;
+		case XUI_CMD_TYPE_LINE:
+			surface_shape_line(s, clip, &cmd->line.p0, &cmd->line.p1, cmd->line.thickness, &cmd->line.c);
 			break;
 		case XUI_CMD_TYPE_TRIANGLE:
 			surface_shape_triangle(s, clip, &cmd->triangle.p0, &cmd->triangle.p1, &cmd->triangle.p2, cmd->triangle.thickness, &cmd->triangle.c);

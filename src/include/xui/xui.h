@@ -109,10 +109,11 @@ enum xui_cmd_type_t {
 	XUI_CMD_TYPE_BASE		= 0x0,
 	XUI_CMD_TYPE_JUMP		= 0x1,
 	XUI_CMD_TYPE_CLIP		= 0x2,
-	XUI_CMD_TYPE_TRIANGLE	= 0x3,
-	XUI_CMD_TYPE_RECTANGLE	= 0x4,
-	XUI_CMD_TYPE_TEXT		= 0x5,
-	XUI_CMD_TYPE_ICON		= 0x6,
+	XUI_CMD_TYPE_LINE		= 0x3,
+	XUI_CMD_TYPE_TRIANGLE	= 0x4,
+	XUI_CMD_TYPE_RECTANGLE	= 0x5,
+	XUI_CMD_TYPE_TEXT		= 0x6,
+	XUI_CMD_TYPE_ICON		= 0x7,
 };
 
 struct xui_cmd_base_t {
@@ -132,6 +133,16 @@ struct xui_cmd_clip_t {
 	int len;
 
 	struct region_t r;
+};
+
+struct xui_cmd_line_t {
+	enum xui_cmd_type_t type;
+	int len;
+
+	struct point_t p0;
+	struct point_t p1;
+	int thickness;
+	struct color_t c;
 };
 
 struct xui_cmd_triangle_t {
@@ -180,6 +191,7 @@ union xui_cmd_t {
 	struct xui_cmd_base_t base;
 	struct xui_cmd_jump_t jump;
 	struct xui_cmd_clip_t clip;
+	struct xui_cmd_line_t line;
 	struct xui_cmd_triangle_t triangle;
 	struct xui_cmd_rectangle_t rectangle;
 	struct xui_cmd_text_t text;
@@ -435,7 +447,6 @@ void xui_pop_id(struct xui_context_t * ctx);
 struct region_t * xui_get_clip(struct xui_context_t * ctx);
 void xui_push_clip(struct xui_context_t * ctx, struct region_t * r);
 void xui_pop_clip(struct xui_context_t * ctx);
-int xui_check_clip(struct xui_context_t * ctx, struct region_t * r);
 struct xui_container_t * xui_get_container(struct xui_context_t * ctx, const char * name);
 struct xui_container_t * xui_get_current_container(struct xui_context_t * ctx);
 
@@ -447,6 +458,7 @@ void xui_layout_end_column(struct xui_context_t * ctx);
 void xui_layout_set_next(struct xui_context_t * ctx, struct region_t * r, int relative);
 struct region_t * xui_layout_next(struct xui_context_t * ctx);
 
+void xui_draw_line(struct xui_context_t * ctx, struct point_t * p0, struct point_t * p1, int thickness, struct color_t * c);
 void xui_draw_triangle(struct xui_context_t * ctx, struct point_t * p0, struct point_t * p1, struct point_t * p2, int thickness, struct color_t * c);
 void xui_draw_rectangle(struct xui_context_t * ctx, int x, int y, int w, int h, int radius, int thickness, struct color_t * c);
 void xui_draw_text(struct xui_context_t * ctx, const char * family, int size, const char * utf8, int x, int y, int wrap, struct color_t * c);

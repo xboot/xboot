@@ -31,27 +31,35 @@
 static const char display_icon_lua[] = X(
 local M = Class(DisplayObject)
 
-function M:init(code, color, family, width, height)
-	self._icon = Icon.new(code, color, family, width, height)
-	local w, h = self._icon:getSize()
-	self.super:init(w, h, self._icon)
+function M:init(code, color, family, sz)
+	self._icon = Icon.new(code, color, family, sz)
+	local size = self._icon:getSize()
+	self.super:init(size, size, self._icon)
 end
 
 function M:setWidth(width)
+	self._icon:setSize(width)
+	local size = self._icon:getSize()
+	self.super:setSize(size, size)
 	return self
 end
 
 function M:setHeight(height)
+	self._icon:setSize(height)
+	local size = self._icon:getSize()
+	self.super:setSize(size, size)
 	return self
 end
 
 function M:setSize(width, height)
+	self._icon:setSize(width < height and width or height)
+	local size = self._icon:getSize()
+	self.super:setSize(size, size)
 	return self
 end
 
 function M:setCode(code)
 	self._icon:setCode(code)
-	self.super:setSize(self._icon:getSize())
 	self:markDirty()
 	return self
 end
@@ -62,18 +70,8 @@ function M:setColor(color)
 	return self
 end
 
-function M:setIconFamily(family)
-	if family then
-		self._icon:setIconFamily(family)
-		self.super:setSize(self._icon:getSize())
-		self:markDirty()
-	end
-	return self
-end
-
-function M:setIconSize(size)
-	self._icon:setIconSize(size)
-	self.super:setSize(self._icon:getSize())
+function M:setFamily(family)
+	self._icon:setFamily(family)
 	self:markDirty()
 	return self
 end

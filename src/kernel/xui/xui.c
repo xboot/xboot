@@ -1797,7 +1797,7 @@ static void xui_draw(struct window_t * w, void * o)
 			surface_text(s, clip, &m, &txt);
 			break;
 		case XUI_CMD_TYPE_ICON:
-			icon_init(&ico, cmd->icon.icon, &cmd->icon.c, ctx->f, cmd->icon.family, cmd->icon.w, cmd->icon.h);
+			icon_init(&ico, cmd->icon.icon, &cmd->icon.c, ctx->f, cmd->icon.family, min(cmd->icon.w, cmd->icon.h));
 			matrix_init_translate(&m, cmd->icon.x, cmd->icon.y);
 			surface_icon(s, clip, &m, &ico);
 			break;

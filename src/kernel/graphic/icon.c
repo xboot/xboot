@@ -42,14 +42,14 @@ static void icon_extent(struct icon_t * ico)
 {
 	FTC_SBit sbit;
 
-	sbit = (FTC_SBit)font_lookup_bitmap(ico->fctx, ico->family, min(ico->width, ico->height), ico->code);
+	sbit = (FTC_SBit)font_lookup_bitmap(ico->fctx, ico->family, ico->size, ico->code);
 	if(sbit)
 		region_init(&ico->e, sbit->left, sbit->top, sbit->xadvance, sbit->yadvance + sbit->height);
 	else
 		region_init(&ico->e, 0, 0, 0, 0);
 }
 
-void icon_init(struct icon_t * ico, uint32_t code, struct color_t * c, struct font_context_t * fctx, const char * family, int width, int height)
+void icon_init(struct icon_t * ico, uint32_t code, struct color_t * c, struct font_context_t * fctx, const char * family, int size)
 {
 	if(ico)
 	{
@@ -57,8 +57,7 @@ void icon_init(struct icon_t * ico, uint32_t code, struct color_t * c, struct fo
 		ico->c = c;
 		ico->fctx = fctx;
 		ico->family = family;
-		ico->width = (width > 0) ? width : 16;
-		ico->height = (height > 0) ? height : 16;
+		ico->size = (size > 0) ? size : 16;
 		icon_extent(ico);
 	}
 }
@@ -87,12 +86,11 @@ void icon_set_family(struct icon_t * ico, const char * family)
 	}
 }
 
-void icon_set_size(struct icon_t * ico, int width, int height)
+void icon_set_size(struct icon_t * ico, int size)
 {
 	if(ico)
 	{
-		ico->width = (width > 0) ? width : 16;
-		ico->height = (height > 0) ? height : 16;
+		ico->size = (size > 0) ? size : 16;
 		icon_extent(ico);
 	}
 }
@@ -256,17 +254,17 @@ void render_default_icon(struct surface_t * s, struct region_t * clip, struct ma
 
 	if((m->a == 1.0) && (m->b == 0.0) && (m->c == 0.0) && (m->d == 1.0))
 	{
-		sbit = (FTC_SBit)font_lookup_bitmap(ico->fctx, ico->family, min(ico->width, ico->height), ico->code);
+		sbit = (FTC_SBit)font_lookup_bitmap(ico->fctx, ico->family, ico->size, ico->code);
 		if(sbit)
 		{
-			pen.x = (FT_Pos)(m->tx + (ico->width - sbit->width) / 2);
-			pen.y = (FT_Pos)(m->ty + (ico->height - sbit->height) / 2);
+			pen.x = (FT_Pos)(m->tx + (ico->size - sbit->width) / 2);
+			pen.y = (FT_Pos)(m->ty + (ico->size - sbit->height) / 2);
 			draw_font_bitmap(s, clip, ico->c, pen.x, pen.y, sbit);
 		}
 	}
 	else
 	{
-		glyph = (FT_Glyph)font_lookup_glyph(ico->fctx, ico->family, min(ico->width, ico->height), ico->code);
+		glyph = (FT_Glyph)font_lookup_glyph(ico->fctx, ico->family, ico->size, ico->code);
 		if(glyph)
 		{
 			if(FT_Glyph_Copy(glyph, &gly) == 0)
@@ -282,9 +280,11 @@ void render_default_icon(struct surface_t * s, struct region_t * clip, struct ma
 				bitmap = (FT_BitmapGlyph)gly;
 				w = (bitmap->root.advance.x >> 16);
 				h = -(bitmap->root.advance.y >> 16) + bitmap->bitmap.rows;
-				draw_font_glyph(s, clip, ico->c, bitmap->left + (ico->width - w) / 2, s->height - bitmap->top + (ico->height - h) / 2, &bitmap->bitmap);
+				draw_font_glyph(s, clip, ico->c, bitmap->left + (ico->size - w) / 2, s->height - bitmap->top + (ico->size - h) / 2, &bitmap->bitmap);
 				FT_Done_Glyph(gly);
 			}
 		}
 	}
+	struct color_t c = { 255, 0, 0, 128 };
+	surface_fill(s, clip, m, ico->size, ico->size, &c, RENDER_TYPE_GOOD);
 }

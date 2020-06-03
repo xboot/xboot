@@ -15,16 +15,15 @@ struct icon_t {
 	struct color_t * c;
 	struct font_context_t * fctx;
 	const char * family;
-	int width;
-	int height;
+	int size;
 	struct region_t e;
 };
 
-void icon_init(struct icon_t * ico, uint32_t code, struct color_t * c, struct font_context_t * fctx, const char * family, int width, int height);
+void icon_init(struct icon_t * ico, uint32_t code, struct color_t * c, struct font_context_t * fctx, const char * family, int size);
 void icon_set_code(struct icon_t * ico, uint32_t code);
 void icon_set_color(struct icon_t * ico, struct color_t * c);
 void icon_set_family(struct icon_t * ico, const char * family);
-void icon_set_size(struct icon_t * ico, int width, int height);
+void icon_set_size(struct icon_t * ico, int size);
 
 #ifdef __cplusplus
 }

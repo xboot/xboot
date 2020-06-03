@@ -35,12 +35,11 @@ static int l_icon_new(lua_State * L)
 	uint32_t code = luaL_checkinteger(L, 1);
 	struct color_t * c = luaL_checkudata(L, 2, MT_COLOR);
 	const char * family = luaL_optstring(L, 3, NULL);
-	int width = luaL_optinteger(L, 4, 16);
-	int height = luaL_optinteger(L, 5, 16);
+	int size = luaL_optnumber(L, 4, 16);
 	struct licon_t * icon = lua_newuserdata(L, sizeof(struct licon_t));
 	icon->family = strdup(family);
 	memcpy(&icon->c, c, sizeof(struct color_t));
-	icon_init(&icon->ico, code, &icon->c, ((struct vmctx_t *)luahelper_vmctx(L))->f, icon->family, width, height);
+	icon_init(&icon->ico, code, &icon->c, ((struct vmctx_t *)luahelper_vmctx(L))->f, icon->family, size);
 	luaL_setmetatable(L, MT_ICON);
 	return 1;
 }
@@ -56,22 +55,6 @@ static int m_icon_gc(lua_State * L)
 	if(icon->family)
 		free(icon->family);
 	return 0;
-}
-
-static int m_icon_get_origin(lua_State * L)
-{
-	struct licon_t * icon = luaL_checkudata(L, 1, MT_ICON);
-	lua_pushinteger(L, icon->ico.e.x);
-	lua_pushinteger(L, icon->ico.e.y);
-	return 2;
-}
-
-static int m_icon_get_size(lua_State * L)
-{
-	struct licon_t * icon = luaL_checkudata(L, 1, MT_ICON);
-	lua_pushinteger(L, icon->ico.e.w);
-	lua_pushinteger(L, icon->ico.e.h);
-	return 2;
 }
 
 static int m_icon_set_code(lua_State * L)
@@ -108,21 +91,26 @@ static int m_icon_set_family(lua_State * L)
 static int m_icon_set_size(lua_State * L)
 {
 	struct licon_t * icon = luaL_checkudata(L, 1, MT_ICON);
-	int width = luaL_optinteger(L, 2, 16);
-	int height = luaL_optinteger(L, 3, 16);
-	icon_set_size(&icon->ico, width, height);
+	int size = luaL_checknumber(L, 2);
+	icon_set_size(&icon->ico, size);
 	lua_settop(L, 1);
 	return 1;
 }
 
+static int m_icon_get_size(lua_State * L)
+{
+	struct licon_t * icon = luaL_checkudata(L, 1, MT_ICON);
+	lua_pushnumber(L, icon->ico.size);
+	return 1;
+}
+
 static const luaL_Reg m_icon[] = {
-	{"__gc",			m_icon_gc},
-	{"getOrigin",		m_icon_get_origin},
-	{"getSize",			m_icon_get_size},
-	{"setCode",			m_icon_set_code},
-	{"setColor",		m_icon_set_color},
-	{"setIconFamily",	m_icon_set_family},
-	{"setIconSize",		m_icon_set_size},
+	{"__gc",		m_icon_gc},
+	{"setCode",		m_icon_set_code},
+	{"setColor",	m_icon_set_color},
+	{"setFamily",	m_icon_set_family},
+	{"setSize",		m_icon_set_size},
+	{"getSize",		m_icon_get_size},
 	{NULL, NULL}
 };
 

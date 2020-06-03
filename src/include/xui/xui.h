@@ -11,7 +11,6 @@ extern "C" {
 #include <graphic/region.h>
 #include <graphic/color.h>
 #include <graphic/font.h>
-#include <xui/font.h>
 
 #define XUI_COMMAND_LIST_SIZE		(256 * 1024)
 #define XUI_ROOT_LIST_SIZE			(32)

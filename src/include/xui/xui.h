@@ -66,13 +66,6 @@ enum {
 };
 
 enum {
-	XUI_ICON_CLOSE,
-	XUI_ICON_CHECK,
-	XUI_ICON_COLLAPSED,
-	XUI_ICON_EXPANDED,
-};
-
-enum {
 	XUI_RES_ACTIVE			= (0x1 << 0),
 	XUI_RES_SUBMIT			= (0x1 << 1),
 	XUI_RES_CHANGE			= (0x1 << 2),
@@ -248,7 +241,8 @@ struct xui_cmd_icon_t {
 	enum xui_cmd_type_t type;
 	int len;
 
-	int id;
+	const char * family;
+	uint32_t icon;
 	int x, y, w, h;
 	struct color_t c;
 };
@@ -321,6 +315,7 @@ struct xui_style_button_t {
 
 struct xui_style_t {
 	struct color_t background_color;
+	const char * icon_family;
 	const char * font_family;
 	int font_size;
 
@@ -332,6 +327,7 @@ struct xui_style_t {
 	struct color_t colors[XUI_COLOR_MAX];
 
 	struct {
+		uint32_t close_icon;
 		int border_radius;
 		int border_width;
 		int title_height;
@@ -355,6 +351,8 @@ struct xui_style_t {
 	} scroll;
 
 	struct {
+		uint32_t collapsed_icon;
+		uint32_t expanded_icon;
 		int border_radius;
 		int border_width;
 		struct {
@@ -389,6 +387,7 @@ struct xui_style_t {
 	} button;
 
 	struct {
+		uint32_t check_icon;
 		int border_radius;
 		int border_width;
 		struct {
@@ -540,7 +539,7 @@ void xui_draw_circle(struct xui_context_t * ctx, int x, int y, int radius, int t
 void xui_draw_ellipse(struct xui_context_t * ctx, int x, int y, int w, int h, int thickness, struct color_t * c);
 void xui_draw_arc(struct xui_context_t * ctx, int x, int y, int radius, int a1, int a2, int thickness, struct color_t * c);
 void xui_draw_text(struct xui_context_t * ctx, const char * family, int size, const char * utf8, int x, int y, int wrap, struct color_t * c);
-void xui_draw_icon(struct xui_context_t * ctx, int id, struct region_t * r, struct color_t * c);
+void xui_draw_icon(struct xui_context_t * ctx, const char * family, uint32_t icon, int x, int y, int w, int h, struct color_t * c);
 
 void xui_control_update(struct xui_context_t * ctx, unsigned int id, struct region_t * r, int opt);
 void xui_control_draw_text(struct xui_context_t * ctx, const char * utf8, struct region_t * r, struct color_t * c, int opt);

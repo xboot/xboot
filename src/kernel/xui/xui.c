@@ -38,6 +38,7 @@
 static const struct xui_style_t xui_style_default = {
 	.background_color = { 0xff, 0xff, 0xff, 0xff },
 
+	.icon_family = "font-awesome",
 	.font_family = "roboto",
 	.font_size = 16,
 
@@ -55,6 +56,7 @@ static const struct xui_style_t xui_style_default = {
 	},
 
 	.window = {
+		.close_icon = 0xf057,
 		.border_radius = 6,
 		.border_width = 6,
 		.title_height = 24,
@@ -78,6 +80,8 @@ static const struct xui_style_t xui_style_default = {
 	},
 
 	.treenode = {
+		.collapsed_icon = 0xf067,
+		.expanded_icon = 0xf068,
 		.border_radius = 0,
 		.border_width = 1,
 		.normal = {
@@ -240,6 +244,7 @@ static const struct xui_style_t xui_style_default = {
 	},
 
 	.checkbox = {
+		.check_icon = 0xf00c,
 		.border_radius = 6,
 		.border_width = 2,
 		.normal = {
@@ -915,21 +920,24 @@ void xui_draw_text(struct xui_context_t * ctx, const char * family, int size, co
 	}
 }
 
-void xui_draw_icon(struct xui_context_t * ctx, int id, struct region_t * r, struct color_t * c)
+void xui_draw_icon(struct xui_context_t * ctx, const char * family, uint32_t icon, int x, int y, int w, int h, struct color_t * c)
 {
 	union xui_cmd_t * cmd;
+	struct region_t r;
 	int clip;
 
-	if((clip = xui_check_clip(ctx, r)))
+	region_init(&r, x, y, w, h);
+	if((clip = xui_check_clip(ctx, &r)))
 	{
 		if(clip < 0)
 			xui_cmd_push_clip(ctx, xui_get_clip(ctx));
 		cmd = xui_cmd_push(ctx, XUI_CMD_TYPE_ICON, sizeof(struct xui_cmd_icon_t));
-		cmd->icon.id = id;
-		cmd->icon.x = r->x;
-		cmd->icon.y = r->y;
-		cmd->icon.w = r->w;
-		cmd->icon.h = r->h;
+		cmd->icon.family = family;
+		cmd->icon.icon = icon;
+		cmd->icon.x = x;
+		cmd->icon.y = y;
+		cmd->icon.w = w;
+		cmd->icon.h = h;
 		memcpy(&cmd->icon.c, c, sizeof(struct color_t));
 		if(clip < 0)
 			xui_cmd_push_clip(ctx, &unclipped_region);
@@ -1164,7 +1172,7 @@ int xui_begin_window_ex(struct xui_context_t * ctx, const char * title, struct r
 				id = xui_get_id(ctx, "!close", 6);
 				region_init(&tr, hr.x + hr.w - hr.h, hr.y, hr.h, hr.h);
 				hr.w -= tr.w;
-				xui_draw_icon(ctx, XUI_ICON_CLOSE, &tr, &ctx->style.window.text_color);
+				xui_draw_icon(ctx, ctx->style.icon_family, ctx->style.window.close_icon, tr.x, tr.y, tr.w, tr.h, &ctx->style.window.text_color);
 				xui_control_update(ctx, id, &tr, opt);
 				if((ctx->mouse_pressed & XUI_MOUSE_LEFT) && (id == ctx->focus))
 					c->open = 0;
@@ -1268,7 +1276,7 @@ static int header(struct xui_context_t * ctx, const char * label, int istreenode
 	unsigned int id = xui_get_id(ctx, label, strlen(label));
 	int idx = xui_pool_get(ctx, ctx->treenode_pool, XUI_TREENODE_POOL_SIZE, id);
 	int active, expanded;
-	struct region_t region, r;
+	struct region_t r;
 	struct color_t * fc, * bc, * tc;
 	int radius, width;
 
@@ -1326,8 +1334,7 @@ static int header(struct xui_context_t * ctx, const char * label, int istreenode
 		if(fc->a)
 			xui_draw_rectangle(ctx, r.x, r.y, r.w, r.h, radius, 0, fc);
 	}
-	region_init(&region, r.x, r.y, r.h, r.h);
-	xui_draw_icon(ctx, expanded ? XUI_ICON_EXPANDED : XUI_ICON_COLLAPSED, &region, tc);
+	xui_draw_icon(ctx, ctx->style.icon_family, expanded ? ctx->style.treenode.expanded_icon : ctx->style.treenode.collapsed_icon, r.x, r.y, r.h, r.h, tc);
 	r.x += r.h - ctx->style.padding;
 	r.w -= r.h - ctx->style.padding;
 	if(label && tc->a)
@@ -1510,7 +1517,7 @@ int xui_checkbox(struct xui_context_t * ctx, const char * label, int * state)
 	if(fc->a)
 		xui_draw_rectangle(ctx, box.x, box.y, box.h, box.h, radius, 0, fc);
 	if(*state)
-		xui_draw_icon(ctx, XUI_ICON_CHECK, &box, &ctx->style.text.text_color);
+		xui_draw_icon(ctx, ctx->style.icon_family, ctx->style.checkbox.check_icon, box.x, box.y, box.h, box.h, &ctx->style.text.text_color);
 	if(label && tc->a)
 		xui_control_draw_text(ctx, label, &region, tc, XUI_OPT_TEXT_LEFT);
 	return res;
@@ -1745,6 +1752,7 @@ static void xui_draw(struct window_t * w, void * o)
 	union xui_cmd_t * cmd = NULL;
 	struct matrix_t m;
 	struct text_t txt;
+	char utf8[16];
 
 	while(xui_cmd_next(ctx, &cmd))
 	{
@@ -1789,23 +1797,10 @@ static void xui_draw(struct window_t * w, void * o)
 			surface_text(s, clip, &m, &txt);
 			break;
 		case XUI_CMD_TYPE_ICON:
-			switch(cmd->icon.id)
-			{
-			case XUI_ICON_CLOSE:
-				font_draw(s, clip, cmd->icon.x, cmd->icon.y, "X", &cmd->icon.c);
-				break;
-			case XUI_ICON_CHECK:
-				font_draw(s, clip, cmd->icon.x, cmd->icon.y, "?", &cmd->icon.c);
-				break;
-			case XUI_ICON_COLLAPSED:
-				font_draw(s, clip, cmd->icon.x, cmd->icon.y, "+", &cmd->icon.c);
-				break;
-			case XUI_ICON_EXPANDED:
-				font_draw(s, clip, cmd->icon.x, cmd->icon.y, "-", &cmd->icon.c);
-				break;
-			default:
-				break;
-			}
+			ucs4_to_utf8(&cmd->icon.icon, 1, utf8, sizeof(utf8));
+			text_init(&txt, utf8, &cmd->icon.c, 0, ctx->f, cmd->icon.family, min(cmd->icon.w, cmd->icon.h) - 4);
+			matrix_init_translate(&m, cmd->icon.x + (cmd->icon.w - txt.e.w) / 2, cmd->icon.y + (cmd->icon.h - txt.e.h) / 2);
+			surface_text(s, clip, &m, &txt);
 			break;
 		default:
 			break;

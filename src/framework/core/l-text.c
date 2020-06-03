@@ -108,23 +108,23 @@ static int m_text_set_wrap(lua_State * L)
 	return 1;
 }
 
-static int m_text_set_font_family(lua_State * L)
+static int m_text_set_family(lua_State * L)
 {
 	struct ltext_t * text = luaL_checkudata(L, 1, MT_TEXT);
 	const char * family = luaL_checkstring(L, 2);
 	if(text->family)
 		free(text->family);
 	text->family = strdup(family);
-	text_set_font_family(&text->txt, text->family);
+	text_set_family(&text->txt, text->family);
 	lua_settop(L, 1);
 	return 1;
 }
 
-static int m_text_set_font_size(lua_State * L)
+static int m_text_set_size(lua_State * L)
 {
 	struct ltext_t * text = luaL_checkudata(L, 1, MT_TEXT);
 	int size = luaL_optinteger(L, 2, 0);
-	text_set_font_size(&text->txt, size);
+	text_set_size(&text->txt, size);
 	lua_settop(L, 1);
 	return 1;
 }
@@ -136,8 +136,8 @@ static const luaL_Reg m_text[] = {
 	{"setText",			m_text_set_text},
 	{"setColor",		m_text_set_color},
 	{"setWrap",			m_text_set_wrap},
-	{"setFontFamily",	m_text_set_font_family},
-	{"setFontSize",		m_text_set_font_size},
+	{"setFontFamily",	m_text_set_family},
+	{"setFontSize",		m_text_set_size},
 	{NULL, NULL}
 };
 

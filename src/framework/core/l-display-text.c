@@ -70,7 +70,7 @@ function M:setWrap(wrap)
 end
 
 function M:setFontFamily(family)
-	if font then
+	if family then
 		self._text:setFontFamily(family)
 		self.super:setSize(self._text:getSize())
 		self:markDirty()

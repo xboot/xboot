@@ -159,7 +159,7 @@ void text_set_wrap(struct text_t * txt, int wrap)
 	}
 }
 
-void text_set_font_family(struct text_t * txt, const char * family)
+void text_set_family(struct text_t * txt, const char * family)
 {
 	if(txt)
 	{
@@ -168,7 +168,7 @@ void text_set_font_family(struct text_t * txt, const char * family)
 	}
 }
 
-void text_set_font_size(struct text_t * txt, int size)
+void text_set_size(struct text_t * txt, int size)
 {
 	if(txt)
 	{

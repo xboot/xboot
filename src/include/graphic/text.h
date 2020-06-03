@@ -24,8 +24,8 @@ void text_init(struct text_t * txt, const char * utf8, struct color_t * c, int w
 void text_set_text(struct text_t * txt, const char * utf8);
 void text_set_color(struct text_t * txt, struct color_t * c);
 void text_set_wrap(struct text_t * txt, int wrap);
-void text_set_font_family(struct text_t * txt, const char * family);
-void text_set_font_size(struct text_t * txt, int size);
+void text_set_family(struct text_t * txt, const char * family);
+void text_set_size(struct text_t * txt, int size);
 
 #ifdef __cplusplus
 }

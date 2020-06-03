@@ -1798,7 +1798,7 @@ static void xui_draw(struct window_t * w, void * o)
 			break;
 		case XUI_CMD_TYPE_ICON:
 			ucs4_to_utf8(&cmd->icon.icon, 1, utf8, sizeof(utf8));
-			text_init(&txt, utf8, &cmd->icon.c, 0, ctx->f, cmd->icon.family, min(cmd->icon.w, cmd->icon.h) - 4);
+			text_init(&txt, utf8, &cmd->icon.c, 0, ctx->f, cmd->icon.family, min(cmd->icon.w, cmd->icon.h));
 			matrix_init_translate(&m, cmd->icon.x + (cmd->icon.w - txt.e.w) / 2, cmd->icon.y + (cmd->icon.h - txt.e.h) / 2);
 			surface_text(s, clip, &m, &txt);
 			break;

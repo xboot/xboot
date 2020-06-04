@@ -16,7 +16,12 @@ struct icon_t {
 	struct font_context_t * fctx;
 	const char * family;
 	int size;
-	struct region_t e;
+	struct {
+		int ox;
+		int oy;
+		int width;
+		int height;
+	} metrics;
 };
 
 void icon_init(struct icon_t * ico, uint32_t code, struct color_t * c, struct font_context_t * fctx, const char * family, int size);

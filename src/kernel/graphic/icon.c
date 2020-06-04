@@ -44,9 +44,19 @@ static void icon_metrics(struct icon_t * ico)
 
 	sbit = (FTC_SBit)font_lookup_bitmap(ico->fctx, ico->family, ico->size, ico->code);
 	if(sbit)
-		region_init(&ico->e, sbit->left, sbit->top, sbit->xadvance, sbit->yadvance + sbit->height);
+	{
+		ico->metrics.ox = sbit->left;
+		ico->metrics.oy = sbit->top;
+		ico->metrics.width = sbit->xadvance;
+		ico->metrics.height = sbit->yadvance + sbit->height;
+	}
 	else
-		region_init(&ico->e, 0, 0, 0, 0);
+	{
+		ico->metrics.ox = 0;
+		ico->metrics.oy = 0;
+		ico->metrics.width = 0;
+		ico->metrics.height = 0;
+	}
 }
 
 void icon_init(struct icon_t * ico, uint32_t code, struct color_t * c, struct font_context_t * fctx, const char * family, int size)
@@ -273,8 +283,8 @@ void render_default_icon(struct surface_t * s, struct region_t * clip, struct ma
 				matrix.xy = -((FT_Fixed)(m->c * 65536));
 				matrix.yx = -((FT_Fixed)(m->b * 65536));
 				matrix.yy = (FT_Fixed)(m->d * 65536);
-				pen.x = (FT_Pos)((m->tx + m->a * ico->e.x + m->c * ico->e.y) * 64);
-				pen.y = (FT_Pos)((s->height - (m->ty + m->b * ico->e.x + m->d * ico->e.y)) * 64);
+				pen.x = (FT_Pos)((m->tx + m->a * ico->metrics.ox + m->c * ico->metrics.oy) * 64);
+				pen.y = (FT_Pos)((s->height - (m->ty + m->b * ico->metrics.ox + m->d * ico->metrics.oy)) * 64);
 				FT_Glyph_Transform(gly, &matrix, &pen);
 				FT_Glyph_To_Bitmap(&gly, FT_RENDER_MODE_NORMAL, NULL, 1);
 				bitmap = (FT_BitmapGlyph)gly;

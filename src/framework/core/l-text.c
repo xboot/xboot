@@ -116,10 +116,10 @@ static int m_text_set_size(lua_State * L)
 static int m_text_get_metrics(lua_State * L)
 {
 	struct ltext_t * text = luaL_checkudata(L, 1, MT_TEXT);
-	lua_pushnumber(L, text->txt.e.x);
-	lua_pushnumber(L, text->txt.e.y);
-	lua_pushnumber(L, text->txt.e.w);
-	lua_pushnumber(L, text->txt.e.h);
+	lua_pushnumber(L, text->txt.metrics.ox);
+	lua_pushnumber(L, text->txt.metrics.oy);
+	lua_pushnumber(L, text->txt.metrics.width);
+	lua_pushnumber(L, text->txt.metrics.height);
 	return 4;
 }
 

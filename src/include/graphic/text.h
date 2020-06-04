@@ -17,7 +17,12 @@ struct text_t {
 	struct font_context_t * fctx;
 	const char * family;
 	int size;
-	struct region_t e;
+	struct {
+		int ox;
+		int oy;
+		int width;
+		int height;
+	} metrics;
 };
 
 void text_init(struct text_t * txt, const char * utf8, struct color_t * c, int wrap, struct font_context_t * fctx, const char * family, int size);

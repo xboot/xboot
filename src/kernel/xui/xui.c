@@ -900,7 +900,7 @@ void xui_draw_text(struct xui_context_t * ctx, const char * family, int size, co
 	int clip;
 
 	text_init(&txt, utf8, c, wrap, ctx->f, family, size);
-	region_init(&r, x, y, txt.e.w, txt.e.h);
+	region_init(&r, x, y, txt.metrics.width, txt.metrics.height);
 	if((clip = xui_check_clip(ctx, &r)))
 	{
 		if(clip < 0)
@@ -998,8 +998,8 @@ void xui_control_draw_text(struct xui_context_t * ctx, const char * utf8, struct
 	int x, y;
 
 	text_init(&txt, utf8, c, wrap, ctx->f, family, size);
-	tw = txt.e.w;
-	th = txt.e.h;
+	tw = txt.metrics.width;
+	th = txt.metrics.height;
 
 	xui_push_clip(ctx, r);
 	switch(opt & (0x7 << 5))
@@ -1559,8 +1559,8 @@ static int xui_textbox_raw(struct xui_context_t * ctx, char * buf, int bufsz, un
 		int size = ctx->style.font_size;
 		struct text_t txt;
 		text_init(&txt, buf, c, 0, ctx->f, family, size);
-		int textw = txt.e.w;
-		int texth = txt.e.h;
+		int textw = txt.metrics.width;
+		int texth = txt.metrics.height;
 		int ofx = r->w - ctx->style.padding - textw - 1;
 		int textx = r->x + min(ofx, ctx->style.padding);
 		int texty = r->y + (r->h - texth) / 2;
@@ -1654,7 +1654,7 @@ void xui_text(struct xui_context_t * ctx, const char * utf8)
 	xui_layout_begin_column(ctx);
 	wrap = get_layout(ctx)->body.w;
 	text_init(&txt, utf8, c, wrap, ctx->f, family, size);
-	xui_layout_row(ctx, 1, (int[]){ -1 }, txt.e.h);
+	xui_layout_row(ctx, 1, (int[]){ -1 }, txt.metrics.height);
 	r = xui_layout_next(ctx);
 	xui_draw_text(ctx, family, size, utf8, r->x, r->y, wrap, c);
 	xui_layout_end_column(ctx);

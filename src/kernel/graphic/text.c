@@ -44,7 +44,7 @@ static void text_metrics(struct text_t * txt)
 	const char * p;
 	uint32_t code;
 	int col = 0, row = 0;
-	int tw = 0, th = 0;
+	int tw = 0, th = 0, lh = 0;
 	int x = 0, y = 0, w = 0, h = 0;
 
 	for(p = txt->utf8; (utf8_to_ucs4(&code, 1, p, -1, &p) > 0);)
@@ -64,6 +64,7 @@ static void text_metrics(struct text_t * txt)
 		case '\n':
 			tw = 0;
 			th += txt->size;
+			lh = 0;
 			if(tw > w)
 				w = tw;
 			if(th > h)
@@ -90,6 +91,7 @@ static void text_metrics(struct text_t * txt)
 				{
 					tw = 0;
 					th += txt->size;
+					lh = 0;
 					if(tw > w)
 						w = tw;
 					if(th > h)
@@ -99,6 +101,8 @@ static void text_metrics(struct text_t * txt)
 				}
 				tw += sbit->xadvance;
 				th += 0;
+				if(sbit->yadvance + sbit->height > lh)
+					lh = sbit->yadvance + sbit->height;
 				if(tw > w)
 					w = tw;
 				if(th > h)
@@ -118,7 +122,10 @@ static void text_metrics(struct text_t * txt)
 			break;
 		}
 	}
-	region_init(&txt->e, x, y, w, h + txt->size);
+	txt->metrics.ox = x;
+	txt->metrics.oy = y;
+	txt->metrics.width = w;
+	txt->metrics.height = h + lh;
 }
 
 void text_init(struct text_t * txt, const char * utf8, struct color_t * c, int wrap, struct font_context_t * fctx, const char * family, int size)
@@ -338,8 +345,8 @@ void render_default_text(struct surface_t * s, struct region_t * clip, struct ma
 
 	if((m->a == 1.0) && (m->b == 0.0) && (m->c == 0.0) && (m->d == 1.0))
 	{
-		tx = txt->e.x;
-		ty = txt->e.y;
+		tx = txt->metrics.ox;
+		ty = txt->metrics.oy;
 		tw = 0;
 		pen.x = (FT_Pos)(m->tx + tx);
 		pen.y = (FT_Pos)(m->ty + ty);
@@ -349,7 +356,7 @@ void render_default_text(struct surface_t * s, struct region_t * clip, struct ma
 			switch(code)
 			{
 			case '\r':
-				tx = txt->e.x;
+				tx = txt->metrics.ox;
 				ty += 0;
 				tw = 0;
 				pen.x = (FT_Pos)(m->tx + tx);
@@ -357,7 +364,7 @@ void render_default_text(struct surface_t * s, struct region_t * clip, struct ma
 				break;
 
 			case '\n':
-				tx = txt->e.x;
+				tx = txt->metrics.ox;
 				ty += txt->size;
 				tw = 0;
 				pen.x = (FT_Pos)(m->tx + tx);
@@ -378,7 +385,7 @@ void render_default_text(struct surface_t * s, struct region_t * clip, struct ma
 				{
 					if((txt->wrap > 0) && (tw + sbit->xadvance > txt->wrap))
 					{
-						tx = txt->e.x;
+						tx = txt->metrics.ox;
 						ty += txt->size;
 						tw = 0;
 						pen.x = (FT_Pos)(m->tx + tx);
@@ -401,8 +408,8 @@ void render_default_text(struct surface_t * s, struct region_t * clip, struct ma
 		matrix.xy = -((FT_Fixed)(m->c * 65536));
 		matrix.yx = -((FT_Fixed)(m->b * 65536));
 		matrix.yy = (FT_Fixed)(m->d * 65536);
-		tx = txt->e.x;
-		ty = txt->e.y;
+		tx = txt->metrics.ox;
+		ty = txt->metrics.oy;
 		tw = 0;
 		pen.x = (FT_Pos)((m->tx + m->a * tx + m->c * ty) * 64);
 		pen.y = (FT_Pos)((s->height - (m->ty + m->b * tx + m->d * ty)) * 64);
@@ -412,7 +419,7 @@ void render_default_text(struct surface_t * s, struct region_t * clip, struct ma
 			switch(code)
 			{
 			case '\r':
-				tx = txt->e.x;
+				tx = txt->metrics.ox;
 				ty += 0;
 				tw = 0;
 				pen.x = (FT_Pos)((m->tx + m->a * tx + m->c * ty) * 64);
@@ -420,7 +427,7 @@ void render_default_text(struct surface_t * s, struct region_t * clip, struct ma
 				break;
 
 			case '\n':
-				tx = txt->e.x;
+				tx = txt->metrics.ox;
 				ty += txt->size;
 				tw = 0;
 				pen.x = (FT_Pos)((m->tx + m->a * tx + m->c * ty) * 64);
@@ -441,7 +448,7 @@ void render_default_text(struct surface_t * s, struct region_t * clip, struct ma
 				{
 					if((txt->wrap > 0) && (tw + (glyph->advance.x >> 16) > txt->wrap))
 					{
-						tx = txt->e.x;
+						tx = txt->metrics.ox;
 						ty += txt->size;
 						tw = 0;
 						pen.x = (FT_Pos)((m->tx + m->a * tx + m->c * ty) * 64);

@@ -260,15 +260,15 @@ void render_default_icon(struct surface_t * s, struct region_t * clip, struct ma
 	FT_Glyph glyph, gly;
 	FT_Matrix matrix;
 	FT_Vector pen;
-	int w, h;
+	int tx, ty;
 
 	if((m->a == 1.0) && (m->b == 0.0) && (m->c == 0.0) && (m->d == 1.0))
 	{
 		sbit = (FTC_SBit)font_lookup_bitmap(ico->fctx, ico->family, ico->size, ico->code);
 		if(sbit)
 		{
-			pen.x = (FT_Pos)(m->tx + (ico->size - sbit->width) / 2);
-			pen.y = (FT_Pos)(m->ty + (ico->size - sbit->height) / 2);
+			pen.x = (FT_Pos)(m->tx + (ico->size - ico->metrics.width) / 2);
+			pen.y = (FT_Pos)(m->ty + (ico->size - ico->metrics.height) / 2);
 			draw_font_bitmap(s, clip, ico->c, pen.x, pen.y, sbit);
 		}
 	}
@@ -283,18 +283,18 @@ void render_default_icon(struct surface_t * s, struct region_t * clip, struct ma
 				matrix.xy = -((FT_Fixed)(m->c * 65536));
 				matrix.yx = -((FT_Fixed)(m->b * 65536));
 				matrix.yy = (FT_Fixed)(m->d * 65536);
-				pen.x = (FT_Pos)((m->tx + m->a * ico->metrics.ox + m->c * ico->metrics.oy) * 64);
-				pen.y = (FT_Pos)((s->height - (m->ty + m->b * ico->metrics.ox + m->d * ico->metrics.oy)) * 64);
+				tx = ico->metrics.ox + (ico->size - ico->metrics.width) / 2;
+				ty = ico->metrics.oy + (ico->size - ico->metrics.height) / 2;
+				pen.x = (FT_Pos)((m->tx + m->a * tx + m->c * ty) * 64);
+				pen.y = (FT_Pos)((s->height - (m->ty + m->b * tx + m->d * ty)) * 64);
 				FT_Glyph_Transform(gly, &matrix, &pen);
 				FT_Glyph_To_Bitmap(&gly, FT_RENDER_MODE_NORMAL, NULL, 1);
 				bitmap = (FT_BitmapGlyph)gly;
-				w = (bitmap->root.advance.x >> 16);
-				h = -(bitmap->root.advance.y >> 16) + bitmap->bitmap.rows;
-				draw_font_glyph(s, clip, ico->c, bitmap->left + (ico->size - w) / 2, s->height - bitmap->top + (ico->size - h) / 2, &bitmap->bitmap);
+				draw_font_glyph(s, clip, ico->c, bitmap->left, s->height - bitmap->top, &bitmap->bitmap);
+				pen.x += bitmap->root.advance.x >> 10;
+				pen.y += bitmap->root.advance.y >> 10;
 				FT_Done_Glyph(gly);
 			}
 		}
 	}
-	struct color_t c = { 255, 0, 0, 128 };
-	surface_fill(s, clip, m, ico->size, ico->size, &c, RENDER_TYPE_GOOD);
 }

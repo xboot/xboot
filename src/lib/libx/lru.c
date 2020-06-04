@@ -184,10 +184,12 @@ int lru_get(struct lru_t * l, const char * key, int nkey, char * buf, int nbuf)
 
 	if(item)
 	{
-		len = item->nbytes - sizeof(struct lru_item_t) - item->nkey - 1;
-		if(buf && (len > 0) && (nbuf > 0))
-			memcpy(buf, (char *)(item->data) + item->nkey + 1, min(nbuf, len));
-		return len;
+		len = min((int)(item->nbytes - sizeof(struct lru_item_t) - item->nkey - 1), nbuf);
+		if(len > 0)
+		{
+			memcpy(buf, (char *)(item->data) + item->nkey + 1, len);
+			return len;
+		}
 	}
 	return 0;
 }

@@ -267,6 +267,11 @@ static const struct xui_style_t xui_style_default = {
 	.text = {
 		.text_color = { 0xa0, 0xa0, 0xa0, 0xff },
 	},
+
+	.split = {
+		.line_width = 2,
+		.face_color = { 0x98, 0x98, 0x98, 0xff },
+	},
 };
 
 static struct region_t unclipped_region = {

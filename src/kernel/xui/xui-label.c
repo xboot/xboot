@@ -26,6 +26,7 @@
  *
  */
 
+#include <xboot.h>
 #include <xui/label.h>
 
 void xui_label_ex(struct xui_context_t * ctx, const char * utf8, int opt)

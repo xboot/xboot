@@ -73,6 +73,7 @@ extern "C" {
 #include <xfs/xfs.h>
 #include <xui/xui.h>
 #include <xui/label.h>
+#include <xui/split.h>
 #include <xui/text.h>
 
 #ifdef __cplusplus

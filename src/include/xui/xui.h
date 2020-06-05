@@ -411,6 +411,11 @@ struct xui_style_t {
 	struct {
 		struct color_t text_color;
 	} text;
+
+	struct {
+		int line_width;
+		struct color_t face_color;
+	} split;
 };
 
 struct xui_context_t {

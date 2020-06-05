@@ -1,5 +1,5 @@
 /*
- * kernel/xui/xui-text.c
+ * kernel/xui/xui-split.c
  *
  * Copyright(c) 2007-2019 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -27,19 +27,26 @@
  */
 
 #include <xboot.h>
-#include <xui/text.h>
+#include <xui/split.h>
 
-void xui_text(struct xui_context_t * ctx, const char * utf8)
+void xui_split_ex(struct xui_context_t * ctx, int opt)
 {
-	const char * family = ctx->style.font_family;
-	struct color_t * c = &ctx->style.text.text_color;
-	struct region_t * r;
-	struct text_t txt;
-	int size = ctx->style.font_size;
-	int wrap = xui_get_layout(ctx)->body.w;
+	struct region_t * r = xui_layout_next(ctx);
+	struct point_t p0, p1;
 
-	text_init(&txt, utf8, c, wrap, ctx->f, family, size);
-	xui_layout_row(ctx, 1, (int[]){ -1 }, txt.metrics.height);
-	r = xui_layout_next(ctx);
-	xui_draw_text(ctx, family, size, utf8, r->x, r->y, wrap, c);
+	if(opt & XUI_SPLIT_VERTICAL)
+	{
+		p0.x = r->x + r->w / 2;
+		p0.y = r->y;
+		p1.x = p0.x;
+		p1.y = r->y + r->h;
+	}
+	else
+	{
+		p0.x = r->x;
+		p0.y = r->y + r->h / 2;
+		p1.x = r->x + r->w;
+		p1.y = p0.y;
+	}
+	xui_draw_line(ctx, &p0, &p1, ctx->style.split.line_width, &ctx->style.split.face_color);
 }

@@ -51,6 +51,7 @@ static void overview_window(struct xui_context_t * ctx)
 			xui_label(ctx, xui_format(ctx, "%d, %d", win->region.x, win->region.y));
 			xui_label(ctx, "Size :");
 			xui_label(ctx, xui_format(ctx, "%d, %d", win->region.w, win->region.h));
+			xui_layout_row(ctx, 1, (int[]){ -1 }, 0);
 		}
 
 		if(xui_header(ctx, "Text"))
@@ -62,7 +63,6 @@ static void overview_window(struct xui_context_t * ctx)
 			xui_label_ex(ctx, "Label align bottom", XUI_OPT_TEXT_BOTTOM);
 			xui_text(ctx, "This is a long text to show dynamic window changes on multiline text");
 		}
-
 
 		xui_layout_row(ctx, 2, (int[]){ 100, -1 }, 0);
 		if(xui_button(ctx, "button test1"))

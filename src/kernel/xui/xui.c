@@ -450,7 +450,7 @@ static void push_layout(struct xui_context_t * ctx, struct region_t * body, int 
 	xui_layout_row(ctx, 1, &width, 0);
 }
 
-static struct xui_layout_t * get_layout(struct xui_context_t * ctx)
+struct xui_layout_t * xui_get_layout(struct xui_context_t * ctx)
 {
 	return &ctx->layout_stack.items[ctx->layout_stack.idx - 1];
 }
@@ -458,7 +458,7 @@ static struct xui_layout_t * get_layout(struct xui_context_t * ctx)
 static void pop_container(struct xui_context_t * ctx)
 {
 	struct xui_container_t * c = xui_get_current_container(ctx);
-	struct xui_layout_t * layout = get_layout(ctx);
+	struct xui_layout_t * layout = xui_get_layout(ctx);
 	c->content_width = layout->max_width - layout->body.x;
 	c->content_height = layout->max_height - layout->body.y;
 	xui_pop(ctx->container_stack);
@@ -500,17 +500,17 @@ struct xui_container_t * xui_get_current_container(struct xui_context_t * ctx)
 
 void xui_layout_width(struct xui_context_t * ctx, int width)
 {
-	get_layout(ctx)->size_width = width;
+	xui_get_layout(ctx)->size_width = width;
 }
 
 void xui_layout_height(struct xui_context_t * ctx, int height)
 {
-	get_layout(ctx)->size_height = height;
+	xui_get_layout(ctx)->size_height = height;
 }
 
 void xui_layout_row(struct xui_context_t * ctx, int items, const int * widths, int height)
 {
-	struct xui_layout_t * layout = get_layout(ctx);
+	struct xui_layout_t * layout = xui_get_layout(ctx);
 	if(widths)
 	{
 		assert(items <= XUI_MAX_WIDTHS);
@@ -531,9 +531,9 @@ void xui_layout_begin_column(struct xui_context_t * ctx)
 void xui_layout_end_column(struct xui_context_t * ctx)
 {
 	struct xui_layout_t * a, * b;
-	b = get_layout(ctx);
+	b = xui_get_layout(ctx);
 	xui_pop(ctx->layout_stack);
-	a = get_layout(ctx);
+	a = xui_get_layout(ctx);
 	a->position_x = max(a->position_x, b->position_x + b->body.x - a->body.x);
 	a->next_row = max(a->next_row, b->next_row + b->body.y - a->body.y);
 	a->max_width = max(a->max_width, b->max_width);
@@ -542,14 +542,14 @@ void xui_layout_end_column(struct xui_context_t * ctx)
 
 void xui_layout_set_next(struct xui_context_t * ctx, struct region_t * r, int relative)
 {
-	struct xui_layout_t * layout = get_layout(ctx);
+	struct xui_layout_t * layout = xui_get_layout(ctx);
 	region_clone(&layout->next, r);
 	layout->next_type = relative ? 1 : 2;
 }
 
 struct region_t * xui_layout_next(struct xui_context_t * ctx)
 {
-	struct xui_layout_t * layout = get_layout(ctx);
+	struct xui_layout_t * layout = xui_get_layout(ctx);
 	struct xui_style_t * style = &ctx->style;
 	struct region_t r;
 
@@ -993,11 +993,10 @@ void xui_control_draw_text(struct xui_context_t * ctx, const char * utf8, struct
 	struct text_t txt;
 	const char * family = ctx->style.font_family;
 	int size = ctx->style.font_size;
-	int wrap = 0;
 	int tw, th;
 	int x, y;
 
-	text_init(&txt, utf8, c, wrap, ctx->f, family, size);
+	text_init(&txt, utf8, c, 0, ctx->f, family, size);
 	tw = txt.metrics.width;
 	th = txt.metrics.height;
 
@@ -1029,7 +1028,7 @@ void xui_control_draw_text(struct xui_context_t * ctx, const char * utf8, struct
 		y = r->y + (r->h - th) / 2;
 		break;
 	}
-	xui_draw_text(ctx, family, size, utf8, x, y, wrap, c);
+	xui_draw_text(ctx, family, size, utf8, x, y, 0, c);
 	xui_pop_clip(ctx);
 }
 
@@ -1203,7 +1202,7 @@ int xui_begin_window_ex(struct xui_context_t * ctx, const char * title, struct r
 		}
 		if(opt & XUI_WINDOW_AUTOSIZE)
 		{
-			struct region_t * pr = &get_layout(ctx)->body;
+			struct region_t * pr = &xui_get_layout(ctx)->body;
 			c->region.w = c->content_width + (c->region.w - pr->w);
 			c->region.h = c->content_height + (c->region.h - pr->h);
 		}
@@ -1348,7 +1347,7 @@ int xui_begin_treenode_ex(struct xui_context_t * ctx, const char * label, int op
 	int res = header(ctx, label, 1, opt);
 	if(res)
 	{
-		get_layout(ctx)->indent += ctx->style.indent;
+		xui_get_layout(ctx)->indent += ctx->style.indent;
 		xui_push(ctx->id_stack, ctx->last_id);
 	}
 	return res;
@@ -1361,7 +1360,7 @@ int xui_begin_treenode(struct xui_context_t * ctx, const char * label)
 
 void xui_end_treenode(struct xui_context_t * ctx)
 {
-	get_layout(ctx)->indent -= ctx->style.indent;
+	xui_get_layout(ctx)->indent -= ctx->style.indent;
 	xui_pop_id(ctx);
 }
 
@@ -1636,28 +1635,6 @@ int xui_slider_ex(struct xui_context_t * ctx, float * value, float low, float hi
 int xui_slider(struct xui_context_t * ctx, float * value, float low, float high)
 {
 	return xui_slider_ex(ctx, value, low, high, 0, "%.2f", 0);
-}
-
-void xui_label(struct xui_context_t * ctx, const char * utf8)
-{
-	xui_control_draw_text(ctx, utf8, xui_layout_next(ctx), &ctx->style.text.text_color, 0);
-}
-
-void xui_text(struct xui_context_t * ctx, const char * utf8)
-{
-	const char * family = ctx->style.font_family;
-	struct color_t * c = &ctx->style.text.text_color;
-	struct region_t * r;
-	struct text_t txt;
-	int size = ctx->style.font_size;
-	int wrap;
-	xui_layout_begin_column(ctx);
-	wrap = get_layout(ctx)->body.w;
-	text_init(&txt, utf8, c, wrap, ctx->f, family, size);
-	xui_layout_row(ctx, 1, (int[]){ -1 }, txt.metrics.height);
-	r = xui_layout_next(ctx);
-	xui_draw_text(ctx, family, size, utf8, r->x, r->y, wrap, c);
-	xui_layout_end_column(ctx);
 }
 
 int xui_textbox_ex(struct xui_context_t * ctx, char * buf, int bufsz, int opt)

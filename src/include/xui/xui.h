@@ -519,6 +519,7 @@ void xui_pop_id(struct xui_context_t * ctx);
 struct region_t * xui_get_clip(struct xui_context_t * ctx);
 void xui_push_clip(struct xui_context_t * ctx, struct region_t * r);
 void xui_pop_clip(struct xui_context_t * ctx);
+struct xui_layout_t * xui_get_layout(struct xui_context_t * ctx);
 struct xui_container_t * xui_get_container(struct xui_context_t * ctx, const char * name);
 struct xui_container_t * xui_get_current_container(struct xui_context_t * ctx);
 
@@ -566,9 +567,6 @@ int xui_checkbox(struct xui_context_t * ctx, const char * label, int * state);
 
 int xui_slider_ex(struct xui_context_t * ctx, float * value, float low, float high, float step, const char * fmt, int opt);
 int xui_slider(struct xui_context_t * ctx, float * value, float low, float high);
-
-void xui_label(struct xui_context_t * ctx, const char * utf8);
-void xui_text(struct xui_context_t * ctx, const char * utf8);
 
 int xui_textbox_ex(struct xui_context_t * ctx, char * buf, int bufsz, int opt);
 int xui_textbox(struct xui_context_t * ctx, char * buf, int bufsz);

@@ -71,6 +71,9 @@ extern "C" {
 #include <shell/shell.h>
 #include <vfs/vfs.h>
 #include <xfs/xfs.h>
+#include <xui/xui.h>
+#include <xui/label.h>
+#include <xui/text.h>
 
 #ifdef __cplusplus
 }

@@ -165,7 +165,7 @@ struct window_t * window_alloc(const char * fb, const char * input, void * data)
 	struct window_t * w;
 	struct input_t * dev;
 	struct device_t * pos, * n;
-	char *r, * p = (char *)input;
+	char * r, * p = (char *)input;
 	int range[2];
 
 	if(!wm)

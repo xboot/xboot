@@ -8,6 +8,7 @@ extern "C" {
 #include <types.h>
 #include <list.h>
 #include <fifo.h>
+#include <xboot/ktime.h>
 
 enum event_type_t {
 	EVENT_TYPE_KEY_DOWN					= 0x0100,

@@ -5,6 +5,8 @@
 extern "C" {
 #endif
 
+#include <xboot/device.h>
+#include <xboot/driver.h>
 #include <graphic/surface.h>
 
 struct framebuffer_t

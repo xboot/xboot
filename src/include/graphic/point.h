@@ -5,6 +5,8 @@
 extern "C" {
 #endif
 
+#include <string.h>
+
 struct point_t {
 	int x;
 	int y;

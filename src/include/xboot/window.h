@@ -11,6 +11,7 @@ extern "C" {
 #include <fifo.h>
 #include <irqflags.h>
 #include <spinlock.h>
+#include <xboot/event.h>
 #include <framebuffer/framebuffer.h>
 
 struct window_manager_t {

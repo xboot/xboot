@@ -53,16 +53,6 @@ static void overview_window(struct xui_context_t * ctx)
 			xui_label(ctx, xui_format(ctx, "%d, %d", win->region.w, win->region.h));
 		}
 
-		if(xui_header(ctx, "Text"))
-		{
-			xui_label_ex(ctx, "Label align left", XUI_OPT_TEXT_LEFT);
-			xui_label_ex(ctx, "Label align center", XUI_OPT_TEXT_CENTER);
-			xui_label_ex(ctx, "Label align right", XUI_OPT_TEXT_RIGHT);
-			xui_label_ex(ctx, "Label align top", XUI_OPT_TEXT_TOP);
-			xui_label_ex(ctx, "Label align bottom", XUI_OPT_TEXT_BOTTOM);
-			xui_text(ctx, "This is a long text to show dynamic window changes on multiline text");
-		}
-
 		if(xui_begin_treenode(ctx, "Button"))
 		{
 			static const char * btnstr[] = {
@@ -155,6 +145,32 @@ static void overview_window(struct xui_context_t * ctx)
 				xui_end_treenode(ctx);
 			}
 			xui_end_treenode(ctx);
+		}
+
+		if(xui_header(ctx, "Label"))
+		{
+			xui_label_ex(ctx, "Label align left", XUI_OPT_TEXT_LEFT);
+			xui_label_ex(ctx, "Label align center", XUI_OPT_TEXT_CENTER);
+			xui_label_ex(ctx, "Label align right", XUI_OPT_TEXT_RIGHT);
+			xui_label_ex(ctx, "Label align top", XUI_OPT_TEXT_TOP);
+			xui_label_ex(ctx, "Label align bottom", XUI_OPT_TEXT_BOTTOM);
+		}
+
+		if(xui_header(ctx, "Split"))
+		{
+			xui_layout_row(ctx, 1, (int[]){ -1 }, 0);
+			xui_split(ctx);
+			xui_split(ctx);
+			xui_split(ctx);
+			xui_layout_row(ctx, 3, (int[]){ 100, 100, -1 }, 80);
+			xui_split_ex(ctx, XUI_SPLIT_VERTICAL);
+			xui_split_ex(ctx, XUI_SPLIT_VERTICAL);
+			xui_split_ex(ctx, XUI_SPLIT_VERTICAL);
+		}
+
+		if(xui_header(ctx, "Text"))
+		{
+			xui_text(ctx, "This is a long text to show dynamic window changes on multiline text");
 		}
 		xui_end_window(ctx);
 	}

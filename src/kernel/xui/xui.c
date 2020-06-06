@@ -33,7 +33,7 @@
 #define xui_pop(stk)		do { assert((stk).idx > 0); (stk).idx--; } while(0)
 
 /*
- * https://designrevision.com/demo/shards/
+ * https://coderthemes.com/hyper/modern/index.html
  */
 static const struct xui_style_t xui_style_default = {
 	.background_color = { 0xf6, 0xf7, 0xfa, 0xff },
@@ -75,8 +75,8 @@ static const struct xui_style_t xui_style_default = {
 		.scroll_radius = 6,
 		.thumb_size = 8,
 		.thumb_radius = 6,
-		.scroll_color = { 0x5a, 0x61, 0x69, 0xff },
-		.thumb_color = { 0x17, 0xc6, 0x71, 0xff },
+		.scroll_color = { 0xd1, 0xd6, 0xdb, 0xff },
+		.thumb_color = { 0xb1, 0xb6, 0xba, 0xff },
 	},
 
 	.treenode = {

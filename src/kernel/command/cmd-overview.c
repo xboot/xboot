@@ -37,7 +37,7 @@ static void usage(void)
 
 static void overview_window(struct xui_context_t * ctx)
 {
-	if(xui_begin_window(ctx, "Overview Window", &(struct region_t){100, 100, 300, 300}))
+	if(xui_begin_window(ctx, "Overview Window", &(struct region_t){10, 10, 400, 400}))
 	{
 		struct xui_container_t * win = xui_get_current_container(ctx);
 		win->region.w = max(win->region.w, 50);
@@ -51,7 +51,6 @@ static void overview_window(struct xui_context_t * ctx)
 			xui_label(ctx, xui_format(ctx, "%d, %d", win->region.x, win->region.y));
 			xui_label(ctx, "Size :");
 			xui_label(ctx, xui_format(ctx, "%d, %d", win->region.w, win->region.h));
-			xui_layout_row(ctx, 1, (int[]){ -1 }, 0);
 		}
 
 		if(xui_header(ctx, "Text"))
@@ -64,28 +63,96 @@ static void overview_window(struct xui_context_t * ctx)
 			xui_text(ctx, "This is a long text to show dynamic window changes on multiline text");
 		}
 
-		xui_layout_row(ctx, 2, (int[]){ 100, -1 }, 0);
-		if(xui_button(ctx, "button test1"))
+		if(xui_begin_treenode(ctx, "Button"))
 		{
-		}
-		if(xui_button(ctx, "button test2"))
-		{
-		}
-		xui_header(ctx, "header");
-		static float t = 20;
-		xui_number(ctx, &t, 1);
-		if(xui_begin_treenode(ctx, "treenode"))
-		{
-			xui_layout_row(ctx, 3, (int[]){ 100, 100, -1, }, 40);
-			for(int i = 0; i < 8; i++)
+			static const char * btnstr[] = {
+				"Primary",
+				"Secondary",
+				"Success",
+				"Info",
+				"Warning",
+				"Danger",
+				"Light",
+				"Dark",
+			};
+			if(xui_begin_treenode(ctx, "Normal Button"))
 			{
-				xui_button_ex(ctx, xui_format(ctx, "btn %s %d", "normal", i), (i << 8) | XUI_OPT_TEXT_CENTER);
+				xui_layout_row(ctx, 3, (int[]){ 100, 100, -1 }, 40);
+				for(int i = 0; i < 8; i++)
+				{
+					xui_button_ex(ctx, btnstr[i], 0, (i << 8) | XUI_OPT_TEXT_CENTER);
+				}
+				xui_end_treenode(ctx);
 			}
 
-			xui_layout_row(ctx, 3, (int[]){ 100, 100, -1, }, 50);
-			for(int i = 0; i < 8; i++)
+			if(xui_begin_treenode(ctx, "Rounded Button"))
 			{
-				xui_button_ex(ctx, xui_format(ctx, "btn %s %d", "outline", i), (i << 8) | XUI_BUTTON_OUTLINE | XUI_OPT_TEXT_CENTER);
+				xui_layout_row(ctx, 3, (int[]){ 100, 100, -1 }, 40);
+				for(int i = 0; i < 8; i++)
+				{
+					xui_button_ex(ctx, btnstr[i], 0, (i << 8) | XUI_OPT_TEXT_CENTER | XUI_BUTTON_ROUNDED);
+				}
+				xui_end_treenode(ctx);
+			}
+
+			if(xui_begin_treenode(ctx, "Outline Button"))
+			{
+				xui_layout_row(ctx, 3, (int[]){ 100, 100, -1 }, 40);
+				for(int i = 0; i < 8; i++)
+				{
+					xui_button_ex(ctx, btnstr[i], 0, (i << 8) | XUI_OPT_TEXT_CENTER | XUI_BUTTON_OUTLINE);
+				}
+				xui_end_treenode(ctx);
+			}
+
+			if(xui_begin_treenode(ctx, "Rounded Outline Button"))
+			{
+				xui_layout_row(ctx, 3, (int[]){ 100, 100, -1 }, 40);
+				for(int i = 0; i < 8; i++)
+				{
+					xui_button_ex(ctx, btnstr[i], 0, (i << 8) | XUI_OPT_TEXT_CENTER | XUI_BUTTON_ROUNDED | XUI_BUTTON_OUTLINE);
+				}
+				xui_end_treenode(ctx);
+			}
+
+			if(xui_begin_treenode(ctx, "Normal Icon Button"))
+			{
+				xui_layout_row(ctx, 3, (int[]){ 100, 100, -1 }, 40);
+				for(int i = 0; i < 8; i++)
+				{
+					xui_button_ex(ctx, NULL, 0xf010 + i, (i << 8) | XUI_OPT_TEXT_CENTER);
+				}
+				xui_end_treenode(ctx);
+			}
+
+			if(xui_begin_treenode(ctx, "Rounded Icon Button"))
+			{
+				xui_layout_row(ctx, 3, (int[]){ 100, 100, -1 }, 40);
+				for(int i = 0; i < 8; i++)
+				{
+					xui_button_ex(ctx, NULL, 0xf010 + i, (i << 8) | XUI_OPT_TEXT_CENTER | XUI_BUTTON_ROUNDED);
+				}
+				xui_end_treenode(ctx);
+			}
+
+			if(xui_begin_treenode(ctx, "Outline Icon Button"))
+			{
+				xui_layout_row(ctx, 3, (int[]){ 100, 100, -1 }, 40);
+				for(int i = 0; i < 8; i++)
+				{
+					xui_button_ex(ctx, NULL, 0xf010 + i, (i << 8) | XUI_OPT_TEXT_CENTER | XUI_BUTTON_OUTLINE);
+				}
+				xui_end_treenode(ctx);
+			}
+
+			if(xui_begin_treenode(ctx, "Rounded Outline Icon Button"))
+			{
+				xui_layout_row(ctx, 3, (int[]){ 100, 100, -1 }, 40);
+				for(int i = 0; i < 8; i++)
+				{
+					xui_button_ex(ctx, NULL, 0xf010 + i, (i << 8) | XUI_OPT_TEXT_CENTER | XUI_BUTTON_ROUNDED | XUI_BUTTON_OUTLINE);
+				}
+				xui_end_treenode(ctx);
 			}
 			xui_end_treenode(ctx);
 		}

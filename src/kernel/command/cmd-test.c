@@ -286,13 +286,13 @@ void ttt_test(struct xui_context_t * ctx)
 			xui_layout_row(ctx, 3, (int[]){ 100, 100, -1, }, 40);
 			for(int i = 0; i < 8; i++)
 			{
-				xui_button_ex(ctx, xui_format(ctx, "btn %s %d", "normal", i), (i << 8) | XUI_OPT_TEXT_CENTER);
+				xui_button_ex(ctx, xui_format(ctx, "btn %s %d", "normal", i), 0, (i << 8) | XUI_OPT_TEXT_CENTER);
 			}
 
 			xui_layout_row(ctx, 3, (int[]){ 100, 100, -1, }, 50);
 			for(int i = 0; i < 8; i++)
 			{
-				xui_button_ex(ctx, xui_format(ctx, "btn %s %d", "outline", i), (i << 8) | XUI_BUTTON_OUTLINE | XUI_OPT_TEXT_CENTER);
+				xui_button_ex(ctx, xui_format(ctx, "btn %s %d", "outline", i), 0, (i << 8) | XUI_BUTTON_OUTLINE | XUI_OPT_TEXT_CENTER);
 			}
 			xui_end_treenode(ctx);
 		}

@@ -46,19 +46,6 @@ enum {
 };
 
 enum {
-	XUI_BUTTON_PRIMARY		= (0x0 << 8),
-	XUI_BUTTON_SECONDARY	= (0x1 << 8),
-	XUI_BUTTON_SUCCESS		= (0x2 << 8),
-	XUI_BUTTON_INFO			= (0x3 << 8),
-	XUI_BUTTON_WARNING		= (0x4 << 8),
-	XUI_BUTTON_DANGER		= (0x5 << 8),
-	XUI_BUTTON_LIGHT		= (0x6 << 8),
-	XUI_BUTTON_DARK			= (0x7 << 8),
-
-	XUI_BUTTON_OUTLINE		= (0x1 << 11),
-};
-
-enum {
 	XUI_COLOR_BORDER,
 	XUI_COLOR_BASE,
 	XUI_COLOR_BASEHOVER,
@@ -566,8 +553,6 @@ int xui_begin_treenode(struct xui_context_t * ctx, const char * label);
 void xui_end_treenode(struct xui_context_t * ctx);
 int xui_header_ex(struct xui_context_t * ctx, const char * label, int opt);
 int xui_header(struct xui_context_t * ctx, const char * label);
-int xui_button_ex(struct xui_context_t * ctx, const char * label, int opt);
-int xui_button(struct xui_context_t * ctx, const char * label);
 int xui_checkbox(struct xui_context_t * ctx, const char * label, int * state);
 
 int xui_slider_ex(struct xui_context_t * ctx, float * value, float low, float high, float step, const char * fmt, int opt);

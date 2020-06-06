@@ -42,7 +42,7 @@ static void icon_metrics(struct icon_t * ico)
 {
 	FTC_SBit sbit;
 
-	sbit = (FTC_SBit)font_lookup_bitmap(ico->fctx, ico->family, ico->size, ico->code);
+	sbit = (FTC_SBit)font_lookup_bitmap(ico->fctx, ico->family, ico->size * 618 / 1000, ico->code);
 	if(sbit)
 	{
 		ico->metrics.ox = sbit->left;
@@ -264,7 +264,7 @@ void render_default_icon(struct surface_t * s, struct region_t * clip, struct ma
 
 	if((m->a == 1.0) && (m->b == 0.0) && (m->c == 0.0) && (m->d == 1.0))
 	{
-		sbit = (FTC_SBit)font_lookup_bitmap(ico->fctx, ico->family, ico->size, ico->code);
+		sbit = (FTC_SBit)font_lookup_bitmap(ico->fctx, ico->family, ico->size * 618 / 1000, ico->code);
 		if(sbit)
 		{
 			pen.x = (FT_Pos)(m->tx + (ico->size - ico->metrics.width) / 2);
@@ -274,7 +274,7 @@ void render_default_icon(struct surface_t * s, struct region_t * clip, struct ma
 	}
 	else
 	{
-		glyph = (FT_Glyph)font_lookup_glyph(ico->fctx, ico->family, ico->size, ico->code);
+		glyph = (FT_Glyph)font_lookup_glyph(ico->fctx, ico->family, ico->size * 618 / 1000, ico->code);
 		if(glyph)
 		{
 			if(FT_Glyph_Copy(glyph, &gly) == 0)

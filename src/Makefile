@@ -81,83 +81,18 @@ SRCDIRS		+=	arch/$(ARCH)/lib/cpu \
 				arch/$(ARCH)/$(MACH) \
 				arch/$(ARCH)/$(MACH)/command \
 				arch/$(ARCH)/$(MACH)/driver \
-				lib/libc/charset \
-				lib/libc/crypto \
-				lib/libc/ctype \
-				lib/libc/environ \
-				lib/libc/errno \
-				lib/libc/exit \
-				lib/libc/filter \
-				lib/libc/locale \
-				lib/libc/malloc \
-				lib/libc/path \
-				lib/libc/stdio \
-				lib/libc/stdlib \
-				lib/libc/string \
-				lib/libc/time \
+				lib/libc/* \
 				lib/libm/$(ARCH) \
 				lib/libm \
 				lib/libx \
 				init \
-				kernel/command \
-				kernel/core \
-				kernel/graphic \
-				kernel/shell \
-				kernel/time \
-				kernel/vfs \
-				kernel/vfs/cpio \
-				kernel/vfs/ext4 \
-				kernel/vfs/fat \
-				kernel/vfs/ram \
-				kernel/vfs/sys \
-				kernel/vfs/tar \
-				kernel/xfs \
-				driver/adc \
-				driver/audio \
-				driver/battery \
-				driver/block \
+				kernel/* \
+				kernel/vfs/* \
+				driver/* \
 				driver/block/partition \
-				driver/buzzer \
-				driver/camera \
-				driver/clk \
-				driver/clockevent \
-				driver/clocksource \
-				driver/compass \
-				driver/console \
-				driver/dac \
-				driver/dma \
-				driver/framebuffer \
-				driver/gmeter \
-				driver/gpio \
-				driver/gyroscope \
-				driver/hygrometer \
-				driver/i2c \
-				driver/input \
 				driver/input/rc \
-				driver/interrupt \
-				driver/led \
-				driver/light \
-				driver/motor \
-				driver/nvmem \
-				driver/pressure \
-				driver/proximity \
-				driver/pwm \
-				driver/regulator \
-				driver/reset \
-				driver/rng \
-				driver/rtc \
-				driver/sd \
-				driver/servo \
-				driver/spi \
-				driver/stepper \
-				driver/thermometer \
-				driver/uart \
-				driver/vibrator \
-				driver/watchdog \
 				framework \
-				framework/codec \
-				framework/core \
-				framework/hardware
+				framework/*
 
 #
 # Add external library
@@ -184,42 +119,8 @@ INCDIRS		+= 	external/lua-cjson-2.1.0
 SRCDIRS		+=	external/lua-cjson-2.1.0
 
 INCDIRS		+= 	external/freetype-2.10.1/include \
-				external/freetype-2.10.1/src/autofit \
-				external/freetype-2.10.1/src/base \
-				external/freetype-2.10.1/src/cache \
-				external/freetype-2.10.1/src/cff \
-				external/freetype-2.10.1/src/cid \
-				external/freetype-2.10.1/src/gxvalid \
-				external/freetype-2.10.1/src/otvalid \
-				external/freetype-2.10.1/src/pfr \
-				external/freetype-2.10.1/src/psaux \
-				external/freetype-2.10.1/src/pshinter \
-				external/freetype-2.10.1/src/psnames \
-				external/freetype-2.10.1/src/raster \
-				external/freetype-2.10.1/src/sfnt \
-				external/freetype-2.10.1/src/smooth \
-				external/freetype-2.10.1/src/truetype \
-				external/freetype-2.10.1/src/type1 \
-				external/freetype-2.10.1/src/type42 \
-				external/freetype-2.10.1/src/winfonts
-SRCDIRS		+=	external/freetype-2.10.1/src/autofit \
-				external/freetype-2.10.1/src/base \
-				external/freetype-2.10.1/src/cache \
-				external/freetype-2.10.1/src/cff \
-				external/freetype-2.10.1/src/cid \
-				external/freetype-2.10.1/src/gxvalid \
-				external/freetype-2.10.1/src/otvalid \
-				external/freetype-2.10.1/src/pfr \
-				external/freetype-2.10.1/src/psaux \
-				external/freetype-2.10.1/src/pshinter \
-				external/freetype-2.10.1/src/psnames \
-				external/freetype-2.10.1/src/raster \
-				external/freetype-2.10.1/src/sfnt \
-				external/freetype-2.10.1/src/smooth \
-				external/freetype-2.10.1/src/truetype \
-				external/freetype-2.10.1/src/type1 \
-				external/freetype-2.10.1/src/type42 \
-				external/freetype-2.10.1/src/winfonts
+				external/freetype-2.10.1/src/*
+SRCDIRS		+=	external/freetype-2.10.1/src/*
 
 INCDIRS		+= 	external/pixman-0.38.4 \
 				external/pixman-0.38.4/$(ARCH)
@@ -238,13 +139,7 @@ SRCDIRS		+=	external/chipmunk-7.0.3/src
 ifneq ($(strip $(WBOXTEST)),)
 INCDIRS		+=	wboxtest
 SRCDIRS		+=	wboxtest \
-				wboxtest/benchmark \
-				wboxtest/block \
-				wboxtest/crypto \
-				wboxtest/dma \
-				wboxtest/graphic \
-				wboxtest/path \
-				wboxtest/stdio
+				wboxtest/*
 endif
 
 #
@@ -275,9 +170,12 @@ X_LIBS		:=	$(LIBS) -lgcc
 
 X_OUT		:=	../output
 X_NAME		:=	$(patsubst %, $(X_OUT)/%, xboot)
-X_INCDIRS	:=	$(patsubst %, -I %, $(INCDIRS))
-X_LIBDIRS	:=	$(patsubst %, -L %, $(LIBDIRS))
-X_SRCDIRS	:=	$(patsubst %, %, $(SRCDIRS))
+
+EXTEND_DIR	=	$(patsubst %/, %, $(foreach dir, $(1),$(filter %/,$(wildcard $(dir)/)))) 
+
+X_INCDIRS	:=	$(patsubst %, -I %, $(call EXTEND_DIR,$(INCDIRS)))
+X_LIBDIRS	:=	$(patsubst %, -L %, $(call EXTEND_DIR,$(LIBDIRS)))
+X_SRCDIRS	:=	$(patsubst %, %, $(sort $(call EXTEND_DIR,$(SRCDIRS))))
 X_OBJDIRS	:=	$(patsubst %, .obj/%, $(X_SRCDIRS))
 
 X_ARCHS		:=	$(filter arch/%, $(X_SRCDIRS))

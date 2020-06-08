@@ -147,6 +147,15 @@ static void overview_window(struct xui_context_t * ctx)
 			xui_end_treenode(ctx);
 		}
 
+		if(xui_begin_treenode(ctx, "Checkbox"))
+		{
+			static int states[3] = { 1, 0, 1 };
+			xui_checkbox(ctx, "Checkbox 1", &states[0]);
+			xui_checkbox(ctx, "Checkbox 2", &states[1]);
+			xui_checkbox(ctx, "Checkbox 3", &states[2]);
+			xui_end_treenode(ctx);
+		}
+
 		if(xui_header(ctx, "Label"))
 		{
 			xui_label_ex(ctx, "Label align left", XUI_OPT_TEXT_LEFT);

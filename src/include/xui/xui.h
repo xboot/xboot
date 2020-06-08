@@ -301,6 +301,27 @@ struct xui_style_button_t {
 	} focus;
 };
 
+struct xui_style_checkbox_t {
+	struct {
+		struct color_t face_color;
+		struct color_t border_color;
+		struct color_t icon_color;
+		struct color_t text_color;
+	} normal;
+	struct {
+		struct color_t face_color;
+		struct color_t border_color;
+		struct color_t icon_color;
+		struct color_t text_color;
+	} hover;
+	struct {
+		struct color_t face_color;
+		struct color_t border_color;
+		struct color_t icon_color;
+		struct color_t text_color;
+	} focus;
+};
+
 struct xui_style_t {
 	struct color_t background_color;
 	const char * icon_family;
@@ -378,21 +399,8 @@ struct xui_style_t {
 		uint32_t check_icon;
 		int border_radius;
 		int border_width;
-		struct {
-			struct color_t face_color;
-			struct color_t border_color;
-			struct color_t text_color;
-		} normal;
-		struct {
-			struct color_t face_color;
-			struct color_t border_color;
-			struct color_t text_color;
-		} hover;
-		struct {
-			struct color_t face_color;
-			struct color_t border_color;
-			struct color_t text_color;
-		} focus;
+		struct xui_style_checkbox_t checked;
+		struct xui_style_checkbox_t unchecked;
 	} checkbox;
 
 	struct {
@@ -553,7 +561,6 @@ int xui_begin_treenode(struct xui_context_t * ctx, const char * label);
 void xui_end_treenode(struct xui_context_t * ctx);
 int xui_header_ex(struct xui_context_t * ctx, const char * label, int opt);
 int xui_header(struct xui_context_t * ctx, const char * label);
-int xui_checkbox(struct xui_context_t * ctx, const char * label, int * state);
 
 int xui_slider_ex(struct xui_context_t * ctx, float * value, float low, float high, float step, const char * fmt, int opt);
 int xui_slider(struct xui_context_t * ctx, float * value, float low, float high);

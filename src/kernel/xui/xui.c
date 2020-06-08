@@ -245,22 +245,47 @@ static const struct xui_style_t xui_style_default = {
 
 	.checkbox = {
 		.check_icon = 0xf00c,
-		.border_radius = 6,
-		.border_width = 2,
-		.normal = {
-			.face_color = { 0xc4, 0x18, 0x3c, 0xff },
-			.border_color = { 0x00, 0x00, 0x00, 0x00 },
-			.text_color = { 0xa0, 0xa0, 0xa0, 0xff },
+		.border_radius = 4,
+		.border_width = 4,
+		.checked = {
+			.normal = {
+				.face_color = { 0x53, 0x6d, 0xe6, 0xff },
+				.border_color = { 0x00, 0x00, 0x00, 0x00 },
+				.icon_color = { 0xff, 0xff, 0xff, 0xff },
+				.text_color = { 0x6b, 0x74, 0x7c, 0xff },
+			},
+			.hover = {
+				.face_color = { 0x3a, 0x57, 0xe2, 0xff },
+				.border_color = { 0x00, 0x00, 0x00, 0x00 },
+				.icon_color = { 0xff, 0xff, 0xff, 0xff },
+				.text_color = { 0x6b, 0x74, 0x7c, 0xff },
+			},
+			.focus = {
+				.face_color = { 0x26, 0x47, 0xe0, 0xff },
+				.border_color = { 0x53, 0x6d, 0xe6, 0x60 },
+				.icon_color = { 0xff, 0xff, 0xff, 0xff },
+				.text_color = { 0x6b, 0x74, 0x7c, 0xff },
+			},
 		},
-		.hover = {
-			.face_color = { 0xad, 0x15, 0x35, 0xff },
-			.border_color = { 0x00, 0x00, 0x00, 0x00 },
-			.text_color = { 0xa0, 0xa0, 0xa0, 0xff },
-		},
-		.focus = {
-			.face_color = { 0xad, 0x15, 0x35, 0xff },
-			.border_color = { 0xad, 0x15, 0x35, 0x60 },
-			.text_color = { 0xa0, 0xa0, 0xa0, 0xff },
+		.unchecked = {
+			.normal = {
+				.face_color = { 0xde, 0xe2, 0xe6, 0xff },
+				.border_color = { 0x00, 0x00, 0x00, 0x00 },
+				.icon_color = { 0xff, 0xff, 0xff, 0xff },
+				.text_color = { 0x6b, 0x74, 0x7c, 0xff },
+			},
+			.hover = {
+				.face_color = { 0xc5, 0xc8, 0xcc, 0xff },
+				.border_color = { 0x00, 0x00, 0x00, 0x00 },
+				.icon_color = { 0xff, 0xff, 0xff, 0xff },
+				.text_color = { 0x6b, 0x74, 0x7c, 0xff },
+			},
+			.focus = {
+				.face_color = { 0xac, 0xaf, 0xb3, 0xff },
+				.border_color = { 0xde, 0xe2, 0xe6, 0x60 },
+				.icon_color = { 0xff, 0xff, 0xff, 0xff },
+				.text_color = { 0x6b, 0x74, 0x7c, 0xff },
+			},
 		},
 	},
 
@@ -1377,54 +1402,6 @@ int xui_header_ex(struct xui_context_t * ctx, const char * label, int opt)
 int xui_header(struct xui_context_t * ctx, const char * label)
 {
 	return header(ctx, label, 0, 0);
-}
-
-int xui_checkbox(struct xui_context_t * ctx, const char * label, int * state)
-{
-	unsigned int id = xui_get_id(ctx, &state, sizeof(state));
-	int res = 0;
-	struct region_t r, box, region;
-	struct color_t * fc, * bc, * tc;
-	int radius, width;
-
-	region_clone(&r, xui_layout_next(ctx));
-	xui_control_update(ctx, id, &r, 0);
-	if((ctx->mouse_pressed & XUI_MOUSE_LEFT) && (ctx->focus == id))
-	{
-		*state = !*state;
-		res = 1;
-	}
-	radius = ctx->style.checkbox.border_radius;
-	width = ctx->style.checkbox.border_width;
-	if(ctx->focus == id)
-	{
-		fc = &ctx->style.checkbox.focus.face_color;
-		bc = &ctx->style.checkbox.focus.border_color;
-		tc = &ctx->style.checkbox.focus.text_color;
-	}
-	else if(ctx->hover == id)
-	{
-		fc = &ctx->style.checkbox.hover.face_color;
-		bc = &ctx->style.checkbox.hover.border_color;
-		tc = &ctx->style.checkbox.hover.text_color;
-	}
-	else
-	{
-		fc = &ctx->style.checkbox.normal.face_color;
-		bc = &ctx->style.checkbox.normal.border_color;
-		tc = &ctx->style.checkbox.normal.text_color;
-	}
-	region_init(&box, r.x, r.y, r.h, r.h);
-	region_init(&region, r.x + box.w, r.y, r.w - box.w, r.h);
-	if(bc->a && (width > 0))
-		xui_draw_rectangle(ctx, box.x, box.y, box.h, box.h, radius, width, bc);
-	if(fc->a)
-		xui_draw_rectangle(ctx, box.x, box.y, box.h, box.h, radius, 0, fc);
-	if(*state)
-		xui_draw_icon(ctx, ctx->style.icon_family, ctx->style.checkbox.check_icon, box.x, box.y, box.h, box.h, &ctx->style.text.text_color);
-	if(label && tc->a)
-		xui_control_draw_text(ctx, label, &region, tc, XUI_OPT_TEXT_LEFT);
-	return res;
 }
 
 static int xui_textbox_raw(struct xui_context_t * ctx, char * buf, int bufsz, unsigned int id, struct region_t * r, int opt)

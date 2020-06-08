@@ -34,6 +34,12 @@
 	"reset-rk1808@0xff350338": { "reset-base": 224, "reset-count": 16 },
 	"reset-rk1808@0xff35033c": { "reset-base": 240, "reset-count": 16 },
 
+	"gpio-rk1808@0xff4c0000": { "gpio-base":   0, "gpio-count": 24, "interrupt-offset": -1 },
+	"gpio-rk1808@0xff690000": { "gpio-base":  32, "gpio-count": 16, "interrupt-offset": -1 },
+	"gpio-rk1808@0xff6a0000": { "gpio-base":  64, "gpio-count": 26, "interrupt-offset": -1 },
+	"gpio-rk1808@0xff6b0000": { "gpio-base":  96, "gpio-count": 28, "interrupt-offset": -1 },
+	"gpio-rk1808@0xff6c0000": { "gpio-base": 128, "gpio-count": 21, "interrupt-offset": -1 },
+
 	"cs-armv8-timer": {
 		"clock-frequency": -1
 	},

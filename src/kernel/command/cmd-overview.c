@@ -165,6 +165,19 @@ static void overview_window(struct xui_context_t * ctx)
 			xui_label_ex(ctx, "Label align bottom", XUI_OPT_TEXT_BOTTOM);
 		}
 
+		if(xui_begin_treenode(ctx, "Radio"))
+		{
+			static enum option_t {
+				EASY	= 0,
+				NORMAL	= 1,
+				HARD	= 2,
+			} op;
+            op = xui_radio(ctx, "Easy", op == EASY) ? EASY : op;
+            op = xui_radio(ctx, "Normal", op == NORMAL) ? NORMAL : op;
+            op = xui_radio(ctx, "Hard", op == HARD) ? HARD : op;
+			xui_end_treenode(ctx);
+		}
+
 		if(xui_header(ctx, "Split"))
 		{
 			xui_layout_row(ctx, 1, (int[]){ -1 }, 0);

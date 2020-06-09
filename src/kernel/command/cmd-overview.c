@@ -161,13 +161,31 @@ static void overview_window(struct xui_context_t * ctx)
 		if(xui_begin_treenode(ctx, "Radio"))
 		{
 			static enum option_t {
-				EASY	= 0,
-				NORMAL	= 1,
-				HARD	= 2,
-			} op;
-            op = xui_radio(ctx, "Easy", op == EASY) ? EASY : op;
-            op = xui_radio(ctx, "Normal", op == NORMAL) ? NORMAL : op;
-            op = xui_radio(ctx, "Hard", op == HARD) ? HARD : op;
+				PRIMARY,
+				SECONDARY,
+				SUCCESS,
+				INFO,
+				WARNING,
+				DANGER,
+				LIGHT,
+				DARK,
+			} op = PRIMARY;
+			if(xui_radio_ex(ctx, wcstr[0], (op == PRIMARY), XUI_RADIO_PRIMARY))
+				op = PRIMARY;
+			if(xui_radio_ex(ctx, wcstr[1], (op == SECONDARY), XUI_RADIO_SECONDARY))
+				op = SECONDARY;
+			if(xui_radio_ex(ctx, wcstr[2], (op == SUCCESS), XUI_RADIO_SUCCESS))
+				op = SUCCESS;
+			if(xui_radio_ex(ctx, wcstr[3], (op == INFO), XUI_RADIO_INFO))
+				op = INFO;
+			if(xui_radio_ex(ctx, wcstr[4], (op == WARNING), XUI_RADIO_WARNING))
+				op = WARNING;
+			if(xui_radio_ex(ctx, wcstr[5], (op == DANGER), XUI_RADIO_DANGER))
+				op = DANGER;
+			if(xui_radio_ex(ctx, wcstr[6], (op == LIGHT), XUI_RADIO_LIGHT))
+				op = LIGHT;
+			if(xui_radio_ex(ctx, wcstr[7], (op == DARK), XUI_RADIO_DARK))
+				op = DARK;
 			xui_end_treenode(ctx);
 		}
 

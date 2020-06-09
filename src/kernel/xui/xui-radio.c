@@ -44,9 +44,42 @@ int xui_radio_ex(struct xui_context_t * ctx, const char * label, int active, int
 	radius = r->h / 2;
 	width = ctx->style.radio.border_width;
 	if(active)
-		wc = &ctx->style.primary;
+	{
+		switch(opt & (0x7 << 8))
+		{
+		case XUI_RADIO_PRIMARY:
+			wc = &ctx->style.primary;
+			break;
+		case XUI_RADIO_SECONDARY:
+			wc = &ctx->style.secondary;
+			break;
+		case XUI_RADIO_SUCCESS:
+			wc = &ctx->style.success;
+			break;
+		case XUI_RADIO_INFO:
+			wc = &ctx->style.info;
+			break;
+		case XUI_RADIO_WARNING:
+			wc = &ctx->style.warning;
+			break;
+		case XUI_RADIO_DANGER:
+			wc = &ctx->style.danger;
+			break;
+		case XUI_RADIO_LIGHT:
+			wc = &ctx->style.light;
+			break;
+		case XUI_RADIO_DARK:
+			wc = &ctx->style.dark;
+			break;
+		default:
+			wc = &ctx->style.primary;
+			break;
+		}
+	}
 	else
+	{
 		wc = &ctx->style.secondary;
+	}
 	if(ctx->focus == id)
 	{
 		fc = &wc->focus.face;

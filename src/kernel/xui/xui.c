@@ -1814,6 +1814,30 @@ void xui_loop(struct xui_context_t * ctx, void (*func)(struct xui_context_t *))
 				ctx->scroll_delta_x += e.e.mouse_wheel.dx * 30;
 				ctx->scroll_delta_y -= e.e.mouse_wheel.dy * 30;
 				break;
+			case EVENT_TYPE_TOUCH_BEGIN:
+				if(e.e.touch_begin.id == 0)
+				{
+					ctx->mouse_pos_x = e.e.touch_begin.x;
+					ctx->mouse_pos_y = e.e.touch_begin.y;
+					ctx->mouse_down |= MOUSE_BUTTON_LEFT;
+					ctx->mouse_pressed |= MOUSE_BUTTON_LEFT;
+				}
+				break;
+			case EVENT_TYPE_TOUCH_MOVE:
+				if(e.e.touch_move.id == 0)
+				{
+					ctx->mouse_pos_x = e.e.touch_move.x;
+					ctx->mouse_pos_y = e.e.touch_move.y;
+				}
+				break;
+			case EVENT_TYPE_TOUCH_END:
+				if(e.e.touch_end.id == 0)
+				{
+					ctx->mouse_pos_x = e.e.touch_end.x;
+					ctx->mouse_pos_y = e.e.touch_end.y;
+					ctx->mouse_down &= ~MOUSE_BUTTON_LEFT;
+				}
+				break;
 			default:
 				break;
 			}

@@ -114,6 +114,7 @@ static void mouse_pl050_interrupt(void * data)
 			delta = pdat->packet[3] & 0xf;
 			if(delta == 0xf)
 				delta = -1;
+			delta = -delta;
 
 			if(relx != 0)
 			{

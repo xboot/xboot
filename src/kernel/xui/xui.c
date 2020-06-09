@@ -910,8 +910,8 @@ void xui_draw_text(struct xui_context_t * ctx, const char * family, int size, co
 	{
 		if(clip < 0)
 			xui_cmd_push_clip(ctx, xui_get_clip(ctx));
-		len = strlen(utf8);
-		cmd = xui_cmd_push(ctx, XUI_CMD_TYPE_TEXT, sizeof(struct xui_cmd_text_t) + len);
+		len = strlen(utf8) + 1;
+		cmd = xui_cmd_push(ctx, XUI_CMD_TYPE_TEXT, sizeof(struct xui_cmd_text_t) + ((len + 0x3) & ~0x3));
 		cmd->text.family = family;
 		cmd->text.size = size;
 		cmd->text.x = x;

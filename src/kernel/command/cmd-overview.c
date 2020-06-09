@@ -51,10 +51,10 @@ static void overview_window(struct xui_context_t * ctx)
 	if(xui_begin_window(ctx, "Overview Window", &(struct region_t){10, 10, 400, 400}))
 	{
 		struct xui_container_t * win = xui_get_current_container(ctx);
-		win->region.w = max(win->region.w, 50);
-		win->region.h = max(win->region.h, 50);
+		win->region.w = max(win->region.w, 48);
+		win->region.h = max(win->region.h, 48);
 
-		if(xui_header(ctx, "Window Info"))
+		if(xui_begin_treenode(ctx, "Window Info"))
 		{
 			struct xui_container_t * win = xui_get_current_container(ctx);
 			xui_layout_row(ctx, 2, (int[]){ 100, -1 }, 0);
@@ -62,6 +62,7 @@ static void overview_window(struct xui_context_t * ctx)
 			xui_label(ctx, xui_format(ctx, "%d, %d", win->region.x, win->region.y));
 			xui_label(ctx, "Size :");
 			xui_label(ctx, xui_format(ctx, "%d, %d", win->region.w, win->region.h));
+			xui_end_treenode(ctx);
 		}
 
 		if(xui_begin_treenode(ctx, "Button"))
@@ -150,7 +151,7 @@ static void overview_window(struct xui_context_t * ctx)
 
 		if(xui_begin_treenode(ctx, "Checkbox"))
 		{
-			static int states[8] = { 1, 1, 0, 0, 1, 0, 0, 1 };
+			static int states[8] = { 1, 1, 1, 1, 1, 1, 1, 1 };
 			for(int i = 0; i < 8; i++)
 			{
 				xui_checkbox_ex(ctx, wcstr[i], &states[i], (i << 8));
@@ -191,7 +192,7 @@ static void overview_window(struct xui_context_t * ctx)
 
 		if(xui_begin_treenode(ctx, "Toggle"))
 		{
-			static int states[8] = { 1, 1, 0, 0, 1, 0, 0, 1 };
+			static int states[8] = { 1, 1, 1, 1, 1, 1, 1, 1 };
 			for(int i = 0; i < 8; i++)
 			{
 				xui_toggle_ex(ctx, &states[i], (i << 8));

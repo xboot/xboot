@@ -37,6 +37,17 @@ static void usage(void)
 
 static void overview_window(struct xui_context_t * ctx)
 {
+	static const char * wcstr[] = {
+		"Primary",
+		"Secondary",
+		"Success",
+		"Info",
+		"Warning",
+		"Danger",
+		"Light",
+		"Dark",
+	};
+
 	if(xui_begin_window(ctx, "Overview Window", &(struct region_t){10, 10, 400, 400}))
 	{
 		struct xui_container_t * win = xui_get_current_container(ctx);
@@ -55,22 +66,12 @@ static void overview_window(struct xui_context_t * ctx)
 
 		if(xui_begin_treenode(ctx, "Button"))
 		{
-			static const char * btnstr[] = {
-				"Primary",
-				"Secondary",
-				"Success",
-				"Info",
-				"Warning",
-				"Danger",
-				"Light",
-				"Dark",
-			};
 			if(xui_begin_treenode(ctx, "Normal Button"))
 			{
 				xui_layout_row(ctx, 3, (int[]){ 100, 100, -1 }, 40);
 				for(int i = 0; i < 8; i++)
 				{
-					xui_button_ex(ctx, btnstr[i], 0, (i << 8) | XUI_OPT_TEXT_CENTER);
+					xui_button_ex(ctx, wcstr[i], 0, (i << 8) | XUI_OPT_TEXT_CENTER);
 				}
 				xui_end_treenode(ctx);
 			}
@@ -80,7 +81,7 @@ static void overview_window(struct xui_context_t * ctx)
 				xui_layout_row(ctx, 3, (int[]){ 100, 100, -1 }, 40);
 				for(int i = 0; i < 8; i++)
 				{
-					xui_button_ex(ctx, btnstr[i], 0, (i << 8) | XUI_OPT_TEXT_CENTER | XUI_BUTTON_ROUNDED);
+					xui_button_ex(ctx, wcstr[i], 0, (i << 8) | XUI_OPT_TEXT_CENTER | XUI_BUTTON_ROUNDED);
 				}
 				xui_end_treenode(ctx);
 			}
@@ -90,7 +91,7 @@ static void overview_window(struct xui_context_t * ctx)
 				xui_layout_row(ctx, 3, (int[]){ 100, 100, -1 }, 40);
 				for(int i = 0; i < 8; i++)
 				{
-					xui_button_ex(ctx, btnstr[i], 0, (i << 8) | XUI_OPT_TEXT_CENTER | XUI_BUTTON_OUTLINE);
+					xui_button_ex(ctx, wcstr[i], 0, (i << 8) | XUI_OPT_TEXT_CENTER | XUI_BUTTON_OUTLINE);
 				}
 				xui_end_treenode(ctx);
 			}
@@ -100,7 +101,7 @@ static void overview_window(struct xui_context_t * ctx)
 				xui_layout_row(ctx, 3, (int[]){ 100, 100, -1 }, 40);
 				for(int i = 0; i < 8; i++)
 				{
-					xui_button_ex(ctx, btnstr[i], 0, (i << 8) | XUI_OPT_TEXT_CENTER | XUI_BUTTON_ROUNDED | XUI_BUTTON_OUTLINE);
+					xui_button_ex(ctx, wcstr[i], 0, (i << 8) | XUI_OPT_TEXT_CENTER | XUI_BUTTON_ROUNDED | XUI_BUTTON_OUTLINE);
 				}
 				xui_end_treenode(ctx);
 			}
@@ -149,20 +150,12 @@ static void overview_window(struct xui_context_t * ctx)
 
 		if(xui_begin_treenode(ctx, "Checkbox"))
 		{
-			static int states[3] = { 1, 0, 1 };
-			xui_checkbox(ctx, "Checkbox 1", &states[0]);
-			xui_checkbox(ctx, "Checkbox 2", &states[1]);
-			xui_checkbox(ctx, "Checkbox 3", &states[2]);
+			static int states[8] = { 1, 1, 0, 0, 1, 0, 0, 1 };
+			for(int i = 0; i < 8; i++)
+			{
+				xui_checkbox_ex(ctx, wcstr[i], &states[i], (i << 8));
+			}
 			xui_end_treenode(ctx);
-		}
-
-		if(xui_header(ctx, "Label"))
-		{
-			xui_label_ex(ctx, "Label align left", XUI_OPT_TEXT_LEFT);
-			xui_label_ex(ctx, "Label align center", XUI_OPT_TEXT_CENTER);
-			xui_label_ex(ctx, "Label align right", XUI_OPT_TEXT_RIGHT);
-			xui_label_ex(ctx, "Label align top", XUI_OPT_TEXT_TOP);
-			xui_label_ex(ctx, "Label align bottom", XUI_OPT_TEXT_BOTTOM);
 		}
 
 		if(xui_begin_treenode(ctx, "Radio"))
@@ -176,6 +169,15 @@ static void overview_window(struct xui_context_t * ctx)
             op = xui_radio(ctx, "Normal", op == NORMAL) ? NORMAL : op;
             op = xui_radio(ctx, "Hard", op == HARD) ? HARD : op;
 			xui_end_treenode(ctx);
+		}
+
+		if(xui_header(ctx, "Label"))
+		{
+			xui_label_ex(ctx, "Label align left", XUI_OPT_TEXT_LEFT);
+			xui_label_ex(ctx, "Label align center", XUI_OPT_TEXT_CENTER);
+			xui_label_ex(ctx, "Label align right", XUI_OPT_TEXT_RIGHT);
+			xui_label_ex(ctx, "Label align top", XUI_OPT_TEXT_TOP);
+			xui_label_ex(ctx, "Label align bottom", XUI_OPT_TEXT_BOTTOM);
 		}
 
 		if(xui_header(ctx, "Split"))

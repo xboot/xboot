@@ -8,8 +8,8 @@ extern "C" {
 #include <xui/xui.h>
 
 enum {
-	XUI_SPLIT_HORIZONTAL	= (0x0 << 8),
-	XUI_SPLIT_VERTICAL		= (0x1 << 8),
+	XUI_SPLIT_HORIZONTAL	= (0x0 << 11),
+	XUI_SPLIT_VERTICAL		= (0x1 << 11),
 };
 
 void xui_split_ex(struct xui_context_t * ctx, int opt);

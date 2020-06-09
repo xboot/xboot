@@ -47,9 +47,42 @@ int xui_checkbox_ex(struct xui_context_t * ctx, const char * label, int * state,
 	radius = ctx->style.checkbox.border_radius;
 	width = ctx->style.checkbox.border_width;
 	if(*state)
-		wc = &ctx->style.primary;
+	{
+		switch(opt & (0x7 << 8))
+		{
+		case XUI_CHECKBOX_PRIMARY:
+			wc = &ctx->style.primary;
+			break;
+		case XUI_CHECKBOX_SECONDARY:
+			wc = &ctx->style.secondary;
+			break;
+		case XUI_CHECKBOX_SUCCESS:
+			wc = &ctx->style.success;
+			break;
+		case XUI_CHECKBOX_INFO:
+			wc = &ctx->style.info;
+			break;
+		case XUI_CHECKBOX_WARNING:
+			wc = &ctx->style.warning;
+			break;
+		case XUI_CHECKBOX_DANGER:
+			wc = &ctx->style.danger;
+			break;
+		case XUI_CHECKBOX_LIGHT:
+			wc = &ctx->style.light;
+			break;
+		case XUI_CHECKBOX_DARK:
+			wc = &ctx->style.dark;
+			break;
+		default:
+			wc = &ctx->style.primary;
+			break;
+		}
+	}
 	else
+	{
 		wc = &ctx->style.secondary;
+	}
 	if(ctx->focus == id)
 	{
 		fc = &wc->focus.face;

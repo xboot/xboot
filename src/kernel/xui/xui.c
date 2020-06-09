@@ -436,13 +436,12 @@ static void xui_pool_update(struct xui_context_t * ctx, struct xui_pool_item_t *
 static void push_layout(struct xui_context_t * ctx, struct region_t * body, int scrollx, int scrolly)
 {
 	struct xui_layout_t layout;
-	int width = 0;
 	memset(&layout, 0, sizeof(layout));
 	region_init(&layout.body, body->x - scrollx, body->y - scrolly, body->w, body->h);
 	layout.max_width = INT_MIN;
 	layout.max_height = INT_MIN;
 	xui_push(ctx->layout_stack, layout);
-	xui_layout_row(ctx, 1, &width, 0);
+	xui_layout_row(ctx, 1, (int[]){ 0 }, 0);
 }
 
 struct xui_layout_t * xui_get_layout(struct xui_context_t * ctx)

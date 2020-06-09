@@ -31,56 +31,53 @@
 
 int xui_checkbox_ex(struct xui_context_t * ctx, const char * label, int * state, int opt)
 {
-	unsigned int id = xui_get_id(ctx, &state, sizeof(state));
+	unsigned int id = xui_get_id(ctx, &state, sizeof(int *));
 	struct region_t region, * r = xui_layout_next(ctx);
-	struct xui_style_checkbox_t * sc;
-	struct color_t * fc, * bc, * ic, * tc;
+	struct xui_widget_color_t * wc;
+	struct color_t * fc, * bc, * tc;
 	int radius, width;
-	int res = 0;
+	int click = 0;
 
 	xui_control_update(ctx, id, r, opt);
 	if((ctx->mouse_pressed & XUI_MOUSE_LEFT) && (ctx->focus == id))
 	{
 		*state = !*state;
-		res = 1;
+		click = 1;
 	}
 	radius = ctx->style.checkbox.border_radius;
 	width = ctx->style.checkbox.border_width;
 	if(*state)
-		sc = &ctx->style.checkbox.checked;
+		wc = &ctx->style.primary;
 	else
-		sc = &ctx->style.checkbox.unchecked;
+		wc = &ctx->style.secondary;
 	if(ctx->focus == id)
 	{
-		fc = &sc->focus.face_color;
-		bc = &sc->focus.border_color;
-		ic = &sc->focus.icon_color;
-		tc = &sc->focus.text_color;
+		fc = &wc->focus.face;
+		bc = &wc->focus.border;
+		tc = &wc->focus.text;
 	}
 	else if(ctx->hover == id)
 	{
-		fc = &sc->hover.face_color;
-		bc = &sc->hover.border_color;
-		ic = &sc->hover.icon_color;
-		tc = &sc->hover.text_color;
+		fc = &wc->hover.face;
+		bc = &wc->hover.border;
+		tc = &wc->hover.text;
 	}
 	else
 	{
-		fc = &sc->normal.face_color;
-		bc = &sc->normal.border_color;
-		ic = &sc->normal.icon_color;
-		tc = &sc->normal.text_color;
+		fc = &wc->normal.face;
+		bc = &wc->normal.border;
+		tc = &wc->normal.text;
 	}
 	if(bc->a && (width > 0))
 		xui_draw_rectangle(ctx, r->x, r->y, r->h, r->h, radius, width, bc);
 	if(fc->a)
 		xui_draw_rectangle(ctx, r->x, r->y, r->h, r->h, radius, *state ? 0 : 2, fc);
 	if(*state)
-		xui_draw_icon(ctx, ctx->style.font.icon_family, ctx->style.checkbox.check_icon, r->x, r->y, r->h, r->h, ic);
+		xui_draw_icon(ctx, ctx->style.font.icon_family, ctx->style.checkbox.check_icon, r->x, r->y, r->h, r->h, tc);
 	if(label && tc->a)
 	{
 		region_init(&region, r->x + r->h, r->y, r->w - r->h, r->h);
-		xui_control_draw_text(ctx, label, &region, tc, opt);
+		xui_control_draw_text(ctx, label, &region, &ctx->style.font.color, opt);
 	}
-	return res;
+	return click;
 }

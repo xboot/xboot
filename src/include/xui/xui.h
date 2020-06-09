@@ -301,27 +301,6 @@ struct xui_widget_color_t {
 	} focus;
 };
 
-struct xui_style_checkbox_t {
-	struct {
-		struct color_t face_color;
-		struct color_t border_color;
-		struct color_t icon_color;
-		struct color_t text_color;
-	} normal;
-	struct {
-		struct color_t face_color;
-		struct color_t border_color;
-		struct color_t icon_color;
-		struct color_t text_color;
-	} hover;
-	struct {
-		struct color_t face_color;
-		struct color_t border_color;
-		struct color_t icon_color;
-		struct color_t text_color;
-	} focus;
-};
-
 struct xui_style_radio_t {
 	struct {
 		struct color_t face_color;
@@ -427,8 +406,6 @@ struct xui_style_t {
 		uint32_t check_icon;
 		int border_radius;
 		int border_width;
-		struct xui_style_checkbox_t checked;
-		struct xui_style_checkbox_t unchecked;
 	} checkbox;
 
 	struct {

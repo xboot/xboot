@@ -75,6 +75,7 @@ extern "C" {
 #include <xui/button.h>
 #include <xui/checkbox.h>
 #include <xui/label.h>
+#include <xui/progress.h>
 #include <xui/radio.h>
 #include <xui/split.h>
 #include <xui/text.h>

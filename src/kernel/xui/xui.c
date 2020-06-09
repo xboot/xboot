@@ -262,6 +262,10 @@ static const struct xui_style_t xui_style_default = {
 		.border_width = 4,
 	},
 
+	.progress = {
+		.border_radius = 4,
+	},
+
 	.split = {
 		.line_width = 2,
 		.face_color = { 0xee, 0xf2, 0xf7, 0xff },

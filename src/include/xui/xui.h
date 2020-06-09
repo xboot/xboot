@@ -396,6 +396,10 @@ struct xui_style_t {
 	} toggle;
 
 	struct {
+		int border_radius;
+	} progress;
+
+	struct {
 		int line_width;
 		struct color_t face_color;
 	} split;

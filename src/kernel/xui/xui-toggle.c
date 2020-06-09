@@ -108,7 +108,7 @@ int xui_toggle_ex(struct xui_context_t * ctx, int * state, int opt)
 		if(fc->a)
 			xui_draw_rectangle(ctx, r->x, r->y, radius * 4, radius * 2, radius, 0, fc);
 		if(tc->a)
-			xui_draw_circle(ctx, r->x + radius * 3, r->y + radius, radius * 8 / 10, 0, tc);
+			xui_draw_circle(ctx, r->x + radius * 3, r->y + radius, radius * 4 / 5, 0, tc);
 	}
 	else
 	{
@@ -117,7 +117,7 @@ int xui_toggle_ex(struct xui_context_t * ctx, int * state, int opt)
 		if(fc->a)
 		{
 			xui_draw_rectangle(ctx, r->x, r->y, radius * 4, radius * 2, radius, 2, fc);
-			xui_draw_circle(ctx, r->x + radius, r->y + radius, radius * 8 / 10, 0, fc);
+			xui_draw_circle(ctx, r->x + radius, r->y + radius, radius * 4 / 5, 0, fc);
 		}
 	}
 	return click;

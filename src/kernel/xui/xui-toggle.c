@@ -31,51 +31,94 @@
 
 int xui_toggle_ex(struct xui_context_t * ctx, int * state, int opt)
 {
-	unsigned int id = xui_get_id(ctx, &state, sizeof(state));
-	struct region_t region, * r = xui_layout_next(ctx);
-	struct xui_style_toggle_t * sc;
-	struct color_t * fc, * bc, * ic, * tc;
+	unsigned int id = xui_get_id(ctx, &state, sizeof(int *));
+	struct region_t * r = xui_layout_next(ctx);
+	struct xui_widget_color_t * wc;
+	struct color_t * fc, * bc, * tc;
 	int radius, width;
-	int res = 0;
+	int click = 0;
 
-/*	xui_control_update(ctx, id, r, opt);
+	xui_control_update(ctx, id, r, opt);
 	if((ctx->mouse_pressed & XUI_MOUSE_LEFT) && (ctx->focus == id))
 	{
 		*state = !*state;
-		res = 1;
+		click = 1;
 	}
-	radius = ctx->style.toggle.border_radius;
+	radius = min(r->w, r->h) / 2;
 	width = ctx->style.toggle.border_width;
 	if(*state)
-		sc = &ctx->style.toggle.checked;
+	{
+		switch(opt & (0x7 << 8))
+		{
+		case XUI_CHECKBOX_PRIMARY:
+			wc = &ctx->style.primary;
+			break;
+		case XUI_CHECKBOX_SECONDARY:
+			wc = &ctx->style.secondary;
+			break;
+		case XUI_CHECKBOX_SUCCESS:
+			wc = &ctx->style.success;
+			break;
+		case XUI_CHECKBOX_INFO:
+			wc = &ctx->style.info;
+			break;
+		case XUI_CHECKBOX_WARNING:
+			wc = &ctx->style.warning;
+			break;
+		case XUI_CHECKBOX_DANGER:
+			wc = &ctx->style.danger;
+			break;
+		case XUI_CHECKBOX_LIGHT:
+			wc = &ctx->style.light;
+			break;
+		case XUI_CHECKBOX_DARK:
+			wc = &ctx->style.dark;
+			break;
+		default:
+			wc = &ctx->style.primary;
+			break;
+		}
+	}
 	else
-		sc = &ctx->style.toggle.unchecked;
+	{
+		wc = &ctx->style.secondary;
+	}
 	if(ctx->focus == id)
 	{
-		fc = &sc->focus.face_color;
-		bc = &sc->focus.border_color;
-		ic = &sc->focus.icon_color;
-		tc = &sc->focus.text_color;
+		fc = &wc->focus.face;
+		bc = &wc->focus.border;
+		tc = &wc->focus.text;
 	}
 	else if(ctx->hover == id)
 	{
-		fc = &sc->hover.face_color;
-		bc = &sc->hover.border_color;
-		ic = &sc->hover.icon_color;
-		tc = &sc->hover.text_color;
+		fc = &wc->hover.face;
+		bc = &wc->hover.border;
+		tc = &wc->hover.text;
 	}
 	else
 	{
-		fc = &sc->normal.face_color;
-		bc = &sc->normal.border_color;
-		ic = &sc->normal.icon_color;
-		tc = &sc->normal.text_color;
+		fc = &wc->normal.face;
+		bc = &wc->normal.border;
+		tc = &wc->normal.text;
 	}
-	if(bc->a && (width > 0))
-		xui_draw_rectangle(ctx, r->x, r->y, r->h, r->h, radius, width, bc);
-	if(fc->a)
-		xui_draw_rectangle(ctx, r->x, r->y, r->h, r->h, radius, *state ? 0 : 2, fc);
 	if(*state)
-		xui_draw_icon(ctx, ctx->style.icon_family, ctx->style.toggle.check_icon, r->x, r->y, r->h, r->h, ic);*/
-	return res;
+	{
+		if(bc->a && (width > 0))
+			xui_draw_rectangle(ctx, r->x, r->y, radius * 4, radius * 2, radius, width, bc);
+		if(fc->a)
+			xui_draw_rectangle(ctx, r->x, r->y, radius * 4, radius * 2, radius, 0, fc);
+		if(tc->a)
+			xui_draw_circle(ctx, r->x + radius * 3, r->y + radius, radius * 8 / 10, 0, tc);
+	}
+	else
+	{
+		if(bc->a && (width > 0))
+			xui_draw_rectangle(ctx, r->x, r->y, radius * 4, radius * 2, radius, width, bc);
+		if(fc->a)
+		{
+			xui_draw_rectangle(ctx, r->x, r->y, radius * 4, radius * 2, radius, 2, fc);
+			xui_draw_circle(ctx, r->x + radius, r->y + radius, radius * 8 / 10, 0, fc);
+		}
+	}
+	return click;
 }

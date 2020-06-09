@@ -189,6 +189,16 @@ static void overview_window(struct xui_context_t * ctx)
 			xui_end_treenode(ctx);
 		}
 
+		if(xui_begin_treenode(ctx, "Toggle"))
+		{
+			static int states[8] = { 1, 1, 0, 0, 1, 0, 0, 1 };
+			for(int i = 0; i < 8; i++)
+			{
+				xui_toggle_ex(ctx, &states[i], (i << 8));
+			}
+			xui_end_treenode(ctx);
+		}
+
 		if(xui_header(ctx, "Label"))
 		{
 			xui_label_ex(ctx, "Label align left", XUI_OPT_TEXT_LEFT);

@@ -392,6 +392,10 @@ struct xui_style_t {
 	} radio;
 
 	struct {
+		int border_width;
+	} toggle;
+
+	struct {
 		int line_width;
 		struct color_t face_color;
 	} split;

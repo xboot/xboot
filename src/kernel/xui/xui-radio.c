@@ -33,53 +33,48 @@ int xui_radio_ex(struct xui_context_t * ctx, const char * label, int active, int
 {
 	unsigned int id = xui_get_id(ctx, label, strlen(label));
 	struct region_t region, * r = xui_layout_next(ctx);
-	struct xui_style_radio_t * sr;
-	struct color_t * fc, * bc, * ic, * tc;
+	struct xui_widget_color_t * wc;
+	struct color_t * fc, * bc, * tc;
 	int radius, width;
-	int res = 0;
+	int click = 0;
 
 	xui_control_update(ctx, id, r, opt);
 	if((ctx->mouse_pressed & XUI_MOUSE_LEFT) && (ctx->focus == id))
-	{
-		res = 1;
-	}
+		click = 1;
 	radius = r->h / 2;
 	width = ctx->style.radio.border_width;
 	if(active)
-		sr = &ctx->style.radio.checked;
+		wc = &ctx->style.primary;
 	else
-		sr = &ctx->style.radio.unchecked;
+		wc = &ctx->style.secondary;
 	if(ctx->focus == id)
 	{
-		fc = &sr->focus.face_color;
-		bc = &sr->focus.border_color;
-		ic = &sr->focus.icon_color;
-		tc = &sr->focus.text_color;
+		fc = &wc->focus.face;
+		bc = &wc->focus.border;
+		tc = &wc->focus.text;
 	}
 	else if(ctx->hover == id)
 	{
-		fc = &sr->hover.face_color;
-		bc = &sr->hover.border_color;
-		ic = &sr->hover.icon_color;
-		tc = &sr->hover.text_color;
+		fc = &wc->hover.face;
+		bc = &wc->hover.border;
+		tc = &wc->hover.text;
 	}
 	else
 	{
-		fc = &sr->normal.face_color;
-		bc = &sr->normal.border_color;
-		ic = &sr->normal.icon_color;
-		tc = &sr->normal.text_color;
+		fc = &wc->normal.face;
+		bc = &wc->normal.border;
+		tc = &wc->normal.text;
 	}
 	if(bc->a && (width > 0))
 		xui_draw_circle(ctx, r->x + radius, r->y + radius, radius, width, bc);
 	if(fc->a)
 		xui_draw_circle(ctx, r->x + radius, r->y + radius, radius, active ? 0 : 2, fc);
 	if(active)
-		xui_draw_circle(ctx, r->x + radius, r->y + radius, radius * 392 / 1000, 0, ic);
+		xui_draw_circle(ctx, r->x + radius, r->y + radius, radius * 392 / 1000, 0, tc);
 	if(label && tc->a)
 	{
 		region_init(&region, r->x + r->h, r->y, r->w - r->h, r->h);
-		xui_control_draw_text(ctx, label, &region, tc, opt);
+		xui_control_draw_text(ctx, label, &region, &ctx->style.font.color, opt);
 	}
-	return res;
+	return click;
 }

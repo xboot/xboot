@@ -301,27 +301,6 @@ struct xui_widget_color_t {
 	} focus;
 };
 
-struct xui_style_radio_t {
-	struct {
-		struct color_t face_color;
-		struct color_t border_color;
-		struct color_t icon_color;
-		struct color_t text_color;
-	} normal;
-	struct {
-		struct color_t face_color;
-		struct color_t border_color;
-		struct color_t icon_color;
-		struct color_t text_color;
-	} hover;
-	struct {
-		struct color_t face_color;
-		struct color_t border_color;
-		struct color_t icon_color;
-		struct color_t text_color;
-	} focus;
-};
-
 struct xui_style_t {
 	struct color_t colors[XUI_COLOR_MAX];//TODO REMOVE ME!
 
@@ -410,8 +389,6 @@ struct xui_style_t {
 
 	struct {
 		int border_width;
-		struct xui_style_radio_t checked;
-		struct xui_style_radio_t unchecked;
 	} radio;
 
 	struct {

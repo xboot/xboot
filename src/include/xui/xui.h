@@ -283,21 +283,21 @@ struct xui_container_t {
 	int open;
 };
 
-struct xui_style_button_t {
+struct xui_widget_color_t {
 	struct {
-		struct color_t face_color;
-		struct color_t border_color;
-		struct color_t text_color;
+		struct color_t face;
+		struct color_t border;
+		struct color_t text;
 	} normal;
 	struct {
-		struct color_t face_color;
-		struct color_t border_color;
-		struct color_t text_color;
+		struct color_t face;
+		struct color_t border;
+		struct color_t text;
 	} hover;
 	struct {
-		struct color_t face_color;
-		struct color_t border_color;
-		struct color_t text_color;
+		struct color_t face;
+		struct color_t border;
+		struct color_t text;
 	} focus;
 };
 
@@ -356,6 +356,15 @@ struct xui_style_t {
 	int indent;
 	struct color_t colors[XUI_COLOR_MAX];
 
+	struct xui_widget_color_t primary;
+	struct xui_widget_color_t secondary;
+	struct xui_widget_color_t success;
+	struct xui_widget_color_t info;
+	struct xui_widget_color_t warning;
+	struct xui_widget_color_t danger;
+	struct xui_widget_color_t light;
+	struct xui_widget_color_t dark;
+
 	struct {
 		uint32_t close_icon;
 		int border_radius;
@@ -406,14 +415,6 @@ struct xui_style_t {
 		int border_radius;
 		int border_width;
 		int outline_width;
-		struct xui_style_button_t primary;
-		struct xui_style_button_t secondary;
-		struct xui_style_button_t success;
-		struct xui_style_button_t info;
-		struct xui_style_button_t warning;
-		struct xui_style_button_t danger;
-		struct xui_style_button_t light;
-		struct xui_style_button_t dark;
 	} button;
 
 	struct {

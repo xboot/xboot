@@ -33,7 +33,7 @@ int xui_button_ex(struct xui_context_t * ctx, const char * label, int icon, int 
 {
 	unsigned int id = label ? xui_get_id(ctx, label, strlen(label)) : xui_get_id(ctx, &icon, sizeof(icon));
 	struct region_t * r = xui_layout_next(ctx);
-	struct xui_style_button_t * sb;
+	struct xui_widget_color_t * wc;
 	struct color_t * fc, * bc, * tc;
 	int radius, width;
 
@@ -46,38 +46,38 @@ int xui_button_ex(struct xui_context_t * ctx, const char * label, int icon, int 
 	switch(opt & (0x7 << 8))
 	{
 	case XUI_BUTTON_PRIMARY:
-		sb = &ctx->style.button.primary;
+		wc = &ctx->style.primary;
 		break;
 	case XUI_BUTTON_SECONDARY:
-		sb = &ctx->style.button.secondary;
+		wc = &ctx->style.secondary;
 		break;
 	case XUI_BUTTON_SUCCESS:
-		sb = &ctx->style.button.success;
+		wc = &ctx->style.success;
 		break;
 	case XUI_BUTTON_INFO:
-		sb = &ctx->style.button.info;
+		wc = &ctx->style.info;
 		break;
 	case XUI_BUTTON_WARNING:
-		sb = &ctx->style.button.warning;
+		wc = &ctx->style.warning;
 		break;
 	case XUI_BUTTON_DANGER:
-		sb = &ctx->style.button.danger;
+		wc = &ctx->style.danger;
 		break;
 	case XUI_BUTTON_LIGHT:
-		sb = &ctx->style.button.light;
+		wc = &ctx->style.light;
 		break;
 	case XUI_BUTTON_DARK:
-		sb = &ctx->style.button.dark;
+		wc = &ctx->style.dark;
 		break;
 	default:
-		sb = &ctx->style.button.primary;
+		wc = &ctx->style.primary;
 		break;
 	}
 	if(ctx->focus == id)
 	{
-		fc = &sb->focus.face_color;
-		bc = &sb->focus.border_color;
-		tc = &sb->focus.text_color;
+		fc = &wc->focus.face;
+		bc = &wc->focus.border;
+		tc = &wc->focus.text;
 		if(bc->a && (width > 0))
 			xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, radius, width, bc);
 		if(fc->a)
@@ -94,9 +94,9 @@ int xui_button_ex(struct xui_context_t * ctx, const char * label, int icon, int 
 	}
 	else if(ctx->hover == id)
 	{
-		fc = &sb->hover.face_color;
-		bc = &sb->hover.border_color;
-		tc = &sb->hover.text_color;
+		fc = &wc->hover.face;
+		bc = &wc->hover.border;
+		tc = &wc->hover.text;
 		if(bc->a && (width > 0))
 			xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, radius, width, bc);
 		if(fc->a)
@@ -111,9 +111,9 @@ int xui_button_ex(struct xui_context_t * ctx, const char * label, int icon, int 
 	}
 	else
 	{
-		fc = &sb->normal.face_color;
-		bc = &sb->normal.border_color;
-		tc = &sb->normal.text_color;
+		fc = &wc->normal.face;
+		bc = &wc->normal.border;
+		tc = &wc->normal.text;
 		if(opt & XUI_BUTTON_OUTLINE)
 		{
 			if(fc->a)

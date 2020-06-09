@@ -385,14 +385,17 @@ struct xui_style_t {
 		uint32_t check_icon;
 		int border_radius;
 		int border_width;
+		int outline_width;
 	} checkbox;
 
 	struct {
 		int border_width;
+		int outline_width;
 	} radio;
 
 	struct {
 		int border_width;
+		int outline_width;
 	} toggle;
 
 	struct {

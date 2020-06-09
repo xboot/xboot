@@ -104,7 +104,7 @@ int xui_checkbox_ex(struct xui_context_t * ctx, const char * label, int * state,
 	if(bc->a && (width > 0))
 		xui_draw_rectangle(ctx, r->x, r->y, r->h, r->h, radius, width, bc);
 	if(fc->a)
-		xui_draw_rectangle(ctx, r->x, r->y, r->h, r->h, radius, *state ? 0 : 2, fc);
+		xui_draw_rectangle(ctx, r->x, r->y, r->h, r->h, radius, *state ? 0 : ctx->style.checkbox.outline_width, fc);
 	if(*state)
 		xui_draw_icon(ctx, ctx->style.font.icon_family, ctx->style.checkbox.check_icon, r->x, r->y, r->h, r->h, tc);
 	if(label && tc->a)

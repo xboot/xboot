@@ -252,14 +252,17 @@ static const struct xui_style_t xui_style_default = {
 		.check_icon = 0xf00c,
 		.border_radius = 4,
 		.border_width = 4,
+		.outline_width = 2,
 	},
 
 	.radio = {
 		.border_width = 4,
+		.outline_width = 2,
 	},
 
 	.toggle = {
 		.border_width = 4,
+		.outline_width = 2,
 	},
 
 	.progress = {

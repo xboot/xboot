@@ -101,7 +101,7 @@ int xui_radio_ex(struct xui_context_t * ctx, const char * label, int active, int
 	if(bc->a && (width > 0))
 		xui_draw_circle(ctx, r->x + radius, r->y + radius, radius, width, bc);
 	if(fc->a)
-		xui_draw_circle(ctx, r->x + radius, r->y + radius, radius, active ? 0 : 2, fc);
+		xui_draw_circle(ctx, r->x + radius, r->y + radius, radius, active ? 0 : ctx->style.radio.outline_width, fc);
 	if(active)
 		xui_draw_circle(ctx, r->x + radius, r->y + radius, radius * 392 / 1000, 0, tc);
 	if(label && tc->a)

@@ -116,7 +116,7 @@ int xui_toggle_ex(struct xui_context_t * ctx, int * state, int opt)
 			xui_draw_rectangle(ctx, r->x, r->y, radius * 4, radius * 2, radius, width, bc);
 		if(fc->a)
 		{
-			xui_draw_rectangle(ctx, r->x, r->y, radius * 4, radius * 2, radius, 2, fc);
+			xui_draw_rectangle(ctx, r->x, r->y, radius * 4, radius * 2, radius, ctx->style.toggle.outline_width, fc);
 			xui_draw_circle(ctx, r->x + radius, r->y + radius, radius * 4 / 5, 0, fc);
 		}
 	}

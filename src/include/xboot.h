@@ -78,6 +78,7 @@ extern "C" {
 #include <xui/radio.h>
 #include <xui/split.h>
 #include <xui/text.h>
+#include <xui/toggle.h>
 
 #ifdef __cplusplus
 }

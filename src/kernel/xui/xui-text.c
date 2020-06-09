@@ -31,11 +31,11 @@
 
 void xui_text(struct xui_context_t * ctx, const char * utf8)
 {
-	const char * family = ctx->style.font_family;
-	struct color_t * c = &ctx->style.text.text_color;
+	const char * family = ctx->style.font.font_family;
+	struct color_t * c = &ctx->style.font.color;
 	struct region_t * r;
 	struct text_t txt;
-	int size = ctx->style.font_size;
+	int size = ctx->style.font.size;
 	int wrap = xui_get_layout(ctx)->body.w;
 
 	text_init(&txt, utf8, c, wrap, ctx->f, family, size);

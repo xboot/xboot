@@ -344,18 +344,9 @@ struct xui_style_radio_t {
 };
 
 struct xui_style_t {
-	struct color_t background_color;
-	const char * icon_family;
-	const char * font_family;
-	int font_size;
+	struct color_t colors[XUI_COLOR_MAX];//TODO REMOVE ME!
 
-	int width;
-	int height;
-	int padding;
-	int spacing;
-	int indent;
-	struct color_t colors[XUI_COLOR_MAX];
-
+	struct color_t background;
 	struct xui_widget_color_t primary;
 	struct xui_widget_color_t secondary;
 	struct xui_widget_color_t success;
@@ -364,6 +355,21 @@ struct xui_style_t {
 	struct xui_widget_color_t danger;
 	struct xui_widget_color_t light;
 	struct xui_widget_color_t dark;
+
+	struct {
+		const char * icon_family;
+		const char * font_family;
+		struct color_t color;
+		int size;
+	} font;
+
+	struct {
+		int width;
+		int height;
+		int padding;
+		int spacing;
+		int indent;
+	} layout;
 
 	struct {
 		uint32_t close_icon;
@@ -430,10 +436,6 @@ struct xui_style_t {
 		struct xui_style_radio_t checked;
 		struct xui_style_radio_t unchecked;
 	} radio;
-
-	struct {
-		struct color_t text_color;
-	} text;
 
 	struct {
 		int line_width;

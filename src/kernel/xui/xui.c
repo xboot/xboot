@@ -36,18 +36,6 @@
  * https://coderthemes.com/hyper/modern/index.html
  */
 static const struct xui_style_t xui_style_default = {
-	.background_color = { 0xf6, 0xf7, 0xfa, 0xff },
-
-	.icon_family = "font-awesome",
-	.font_family = "roboto",
-	.font_size = 16,
-
-	.width = 68,
-	.height = 16,
-	.padding = 5,
-	.spacing = 4,
-	.indent = 24,
-
 	.colors = {
 		{ 25,  25,  205,  255 }, /* XUI_COLOR_BORDER */
 		{ 30,  230,  30,  255 }, /* XUI_COLOR_BASE */
@@ -55,6 +43,7 @@ static const struct xui_style_t xui_style_default = {
 		{ 40,  140,  140,  255 },  /* XUI_COLOR_BASEFOCUS */
 	},
 
+	.background = { 0xf6, 0xf7, 0xfa, 0xff },
 	.primary = {
 		.normal = {
 			.face = { 0x53, 0x6d, 0xe6, 0xff },
@@ -190,6 +179,21 @@ static const struct xui_style_t xui_style_default = {
 			.border = { 0x32, 0x3a, 0x46, 0x60 },
 			.text = { 0xff, 0xff, 0xff, 0xff },
 		},
+	},
+
+	.font = {
+		.icon_family = "font-awesome",
+		.font_family = "roboto",
+		.color = { 0x98, 0xa6, 0xad, 0xff },
+		.size = 16,
+	},
+
+	.layout = {
+		.width = 64,
+		.height = 16,
+		.padding = 4,
+		.spacing = 4,
+		.indent = 24,
 	},
 
 	.window = {
@@ -332,10 +336,6 @@ static const struct xui_style_t xui_style_default = {
 				.text_color = { 0x6b, 0x74, 0x7c, 0xff },
 			},
 		},
-	},
-
-	.text = {
-		.text_color = { 0x98, 0xa6, 0xad, 0xff },
 	},
 
 	.split = {
@@ -648,9 +648,9 @@ struct region_t * xui_layout_next(struct xui_context_t * ctx)
 		r.w = layout->items > 0 ? layout->widths[layout->item_index] : layout->size_width;
 		r.h = layout->size_height;
 		if(r.w == 0)
-			r.w = style->width + style->padding * 2;
+			r.w = style->layout.width + style->layout.padding * 2;
 		if(r.h == 0)
-			r.h = style->height + style->padding * 2;
+			r.h = style->layout.height + style->layout.padding * 2;
 		if(r.w < 0)
 			r.w += layout->body.w - r.x + 1;
 		if(r.h < 0)
@@ -658,8 +658,8 @@ struct region_t * xui_layout_next(struct xui_context_t * ctx)
 		layout->item_index++;
 	}
 
-	layout->position_x += r.w + style->spacing;
-	layout->next_row = max(layout->next_row, r.y + r.h + style->spacing);
+	layout->position_x += r.w + style->layout.spacing;
+	layout->next_row = max(layout->next_row, r.y + r.h + style->layout.spacing);
 	r.x += layout->body.x;
 	r.y += layout->body.y;
 	layout->max_width = max(layout->max_width, r.x + r.w);
@@ -1066,8 +1066,8 @@ void xui_control_update(struct xui_context_t * ctx, unsigned int id, struct regi
 void xui_control_draw_text(struct xui_context_t * ctx, const char * utf8, struct region_t * r, struct color_t * c, int opt)
 {
 	struct text_t txt;
-	const char * family = ctx->style.font_family;
-	int size = ctx->style.font_size;
+	const char * family = ctx->style.font.font_family;
+	int size = ctx->style.font.size;
 	int tw, th;
 	int x, y;
 
@@ -1079,27 +1079,27 @@ void xui_control_draw_text(struct xui_context_t * ctx, const char * utf8, struct
 	switch(opt & (0x7 << 5))
 	{
 	case XUI_OPT_TEXT_LEFT:
-		x = r->x + ctx->style.padding;
+		x = r->x + ctx->style.layout.padding;
 		y = r->y + (r->h - th) / 2;
 		break;
 	case XUI_OPT_TEXT_RIGHT:
-		x = r->x + r->w - tw - ctx->style.padding;
+		x = r->x + r->w - tw - ctx->style.layout.padding;
 		y = r->y + (r->h - th) / 2;
 		break;
 	case XUI_OPT_TEXT_TOP:
 		x = r->x + (r->w - tw) / 2;
-		y = r->y + ctx->style.padding;
+		y = r->y + ctx->style.layout.padding;
 		break;
 	case XUI_OPT_TEXT_BOTTOM:
 		x = r->x + (r->w - tw) / 2;
-		y = r->y + r->h - th - ctx->style.padding;
+		y = r->y + r->h - th - ctx->style.layout.padding;
 		break;
 	case XUI_OPT_TEXT_CENTER:
 		x = r->x + (r->w - tw) / 2;
 		y = r->y + (r->h - th) / 2;
 		break;
 	default:
-		x = r->x + ctx->style.padding;
+		x = r->x + ctx->style.layout.padding;
 		y = r->y + (r->h - th) / 2;
 		break;
 	}
@@ -1122,8 +1122,8 @@ static void scrollbars(struct xui_context_t * ctx, struct xui_container_t * c, s
 	int maxscroll;
 	unsigned int id;
 
-	width += ctx->style.padding * 2;
-	height += ctx->style.padding * 2;
+	width += ctx->style.layout.padding * 2;
+	height += ctx->style.layout.padding * 2;
 	xui_push_clip(ctx, body);
 	if(height > c->body.h)
 		body->w -= sz;
@@ -1185,7 +1185,7 @@ static void push_container_body(struct xui_context_t * ctx, struct xui_container
 	struct region_t r;
 	if(~opt & XUI_OPT_NOSCROLL)
 		scrollbars(ctx, c, body);
-	region_expand(&r, body, -ctx->style.padding);
+	region_expand(&r, body, -ctx->style.layout.padding);
 	push_layout(ctx, &r, c->scroll_x, c->scroll_y);
 	region_clone(&c->body, body);
 }
@@ -1246,7 +1246,7 @@ int xui_begin_window_ex(struct xui_context_t * ctx, const char * title, struct r
 				id = xui_get_id(ctx, "!close", 6);
 				region_init(&tr, hr.x + hr.w - hr.h, hr.y, hr.h, hr.h);
 				hr.w -= tr.w;
-				xui_draw_icon(ctx, ctx->style.icon_family, ctx->style.window.close_icon, tr.x, tr.y, tr.w, tr.h, &ctx->style.window.text_color);
+				xui_draw_icon(ctx, ctx->style.font.icon_family, ctx->style.window.close_icon, tr.x, tr.y, tr.w, tr.h, &ctx->style.window.text_color);
 				xui_control_update(ctx, id, &tr, opt);
 				if((ctx->mouse_pressed & XUI_MOUSE_LEFT) && (id == ctx->focus))
 					c->open = 0;
@@ -1408,9 +1408,9 @@ static int header(struct xui_context_t * ctx, const char * label, int istreenode
 		if(fc->a)
 			xui_draw_rectangle(ctx, r.x, r.y, r.w, r.h, radius, 0, fc);
 	}
-	xui_draw_icon(ctx, ctx->style.icon_family, expanded ? ctx->style.treenode.expanded_icon : ctx->style.treenode.collapsed_icon, r.x, r.y, r.h, r.h, tc);
-	r.x += r.h - ctx->style.padding;
-	r.w -= r.h - ctx->style.padding;
+	xui_draw_icon(ctx, ctx->style.font.icon_family, expanded ? ctx->style.treenode.expanded_icon : ctx->style.treenode.collapsed_icon, r.x, r.y, r.h, r.h, tc);
+	r.x += r.h - ctx->style.layout.padding;
+	r.w -= r.h - ctx->style.layout.padding;
 	if(label && tc->a)
 		xui_control_draw_text(ctx, label, &r, tc, opt);
 
@@ -1422,7 +1422,7 @@ int xui_begin_treenode_ex(struct xui_context_t * ctx, const char * label, int op
 	int res = header(ctx, label, 1, opt);
 	if(res)
 	{
-		xui_get_layout(ctx)->indent += ctx->style.indent;
+		xui_get_layout(ctx)->indent += ctx->style.layout.indent;
 		xui_push(ctx->id_stack, ctx->last_id);
 	}
 	return res;
@@ -1435,7 +1435,7 @@ int xui_begin_treenode(struct xui_context_t * ctx, const char * label)
 
 void xui_end_treenode(struct xui_context_t * ctx)
 {
-	xui_get_layout(ctx)->indent -= ctx->style.indent;
+	xui_get_layout(ctx)->indent -= ctx->style.layout.indent;
 	xui_pop_id(ctx);
 }
 
@@ -1480,15 +1480,15 @@ static int xui_textbox_raw(struct xui_context_t * ctx, char * buf, int bufsz, un
 	xui_control_draw_frame(ctx, id, r, XUI_COLOR_BASE, opt);
 	if(ctx->focus == id)
 	{
-		struct color_t * c = &ctx->style.text.text_color;
-		const char * family = ctx->style.font_family;
-		int size = ctx->style.font_size;
+		struct color_t * c = &ctx->style.font.color;
+		const char * family = ctx->style.font.font_family;
+		int size = ctx->style.font.size;
 		struct text_t txt;
 		text_init(&txt, buf, c, 0, ctx->f, family, size);
 		int textw = txt.metrics.width;
 		int texth = txt.metrics.height;
-		int ofx = r->w - ctx->style.padding - textw - 1;
-		int textx = r->x + min(ofx, ctx->style.padding);
+		int ofx = r->w - ctx->style.layout.padding - textw - 1;
+		int textx = r->x + min(ofx, ctx->style.layout.padding);
 		int texty = r->y + (r->h - texth) / 2;
 		xui_push_clip(ctx, r);
 		xui_draw_text(ctx, family, size, buf, textx, texty, 0, c);
@@ -1497,7 +1497,7 @@ static int xui_textbox_raw(struct xui_context_t * ctx, char * buf, int bufsz, un
 	}
 	else
 	{
-		xui_control_draw_text(ctx, buf, r, &ctx->style.text.text_color, opt);
+		xui_control_draw_text(ctx, buf, r, &ctx->style.font.color, opt);
 	}
 	return res;
 }
@@ -1554,7 +1554,7 @@ int xui_slider_ex(struct xui_context_t * ctx, float * value, float low, float hi
 	region_init(&thumb, base.x + x, base.y, w, base.h);
 	xui_control_draw_frame(ctx, id, &thumb, XUI_COLOR_BASE, opt);
 	sprintf(buf, fmt, v);
-	xui_control_draw_text(ctx, buf, &base, &ctx->style.text.text_color, opt);
+	xui_control_draw_text(ctx, buf, &base, &ctx->style.font.color, opt);
 
 	return res;
 }
@@ -1595,7 +1595,7 @@ int xui_number_ex(struct xui_context_t * ctx, float * value, float step, const c
 		res |= XUI_RES_CHANGE;
 	xui_control_draw_frame(ctx, id, &base, XUI_COLOR_BASE, opt);
 	sprintf(buf, fmt, *value);
-	xui_control_draw_text(ctx, buf, &base, &ctx->style.text.text_color, opt);
+	xui_control_draw_text(ctx, buf, &base, &ctx->style.font.color, opt);
 
 	return res;
 }
@@ -1897,7 +1897,7 @@ void xui_loop(struct xui_context_t * ctx, void (*func)(struct xui_context_t *))
 			if(window_is_active(ctx->w))
 			{
 				ctx->w->wm->refresh = 1;
-				window_present(ctx->w, &ctx->style.background_color, ctx, xui_draw);
+				window_present(ctx->w, &ctx->style.background, ctx, xui_draw);
 			}
 		}
 		task_yield();

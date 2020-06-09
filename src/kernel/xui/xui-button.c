@@ -31,7 +31,7 @@
 
 int xui_button_ex(struct xui_context_t * ctx, const char * label, int icon, int opt)
 {
-	unsigned int id = label ? xui_get_id(ctx, label, strlen(label)) : xui_get_id(ctx, &icon, sizeof(icon));
+	unsigned int id = label ? xui_get_id(ctx, label, strlen(label)) : xui_get_id(ctx, &icon, sizeof(int));
 	struct region_t * r = xui_layout_next(ctx);
 	struct xui_widget_color_t * wc;
 	struct color_t * fc, * bc, * tc;
@@ -87,7 +87,7 @@ int xui_button_ex(struct xui_context_t * ctx, const char * label, int icon, int 
 			if(label)
 				xui_control_draw_text(ctx, label, r, tc, opt);
 			else
-				xui_draw_icon(ctx, ctx->style.icon_family, icon, r->x, r->y, r->w, r->h, tc);
+				xui_draw_icon(ctx, ctx->style.font.icon_family, icon, r->x, r->y, r->w, r->h, tc);
 		}
 		if(ctx->mouse_pressed & XUI_MOUSE_LEFT)
 			return 1;
@@ -106,7 +106,7 @@ int xui_button_ex(struct xui_context_t * ctx, const char * label, int icon, int 
 			if(label)
 				xui_control_draw_text(ctx, label, r, tc, opt);
 			else
-				xui_draw_icon(ctx, ctx->style.icon_family, icon, r->x, r->y, r->w, r->h, tc);
+				xui_draw_icon(ctx, ctx->style.font.icon_family, icon, r->x, r->y, r->w, r->h, tc);
 		}
 	}
 	else
@@ -122,7 +122,7 @@ int xui_button_ex(struct xui_context_t * ctx, const char * label, int icon, int 
 				if(label)
 					xui_control_draw_text(ctx, label, r, fc, opt);
 				else
-					xui_draw_icon(ctx, ctx->style.icon_family, icon, r->x, r->y, r->w, r->h, fc);
+					xui_draw_icon(ctx, ctx->style.font.icon_family, icon, r->x, r->y, r->w, r->h, fc);
 			}
 		}
 		else
@@ -136,7 +136,7 @@ int xui_button_ex(struct xui_context_t * ctx, const char * label, int icon, int 
 				if(label)
 					xui_control_draw_text(ctx, label, r, tc, opt);
 				else
-					xui_draw_icon(ctx, ctx->style.icon_family, icon, r->x, r->y, r->w, r->h, tc);
+					xui_draw_icon(ctx, ctx->style.font.icon_family, icon, r->x, r->y, r->w, r->h, tc);
 			}
 		}
 	}

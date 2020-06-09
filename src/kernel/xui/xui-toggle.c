@@ -1,5 +1,5 @@
 /*
- * kernel/xui/xui-checkbox.c
+ * kernel/xui/xui-toggle.c
  *
  * Copyright(c) 2007-2019 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -27,29 +27,29 @@
  */
 
 #include <xboot.h>
-#include <xui/checkbox.h>
+#include <xui/toggle.h>
 
-int xui_checkbox_ex(struct xui_context_t * ctx, const char * label, int * state, int opt)
+int xui_toggle_ex(struct xui_context_t * ctx, int * state, int opt)
 {
 	unsigned int id = xui_get_id(ctx, &state, sizeof(state));
 	struct region_t region, * r = xui_layout_next(ctx);
-	struct xui_style_checkbox_t * sc;
+	struct xui_style_toggle_t * sc;
 	struct color_t * fc, * bc, * ic, * tc;
 	int radius, width;
 	int res = 0;
 
-	xui_control_update(ctx, id, r, opt);
+/*	xui_control_update(ctx, id, r, opt);
 	if((ctx->mouse_pressed & XUI_MOUSE_LEFT) && (ctx->focus == id))
 	{
 		*state = !*state;
 		res = 1;
 	}
-	radius = ctx->style.checkbox.border_radius;
-	width = ctx->style.checkbox.border_width;
+	radius = ctx->style.toggle.border_radius;
+	width = ctx->style.toggle.border_width;
 	if(*state)
-		sc = &ctx->style.checkbox.checked;
+		sc = &ctx->style.toggle.checked;
 	else
-		sc = &ctx->style.checkbox.unchecked;
+		sc = &ctx->style.toggle.unchecked;
 	if(ctx->focus == id)
 	{
 		fc = &sc->focus.face_color;
@@ -76,11 +76,6 @@ int xui_checkbox_ex(struct xui_context_t * ctx, const char * label, int * state,
 	if(fc->a)
 		xui_draw_rectangle(ctx, r->x, r->y, r->h, r->h, radius, *state ? 0 : 2, fc);
 	if(*state)
-		xui_draw_icon(ctx, ctx->style.font.icon_family, ctx->style.checkbox.check_icon, r->x, r->y, r->h, r->h, ic);
-	if(label && tc->a)
-	{
-		region_init(&region, r->x + r->h, r->y, r->w - r->h, r->h);
-		xui_control_draw_text(ctx, label, &region, tc, opt);
-	}
+		xui_draw_icon(ctx, ctx->style.icon_family, ctx->style.toggle.check_icon, r->x, r->y, r->h, r->h, ic);*/
 	return res;
 }

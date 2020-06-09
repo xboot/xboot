@@ -162,7 +162,7 @@ static void test_window(struct xui_context_t * ctx)
 			xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, 0, 0, &c);
 			char buf[32];
 			sprintf(buf, "#%02X%02X%02X", (int)bg[0], (int)bg[1], (int)bg[2]);
-			xui_control_draw_text(ctx, buf, r, &ctx->style.text.text_color, 0);
+			xui_control_draw_text(ctx, buf, r, &ctx->style.font.color, 0);
 		}
 
 		xui_end_window(ctx);
@@ -259,16 +259,16 @@ void ttt_test(struct xui_context_t * ctx)
 			xui_layout_begin_column(ctx);
 			xui_layout_row(ctx, 2, (int[] ) { 46, -1 }, 0);
 			xui_label(ctx, "Red:");
-			uint8_slider(ctx, &ctx->style.background_color.r, 0, 255);
+			uint8_slider(ctx, &ctx->style.background.r, 0, 255);
 			xui_label(ctx, "Green:");
-			uint8_slider(ctx, &ctx->style.background_color.g, 0, 255);
+			uint8_slider(ctx, &ctx->style.background.g, 0, 255);
 			xui_label(ctx, "Blue:");
-			uint8_slider(ctx, &ctx->style.background_color.b, 0, 255);
+			uint8_slider(ctx, &ctx->style.background.b, 0, 255);
 			xui_layout_end_column(ctx);
 			/* color preview */
 			struct region_t * r = xui_layout_next(ctx);
-			xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, 0, 0, &ctx->style.background_color);
-			xui_control_draw_text(ctx, xui_format(ctx, "#%02X%02X%02X", ctx->style.background_color.r, ctx->style.background_color.g, ctx->style.background_color.b), r, &ctx->style.text.text_color, 0);
+			xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, 0, 0, &ctx->style.background);
+			xui_control_draw_text(ctx, xui_format(ctx, "#%02X%02X%02X", ctx->style.background.r, ctx->style.background.g, ctx->style.background.b), r, &ctx->style.font.color, 0);
 		}
 
 		xui_layout_row(ctx, 2, (int[]){ 100, -1 }, 0);

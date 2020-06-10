@@ -1674,7 +1674,7 @@ void xui_loop(struct xui_context_t * ctx, void (*func)(struct xui_context_t *))
 				ctx->mouse_down &= ~e.e.mouse_up.button;
 				break;
 			case EVENT_TYPE_MOUSE_WHEEL:
-				ctx->scroll_delta_x += e.e.mouse_wheel.dx * 30;
+				ctx->scroll_delta_x -= e.e.mouse_wheel.dx * 30;
 				ctx->scroll_delta_y -= e.e.mouse_wheel.dy * 30;
 				break;
 			case EVENT_TYPE_TOUCH_BEGIN:

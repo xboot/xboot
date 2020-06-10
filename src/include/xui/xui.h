@@ -24,6 +24,9 @@ extern "C" {
 #define XUI_TREENODE_POOL_SIZE		(48)
 #define XUI_MAX_WIDTHS				(16)
 
+#define xui_push(stk, val)	do { assert((stk).idx < (int)(sizeof((stk).items) / sizeof(*(stk).items))); (stk).items[(stk).idx] = (val); (stk).idx++; } while(0)
+#define xui_pop(stk)		do { assert((stk).idx > 0); (stk).idx--; } while(0)
+
 enum {
 	XUI_OPT_NOINTERACT		= (0x1 << 0),
 	XUI_OPT_NOSCROLL		= (0x1 << 1),
@@ -341,10 +344,6 @@ struct xui_style_t {
 	} window;
 
 	struct {
-		struct color_t face_color;
-	} panel;
-
-	struct {
 		int scroll_size;
 		int scroll_radius;
 		int thumb_size;
@@ -518,6 +517,12 @@ struct xui_layout_t * xui_get_layout(struct xui_context_t * ctx);
 struct xui_container_t * xui_get_container(struct xui_context_t * ctx, const char * name);
 struct xui_container_t * xui_get_current_container(struct xui_context_t * ctx);
 
+void pop_container(struct xui_context_t * ctx);
+struct xui_container_t * get_container(struct xui_context_t * ctx, unsigned int id, int opt);
+void push_container_body(struct xui_context_t * ctx, struct xui_container_t * c, struct region_t * body, int opt);
+void begin_root_container(struct xui_context_t * ctx, struct xui_container_t * c);
+void end_root_container(struct xui_context_t * ctx);
+
 void xui_layout_width(struct xui_context_t * ctx, int width);
 void xui_layout_height(struct xui_context_t * ctx, int height);
 void xui_layout_row(struct xui_context_t * ctx, int items, const int * widths, int height);
@@ -548,9 +553,6 @@ void xui_end_window(struct xui_context_t * ctx);
 int xui_begin_popup(struct xui_context_t * ctx, const char * name);
 void xui_end_popup(struct xui_context_t * ctx);
 void xui_open_popup(struct xui_context_t * ctx, const char * name);
-void xui_begin_panel_ex(struct xui_context_t * ctx, const char * name, int opt);
-void xui_begin_panel(struct xui_context_t * ctx, const char * name);
-void xui_end_panel(struct xui_context_t * ctx);
 int xui_begin_treenode_ex(struct xui_context_t * ctx, const char * label, int opt);
 int xui_begin_treenode(struct xui_context_t * ctx, const char * label);
 void xui_end_treenode(struct xui_context_t * ctx);

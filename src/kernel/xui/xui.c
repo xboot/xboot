@@ -29,9 +29,6 @@
 #include <xboot.h>
 #include <xui/xui.h>
 
-#define xui_push(stk, val)	do { assert((stk).idx < (int)(sizeof((stk).items) / sizeof(*(stk).items))); (stk).items[(stk).idx] = (val); (stk).idx++; } while(0)
-#define xui_pop(stk)		do { assert((stk).idx > 0); (stk).idx--; } while(0)
-
 /*
  * https://coderthemes.com/hyper/modern/index.html
  */
@@ -205,10 +202,6 @@ static const struct xui_style_t xui_style_default = {
 		.border_color = { 0x26, 0x47, 0xe0, 0xff },
 		.title_color = { 0x26, 0x47, 0xe0, 0xff },
 		.text_color = { 0xff, 0xff, 0xff, 0xff },
-	},
-
-	.panel = {
-		.face_color = { 0x00, 0x00, 0x00, 0x00 },
 	},
 
 	.scroll = {
@@ -460,7 +453,7 @@ struct xui_layout_t * xui_get_layout(struct xui_context_t * ctx)
 	return &ctx->layout_stack.items[ctx->layout_stack.idx - 1];
 }
 
-static void pop_container(struct xui_context_t * ctx)
+void pop_container(struct xui_context_t * ctx)
 {
 	struct xui_container_t * c = xui_get_current_container(ctx);
 	struct xui_layout_t * layout = xui_get_layout(ctx);
@@ -471,7 +464,7 @@ static void pop_container(struct xui_context_t * ctx)
 	xui_pop_id(ctx);
 }
 
-static struct xui_container_t * get_container(struct xui_context_t * ctx, unsigned int id, int opt)
+struct xui_container_t * get_container(struct xui_context_t * ctx, unsigned int id, int opt)
 {
 	struct xui_container_t * c;
 	int idx = xui_pool_get(ctx, ctx->container_pool, XUI_CONTAINER_POOL_SIZE, id);
@@ -1110,7 +1103,7 @@ static void scrollbars(struct xui_context_t * ctx, struct xui_container_t * c, s
 	xui_pop_clip(ctx);
 }
 
-static void push_container_body(struct xui_context_t * ctx, struct xui_container_t * c, struct region_t * body, int opt)
+void push_container_body(struct xui_context_t * ctx, struct xui_container_t * c, struct region_t * body, int opt)
 {
 	struct region_t r;
 	if(~opt & XUI_OPT_NOSCROLL)
@@ -1120,7 +1113,7 @@ static void push_container_body(struct xui_context_t * ctx, struct xui_container
 	region_clone(&c->body, body);
 }
 
-static void begin_root_container(struct xui_context_t * ctx, struct xui_container_t * c)
+void begin_root_container(struct xui_context_t * ctx, struct xui_container_t * c)
 {
 	xui_push(ctx->container_stack, c);
 	xui_push(ctx->root_list, c);
@@ -1130,7 +1123,7 @@ static void begin_root_container(struct xui_context_t * ctx, struct xui_containe
 	xui_push(ctx->clip_stack, unclipped_region);
 }
 
-static void end_root_container(struct xui_context_t * ctx)
+void end_root_container(struct xui_context_t * ctx)
 {
 	struct xui_container_t * c = xui_get_current_container(ctx);
 	c->tail = xui_cmd_push_jump(ctx, NULL);
@@ -1247,32 +1240,6 @@ void xui_open_popup(struct xui_context_t * ctx, const char * name)
 	region_init(&c->region, ctx->mouse_pos_x, ctx->mouse_pos_y, 1, 1);
 	c->open = 1;
 	xui_set_front(ctx, c);
-}
-
-void xui_begin_panel_ex(struct xui_context_t * ctx, const char * name, int opt)
-{
-	struct xui_container_t * c;
-	struct region_t * r;
-	xui_push_id(ctx, name, strlen(name));
-	c = get_container(ctx, ctx->last_id, opt);
-	r = xui_layout_next(ctx);
-	region_clone(&c->region, r);
-	if(ctx->style.panel.face_color.a)
-		xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, 0, 0, &ctx->style.panel.face_color);
-	xui_push(ctx->container_stack, c);
-	push_container_body(ctx, c, &c->region, opt);
-	xui_push_clip(ctx, &c->body);
-}
-
-void xui_begin_panel(struct xui_context_t * ctx, const char * name)
-{
-	xui_begin_panel_ex(ctx, name, 0);
-}
-
-void xui_end_panel(struct xui_context_t * ctx)
-{
-	xui_pop_clip(ctx);
-	pop_container(ctx);
 }
 
 static int header(struct xui_context_t * ctx, const char * label, int istreenode, int opt)

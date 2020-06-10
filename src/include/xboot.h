@@ -79,6 +79,7 @@ extern "C" {
 #include <xui/checkbox.h>
 #include <xui/radio.h>
 #include <xui/toggle.h>
+#include <xui/badge.h>
 #include <xui/progress.h>
 #include <xui/split.h>
 #include <xui/label.h>

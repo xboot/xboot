@@ -391,6 +391,12 @@ struct xui_style_t {
 
 	struct {
 		int border_radius;
+		int border_width;
+		int outline_width;
+	} badge;
+
+	struct {
+		int border_radius;
 	} progress;
 
 	struct {

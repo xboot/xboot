@@ -41,14 +41,6 @@ enum {
 };
 
 enum {
-	XUI_WINDOW_NOTITLE		= (0x1 << 8),
-	XUI_WINDOW_NOCLOSE		= (0x1 << 9),
-	XUI_WINDOW_NORESIZE		= (0x1 << 10),
-	XUI_WINDOW_AUTOSIZE		= (0x1 << 11),
-	XUI_WINDOW_POPUP		= (0x1 << 12),
-};
-
-enum {
 	XUI_COLOR_BORDER,
 	XUI_COLOR_BASE,
 	XUI_COLOR_BASEHOVER,
@@ -547,9 +539,6 @@ void xui_control_update(struct xui_context_t * ctx, unsigned int id, struct regi
 void xui_control_draw_text(struct xui_context_t * ctx, const char * utf8, struct region_t * r, struct color_t * c, int opt);
 void xui_control_draw_frame(struct xui_context_t * ctx, unsigned int id, struct region_t * r, int cid, int opt);
 
-int xui_begin_window_ex(struct xui_context_t * ctx, const char * title, struct region_t * r, int opt);
-int xui_begin_window(struct xui_context_t * ctx, const char * title, struct region_t * r);
-void xui_end_window(struct xui_context_t * ctx);
 int xui_begin_treenode_ex(struct xui_context_t * ctx, const char * label, int opt);
 int xui_begin_treenode(struct xui_context_t * ctx, const char * label);
 void xui_end_treenode(struct xui_context_t * ctx);

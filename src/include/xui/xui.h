@@ -21,7 +21,7 @@ extern "C" {
 #define XUI_ID_STACK_SIZE			(32)
 #define XUI_LAYOUT_STACK_SIZE		(16)
 #define XUI_CONTAINER_POOL_SIZE		(48)
-#define XUI_TREENODE_POOL_SIZE		(48)
+#define XUI_TREE_POOL_SIZE			(48)
 #define XUI_MAX_WIDTHS				(16)
 
 #define xui_push(stk, val)	do { assert((stk).idx < (int)(sizeof((stk).items) / sizeof(*(stk).items))); (stk).items[(stk).idx] = (val); (stk).idx++; } while(0)
@@ -364,7 +364,7 @@ struct xui_style_t {
 			struct color_t border_color;
 			struct color_t text_color;
 		} focus;
-	} treenode;
+	} tree;
 
 	struct {
 		int border_radius;
@@ -468,7 +468,7 @@ struct xui_context_t {
 	 */
 	struct xui_container_t containers[XUI_CONTAINER_POOL_SIZE];
 	struct xui_pool_item_t container_pool[XUI_CONTAINER_POOL_SIZE];
-	struct xui_pool_item_t treenode_pool[XUI_TREENODE_POOL_SIZE];
+	struct xui_pool_item_t tree_pool[XUI_TREE_POOL_SIZE];
 
 	/*
 	 * Input state
@@ -539,9 +539,9 @@ void xui_control_update(struct xui_context_t * ctx, unsigned int id, struct regi
 void xui_control_draw_text(struct xui_context_t * ctx, const char * utf8, struct region_t * r, struct color_t * c, int opt);
 void xui_control_draw_frame(struct xui_context_t * ctx, unsigned int id, struct region_t * r, int cid, int opt);
 
-int xui_begin_treenode_ex(struct xui_context_t * ctx, const char * label, int opt);
-int xui_begin_treenode(struct xui_context_t * ctx, const char * label);
-void xui_end_treenode(struct xui_context_t * ctx);
+int xui_begin_tree_ex(struct xui_context_t * ctx, const char * label, int opt);
+int xui_begin_tree(struct xui_context_t * ctx, const char * label);
+void xui_end_tree(struct xui_context_t * ctx);
 int xui_header_ex(struct xui_context_t * ctx, const char * label, int opt);
 int xui_header(struct xui_context_t * ctx, const char * label);
 

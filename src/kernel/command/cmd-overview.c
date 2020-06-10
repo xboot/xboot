@@ -54,7 +54,7 @@ static void overview_window(struct xui_context_t * ctx)
 		win->region.w = max(win->region.w, 48);
 		win->region.h = max(win->region.h, 48);
 
-		if(xui_begin_treenode(ctx, "Window Info"))
+		if(xui_begin_tree(ctx, "Window Info"))
 		{
 			struct xui_container_t * win = xui_get_current_container(ctx);
 			xui_layout_row(ctx, 2, (int[]){ 100, -1 }, 0);
@@ -62,104 +62,104 @@ static void overview_window(struct xui_context_t * ctx)
 			xui_label(ctx, xui_format(ctx, "%d, %d", win->region.x, win->region.y));
 			xui_label(ctx, "Size :");
 			xui_label(ctx, xui_format(ctx, "%d, %d", win->region.w, win->region.h));
-			xui_end_treenode(ctx);
+			xui_end_tree(ctx);
 		}
 
-		if(xui_begin_treenode(ctx, "Button"))
+		if(xui_begin_tree(ctx, "Button"))
 		{
-			if(xui_begin_treenode(ctx, "Normal Button"))
+			if(xui_begin_tree(ctx, "Normal Button"))
 			{
 				xui_layout_row(ctx, 3, (int[]){ 100, 100, -1 }, 40);
 				for(int i = 0; i < 8; i++)
 				{
 					xui_button_ex(ctx, wcstr[i], 0, (i << 8) | XUI_OPT_TEXT_CENTER);
 				}
-				xui_end_treenode(ctx);
+				xui_end_tree(ctx);
 			}
 
-			if(xui_begin_treenode(ctx, "Rounded Button"))
+			if(xui_begin_tree(ctx, "Rounded Button"))
 			{
 				xui_layout_row(ctx, 3, (int[]){ 100, 100, -1 }, 40);
 				for(int i = 0; i < 8; i++)
 				{
 					xui_button_ex(ctx, wcstr[i], 0, (i << 8) | XUI_OPT_TEXT_CENTER | XUI_BUTTON_ROUNDED);
 				}
-				xui_end_treenode(ctx);
+				xui_end_tree(ctx);
 			}
 
-			if(xui_begin_treenode(ctx, "Outline Button"))
+			if(xui_begin_tree(ctx, "Outline Button"))
 			{
 				xui_layout_row(ctx, 3, (int[]){ 100, 100, -1 }, 40);
 				for(int i = 0; i < 8; i++)
 				{
 					xui_button_ex(ctx, wcstr[i], 0, (i << 8) | XUI_OPT_TEXT_CENTER | XUI_BUTTON_OUTLINE);
 				}
-				xui_end_treenode(ctx);
+				xui_end_tree(ctx);
 			}
 
-			if(xui_begin_treenode(ctx, "Rounded Outline Button"))
+			if(xui_begin_tree(ctx, "Rounded Outline Button"))
 			{
 				xui_layout_row(ctx, 3, (int[]){ 100, 100, -1 }, 40);
 				for(int i = 0; i < 8; i++)
 				{
 					xui_button_ex(ctx, wcstr[i], 0, (i << 8) | XUI_OPT_TEXT_CENTER | XUI_BUTTON_ROUNDED | XUI_BUTTON_OUTLINE);
 				}
-				xui_end_treenode(ctx);
+				xui_end_tree(ctx);
 			}
 
-			if(xui_begin_treenode(ctx, "Normal Icon Button"))
+			if(xui_begin_tree(ctx, "Normal Icon Button"))
 			{
 				xui_layout_row(ctx, 3, (int[]){ 100, 100, -1 }, 40);
 				for(int i = 0; i < 8; i++)
 				{
 					xui_button_ex(ctx, NULL, 0xf010 + i, (i << 8) | XUI_OPT_TEXT_CENTER);
 				}
-				xui_end_treenode(ctx);
+				xui_end_tree(ctx);
 			}
 
-			if(xui_begin_treenode(ctx, "Rounded Icon Button"))
+			if(xui_begin_tree(ctx, "Rounded Icon Button"))
 			{
 				xui_layout_row(ctx, 3, (int[]){ 100, 100, -1 }, 40);
 				for(int i = 0; i < 8; i++)
 				{
 					xui_button_ex(ctx, NULL, 0xf010 + i, (i << 8) | XUI_OPT_TEXT_CENTER | XUI_BUTTON_ROUNDED);
 				}
-				xui_end_treenode(ctx);
+				xui_end_tree(ctx);
 			}
 
-			if(xui_begin_treenode(ctx, "Outline Icon Button"))
+			if(xui_begin_tree(ctx, "Outline Icon Button"))
 			{
 				xui_layout_row(ctx, 3, (int[]){ 100, 100, -1 }, 40);
 				for(int i = 0; i < 8; i++)
 				{
 					xui_button_ex(ctx, NULL, 0xf010 + i, (i << 8) | XUI_OPT_TEXT_CENTER | XUI_BUTTON_OUTLINE);
 				}
-				xui_end_treenode(ctx);
+				xui_end_tree(ctx);
 			}
 
-			if(xui_begin_treenode(ctx, "Rounded Outline Icon Button"))
+			if(xui_begin_tree(ctx, "Rounded Outline Icon Button"))
 			{
 				xui_layout_row(ctx, 3, (int[]){ 100, 100, -1 }, 40);
 				for(int i = 0; i < 8; i++)
 				{
 					xui_button_ex(ctx, NULL, 0xf010 + i, (i << 8) | XUI_OPT_TEXT_CENTER | XUI_BUTTON_ROUNDED | XUI_BUTTON_OUTLINE);
 				}
-				xui_end_treenode(ctx);
+				xui_end_tree(ctx);
 			}
-			xui_end_treenode(ctx);
+			xui_end_tree(ctx);
 		}
 
-		if(xui_begin_treenode(ctx, "Checkbox"))
+		if(xui_begin_tree(ctx, "Checkbox"))
 		{
 			static int states[8] = { 1, 1, 1, 1, 1, 1, 1, 1 };
 			for(int i = 0; i < 8; i++)
 			{
 				xui_checkbox_ex(ctx, wcstr[i], &states[i], (i << 8));
 			}
-			xui_end_treenode(ctx);
+			xui_end_tree(ctx);
 		}
 
-		if(xui_begin_treenode(ctx, "Radio"))
+		if(xui_begin_tree(ctx, "Radio"))
 		{
 			static enum option_t {
 				PRIMARY,
@@ -187,20 +187,20 @@ static void overview_window(struct xui_context_t * ctx)
 				op = LIGHT;
 			if(xui_radio_ex(ctx, wcstr[7], (op == DARK), XUI_RADIO_DARK))
 				op = DARK;
-			xui_end_treenode(ctx);
+			xui_end_tree(ctx);
 		}
 
-		if(xui_begin_treenode(ctx, "Toggle"))
+		if(xui_begin_tree(ctx, "Toggle"))
 		{
 			static int states[8] = { 1, 1, 1, 1, 1, 1, 1, 1 };
 			for(int i = 0; i < 8; i++)
 			{
 				xui_toggle_ex(ctx, &states[i], (i << 8));
 			}
-			xui_end_treenode(ctx);
+			xui_end_tree(ctx);
 		}
 
-		if(xui_begin_treenode(ctx, "Progress"))
+		if(xui_begin_tree(ctx, "Progress"))
 		{
 			xui_layout_row(ctx, 1, (int[]){ -1 }, 0);
 			for(int i = 0; i < 8; i++)
@@ -212,10 +212,10 @@ static void overview_window(struct xui_context_t * ctx)
 			{
 				xui_progress_ex(ctx, (i + 1) * 10, (i << 8) | XUI_PROGRESS_VERTICAL);
 			}
-			xui_end_treenode(ctx);
+			xui_end_tree(ctx);
 		}
 
-		if(xui_begin_treenode(ctx, "Split"))
+		if(xui_begin_tree(ctx, "Split"))
 		{
 			xui_layout_row(ctx, 1, (int[]){ -1 }, 0);
 			xui_split(ctx);
@@ -225,7 +225,7 @@ static void overview_window(struct xui_context_t * ctx)
 			xui_split_ex(ctx, XUI_SPLIT_VERTICAL);
 			xui_split_ex(ctx, XUI_SPLIT_VERTICAL);
 			xui_split_ex(ctx, XUI_SPLIT_VERTICAL);
-			xui_end_treenode(ctx);
+			xui_end_tree(ctx);
 		}
 
 		if(xui_header(ctx, "Label"))

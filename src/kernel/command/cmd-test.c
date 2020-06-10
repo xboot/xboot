@@ -82,15 +82,15 @@ static void test_window(struct xui_context_t * ctx)
 		{
 			xui_layout_row(ctx, 2, (int[] ) { 140, -1 }, 0);
 			xui_layout_begin_column(ctx);
-			if(xui_begin_treenode(ctx, "Test 1"))
+			if(xui_begin_tree(ctx, "Test 1"))
 			{
-				if(xui_begin_treenode(ctx, "Test 1a"))
+				if(xui_begin_tree(ctx, "Test 1a"))
 				{
 					xui_label(ctx, "Hello");
 					xui_label(ctx, "world");
-					xui_end_treenode(ctx);
+					xui_end_tree(ctx);
 				}
-				if(xui_begin_treenode(ctx, "Test 1b"))
+				if(xui_begin_tree(ctx, "Test 1b"))
 				{
 					if(xui_button(ctx, "Button 1"))
 					{
@@ -100,11 +100,11 @@ static void test_window(struct xui_context_t * ctx)
 					{
 						write_log("Pressed button 2");
 					}
-					xui_end_treenode(ctx);
+					xui_end_tree(ctx);
 				}
-				xui_end_treenode(ctx);
+				xui_end_tree(ctx);
 			}
-			if(xui_begin_treenode(ctx, "Test 2"))
+			if(xui_begin_tree(ctx, "Test 2"))
 			{
 				xui_layout_row(ctx, 2, (int[] ) { 54, 54 }, 0);
 				if(xui_button(ctx, "Button 3"))
@@ -123,15 +123,15 @@ static void test_window(struct xui_context_t * ctx)
 				{
 					write_log("Pressed button 6");
 				}
-				xui_end_treenode(ctx);
+				xui_end_tree(ctx);
 			}
-			if(xui_begin_treenode(ctx, "Test 3"))
+			if(xui_begin_tree(ctx, "Test 3"))
 			{
 				static int checks[3] = { 1, 0, 1 };
 				xui_checkbox(ctx, "Checkbox 1", &checks[0]);
 				xui_checkbox(ctx, "Checkbox 2", &checks[1]);
 				xui_checkbox(ctx, "Checkbox 3", &checks[2]);
-				xui_end_treenode(ctx);
+				xui_end_tree(ctx);
 			}
 			xui_layout_end_column(ctx);
 
@@ -281,7 +281,7 @@ void ttt_test(struct xui_context_t * ctx)
 		xui_header(ctx, "header");
 		static float t = 20;
 		xui_number(ctx, &t, 1);
-		if(xui_begin_treenode(ctx, "treenode"))
+		if(xui_begin_tree(ctx, "tree"))
 		{
 			xui_layout_row(ctx, 3, (int[]){ 100, 100, -1, }, 40);
 			for(int i = 0; i < 8; i++)
@@ -294,7 +294,7 @@ void ttt_test(struct xui_context_t * ctx)
 			{
 				xui_button_ex(ctx, xui_format(ctx, "btn %s %d", "outline", i), 0, (i << 8) | XUI_BUTTON_OUTLINE | XUI_OPT_TEXT_CENTER);
 			}
-			xui_end_treenode(ctx);
+			xui_end_tree(ctx);
 		}
 		xui_end_window(ctx);
 	}

@@ -213,7 +213,7 @@ static const struct xui_style_t xui_style_default = {
 		.thumb_color = { 0xb1, 0xb6, 0xba, 0xff },
 	},
 
-	.treenode = {
+	.tree = {
 		.collapsed_icon = 0xf067,
 		.expanded_icon = 0xf068,
 		.border_radius = 0,
@@ -1132,10 +1132,10 @@ void end_root_container(struct xui_context_t * ctx)
 	pop_container(ctx);
 }
 
-static int header(struct xui_context_t * ctx, const char * label, int istreenode, int opt)
+static int header(struct xui_context_t * ctx, const char * label, int istree, int opt)
 {
 	unsigned int id = xui_get_id(ctx, label, strlen(label));
-	int idx = xui_pool_get(ctx, ctx->treenode_pool, XUI_TREENODE_POOL_SIZE, id);
+	int idx = xui_pool_get(ctx, ctx->tree_pool, XUI_TREE_POOL_SIZE, id);
 	int active, expanded;
 	struct region_t r;
 	struct color_t * fc, * bc, * tc;
@@ -1150,35 +1150,35 @@ static int header(struct xui_context_t * ctx, const char * label, int istreenode
 	if(idx >= 0)
 	{
 		if(active)
-			xui_pool_update(ctx, ctx->treenode_pool, idx);
+			xui_pool_update(ctx, ctx->tree_pool, idx);
 		else
-			memset(&ctx->treenode_pool[idx], 0, sizeof(struct xui_pool_item_t));
+			memset(&ctx->tree_pool[idx], 0, sizeof(struct xui_pool_item_t));
 	}
 	else if(active)
 	{
-		xui_pool_init(ctx, ctx->treenode_pool, XUI_TREENODE_POOL_SIZE, id);
+		xui_pool_init(ctx, ctx->tree_pool, XUI_TREE_POOL_SIZE, id);
 	}
-	radius = ctx->style.treenode.border_radius;
-	width = ctx->style.treenode.border_width;
+	radius = ctx->style.tree.border_radius;
+	width = ctx->style.tree.border_width;
 	if(ctx->focus == id)
 	{
-		fc = &ctx->style.treenode.focus.face_color;
-		bc = &ctx->style.treenode.focus.border_color;
-		tc = &ctx->style.treenode.focus.text_color;
+		fc = &ctx->style.tree.focus.face_color;
+		bc = &ctx->style.tree.focus.border_color;
+		tc = &ctx->style.tree.focus.text_color;
 	}
 	else if(ctx->hover == id)
 	{
-		fc = &ctx->style.treenode.hover.face_color;
-		bc = &ctx->style.treenode.hover.border_color;
-		tc = &ctx->style.treenode.hover.text_color;
+		fc = &ctx->style.tree.hover.face_color;
+		bc = &ctx->style.tree.hover.border_color;
+		tc = &ctx->style.tree.hover.text_color;
 	}
 	else
 	{
-		fc = &ctx->style.treenode.normal.face_color;
-		bc = &ctx->style.treenode.normal.border_color;
-		tc = &ctx->style.treenode.normal.text_color;
+		fc = &ctx->style.tree.normal.face_color;
+		bc = &ctx->style.tree.normal.border_color;
+		tc = &ctx->style.tree.normal.text_color;
 	}
-	if(istreenode)
+	if(istree)
 	{
 		if(ctx->hover == id)
 		{
@@ -1195,7 +1195,7 @@ static int header(struct xui_context_t * ctx, const char * label, int istreenode
 		if(fc->a)
 			xui_draw_rectangle(ctx, r.x, r.y, r.w, r.h, radius, 0, fc);
 	}
-	xui_draw_icon(ctx, ctx->style.font.icon_family, expanded ? ctx->style.treenode.expanded_icon : ctx->style.treenode.collapsed_icon, r.x, r.y, r.h, r.h, tc);
+	xui_draw_icon(ctx, ctx->style.font.icon_family, expanded ? ctx->style.tree.expanded_icon : ctx->style.tree.collapsed_icon, r.x, r.y, r.h, r.h, tc);
 	r.x += r.h - ctx->style.layout.padding;
 	r.w -= r.h - ctx->style.layout.padding;
 	if(label && tc->a)
@@ -1204,7 +1204,7 @@ static int header(struct xui_context_t * ctx, const char * label, int istreenode
 	return expanded ? 1 : 0;
 }
 
-int xui_begin_treenode_ex(struct xui_context_t * ctx, const char * label, int opt)
+int xui_begin_tree_ex(struct xui_context_t * ctx, const char * label, int opt)
 {
 	int res = header(ctx, label, 1, opt);
 	if(res)
@@ -1215,12 +1215,12 @@ int xui_begin_treenode_ex(struct xui_context_t * ctx, const char * label, int op
 	return res;
 }
 
-int xui_begin_treenode(struct xui_context_t * ctx, const char * label)
+int xui_begin_tree(struct xui_context_t * ctx, const char * label)
 {
-	return xui_begin_treenode_ex(ctx, label, 0);
+	return xui_begin_tree_ex(ctx, label, 0);
 }
 
-void xui_end_treenode(struct xui_context_t * ctx)
+void xui_end_tree(struct xui_context_t * ctx)
 {
 	xui_get_layout(ctx)->indent -= ctx->style.layout.indent;
 	xui_pop_id(ctx);

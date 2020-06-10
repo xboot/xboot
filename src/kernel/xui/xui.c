@@ -1223,25 +1223,6 @@ void xui_end_window(struct xui_context_t * ctx)
 	end_root_container(ctx);
 }
 
-int xui_begin_popup(struct xui_context_t * ctx, const char * name)
-{
-	return xui_begin_window_ex(ctx, name, NULL, XUI_WINDOW_POPUP | XUI_WINDOW_AUTOSIZE | XUI_WINDOW_NORESIZE | XUI_WINDOW_NOTITLE | XUI_OPT_NOSCROLL | XUI_OPT_CLOSED);
-}
-
-void xui_end_popup(struct xui_context_t * ctx)
-{
-	xui_end_window(ctx);
-}
-
-void xui_open_popup(struct xui_context_t * ctx, const char * name)
-{
-	struct xui_container_t * c = xui_get_container(ctx, name);
-	ctx->hover_root = ctx->next_hover_root = c;
-	region_init(&c->region, ctx->mouse_pos_x, ctx->mouse_pos_y, 1, 1);
-	c->open = 1;
-	xui_set_front(ctx, c);
-}
-
 static int header(struct xui_context_t * ctx, const char * label, int istreenode, int opt)
 {
 	unsigned int id = xui_get_id(ctx, label, strlen(label));

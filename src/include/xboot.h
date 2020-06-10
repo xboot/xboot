@@ -72,6 +72,7 @@ extern "C" {
 #include <vfs/vfs.h>
 #include <xfs/xfs.h>
 #include <xui/xui.h>
+#include <xui/popup.h>
 #include <xui/panel.h>
 #include <xui/button.h>
 #include <xui/checkbox.h>

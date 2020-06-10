@@ -550,9 +550,6 @@ void xui_control_draw_frame(struct xui_context_t * ctx, unsigned int id, struct 
 int xui_begin_window_ex(struct xui_context_t * ctx, const char * title, struct region_t * r, int opt);
 int xui_begin_window(struct xui_context_t * ctx, const char * title, struct region_t * r);
 void xui_end_window(struct xui_context_t * ctx);
-int xui_begin_popup(struct xui_context_t * ctx, const char * name);
-void xui_end_popup(struct xui_context_t * ctx);
-void xui_open_popup(struct xui_context_t * ctx, const char * name);
 int xui_begin_treenode_ex(struct xui_context_t * ctx, const char * label, int opt);
 int xui_begin_treenode(struct xui_context_t * ctx, const char * label);
 void xui_end_treenode(struct xui_context_t * ctx);

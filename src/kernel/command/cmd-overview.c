@@ -204,7 +204,7 @@ static void overview_window(struct xui_context_t * ctx)
 		{
 			if(xui_begin_tree(ctx, "Normal Badge"))
 			{
-				xui_layout_row(ctx, 3, (int[]){ 100, 100, -1 }, 40);
+				xui_layout_row(ctx, 3, (int[]){ 100, 100, -1 }, 0);
 				for(int i = 0; i < 8; i++)
 				{
 					xui_badge_ex(ctx, wcstr[i], (i << 8));
@@ -214,7 +214,7 @@ static void overview_window(struct xui_context_t * ctx)
 
 			if(xui_begin_tree(ctx, "Rounded Badge"))
 			{
-				xui_layout_row(ctx, 3, (int[]){ 100, 100, -1 }, 40);
+				xui_layout_row(ctx, 3, (int[]){ 100, 100, -1 }, 0);
 				for(int i = 0; i < 8; i++)
 				{
 					xui_badge_ex(ctx, wcstr[i], (i << 8) | XUI_BADGE_ROUNDED);
@@ -224,7 +224,7 @@ static void overview_window(struct xui_context_t * ctx)
 
 			if(xui_begin_tree(ctx, "Outline Badge"))
 			{
-				xui_layout_row(ctx, 3, (int[]){ 100, 100, -1 }, 40);
+				xui_layout_row(ctx, 3, (int[]){ 100, 100, -1 }, 0);
 				for(int i = 0; i < 8; i++)
 				{
 					xui_badge_ex(ctx, wcstr[i], (i << 8) | XUI_BADGE_OUTLINE);
@@ -234,7 +234,7 @@ static void overview_window(struct xui_context_t * ctx)
 
 			if(xui_begin_tree(ctx, "Rounded Outline Badge"))
 			{
-				xui_layout_row(ctx, 3, (int[]){ 100, 100, -1 }, 40);
+				xui_layout_row(ctx, 3, (int[]){ 100, 100, -1 }, 0);
 				for(int i = 0; i < 8; i++)
 				{
 					xui_badge_ex(ctx, wcstr[i], (i << 8) | XUI_BADGE_ROUNDED | XUI_BADGE_OUTLINE);

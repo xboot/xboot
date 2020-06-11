@@ -62,6 +62,10 @@ static void overview_window(struct xui_context_t * ctx)
 			xui_label(ctx, xui_format(ctx, "%d, %d", win->region.x, win->region.y));
 			xui_label(ctx, "Size :");
 			xui_label(ctx, xui_format(ctx, "%d, %d", win->region.w, win->region.h));
+			xui_label(ctx, "Frame :");
+			xui_label(ctx, xui_format(ctx, "%d", ctx->frame));
+			xui_label(ctx, "Fps :");
+			xui_label(ctx, xui_format(ctx, "%d", ctx->fps));
 			xui_end_tree(ctx);
 		}
 

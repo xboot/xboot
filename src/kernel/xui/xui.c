@@ -291,7 +291,12 @@ void xui_begin(struct xui_context_t * ctx)
 	ctx->next_hover_root = NULL;
 	ctx->mouse_delta_x = ctx->mouse_pos_x - ctx->last_mouse_pos_x;
 	ctx->mouse_delta_y = ctx->mouse_pos_y - ctx->last_mouse_pos_y;
+	ctx->now = ktime_to_ns(ktime_get());
+	ctx->delta = ctx->now - ctx->last;
+	ctx->last = ctx->now;
 	ctx->frame++;
+	if(ctx->delta > 0)
+		ctx->fps = 1000000000.0 / ctx->delta * 0.382 + ctx->fps * 0.618;
 }
 
 static int compare_zindex(const void * a, const void * b)
@@ -1425,9 +1430,9 @@ struct xui_context_t * xui_context_alloc(const char * fb, const char * input, st
 
 	memcpy(&ctx->style, style ? style : &xui_style_default, sizeof(struct xui_style_t));
 	region_clone(&ctx->clip, &ctx->screen);
+	ctx->last = ctx->now = ktime_to_ns(ktime_get());
 
 	ctx->draw_frame = draw_frame;
-
 	return ctx;
 }
 

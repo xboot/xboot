@@ -400,6 +400,10 @@ struct xui_style_t {
 	} progress;
 
 	struct {
+		int outline_width;
+	} spinner;
+
+	struct {
 		int line_width;
 		struct color_t face_color;
 	} split;

@@ -326,7 +326,7 @@ void xui_end(struct xui_context_t * ctx)
 	if(!ctx->updated_focus)
 		ctx->focus = 0;
 	ctx->updated_focus = 0;
-	if(ctx->mouse.down && ctx->next_hover_root && (ctx->next_hover_root->zindex < ctx->last_zindex) && (ctx->next_hover_root->zindex >= 0))
+	if((ctx->mouse.down || ctx->mouse.up) && ctx->next_hover_root && (ctx->next_hover_root->zindex < ctx->last_zindex) && (ctx->next_hover_root->zindex >= 0))
 		xui_set_front(ctx, ctx->next_hover_root);
 	ctx->mouse.down = 0;
 	ctx->mouse.up = 0;
@@ -978,28 +978,24 @@ static int xui_mouse_over(struct xui_context_t * ctx, struct region_t * r)
 
 void xui_control_update(struct xui_context_t * ctx, unsigned int id, struct region_t * r, int opt)
 {
-	int over;
-
 	if(ctx->focus == id)
 		ctx->updated_focus = 1;
-	if(opt & XUI_OPT_NOINTERACT)
-		return;
-	over = xui_mouse_over(ctx, r);
-	if(over && !ctx->mouse.state)
-		ctx->hover = id;
-	if(ctx->focus == id)
+	if(!(opt & XUI_OPT_NOINTERACT))
 	{
-		if(ctx->mouse.down && !over)
-			xui_set_focus(ctx, 0);
-		if(!ctx->mouse.state && (~opt & XUI_OPT_HOLDFOCUS))
-			xui_set_focus(ctx, 0);
-	}
-	if(ctx->hover == id)
-	{
-		if(ctx->mouse.down)
-			xui_set_focus(ctx, id);
-		else if(!over)
+		int over = xui_mouse_over(ctx, r);
+		if(!ctx->mouse.state && over)
+			ctx->hover = id;
+		if((ctx->hover == id) && !over)
 			ctx->hover = 0;
+		if(ctx->focus == id)
+		{
+			if((ctx->mouse.up || ctx->mouse.down) && !over)
+				xui_set_focus(ctx, 0);
+			if(!ctx->mouse.state && (~opt & XUI_OPT_HOLDFOCUS))
+				xui_set_focus(ctx, 0);
+		}
+		if((ctx->mouse.up || ctx->mouse.down) && over)
+			xui_set_focus(ctx, id);
 	}
 }
 

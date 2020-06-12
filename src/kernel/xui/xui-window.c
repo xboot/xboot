@@ -101,7 +101,7 @@ int xui_begin_window_ex(struct xui_context_t * ctx, const char * title, struct r
 			c->region.w = c->content_width + (c->region.w - pr->w);
 			c->region.h = c->content_height + (c->region.h - pr->h);
 		}
-		if((opt & XUI_WINDOW_POPUP) && ctx->mouse.down && (ctx->hover_root != c))
+		if((opt & XUI_WINDOW_POPUP) && (ctx->mouse.down || ctx->mouse.up) && (ctx->hover_root != c))
 			c->open = 0;
 		xui_push_clip(ctx, &c->body);
 		return 1;

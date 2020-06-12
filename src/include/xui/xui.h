@@ -487,12 +487,12 @@ struct xui_context_t {
 	/*
 	 * Input state
 	 */
-	int mouse_pos_x, mouse_pos_y;
-	int last_mouse_pos_x, last_mouse_pos_y;
-	int mouse_delta_x, mouse_delta_y;
-	int scroll_delta_x, scroll_delta_y;
-	int mouse_down;
-	int mouse_pressed;
+	struct {
+		int x, y, zx, zy;
+		int state, down, up;
+		int dx, dy;
+		int ox, oy;
+	} mouse;
 	int key_down;
 	int key_pressed;
 	char input_text[32];

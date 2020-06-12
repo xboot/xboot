@@ -33,7 +33,7 @@ void xui_open_popup(struct xui_context_t * ctx, const char * name)
 {
 	struct xui_container_t * c = xui_get_container(ctx, name);
 	ctx->hover_root = ctx->next_hover_root = c;
-	region_init(&c->region, ctx->mouse_pos_x, ctx->mouse_pos_y, 1, 1);
+	region_init(&c->region, ctx->mouse.x, ctx->mouse.y, 1, 1);
 	c->open = 1;
 	xui_set_front(ctx, c);
 }

@@ -39,7 +39,7 @@ int xui_toggle_ex(struct xui_context_t * ctx, int * state, int opt)
 	int click = 0;
 
 	xui_control_update(ctx, id, r, opt);
-	if((ctx->mouse_pressed & XUI_MOUSE_LEFT) && (ctx->focus == id))
+	if((ctx->focus == id) && (ctx->mouse.down & XUI_MOUSE_LEFT))
 	{
 		*state = !*state;
 		click = 1;

@@ -54,10 +54,10 @@ int xui_begin_window_ex(struct xui_context_t * ctx, const char * title, struct r
 			id = xui_get_id(ctx, "!title", 6);
 			xui_control_update(ctx, id, &hr, opt);
 			xui_control_draw_text(ctx, title, &hr, &ctx->style.window.text_color, opt);
-			if((id == ctx->focus) && (ctx->mouse_down & XUI_MOUSE_LEFT))
+			if((ctx->focus == id) && (ctx->mouse.state & XUI_MOUSE_LEFT))
 			{
-				c->region.x += ctx->mouse_delta_x;
-				c->region.y += ctx->mouse_delta_y;
+				c->region.x += ctx->mouse.dx;
+				c->region.y += ctx->mouse.dy;
 			}
 			body.y += hr.h;
 			body.h -= hr.h;
@@ -68,7 +68,7 @@ int xui_begin_window_ex(struct xui_context_t * ctx, const char * title, struct r
 				hr.w -= tr.w;
 				xui_draw_icon(ctx, ctx->style.font.icon_family, ctx->style.window.close_icon, tr.x, tr.y, tr.w, tr.h, &ctx->style.window.text_color);
 				xui_control_update(ctx, id, &tr, opt);
-				if((ctx->mouse_pressed & XUI_MOUSE_LEFT) && (id == ctx->focus))
+				if((ctx->focus == id) && (ctx->mouse.down & XUI_MOUSE_LEFT))
 					c->open = 0;
 			}
 		}
@@ -79,16 +79,16 @@ int xui_begin_window_ex(struct xui_context_t * ctx, const char * title, struct r
 			id = xui_get_id(ctx, "!resize", 7);
 			region_init(&tr, region.x + region.w - sz, region.y + region.h - sz, sz, sz);
 			xui_control_update(ctx, id, &tr, opt);
-			if((id == ctx->focus) && (ctx->mouse_down & XUI_MOUSE_LEFT))
+			if((ctx->focus == id) && (ctx->mouse.state & XUI_MOUSE_LEFT))
 			{
 				if(ctx->resize_id != id)
 				{
 					ctx->resize_id = id;
-					ctx->resize_cursor_x = ctx->mouse_pos_x - tr.x;
-					ctx->resize_cursor_y = ctx->mouse_pos_y - tr.y;
+					ctx->resize_cursor_x = ctx->mouse.x - tr.x;
+					ctx->resize_cursor_y = ctx->mouse.y - tr.y;
 				}
-				c->region.w = max(96, ctx->mouse_pos_x - region.x + sz - ctx->resize_cursor_x);
-				c->region.h = max(64, ctx->mouse_pos_y - region.y + sz - ctx->resize_cursor_y);
+				c->region.w = max(64, ctx->mouse.x - region.x + sz - ctx->resize_cursor_x);
+				c->region.h = max(64, ctx->mouse.y - region.y + sz - ctx->resize_cursor_y);
 			}
 			else if(ctx->resize_id == id)
 			{
@@ -101,7 +101,7 @@ int xui_begin_window_ex(struct xui_context_t * ctx, const char * title, struct r
 			c->region.w = c->content_width + (c->region.w - pr->w);
 			c->region.h = c->content_height + (c->region.h - pr->h);
 		}
-		if((opt & XUI_WINDOW_POPUP) && ctx->mouse_pressed && (ctx->hover_root != c))
+		if((opt & XUI_WINDOW_POPUP) && ctx->mouse.down && (ctx->hover_root != c))
 			c->open = 0;
 		xui_push_clip(ctx, &c->body);
 		return 1;

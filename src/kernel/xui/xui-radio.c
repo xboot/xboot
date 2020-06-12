@@ -39,7 +39,7 @@ int xui_radio_ex(struct xui_context_t * ctx, const char * label, int active, int
 	int click = 0;
 
 	xui_control_update(ctx, id, r, opt);
-	if((ctx->mouse_pressed & XUI_MOUSE_LEFT) && (ctx->focus == id))
+	if((ctx->focus == id) && (ctx->mouse.down & XUI_MOUSE_LEFT))
 		click = 1;
 	radius = r->h / 2;
 	width = ctx->style.radio.border_width;

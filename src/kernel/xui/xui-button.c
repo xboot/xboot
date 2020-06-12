@@ -89,7 +89,7 @@ int xui_button_ex(struct xui_context_t * ctx, const char * label, int icon, int 
 			else
 				xui_draw_icon(ctx, ctx->style.font.icon_family, icon, r->x, r->y, r->w, r->h, tc);
 		}
-		if(ctx->mouse.down & XUI_MOUSE_LEFT)
+		if(ctx->mouse.up & XUI_MOUSE_LEFT)
 			return 1;
 	}
 	else if(ctx->hover == id)

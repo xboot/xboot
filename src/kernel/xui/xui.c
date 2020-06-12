@@ -1131,7 +1131,7 @@ void begin_root_container(struct xui_context_t * ctx, struct xui_container_t * c
 	xui_push(ctx->container_stack, c);
 	xui_push(ctx->root_list, c);
 	c->head = xui_cmd_push_jump(ctx, NULL);
-	if(region_hit(&c->region, ctx->mouse.x, ctx->mouse.y) && (!ctx->next_hover_root || c->zindex > ctx->next_hover_root->zindex))
+	if(region_hit(&c->region, ctx->mouse.x, ctx->mouse.y) && (!ctx->next_hover_root || (c->zindex > ctx->next_hover_root->zindex)))
 		ctx->next_hover_root = c;
 	xui_push(ctx->clip_stack, unclipped_region);
 }
@@ -1521,7 +1521,7 @@ void xui_loop(struct xui_context_t * ctx, void (*func)(struct xui_context_t *))
 
 	while(1)
 	{
-		if(window_pump_event(ctx->w, &e))
+		while(window_pump_event(ctx->w, &e))
 		{
 			switch(e.type)
 			{

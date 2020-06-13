@@ -32,8 +32,41 @@
 void xui_split_ex(struct xui_context_t * ctx, int opt)
 {
 	struct region_t * r = xui_layout_next(ctx);
+	struct xui_widget_color_t * wc;
+	struct color_t * fc;
 	struct point_t p0, p1;
 
+	switch(opt & (0x7 << 8))
+	{
+	case XUI_SPLIT_PRIMARY:
+		wc = &ctx->style.primary;
+		break;
+	case XUI_SPLIT_SECONDARY:
+		wc = &ctx->style.secondary;
+		break;
+	case XUI_SPLIT_SUCCESS:
+		wc = &ctx->style.success;
+		break;
+	case XUI_SPLIT_INFO:
+		wc = &ctx->style.info;
+		break;
+	case XUI_SPLIT_WARNING:
+		wc = &ctx->style.warning;
+		break;
+	case XUI_SPLIT_DANGER:
+		wc = &ctx->style.danger;
+		break;
+	case XUI_SPLIT_LIGHT:
+		wc = &ctx->style.light;
+		break;
+	case XUI_SPLIT_DARK:
+		wc = &ctx->style.dark;
+		break;
+	default:
+		wc = &ctx->style.primary;
+		break;
+	}
+	fc = &wc->normal.face;
 	if(opt & XUI_SPLIT_VERTICAL)
 	{
 		p0.x = r->x + r->w / 2;
@@ -48,5 +81,6 @@ void xui_split_ex(struct xui_context_t * ctx, int opt)
 		p1.x = r->x + r->w;
 		p1.y = p0.y;
 	}
-	xui_draw_line(ctx, &p0, &p1, ctx->style.split.line_width, &ctx->style.split.face_color);
+	if(fc->a)
+		xui_draw_line(ctx, &p0, &p1, ctx->style.split.line_width, fc);
 }

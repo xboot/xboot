@@ -276,13 +276,15 @@ static void overview_window(struct xui_context_t * ctx)
 		if(xui_begin_tree(ctx, "Split"))
 		{
 			xui_layout_row(ctx, 1, (int[]){ -1 }, 0);
-			xui_split(ctx);
-			xui_split(ctx);
-			xui_split(ctx);
-			xui_layout_row(ctx, 3, (int[]){ 100, 100, -1 }, 80);
-			xui_split_ex(ctx, XUI_SPLIT_VERTICAL);
-			xui_split_ex(ctx, XUI_SPLIT_VERTICAL);
-			xui_split_ex(ctx, XUI_SPLIT_VERTICAL);
+			for(int i = 0; i < 8; i++)
+			{
+				xui_split_ex(ctx, (i << 8) | XUI_SPLIT_HORIZONTAL);
+			}
+			xui_layout_row(ctx, 8, (int[]){ 24, 24, 24, 24, 24, 24, 24, -1 }, 160);
+			for(int i = 0; i < 8; i++)
+			{
+				xui_split_ex(ctx, (i << 8) | XUI_SPLIT_VERTICAL);
+			}
 			xui_end_tree(ctx);
 		}
 

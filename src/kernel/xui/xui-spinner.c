@@ -39,28 +39,28 @@ void xui_spinner_ex(struct xui_context_t * ctx, int opt)
 
 	switch(opt & (0x7 << 8))
 	{
-	case XUI_BADGE_PRIMARY:
+	case XUI_SPINNER_PRIMARY:
 		wc = &ctx->style.primary;
 		break;
-	case XUI_BADGE_SECONDARY:
+	case XUI_SPINNER_SECONDARY:
 		wc = &ctx->style.secondary;
 		break;
-	case XUI_BADGE_SUCCESS:
+	case XUI_SPINNER_SUCCESS:
 		wc = &ctx->style.success;
 		break;
-	case XUI_BADGE_INFO:
+	case XUI_SPINNER_INFO:
 		wc = &ctx->style.info;
 		break;
-	case XUI_BADGE_WARNING:
+	case XUI_SPINNER_WARNING:
 		wc = &ctx->style.warning;
 		break;
-	case XUI_BADGE_DANGER:
+	case XUI_SPINNER_DANGER:
 		wc = &ctx->style.danger;
 		break;
-	case XUI_BADGE_LIGHT:
+	case XUI_SPINNER_LIGHT:
 		wc = &ctx->style.light;
 		break;
-	case XUI_BADGE_DARK:
+	case XUI_SPINNER_DARK:
 		wc = &ctx->style.dark;
 		break;
 	default:

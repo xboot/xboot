@@ -40,28 +40,28 @@ void xui_progress_ex(struct xui_context_t * ctx, int percent, int opt)
 	radius = ctx->style.progress.border_radius;
 	switch(opt & (0x7 << 8))
 	{
-	case XUI_CHECKBOX_PRIMARY:
+	case XUI_PROGRESS_PRIMARY:
 		wc = &ctx->style.primary;
 		break;
-	case XUI_CHECKBOX_SECONDARY:
+	case XUI_PROGRESS_SECONDARY:
 		wc = &ctx->style.secondary;
 		break;
-	case XUI_CHECKBOX_SUCCESS:
+	case XUI_PROGRESS_SUCCESS:
 		wc = &ctx->style.success;
 		break;
-	case XUI_CHECKBOX_INFO:
+	case XUI_PROGRESS_INFO:
 		wc = &ctx->style.info;
 		break;
-	case XUI_CHECKBOX_WARNING:
+	case XUI_PROGRESS_WARNING:
 		wc = &ctx->style.warning;
 		break;
-	case XUI_CHECKBOX_DANGER:
+	case XUI_PROGRESS_DANGER:
 		wc = &ctx->style.danger;
 		break;
-	case XUI_CHECKBOX_LIGHT:
+	case XUI_PROGRESS_LIGHT:
 		wc = &ctx->style.light;
 		break;
-	case XUI_CHECKBOX_DARK:
+	case XUI_PROGRESS_DARK:
 		wc = &ctx->style.dark;
 		break;
 	default:

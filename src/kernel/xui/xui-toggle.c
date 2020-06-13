@@ -50,28 +50,28 @@ int xui_toggle_ex(struct xui_context_t * ctx, int * state, int opt)
 	{
 		switch(opt & (0x7 << 8))
 		{
-		case XUI_CHECKBOX_PRIMARY:
+		case XUI_TOGGLE_PRIMARY:
 			wc = &ctx->style.primary;
 			break;
-		case XUI_CHECKBOX_SECONDARY:
+		case XUI_TOGGLE_SECONDARY:
 			wc = &ctx->style.secondary;
 			break;
-		case XUI_CHECKBOX_SUCCESS:
+		case XUI_TOGGLE_SUCCESS:
 			wc = &ctx->style.success;
 			break;
-		case XUI_CHECKBOX_INFO:
+		case XUI_TOGGLE_INFO:
 			wc = &ctx->style.info;
 			break;
-		case XUI_CHECKBOX_WARNING:
+		case XUI_TOGGLE_WARNING:
 			wc = &ctx->style.warning;
 			break;
-		case XUI_CHECKBOX_DANGER:
+		case XUI_TOGGLE_DANGER:
 			wc = &ctx->style.danger;
 			break;
-		case XUI_CHECKBOX_LIGHT:
+		case XUI_TOGGLE_LIGHT:
 			wc = &ctx->style.light;
 			break;
-		case XUI_CHECKBOX_DARK:
+		case XUI_TOGGLE_DARK:
 			wc = &ctx->style.dark;
 			break;
 		default:

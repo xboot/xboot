@@ -263,6 +263,16 @@ static void overview_window(struct xui_context_t * ctx)
 			xui_end_tree(ctx);
 		}
 
+		if(xui_begin_tree(ctx, "Radialbar"))
+		{
+			xui_layout_row(ctx, 3, (int[]){ 100, 100, -1 }, 100);
+			for(int i = 0; i < 8; i++)
+			{
+				xui_radialbar_ex(ctx, (i + 1) * 10, (i << 8));
+			}
+			xui_end_tree(ctx);
+		}
+
 		if(xui_begin_tree(ctx, "Spinner"))
 		{
 			xui_layout_row(ctx, 3, (int[]){ 100, 100, -1 }, 60);

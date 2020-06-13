@@ -268,6 +268,10 @@ static const struct xui_style_t xui_style_default = {
 		.border_radius = 4,
 	},
 
+	.radialbar = {
+		.outline_width = 8,
+	},
+
 	.spinner = {
 		.outline_width = 4,
 	},

@@ -401,6 +401,10 @@ struct xui_style_t {
 
 	struct {
 		int outline_width;
+	} radialbar;
+
+	struct {
+		int outline_width;
 	} spinner;
 
 	struct {

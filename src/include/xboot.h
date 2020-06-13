@@ -81,6 +81,7 @@ extern "C" {
 #include <xui/toggle.h>
 #include <xui/badge.h>
 #include <xui/progress.h>
+#include <xui/radialbar.h>
 #include <xui/spinner.h>
 #include <xui/split.h>
 #include <xui/label.h>

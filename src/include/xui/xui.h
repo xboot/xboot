@@ -390,6 +390,10 @@ struct xui_style_t {
 	} toggle;
 
 	struct {
+		int border_width;
+	} slider;
+
+	struct {
 		int border_radius;
 		int border_width;
 		int outline_width;
@@ -561,9 +565,6 @@ int xui_begin_tree(struct xui_context_t * ctx, const char * label);
 void xui_end_tree(struct xui_context_t * ctx);
 int xui_header_ex(struct xui_context_t * ctx, const char * label, int opt);
 int xui_header(struct xui_context_t * ctx, const char * label);
-
-int xui_slider_ex(struct xui_context_t * ctx, float * value, float low, float high, float step, const char * fmt, int opt);
-int xui_slider(struct xui_context_t * ctx, float * value, float low, float high);
 
 int xui_textbox_ex(struct xui_context_t * ctx, char * buf, int bufsz, int opt);
 int xui_textbox(struct xui_context_t * ctx, char * buf, int bufsz);

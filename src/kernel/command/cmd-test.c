@@ -149,11 +149,11 @@ static void test_window(struct xui_context_t * ctx)
 			xui_layout_begin_column(ctx);
 			xui_layout_row(ctx, 2, (int[] ) { 46, -1 }, 0);
 			xui_label(ctx, "Red:");
-			xui_slider(ctx, &bg[0], 0, 255);
+			xui_slider(ctx, &bg[0], 0, 255, 0);
 			xui_label(ctx, "Green:");
-			xui_slider(ctx, &bg[1], 0, 255);
+			xui_slider(ctx, &bg[1], 0, 255, 0);
 			xui_label(ctx, "Blue:");
-			xui_slider(ctx, &bg[2], 0, 255);
+			xui_slider(ctx, &bg[2], 0, 255, 0);
 			xui_layout_end_column(ctx);
 			/* color preview */
 			struct region_t * r = xui_layout_next(ctx);
@@ -214,7 +214,7 @@ static int uint8_slider(struct xui_context_t * ctx, unsigned char *value, int lo
 	float tmp;
 	xui_push_id(ctx, &value, sizeof(value));
 	tmp = *value;
-	int res = xui_slider_ex(ctx, &tmp, low, high, 0, "%.0f", 0);
+	int res = xui_slider_ex(ctx, &tmp, low, high, 0, 0);
 	*value = tmp;
 	xui_pop_id(ctx);
 	return res;

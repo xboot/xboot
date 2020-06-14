@@ -258,6 +258,10 @@ static const struct xui_style_t xui_style_default = {
 		.outline_width = 2,
 	},
 
+	.slider = {
+		.border_width = 4,
+	},
+
 	.badge = {
 		.border_radius = 4,
 		.border_width = 4,
@@ -1326,45 +1330,6 @@ static int number_textbox(struct xui_context_t * ctx, float * value, struct regi
 		}
 	}
 	return 0;
-}
-
-int xui_slider_ex(struct xui_context_t * ctx, float * value, float low, float high, float step, const char * fmt, int opt)
-{
-	char buf[128];
-	struct region_t thumb;
-	int x, w, res = 0;
-	float last = *value, v = last;
-	unsigned int id = xui_get_id(ctx, &value, sizeof(value));
-	struct region_t base;
-	region_clone(&base, xui_layout_next(ctx));
-
-	if(number_textbox(ctx, &v, &base, id))
-		return res;
-	xui_control_update(ctx, id, &base, opt);
-	if((ctx->focus == id) && (ctx->mouse.state & XUI_MOUSE_LEFT))
-	{
-		v = low + (ctx->mouse.x - base.x) * (high - low) / base.w;
-		if(step)
-			v = (((v + step / 2) / step)) * step;
-	}
-	*value = v = clamp(v, low, high);
-	if(last != v)
-		res |= XUI_RES_CHANGE;
-
-	xui_control_draw_frame(ctx, id, &base, XUI_COLOR_BASE, opt);
-	w = ctx->style.scroll.thumb_size;
-	x = (v - low) * (base.w - w) / (high - low);
-	region_init(&thumb, base.x + x, base.y, w, base.h);
-	xui_control_draw_frame(ctx, id, &thumb, XUI_COLOR_BASE, opt);
-	sprintf(buf, fmt, v);
-	xui_control_draw_text(ctx, buf, &base, &ctx->style.font.color, opt);
-
-	return res;
-}
-
-int xui_slider(struct xui_context_t * ctx, float * value, float low, float high)
-{
-	return xui_slider_ex(ctx, value, low, high, 0, "%.2f", 0);
 }
 
 int xui_textbox_ex(struct xui_context_t * ctx, char * buf, int bufsz, int opt)

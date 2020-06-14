@@ -397,6 +397,12 @@ struct xui_style_t {
 		int border_radius;
 		int border_width;
 		int outline_width;
+	} number;
+
+	struct {
+		int border_radius;
+		int border_width;
+		int outline_width;
 	} badge;
 
 	struct {
@@ -448,8 +454,6 @@ struct xui_context_t {
 	struct xui_container_t * hover_root;
 	struct xui_container_t * next_hover_root;
 	struct xui_container_t * scroll_target;
-	char number_edit_buf[127];
-	unsigned int number_edit;
 
 	/*
 	 * Stack
@@ -568,9 +572,6 @@ int xui_header(struct xui_context_t * ctx, const char * label);
 
 int xui_textbox_ex(struct xui_context_t * ctx, char * buf, int bufsz, int opt);
 int xui_textbox(struct xui_context_t * ctx, char * buf, int bufsz);
-
-int xui_number_ex(struct xui_context_t * ctx, float * value, float step, const char * fmt, int opt);
-int xui_number(struct xui_context_t * ctx, float * value, float step);
 
 struct xui_context_t * xui_context_alloc(const char * fb, const char * input, struct xui_style_t * style);
 void xui_context_free(struct xui_context_t * ctx);

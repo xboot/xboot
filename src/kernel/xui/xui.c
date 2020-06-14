@@ -262,6 +262,12 @@ static const struct xui_style_t xui_style_default = {
 		.border_width = 4,
 	},
 
+	.number = {
+		.border_radius = 4,
+		.border_width = 4,
+		.outline_width = 2,
+	},
+
 	.badge = {
 		.border_radius = 4,
 		.border_width = 4,
@@ -1309,29 +1315,6 @@ static int xui_textbox_raw(struct xui_context_t * ctx, char * buf, int bufsz, un
 	return res;
 }
 
-static int number_textbox(struct xui_context_t * ctx, float * value, struct region_t * r, unsigned int id)
-{
-	if((ctx->mouse.down & XUI_MOUSE_LEFT) && (ctx->key_down & XUI_KEY_SHIFT) && (ctx->hover == id))
-	{
-		ctx->number_edit = id;
-		sprintf(ctx->number_edit_buf, "%.3g", *value);
-	}
-	if(ctx->number_edit == id)
-	{
-		int res = xui_textbox_raw(ctx, ctx->number_edit_buf, sizeof(ctx->number_edit_buf), id, r, 0);
-		if((ctx->focus != id) || (res & XUI_RES_SUBMIT))
-		{
-			*value = strtod(ctx->number_edit_buf, NULL);
-			ctx->number_edit = 0;
-		}
-		else
-		{
-			return 1;
-		}
-	}
-	return 0;
-}
-
 int xui_textbox_ex(struct xui_context_t * ctx, char * buf, int bufsz, int opt)
 {
 	unsigned int id = xui_get_id(ctx, &buf, sizeof(buf));
@@ -1343,34 +1326,6 @@ int xui_textbox_ex(struct xui_context_t * ctx, char * buf, int bufsz, int opt)
 int xui_textbox(struct xui_context_t * ctx, char * buf, int bufsz)
 {
 	return xui_textbox_ex(ctx, buf, bufsz, 0);
-}
-
-int xui_number_ex(struct xui_context_t * ctx, float * value, float step, const char * fmt, int opt)
-{
-	char buf[128];
-	int res = 0;
-	unsigned int id = xui_get_id(ctx, &value, sizeof(value));
-	struct region_t base;
-	region_clone(&base, xui_layout_next(ctx));
-	float last = *value;
-
-	if(number_textbox(ctx, value, &base, id))
-		return res;
-	xui_control_update(ctx, id, &base, opt);
-	if((ctx->focus == id) && (ctx->mouse.state & XUI_MOUSE_LEFT))
-		*value += ctx->mouse.dx * step;
-	if(*value != last)
-		res |= XUI_RES_CHANGE;
-	xui_control_draw_frame(ctx, id, &base, XUI_COLOR_BASE, opt);
-	sprintf(buf, fmt, *value);
-	xui_control_draw_text(ctx, buf, &base, &ctx->style.font.color, opt);
-
-	return res;
-}
-
-int xui_number(struct xui_context_t * ctx, float * value, float step)
-{
-	return xui_number_ex(ctx, value, step, "%.2f", 0);
 }
 
 static void draw_frame(struct xui_context_t * ctx, struct region_t * r, int cid)

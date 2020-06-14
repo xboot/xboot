@@ -221,6 +221,54 @@ static void overview_window(struct xui_context_t * ctx)
 			xui_end_tree(ctx);
 		}
 
+		if(xui_begin_tree(ctx, "Number"))
+		{
+			if(xui_begin_tree(ctx, "Normal Number"))
+			{
+				static double n[8] = { 10, 20, 30, 40, 50, 60, 70, 80 };
+				xui_layout_row(ctx, 1, (int[]){ -1 }, 0);
+				for(int i = 0; i < 8; i++)
+				{
+					xui_number_ex(ctx, &n[i], -1000, 1000, 1, "%.2f", (i << 8) | XUI_OPT_TEXT_LEFT);
+				}
+				xui_end_tree(ctx);
+			}
+
+			if(xui_begin_tree(ctx, "Rounded Number"))
+			{
+				static double n[8] = { 10, 20, 30, 40, 50, 60, 70, 80 };
+				xui_layout_row(ctx, 1, (int[]){ -1 }, 0);
+				for(int i = 0; i < 8; i++)
+				{
+					xui_number_ex(ctx, &n[i], -1000, 1000, 1, "%.2f", (i << 8) | XUI_OPT_TEXT_LEFT | XUI_NUMBER_ROUNDED);
+				}
+				xui_end_tree(ctx);
+			}
+
+			if(xui_begin_tree(ctx, "Outline Number"))
+			{
+				static double n[8] = { 10, 20, 30, 40, 50, 60, 70, 80 };
+				xui_layout_row(ctx, 1, (int[]){ -1 }, 0);
+				for(int i = 0; i < 8; i++)
+				{
+					xui_number_ex(ctx, &n[i], -1000, 1000, 1, "%.2f", (i << 8) | XUI_OPT_TEXT_LEFT | XUI_NUMBER_OUTLINE);
+				}
+				xui_end_tree(ctx);
+			}
+
+			if(xui_begin_tree(ctx, "Rounded Outline Number"))
+			{
+				static double n[8] = { 10, 20, 30, 40, 50, 60, 70, 80 };
+				xui_layout_row(ctx, 1, (int[]){ -1 }, 0);
+				for(int i = 0; i < 8; i++)
+				{
+					xui_number_ex(ctx, &n[i], -1000, 1000, 1, "%.2f", (i << 8) | XUI_OPT_TEXT_LEFT | XUI_NUMBER_ROUNDED | XUI_NUMBER_OUTLINE);
+				}
+				xui_end_tree(ctx);
+			}
+			xui_end_tree(ctx);
+		}
+
 		if(xui_begin_tree(ctx, "Badge"))
 		{
 			if(xui_begin_tree(ctx, "Normal Badge"))

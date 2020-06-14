@@ -12,7 +12,7 @@
 
 static char logbuf[64000];
 static int logbuf_updated = 0;
-static float bg[3] = { 90, 95, 100 };
+static double bg[3] = { 90, 95, 100 };
 
 static void write_log(const char *text)
 {
@@ -211,7 +211,7 @@ static void log_window(struct xui_context_t *ctx)
 
 static int uint8_slider(struct xui_context_t * ctx, unsigned char *value, int low, int high)
 {
-	float tmp;
+	double tmp;
 	xui_push_id(ctx, &value, sizeof(value));
 	tmp = *value;
 	int res = xui_slider_ex(ctx, &tmp, low, high, 0, 0);
@@ -279,8 +279,6 @@ void ttt_test(struct xui_context_t * ctx)
 		{
 		}
 		xui_header(ctx, "header");
-		static float t = 20;
-		xui_number(ctx, &t, 1);
 		if(xui_begin_tree(ctx, "tree"))
 		{
 			xui_layout_row(ctx, 3, (int[]){ 100, 100, -1, }, 40);

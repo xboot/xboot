@@ -21,11 +21,24 @@ enum {
 	XUI_SLIDER_VERTICAL		= (0x1 << 11),
 };
 
-int xui_slider_ex(struct xui_context_t * ctx, float * value, float low, float high, float step, int opt);
+int xui_slider_ex(struct xui_context_t * ctx, double * value, double low, double high, double step, int opt);
+
+static inline int xui_slider_float_ex(struct xui_context_t * ctx, float * value, float low, float high, float step, int opt)
+{
+	double v;
+	int change;
+
+	xui_push_id(ctx, &value, sizeof(float *));
+	v = *value;
+	change = xui_slider_ex(ctx, &v, low, high, step, opt);
+	*value = v;
+	xui_pop_id(ctx);
+	return change;
+}
 
 static inline int xui_slider_int_ex(struct xui_context_t * ctx, int * value, int low, int high, int step, int opt)
 {
-	float v;
+	double v;
 	int change;
 
 	xui_push_id(ctx, &value, sizeof(int *));
@@ -38,7 +51,7 @@ static inline int xui_slider_int_ex(struct xui_context_t * ctx, int * value, int
 
 static inline int xui_slider_char_ex(struct xui_context_t * ctx, char * value, char low, char high, char step, int opt)
 {
-	float v;
+	double v;
 	int change;
 
 	xui_push_id(ctx, &value, sizeof(char *));
@@ -49,9 +62,14 @@ static inline int xui_slider_char_ex(struct xui_context_t * ctx, char * value, c
 	return change;
 }
 
-static inline int xui_slider(struct xui_context_t * ctx, float * value, float low, float high, float step)
+static inline int xui_slider(struct xui_context_t * ctx, double * value, double low, double high, double step)
 {
 	return xui_slider_ex(ctx, value, low, high, step, XUI_SLIDER_PRIMARY | XUI_SLIDER_HORIZONTAL);
+}
+
+static inline int xui_slider_float(struct xui_context_t * ctx, float * value, float low, float high, float step)
+{
+	return xui_slider_float_ex(ctx, value, low, high, step, XUI_SLIDER_PRIMARY | XUI_SLIDER_HORIZONTAL);
 }
 
 static inline int xui_slider_int(struct xui_context_t * ctx, int * value, int low, int high, int step)

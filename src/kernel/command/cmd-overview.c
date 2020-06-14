@@ -206,13 +206,13 @@ static void overview_window(struct xui_context_t * ctx)
 
 		if(xui_begin_tree(ctx, "Slider"))
 		{
-			static float h[8] = { 10, 20, 30, 40, 50, 60, 70, 80 };
+			static double h[8] = { 10, 20, 30, 40, 50, 60, 70, 80 };
 			xui_layout_row(ctx, 1, (int[]){ -1 }, 0);
 			for(int i = 0; i < 8; i++)
 			{
 				xui_slider_ex(ctx, &h[i], 0, 100, 0, (i << 8) | XUI_SLIDER_HORIZONTAL);
 			}
-			static float v[8] = { 10, 20, 30, 40, 50, 60, 70, 80 };
+			static double v[8] = { 10, 20, 30, 40, 50, 60, 70, 80 };
 			xui_layout_row(ctx, 8, (int[]){ 24, 24, 24, 24, 24, 24, 24, -1 }, 160);
 			for(int i = 0; i < 8; i++)
 			{

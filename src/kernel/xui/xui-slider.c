@@ -29,13 +29,13 @@
 #include <xboot.h>
 #include <xui/slider.h>
 
-int xui_slider_ex(struct xui_context_t * ctx, float * value, float low, float high, float step, int opt)
+int xui_slider_ex(struct xui_context_t * ctx, double * value, double low, double high, double step, int opt)
 {
-	unsigned int id = xui_get_id(ctx, &value, sizeof(float *));
+	unsigned int id = xui_get_id(ctx, &value, sizeof(double *));
 	struct region_t region, * r = xui_layout_next(ctx);
 	struct xui_widget_color_t * wc;
 	struct color_t * fc, * bc, * c;
-	float v = *value;
+	double v = *value;
 	int radius, width;
 	int l, x, y;
 

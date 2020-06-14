@@ -19,7 +19,6 @@ struct window_manager_t {
 	struct list_head list;
 	struct list_head window;
 	struct framebuffer_t * fb;
-	struct fifo_t * event;
 	int wcount;
 	int refresh;
 	struct {
@@ -36,6 +35,7 @@ struct window_t {
 	struct window_manager_t * wm;
 	struct surface_t * s;
 	struct region_list_t * rl;
+	struct fifo_t * event;
 	struct hmap_t * map;
 	int launcher;
 	void * priv;

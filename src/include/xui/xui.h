@@ -519,6 +519,10 @@ struct xui_layout_t * xui_get_layout(struct xui_context_t * ctx);
 struct xui_container_t * xui_get_container(struct xui_context_t * ctx, const char * name);
 struct xui_container_t * xui_get_current_container(struct xui_context_t * ctx);
 
+int xui_pool_init(struct xui_context_t * ctx, struct xui_pool_item_t * items, int len, unsigned int id);
+int xui_pool_get(struct xui_context_t * ctx, struct xui_pool_item_t * items, int len, unsigned int id);
+void xui_pool_update(struct xui_context_t * ctx, struct xui_pool_item_t * items, int idx);
+
 void pop_container(struct xui_context_t * ctx);
 struct xui_container_t * get_container(struct xui_context_t * ctx, unsigned int id, int opt);
 void push_container_body(struct xui_context_t * ctx, struct xui_container_t * c, struct region_t * body, int opt);
@@ -547,12 +551,6 @@ void xui_draw_icon(struct xui_context_t * ctx, const char * family, uint32_t cod
 
 void xui_control_update(struct xui_context_t * ctx, unsigned int id, struct region_t * r, int opt);
 void xui_control_draw_text(struct xui_context_t * ctx, const char * utf8, struct region_t * r, struct color_t * c, int opt);
-
-int xui_begin_tree_ex(struct xui_context_t * ctx, const char * label, int opt);
-int xui_begin_tree(struct xui_context_t * ctx, const char * label);
-void xui_end_tree(struct xui_context_t * ctx);
-int xui_header_ex(struct xui_context_t * ctx, const char * label, int opt);
-int xui_header(struct xui_context_t * ctx, const char * label);
 
 struct xui_context_t * xui_context_alloc(const char * fb, const char * input, struct xui_style_t * style);
 void xui_context_free(struct xui_context_t * ctx);

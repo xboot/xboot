@@ -29,9 +29,6 @@
 #include <xboot.h>
 #include <xui/xui.h>
 
-/*
- * https://coderthemes.com/hyper/modern/index.html
- */
 static const struct xui_style_t xui_style_default = {
 	.background = { 0xf6, 0xf7, 0xfa, 0xff },
 	.primary = {
@@ -432,7 +429,7 @@ void xui_pop_clip(struct xui_context_t * ctx)
 	xui_pop(ctx->clip_stack);
 }
 
-static int xui_pool_init(struct xui_context_t * ctx, struct xui_pool_item_t * items, int len, unsigned int id)
+int xui_pool_init(struct xui_context_t * ctx, struct xui_pool_item_t * items, int len, unsigned int id)
 {
 	int i, n = -1, f = ctx->frame;
 	for(i = 0; i < len; i++)
@@ -449,7 +446,7 @@ static int xui_pool_init(struct xui_context_t * ctx, struct xui_pool_item_t * it
 	return n;
 }
 
-static int xui_pool_get(struct xui_context_t * ctx, struct xui_pool_item_t * items, int len, unsigned int id)
+int xui_pool_get(struct xui_context_t * ctx, struct xui_pool_item_t * items, int len, unsigned int id)
 {
 	int i;
 	for(i = 0; i < len; i++)
@@ -460,7 +457,7 @@ static int xui_pool_get(struct xui_context_t * ctx, struct xui_pool_item_t * ite
 	return -1;
 }
 
-static void xui_pool_update(struct xui_context_t * ctx, struct xui_pool_item_t * items, int idx)
+void xui_pool_update(struct xui_context_t * ctx, struct xui_pool_item_t * items, int idx)
 {
 	items[idx].last_update = ctx->frame;
 }
@@ -1149,110 +1146,6 @@ void end_root_container(struct xui_context_t * ctx)
 	c->head->jump.addr = ctx->cmd_list.items + ctx->cmd_list.idx;
 	xui_pop_clip(ctx);
 	pop_container(ctx);
-}
-
-static int header(struct xui_context_t * ctx, const char * label, int istree, int opt)
-{
-	unsigned int id = xui_get_id(ctx, label, strlen(label));
-	int idx = xui_pool_get(ctx, ctx->tree_pool, XUI_TREE_POOL_SIZE, id);
-	int active, expanded;
-	struct region_t r;
-	struct color_t * fc, * bc, * tc;
-	int radius, width;
-
-	xui_layout_row(ctx, 1, (int[]){ -1 }, 0);
-	active = (idx >= 0);
-	expanded = (opt & XUI_OPT_EXPANDED) ? !active : active;
-	region_clone(&r, xui_layout_next(ctx));
-	xui_control_update(ctx, id, &r, 0);
-	active ^= ((ctx->focus == id) && (ctx->mouse.down & XUI_MOUSE_LEFT));
-	if(idx >= 0)
-	{
-		if(active)
-			xui_pool_update(ctx, ctx->tree_pool, idx);
-		else
-			memset(&ctx->tree_pool[idx], 0, sizeof(struct xui_pool_item_t));
-	}
-	else if(active)
-	{
-		xui_pool_init(ctx, ctx->tree_pool, XUI_TREE_POOL_SIZE, id);
-	}
-	radius = ctx->style.tree.border_radius;
-	width = ctx->style.tree.border_width;
-	if(ctx->focus == id)
-	{
-		fc = &ctx->style.tree.focus.face_color;
-		bc = &ctx->style.tree.focus.border_color;
-		tc = &ctx->style.tree.focus.text_color;
-	}
-	else if(ctx->hover == id)
-	{
-		fc = &ctx->style.tree.hover.face_color;
-		bc = &ctx->style.tree.hover.border_color;
-		tc = &ctx->style.tree.hover.text_color;
-	}
-	else
-	{
-		fc = &ctx->style.tree.normal.face_color;
-		bc = &ctx->style.tree.normal.border_color;
-		tc = &ctx->style.tree.normal.text_color;
-	}
-	if(istree)
-	{
-		if(ctx->hover == id)
-		{
-			if(bc->a && (width > 0))
-				xui_draw_rectangle(ctx, r.x, r.y, r.w, r.h, radius, width, bc);
-			if(fc->a)
-				xui_draw_rectangle(ctx, r.x, r.y, r.w, r.h, radius, 0, fc);
-		}
-	}
-	else
-	{
-		if(bc->a && (width > 0))
-			xui_draw_rectangle(ctx, r.x, r.y, r.w, r.h, radius, width, bc);
-		if(fc->a)
-			xui_draw_rectangle(ctx, r.x, r.y, r.w, r.h, radius, 0, fc);
-	}
-	xui_draw_icon(ctx, ctx->style.font.icon_family, expanded ? ctx->style.tree.expanded_icon : ctx->style.tree.collapsed_icon, r.x, r.y, r.h, r.h, tc);
-	r.x += r.h - ctx->style.layout.padding;
-	r.w -= r.h - ctx->style.layout.padding;
-	if(label && tc->a)
-		xui_control_draw_text(ctx, label, &r, tc, opt);
-
-	return expanded ? 1 : 0;
-}
-
-int xui_begin_tree_ex(struct xui_context_t * ctx, const char * label, int opt)
-{
-	int res = header(ctx, label, 1, opt);
-	if(res)
-	{
-		xui_get_layout(ctx)->indent += ctx->style.layout.indent;
-		xui_push(ctx->id_stack, ctx->last_id);
-	}
-	return res;
-}
-
-int xui_begin_tree(struct xui_context_t * ctx, const char * label)
-{
-	return xui_begin_tree_ex(ctx, label, 0);
-}
-
-void xui_end_tree(struct xui_context_t * ctx)
-{
-	xui_get_layout(ctx)->indent -= ctx->style.layout.indent;
-	xui_pop_id(ctx);
-}
-
-int xui_header_ex(struct xui_context_t * ctx, const char * label, int opt)
-{
-	return header(ctx, label, 0, opt);
-}
-
-int xui_header(struct xui_context_t * ctx, const char * label)
-{
-	return header(ctx, label, 0, 0);
 }
 
 struct xui_context_t * xui_context_alloc(const char * fb, const char * input, struct xui_style_t * style)

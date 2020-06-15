@@ -1,0 +1,48 @@
+## This file states the license of this package and possibly its subpackages
+## in machine and human readable format. The PackageName refers to the package
+## whose license is defined by PackageLicenseConcluded.
+## For more information about this file format visit the SPDX website at
+## https://spdx.org
+
+SPDXVersion: SPDX-2.1
+DataLicense: CC0-1.0
+SPDXID: SPDXRef-Document
+DocumentNamespace: spdx:kernkonzept/libfdt-85969586-e7f5-11e8-a7da-ff49a24dda88
+DocumentName: LICENSE.spdx
+
+Creator: Organization: Kernkonzept GmbH (info@kernkonzept.com)
+
+## Package Information
+PackageName: libfdt
+SPDXID: SPDXRef-libfdt
+PackageOriginator: Organization: Kernkonzept GmbH (info@kernkonzept.com)
+PackageLicenseDeclared: (GPL-2.0-only OR LicenseRef-kk-custom)
+PackageLicenseConcluded: (GPL-2.0-only OR LicenseRef-kk-custom)
+FilesAnalyzed: false
+PackageCopyrightText: NOASSERTION
+PackageDownloadLocation: NOASSERTION
+
+PackageName: libfdt-contrib
+SPDXID: SPDXRef-libfdt-contrib
+PackageFileName: ./lib/contrib
+PackageOriginator: Organization: The Linux Foundation
+PackageLicenseDeclared: (GPL-2.0-only OR BSD-2-Clause)
+PackageLicenseConcluded: (GPL-2.0-only OR BSD-2-Clause)
+PackageCopyrightText: NOASSERTION
+PackageDownloadLocation: NOASSERTION
+FilesAnalyzed: false
+
+## Relationships
+Relationship: SPDXRef-libfdt CONTAINS SPDXRef-libfdt-contrib
+
+## License Information
+LicenseID: LicenseRef-kk-custom
+ExtractedText: <text>Kernkonzept Custom License
+
+If you have sought a special licensing agreement with Kernkonzept GmbH the
+terms and conditions from therein apply to this package.
+
+If you require a different licensing scheme please contact us at
+info@kernkonzept.com.
+</text>
+LicenseName: Kernkonzept Custom License

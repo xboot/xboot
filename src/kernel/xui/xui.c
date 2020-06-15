@@ -33,13 +33,6 @@
  * https://coderthemes.com/hyper/modern/index.html
  */
 static const struct xui_style_t xui_style_default = {
-	.colors = {
-		{ 25,  25,  205,  255 }, /* XUI_COLOR_BORDER */
-		{ 30,  230,  30,  255 }, /* XUI_COLOR_BASE */
-		{ 235,  35,  35,  255 }, /* XUI_COLOR_BASEHOVER */
-		{ 40,  140,  140,  255 },  /* XUI_COLOR_BASEFOCUS */
-	},
-
 	.background = { 0xf6, 0xf7, 0xfa, 0xff },
 	.primary = {
 		.normal = {

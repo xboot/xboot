@@ -41,14 +41,6 @@ enum {
 };
 
 enum {
-	XUI_COLOR_BORDER,
-	XUI_COLOR_BASE,
-	XUI_COLOR_BASEHOVER,
-	XUI_COLOR_BASEFOCUS,
-	XUI_COLOR_MAX,
-};
-
-enum {
 	XUI_KEY_POWER			= (0x1 << 0),
 	XUI_KEY_UP				= (0x1 << 1),
 	XUI_KEY_DOWN			= (0x1 << 2),
@@ -291,8 +283,6 @@ struct xui_widget_color_t {
 };
 
 struct xui_style_t {
-	struct color_t colors[XUI_COLOR_MAX];//TODO REMOVE ME!
-
 	struct color_t background;
 	struct xui_widget_color_t primary;
 	struct xui_widget_color_t secondary;

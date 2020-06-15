@@ -88,8 +88,6 @@ int xui_number_ex(struct xui_context_t * ctx, double * value, double low, double
 			xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, radius, 0, fc);
 		if(tc->a)
 			xui_control_draw_text(ctx, xui_format(ctx, fmt, v), r, tc, opt);
-		if(ctx->mouse.up & XUI_MOUSE_LEFT)
-			return 1;
 	}
 	else if(ctx->hover == id)
 	{
@@ -108,11 +106,11 @@ int xui_number_ex(struct xui_context_t * ctx, double * value, double low, double
 		fc = &wc->normal.face;
 		bc = &wc->normal.border;
 		tc = &wc->normal.text;
-		if(opt & XUI_BUTTON_OUTLINE)
+		if(opt & XUI_NUMBER_OUTLINE)
 		{
 			if(fc->a)
 			{
-				xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, radius, ctx->style.button.outline_width, fc);
+				xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, radius, ctx->style.number.outline_width, fc);
 				xui_control_draw_text(ctx, xui_format(ctx, fmt, v), r, fc, opt);
 			}
 		}

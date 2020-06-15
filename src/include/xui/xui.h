@@ -49,12 +49,6 @@ enum {
 };
 
 enum {
-	XUI_RES_ACTIVE			= (0x1 << 0),
-	XUI_RES_SUBMIT			= (0x1 << 1),
-	XUI_RES_CHANGE			= (0x1 << 2),
-};
-
-enum {
 	XUI_KEY_POWER			= (0x1 << 0),
 	XUI_KEY_UP				= (0x1 << 1),
 	XUI_KEY_DOWN			= (0x1 << 2),
@@ -518,11 +512,6 @@ struct xui_context_t {
 	 * Misc
 	 */
 	char tempbuf[4096];
-
-	/*
-	 * Callback
-	 */
-	void (*draw_frame)(struct xui_context_t * ctx, struct region_t * r, int cid);
 };
 
 void xui_begin(struct xui_context_t * ctx);
@@ -568,7 +557,6 @@ void xui_draw_icon(struct xui_context_t * ctx, const char * family, uint32_t cod
 
 void xui_control_update(struct xui_context_t * ctx, unsigned int id, struct region_t * r, int opt);
 void xui_control_draw_text(struct xui_context_t * ctx, const char * utf8, struct region_t * r, struct color_t * c, int opt);
-void xui_control_draw_frame(struct xui_context_t * ctx, unsigned int id, struct region_t * r, int cid, int opt);
 
 int xui_begin_tree_ex(struct xui_context_t * ctx, const char * label, int opt);
 int xui_begin_tree(struct xui_context_t * ctx, const char * label);

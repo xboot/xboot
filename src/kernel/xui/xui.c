@@ -1062,12 +1062,6 @@ void xui_control_draw_text(struct xui_context_t * ctx, const char * utf8, struct
 	xui_pop_clip(ctx);
 }
 
-void xui_control_draw_frame(struct xui_context_t * ctx, unsigned int id, struct region_t * r, int cid, int opt)
-{
-	cid += (ctx->focus == id) ? 2 : (ctx->hover == id) ? 1 : 0;
-	ctx->draw_frame(ctx, r, cid);
-}
-
 static void scrollbars(struct xui_context_t * ctx, struct xui_container_t * c, struct region_t * body)
 {
 	struct region_t base, thumb;
@@ -1268,18 +1262,6 @@ int xui_header(struct xui_context_t * ctx, const char * label)
 	return header(ctx, label, 0, 0);
 }
 
-static void draw_frame(struct xui_context_t * ctx, struct region_t * r, int cid)
-{
-	struct color_t * col = &ctx->style.colors[cid];
-	xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, 0, 0, col);
-	if(ctx->style.colors[XUI_COLOR_BORDER].a)
-	{
-		struct region_t region;
-		region_expand(&region, r, 1);
-		xui_draw_rectangle(ctx, region.x, region.y, region.w, region.h, 0, 1, &ctx->style.colors[XUI_COLOR_BORDER]);
-	}
-}
-
 struct xui_context_t * xui_context_alloc(const char * fb, const char * input, struct xui_style_t * style)
 {
 	struct xui_context_t * ctx;
@@ -1292,12 +1274,10 @@ struct xui_context_t * xui_context_alloc(const char * fb, const char * input, st
 	ctx->w = window_alloc(fb, input, NULL);
 	ctx->f = font_context_alloc();
 	region_init(&ctx->screen, 0, 0, window_get_width(ctx->w), window_get_height(ctx->w));
-
 	memcpy(&ctx->style, style ? style : &xui_style_default, sizeof(struct xui_style_t));
 	region_clone(&ctx->clip, &ctx->screen);
 	ctx->last = ctx->now = ktime_to_ns(ktime_get());
 
-	ctx->draw_frame = draw_frame;
 	return ctx;
 }
 

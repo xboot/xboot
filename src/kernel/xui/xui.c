@@ -268,6 +268,12 @@ static const struct xui_style_t xui_style_default = {
 		.outline_width = 2,
 	},
 
+	.textedit = {
+		.border_radius = 4,
+		.border_width = 4,
+		.outline_width = 2,
+	},
+
 	.badge = {
 		.border_radius = 4,
 		.border_width = 4,
@@ -1260,72 +1266,6 @@ int xui_header_ex(struct xui_context_t * ctx, const char * label, int opt)
 int xui_header(struct xui_context_t * ctx, const char * label)
 {
 	return header(ctx, label, 0, 0);
-}
-
-static int xui_textbox_raw(struct xui_context_t * ctx, char * buf, int bufsz, unsigned int id, struct region_t * r, int opt)
-{
-	int res = 0;
-
-	xui_control_update(ctx, id, r, opt | XUI_OPT_HOLDFOCUS);
-	if(ctx->focus == id)
-	{
-		int len = strlen(buf);
-		int n = min(bufsz - len - 1, (int)strlen(ctx->input_text));
-		if(n > 0)
-		{
-			memcpy(buf + len, ctx->input_text, n);
-			len += n;
-			buf[len] = '\0';
-			res |= XUI_RES_CHANGE;
-		}
-		if((ctx->key_pressed & XUI_KEY_BACK) && (len > 0))
-		{
-			while(((buf[--len] & 0xc0) == 0x80) && (len > 0));
-			buf[len] = '\0';
-			res |= XUI_RES_CHANGE;
-		}
-		if(ctx->key_pressed & XUI_KEY_ENTER)
-		{
-			xui_set_focus(ctx, 0);
-			res |= XUI_RES_SUBMIT;
-		}
-	}
-	xui_control_draw_frame(ctx, id, r, XUI_COLOR_BASE, opt);
-	if(ctx->focus == id)
-	{
-		struct color_t * c = &ctx->style.font.color;
-		const char * family = ctx->style.font.font_family;
-		int size = ctx->style.font.size;
-		struct text_t txt;
-		text_init(&txt, buf, c, 0, ctx->f, family, size);
-		int textw = txt.metrics.width;
-		int texth = txt.metrics.height;
-		int ofx = r->w - ctx->style.layout.padding - textw - 1;
-		int textx = r->x + min(ofx, ctx->style.layout.padding);
-		int texty = r->y + (r->h - texth) / 2;
-		xui_push_clip(ctx, r);
-		xui_draw_text(ctx, family, size, buf, textx, texty, 0, c);
-		xui_draw_rectangle(ctx, textx + textw, texty, 1, texth, 0, 0, c);
-		xui_pop_clip(ctx);
-	}
-	else
-	{
-		xui_control_draw_text(ctx, buf, r, &ctx->style.font.color, opt);
-	}
-	return res;
-}
-
-int xui_textbox_ex(struct xui_context_t * ctx, char * buf, int bufsz, int opt)
-{
-	unsigned int id = xui_get_id(ctx, &buf, sizeof(buf));
-	struct region_t r;
-	region_clone(&r, xui_layout_next(ctx));
-	return xui_textbox_raw(ctx, buf, bufsz, id, &r, opt);
-}
-
-int xui_textbox(struct xui_context_t * ctx, char * buf, int bufsz)
-{
-	return xui_textbox_ex(ctx, buf, bufsz, 0);
 }
 
 static void draw_frame(struct xui_context_t * ctx, struct region_t * r, int cid)

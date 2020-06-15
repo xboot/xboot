@@ -269,6 +269,18 @@ static void overview_window(struct xui_context_t * ctx)
 			xui_end_tree(ctx);
 		}
 
+		if(xui_begin_tree(ctx, "Textedit"))
+		{
+			static char buf[128];
+			xui_layout_row(ctx, 1, (int[]){ -1 }, 0);
+			if(xui_textedit(ctx, buf, sizeof(buf)) & (1 << 1))
+			{
+				xui_set_focus(ctx, ctx->last_id);
+				buf[0] = 0;
+			}
+			xui_end_tree(ctx);
+		}
+
 		if(xui_begin_tree(ctx, "Badge"))
 		{
 			if(xui_begin_tree(ctx, "Normal Badge"))

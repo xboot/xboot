@@ -403,6 +403,12 @@ struct xui_style_t {
 		int border_radius;
 		int border_width;
 		int outline_width;
+	} textedit;
+
+	struct {
+		int border_radius;
+		int border_width;
+		int outline_width;
 	} badge;
 
 	struct {
@@ -569,9 +575,6 @@ int xui_begin_tree(struct xui_context_t * ctx, const char * label);
 void xui_end_tree(struct xui_context_t * ctx);
 int xui_header_ex(struct xui_context_t * ctx, const char * label, int opt);
 int xui_header(struct xui_context_t * ctx, const char * label);
-
-int xui_textbox_ex(struct xui_context_t * ctx, char * buf, int bufsz, int opt);
-int xui_textbox(struct xui_context_t * ctx, char * buf, int bufsz);
 
 struct xui_context_t * xui_context_alloc(const char * fb, const char * input, struct xui_style_t * style);
 void xui_context_free(struct xui_context_t * ctx);

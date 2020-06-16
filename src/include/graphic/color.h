@@ -37,6 +37,14 @@ static inline void color_mix(struct color_t * c, struct color_t * a, struct colo
 	c->a = idiv255(a->a * weight) + idiv255(b->a * (255 - weight));
 }
 
+static inline void color_level(struct color_t * c, struct color_t * o, int level)
+{
+	if(level < 0)
+		color_mix(c, &(struct color_t){ 0xff, 0xff, 0xff, 0xff }, o, -level * 25);
+	else
+		color_mix(c, &(struct color_t){ 0x00, 0x00, 0x00, 0xff }, o, level * 25);
+}
+
 /*
  * String: [#RGB], [#RGBA], [#RRGGBB], [#RRGGBBAA], [r, g, b, a], [NAME]
  * http://www.w3.org/TR/css3-color/#svg-color

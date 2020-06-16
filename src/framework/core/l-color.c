@@ -118,12 +118,33 @@ static int m_color_get_hsv(lua_State * L)
 	return 3;
 }
 
+static int m_color_mix(lua_State * L)
+{
+	struct color_t * c = luaL_checkudata(L, 1, MT_COLOR);
+	struct color_t * o = luaL_checkudata(L, 2, MT_COLOR);
+	unsigned char weight = luaL_optinteger(L, 3, 128);
+	color_mix(c, c, o, weight);
+	lua_settop(L, 1);
+	return 1;
+}
+
+static int m_color_level(lua_State * L)
+{
+	struct color_t * c = luaL_checkudata(L, 1, MT_COLOR);
+	int level = luaL_optinteger(L, 2, 0);
+	color_level(c, c, clamp(level, -10, 10));
+	lua_settop(L, 1);
+	return 1;
+}
+
 static const luaL_Reg m_color[] = {
 	{"__tostring",	m_color_tostring},
 	{"setColor",	m_color_set_color},
 	{"getColor",	m_color_get_color},
 	{"setHsv",		m_color_set_hsv},
 	{"getHsv",		m_color_get_hsv},
+	{"mix",			m_color_mix},
+	{"level",		m_color_level},
 	{NULL,	NULL}
 };
 

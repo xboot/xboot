@@ -28,12 +28,12 @@ static inline void color_mix(struct color_t * c, struct color_t * a, struct colo
 	int u = (weight << 1) - 255;
 	int v = idiv255(a->a - b->a);
 	int w = idiv255(u * v);
-	unsigned char a1 = ((u * v == -255) ? u : (u + (a->a - b->a)) / (1 + w) + 255) >> 1;
-	unsigned char a2 = 255 - a1;
+	unsigned char wa = ((u * v == -255) ? u : (u + (a->a - b->a)) / (1 + w) + 255) >> 1;
+	unsigned char wb = 255 - wa;
 
-	c->r = idiv255(a->r * a1) + idiv255(b->r * a2);
-	c->g = idiv255(a->g * a1) + idiv255(b->g * a2);
-	c->b = idiv255(a->b * a1) + idiv255(b->b * a2);
+	c->r = idiv255(a->r * wa) + idiv255(b->r * wb);
+	c->g = idiv255(a->g * wa) + idiv255(b->g * wb);
+	c->b = idiv255(a->b * wa) + idiv255(b->b * wb);
 	c->a = idiv255(a->a * weight) + idiv255(b->a * (255 - weight));
 }
 

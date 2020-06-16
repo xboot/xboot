@@ -23,6 +23,20 @@ static inline void color_init(struct color_t * c, unsigned char r, unsigned char
 	c->a = a;
 }
 
+static inline void color_mix(struct color_t * c, struct color_t * a, struct color_t * b, unsigned char weight)
+{
+	int u = (weight << 1) - 255;
+	int v = idiv255(a->a - b->a);
+	int w = idiv255(u * v);
+	unsigned char a1 = ((u * v == -255) ? u : (u + (a->a - b->a)) / (1 + w) + 255) >> 1;
+	unsigned char a2 = 255 - a1;
+
+	c->r = idiv255(a->r * a1) + idiv255(b->r * a2);
+	c->g = idiv255(a->g * a1) + idiv255(b->g * a2);
+	c->b = idiv255(a->b * a1) + idiv255(b->b * a2);
+	c->a = idiv255(a->a * weight) + idiv255(b->a * (255 - weight));
+}
+
 /*
  * String: [#RGB], [#RGBA], [#RRGGBB], [#RRGGBBAA], [r, g, b, a], [NAME]
  * http://www.w3.org/TR/css3-color/#svg-color

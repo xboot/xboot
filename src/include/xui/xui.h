@@ -293,19 +293,11 @@ struct xui_style_t {
 	struct xui_widget_color_t dark;
 
 	struct {
-		struct color_t background;
-		struct color_t foreground;
-		struct color_t invalid;
 		const char * icon_family;
 		const char * font_family;
-		int font_size;
-		int border_radius;
-		int border_width;
-		int outline_width;
-		int narrow_bar;
-		int normal_bar;
-		int wide_bar;
-	} common;
+		struct color_t color;
+		int size;
+	} font;
 
 	struct {
 		int width;
@@ -358,8 +350,68 @@ struct xui_style_t {
 	} tree;
 
 	struct {
+		int border_radius;
+		int border_width;
+		int outline_width;
+	} button;
+
+	struct {
 		uint32_t check_icon;
+		int border_radius;
+		int border_width;
+		int outline_width;
 	} checkbox;
+
+	struct {
+		int border_width;
+		int outline_width;
+	} radio;
+
+	struct {
+		int border_width;
+		int outline_width;
+	} toggle;
+
+	struct {
+		struct color_t invalid;
+		int border_width;
+	} slider;
+
+	struct {
+		int border_radius;
+		int border_width;
+		int outline_width;
+	} number;
+
+	struct {
+		int border_radius;
+		int border_width;
+		int outline_width;
+	} textedit;
+
+	struct {
+		int border_radius;
+		int border_width;
+		int outline_width;
+	} badge;
+
+	struct {
+		struct color_t invalid;
+		int border_radius;
+	} progress;
+
+	struct {
+		struct color_t invalid;
+		int width;
+	} radialbar;
+
+	struct {
+		int width;
+	} spinner;
+
+	struct {
+		int width;
+	} split;
 };
 
 struct xui_context_t {

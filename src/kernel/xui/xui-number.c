@@ -45,8 +45,8 @@ int xui_number_ex(struct xui_context_t * ctx, double * value, double low, double
 	if(opt & XUI_NUMBER_ROUNDED)
 		radius = r->h / 2;
 	else
-		radius = ctx->style.common.border_radius;
-	width = ctx->style.common.border_width;
+		radius = ctx->style.number.border_radius;
+	width = ctx->style.number.border_width;
 	switch(opt & (0x7 << 8))
 	{
 	case XUI_NUMBER_PRIMARY:
@@ -110,7 +110,7 @@ int xui_number_ex(struct xui_context_t * ctx, double * value, double low, double
 		{
 			if(bg->a)
 			{
-				xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, radius, ctx->style.common.outline_width, bg);
+				xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, radius, ctx->style.number.outline_width, bg);
 				xui_control_draw_text(ctx, xui_format(ctx, fmt, v), r, bg, opt);
 			}
 		}

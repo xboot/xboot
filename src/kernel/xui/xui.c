@@ -167,19 +167,11 @@ static const struct xui_style_t xui_style_default = {
 		},
 	},
 
-	.common = {
-		.background = { 0xff, 0xff, 0xff, 0xff },
-		.foreground = { 0x6c, 0x75, 0x7d, 0xff },
-		.invalid = { 0xee, 0xf2, 0xf7, 0xff },
+	.font = {
 		.icon_family = "font-awesome",
 		.font_family = "roboto",
-		.font_size = 16,
-		.border_radius = 4,
-		.border_width = 4,
-		.outline_width = 2,
-		.narrow_bar = 2,
-		.normal_bar = 4,
-		.wide_bar = 8,
+		.color = { 0x6c, 0x75, 0x7d, 0xff },
+		.size = 16,
 	},
 
 	.layout = {
@@ -195,7 +187,7 @@ static const struct xui_style_t xui_style_default = {
 		.border_radius = 4,
 		.border_width = 4,
 		.title_height = 24,
-		.face_color = { 0xfa, 0xfb, 0xfe, 0xff },
+		.face_color = { 0xff, 0xff, 0xff, 0xff },
 		.border_color = { 0x26, 0x47, 0xe0, 0xff },
 		.title_color = { 0x26, 0x47, 0xe0, 0xff },
 		.text_color = { 0xff, 0xff, 0xff, 0xff },
@@ -232,8 +224,68 @@ static const struct xui_style_t xui_style_default = {
 		},
 	},
 
+	.button = {
+		.border_radius = 4,
+		.border_width = 4,
+		.outline_width = 2,
+	},
+
 	.checkbox = {
 		.check_icon = 0xf00c,
+		.border_radius = 4,
+		.border_width = 4,
+		.outline_width = 2,
+	},
+
+	.radio = {
+		.border_width = 4,
+		.outline_width = 2,
+	},
+
+	.toggle = {
+		.border_width = 4,
+		.outline_width = 2,
+	},
+
+	.slider = {
+		.invalid = { 0xee, 0xf2, 0xf7, 0xff },
+		.border_width = 4,
+	},
+
+	.number = {
+		.border_radius = 4,
+		.border_width = 4,
+		.outline_width = 2,
+	},
+
+	.textedit = {
+		.border_radius = 4,
+		.border_width = 4,
+		.outline_width = 2,
+	},
+
+	.badge = {
+		.border_radius = 4,
+		.border_width = 4,
+		.outline_width = 2,
+	},
+
+	.progress = {
+		.invalid = { 0xee, 0xf2, 0xf7, 0xff },
+		.border_radius = 4,
+	},
+
+	.radialbar = {
+		.invalid = { 0xee, 0xf2, 0xf7, 0xff },
+		.width = 8,
+	},
+
+	.spinner = {
+		.width = 4,
+	},
+
+	.split = {
+		.width = 2,
 	},
 };
 
@@ -961,8 +1013,8 @@ void xui_control_update(struct xui_context_t * ctx, unsigned int id, struct regi
 void xui_control_draw_text(struct xui_context_t * ctx, const char * utf8, struct region_t * r, struct color_t * c, int opt)
 {
 	struct text_t txt;
-	const char * family = ctx->style.common.font_family;
-	int size = ctx->style.common.font_size;
+	const char * family = ctx->style.font.font_family;
+	int size = ctx->style.font.size;
 	int tw, th;
 	int x, y;
 

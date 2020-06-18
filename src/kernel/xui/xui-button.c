@@ -41,8 +41,8 @@ int xui_button_ex(struct xui_context_t * ctx, const char * label, int icon, int 
 	if(opt & XUI_BUTTON_ROUNDED)
 		radius = r->h / 2;
 	else
-		radius = ctx->style.common.border_radius;
-	width = ctx->style.common.border_width;
+		radius = ctx->style.button.border_radius;
+	width = ctx->style.button.border_width;
 	switch(opt & (0x7 << 8))
 	{
 	case XUI_BUTTON_PRIMARY:
@@ -87,7 +87,7 @@ int xui_button_ex(struct xui_context_t * ctx, const char * label, int icon, int 
 			if(label)
 				xui_control_draw_text(ctx, label, r, fg, opt);
 			else
-				xui_draw_icon(ctx, ctx->style.common.icon_family, icon, r->x, r->y, r->w, r->h, fg);
+				xui_draw_icon(ctx, ctx->style.font.icon_family, icon, r->x, r->y, r->w, r->h, fg);
 		}
 		if(ctx->mouse.up & XUI_MOUSE_LEFT)
 			return 1;
@@ -106,7 +106,7 @@ int xui_button_ex(struct xui_context_t * ctx, const char * label, int icon, int 
 			if(label)
 				xui_control_draw_text(ctx, label, r, fg, opt);
 			else
-				xui_draw_icon(ctx, ctx->style.common.icon_family, icon, r->x, r->y, r->w, r->h, fg);
+				xui_draw_icon(ctx, ctx->style.font.icon_family, icon, r->x, r->y, r->w, r->h, fg);
 		}
 	}
 	else
@@ -118,11 +118,11 @@ int xui_button_ex(struct xui_context_t * ctx, const char * label, int icon, int 
 		{
 			if(bg->a)
 			{
-				xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, radius, ctx->style.common.outline_width, bg);
+				xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, radius, ctx->style.button.outline_width, bg);
 				if(label)
 					xui_control_draw_text(ctx, label, r, bg, opt);
 				else
-					xui_draw_icon(ctx, ctx->style.common.icon_family, icon, r->x, r->y, r->w, r->h, bg);
+					xui_draw_icon(ctx, ctx->style.font.icon_family, icon, r->x, r->y, r->w, r->h, bg);
 			}
 		}
 		else
@@ -136,7 +136,7 @@ int xui_button_ex(struct xui_context_t * ctx, const char * label, int icon, int 
 				if(label)
 					xui_control_draw_text(ctx, label, r, fg, opt);
 				else
-					xui_draw_icon(ctx, ctx->style.common.icon_family, icon, r->x, r->y, r->w, r->h, fg);
+					xui_draw_icon(ctx, ctx->style.font.icon_family, icon, r->x, r->y, r->w, r->h, fg);
 			}
 		}
 	}

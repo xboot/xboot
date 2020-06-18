@@ -66,7 +66,7 @@ int xui_begin_window_ex(struct xui_context_t * ctx, const char * title, struct r
 				id = xui_get_id(ctx, "!close", 6);
 				region_init(&tr, hr.x + hr.w - hr.h, hr.y, hr.h, hr.h);
 				hr.w -= tr.w;
-				xui_draw_icon(ctx, ctx->style.common.icon_family, ctx->style.window.close_icon, tr.x, tr.y, tr.w, tr.h, &ctx->style.window.text_color);
+				xui_draw_icon(ctx, ctx->style.font.icon_family, ctx->style.window.close_icon, tr.x, tr.y, tr.w, tr.h, &ctx->style.window.text_color);
 				xui_control_update(ctx, id, &tr, opt);
 				if((ctx->focus == id) && (ctx->mouse.up & XUI_MOUSE_LEFT))
 					c->open = 0;

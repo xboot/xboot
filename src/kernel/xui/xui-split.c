@@ -82,5 +82,5 @@ void xui_split_ex(struct xui_context_t * ctx, int opt)
 		p1.y = p0.y;
 	}
 	if(bg->a)
-		xui_draw_line(ctx, &p0, &p1, ctx->style.common.narrow_bar, bg);
+		xui_draw_line(ctx, &p0, &p1, ctx->style.split.width, bg);
 }

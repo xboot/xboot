@@ -42,7 +42,7 @@ int xui_radio_ex(struct xui_context_t * ctx, const char * label, int active, int
 	if((ctx->focus == id) && (ctx->mouse.up & XUI_MOUSE_LEFT))
 		click = 1;
 	radius = r->h / 2;
-	width = ctx->style.common.border_width;
+	width = ctx->style.radio.border_width;
 	if(active)
 	{
 		switch(opt & (0x7 << 8))
@@ -101,13 +101,13 @@ int xui_radio_ex(struct xui_context_t * ctx, const char * label, int active, int
 	if(bc->a && (width > 0))
 		xui_draw_circle(ctx, r->x + radius, r->y + radius, radius, width, bc);
 	if(bg->a)
-		xui_draw_circle(ctx, r->x + radius, r->y + radius, radius, active ? 0 : ctx->style.common.outline_width, bg);
+		xui_draw_circle(ctx, r->x + radius, r->y + radius, radius, active ? 0 : ctx->style.radio.outline_width, bg);
 	if(active)
 		xui_draw_circle(ctx, r->x + radius, r->y + radius, radius * 392 / 1000, 0, fg);
 	if(label && fg->a)
 	{
 		region_init(&region, r->x + r->h, r->y, r->w - r->h, r->h);
-		xui_control_draw_text(ctx, label, &region, &ctx->style.common.foreground, opt);
+		xui_control_draw_text(ctx, label, &region, &ctx->style.font.color, opt);
 	}
 	return click;
 }

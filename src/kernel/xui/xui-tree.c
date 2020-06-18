@@ -92,7 +92,7 @@ static int header(struct xui_context_t * ctx, const char * label, int istree, in
 		if(fc->a)
 			xui_draw_rectangle(ctx, r.x, r.y, r.w, r.h, radius, 0, fc);
 	}
-	xui_draw_icon(ctx, ctx->style.common.icon_family, expanded ? ctx->style.tree.expanded_icon : ctx->style.tree.collapsed_icon, r.x, r.y, r.h, r.h, tc);
+	xui_draw_icon(ctx, ctx->style.font.icon_family, expanded ? ctx->style.tree.expanded_icon : ctx->style.tree.collapsed_icon, r.x, r.y, r.h, r.h, tc);
 	r.x += r.h - ctx->style.layout.padding;
 	r.w -= r.h - ctx->style.layout.padding;
 	if(label && tc->a)

@@ -266,19 +266,19 @@ struct xui_container_t {
 
 struct xui_widget_color_t {
 	struct {
-		struct color_t face;
+		struct color_t background;
+		struct color_t foreground;
 		struct color_t border;
-		struct color_t text;
 	} normal;
 	struct {
-		struct color_t face;
+		struct color_t background;
+		struct color_t foreground;
 		struct color_t border;
-		struct color_t text;
 	} hover;
 	struct {
-		struct color_t face;
+		struct color_t background;
+		struct color_t foreground;
 		struct color_t border;
-		struct color_t text;
 	} focus;
 };
 
@@ -295,13 +295,16 @@ struct xui_style_t {
 	struct {
 		struct color_t background;
 		struct color_t foreground;
-		struct color_t text;
+		struct color_t invalid;
 		const char * icon_family;
 		const char * font_family;
 		int font_size;
 		int border_radius;
 		int border_width;
 		int outline_width;
+		int narrow_bar;
+		int normal_bar;
+		int wide_bar;
 	} common;
 
 	struct {

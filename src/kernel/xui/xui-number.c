@@ -34,7 +34,7 @@ int xui_number_ex(struct xui_context_t * ctx, double * value, double low, double
 	unsigned int id = xui_get_id(ctx, &value, sizeof(double *));
 	struct region_t * r = xui_layout_next(ctx);
 	struct xui_widget_color_t * wc;
-	struct color_t * fc, * bc, * tc;
+	struct color_t * bg, * fg, * bc;
 	double v = *value;
 	int radius, width;
 
@@ -79,49 +79,49 @@ int xui_number_ex(struct xui_context_t * ctx, double * value, double low, double
 	}
 	if(ctx->focus == id)
 	{
-		fc = &wc->focus.face;
+		bg = &wc->focus.background;
+		fg = &wc->focus.foreground;
 		bc = &wc->focus.border;
-		tc = &wc->focus.text;
 		if(bc->a && (width > 0))
 			xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, radius, width, bc);
-		if(fc->a)
-			xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, radius, 0, fc);
-		if(tc->a)
-			xui_control_draw_text(ctx, xui_format(ctx, fmt, v), r, tc, opt);
+		if(bg->a)
+			xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, radius, 0, bg);
+		if(fg->a)
+			xui_control_draw_text(ctx, xui_format(ctx, fmt, v), r, fg, opt);
 	}
 	else if(ctx->hover == id)
 	{
-		fc = &wc->hover.face;
+		bg = &wc->hover.background;
+		fg = &wc->hover.foreground;
 		bc = &wc->hover.border;
-		tc = &wc->hover.text;
 		if(bc->a && (width > 0))
 			xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, radius, width, bc);
-		if(fc->a)
-			xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, radius, 0, fc);
-		if(tc->a)
-			xui_control_draw_text(ctx, xui_format(ctx, fmt, v), r, tc, opt);
+		if(bg->a)
+			xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, radius, 0, bg);
+		if(fg->a)
+			xui_control_draw_text(ctx, xui_format(ctx, fmt, v), r, fg, opt);
 	}
 	else
 	{
-		fc = &wc->normal.face;
+		bg = &wc->normal.background;
+		fg = &wc->normal.foreground;
 		bc = &wc->normal.border;
-		tc = &wc->normal.text;
 		if(opt & XUI_NUMBER_OUTLINE)
 		{
-			if(fc->a)
+			if(bg->a)
 			{
-				xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, radius, ctx->style.common.outline_width, fc);
-				xui_control_draw_text(ctx, xui_format(ctx, fmt, v), r, fc, opt);
+				xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, radius, ctx->style.common.outline_width, bg);
+				xui_control_draw_text(ctx, xui_format(ctx, fmt, v), r, bg, opt);
 			}
 		}
 		else
 		{
 			if(bc->a && (width > 0))
 				xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, radius, width, bc);
-			if(fc->a)
-				xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, radius, 0, fc);
-			if(tc->a)
-				xui_control_draw_text(ctx, xui_format(ctx, fmt, v), r, tc, opt);
+			if(bg->a)
+				xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, radius, 0, bg);
+			if(fg->a)
+				xui_control_draw_text(ctx, xui_format(ctx, fmt, v), r, fg, opt);
 		}
 	}
 	if(*value != v)

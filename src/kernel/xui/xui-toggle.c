@@ -34,7 +34,7 @@ int xui_toggle_ex(struct xui_context_t * ctx, int * state, int opt)
 	unsigned int id = xui_get_id(ctx, &state, sizeof(int *));
 	struct region_t * r = xui_layout_next(ctx);
 	struct xui_widget_color_t * wc;
-	struct color_t * fc, * bc, * tc;
+	struct color_t * bg, * fg, * bc;
 	int radius, width;
 	int click = 0;
 
@@ -85,39 +85,39 @@ int xui_toggle_ex(struct xui_context_t * ctx, int * state, int opt)
 	}
 	if(ctx->focus == id)
 	{
-		fc = &wc->focus.face;
+		bg = &wc->focus.background;
+		fg = &wc->focus.foreground;
 		bc = &wc->focus.border;
-		tc = &wc->focus.text;
 	}
 	else if(ctx->hover == id)
 	{
-		fc = &wc->hover.face;
+		bg = &wc->hover.background;
+		fg = &wc->hover.foreground;
 		bc = &wc->hover.border;
-		tc = &wc->hover.text;
 	}
 	else
 	{
-		fc = &wc->normal.face;
+		bg = &wc->normal.background;
+		fg = &wc->normal.foreground;
 		bc = &wc->normal.border;
-		tc = &wc->normal.text;
 	}
 	if(*state)
 	{
 		if(bc->a && (width > 0))
 			xui_draw_rectangle(ctx, r->x, r->y, radius * 4, radius * 2, radius, width, bc);
-		if(fc->a)
-			xui_draw_rectangle(ctx, r->x, r->y, radius * 4, radius * 2, radius, 0, fc);
-		if(tc->a)
-			xui_draw_circle(ctx, r->x + radius * 3, r->y + radius, radius * 4 / 5, 0, tc);
+		if(bg->a)
+			xui_draw_rectangle(ctx, r->x, r->y, radius * 4, radius * 2, radius, 0, bg);
+		if(fg->a)
+			xui_draw_circle(ctx, r->x + radius * 3, r->y + radius, radius * 4 / 5, 0, fg);
 	}
 	else
 	{
 		if(bc->a && (width > 0))
 			xui_draw_rectangle(ctx, r->x, r->y, radius * 4, radius * 2, radius, width, bc);
-		if(fc->a)
+		if(bg->a)
 		{
-			xui_draw_rectangle(ctx, r->x, r->y, radius * 4, radius * 2, radius, ctx->style.common.outline_width, fc);
-			xui_draw_circle(ctx, r->x + radius, r->y + radius, radius * 4 / 5, 0, fc);
+			xui_draw_rectangle(ctx, r->x, r->y, radius * 4, radius * 2, radius, ctx->style.common.outline_width, bg);
+			xui_draw_circle(ctx, r->x + radius, r->y + radius, radius * 4 / 5, 0, bg);
 		}
 	}
 	return click;

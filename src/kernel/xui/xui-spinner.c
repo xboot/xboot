@@ -33,7 +33,7 @@ void xui_spinner_ex(struct xui_context_t * ctx, int opt)
 {
 	struct region_t * r = xui_layout_next(ctx);
 	struct xui_widget_color_t * wc;
-	struct color_t * fc;
+	struct color_t * bg;
 	int width, radius, angle;
 	int x, y;
 
@@ -67,14 +67,14 @@ void xui_spinner_ex(struct xui_context_t * ctx, int opt)
 		wc = &ctx->style.primary;
 		break;
 	}
-	fc = &wc->normal.face;
-	width = ctx->style.common.outline_width;
+	bg = &wc->normal.background;
+	width = ctx->style.common.normal_bar;
 	radius = (min(r->w, r->h) - width - ctx->style.layout.padding * 2) / 2;
 	x = r->x + r->w / 2;
 	y = r->y + r->h / 2;
-	if(fc->a && radius > 0)
+	if(bg->a && radius > 0)
 	{
 		angle = (ctx->now * 360 / 750000000) % 360;
-		xui_draw_arc(ctx, x, y, radius, angle, angle + 270, width, fc);
+		xui_draw_arc(ctx, x, y, radius, angle, angle + 270, width, bg);
 	}
 }

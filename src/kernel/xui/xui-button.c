@@ -34,7 +34,7 @@ int xui_button_ex(struct xui_context_t * ctx, const char * label, int icon, int 
 	unsigned int id = label ? xui_get_id(ctx, label, strlen(label)) : xui_get_id(ctx, &icon, sizeof(int));
 	struct region_t * r = xui_layout_next(ctx);
 	struct xui_widget_color_t * wc;
-	struct color_t * fc, * bc, * tc;
+	struct color_t * bg, * fg, * bc;
 	int radius, width;
 
 	xui_control_update(ctx, id, r, opt);
@@ -75,68 +75,68 @@ int xui_button_ex(struct xui_context_t * ctx, const char * label, int icon, int 
 	}
 	if(ctx->focus == id)
 	{
-		fc = &wc->focus.face;
+		bg = &wc->focus.background;
+		fg = &wc->focus.foreground;
 		bc = &wc->focus.border;
-		tc = &wc->focus.text;
 		if(bc->a && (width > 0))
 			xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, radius, width, bc);
-		if(fc->a)
-			xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, radius, 0, fc);
-		if(tc->a)
+		if(bg->a)
+			xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, radius, 0, bg);
+		if(fg->a)
 		{
 			if(label)
-				xui_control_draw_text(ctx, label, r, tc, opt);
+				xui_control_draw_text(ctx, label, r, fg, opt);
 			else
-				xui_draw_icon(ctx, ctx->style.common.icon_family, icon, r->x, r->y, r->w, r->h, tc);
+				xui_draw_icon(ctx, ctx->style.common.icon_family, icon, r->x, r->y, r->w, r->h, fg);
 		}
 		if(ctx->mouse.up & XUI_MOUSE_LEFT)
 			return 1;
 	}
 	else if(ctx->hover == id)
 	{
-		fc = &wc->hover.face;
+		bg = &wc->hover.background;
+		fg = &wc->hover.foreground;
 		bc = &wc->hover.border;
-		tc = &wc->hover.text;
 		if(bc->a && (width > 0))
 			xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, radius, width, bc);
-		if(fc->a)
-			xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, radius, 0, fc);
-		if(tc->a)
+		if(bg->a)
+			xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, radius, 0, bg);
+		if(fg->a)
 		{
 			if(label)
-				xui_control_draw_text(ctx, label, r, tc, opt);
+				xui_control_draw_text(ctx, label, r, fg, opt);
 			else
-				xui_draw_icon(ctx, ctx->style.common.icon_family, icon, r->x, r->y, r->w, r->h, tc);
+				xui_draw_icon(ctx, ctx->style.common.icon_family, icon, r->x, r->y, r->w, r->h, fg);
 		}
 	}
 	else
 	{
-		fc = &wc->normal.face;
+		bg = &wc->normal.background;
+		fg = &wc->normal.foreground;
 		bc = &wc->normal.border;
-		tc = &wc->normal.text;
 		if(opt & XUI_BUTTON_OUTLINE)
 		{
-			if(fc->a)
+			if(bg->a)
 			{
-				xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, radius, ctx->style.common.outline_width, fc);
+				xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, radius, ctx->style.common.outline_width, bg);
 				if(label)
-					xui_control_draw_text(ctx, label, r, fc, opt);
+					xui_control_draw_text(ctx, label, r, bg, opt);
 				else
-					xui_draw_icon(ctx, ctx->style.common.icon_family, icon, r->x, r->y, r->w, r->h, fc);
+					xui_draw_icon(ctx, ctx->style.common.icon_family, icon, r->x, r->y, r->w, r->h, bg);
 			}
 		}
 		else
 		{
 			if(bc->a && (width > 0))
 				xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, radius, width, bc);
-			if(fc->a)
-				xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, radius, 0, fc);
-			if(tc->a)
+			if(bg->a)
+				xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, radius, 0, bg);
+			if(fg->a)
 			{
 				if(label)
-					xui_control_draw_text(ctx, label, r, tc, opt);
+					xui_control_draw_text(ctx, label, r, fg, opt);
 				else
-					xui_draw_icon(ctx, ctx->style.common.icon_family, icon, r->x, r->y, r->w, r->h, tc);
+					xui_draw_icon(ctx, ctx->style.common.icon_family, icon, r->x, r->y, r->w, r->h, fg);
 			}
 		}
 	}

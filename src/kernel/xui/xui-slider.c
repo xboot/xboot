@@ -34,7 +34,7 @@ int xui_slider_ex(struct xui_context_t * ctx, double * value, double low, double
 	unsigned int id = xui_get_id(ctx, &value, sizeof(double *));
 	struct region_t region, * r = xui_layout_next(ctx);
 	struct xui_widget_color_t * wc;
-	struct color_t * fc, * bc, * c;
+	struct color_t * bg, * bc, * c;
 	double v = *value;
 	int radius, width;
 	int l, x, y;
@@ -84,20 +84,20 @@ int xui_slider_ex(struct xui_context_t * ctx, double * value, double low, double
 	}
 	if(ctx->focus == id)
 	{
-		fc = &wc->focus.face;
+		bg = &wc->focus.background;
 		bc = &wc->focus.border;
 	}
 	else if(ctx->hover == id)
 	{
-		fc = &wc->hover.face;
+		bg = &wc->hover.background;
 		bc = &wc->hover.border;
 	}
 	else
 	{
-		fc = &wc->normal.face;
+		bg = &wc->normal.background;
 		bc = &wc->normal.border;
 	}
-	c = &ctx->style.light.normal.face;
+	c = &ctx->style.common.invalid;
 	if(opt & XUI_SLIDER_VERTICAL)
 	{
 		region_init(&region, r->x + (r->w - radius) / 2, r->y + radius, radius, r->h - radius * 2);
@@ -106,12 +106,12 @@ int xui_slider_ex(struct xui_context_t * ctx, double * value, double low, double
 		y = region.y + region.h - l;
 		if(c->a)
 			xui_draw_rectangle(ctx, region.x, region.y, region.w, region.h, region.w / 2, 0, c);
-		if(fc->a)
-			xui_draw_rectangle(ctx, region.x, region.y + region.h - l, region.w, l, (0x3 << 16) | (region.w / 2), 0, fc);
+		if(bg->a)
+			xui_draw_rectangle(ctx, region.x, region.y + region.h - l, region.w, l, (0x3 << 16) | (region.w / 2), 0, bg);
 		if(bc->a && (width > 0))
 			xui_draw_circle(ctx, x, y, radius, width, bc);
-		if(fc->a)
-			xui_draw_circle(ctx, x, y, radius, 0, fc);
+		if(bg->a)
+			xui_draw_circle(ctx, x, y, radius, 0, bg);
 	}
 	else
 	{
@@ -121,12 +121,12 @@ int xui_slider_ex(struct xui_context_t * ctx, double * value, double low, double
 		y = region.y + region.h / 2;
 		if(c->a)
 			xui_draw_rectangle(ctx, region.x, region.y, region.w, region.h, region.h / 2, 0, c);
-		if(fc->a)
-			xui_draw_rectangle(ctx, region.x, region.y, l, region.h, (0x6 << 16) | (region.h / 2), 0, fc);
+		if(bg->a)
+			xui_draw_rectangle(ctx, region.x, region.y, l, region.h, (0x6 << 16) | (region.h / 2), 0, bg);
 		if(bc->a && (width > 0))
 			xui_draw_circle(ctx, x, y, radius, width, bc);
-		if(fc->a)
-			xui_draw_circle(ctx, x, y, radius, 0, fc);
+		if(bg->a)
+			xui_draw_circle(ctx, x, y, radius, 0, bg);
 	}
 	if(*value != v)
 	{

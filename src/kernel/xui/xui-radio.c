@@ -34,7 +34,7 @@ int xui_radio_ex(struct xui_context_t * ctx, const char * label, int active, int
 	unsigned int id = xui_get_id(ctx, label, strlen(label));
 	struct region_t region, * r = xui_layout_next(ctx);
 	struct xui_widget_color_t * wc;
-	struct color_t * fc, * bc, * tc;
+	struct color_t * bg, * fg, * bc;
 	int radius, width;
 	int click = 0;
 
@@ -82,32 +82,32 @@ int xui_radio_ex(struct xui_context_t * ctx, const char * label, int active, int
 	}
 	if(ctx->focus == id)
 	{
-		fc = &wc->focus.face;
+		bg = &wc->focus.background;
+		fg = &wc->focus.foreground;
 		bc = &wc->focus.border;
-		tc = &wc->focus.text;
 	}
 	else if(ctx->hover == id)
 	{
-		fc = &wc->hover.face;
+		bg = &wc->hover.background;
+		fg = &wc->hover.foreground;
 		bc = &wc->hover.border;
-		tc = &wc->hover.text;
 	}
 	else
 	{
-		fc = &wc->normal.face;
+		bg = &wc->normal.background;
+		fg = &wc->normal.foreground;
 		bc = &wc->normal.border;
-		tc = &wc->normal.text;
 	}
 	if(bc->a && (width > 0))
 		xui_draw_circle(ctx, r->x + radius, r->y + radius, radius, width, bc);
-	if(fc->a)
-		xui_draw_circle(ctx, r->x + radius, r->y + radius, radius, active ? 0 : ctx->style.common.outline_width, fc);
+	if(bg->a)
+		xui_draw_circle(ctx, r->x + radius, r->y + radius, radius, active ? 0 : ctx->style.common.outline_width, bg);
 	if(active)
-		xui_draw_circle(ctx, r->x + radius, r->y + radius, radius * 392 / 1000, 0, tc);
-	if(label && tc->a)
+		xui_draw_circle(ctx, r->x + radius, r->y + radius, radius * 392 / 1000, 0, fg);
+	if(label && fg->a)
 	{
 		region_init(&region, r->x + r->h, r->y, r->w - r->h, r->h);
-		xui_control_draw_text(ctx, label, &region, &ctx->style.common.text, opt);
+		xui_control_draw_text(ctx, label, &region, &ctx->style.common.foreground, opt);
 	}
 	return click;
 }

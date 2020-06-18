@@ -31,5 +31,5 @@
 
 void xui_label_ex(struct xui_context_t * ctx, const char * utf8, int opt)
 {
-	xui_control_draw_text(ctx, utf8, xui_layout_next(ctx), &ctx->style.common.text, opt);
+	xui_control_draw_text(ctx, utf8, xui_layout_next(ctx), &ctx->style.common.foreground, opt);
 }

@@ -32,7 +32,7 @@
 void xui_text(struct xui_context_t * ctx, const char * utf8)
 {
 	const char * family = ctx->style.common.font_family;
-	struct color_t * c = &ctx->style.common.text;
+	struct color_t * c = &ctx->style.common.foreground;
 	struct region_t * r;
 	struct text_t txt;
 	int size = ctx->style.common.font_size;

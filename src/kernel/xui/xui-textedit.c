@@ -34,7 +34,7 @@ int xui_textedit_ex(struct xui_context_t * ctx, char * buf, int size, int opt)
 	unsigned int id = xui_get_id(ctx, &buf, sizeof(char *));
 	struct region_t * r = xui_layout_next(ctx);
 	struct xui_widget_color_t * wc;
-	struct color_t * fc, * bc, * tc;
+	struct color_t * bg, * fg, * bc;
 	int radius, width;
 	int change = 0;
 
@@ -96,63 +96,63 @@ int xui_textedit_ex(struct xui_context_t * ctx, char * buf, int size, int opt)
 			xui_set_focus(ctx, 0);
 			change |= (1 << 1);
 		}
-		fc = &wc->focus.face;
+		bg = &wc->focus.background;
+		fg = &wc->focus.foreground;
 		bc = &wc->focus.border;
-		tc = &wc->focus.text;
 		if(bc->a && (width > 0))
 			xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, radius, width, bc);
-		if(fc->a)
-			xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, radius, 0, fc);
-		if(tc->a)
+		if(bg->a)
+			xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, radius, 0, bg);
+		if(fg->a)
 		{
 			const char * family = ctx->style.common.font_family;
 			int size = ctx->style.common.font_size;
 			struct text_t txt;
-			text_init(&txt, buf, tc, 0, ctx->f, family, size);
+			text_init(&txt, buf, fg, 0, ctx->f, family, size);
 			int textw = txt.metrics.width;
 			int texth = txt.metrics.height;
 			int ofx = r->w - ctx->style.layout.padding - textw - 1;
 			int textx = r->x + min(ofx, ctx->style.layout.padding);
 			int texty = r->y + (r->h - texth) / 2;
 			xui_push_clip(ctx, r);
-			xui_draw_text(ctx, family, size, buf, textx, texty, 0, tc);
-			xui_draw_rectangle(ctx, textx + textw, r->y, 2, r->h, 0, 0, tc);
+			xui_draw_text(ctx, family, size, buf, textx, texty, 0, fg);
+			xui_draw_rectangle(ctx, textx + textw, r->y, 2, r->h, 0, 0, fg);
 			xui_pop_clip(ctx);
 		}
 	}
 	else if(ctx->hover == id)
 	{
-		fc = &wc->hover.face;
+		bg = &wc->hover.background;
+		fg = &wc->hover.foreground;
 		bc = &wc->hover.border;
-		tc = &wc->hover.text;
 		if(bc->a && (width > 0))
 			xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, radius, width, bc);
-		if(fc->a)
-			xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, radius, 0, fc);
-		if(tc->a)
-			xui_control_draw_text(ctx, buf, r, tc, opt);
+		if(bg->a)
+			xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, radius, 0, bg);
+		if(fg->a)
+			xui_control_draw_text(ctx, buf, r, fg, opt);
 	}
 	else
 	{
-		fc = &wc->normal.face;
+		bg = &wc->normal.background;
+		fg = &wc->normal.foreground;
 		bc = &wc->normal.border;
-		tc = &wc->normal.text;
 		if(opt & XUI_BUTTON_OUTLINE)
 		{
-			if(fc->a)
+			if(bg->a)
 			{
-				xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, radius, ctx->style.common.outline_width, fc);
-				xui_control_draw_text(ctx, buf, r, fc, opt);
+				xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, radius, ctx->style.common.outline_width, bg);
+				xui_control_draw_text(ctx, buf, r, bg, opt);
 			}
 		}
 		else
 		{
 			if(bc->a && (width > 0))
 				xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, radius, width, bc);
-			if(fc->a)
-				xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, radius, 0, fc);
-			if(tc->a)
-				xui_control_draw_text(ctx, buf, r, tc, opt);
+			if(bg->a)
+				xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, radius, 0, bg);
+			if(fg->a)
+				xui_control_draw_text(ctx, buf, r, fg, opt);
 		}
 	}
 	return change;

@@ -33,7 +33,7 @@ void xui_badge_ex(struct xui_context_t * ctx, const char * label, int opt)
 {
 	struct region_t * r = xui_layout_next(ctx);
 	struct xui_widget_color_t * wc;
-	struct color_t * fc, * bc, * tc;
+	struct color_t * bg, * fg, * bc;
 	struct text_t txt;
 	const char * family = ctx->style.common.font_family;
 	int size = ctx->style.common.font_size;
@@ -70,10 +70,10 @@ void xui_badge_ex(struct xui_context_t * ctx, const char * label, int opt)
 		wc = &ctx->style.primary;
 		break;
 	}
-	fc = &wc->normal.face;
+	bg = &wc->normal.background;
+	fg = &wc->normal.foreground;
 	bc = &wc->normal.border;
-	tc = &wc->normal.text;
-	text_init(&txt, label, tc, 0, ctx->f, family, size);
+	text_init(&txt, label, fg, 0, ctx->f, family, size);
 	w = txt.metrics.width + ctx->style.layout.padding * 2;
 	h = txt.metrics.height + ctx->style.layout.padding * 2;
 	if(w < h)
@@ -89,20 +89,20 @@ void xui_badge_ex(struct xui_context_t * ctx, const char * label, int opt)
 	xui_push_clip(ctx, r);
 	if(opt & XUI_BADGE_OUTLINE)
 	{
-		if(fc->a)
+		if(bg->a)
 		{
-			xui_draw_rectangle(ctx, x, y, w, h, radius, ctx->style.common.outline_width, fc);
-			xui_draw_text(ctx, family, size, label, x + (w - txt.metrics.width) / 2, y + (h - txt.metrics.height) / 2, 0, fc);
+			xui_draw_rectangle(ctx, x, y, w, h, radius, ctx->style.common.outline_width, bg);
+			xui_draw_text(ctx, family, size, label, x + (w - txt.metrics.width) / 2, y + (h - txt.metrics.height) / 2, 0, bg);
 		}
 	}
 	else
 	{
 		if(bc->a && (width > 0))
 			xui_draw_rectangle(ctx, x, y, w, h, radius, width, bc);
-		if(fc->a)
-			xui_draw_rectangle(ctx, x, y, w, h, radius, 0, fc);
-		if(tc->a)
-			xui_draw_text(ctx, family, size, label, x + (w - txt.metrics.width) / 2, y + (h - txt.metrics.height) / 2, 0, tc);
+		if(bg->a)
+			xui_draw_rectangle(ctx, x, y, w, h, radius, 0, bg);
+		if(fg->a)
+			xui_draw_text(ctx, family, size, label, x + (w - txt.metrics.width) / 2, y + (h - txt.metrics.height) / 2, 0, fg);
 	}
 	xui_pop_clip(ctx);
 }

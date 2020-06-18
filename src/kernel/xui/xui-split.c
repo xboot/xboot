@@ -33,7 +33,7 @@ void xui_split_ex(struct xui_context_t * ctx, int opt)
 {
 	struct region_t * r = xui_layout_next(ctx);
 	struct xui_widget_color_t * wc;
-	struct color_t * fc;
+	struct color_t * bg;
 	struct point_t p0, p1;
 
 	switch(opt & (0x7 << 8))
@@ -66,7 +66,7 @@ void xui_split_ex(struct xui_context_t * ctx, int opt)
 		wc = &ctx->style.primary;
 		break;
 	}
-	fc = &wc->normal.face;
+	bg = &wc->normal.background;
 	if(opt & XUI_SPLIT_VERTICAL)
 	{
 		p0.x = r->x + r->w / 2;
@@ -81,6 +81,6 @@ void xui_split_ex(struct xui_context_t * ctx, int opt)
 		p1.x = r->x + r->w;
 		p1.y = p0.y;
 	}
-	if(fc->a)
-		xui_draw_line(ctx, &p0, &p1, ctx->style.common.outline_width, fc);
+	if(bg->a)
+		xui_draw_line(ctx, &p0, &p1, ctx->style.common.narrow_bar, bg);
 }

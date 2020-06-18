@@ -37,7 +37,7 @@ void xui_progress_ex(struct xui_context_t * ctx, int percent, int opt)
 	int radius;
 
 	percent = clamp(percent, 0, 100);
-	radius = ctx->style.progress.border_radius;
+	radius = ctx->style.common.border_radius;
 	switch(opt & (0x7 << 8))
 	{
 	case XUI_PROGRESS_PRIMARY:
@@ -86,7 +86,7 @@ void xui_progress_ex(struct xui_context_t * ctx, int percent, int opt)
 			xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, radius, 0, c);
 		if(fc->a)
 			xui_draw_rectangle(ctx, region.x, region.y, region.w, region.h, (0x6 << 16) | radius, 0, fc);
-		if(tc->a && (region.h >= ctx->style.font.size))
+		if(tc->a && (region.h >= ctx->style.common.font_size))
 			xui_control_draw_text(ctx, xui_format(ctx, "%d%%", percent), &region, tc, XUI_OPT_TEXT_CENTER);
 	}
 }

@@ -42,8 +42,8 @@ int xui_textedit_ex(struct xui_context_t * ctx, char * buf, int size, int opt)
 	if(opt & XUI_TEXTEDIT_ROUNDED)
 		radius = r->h / 2;
 	else
-		radius = ctx->style.textedit.border_radius;
-	width = ctx->style.textedit.border_width;
+		radius = ctx->style.common.border_radius;
+	width = ctx->style.common.border_width;
 	switch(opt & (0x7 << 8))
 	{
 	case XUI_TEXTEDIT_PRIMARY:
@@ -105,8 +105,8 @@ int xui_textedit_ex(struct xui_context_t * ctx, char * buf, int size, int opt)
 			xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, radius, 0, fc);
 		if(tc->a)
 		{
-			const char * family = ctx->style.font.font_family;
-			int size = ctx->style.font.size;
+			const char * family = ctx->style.common.font_family;
+			int size = ctx->style.common.font_size;
 			struct text_t txt;
 			text_init(&txt, buf, tc, 0, ctx->f, family, size);
 			int textw = txt.metrics.width;
@@ -141,7 +141,7 @@ int xui_textedit_ex(struct xui_context_t * ctx, char * buf, int size, int opt)
 		{
 			if(fc->a)
 			{
-				xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, radius, ctx->style.textedit.outline_width, fc);
+				xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, radius, ctx->style.common.outline_width, fc);
 				xui_control_draw_text(ctx, buf, r, fc, opt);
 			}
 		}

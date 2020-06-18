@@ -30,7 +30,6 @@
 #include <xui/xui.h>
 
 static const struct xui_style_t xui_style_default = {
-	.background = { 0xf6, 0xf7, 0xfa, 0xff },
 	.primary = {
 		.normal = {
 			.face = { 0x53, 0x6d, 0xe6, 0xff },
@@ -168,11 +167,16 @@ static const struct xui_style_t xui_style_default = {
 		},
 	},
 
-	.font = {
+	.common = {
+		.background = { 0xff, 0xff, 0xff, 0xff },
+		.foreground = { 0x6c, 0x75, 0x7d, 0xff },
+		.text = { 0x98, 0xa6, 0xad, 0xff },
 		.icon_family = "font-awesome",
 		.font_family = "roboto",
-		.color = { 0x98, 0xa6, 0xad, 0xff },
-		.size = 16,
+		.font_size = 16,
+		.border_radius = 4,
+		.border_width = 4,
+		.outline_width = 2,
 	},
 
 	.layout = {
@@ -188,7 +192,7 @@ static const struct xui_style_t xui_style_default = {
 		.border_radius = 4,
 		.border_width = 4,
 		.title_height = 24,
-		.face_color = { 0xff, 0xff, 0xff, 0xff },
+		.face_color = { 0xfa, 0xfb, 0xfe, 0xff },
 		.border_color = { 0x26, 0x47, 0xe0, 0xff },
 		.title_color = { 0x26, 0x47, 0xe0, 0xff },
 		.text_color = { 0xff, 0xff, 0xff, 0xff },
@@ -225,65 +229,8 @@ static const struct xui_style_t xui_style_default = {
 		},
 	},
 
-	.button = {
-		.border_radius = 4,
-		.border_width = 4,
-		.outline_width = 2,
-	},
-
 	.checkbox = {
 		.check_icon = 0xf00c,
-		.border_radius = 4,
-		.border_width = 4,
-		.outline_width = 2,
-	},
-
-	.radio = {
-		.border_width = 4,
-		.outline_width = 2,
-	},
-
-	.toggle = {
-		.border_width = 4,
-		.outline_width = 2,
-	},
-
-	.slider = {
-		.border_width = 4,
-	},
-
-	.number = {
-		.border_radius = 4,
-		.border_width = 4,
-		.outline_width = 2,
-	},
-
-	.textedit = {
-		.border_radius = 4,
-		.border_width = 4,
-		.outline_width = 2,
-	},
-
-	.badge = {
-		.border_radius = 4,
-		.border_width = 4,
-		.outline_width = 2,
-	},
-
-	.progress = {
-		.border_radius = 4,
-	},
-
-	.radialbar = {
-		.outline_width = 8,
-	},
-
-	.spinner = {
-		.outline_width = 4,
-	},
-
-	.split = {
-		.line_width = 2,
 	},
 };
 
@@ -1011,8 +958,8 @@ void xui_control_update(struct xui_context_t * ctx, unsigned int id, struct regi
 void xui_control_draw_text(struct xui_context_t * ctx, const char * utf8, struct region_t * r, struct color_t * c, int opt)
 {
 	struct text_t txt;
-	const char * family = ctx->style.font.font_family;
-	int size = ctx->style.font.size;
+	const char * family = ctx->style.common.font_family;
+	int size = ctx->style.common.font_size;
 	int tw, th;
 	int x, y;
 
@@ -1160,6 +1107,7 @@ struct xui_context_t * xui_context_alloc(const char * fb, const char * input, st
 	ctx->w = window_alloc(fb, input, NULL);
 	ctx->f = font_context_alloc();
 	region_init(&ctx->screen, 0, 0, window_get_width(ctx->w), window_get_height(ctx->w));
+	color_init(&ctx->clear, 0x33, 0x99, 0xcc, 0xff);
 	memcpy(&ctx->style, style ? style : &xui_style_default, sizeof(struct xui_style_t));
 	region_clone(&ctx->clip, &ctx->screen);
 	ctx->last = ctx->now = ktime_to_ns(ktime_get());
@@ -1452,7 +1400,7 @@ void xui_loop(struct xui_context_t * ctx, void (*func)(struct xui_context_t *))
 			if(window_is_active(ctx->w))
 			{
 				ctx->w->wm->refresh = 1;
-				window_present(ctx->w, &ctx->style.background, ctx, xui_draw);
+				window_present(ctx->w, &ctx->clear, ctx, xui_draw);
 			}
 		}
 		task_yield();

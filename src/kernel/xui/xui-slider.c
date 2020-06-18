@@ -41,7 +41,7 @@ int xui_slider_ex(struct xui_context_t * ctx, double * value, double low, double
 
 	xui_control_update(ctx, id, r, opt);
 	radius = min(r->w, r->h) / 2;
-	width = ctx->style.slider.border_width;
+	width = ctx->style.common.border_width;
 	if((ctx->focus == id) && ((ctx->mouse.state & XUI_MOUSE_LEFT) || (ctx->mouse.down & XUI_MOUSE_LEFT)))
 	{
 		if(opt & XUI_SLIDER_VERTICAL)

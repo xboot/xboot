@@ -69,10 +69,10 @@ void xui_radialbar_ex(struct xui_context_t * ctx, int percent, int opt)
 		break;
 	}
 	fc = &wc->normal.face;
-	tc = &ctx->style.font.color;
+	tc = &ctx->style.common.text;
 	c = &ctx->style.light.normal.face;
 	fc = &wc->normal.face;
-	width = ctx->style.radialbar.outline_width;
+	width = ctx->style.common.outline_width;
 	radius = (min(r->w, r->h) - width - ctx->style.layout.padding * 2) / 2;
 	x = r->x + r->w / 2;
 	y = r->y + r->h / 2;
@@ -83,7 +83,7 @@ void xui_radialbar_ex(struct xui_context_t * ctx, int percent, int opt)
 			xui_draw_circle(ctx, x, y, radius, width, c);
 		if(fc->a)
 			xui_draw_arc(ctx, x, y, radius, 270, 360 * percent / 100 + 270, width, fc);
-		if(tc->a && (region.h >= ctx->style.font.size))
+		if(tc->a && (region.h >= ctx->style.common.font_size))
 			xui_control_draw_text(ctx, xui_format(ctx, "%d%%", percent), &region, tc, XUI_OPT_TEXT_CENTER);
 	}
 }

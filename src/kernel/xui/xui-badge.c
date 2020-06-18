@@ -35,8 +35,8 @@ void xui_badge_ex(struct xui_context_t * ctx, const char * label, int opt)
 	struct xui_widget_color_t * wc;
 	struct color_t * fc, * bc, * tc;
 	struct text_t txt;
-	const char * family = ctx->style.font.font_family;
-	int size = ctx->style.font.size;
+	const char * family = ctx->style.common.font_family;
+	int size = ctx->style.common.font_size;
 	int radius, width;
 	int x, y, w, h;
 
@@ -83,15 +83,15 @@ void xui_badge_ex(struct xui_context_t * ctx, const char * label, int opt)
 	if(opt & XUI_BADGE_ROUNDED)
 		radius = h / 2;
 	else
-		radius = ctx->style.badge.border_radius;
-	width = ctx->style.badge.border_width;
+		radius = ctx->style.common.border_radius;
+	width = ctx->style.common.border_width;
 
 	xui_push_clip(ctx, r);
 	if(opt & XUI_BADGE_OUTLINE)
 	{
 		if(fc->a)
 		{
-			xui_draw_rectangle(ctx, x, y, w, h, radius, ctx->style.badge.outline_width, fc);
+			xui_draw_rectangle(ctx, x, y, w, h, radius, ctx->style.common.outline_width, fc);
 			xui_draw_text(ctx, family, size, label, x + (w - txt.metrics.width) / 2, y + (h - txt.metrics.height) / 2, 0, fc);
 		}
 	}

@@ -68,7 +68,7 @@ void xui_spinner_ex(struct xui_context_t * ctx, int opt)
 		break;
 	}
 	fc = &wc->normal.face;
-	width = ctx->style.spinner.outline_width;
+	width = ctx->style.common.outline_width;
 	radius = (min(r->w, r->h) - width - ctx->style.layout.padding * 2) / 2;
 	x = r->x + r->w / 2;
 	y = r->y + r->h / 2;

@@ -283,7 +283,6 @@ struct xui_widget_color_t {
 };
 
 struct xui_style_t {
-	struct color_t background;
 	struct xui_widget_color_t primary;
 	struct xui_widget_color_t secondary;
 	struct xui_widget_color_t success;
@@ -294,11 +293,16 @@ struct xui_style_t {
 	struct xui_widget_color_t dark;
 
 	struct {
+		struct color_t background;
+		struct color_t foreground;
+		struct color_t text;
 		const char * icon_family;
 		const char * font_family;
-		struct color_t color;
-		int size;
-	} font;
+		int font_size;
+		int border_radius;
+		int border_width;
+		int outline_width;
+	} common;
 
 	struct {
 		int width;
@@ -351,65 +355,8 @@ struct xui_style_t {
 	} tree;
 
 	struct {
-		int border_radius;
-		int border_width;
-		int outline_width;
-	} button;
-
-	struct {
 		uint32_t check_icon;
-		int border_radius;
-		int border_width;
-		int outline_width;
 	} checkbox;
-
-	struct {
-		int border_width;
-		int outline_width;
-	} radio;
-
-	struct {
-		int border_width;
-		int outline_width;
-	} toggle;
-
-	struct {
-		int border_width;
-	} slider;
-
-	struct {
-		int border_radius;
-		int border_width;
-		int outline_width;
-	} number;
-
-	struct {
-		int border_radius;
-		int border_width;
-		int outline_width;
-	} textedit;
-
-	struct {
-		int border_radius;
-		int border_width;
-		int outline_width;
-	} badge;
-
-	struct {
-		int border_radius;
-	} progress;
-
-	struct {
-		int outline_width;
-	} radialbar;
-
-	struct {
-		int outline_width;
-	} spinner;
-
-	struct {
-		int line_width;
-	} split;
 };
 
 struct xui_context_t {
@@ -419,6 +366,7 @@ struct xui_context_t {
 	struct window_t * w;
 	struct font_context_t * f;
 	struct region_t screen;
+	struct color_t clear;
 
 	/*
 	 * Core state

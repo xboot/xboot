@@ -32,10 +32,12 @@
 void xui_begin_panel_ex(struct xui_context_t * ctx, const char * name, int opt)
 {
 	struct xui_container_t * c;
+	struct region_t * r;
 
 	xui_push_id(ctx, name, strlen(name));
 	c = get_container(ctx, ctx->last_id, opt);
-	region_clone(&c->region, xui_layout_next(ctx));
+	r = xui_layout_next(ctx);
+	region_clone(&c->region, r);
 	xui_push(ctx->container_stack, c);
 	push_container_body(ctx, c, &c->region, opt);
 	xui_push_clip(ctx, &c->body);

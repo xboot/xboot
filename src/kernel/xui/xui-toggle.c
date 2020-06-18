@@ -45,7 +45,7 @@ int xui_toggle_ex(struct xui_context_t * ctx, int * state, int opt)
 		click = 1;
 	}
 	radius = min(r->w, r->h) / 2;
-	width = ctx->style.toggle.border_width;
+	width = ctx->style.common.border_width;
 	if(*state)
 	{
 		switch(opt & (0x7 << 8))
@@ -116,7 +116,7 @@ int xui_toggle_ex(struct xui_context_t * ctx, int * state, int opt)
 			xui_draw_rectangle(ctx, r->x, r->y, radius * 4, radius * 2, radius, width, bc);
 		if(fc->a)
 		{
-			xui_draw_rectangle(ctx, r->x, r->y, radius * 4, radius * 2, radius, ctx->style.toggle.outline_width, fc);
+			xui_draw_rectangle(ctx, r->x, r->y, radius * 4, radius * 2, radius, ctx->style.common.outline_width, fc);
 			xui_draw_circle(ctx, r->x + radius, r->y + radius, radius * 4 / 5, 0, fc);
 		}
 	}

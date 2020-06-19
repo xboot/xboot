@@ -916,6 +916,31 @@ void xui_draw_arc(struct xui_context_t * ctx, int x, int y, int radius, int a1, 
 	}
 }
 
+void xui_draw_gradient(struct xui_context_t * ctx, int x, int y, int w, int h, struct color_t * lt, struct color_t * rt, struct color_t * rb, struct color_t * lb)
+{
+	union xui_cmd_t * cmd;
+	struct region_t r;
+	int clip;
+
+	region_init(&r, x, y, w, h);
+	if((clip = xui_check_clip(ctx, &r)))
+	{
+		if(clip < 0)
+			xui_cmd_push_clip(ctx, xui_get_clip(ctx));
+		cmd = xui_cmd_push(ctx, XUI_CMD_TYPE_GRADIENT, sizeof(struct xui_cmd_gradient_t));
+		cmd->gradient.x = x;
+		cmd->gradient.y = y;
+		cmd->gradient.w = w;
+		cmd->gradient.h = h;
+		memcpy(&cmd->gradient.lt, lt, sizeof(struct color_t));
+		memcpy(&cmd->gradient.rt, rt, sizeof(struct color_t));
+		memcpy(&cmd->gradient.rb, rb, sizeof(struct color_t));
+		memcpy(&cmd->gradient.lb, lb, sizeof(struct color_t));
+		if(clip < 0)
+			xui_cmd_push_clip(ctx, &unclipped_region);
+	}
+}
+
 void xui_draw_text(struct xui_context_t * ctx, const char * family, int size, const char * utf8, int x, int y, int wrap, struct color_t * c)
 {
 	union xui_cmd_t * cmd;
@@ -1227,6 +1252,9 @@ static void xui_draw(struct window_t * w, void * o)
 			break;
 		case XUI_CMD_TYPE_ARC:
 			surface_shape_arc(s, clip, cmd->arc.x, cmd->arc.y, cmd->arc.radius, cmd->arc.a1, cmd->arc.a2, cmd->arc.thickness, &cmd->arc.c);
+			break;
+		case XUI_CMD_TYPE_GRADIENT:
+			surface_shape_gradient(s, clip, cmd->gradient.x, cmd->gradient.y, cmd->gradient.w, cmd->gradient.h, &cmd->gradient.lt, &cmd->gradient.rt, &cmd->gradient.rb, &cmd->gradient.lb);
 			break;
 		case XUI_CMD_TYPE_TEXT:
 			text_init(&txt, cmd->text.utf8, &cmd->text.c, cmd->text.wrap, ctx->f, cmd->text.family, cmd->text.size);

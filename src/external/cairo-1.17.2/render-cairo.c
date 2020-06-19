@@ -514,6 +514,7 @@ static struct render_t render_cairo = {
 	.shape_circle		= render_cairo_shape_circle,
 	.shape_ellipse		= render_cairo_shape_ellipse,
 	.shape_arc			= render_cairo_shape_arc,
+	.shape_gradient		= render_default_shape_gradient,
 	.shape_raster		= render_default_shape_raster,
 
 	.filter_haldclut	= render_default_filter_haldclut,

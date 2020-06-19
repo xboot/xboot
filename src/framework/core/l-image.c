@@ -388,6 +388,22 @@ static int m_image_arc(lua_State * L)
 	return 1;
 }
 
+static int m_image_gradient(lua_State * L)
+{
+	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
+	int x = luaL_checknumber(L, 2);
+	int y = luaL_checknumber(L, 3);
+	int w = luaL_checknumber(L, 4);
+	int h = luaL_checknumber(L, 5);
+	struct color_t * lt = luaL_checkudata(L, 6, MT_COLOR);
+	struct color_t * rt = luaL_checkudata(L, 7, MT_COLOR);
+	struct color_t * rb = luaL_checkudata(L, 8, MT_COLOR);
+	struct color_t * lb = luaL_checkudata(L, 9, MT_COLOR);
+	surface_shape_gradient(img->s, NULL, x, y, w, h, lt, rt, rb, lb);
+	lua_settop(L, 1);
+	return 1;
+}
+
 static int m_image_haldclut(lua_State * L)
 {
 	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
@@ -521,6 +537,7 @@ static const luaL_Reg m_image[] = {
 	{"circle",		m_image_circle},
 	{"ellipse",		m_image_ellipse},
 	{"arc",			m_image_arc},
+	{"gradient",	m_image_gradient},
 
 	{"haldclut",	m_image_haldclut},
 	{"grayscale",	m_image_grayscale},

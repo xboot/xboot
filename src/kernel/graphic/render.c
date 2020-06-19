@@ -1509,6 +1509,84 @@ void render_default_shape_arc(struct surface_t * s, struct region_t * clip, int 
 	}
 }
 
+void render_default_shape_gradient(struct surface_t * s, struct region_t * clip, int x, int y, int w, int h, struct color_t * lt, struct color_t * rt, struct color_t * rb, struct color_t * lb)
+{
+	struct region_t region, r;
+	struct color_t cl, cr;
+	unsigned char * p, * q;
+	int stride;
+	int x0, y0, x1, y1;
+	int i, j, u, v;
+
+	region_init(&r, 0, 0, surface_get_width(s), surface_get_height(s));
+	if(clip)
+	{
+		if(!region_intersect(&r, &r, clip))
+			return;
+	}
+	region_init(&region, x, y, w, h);
+	if(!region_intersect(&r, &r, &region))
+		return;
+	stride = surface_get_stride(s);
+	q = (unsigned char *)surface_get_pixels(s) + y * stride + (x << 2);
+	x0 = r.x - x;
+	y0 = r.y - y;
+	x1 = x0 + r.w;
+	y1 = y0 + r.h;
+	for(j = 0; j < h; j++, q += stride)
+	{
+		if((j >= y0) && (j < y1))
+		{
+			if(h > 1)
+				u = (j << 8) / (h - 1);
+			else
+				u = 0;
+			v = 256 - u;
+			cl.b = (lt->b * v + lb->b * u) >> 8;
+			cl.g = (lt->g * v + lb->g * u) >> 8;
+			cl.r = (lt->r * v + lb->r * u) >> 8;
+			cl.a = (lt->a * v + lb->a * u) >> 8;
+			cr.b = (rt->b * v + rb->b * u) >> 8;
+			cr.g = (rt->g * v + rb->g * u) >> 8;
+			cr.r = (rt->r * v + rb->r * u) >> 8;
+			cr.a = (rt->a * v + rb->a * u) >> 8;
+			for(i = 0, p = q; i < w; i++, p += 4)
+			{
+				if((i >= x0) && (i < x1))
+				{
+					if(w > 1)
+						u = (i << 8) / (w - 1);
+					else
+						u = 0;
+					v = 256 - u;
+					p[3] = (cl.a * v + cr.a * u) >> 8;
+					if(p[3] != 0)
+					{
+						if(p[3] == 255)
+						{
+							p[0] = (cl.b * v + cr.b * u) >> 8;
+							p[1] = (cl.g * v + cr.g * u) >> 8;
+							p[2] = (cl.r * v + cr.r * u) >> 8;
+						}
+						else
+						{
+							p[0] = ((cl.b * v + cr.b * u) >> 8) * 255 / p[3];
+							p[1] = ((cl.g * v + cr.g * u) >> 8) * 255 / p[3];
+							p[2] = ((cl.r * v + cr.r * u) >> 8) * 255 / p[3];
+						}
+					}
+					else
+					{
+						p[0] = 0;
+						p[1] = 0;
+						p[2] = 0;
+					}
+				}
+			}
+		}
+	}
+}
+
 void render_default_filter_haldclut(struct surface_t * s, struct surface_t * clut, const char * type)
 {
 	int width = surface_get_width(s);

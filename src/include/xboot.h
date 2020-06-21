@@ -83,6 +83,7 @@ extern "C" {
 #include <xui/slider.h>
 #include <xui/number.h>
 #include <xui/textedit.h>
+#include <xui/colorpicker.h>
 #include <xui/badge.h>
 #include <xui/progress.h>
 #include <xui/radialbar.h>

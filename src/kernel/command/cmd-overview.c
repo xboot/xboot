@@ -281,6 +281,13 @@ static void overview_window(struct xui_context_t * ctx)
 			xui_end_tree(ctx);
 		}
 
+		if(xui_begin_tree(ctx, "Colorpicker"))
+		{
+			xui_layout_row(ctx, 1, (int[]){ -1 }, 100);
+			xui_colorpicker(ctx, &ctx->clear);
+			xui_end_tree(ctx);
+		}
+
 		if(xui_begin_tree(ctx, "Badge"))
 		{
 			if(xui_begin_tree(ctx, "Normal Badge"))

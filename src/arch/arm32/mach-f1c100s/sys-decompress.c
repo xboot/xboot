@@ -40,7 +40,7 @@
 
 static unsigned int lz4_is_little_endian(void)
 {
-	union { uint32_t u; uint32_t c[4]; } one = { 1 };
+	union { uint32_t u; uint8_t c[4]; } one = { 1 };
 	return one.c[0];
 }
 
@@ -147,7 +147,7 @@ void sys_decompress(char * src, int slen, char * dst, int dlen)
 			do {
 				s = *ip++;
 				length += s;
-			} while(likely(ip < iend - RUN_MASK) & (s == 255));
+			} while(likely(ip < iend - RUN_MASK) && (s == 255));
 			if(unlikely(op + length < op))
 				return;
 			if(unlikely(ip + length < ip))

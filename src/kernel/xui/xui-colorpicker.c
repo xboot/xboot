@@ -41,30 +41,77 @@ static struct color_t hue_color[] = {
 
 static struct color_t white_color = { 0xff, 0xff, 0xff, 0xff };
 static struct color_t black_color = { 0x00, 0x00, 0x00, 0xff };
-static struct color_t black_tran_color = { 0x00, 0x00, 0x00, 0x00 };
 
 int xui_colorpicker_ex(struct xui_context_t * ctx, struct color_t * c, int opt)
 {
 	struct region_t * r;
+	struct point_t p0, p1;
 	struct color_t t;
+	unsigned int id;
+	unsigned char alpha = c->a;
+	int change = 0;
 	int h, s, v;
 	int i;
 
-	color_get_hsv(c, &h, &s, &v);
-	color_set_hsv(&t, h, 100, 100);
-
+	xui_push_id(ctx, &c, sizeof(struct color_t *));
 	xui_layout_begin_column(ctx);
-	xui_layout_row(ctx, 3, (int[]){ -40, 20, 20 }, 100);
+	xui_layout_row(ctx, 3, (int[]){ -32 - ctx->style.layout.padding * 3, 16, 16 }, -1);
 	r = xui_layout_next(ctx);
+	id = xui_get_id(ctx, "!svpicker", 9);
+	xui_control_update(ctx, id, r, opt);
+	if((ctx->focus == id) && ((ctx->mouse.state & XUI_MOUSE_LEFT) || (ctx->mouse.down & XUI_MOUSE_LEFT)))
+	{
+		color_get_hsv(c, &h, &s, &v);
+		s = 100 * clamp(ctx->mouse.x - r->x, 0, r->w) / r->w;
+		v = 100 * (r->h - clamp(ctx->mouse.y - r->y, 0, r->h)) / r->h;
+		color_set_hsv(c, h, s, v);
+		c->a = alpha;
+		change = 1;
+	}
+	else
+	{
+		color_get_hsv(c, &h, &s, &v);
+	}
+	color_set_hsv(&t, h, 100, 100);
 	xui_draw_gradient(ctx, r->x, r->y, r->w, r->h, &white_color, &t, &black_color, &black_color);
-//	xui_draw_gradient(ctx, r->x, r->y, r->w, r->h, &black_tran_color, &black_tran_color, &black_color, &black_color);
+	xui_draw_circle(ctx, r->x + r->w * s / 100, r->y + r->h - r->h * v / 100, 6, 2, &white_color);
 	r = xui_layout_next(ctx);
+	id = xui_get_id(ctx, "!hpicker", 8);
+	xui_control_update(ctx, id, r, opt);
+	if((ctx->focus == id) && ((ctx->mouse.state & XUI_MOUSE_LEFT) || (ctx->mouse.down & XUI_MOUSE_LEFT)))
+	{
+		h = 360 * clamp(ctx->mouse.y - r->y, 0, r->h) / r->h;
+		color_set_hsv(c, h, s, v);
+		c->a = alpha;
+		color_set_hsv(&t, h, 100, 100);
+		change = 1;
+	}
+	p0.x = r->x;
+	p0.y = r->y + r->h * h / 360;
+	p1.x = r->x + r->w;
+	p1.y = p0.y;
 	for(i = 0; i < 6; ++i)
 	{
 		xui_draw_gradient(ctx, r->x, r->y + (r->h / 6) * i, r->w, r->h / 6, &hue_color[i], &hue_color[i], &hue_color[i + 1], &hue_color[i + 1]);
 	}
+	xui_draw_line(ctx, &p0, &p1, 2, &white_color);
 	r = xui_layout_next(ctx);
+	id = xui_get_id(ctx, "!apicker", 8);
+	xui_control_update(ctx, id, r, opt);
+	if((ctx->focus == id) && ((ctx->mouse.state & XUI_MOUSE_LEFT) || (ctx->mouse.down & XUI_MOUSE_LEFT)))
+	{
+		alpha = 255 * clamp(ctx->mouse.y - r->y, 0, r->h) / r->h;
+		c->a = alpha;
+		change = 1;
+	}
+	p0.x = r->x;
+	p0.y = r->y + r->h * alpha / 255;
+	p1.x = r->x + r->w;
+	p1.y = p0.y;
 	xui_draw_gradient(ctx, r->x, r->y, r->w, r->h, &white_color, &white_color, &black_color, &black_color);
+	xui_draw_line(ctx, &p0, &p1, 2, &white_color);
 	xui_layout_end_column(ctx);
-	return 0;
+	xui_pop_id(ctx);
+
+	return change;
 }

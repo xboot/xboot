@@ -52,10 +52,10 @@ static inline void color_level(struct color_t * c, struct color_t * o, int level
 void color_init_string(struct color_t * c, const char * s);
 
 /*
- * h from 0 - 360, s and v from 0 - 100
+ * h from 0 - 360, s and v and a from 0 - 255
  */
-void color_set_hsv(struct color_t * c, int h, int s, int v);
-void color_get_hsv(struct color_t * c, int * h, int * s, int * v);
+void color_set_hsva(struct color_t * c, int h, int s, int v, int a);
+void color_get_hsva(struct color_t * c, int * h, int * s, int * v, int * a);
 
 /*
  * The value with pre-multiplied alpha

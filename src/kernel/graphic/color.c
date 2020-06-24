@@ -582,12 +582,12 @@ void color_init_string(struct color_t * c, const char * s)
 	}
 }
 
-void color_set_hsv(struct color_t * c, int h, int s, int v)
+void color_set_hsva(struct color_t * c, int h, int s, int v, int a)
 {
 	if(c)
 	{
-		float cmax = clamp(v, 0, 100) * 2.55;
-		float cmin = cmax - clamp(s, 0, 100) * cmax / 100.0;
+		float cmax = clamp(v, 0, 255);
+		float cmin = cmax - clamp(s, 0, 255) * cmax / 255.0;
 		float adj = (cmax - cmin) * (h % 60) / 60.0;
 
 		switch((h % 360) / 60)
@@ -625,11 +625,11 @@ void color_set_hsv(struct color_t * c, int h, int s, int v)
 		default:
 			break;
 		}
-		c->a = 0xff;
+		c->a = clamp(a, 0, 255);
 	}
 }
 
-void color_get_hsv(struct color_t * c, int * h, int * s, int * v)
+void color_get_hsva(struct color_t * c, int * h, int * s, int * v, int * a)
 {
 	if(c)
 	{
@@ -661,13 +661,14 @@ void color_get_hsv(struct color_t * c, int * h, int * s, int * v)
 			{
 				*h = ((r - g) / delta + 4) * 60.0;
 			}
-			*s = delta / cmax * 100.0;
+			*s = delta / cmax * 255.0;
 		}
 		else
 		{
 			*h = 0;
 			*s = 0;
 		}
-		*v = cmax * 100.0;
+		*v = cmax * 255.0;
+		*a = c->a;
 	}
 }

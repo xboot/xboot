@@ -30,6 +30,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 #include <shash.h>
 #include <graphic/color.h>
 
@@ -582,93 +583,96 @@ void color_init_string(struct color_t * c, const char * s)
 	}
 }
 
-void color_set_hsva(struct color_t * c, int h, int s, int v, int a)
+void color_set_hsva(struct color_t * c, float h, float s, float v, float a)
 {
-	if(c)
-	{
-		float cmax = clamp(v, 0, 255);
-		float cmin = cmax - clamp(s, 0, 255) * cmax / 255.0;
-		float adj = (cmax - cmin) * (h % 60) / 60.0;
+	float r, g, b;
+	float p, q, t, f;
+	int i;
 
-		switch((h % 360) / 60)
+	if(s <= 0.0f)
+	{
+		c->r = c->g = c->b = roundf(v * 255.0f);
+		c->a = roundf(a * 255.0f);
+	}
+	else
+	{
+		h = h / (60.0f / 360.0f);
+		i = (int)h;
+		f = h - (float)i;
+		p = v * (1.0f - s);
+		q = v * (1.0f - (s * f));
+		t = v * (1.0f - s * (1.0f - f));
+		switch(i)
 		{
 		case 0:
-			c->r = cmax;
-			c->g = cmin + adj;
-			c->b = cmin;
+			r = v;
+			g = t;
+			b = p;
 			break;
 		case 1:
-			c->r = cmax - adj;
-			c->g = cmax;
-			c->b = cmin;
+			r = q;
+			g = v;
+			b = p;
 			break;
 		case 2:
-			c->r = cmin;
-			c->g = cmax;
-			c->b = cmin + adj;
+			r = p;
+			g = v;
+			b = t;
 			break;
 		case 3:
-			c->r = cmin;
-			c->g = cmax - adj;
-			c->b = cmax;
+			r = p;
+			g = q;
+			b = v;
 			break;
 		case 4:
-			c->r = cmin + adj;
-			c->g = cmin;
-			c->b = cmax;
+			r = t;
+			g = p;
+			b = v;
 			break;
 		case 5:
-			c->r = cmax;
-			c->g = cmin;
-			c->b = cmax - adj;
+			r = v;
+			g = p;
+			b = q;
 			break;
 		default:
+			r = v;
+			g = t;
+			b = p;
 			break;
 		}
-		c->a = clamp(a, 0, 255);
+		c->r = roundf(r * 255.0f);
+		c->g = roundf(g * 255.0f);
+		c->b = roundf(b * 255.0f);
+		c->a = roundf(a * 255.0f);
 	}
 }
 
-void color_get_hsva(struct color_t * c, int * h, int * s, int * v, int * a)
+void color_get_hsva(struct color_t * c, float * h, float * s, float * v, float * a)
 {
-	if(c)
-	{
-		float r = c->r / 255.0;
-		float g = c->g / 255.0;
-		float b = c->b / 255.0;
-		float cmax = max(max(r, g), b);
-		float cmin = min(min(r, g), b);
-		float delta = cmax - cmin;
+	float r = c->r / 255.0f;
+	float g = c->g / 255.0f;
+	float b = c->b / 255.0f;
+	float k = 0.0f;
+	float chroma;
+	float t;
 
-		if(cmax > 0)
-		{
-			if(delta == 0)
-			{
-				*h = 0;
-			}
-			else if(r == cmax)
-			{
-				if(g >= b)
-					*h = ((g - b) / delta) * 60.0;
-				else
-					*h = ((g - b) / delta + 6) * 60.0;
-			}
-			else if(g == cmax)
-			{
-				*h = ((b - r) / delta + 2) * 60.0;
-			}
-			else if(b == cmax)
-			{
-				*h = ((r - g) / delta + 4) * 60.0;
-			}
-			*s = delta / cmax * 255.0;
-		}
-		else
-		{
-			*h = 0;
-			*s = 0;
-		}
-		*v = cmax * 255.0;
-		*a = c->a;
+	if(g < b)
+	{
+		t = g;
+		g = b;
+		b = t;
+		k = -1.f;
 	}
+	if(r < g)
+	{
+		t = r;
+		r = g;
+		g = t;
+		k = -2.f / 6.0f - k;
+	}
+	chroma = r - ((g < b) ? g : b);
+	*h = fabsf(k + (g - b) / (6.0f * chroma + 1e-20f));
+	*s = chroma / (r + 1e-20f);
+	*v = r;
+	*a = c->a / 255.0f;
 }

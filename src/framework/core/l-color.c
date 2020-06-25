@@ -99,10 +99,10 @@ static int m_color_get_color(lua_State * L)
 static int m_color_set_hsv(lua_State * L)
 {
 	struct color_t * c = luaL_checkudata(L, 1, MT_COLOR);
-	int h = luaL_optinteger(L, 2, 0);
-	int s = luaL_optinteger(L, 3, 0);
-	int v = luaL_optinteger(L, 4, 255);
-	int a = luaL_optinteger(L, 5, 255);
+	float h = luaL_optnumber(L, 2, 0);
+	float s = luaL_optnumber(L, 3, 0);
+	float v = luaL_optnumber(L, 4, 1);
+	float a = luaL_optnumber(L, 5, 1);
 	color_set_hsva(c, h, s, v, a);
 	lua_settop(L, 1);
 	return 1;
@@ -111,12 +111,12 @@ static int m_color_set_hsv(lua_State * L)
 static int m_color_get_hsv(lua_State * L)
 {
 	struct color_t * c = luaL_checkudata(L, 1, MT_COLOR);
-	int h, s, v, a;
+	float h, s, v, a;
 	color_get_hsva(c, &h, &s, &v, &a);
-	lua_pushinteger(L, h);
-	lua_pushinteger(L, s);
-	lua_pushinteger(L, v);
-	lua_pushinteger(L, a);
+	lua_pushnumber(L, h);
+	lua_pushnumber(L, s);
+	lua_pushnumber(L, v);
+	lua_pushnumber(L, a);
 	return 4;
 }
 

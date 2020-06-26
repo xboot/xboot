@@ -292,7 +292,7 @@ static inline void draw_font_glyph(struct surface_t * s, struct region_t * clip,
 	sskip = bitmap->pitch - dw;
 	dp = (uint32_t *)s->pixels + dy * s->width + dx;
 	sp = (uint8_t *)bitmap->buffer + sy * bitmap->pitch + sx;
-	color = (c->a << 24) | (c->r << 16) | (c->g << 8) | (c->b << 0);
+	color = color_get_premult(c);
 
 	for(j = 0; j < dh; j++)
 	{

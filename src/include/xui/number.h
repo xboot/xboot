@@ -49,12 +49,38 @@ static inline int xui_number_int_ex(struct xui_context_t * ctx, int * value, int
 	return change;
 }
 
+static inline int xui_number_uint_ex(struct xui_context_t * ctx, unsigned int * value, unsigned int low, unsigned int high, unsigned int step, const char * fmt, int opt)
+{
+	double v;
+	int change;
+
+	xui_push_id(ctx, &value, sizeof(unsigned int *));
+	v = *value;
+	change = xui_number_ex(ctx, &v, low, high, step, fmt, opt);
+	*value = v;
+	xui_pop_id(ctx);
+	return change;
+}
+
 static inline int xui_number_char_ex(struct xui_context_t * ctx, char * value, char low, char high, char step, const char * fmt, int opt)
 {
 	double v;
 	int change;
 
 	xui_push_id(ctx, &value, sizeof(char *));
+	v = *value;
+	change = xui_number_ex(ctx, &v, low, high, step, fmt, opt);
+	*value = v;
+	xui_pop_id(ctx);
+	return change;
+}
+
+static inline int xui_number_uchar_ex(struct xui_context_t * ctx, unsigned char * value, unsigned char low, unsigned char high, unsigned char step, const char * fmt, int opt)
+{
+	double v;
+	int change;
+
+	xui_push_id(ctx, &value, sizeof(unsigned char *));
 	v = *value;
 	change = xui_number_ex(ctx, &v, low, high, step, fmt, opt);
 	*value = v;
@@ -77,9 +103,19 @@ static inline int xui_number_int(struct xui_context_t * ctx, int * value, int lo
 	return xui_number_int_ex(ctx, value, low, high, step, "%.0f", XUI_NUMBER_PRIMARY | XUI_OPT_TEXT_LEFT);
 }
 
+static inline int xui_number_uint(struct xui_context_t * ctx, unsigned int * value, unsigned int low, unsigned int high, unsigned int step)
+{
+	return xui_number_uint_ex(ctx, value, low, high, step, "%.0f", XUI_NUMBER_PRIMARY | XUI_OPT_TEXT_LEFT);
+}
+
 static inline int xui_number_char(struct xui_context_t * ctx, char * value, char low, char high, char step)
 {
 	return xui_number_char_ex(ctx, value, low, high, step, "%.0f", XUI_NUMBER_PRIMARY | XUI_OPT_TEXT_LEFT);
+}
+
+static inline int xui_number_uchar(struct xui_context_t * ctx, unsigned char * value, unsigned char low, unsigned char high, unsigned char step)
+{
+	return xui_number_uchar_ex(ctx, value, low, high, step, "%.0f", XUI_NUMBER_PRIMARY | XUI_OPT_TEXT_LEFT);
 }
 
 #ifdef __cplusplus

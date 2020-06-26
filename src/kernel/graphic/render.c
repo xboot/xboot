@@ -1552,7 +1552,9 @@ void render_default_shape_gradient(struct surface_t * s, struct region_t * clip,
 	unsigned char * p, * q;
 	int stride;
 	int x0, y0, x1, y1;
-	int i, j, u, v;
+	int i, j, u, v, t;
+	uint8_t da, dr, dg, db;
+	uint8_t sa, sr, sg, sb;
 
 	region_init(&r, 0, 0, surface_get_width(s), surface_get_height(s));
 	if(clip)
@@ -1595,27 +1597,31 @@ void render_default_shape_gradient(struct surface_t * s, struct region_t * clip,
 					else
 						u = 0;
 					v = 256 - u;
-					p[3] = (cl.a * v + cr.a * u) >> 8;
-					if(p[3] != 0)
+					sa = (cl.a * v + cr.a * u) >> 8;
+					if(sa != 0)
 					{
-						if(p[3] == 255)
+						if(sa == 255)
 						{
 							p[0] = (cl.b * v + cr.b * u) >> 8;
 							p[1] = (cl.g * v + cr.g * u) >> 8;
 							p[2] = (cl.r * v + cr.r * u) >> 8;
+							p[3] = sa;
 						}
 						else
 						{
-							p[0] = ((cl.b * v + cr.b * u) >> 8) * 255 / p[3];
-							p[1] = ((cl.g * v + cr.g * u) >> 8) * 255 / p[3];
-							p[2] = ((cl.r * v + cr.r * u) >> 8) * 255 / p[3];
+							sr =  ((cl.r * v + cr.r * u) >> 8) * sa / 255;
+							sg =  ((cl.g * v + cr.g * u) >> 8) * sa / 255;
+							sb =  ((cl.b * v + cr.b * u) >> 8) * sa / 255;
+							db = p[0];
+							dg = p[1];
+							dr = p[2];
+							da = p[3];
+							t = sa + (sa >> 8);
+							p[3] = (((sa + da) << 8) - da * t) >> 8;
+							p[2] = (((sr + dr) << 8) - dr * t) >> 8;
+							p[1] = (((sg + dg) << 8) - dg * t) >> 8;
+							p[0] = (((sb + db) << 8) - db * t) >> 8;
 						}
-					}
-					else
-					{
-						p[0] = 0;
-						p[1] = 0;
-						p[2] = 0;
 					}
 				}
 			}

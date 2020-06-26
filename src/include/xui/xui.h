@@ -68,21 +68,22 @@ enum {
 };
 
 enum xui_cmd_type_t {
-	XUI_CMD_TYPE_BASE		= 0x0,
-	XUI_CMD_TYPE_JUMP		= 0x1,
-	XUI_CMD_TYPE_CLIP		= 0x2,
-	XUI_CMD_TYPE_LINE		= 0x3,
-	XUI_CMD_TYPE_POLYLINE	= 0x4,
-	XUI_CMD_TYPE_CURVE		= 0x5,
-	XUI_CMD_TYPE_TRIANGLE	= 0x6,
-	XUI_CMD_TYPE_RECTANGLE	= 0x7,
-	XUI_CMD_TYPE_POLYGON	= 0x8,
-	XUI_CMD_TYPE_CIRCLE		= 0x9,
-	XUI_CMD_TYPE_ELLIPSE	= 0xa,
-	XUI_CMD_TYPE_ARC		= 0xb,
-	XUI_CMD_TYPE_GRADIENT	= 0xc,
-	XUI_CMD_TYPE_TEXT		= 0xd,
-	XUI_CMD_TYPE_ICON		= 0xe,
+	XUI_CMD_TYPE_BASE		= 0,
+	XUI_CMD_TYPE_JUMP		= 1,
+	XUI_CMD_TYPE_CLIP		= 2,
+	XUI_CMD_TYPE_LINE		= 3,
+	XUI_CMD_TYPE_POLYLINE	= 4,
+	XUI_CMD_TYPE_CURVE		= 5,
+	XUI_CMD_TYPE_TRIANGLE	= 6,
+	XUI_CMD_TYPE_RECTANGLE	= 7,
+	XUI_CMD_TYPE_POLYGON	= 8,
+	XUI_CMD_TYPE_CIRCLE		= 9,
+	XUI_CMD_TYPE_ELLIPSE	= 10,
+	XUI_CMD_TYPE_ARC		= 11,
+	XUI_CMD_TYPE_SQUARE		= 12,
+	XUI_CMD_TYPE_GRADIENT	= 13,
+	XUI_CMD_TYPE_TEXT		= 14,
+	XUI_CMD_TYPE_ICON		= 15,
 };
 
 struct xui_cmd_base_t {
@@ -195,6 +196,13 @@ struct xui_cmd_arc_t {
 	struct color_t c;
 };
 
+struct xui_cmd_square_t {
+	enum xui_cmd_type_t type;
+	int len;
+
+	int x, y, w, h;
+};
+
 struct xui_cmd_gradient_t {
 	enum xui_cmd_type_t type;
 	int len;
@@ -241,6 +249,7 @@ union xui_cmd_t {
 	struct xui_cmd_circle_t circle;
 	struct xui_cmd_ellipse_t ellipse;
 	struct xui_cmd_arc_t arc;
+	struct xui_cmd_square_t square;
 	struct xui_cmd_gradient_t gradient;
 	struct xui_cmd_text_t text;
 	struct xui_cmd_icon_t icon;
@@ -562,6 +571,7 @@ void xui_draw_polygon(struct xui_context_t * ctx, struct point_t * p, int n, int
 void xui_draw_circle(struct xui_context_t * ctx, int x, int y, int radius, int thickness, struct color_t * c);
 void xui_draw_ellipse(struct xui_context_t * ctx, int x, int y, int w, int h, int thickness, struct color_t * c);
 void xui_draw_arc(struct xui_context_t * ctx, int x, int y, int radius, int a1, int a2, int thickness, struct color_t * c);
+void xui_draw_square(struct xui_context_t * ctx, int x, int y, int w, int h);
 void xui_draw_gradient(struct xui_context_t * ctx, int x, int y, int w, int h, struct color_t * lt, struct color_t * rt, struct color_t * rb, struct color_t * lb);
 void xui_draw_text(struct xui_context_t * ctx, const char * family, int size, const char * utf8, int x, int y, int wrap, struct color_t * c);
 void xui_draw_icon(struct xui_context_t * ctx, const char * family, uint32_t code, int x, int y, int w, int h, struct color_t * c);

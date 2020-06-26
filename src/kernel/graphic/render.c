@@ -1538,9 +1538,9 @@ void render_default_shape_square(struct surface_t * s, struct region_t * clip, i
 		for(i = x1, p = q; i < x2; i++, p++)
 		{
 			if((i ^ j) & (1 << 3))
-				*p = 0xff999999;
+				*p = 0xffabb9bd;
 			else
-				*p = 0xff666666;
+				*p = 0xff899598;
 		}
 	}
 }

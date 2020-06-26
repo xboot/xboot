@@ -1509,6 +1509,42 @@ void render_default_shape_arc(struct surface_t * s, struct region_t * clip, int 
 	}
 }
 
+void render_default_shape_square(struct surface_t * s, struct region_t * clip, int x, int y, int w, int h)
+{
+	struct region_t region, r;
+	uint32_t * q, * p;
+	int x1, y1, x2, y2;
+	int i, j, l;
+
+	region_init(&r, 0, 0, surface_get_width(s), surface_get_height(s));
+	if(clip)
+	{
+		if(!region_intersect(&r, &r, clip))
+			return;
+	}
+	region_init(&region, x, y, w, h);
+	if(!region_intersect(&r, &r, &region))
+		return;
+
+	x1 = r.x;
+	y1 = r.y;
+	x2 = r.x + r.w;
+	y2 = r.y + r.h;
+	l = s->stride >> 2;
+	q = (uint32_t *)s->pixels + y1 * l + x1;
+
+	for(j = y1; j < y2; j++, q += l)
+	{
+		for(i = x1, p = q; i < x2; i++, p++)
+		{
+			if((i ^ j) & (1 << 3))
+				*p = 0xff999999;
+			else
+				*p = 0xff666666;
+		}
+	}
+}
+
 void render_default_shape_gradient(struct surface_t * s, struct region_t * clip, int x, int y, int w, int h, struct color_t * lt, struct color_t * rt, struct color_t * rb, struct color_t * lb)
 {
 	struct region_t region, r;

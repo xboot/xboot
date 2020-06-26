@@ -388,6 +388,18 @@ static int m_image_arc(lua_State * L)
 	return 1;
 }
 
+static int m_image_square(lua_State * L)
+{
+	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
+	int x = luaL_optinteger(L, 2, 0);
+	int y = luaL_optinteger(L, 3, 0);
+	int w = luaL_optinteger(L, 4, 0);
+	int h = luaL_optinteger(L, 5, 0);
+	surface_shape_square(img->s, NULL, x, y, w, h);
+	lua_settop(L, 1);
+	return 1;
+}
+
 static int m_image_gradient(lua_State * L)
 {
 	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
@@ -537,6 +549,7 @@ static const luaL_Reg m_image[] = {
 	{"circle",		m_image_circle},
 	{"ellipse",		m_image_ellipse},
 	{"arc",			m_image_arc},
+	{"square",		m_image_square},
 	{"gradient",	m_image_gradient},
 
 	{"haldclut",	m_image_haldclut},

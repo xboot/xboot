@@ -1609,9 +1609,9 @@ void render_default_shape_gradient(struct surface_t * s, struct region_t * clip,
 						}
 						else
 						{
-							sr =  ((cl.r * v + cr.r * u) >> 8) * sa / 255;
-							sg =  ((cl.g * v + cr.g * u) >> 8) * sa / 255;
-							sb =  ((cl.b * v + cr.b * u) >> 8) * sa / 255;
+							sr = idiv255(((cl.r * v + cr.r * u) >> 8) * sa);
+							sg = idiv255(((cl.g * v + cr.g * u) >> 8) * sa);
+							sb = idiv255(((cl.b * v + cr.b * u) >> 8) * sa);
 							db = p[0];
 							dg = p[1];
 							dr = p[2];

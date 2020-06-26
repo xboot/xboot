@@ -41,6 +41,7 @@ static struct color_t hue_color[] = {
 
 static struct color_t white_color = { 0xff, 0xff, 0xff, 0xff };
 static struct color_t black_color = { 0x00, 0x00, 0x00, 0xff };
+static struct color_t trans_color = { 0x00, 0x00, 0x00, 0x00 };
 
 int xui_colorpicker_ex(struct xui_context_t * ctx, struct color_t * c, int opt)
 {
@@ -105,7 +106,8 @@ int xui_colorpicker_ex(struct xui_context_t * ctx, struct color_t * c, int opt)
 	p0.y = roundf(r->y + r->h * a);
 	p1.x = r->x + r->w;
 	p1.y = p0.y;
-	xui_draw_gradient(ctx, r->x, r->y, r->w, r->h, &white_color, &white_color, &black_color, &black_color);
+	xui_draw_square(ctx, r->x, r->y, r->w, r->h);
+	xui_draw_gradient(ctx, r->x, r->y, r->w, r->h, &trans_color, &trans_color, &(struct color_t){c->r, c->g, c->b, 255}, &(struct color_t){c->r, c->g, c->b, 255});
 	xui_draw_line(ctx, &p0, &p1, 2, &white_color);
 	xui_layout_end_column(ctx);
 	xui_pop_id(ctx);

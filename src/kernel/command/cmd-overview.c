@@ -35,6 +35,379 @@ static void usage(void)
 	printf("    overview\r\n");
 }
 
+static void xui_style_color(struct xui_context_t * ctx, struct color_t * c)
+{
+	struct region_t * r;
+	unsigned int id;
+
+	xui_push_id(ctx, &c, sizeof(struct color_t *));
+	id = xui_get_id(ctx, &c, sizeof(struct color_t *));
+	r = xui_layout_next(ctx);
+	xui_control_update(ctx, id, r, 0);
+	if((ctx->focus == id) && (ctx->mouse.down & XUI_MOUSE_LEFT))
+	{
+		xui_open_popup(ctx, "!cpopup");
+	}
+	xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, 0, 0, c);
+	if(xui_begin_popup(ctx, "!cpopup"))
+	{
+		int width = 300;
+		int height = 220;
+		int sw = (width - ctx->style.layout.spacing * 3) / 4;
+		float h, s, v, a;
+		xui_layout_row(ctx, 1, (int[]){ width }, height);
+		xui_colorpicker(ctx, c);
+		xui_layout_row(ctx, 4, (int[]){ sw, sw, sw, sw }, 0);
+		xui_number_uchar_ex(ctx, &c->r, 0, 255, 1, "R : %.0f", XUI_NUMBER_PRIMARY | XUI_OPT_TEXT_LEFT);
+		xui_number_uchar_ex(ctx, &c->g, 0, 255, 1, "G : %.0f", XUI_NUMBER_PRIMARY | XUI_OPT_TEXT_LEFT);
+		xui_number_uchar_ex(ctx, &c->b, 0, 255, 1, "B : %.0f", XUI_NUMBER_PRIMARY | XUI_OPT_TEXT_LEFT);
+		xui_number_uchar_ex(ctx, &c->a, 0, 255, 1, "A : %.0f", XUI_NUMBER_PRIMARY | XUI_OPT_TEXT_LEFT);
+		color_get_hsva(c, &h, &s, &v, &a);
+		if(xui_number_float_ex(ctx, &h, 0, 1, 0.01, "H : %.2f", XUI_NUMBER_PRIMARY | XUI_OPT_TEXT_LEFT))
+			color_set_hsva(c, h, s, v, a);
+		if(xui_number_float_ex(ctx, &s, 0, 1, 0.01, "S : %.2f", XUI_NUMBER_PRIMARY | XUI_OPT_TEXT_LEFT))
+			color_set_hsva(c, h, s, v, a);
+		if(xui_number_float_ex(ctx, &v, 0, 1, 0.01, "V : %.2f", XUI_NUMBER_PRIMARY | XUI_OPT_TEXT_LEFT))
+			color_set_hsva(c, h, s, v, a);
+		if(xui_number_float_ex(ctx, &a, 0, 1, 0.01, "A : %.2f", XUI_NUMBER_PRIMARY | XUI_OPT_TEXT_LEFT))
+			color_set_hsva(c, h, s, v, a);
+		xui_end_popup(ctx);
+	}
+	xui_pop_id(ctx);
+}
+
+static void style_window(struct xui_context_t * ctx)
+{
+	if(xui_begin_window(ctx, "Style Window", &(struct region_t){20, 20, (ctx->screen.w - 60) / 2, ctx->screen.h - 40}))
+	{
+		if(xui_begin_tree(ctx, "Color"))
+		{
+			if(xui_begin_tree(ctx, "Primary"))
+			{
+				if(xui_begin_tree(ctx, "Normal"))
+				{
+					xui_layout_row(ctx, 2, (int[]){ 100, -1 }, 0);
+					xui_label(ctx, "Background :");
+					xui_style_color(ctx, &ctx->style.primary.normal.background);
+					xui_label(ctx, "Foreground :");
+					xui_style_color(ctx, &ctx->style.primary.normal.foreground);
+					xui_label(ctx, "Border :");
+					xui_style_color(ctx, &ctx->style.primary.normal.border);
+					xui_end_tree(ctx);
+				}
+				if(xui_begin_tree(ctx, "Hover"))
+				{
+					xui_layout_row(ctx, 2, (int[]){ 100, -1 }, 0);
+					xui_label(ctx, "Background :");
+					xui_style_color(ctx, &ctx->style.primary.hover.background);
+					xui_label(ctx, "Foreground :");
+					xui_style_color(ctx, &ctx->style.primary.hover.foreground);
+					xui_label(ctx, "Border :");
+					xui_style_color(ctx, &ctx->style.primary.hover.border);
+					xui_end_tree(ctx);
+				}
+				if(xui_begin_tree(ctx, "Focus"))
+				{
+					xui_layout_row(ctx, 2, (int[]){ 100, -1 }, 0);
+					xui_label(ctx, "Background :");
+					xui_style_color(ctx, &ctx->style.primary.focus.background);
+					xui_label(ctx, "Foreground :");
+					xui_style_color(ctx, &ctx->style.primary.focus.foreground);
+					xui_label(ctx, "Border :");
+					xui_style_color(ctx, &ctx->style.primary.focus.border);
+					xui_end_tree(ctx);
+				}
+				xui_end_tree(ctx);
+			}
+			if(xui_begin_tree(ctx, "Secondary"))
+			{
+				if(xui_begin_tree(ctx, "Normal"))
+				{
+					xui_layout_row(ctx, 2, (int[]){ 100, -1 }, 0);
+					xui_label(ctx, "Background :");
+					xui_style_color(ctx, &ctx->style.secondary.normal.background);
+					xui_label(ctx, "Foreground :");
+					xui_style_color(ctx, &ctx->style.secondary.normal.foreground);
+					xui_label(ctx, "Border :");
+					xui_style_color(ctx, &ctx->style.secondary.normal.border);
+					xui_end_tree(ctx);
+				}
+				if(xui_begin_tree(ctx, "Hover"))
+				{
+					xui_layout_row(ctx, 2, (int[]){ 100, -1 }, 0);
+					xui_label(ctx, "Background :");
+					xui_style_color(ctx, &ctx->style.secondary.hover.background);
+					xui_label(ctx, "Foreground :");
+					xui_style_color(ctx, &ctx->style.secondary.hover.foreground);
+					xui_label(ctx, "Border :");
+					xui_style_color(ctx, &ctx->style.secondary.hover.border);
+					xui_end_tree(ctx);
+				}
+				if(xui_begin_tree(ctx, "Focus"))
+				{
+					xui_layout_row(ctx, 2, (int[]){ 100, -1 }, 0);
+					xui_label(ctx, "Background :");
+					xui_style_color(ctx, &ctx->style.secondary.focus.background);
+					xui_label(ctx, "Foreground :");
+					xui_style_color(ctx, &ctx->style.secondary.focus.foreground);
+					xui_label(ctx, "Border :");
+					xui_style_color(ctx, &ctx->style.secondary.focus.border);
+					xui_end_tree(ctx);
+				}
+				xui_end_tree(ctx);
+			}
+			if(xui_begin_tree(ctx, "Success"))
+			{
+				if(xui_begin_tree(ctx, "Normal"))
+				{
+					xui_layout_row(ctx, 2, (int[]){ 100, -1 }, 0);
+					xui_label(ctx, "Background :");
+					xui_style_color(ctx, &ctx->style.success.normal.background);
+					xui_label(ctx, "Foreground :");
+					xui_style_color(ctx, &ctx->style.success.normal.foreground);
+					xui_label(ctx, "Border :");
+					xui_style_color(ctx, &ctx->style.success.normal.border);
+					xui_end_tree(ctx);
+				}
+				if(xui_begin_tree(ctx, "Hover"))
+				{
+					xui_layout_row(ctx, 2, (int[]){ 100, -1 }, 0);
+					xui_label(ctx, "Background :");
+					xui_style_color(ctx, &ctx->style.success.hover.background);
+					xui_label(ctx, "Foreground :");
+					xui_style_color(ctx, &ctx->style.success.hover.foreground);
+					xui_label(ctx, "Border :");
+					xui_style_color(ctx, &ctx->style.success.hover.border);
+					xui_end_tree(ctx);
+				}
+				if(xui_begin_tree(ctx, "Focus"))
+				{
+					xui_layout_row(ctx, 2, (int[]){ 100, -1 }, 0);
+					xui_label(ctx, "Background :");
+					xui_style_color(ctx, &ctx->style.success.focus.background);
+					xui_label(ctx, "Foreground :");
+					xui_style_color(ctx, &ctx->style.success.focus.foreground);
+					xui_label(ctx, "Border :");
+					xui_style_color(ctx, &ctx->style.success.focus.border);
+					xui_end_tree(ctx);
+				}
+				xui_end_tree(ctx);
+			}
+			if(xui_begin_tree(ctx, "Info"))
+			{
+				if(xui_begin_tree(ctx, "Normal"))
+				{
+					xui_layout_row(ctx, 2, (int[]){ 100, -1 }, 0);
+					xui_label(ctx, "Background :");
+					xui_style_color(ctx, &ctx->style.info.normal.background);
+					xui_label(ctx, "Foreground :");
+					xui_style_color(ctx, &ctx->style.info.normal.foreground);
+					xui_label(ctx, "Border :");
+					xui_style_color(ctx, &ctx->style.info.normal.border);
+					xui_end_tree(ctx);
+				}
+				if(xui_begin_tree(ctx, "Hover"))
+				{
+					xui_layout_row(ctx, 2, (int[]){ 100, -1 }, 0);
+					xui_label(ctx, "Background :");
+					xui_style_color(ctx, &ctx->style.info.hover.background);
+					xui_label(ctx, "Foreground :");
+					xui_style_color(ctx, &ctx->style.info.hover.foreground);
+					xui_label(ctx, "Border :");
+					xui_style_color(ctx, &ctx->style.info.hover.border);
+					xui_end_tree(ctx);
+				}
+				if(xui_begin_tree(ctx, "Focus"))
+				{
+					xui_layout_row(ctx, 2, (int[]){ 100, -1 }, 0);
+					xui_label(ctx, "Background :");
+					xui_style_color(ctx, &ctx->style.info.focus.background);
+					xui_label(ctx, "Foreground :");
+					xui_style_color(ctx, &ctx->style.info.focus.foreground);
+					xui_label(ctx, "Border :");
+					xui_style_color(ctx, &ctx->style.info.focus.border);
+					xui_end_tree(ctx);
+				}
+				xui_end_tree(ctx);
+			}
+			if(xui_begin_tree(ctx, "Warning"))
+			{
+				if(xui_begin_tree(ctx, "Normal"))
+				{
+					xui_layout_row(ctx, 2, (int[]){ 100, -1 }, 0);
+					xui_label(ctx, "Background :");
+					xui_style_color(ctx, &ctx->style.warning.normal.background);
+					xui_label(ctx, "Foreground :");
+					xui_style_color(ctx, &ctx->style.warning.normal.foreground);
+					xui_label(ctx, "Border :");
+					xui_style_color(ctx, &ctx->style.warning.normal.border);
+					xui_end_tree(ctx);
+				}
+				if(xui_begin_tree(ctx, "Hover"))
+				{
+					xui_layout_row(ctx, 2, (int[]){ 100, -1 }, 0);
+					xui_label(ctx, "Background :");
+					xui_style_color(ctx, &ctx->style.warning.hover.background);
+					xui_label(ctx, "Foreground :");
+					xui_style_color(ctx, &ctx->style.warning.hover.foreground);
+					xui_label(ctx, "Border :");
+					xui_style_color(ctx, &ctx->style.warning.hover.border);
+					xui_end_tree(ctx);
+				}
+				if(xui_begin_tree(ctx, "Focus"))
+				{
+					xui_layout_row(ctx, 2, (int[]){ 100, -1 }, 0);
+					xui_label(ctx, "Background :");
+					xui_style_color(ctx, &ctx->style.warning.focus.background);
+					xui_label(ctx, "Foreground :");
+					xui_style_color(ctx, &ctx->style.warning.focus.foreground);
+					xui_label(ctx, "Border :");
+					xui_style_color(ctx, &ctx->style.warning.focus.border);
+					xui_end_tree(ctx);
+				}
+				xui_end_tree(ctx);
+			}
+			if(xui_begin_tree(ctx, "Danger"))
+			{
+				if(xui_begin_tree(ctx, "Normal"))
+				{
+					xui_layout_row(ctx, 2, (int[]){ 100, -1 }, 0);
+					xui_label(ctx, "Background :");
+					xui_style_color(ctx, &ctx->style.danger.normal.background);
+					xui_label(ctx, "Foreground :");
+					xui_style_color(ctx, &ctx->style.danger.normal.foreground);
+					xui_label(ctx, "Border :");
+					xui_style_color(ctx, &ctx->style.danger.normal.border);
+					xui_end_tree(ctx);
+				}
+				if(xui_begin_tree(ctx, "Hover"))
+				{
+					xui_layout_row(ctx, 2, (int[]){ 100, -1 }, 0);
+					xui_label(ctx, "Background :");
+					xui_style_color(ctx, &ctx->style.danger.hover.background);
+					xui_label(ctx, "Foreground :");
+					xui_style_color(ctx, &ctx->style.danger.hover.foreground);
+					xui_label(ctx, "Border :");
+					xui_style_color(ctx, &ctx->style.danger.hover.border);
+					xui_end_tree(ctx);
+				}
+				if(xui_begin_tree(ctx, "Focus"))
+				{
+					xui_layout_row(ctx, 2, (int[]){ 100, -1 }, 0);
+					xui_label(ctx, "Background :");
+					xui_style_color(ctx, &ctx->style.danger.focus.background);
+					xui_label(ctx, "Foreground :");
+					xui_style_color(ctx, &ctx->style.danger.focus.foreground);
+					xui_label(ctx, "Border :");
+					xui_style_color(ctx, &ctx->style.danger.focus.border);
+					xui_end_tree(ctx);
+				}
+				xui_end_tree(ctx);
+			}
+			if(xui_begin_tree(ctx, "Light"))
+			{
+				if(xui_begin_tree(ctx, "Normal"))
+				{
+					xui_layout_row(ctx, 2, (int[]){ 100, -1 }, 0);
+					xui_label(ctx, "Background :");
+					xui_style_color(ctx, &ctx->style.light.normal.background);
+					xui_label(ctx, "Foreground :");
+					xui_style_color(ctx, &ctx->style.light.normal.foreground);
+					xui_label(ctx, "Border :");
+					xui_style_color(ctx, &ctx->style.light.normal.border);
+					xui_end_tree(ctx);
+				}
+				if(xui_begin_tree(ctx, "Hover"))
+				{
+					xui_layout_row(ctx, 2, (int[]){ 100, -1 }, 0);
+					xui_label(ctx, "Background :");
+					xui_style_color(ctx, &ctx->style.light.hover.background);
+					xui_label(ctx, "Foreground :");
+					xui_style_color(ctx, &ctx->style.light.hover.foreground);
+					xui_label(ctx, "Border :");
+					xui_style_color(ctx, &ctx->style.light.hover.border);
+					xui_end_tree(ctx);
+				}
+				if(xui_begin_tree(ctx, "Focus"))
+				{
+					xui_layout_row(ctx, 2, (int[]){ 100, -1 }, 0);
+					xui_label(ctx, "Background :");
+					xui_style_color(ctx, &ctx->style.light.focus.background);
+					xui_label(ctx, "Foreground :");
+					xui_style_color(ctx, &ctx->style.light.focus.foreground);
+					xui_label(ctx, "Border :");
+					xui_style_color(ctx, &ctx->style.light.focus.border);
+					xui_end_tree(ctx);
+				}
+				xui_end_tree(ctx);
+			}
+			if(xui_begin_tree(ctx, "dark"))
+			{
+				if(xui_begin_tree(ctx, "Normal"))
+				{
+					xui_layout_row(ctx, 2, (int[]){ 100, -1 }, 0);
+					xui_label(ctx, "Background :");
+					xui_style_color(ctx, &ctx->style.dark.normal.background);
+					xui_label(ctx, "Foreground :");
+					xui_style_color(ctx, &ctx->style.dark.normal.foreground);
+					xui_label(ctx, "Border :");
+					xui_style_color(ctx, &ctx->style.dark.normal.border);
+					xui_end_tree(ctx);
+				}
+				if(xui_begin_tree(ctx, "Hover"))
+				{
+					xui_layout_row(ctx, 2, (int[]){ 100, -1 }, 0);
+					xui_label(ctx, "Background :");
+					xui_style_color(ctx, &ctx->style.dark.hover.background);
+					xui_label(ctx, "Foreground :");
+					xui_style_color(ctx, &ctx->style.dark.hover.foreground);
+					xui_label(ctx, "Border :");
+					xui_style_color(ctx, &ctx->style.dark.hover.border);
+					xui_end_tree(ctx);
+				}
+				if(xui_begin_tree(ctx, "Focus"))
+				{
+					xui_layout_row(ctx, 2, (int[]){ 100, -1 }, 0);
+					xui_label(ctx, "Background :");
+					xui_style_color(ctx, &ctx->style.dark.focus.background);
+					xui_label(ctx, "Foreground :");
+					xui_style_color(ctx, &ctx->style.dark.focus.foreground);
+					xui_label(ctx, "Border :");
+					xui_style_color(ctx, &ctx->style.dark.focus.border);
+					xui_end_tree(ctx);
+				}
+				xui_end_tree(ctx);
+			}
+			xui_end_tree(ctx);
+		}
+		if(xui_begin_tree(ctx, "Font"))
+		{
+			xui_layout_row(ctx, 2, (int[]){ 100, -1 }, 0);
+			xui_label(ctx, "Color :");
+			xui_style_color(ctx, &ctx->style.font.color);
+			xui_label(ctx, "Size :");
+			xui_number_int(ctx, &ctx->style.font.size, 8, 72, 1);
+			xui_end_tree(ctx);
+		}
+		if(xui_begin_tree(ctx, "Layout"))
+		{
+			xui_layout_row(ctx, 2, (int[]){ 100, -1 }, 0);
+			xui_label(ctx, "Width :");
+			xui_number_int(ctx, &ctx->style.layout.width, 8, 256, 1);
+			xui_label(ctx, "Height :");
+			xui_number_int(ctx, &ctx->style.layout.height, 8, 72, 1);
+			xui_label(ctx, "Padding :");
+			xui_number_int(ctx, &ctx->style.layout.padding, 0, 32, 1);
+			xui_label(ctx, "Spacing :");
+			xui_number_int(ctx, &ctx->style.layout.spacing, 0, 32, 1);
+			xui_label(ctx, "Indent :");
+			xui_number_int(ctx, &ctx->style.layout.indent, 0, 32, 1);
+			xui_end_tree(ctx);
+		}
+		xui_end_window(ctx);
+	}
+}
+
 static void overview_window(struct xui_context_t * ctx)
 {
 	static const char * wcstr[] = {
@@ -48,7 +421,7 @@ static void overview_window(struct xui_context_t * ctx)
 		"Dark",
 	};
 
-	if(xui_begin_window(ctx, "Overview Window", &(struct region_t){10, 10, 400, 400}))
+	if(xui_begin_window(ctx, "Overview Window", &(struct region_t){40 + (ctx->screen.w - 60) / 2, 20, (ctx->screen.w - 60) / 2, ctx->screen.h - 40}))
 	{
 		struct xui_container_t * win = xui_get_current_container(ctx);
 		win->region.w = max(win->region.w, 48);
@@ -403,6 +776,7 @@ static void overview_window(struct xui_context_t * ctx)
 static void overview(struct xui_context_t * ctx)
 {
 	xui_begin(ctx);
+	style_window(ctx);
 	overview_window(ctx);
 	xui_end(ctx);
 }

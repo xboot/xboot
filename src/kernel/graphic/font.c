@@ -110,14 +110,45 @@ static FT_Error ft_new_xfs_face(struct xfs_context_t * xfs, FT_Library library, 
 	return FT_Open_Face(library, &args, index, face);
 }
 
+static inline int family_hash(const char ** s, uint32_t * v)
+{
+	char c;
+
+	if(s && *s && **s)
+	{
+		*v = 5381;
+		while((c = **s))
+		{
+			(*s)++;
+			switch(c)
+			{
+			case ',':
+			case ';':
+			case ':':
+			case '|':
+			case '\0':
+				return 1;
+			default:
+				*v = (*v << 5) + *v + c;
+				break;
+			}
+		}
+		return 1;
+	}
+	return 0;
+}
+
 static FT_Error ftcface_requester(FTC_FaceID id, FT_Library lib, FT_Pointer data, FT_Face * face)
 {
 	struct font_context_t * ctx = (struct font_context_t *)data;
 	struct font_t * pos, * n;
+	const char * p;
+	uint32_t v;
 
 	list_for_each_entry_safe(pos, n, &ctx->list, list)
 	{
-		if(shash(pos->family) == (uint32_t)(unsigned long)id)
+		p = pos->family;
+		if(family_hash(&p, &v) && (v == (uint32_t)(unsigned long)id))
 		{
 			if(pos->xfs)
 			{
@@ -188,19 +219,19 @@ void * font_lookup_bitmap(struct font_context_t * ctx, const char * family, int 
 	FTC_ScalerRec scaler;
 	FTC_SBit sbit;
 	FT_UInt index;
-	char buf[512];
-	char * p, * r;
+	const char * p;
+	uint32_t v;
 
 	scaler.width = size;
 	scaler.height = size;
 	scaler.pixel = 1;
 	scaler.x_res = 0;
 	scaler.y_res = 0;
-	strlcpy(buf, family ? family : "roboto", sizeof(buf));
-	p = buf;
-	while((r = strsep(&p, ",;:|")) != NULL)
+
+	p = family ? family : "roboto";
+	while(family_hash(&p, &v))
 	{
-		scaler.face_id = (FTC_FaceID)((unsigned long)shash(r));
+		scaler.face_id = (FTC_FaceID)((unsigned long)v);
 		if((index = FTC_CMapCache_Lookup((FTC_CMapCache)ctx->cmap, scaler.face_id, -1, code)) != 0)
 		{
 			if(FTC_SBitCache_LookupScaler((FTC_SBitCache)ctx->sbit, &scaler, FT_LOAD_RENDER, index, &sbit, NULL) == 0)
@@ -209,18 +240,26 @@ void * font_lookup_bitmap(struct font_context_t * ctx, const char * family, int 
 	}
 	list_for_each_entry_safe(pos, n, &ctx->list, list)
 	{
-		scaler.face_id = (FTC_FaceID)((unsigned long)shash(pos->family));
-		if((index = FTC_CMapCache_Lookup((FTC_CMapCache)ctx->cmap, scaler.face_id, -1, code)) != 0)
+		p = pos->family;
+		if(family_hash(&p, &v))
+		{
+			scaler.face_id = (FTC_FaceID)((unsigned long)v);
+			if((index = FTC_CMapCache_Lookup((FTC_CMapCache)ctx->cmap, scaler.face_id, -1, code)) != 0)
+			{
+				if(FTC_SBitCache_LookupScaler((FTC_SBitCache)ctx->sbit, &scaler, FT_LOAD_RENDER, index, &sbit, NULL) == 0)
+					return (void *)sbit;
+			}
+		}
+	}
+	p = "roboto";
+	if(family_hash(&p, &v))
+	{
+		scaler.face_id = (FTC_FaceID)((unsigned long)v);
+		if((index = FTC_CMapCache_Lookup((FTC_CMapCache)ctx->cmap, scaler.face_id, -1, 0xfffd)) != 0)
 		{
 			if(FTC_SBitCache_LookupScaler((FTC_SBitCache)ctx->sbit, &scaler, FT_LOAD_RENDER, index, &sbit, NULL) == 0)
 				return (void *)sbit;
 		}
-	}
-	scaler.face_id = (FTC_FaceID)((unsigned long)shash("roboto"));
-	if((index = FTC_CMapCache_Lookup((FTC_CMapCache)ctx->cmap, scaler.face_id, -1, 0xfffd)) != 0)
-	{
-		if(FTC_SBitCache_LookupScaler((FTC_SBitCache)ctx->sbit, &scaler, FT_LOAD_RENDER, index, &sbit, NULL) == 0)
-			return (void *)sbit;
 	}
 	return NULL;
 }
@@ -231,19 +270,19 @@ void * font_lookup_glyph(struct font_context_t * ctx, const char * family, int s
 	FTC_ScalerRec scaler;
 	FT_Glyph glyph;
 	FT_UInt index;
-	char buf[512];
-	char * p, * r;
+	const char * p;
+	uint32_t v;
 
 	scaler.width = size;
 	scaler.height = size;
 	scaler.pixel = 1;
 	scaler.x_res = 0;
 	scaler.y_res = 0;
-	strlcpy(buf, family ? family : "roboto", sizeof(buf));
-	p = buf;
-	while((r = strsep(&p, ",;:|")) != NULL)
+
+	p = family ? family : "roboto";
+	while(family_hash(&p, &v))
 	{
-		scaler.face_id = (FTC_FaceID)((unsigned long)shash(r));
+		scaler.face_id = (FTC_FaceID)((unsigned long)v);
 		if((index = FTC_CMapCache_Lookup((FTC_CMapCache)ctx->cmap, scaler.face_id, -1, code)) != 0)
 		{
 			if(FTC_ImageCache_LookupScaler((FTC_ImageCache)ctx->image, &scaler, FT_LOAD_DEFAULT, index, &glyph, NULL) == 0)
@@ -252,18 +291,26 @@ void * font_lookup_glyph(struct font_context_t * ctx, const char * family, int s
 	}
 	list_for_each_entry_safe(pos, n, &ctx->list, list)
 	{
-		scaler.face_id = (FTC_FaceID)((unsigned long)shash(pos->family));
-		if((index = FTC_CMapCache_Lookup((FTC_CMapCache)ctx->cmap, scaler.face_id, -1, code)) != 0)
+		p = pos->family;
+		if(family_hash(&p, &v))
+		{
+			scaler.face_id = (FTC_FaceID)((unsigned long)v);
+			if((index = FTC_CMapCache_Lookup((FTC_CMapCache)ctx->cmap, scaler.face_id, -1, code)) != 0)
+			{
+				if(FTC_ImageCache_LookupScaler((FTC_ImageCache)ctx->image, &scaler, FT_LOAD_DEFAULT, index, &glyph, NULL) == 0)
+					return (void *)glyph;
+			}
+		}
+	}
+	p = "roboto";
+	if(family_hash(&p, &v))
+	{
+		scaler.face_id = (FTC_FaceID)((unsigned long)v);
+		if((index = FTC_CMapCache_Lookup((FTC_CMapCache)ctx->cmap, scaler.face_id, -1, 0xfffd)) != 0)
 		{
 			if(FTC_ImageCache_LookupScaler((FTC_ImageCache)ctx->image, &scaler, FT_LOAD_DEFAULT, index, &glyph, NULL) == 0)
 				return (void *)glyph;
 		}
-	}
-	scaler.face_id = (FTC_FaceID)((unsigned long)shash("roboto"));
-	if((index = FTC_CMapCache_Lookup((FTC_CMapCache)ctx->cmap, scaler.face_id, -1, 0xfffd)) != 0)
-	{
-		if(FTC_ImageCache_LookupScaler((FTC_ImageCache)ctx->image, &scaler, FT_LOAD_DEFAULT, index, &glyph, NULL) == 0)
-			return (void *)glyph;
 	}
 	return NULL;
 }

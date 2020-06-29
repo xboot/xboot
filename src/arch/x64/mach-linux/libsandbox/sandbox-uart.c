@@ -128,7 +128,6 @@ int sandbox_uart_set(int fd, int baud, int data, int parity, int stop)
 	{
 	case 0:
 		cfg.c_cflag &= ~PARENB;
-		cfg.c_cflag &= ~INPCK;
 		break;
 	case 1:
 		cfg.c_cflag |= PARENB;

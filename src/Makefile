@@ -129,6 +129,7 @@ SRCDIRS		+=	arch/$(ARCH)/lib/cpu \
 				driver/dma \
 				driver/framebuffer \
 				driver/gmeter \
+				driver/gnss \
 				driver/gpio \
 				driver/gyroscope \
 				driver/hygrometer \

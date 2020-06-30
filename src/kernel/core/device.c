@@ -99,6 +99,9 @@ static struct kobj_t * search_device_kobj(struct device_t * dev)
 	case DEVICE_TYPE_GMETER:
 		name = "gmeter";
 		break;
+	case DEVICE_TYPE_GNSS:
+		name = "gnss";
+		break;
 	case DEVICE_TYPE_GPIOCHIP:
 		name = "gpiochip";
 		break;

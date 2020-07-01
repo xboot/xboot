@@ -1,0 +1,11 @@
+#
+# Normal rules
+#
+*.d
+*.o
+*~
+
+#
+# Generated files
+#
+/shash

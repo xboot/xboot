@@ -179,7 +179,7 @@ static inline void scheduler_switch_task(struct scheduler_t * sched, struct task
 
 static inline struct scheduler_t * scheduler_load_balance_choice(void)
 {
-	struct scheduler_t * sched;
+	struct scheduler_t * sched = &__sched[0];
 	uint64_t weight = ~0ULL;
 	int i;
 

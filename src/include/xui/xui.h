@@ -527,6 +527,11 @@ struct xui_context_t {
 	 * Misc
 	 */
 	char tempbuf[4096];
+
+	/*
+	 * Private
+	 */
+	void * priv;
 };
 
 void xui_begin(struct xui_context_t * ctx);
@@ -579,7 +584,7 @@ void xui_draw_icon(struct xui_context_t * ctx, const char * family, uint32_t cod
 void xui_control_update(struct xui_context_t * ctx, unsigned int id, struct region_t * r, int opt);
 void xui_control_draw_text(struct xui_context_t * ctx, const char * utf8, struct region_t * r, struct color_t * c, int opt);
 
-struct xui_context_t * xui_context_alloc(const char * fb, const char * input, struct xui_style_t * style);
+struct xui_context_t * xui_context_alloc(const char * fb, const char * input, struct xui_style_t * style, void * data);
 void xui_context_free(struct xui_context_t * ctx);
 void xui_loop(struct xui_context_t * ctx, void (*func)(struct xui_context_t *));
 

@@ -784,7 +784,7 @@ static void overview(struct xui_context_t * ctx)
 
 static void overview_task(struct task_t * task, void * data)
 {
-	struct xui_context_t * ctx = xui_context_alloc(NULL, NULL, NULL);
+	struct xui_context_t * ctx = xui_context_alloc(NULL, NULL, NULL, data);
 	xui_loop(ctx, overview);
 	xui_context_free(ctx);
 }

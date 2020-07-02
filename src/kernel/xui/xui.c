@@ -1196,7 +1196,7 @@ void end_root_container(struct xui_context_t * ctx)
 	pop_container(ctx);
 }
 
-struct xui_context_t * xui_context_alloc(const char * fb, const char * input, struct xui_style_t * style)
+struct xui_context_t * xui_context_alloc(const char * fb, const char * input, struct xui_style_t * style, void * data)
 {
 	struct xui_context_t * ctx;
 
@@ -1212,6 +1212,7 @@ struct xui_context_t * xui_context_alloc(const char * fb, const char * input, st
 	memcpy(&ctx->style, style ? style : &xui_style_default, sizeof(struct xui_style_t));
 	region_clone(&ctx->clip, &ctx->screen);
 	ctx->last = ctx->now = ktime_to_ns(ktime_get());
+	ctx->priv = data;
 
 	return ctx;
 }

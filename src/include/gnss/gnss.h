@@ -11,10 +11,12 @@ enum gnss_signal_t {
 	GNSS_SIGNAL_INVALID			= 0,
 	GNSS_SIGNAL_FIX				= 1,
 	GNSS_SIGNAL_DIFFERENTIAL	= 2,
-	GNSS_SIGNAL_SENSITIVE		= 3,
+	GNSS_SIGNAL_PPS				= 3,
 	GNSS_SIGNAL_RTK				= 4,
 	GNSS_SIGNAL_FLOAT_RTK		= 5,
 	GNSS_SIGNAL_ESTIMATED		= 6,
+	GNSS_SIGNAL_MANUAL			= 7,
+	GNSS_SIGNAL_SIMULATION		= 8,
 };
 
 enum gnss_fix_t {
@@ -54,23 +56,23 @@ struct gnss_nmea_t {
 
 	struct {
 		struct {
-			unsigned int viewed;		/* the count of satellites in viewed */
+			unsigned int n;				/* the number of satellites */
 			struct {
 				unsigned int prn;		/* satellite prn number */
 				unsigned int elevation;	/* elevation value in degrees */
 				unsigned int azimuth;	/* azimuth value in degrees */
 				unsigned int snr;		/* signal noise ratio in db */
-			} view[12];
+			} sv[16];
 		} gps;
 
 		struct {
-			unsigned int viewed;		/* the count of satellites in viewed */
+			unsigned int n;				/* the number of satellites */
 			struct {
 				unsigned int prn;		/* satellite prn number */
 				unsigned int elevation;	/* elevation value in degrees */
 				unsigned int azimuth;	/* azimuth value in degrees */
 				unsigned int snr;		/* signal noise ratio in db */
-			} view[12];
+			} sv[16];
 		} beidou;
 	} satellite;
 
@@ -95,6 +97,11 @@ struct gnss_t
 	int (*read)(struct gnss_t * nav, void * buf, int count);
 	void * priv;
 };
+
+static inline struct gnss_nmea_t * gnss_nmea(struct gnss_t * nav)
+{
+	return &nav->nmea;
+}
 
 struct gnss_t * search_gnss(const char * name);
 struct gnss_t * search_first_gnss(void);

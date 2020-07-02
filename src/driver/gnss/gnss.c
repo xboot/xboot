@@ -331,14 +331,6 @@ static inline void gnss_nmea_parse_rmc(struct gnss_nmea_t * nmea)
 		}
 		else
 			nmea->magvar = 0;
-
-		if(nmea->tsize > 12)
-		{
-			if(nmea->tend[12] - nmea->tstart[12] > 0)
-				nmea->signal = str_to_int(nmea->tstart[12], nmea->tend[12]);
-			else
-				nmea->signal = GNSS_SIGNAL_INVALID;
-		}
 	}
 }
 
@@ -391,33 +383,85 @@ static inline void gnss_nmea_parse_gsa(struct gnss_nmea_t * nmea)
 
 static inline void gnss_nmea_parse_gpgsv(struct gnss_nmea_t * nmea)
 {
-	if(nmea->tsize > 15)
+	int total, n;
+	int viewed, c;
+	int i;
+
+	if(nmea->tsize > 3)
 	{
-		if(nmea->tend[3] - nmea->tstart[3] > 0)
-			nmea->satellite.gps.viewed = str_to_int(nmea->tstart[3], nmea->tend[3]);
+		total = str_to_int(nmea->tstart[1], nmea->tend[1]);
+		n = str_to_int(nmea->tstart[2], nmea->tend[2]);
+		viewed = min((int)str_to_int(nmea->tstart[3], nmea->tend[3]), (int)ARRAY_SIZE(nmea->satellite.gps.sv));
+		if(n <= 1)
+			c = 0;
 		else
-			nmea->satellite.gps.viewed = 0;
+			c = (n - 1) * 4;
+		for(i = 0; (i < 4) && (c < viewed); i++)
+		{
+			nmea->satellite.gps.sv[c].prn = str_to_int(nmea->tstart[i * 4 + 4], nmea->tend[i * 4 + 4]);
+			nmea->satellite.gps.sv[c].elevation = str_to_int(nmea->tstart[i * 4 + 5], nmea->tend[i * 4 + 5]);
+			nmea->satellite.gps.sv[c].azimuth = str_to_int(nmea->tstart[i * 4 + 6], nmea->tend[i * 4 + 6]);
+			nmea->satellite.gps.sv[c].snr = str_to_int(nmea->tstart[i * 4 + 7], nmea->tend[i * 4 + 7]);
+			c++;
+		}
+		if(n == total)
+		{
+			for(i = viewed; i < ARRAY_SIZE(nmea->satellite.gps.sv); i++)
+			{
+				nmea->satellite.gps.sv[i].prn = 0;
+				nmea->satellite.gps.sv[i].elevation = 0;
+				nmea->satellite.gps.sv[i].azimuth = 0;
+				nmea->satellite.gps.sv[i].snr = 0;
+			}
+			nmea->satellite.gps.n = viewed;
+		}
 	}
 }
 
 static inline void gnss_nmea_parse_bdgsv(struct gnss_nmea_t * nmea)
 {
-	if(nmea->tsize > 15)
+	int total, n;
+	int viewed, c;
+	int i;
+
+	if(nmea->tsize > 3)
 	{
-		if(nmea->tend[3] - nmea->tstart[3] > 0)
-			nmea->satellite.beidou.viewed = str_to_int(nmea->tstart[3], nmea->tend[3]);
+		total = str_to_int(nmea->tstart[1], nmea->tend[1]);
+		n = str_to_int(nmea->tstart[2], nmea->tend[2]);
+		viewed = min((int)str_to_int(nmea->tstart[3], nmea->tend[3]), (int)ARRAY_SIZE(nmea->satellite.beidou.sv));
+		if(n <= 1)
+			c = 0;
 		else
-			nmea->satellite.beidou.viewed = 0;
+			c = (n - 1) * 4;
+		for(i = 0; (i < 4) && (c < viewed); i++)
+		{
+			nmea->satellite.beidou.sv[c].prn = str_to_int(nmea->tstart[i * 4 + 4], nmea->tend[i * 4 + 4]);
+			nmea->satellite.beidou.sv[c].elevation = str_to_int(nmea->tstart[i * 4 + 5], nmea->tend[i * 4 + 5]);
+			nmea->satellite.beidou.sv[c].azimuth = str_to_int(nmea->tstart[i * 4 + 6], nmea->tend[i * 4 + 6]);
+			nmea->satellite.beidou.sv[c].snr = str_to_int(nmea->tstart[i * 4 + 7], nmea->tend[i * 4 + 7]);
+			c++;
+		}
+		if(n == total)
+		{
+			for(i = viewed; i < ARRAY_SIZE(nmea->satellite.beidou.sv); i++)
+			{
+				nmea->satellite.beidou.sv[i].prn = 0;
+				nmea->satellite.beidou.sv[i].elevation = 0;
+				nmea->satellite.beidou.sv[i].azimuth = 0;
+				nmea->satellite.beidou.sv[i].snr = 0;
+			}
+			nmea->satellite.beidou.n = viewed;
+		}
 	}
 }
 
 int gnss_refresh(struct gnss_t * nav)
 {
-	struct gnss_nmea_t * nmea;
+	struct gnss_nmea_t * nmea = NULL;
 	unsigned char cksum;
 	char buf[256];
-	int change = 0;
 	int n, i, j;
+	int update = 0;
 
 	if(nav && nav->read)
 	{
@@ -491,7 +535,7 @@ int gnss_refresh(struct gnss_t * nav)
 							default:
 								break;
 							}
-							change = 1;
+							update = 1;
 						}
 					}
 					nmea->bindex = 0;
@@ -508,5 +552,5 @@ int gnss_refresh(struct gnss_t * nav)
 			}
 		}
 	}
-	return change;
+	return update;
 }

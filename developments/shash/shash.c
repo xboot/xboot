@@ -3,7 +3,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-static inline uint32_t shash(const char * s)
+static uint32_t shash(const char * s)
 {
 	uint32_t v = 5381;
 	if(s)
@@ -16,12 +16,17 @@ static inline uint32_t shash(const char * s)
 
 int main (int argc, char * argv[])
 {
-	if((argc != 2) || (strlen(argv[1]) == 0))
+	int i;
+
+	if(argc <= 1)
 	{
-		printf("Usage: shash <string>\n");
+		printf("Usage: shash <string> ...\n");
 		return -1;
 	}
-	printf("0x%08x\r\n", shash(argv[1]));
-
+	for(i = 1; i < argc; i++)
+	{
+		if(argv[i] && strlen(argv[i]) > 0)
+			printf("0x%08x: /* \"%s\" */\r\n", shash(argv[i]), argv[i]);
+	}
 	return 0;
 }

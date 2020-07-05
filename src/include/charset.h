@@ -20,7 +20,8 @@ char * ucs4_to_utf8_alloc(uint32_t * src, size_t size);
 int ucs4_width(uint32_t uc);
 size_t utf8_width(const char * s);
 
-bool_t utf8_is_valid(const char * src, size_t size);
+const char * utf8_to_code(const char * p, uint32_t * code);
+bool_t utf8_is_valid(const char * s, size_t size);
 size_t utf8_strlen(const char * s);
 
 #ifdef __cplusplus

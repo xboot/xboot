@@ -685,15 +685,44 @@ size_t utf8_width(const char * s)
 }
 EXPORT_SYMBOL(utf8_width);
 
-bool_t utf8_is_valid(const char * src, size_t size)
+const char * utf8_to_code(const char * p, uint32_t * code)
 {
-	uint32_t code = 0;
+	uint32_t t;
+
+	switch(*p & 0xf0)
+	{
+	case 0xf0:
+		t = *p & 0x07;
+		t = (t << 6) | (*(++p) & 0x3f);
+		t = (t << 6) | (*(++p) & 0x3f);
+		*code = (t << 6) | (*(++p) & 0x3f);
+		break;
+	case 0xe0:
+		t = *p & 0x0f;
+		t = (t << 6) | (*(++p) & 0x3f);
+		*code = (t << 6) | (*(++p) & 0x3f);
+		break;
+	case 0xd0:
+	case 0xc0:
+		t = *p & 0x1f;
+		*code = (t << 6) | (*(++p) & 0x3f);
+		break;
+	default:
+		*code = *p;
+		break;
+	}
+	return p + 1;
+}
+EXPORT_SYMBOL(utf8_to_code);
+
+bool_t utf8_is_valid(const char * s, size_t size)
+{
+	uint32_t c, code = 0;
 	int count = 0;
-	uint32_t c;
 
 	while(size)
 	{
-		c = *src++;
+		c = *s++;
 		if(size != (size_t)-1)
 			size--;
 

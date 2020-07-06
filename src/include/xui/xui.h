@@ -89,11 +89,13 @@ enum xui_cmd_type_t {
 struct xui_cmd_base_t {
 	enum xui_cmd_type_t type;
 	int len;
+	struct region_t r;
 };
 
 struct xui_cmd_jump_t {
 	enum xui_cmd_type_t type;
 	int len;
+	struct region_t r;
 
 	void * addr;
 };
@@ -101,13 +103,15 @@ struct xui_cmd_jump_t {
 struct xui_cmd_clip_t {
 	enum xui_cmd_type_t type;
 	int len;
-
 	struct region_t r;
+
+	struct region_t clip;
 };
 
 struct xui_cmd_line_t {
 	enum xui_cmd_type_t type;
 	int len;
+	struct region_t r;
 
 	struct point_t p0;
 	struct point_t p1;
@@ -118,6 +122,7 @@ struct xui_cmd_line_t {
 struct xui_cmd_polyline_t {
 	enum xui_cmd_type_t type;
 	int len;
+	struct region_t r;
 
 	int n;
 	int thickness;
@@ -128,6 +133,7 @@ struct xui_cmd_polyline_t {
 struct xui_cmd_curve_t {
 	enum xui_cmd_type_t type;
 	int len;
+	struct region_t r;
 
 	int n;
 	int thickness;
@@ -138,6 +144,7 @@ struct xui_cmd_curve_t {
 struct xui_cmd_triangle_t {
 	enum xui_cmd_type_t type;
 	int len;
+	struct region_t r;
 
 	struct point_t p0;
 	struct point_t p1;
@@ -149,6 +156,7 @@ struct xui_cmd_triangle_t {
 struct xui_cmd_rectangle_t {
 	enum xui_cmd_type_t type;
 	int len;
+	struct region_t r;
 
 	int x, y, w, h;
 	int radius;
@@ -159,6 +167,7 @@ struct xui_cmd_rectangle_t {
 struct xui_cmd_polygon_t {
 	enum xui_cmd_type_t type;
 	int len;
+	struct region_t r;
 
 	int n;
 	int thickness;
@@ -169,6 +178,7 @@ struct xui_cmd_polygon_t {
 struct xui_cmd_circle_t {
 	enum xui_cmd_type_t type;
 	int len;
+	struct region_t r;
 
 	int x, y;
 	int radius;
@@ -179,6 +189,7 @@ struct xui_cmd_circle_t {
 struct xui_cmd_ellipse_t {
 	enum xui_cmd_type_t type;
 	int len;
+	struct region_t r;
 
 	int x, y, w, h;
 	int thickness;
@@ -188,6 +199,7 @@ struct xui_cmd_ellipse_t {
 struct xui_cmd_arc_t {
 	enum xui_cmd_type_t type;
 	int len;
+	struct region_t r;
 
 	int x, y;
 	int radius;
@@ -199,6 +211,7 @@ struct xui_cmd_arc_t {
 struct xui_cmd_square_t {
 	enum xui_cmd_type_t type;
 	int len;
+	struct region_t r;
 
 	int x, y, w, h;
 };
@@ -206,6 +219,7 @@ struct xui_cmd_square_t {
 struct xui_cmd_gradient_t {
 	enum xui_cmd_type_t type;
 	int len;
+	struct region_t r;
 
 	int x, y, w, h;
 	struct color_t lt;
@@ -217,6 +231,7 @@ struct xui_cmd_gradient_t {
 struct xui_cmd_text_t {
 	enum xui_cmd_type_t type;
 	int len;
+	struct region_t r;
 
 	const char * family;
 	int size;
@@ -229,6 +244,7 @@ struct xui_cmd_text_t {
 struct xui_cmd_icon_t {
 	enum xui_cmd_type_t type;
 	int len;
+	struct region_t r;
 
 	const char * family;
 	uint32_t code;

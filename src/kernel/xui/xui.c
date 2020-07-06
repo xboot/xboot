@@ -289,7 +289,7 @@ static const struct xui_style_t xui_style_default = {
 	},
 };
 
-static struct region_t unclipped_region = {
+static struct region_t unlimited_region = {
 	.x = 0,
 	.y = 0,
 	.w = INT_MAX,
@@ -634,27 +634,28 @@ static int xui_cmd_next(struct xui_context_t * ctx, union xui_cmd_t ** cmd)
 	return 0;
 }
 
-static union xui_cmd_t * xui_cmd_push(struct xui_context_t * ctx, enum xui_cmd_type_t type, int len)
+static union xui_cmd_t * xui_cmd_push(struct xui_context_t * ctx, enum xui_cmd_type_t type, int len, struct region_t * r)
 {
 	union xui_cmd_t * cmd = (union xui_cmd_t *)(ctx->cmd_list.items + ctx->cmd_list.idx);
 	assert(ctx->cmd_list.idx + len < XUI_COMMAND_LIST_SIZE);
 	cmd->base.type = type;
 	cmd->base.len = len;
+	region_clone(&cmd->base.r, r);
 	ctx->cmd_list.idx += len;
 	return cmd;
 }
 
 static union xui_cmd_t * xui_cmd_push_jump(struct xui_context_t * ctx, union xui_cmd_t * addr)
 {
-	union xui_cmd_t * cmd = xui_cmd_push(ctx, XUI_CMD_TYPE_JUMP, sizeof(struct xui_cmd_jump_t));
+	union xui_cmd_t * cmd = xui_cmd_push(ctx, XUI_CMD_TYPE_JUMP, sizeof(struct xui_cmd_jump_t), &unlimited_region);
 	cmd->jump.addr = addr;
 	return cmd;
 }
 
 static union xui_cmd_t * xui_cmd_push_clip(struct xui_context_t * ctx, struct region_t * r)
 {
-	union xui_cmd_t * cmd = xui_cmd_push(ctx, XUI_CMD_TYPE_CLIP, sizeof(struct xui_cmd_clip_t));
-	region_clone(&cmd->clip.r, r);
+	union xui_cmd_t * cmd = xui_cmd_push(ctx, XUI_CMD_TYPE_CLIP, sizeof(struct xui_cmd_clip_t), r);
+	region_clone(&cmd->clip.clip, r);
 	return cmd;
 }
 
@@ -693,7 +694,7 @@ void xui_draw_line(struct xui_context_t * ctx, struct point_t * p0, struct point
 	{
 		if(clip < 0)
 			xui_cmd_push_clip(ctx, xui_get_clip(ctx));
-		cmd = xui_cmd_push(ctx, XUI_CMD_TYPE_LINE, sizeof(struct xui_cmd_line_t));
+		cmd = xui_cmd_push(ctx, XUI_CMD_TYPE_LINE, sizeof(struct xui_cmd_line_t), &r);
 		cmd->line.p0.x = p0->x;
 		cmd->line.p0.y = p0->y;
 		cmd->line.p1.x = p1->x;
@@ -701,7 +702,7 @@ void xui_draw_line(struct xui_context_t * ctx, struct point_t * p0, struct point
 		cmd->line.thickness = thickness;
 		memcpy(&cmd->line.c, c, sizeof(struct color_t));
 		if(clip < 0)
-			xui_cmd_push_clip(ctx, &unclipped_region);
+			xui_cmd_push_clip(ctx, &unlimited_region);
 	}
 }
 
@@ -722,13 +723,13 @@ void xui_draw_polyline(struct xui_context_t * ctx, struct point_t * p, int n, in
 		if(clip < 0)
 			xui_cmd_push_clip(ctx, xui_get_clip(ctx));
 		len = sizeof(struct point_t) * n;
-		cmd = xui_cmd_push(ctx, XUI_CMD_TYPE_POLYLINE, sizeof(struct xui_cmd_polyline_t) + len);
+		cmd = xui_cmd_push(ctx, XUI_CMD_TYPE_POLYLINE, sizeof(struct xui_cmd_polyline_t) + len, &r);
 		cmd->polyline.n = n;
 		cmd->polyline.thickness = thickness;
 		memcpy(&cmd->polyline.c, c, sizeof(struct color_t));
 		memcpy(cmd->polyline.p, p, len);
 		if(clip < 0)
-			xui_cmd_push_clip(ctx, &unclipped_region);
+			xui_cmd_push_clip(ctx, &unlimited_region);
 	}
 }
 
@@ -749,13 +750,13 @@ void xui_draw_curve(struct xui_context_t * ctx, struct point_t * p, int n, int t
 		if(clip < 0)
 			xui_cmd_push_clip(ctx, xui_get_clip(ctx));
 		len = sizeof(struct point_t) * n;
-		cmd = xui_cmd_push(ctx, XUI_CMD_TYPE_CURVE, sizeof(struct xui_cmd_curve_t) + len);
+		cmd = xui_cmd_push(ctx, XUI_CMD_TYPE_CURVE, sizeof(struct xui_cmd_curve_t) + len, &r);
 		cmd->curve.n = n;
 		cmd->curve.thickness = thickness;
 		memcpy(&cmd->curve.c, c, sizeof(struct color_t));
 		memcpy(cmd->curve.p, p, len);
 		if(clip < 0)
-			xui_cmd_push_clip(ctx, &unclipped_region);
+			xui_cmd_push_clip(ctx, &unlimited_region);
 	}
 }
 
@@ -774,7 +775,7 @@ void xui_draw_triangle(struct xui_context_t * ctx, struct point_t * p0, struct p
 	{
 		if(clip < 0)
 			xui_cmd_push_clip(ctx, xui_get_clip(ctx));
-		cmd = xui_cmd_push(ctx, XUI_CMD_TYPE_TRIANGLE, sizeof(struct xui_cmd_triangle_t));
+		cmd = xui_cmd_push(ctx, XUI_CMD_TYPE_TRIANGLE, sizeof(struct xui_cmd_triangle_t), &r);
 		cmd->triangle.p0.x = p0->x;
 		cmd->triangle.p0.y = p0->y;
 		cmd->triangle.p1.x = p1->x;
@@ -784,7 +785,7 @@ void xui_draw_triangle(struct xui_context_t * ctx, struct point_t * p0, struct p
 		cmd->triangle.thickness = thickness;
 		memcpy(&cmd->triangle.c, c, sizeof(struct color_t));
 		if(clip < 0)
-			xui_cmd_push_clip(ctx, &unclipped_region);
+			xui_cmd_push_clip(ctx, &unlimited_region);
 	}
 }
 
@@ -801,7 +802,7 @@ void xui_draw_rectangle(struct xui_context_t * ctx, int x, int y, int w, int h, 
 	{
 		if(clip < 0)
 			xui_cmd_push_clip(ctx, xui_get_clip(ctx));
-		cmd = xui_cmd_push(ctx, XUI_CMD_TYPE_RECTANGLE, sizeof(struct xui_cmd_rectangle_t));
+		cmd = xui_cmd_push(ctx, XUI_CMD_TYPE_RECTANGLE, sizeof(struct xui_cmd_rectangle_t), &r);
 		cmd->rectangle.x = x;
 		cmd->rectangle.y = y;
 		cmd->rectangle.w = w;
@@ -810,7 +811,7 @@ void xui_draw_rectangle(struct xui_context_t * ctx, int x, int y, int w, int h, 
 		cmd->rectangle.thickness = thickness;
 		memcpy(&cmd->rectangle.c, c, sizeof(struct color_t));
 		if(clip < 0)
-			xui_cmd_push_clip(ctx, &unclipped_region);
+			xui_cmd_push_clip(ctx, &unlimited_region);
 	}
 }
 
@@ -831,13 +832,13 @@ void xui_draw_polygon(struct xui_context_t * ctx, struct point_t * p, int n, int
 		if(clip < 0)
 			xui_cmd_push_clip(ctx, xui_get_clip(ctx));
 		len = sizeof(struct point_t) * n;
-		cmd = xui_cmd_push(ctx, XUI_CMD_TYPE_POLYGON, sizeof(struct xui_cmd_polygon_t) + len);
+		cmd = xui_cmd_push(ctx, XUI_CMD_TYPE_POLYGON, sizeof(struct xui_cmd_polygon_t) + len, &r);
 		cmd->polygon.n = n;
 		cmd->polygon.thickness = thickness;
 		memcpy(&cmd->polygon.c, c, sizeof(struct color_t));
 		memcpy(cmd->polygon.p, p, len);
 		if(clip < 0)
-			xui_cmd_push_clip(ctx, &unclipped_region);
+			xui_cmd_push_clip(ctx, &unlimited_region);
 	}
 }
 
@@ -854,14 +855,14 @@ void xui_draw_circle(struct xui_context_t * ctx, int x, int y, int radius, int t
 	{
 		if(clip < 0)
 			xui_cmd_push_clip(ctx, xui_get_clip(ctx));
-		cmd = xui_cmd_push(ctx, XUI_CMD_TYPE_CIRCLE, sizeof(struct xui_cmd_circle_t));
+		cmd = xui_cmd_push(ctx, XUI_CMD_TYPE_CIRCLE, sizeof(struct xui_cmd_circle_t), &r);
 		cmd->circle.x = x;
 		cmd->circle.y = y;
 		cmd->circle.radius = radius;
 		cmd->circle.thickness = thickness;
 		memcpy(&cmd->circle.c, c, sizeof(struct color_t));
 		if(clip < 0)
-			xui_cmd_push_clip(ctx, &unclipped_region);
+			xui_cmd_push_clip(ctx, &unlimited_region);
 	}
 }
 
@@ -878,7 +879,7 @@ void xui_draw_ellipse(struct xui_context_t * ctx, int x, int y, int w, int h, in
 	{
 		if(clip < 0)
 			xui_cmd_push_clip(ctx, xui_get_clip(ctx));
-		cmd = xui_cmd_push(ctx, XUI_CMD_TYPE_ELLIPSE, sizeof(struct xui_cmd_ellipse_t));
+		cmd = xui_cmd_push(ctx, XUI_CMD_TYPE_ELLIPSE, sizeof(struct xui_cmd_ellipse_t), &r);
 		cmd->ellipse.x = x;
 		cmd->ellipse.y = y;
 		cmd->ellipse.w = w;
@@ -886,7 +887,7 @@ void xui_draw_ellipse(struct xui_context_t * ctx, int x, int y, int w, int h, in
 		cmd->ellipse.thickness = thickness;
 		memcpy(&cmd->ellipse.c, c, sizeof(struct color_t));
 		if(clip < 0)
-			xui_cmd_push_clip(ctx, &unclipped_region);
+			xui_cmd_push_clip(ctx, &unlimited_region);
 	}
 }
 
@@ -903,7 +904,7 @@ void xui_draw_arc(struct xui_context_t * ctx, int x, int y, int radius, int a1, 
 	{
 		if(clip < 0)
 			xui_cmd_push_clip(ctx, xui_get_clip(ctx));
-		cmd = xui_cmd_push(ctx, XUI_CMD_TYPE_ARC, sizeof(struct xui_cmd_arc_t));
+		cmd = xui_cmd_push(ctx, XUI_CMD_TYPE_ARC, sizeof(struct xui_cmd_arc_t), &r);
 		cmd->arc.x = x;
 		cmd->arc.y = y;
 		cmd->arc.radius = radius;
@@ -912,7 +913,7 @@ void xui_draw_arc(struct xui_context_t * ctx, int x, int y, int radius, int a1, 
 		cmd->arc.thickness = thickness;
 		memcpy(&cmd->arc.c, c, sizeof(struct color_t));
 		if(clip < 0)
-			xui_cmd_push_clip(ctx, &unclipped_region);
+			xui_cmd_push_clip(ctx, &unlimited_region);
 	}
 }
 
@@ -927,13 +928,13 @@ void xui_draw_square(struct xui_context_t * ctx, int x, int y, int w, int h)
 	{
 		if(clip < 0)
 			xui_cmd_push_clip(ctx, xui_get_clip(ctx));
-		cmd = xui_cmd_push(ctx, XUI_CMD_TYPE_SQUARE, sizeof(struct xui_cmd_square_t));
+		cmd = xui_cmd_push(ctx, XUI_CMD_TYPE_SQUARE, sizeof(struct xui_cmd_square_t), &r);
 		cmd->square.x = x;
 		cmd->square.y = y;
 		cmd->square.w = w;
 		cmd->square.h = h;
 		if(clip < 0)
-			xui_cmd_push_clip(ctx, &unclipped_region);
+			xui_cmd_push_clip(ctx, &unlimited_region);
 	}
 }
 
@@ -948,7 +949,7 @@ void xui_draw_gradient(struct xui_context_t * ctx, int x, int y, int w, int h, s
 	{
 		if(clip < 0)
 			xui_cmd_push_clip(ctx, xui_get_clip(ctx));
-		cmd = xui_cmd_push(ctx, XUI_CMD_TYPE_GRADIENT, sizeof(struct xui_cmd_gradient_t));
+		cmd = xui_cmd_push(ctx, XUI_CMD_TYPE_GRADIENT, sizeof(struct xui_cmd_gradient_t), &r);
 		cmd->gradient.x = x;
 		cmd->gradient.y = y;
 		cmd->gradient.w = w;
@@ -958,7 +959,7 @@ void xui_draw_gradient(struct xui_context_t * ctx, int x, int y, int w, int h, s
 		memcpy(&cmd->gradient.rb, rb, sizeof(struct color_t));
 		memcpy(&cmd->gradient.lb, lb, sizeof(struct color_t));
 		if(clip < 0)
-			xui_cmd_push_clip(ctx, &unclipped_region);
+			xui_cmd_push_clip(ctx, &unlimited_region);
 	}
 }
 
@@ -977,7 +978,7 @@ void xui_draw_text(struct xui_context_t * ctx, const char * family, int size, co
 		if(clip < 0)
 			xui_cmd_push_clip(ctx, xui_get_clip(ctx));
 		len = strlen(utf8) + 1;
-		cmd = xui_cmd_push(ctx, XUI_CMD_TYPE_TEXT, sizeof(struct xui_cmd_text_t) + ((len + 0x3) & ~0x3));
+		cmd = xui_cmd_push(ctx, XUI_CMD_TYPE_TEXT, sizeof(struct xui_cmd_text_t) + ((len + 0x3) & ~0x3), &r);
 		cmd->text.family = family;
 		cmd->text.size = size;
 		cmd->text.x = x;
@@ -987,7 +988,7 @@ void xui_draw_text(struct xui_context_t * ctx, const char * family, int size, co
 		memcpy(cmd->text.utf8, utf8, len);
 		cmd->text.utf8[len] = 0;
 		if(clip < 0)
-			xui_cmd_push_clip(ctx, &unclipped_region);
+			xui_cmd_push_clip(ctx, &unlimited_region);
 	}
 }
 
@@ -1002,7 +1003,7 @@ void xui_draw_icon(struct xui_context_t * ctx, const char * family, uint32_t cod
 	{
 		if(clip < 0)
 			xui_cmd_push_clip(ctx, xui_get_clip(ctx));
-		cmd = xui_cmd_push(ctx, XUI_CMD_TYPE_ICON, sizeof(struct xui_cmd_icon_t));
+		cmd = xui_cmd_push(ctx, XUI_CMD_TYPE_ICON, sizeof(struct xui_cmd_icon_t), &r);
 		cmd->icon.family = family;
 		cmd->icon.code = code;
 		cmd->icon.x = x;
@@ -1011,7 +1012,7 @@ void xui_draw_icon(struct xui_context_t * ctx, const char * family, uint32_t cod
 		cmd->icon.h = h;
 		memcpy(&cmd->icon.c, c, sizeof(struct color_t));
 		if(clip < 0)
-			xui_cmd_push_clip(ctx, &unclipped_region);
+			xui_cmd_push_clip(ctx, &unlimited_region);
 	}
 }
 
@@ -1184,7 +1185,7 @@ void begin_root_container(struct xui_context_t * ctx, struct xui_container_t * c
 	c->head = xui_cmd_push_jump(ctx, NULL);
 	if(region_hit(&c->region, ctx->mouse.x, ctx->mouse.y) && (!ctx->next_hover_root || (c->zindex > ctx->next_hover_root->zindex)))
 		ctx->next_hover_root = c;
-	xui_push(ctx->clip_stack, unclipped_region);
+	xui_push(ctx->clip_stack, unlimited_region);
 }
 
 void end_root_container(struct xui_context_t * ctx)
@@ -1245,7 +1246,7 @@ static void xui_draw(struct window_t * w, void * o)
 		case XUI_CMD_TYPE_JUMP:
 			break;
 		case XUI_CMD_TYPE_CLIP:
-			if(!region_intersect(clip, &ctx->screen, &cmd->clip.r))
+			if(!region_intersect(clip, &ctx->screen, &cmd->clip.clip))
 				region_init(clip, 0, 0, 0, 0);
 			break;
 		case XUI_CMD_TYPE_LINE:

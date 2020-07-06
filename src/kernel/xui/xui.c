@@ -321,11 +321,11 @@ static int compare_zindex(const void * a, const void * b)
 	return (*(struct xui_container_t **)a)->zindex - (*(struct xui_container_t **)b)->zindex;
 }
 
-static void xui_hash(unsigned int * hash, const void * data, int size)
+static void xui_hash(unsigned int * h, const void * buf, int size)
 {
-	const unsigned char * p = data;
+	const unsigned char * p = buf;
 	while(size--)
-		*hash = (*hash ^ *p++) * 16777619;
+		*h = (*h << 5) + *h + (*p++);
 }
 
 static int xui_cmd_next(struct xui_context_t * ctx, union xui_cmd_t ** cmd)
@@ -396,7 +396,7 @@ void xui_end(struct xui_context_t * ctx)
 	{
 		if(region_intersect(&region, &ctx->screen, &cmd->base.r))
 		{
-			h = 2166136261;
+			h = 5381;
 			xui_hash(&h, &cmd->base, cmd->base.len);
 			x1 = region.x >> ctx->cpshift;
 			y1 = region.y >> ctx->cpshift;
@@ -422,7 +422,7 @@ void xui_end(struct xui_context_t * ctx)
 				region_init(&region, x, y, 1, 1);
 				region_list_add(ctx->w->rl, &region);
 			}
-			ocell[i] = 2166136261;
+			ocell[i] = 5381;
 		}
 	}
 	if((n = ctx->w->rl->count) > 0)
@@ -465,10 +465,10 @@ void xui_set_focus(struct xui_context_t * ctx, unsigned int id)
 unsigned int xui_get_id(struct xui_context_t * ctx, const void * data, int size)
 {
 	int idx = ctx->id_stack.idx;
-	unsigned int res = (idx > 0) ? ctx->id_stack.items[idx - 1] : 2166136261;
-	xui_hash(&res, data, size);
-	ctx->last_id = res;
-	return res;
+	unsigned int h = (idx > 0) ? ctx->id_stack.items[idx - 1] : 5381;
+	xui_hash(&h, data, size);
+	ctx->last_id = h;
+	return h;
 }
 
 void xui_push_id(struct xui_context_t * ctx, const void * data, int size)

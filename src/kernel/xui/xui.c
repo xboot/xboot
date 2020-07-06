@@ -1249,7 +1249,6 @@ struct xui_context_t * xui_context_alloc(const char * fb, const char * input, st
 	ctx->w = window_alloc(fb, input, NULL);
 	ctx->f = font_context_alloc();
 	region_init(&ctx->screen, 0, 0, window_get_width(ctx->w), window_get_height(ctx->w));
-	color_init(&ctx->clear, 0x33, 0x99, 0xcc, 0xff);
 	ctx->cpshift = 7;
 	ctx->cpsize = 1 << ctx->cpshift;
 	ctx->cwidth = (ctx->screen.w >> ctx->cpshift) + 1;
@@ -1573,7 +1572,7 @@ void xui_loop(struct xui_context_t * ctx, void (*func)(struct xui_context_t *))
 		if(func)
 			func(ctx);
 		if(window_is_active(ctx->w))
-			window_present(ctx->w, &ctx->clear, ctx, xui_draw);
+			window_present(ctx->w, &(struct color_t){ 0x33, 0x99, 0xcc, 0xff }, ctx, xui_draw);
 		task_yield();
 	}
 }

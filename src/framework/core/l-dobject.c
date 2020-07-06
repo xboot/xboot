@@ -2100,7 +2100,6 @@ static void display_draw(struct window_t * w, struct ldobject_t * o)
 
 static int m_render(lua_State * L)
 {
-	static struct color_t c = { .r = 255, .g = 255, .b = 255, .a = 255 };
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
 	struct window_t * w = luaL_checkudata(L, 2, MT_WINDOW);
 	if(window_is_active(w))
@@ -2108,7 +2107,7 @@ static int m_render(lua_State * L)
 		dobject_layout(o);
 		window_region_list_clear(w);
 		window_region_list_fill(w, o);
-		window_present(w, &c, (void *)o, (void (*)(struct window_t *, void *))display_draw);
+		window_present(w, &(struct color_t){ 0xff, 0xff, 0xff, 0xff }, (void *)o, (void (*)(struct window_t *, void *))display_draw);
 	}
 	return 0;
 }

@@ -457,7 +457,6 @@ struct xui_context_t {
 	struct window_t * w;
 	struct font_context_t * f;
 	struct region_t screen;
-	struct color_t clear;
 	unsigned int cpshift;
 	unsigned int cpsize;
 	unsigned int cwidth;

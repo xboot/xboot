@@ -460,6 +460,14 @@ struct xui_context_t {
 	struct font_context_t * f;
 	struct region_t screen;
 	struct color_t clear;
+	unsigned int cpshift;
+	unsigned int cpmask;
+	unsigned int cpsize;
+	unsigned int cwidth;
+	unsigned int cheight;
+	unsigned int clength;
+	unsigned int * cells[2];
+	unsigned int cindex;
 
 	/*
 	 * Core state
@@ -480,8 +488,6 @@ struct xui_context_t {
 	unsigned int resize_id;
 	int resize_cursor_x;
 	int resize_cursor_y;
-	unsigned int cmd_hash_old;
-	unsigned int cmd_hash_new;
 	struct xui_container_t * hover_root;
 	struct xui_container_t * next_hover_root;
 	struct xui_container_t * scroll_target;

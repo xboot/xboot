@@ -321,8 +321,37 @@ static int compare_zindex(const void * a, const void * b)
 	return (*(struct xui_container_t **)a)->zindex - (*(struct xui_container_t **)b)->zindex;
 }
 
+static void xui_hash(unsigned int * hash, const void * data, int size)
+{
+	const unsigned char * p = data;
+	while(size--)
+		*hash = (*hash ^ *p++) * 16777619;
+}
+
+static int xui_cmd_next(struct xui_context_t * ctx, union xui_cmd_t ** cmd)
+{
+	if(*cmd)
+		*cmd = (union xui_cmd_t *)(((char *)*cmd) + (*cmd)->base.len);
+	else
+		*cmd = (union xui_cmd_t *)ctx->cmd_list.items;
+	while((char *)(*cmd) != ctx->cmd_list.items + ctx->cmd_list.idx)
+	{
+		if((*cmd)->base.type != XUI_CMD_TYPE_JUMP)
+			return 1;
+		*cmd = (*cmd)->jump.addr;
+	}
+	return 0;
+}
+
 void xui_end(struct xui_context_t * ctx)
 {
+	struct region_t region, * r;
+	union xui_cmd_t * cmd = NULL;
+	unsigned int * ncell = ctx->cells[ctx->cindex];
+	unsigned int * ocell = ctx->cells[(ctx->cindex = (ctx->cindex + 1) & 0x1)];
+	unsigned int h;
+	int x1, y1, x2, y2;
+	int x, y;
 	int i, n;
 
 	assert(ctx->container_stack.idx == 0);
@@ -363,6 +392,53 @@ void xui_end(struct xui_context_t * ctx)
 		if(i == n - 1)
 			c->tail->jump.addr = ctx->cmd_list.items + ctx->cmd_list.idx;
 	}
+	while(xui_cmd_next(ctx, &cmd))
+	{
+		if(region_intersect(&region, &ctx->screen, &cmd->base.r))
+		{
+			h = 2166136261;
+			xui_hash(&h, &cmd->base, cmd->base.len);
+			x1 = region.x >> ctx->cpshift;
+			y1 = region.y >> ctx->cpshift;
+			x2 = (region.x + region.w) >> ctx->cpshift;
+			y2 = (region.y + region.h) >> ctx->cpshift;
+			for(y = y1; y <= y2; y++)
+			{
+				for(x = x1; x <= x2; x++)
+				{
+					xui_hash(&ncell[x + y * ctx->cwidth], &h, sizeof(unsigned int));
+				}
+			}
+		}
+	}
+	region_list_clear(ctx->w->rl);
+	for(y = 0; y < ctx->cheight; y++)
+	{
+		for(x = 0; x < ctx->cwidth; x++)
+		{
+			i = x + y * ctx->cwidth;
+			if(ncell[i] != ocell[i])
+			{
+				region_init(&region, x, y, 1, 1);
+				region_list_add(ctx->w->rl, &region);
+			}
+			ocell[i] = 2166136261;
+		}
+	}
+	if((n = ctx->w->rl->count) > 0)
+	{
+		for(i = 0; i < n; i++)
+		{
+			r = &ctx->w->rl->region[i];
+			r->x = r->x << ctx->cpshift;
+			r->y = r->y << ctx->cpshift;
+			r->w = r->w << ctx->cpshift;
+			r->h = r->h << ctx->cpshift;
+			r->area = -1;
+			if(!region_intersect(r, r, &ctx->screen))
+				region_init(r, 0, 0, 0, 0);
+		}
+	}
 }
 
 const char * xui_format(struct xui_context_t * ctx, const char * fmt, ...)
@@ -384,13 +460,6 @@ void xui_set_focus(struct xui_context_t * ctx, unsigned int id)
 {
 	ctx->focus = id;
 	ctx->updated_focus = 1;
-}
-
-static void xui_hash(unsigned int * hash, const void * data, int size)
-{
-	const unsigned char * p = data;
-	while(size--)
-		*hash = (*hash ^ *p++) * 16777619;
 }
 
 unsigned int xui_get_id(struct xui_context_t * ctx, const void * data, int size)
@@ -617,21 +686,6 @@ struct region_t * xui_layout_next(struct xui_context_t * ctx)
 
 	region_clone(&ctx->last_rect, &r);
 	return &ctx->last_rect;
-}
-
-static int xui_cmd_next(struct xui_context_t * ctx, union xui_cmd_t ** cmd)
-{
-	if(*cmd)
-		*cmd = (union xui_cmd_t *)(((char *)*cmd) + (*cmd)->base.len);
-	else
-		*cmd = (union xui_cmd_t *)ctx->cmd_list.items;
-	while((char *)(*cmd) != ctx->cmd_list.items + ctx->cmd_list.idx)
-	{
-		if((*cmd)->base.type != XUI_CMD_TYPE_JUMP)
-			return 1;
-		*cmd = (*cmd)->jump.addr;
-	}
-	return 0;
 }
 
 static union xui_cmd_t * xui_cmd_push(struct xui_context_t * ctx, enum xui_cmd_type_t type, int len, struct region_t * r)
@@ -1210,6 +1264,26 @@ struct xui_context_t * xui_context_alloc(const char * fb, const char * input, st
 	ctx->f = font_context_alloc();
 	region_init(&ctx->screen, 0, 0, window_get_width(ctx->w), window_get_height(ctx->w));
 	color_init(&ctx->clear, 0x33, 0x99, 0xcc, 0xff);
+	ctx->cpshift = 7;
+	ctx->cpsize = 1 << ctx->cpshift;
+	ctx->cpmask = ctx->cpsize - 1;
+	ctx->cwidth = (ctx->screen.w >> ctx->cpshift) + 1;
+	ctx->cheight = (ctx->screen.h >> ctx->cpshift) + 1;
+	ctx->clength = ctx->cwidth * ctx->cheight;
+	ctx->cells[0] = malloc(ctx->clength * sizeof(int));
+	ctx->cells[1] = malloc(ctx->clength * sizeof(int));
+	if(!ctx->cells[0] || !ctx->cells[1])
+	{
+		if(ctx->cells[0])
+			free(ctx->cells[0]);
+		if(ctx->cells[1])
+			free(ctx->cells[1]);
+		free(ctx);
+	}
+	memset(ctx->cells[0], 0xff, ctx->clength * sizeof(int));
+	memset(ctx->cells[1], 0xff, ctx->clength * sizeof(int));
+	ctx->cindex = 0;
+
 	memcpy(&ctx->style, style ? style : &xui_style_default, sizeof(struct xui_style_t));
 	region_clone(&ctx->clip, &ctx->screen);
 	ctx->last = ctx->now = ktime_to_ns(ktime_get());
@@ -1224,6 +1298,10 @@ void xui_context_free(struct xui_context_t * ctx)
 	{
 		window_free(ctx->w);
 		font_context_free(ctx->f);
+		if(ctx->cells[0])
+			free(ctx->cells[0]);
+		if(ctx->cells[1])
+			free(ctx->cells[1]);
 		free(ctx);
 	}
 }
@@ -1233,68 +1311,78 @@ static void xui_draw(struct window_t * w, void * o)
 	struct xui_context_t * ctx = (struct xui_context_t *)o;
 	struct surface_t * s = ctx->w->s;
 	struct region_t * clip = &ctx->clip;
+	struct region_t * region;
 	union xui_cmd_t * cmd = NULL;
 	struct matrix_t m;
 	struct text_t txt;
 	struct icon_t ico;
-	int size;
+	int count, size;
+	int i;
 
-	while(xui_cmd_next(ctx, &cmd))
+	if((count = w->rl->count) > 0)
 	{
-		switch(cmd->base.type)
+		for(i = 0; i < count; i++)
 		{
-		case XUI_CMD_TYPE_JUMP:
-			break;
-		case XUI_CMD_TYPE_CLIP:
-			if(!region_intersect(clip, &ctx->screen, &cmd->clip.clip))
-				region_init(clip, 0, 0, 0, 0);
-			break;
-		case XUI_CMD_TYPE_LINE:
-			surface_shape_line(s, clip, &cmd->line.p0, &cmd->line.p1, cmd->line.thickness, &cmd->line.c);
-			break;
-		case XUI_CMD_TYPE_POLYLINE:
-			surface_shape_polyline(s, clip, cmd->polyline.p, cmd->polyline.n, cmd->polyline.thickness, &cmd->polyline.c);
-			break;
-		case XUI_CMD_TYPE_CURVE:
-			surface_shape_curve(s, clip, cmd->curve.p, cmd->curve.n, cmd->curve.thickness, &cmd->curve.c);
-			break;
-		case XUI_CMD_TYPE_TRIANGLE:
-			surface_shape_triangle(s, clip, &cmd->triangle.p0, &cmd->triangle.p1, &cmd->triangle.p2, cmd->triangle.thickness, &cmd->triangle.c);
-			break;
-		case XUI_CMD_TYPE_RECTANGLE:
-			surface_shape_rectangle(s, clip, cmd->rectangle.x, cmd->rectangle.y, cmd->rectangle.w, cmd->rectangle.h, cmd->rectangle.radius, cmd->rectangle.thickness, &cmd->rectangle.c);
-			break;
-		case XUI_CMD_TYPE_POLYGON:
-			surface_shape_polygon(s, clip, cmd->polygon.p, cmd->polygon.n, cmd->polygon.thickness, &cmd->polygon.c);
-			break;
-		case XUI_CMD_TYPE_CIRCLE:
-			surface_shape_circle(s, clip, cmd->circle.x, cmd->circle.y, cmd->circle.radius, cmd->circle.thickness, &cmd->circle.c);
-			break;
-		case XUI_CMD_TYPE_ELLIPSE:
-			surface_shape_ellipse(s, clip, cmd->ellipse.x, cmd->ellipse.y, cmd->ellipse.w, cmd->ellipse.h, cmd->ellipse.thickness, &cmd->ellipse.c);
-			break;
-		case XUI_CMD_TYPE_ARC:
-			surface_shape_arc(s, clip, cmd->arc.x, cmd->arc.y, cmd->arc.radius, cmd->arc.a1, cmd->arc.a2, cmd->arc.thickness, &cmd->arc.c);
-			break;
-		case XUI_CMD_TYPE_SQUARE:
-			surface_shape_square(s, clip, cmd->square.x, cmd->square.y, cmd->square.w, cmd->square.h);
-			break;
-		case XUI_CMD_TYPE_GRADIENT:
-			surface_shape_gradient(s, clip, cmd->gradient.x, cmd->gradient.y, cmd->gradient.w, cmd->gradient.h, &cmd->gradient.lt, &cmd->gradient.rt, &cmd->gradient.rb, &cmd->gradient.lb);
-			break;
-		case XUI_CMD_TYPE_TEXT:
-			text_init(&txt, cmd->text.utf8, &cmd->text.c, cmd->text.wrap, ctx->f, cmd->text.family, cmd->text.size);
-			matrix_init_translate(&m, cmd->text.x, cmd->text.y);
-			surface_text(s, clip, &m, &txt);
-			break;
-		case XUI_CMD_TYPE_ICON:
-			size = min(cmd->icon.w, cmd->icon.h);
-			icon_init(&ico, cmd->icon.code, &cmd->icon.c, ctx->f, cmd->icon.family, size);
-			matrix_init_translate(&m, cmd->icon.x + (cmd->icon.w - size) / 2, cmd->icon.y + (cmd->icon.h - size) / 2);
-			surface_icon(s, clip, &m, &ico);
-			break;
-		default:
-			break;
+			region = &w->rl->region[i]; //TODO, FIXME!!!
+			cmd = NULL;
+			while(xui_cmd_next(ctx, &cmd))
+			{
+				switch(cmd->base.type)
+				{
+				case XUI_CMD_TYPE_JUMP:
+					break;
+				case XUI_CMD_TYPE_CLIP:
+					if(!region_intersect(clip, &ctx->screen, &cmd->clip.clip))
+						region_init(clip, 0, 0, 0, 0);
+					break;
+				case XUI_CMD_TYPE_LINE:
+					surface_shape_line(s, clip, &cmd->line.p0, &cmd->line.p1, cmd->line.thickness, &cmd->line.c);
+					break;
+				case XUI_CMD_TYPE_POLYLINE:
+					surface_shape_polyline(s, clip, cmd->polyline.p, cmd->polyline.n, cmd->polyline.thickness, &cmd->polyline.c);
+					break;
+				case XUI_CMD_TYPE_CURVE:
+					surface_shape_curve(s, clip, cmd->curve.p, cmd->curve.n, cmd->curve.thickness, &cmd->curve.c);
+					break;
+				case XUI_CMD_TYPE_TRIANGLE:
+					surface_shape_triangle(s, clip, &cmd->triangle.p0, &cmd->triangle.p1, &cmd->triangle.p2, cmd->triangle.thickness, &cmd->triangle.c);
+					break;
+				case XUI_CMD_TYPE_RECTANGLE:
+					surface_shape_rectangle(s, clip, cmd->rectangle.x, cmd->rectangle.y, cmd->rectangle.w, cmd->rectangle.h, cmd->rectangle.radius, cmd->rectangle.thickness, &cmd->rectangle.c);
+					break;
+				case XUI_CMD_TYPE_POLYGON:
+					surface_shape_polygon(s, clip, cmd->polygon.p, cmd->polygon.n, cmd->polygon.thickness, &cmd->polygon.c);
+					break;
+				case XUI_CMD_TYPE_CIRCLE:
+					surface_shape_circle(s, clip, cmd->circle.x, cmd->circle.y, cmd->circle.radius, cmd->circle.thickness, &cmd->circle.c);
+					break;
+				case XUI_CMD_TYPE_ELLIPSE:
+					surface_shape_ellipse(s, clip, cmd->ellipse.x, cmd->ellipse.y, cmd->ellipse.w, cmd->ellipse.h, cmd->ellipse.thickness, &cmd->ellipse.c);
+					break;
+				case XUI_CMD_TYPE_ARC:
+					surface_shape_arc(s, clip, cmd->arc.x, cmd->arc.y, cmd->arc.radius, cmd->arc.a1, cmd->arc.a2, cmd->arc.thickness, &cmd->arc.c);
+					break;
+				case XUI_CMD_TYPE_SQUARE:
+					surface_shape_square(s, clip, cmd->square.x, cmd->square.y, cmd->square.w, cmd->square.h);
+					break;
+				case XUI_CMD_TYPE_GRADIENT:
+					surface_shape_gradient(s, clip, cmd->gradient.x, cmd->gradient.y, cmd->gradient.w, cmd->gradient.h, &cmd->gradient.lt, &cmd->gradient.rt, &cmd->gradient.rb, &cmd->gradient.lb);
+					break;
+				case XUI_CMD_TYPE_TEXT:
+					text_init(&txt, cmd->text.utf8, &cmd->text.c, cmd->text.wrap, ctx->f, cmd->text.family, cmd->text.size);
+					matrix_init_translate(&m, cmd->text.x, cmd->text.y);
+					surface_text(s, clip, &m, &txt);
+					break;
+				case XUI_CMD_TYPE_ICON:
+					size = min(cmd->icon.w, cmd->icon.h);
+					icon_init(&ico, cmd->icon.code, &cmd->icon.c, ctx->f, cmd->icon.family, size);
+					matrix_init_translate(&m, cmd->icon.x + (cmd->icon.w - size) / 2, cmd->icon.y + (cmd->icon.h - size) / 2);
+					surface_icon(s, clip, &m, &ico);
+					break;
+				default:
+					break;
+				}
+			}
 		}
 	}
 }
@@ -1502,16 +1590,8 @@ void xui_loop(struct xui_context_t * ctx, void (*func)(struct xui_context_t *))
 		}
 		if(func)
 			func(ctx);
-		ctx->cmd_hash_new = xui_get_id(ctx, &ctx->cmd_list, sizeof(int) + ctx->cmd_list.idx);
-		if((ctx->cmd_hash_old != ctx->cmd_hash_new) || (ctx->w->wm->cursor.show && ctx->w->wm->cursor.dirty))
-		{
-			ctx->cmd_hash_old = ctx->cmd_hash_new;
-			if(window_is_active(ctx->w))
-			{
-				ctx->w->wm->refresh = 1;
-				window_present(ctx->w, &ctx->clear, ctx, xui_draw);
-			}
-		}
+		if(window_is_active(ctx->w))
+			window_present(ctx->w, &ctx->clear, ctx, xui_draw);
 		task_yield();
 	}
 }

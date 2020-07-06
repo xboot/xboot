@@ -104,8 +104,6 @@ struct xui_cmd_clip_t {
 	enum xui_cmd_type_t type;
 	int len;
 	struct region_t r;
-
-	struct region_t clip;
 };
 
 struct xui_cmd_line_t {
@@ -461,11 +459,9 @@ struct xui_context_t {
 	struct region_t screen;
 	struct color_t clear;
 	unsigned int cpshift;
-	unsigned int cpmask;
 	unsigned int cpsize;
 	unsigned int cwidth;
 	unsigned int cheight;
-	unsigned int clength;
 	unsigned int * cells[2];
 	unsigned int cindex;
 

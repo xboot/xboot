@@ -699,18 +699,16 @@ static union xui_cmd_t * xui_cmd_push(struct xui_context_t * ctx, enum xui_cmd_t
 	return cmd;
 }
 
-static union xui_cmd_t * xui_cmd_push_jump(struct xui_context_t * ctx, union xui_cmd_t * addr)
+static inline union xui_cmd_t * xui_cmd_push_jump(struct xui_context_t * ctx, union xui_cmd_t * addr)
 {
 	union xui_cmd_t * cmd = xui_cmd_push(ctx, XUI_CMD_TYPE_JUMP, sizeof(struct xui_cmd_jump_t), &unlimited_region);
 	cmd->jump.addr = addr;
 	return cmd;
 }
 
-static union xui_cmd_t * xui_cmd_push_clip(struct xui_context_t * ctx, struct region_t * r)
+static inline union xui_cmd_t * xui_cmd_push_clip(struct xui_context_t * ctx, struct region_t * r)
 {
-	union xui_cmd_t * cmd = xui_cmd_push(ctx, XUI_CMD_TYPE_CLIP, sizeof(struct xui_cmd_clip_t), r);
-	region_clone(&cmd->clip.clip, r);
-	return cmd;
+	return xui_cmd_push(ctx, XUI_CMD_TYPE_CLIP, sizeof(struct xui_cmd_clip_t), r);
 }
 
 static void xui_get_bound(struct region_t * r, int x, int y)
@@ -1254,6 +1252,7 @@ void end_root_container(struct xui_context_t * ctx)
 struct xui_context_t * xui_context_alloc(const char * fb, const char * input, struct xui_style_t * style, void * data)
 {
 	struct xui_context_t * ctx;
+	int len;
 
 	ctx = malloc(sizeof(struct xui_context_t));
 	if(!ctx)
@@ -1266,12 +1265,11 @@ struct xui_context_t * xui_context_alloc(const char * fb, const char * input, st
 	color_init(&ctx->clear, 0x33, 0x99, 0xcc, 0xff);
 	ctx->cpshift = 7;
 	ctx->cpsize = 1 << ctx->cpshift;
-	ctx->cpmask = ctx->cpsize - 1;
 	ctx->cwidth = (ctx->screen.w >> ctx->cpshift) + 1;
 	ctx->cheight = (ctx->screen.h >> ctx->cpshift) + 1;
-	ctx->clength = ctx->cwidth * ctx->cheight;
-	ctx->cells[0] = malloc(ctx->clength * sizeof(int));
-	ctx->cells[1] = malloc(ctx->clength * sizeof(int));
+	len = ctx->cwidth * ctx->cheight * sizeof(int);
+	ctx->cells[0] = malloc(len);
+	ctx->cells[1] = malloc(len);
 	if(!ctx->cells[0] || !ctx->cells[1])
 	{
 		if(ctx->cells[0])
@@ -1280,8 +1278,8 @@ struct xui_context_t * xui_context_alloc(const char * fb, const char * input, st
 			free(ctx->cells[1]);
 		free(ctx);
 	}
-	memset(ctx->cells[0], 0xff, ctx->clength * sizeof(int));
-	memset(ctx->cells[1], 0xff, ctx->clength * sizeof(int));
+	memset(ctx->cells[0], 0xff, len);
+	memset(ctx->cells[1], 0xff, len);
 	ctx->cindex = 0;
 
 	memcpy(&ctx->style, style ? style : &xui_style_default, sizeof(struct xui_style_t));
@@ -1310,9 +1308,8 @@ static void xui_draw(struct window_t * w, void * o)
 {
 	struct xui_context_t * ctx = (struct xui_context_t *)o;
 	struct surface_t * s = ctx->w->s;
-	struct region_t * clip = &ctx->clip;
-	struct region_t * region;
-	union xui_cmd_t * cmd = NULL;
+	struct region_t * r, * clip = &ctx->clip;
+	union xui_cmd_t * cmd;
 	struct matrix_t m;
 	struct text_t txt;
 	struct icon_t ico;
@@ -1323,16 +1320,15 @@ static void xui_draw(struct window_t * w, void * o)
 	{
 		for(i = 0; i < count; i++)
 		{
-			region = &w->rl->region[i]; //TODO, FIXME!!!
+			r = &w->rl->region[i];
+			region_clone(clip, r);
 			cmd = NULL;
 			while(xui_cmd_next(ctx, &cmd))
 			{
 				switch(cmd->base.type)
 				{
-				case XUI_CMD_TYPE_JUMP:
-					break;
 				case XUI_CMD_TYPE_CLIP:
-					if(!region_intersect(clip, &ctx->screen, &cmd->clip.clip))
+					if(!region_intersect(clip, r, &cmd->clip.r))
 						region_init(clip, 0, 0, 0, 0);
 					break;
 				case XUI_CMD_TYPE_LINE:

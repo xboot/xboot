@@ -464,6 +464,11 @@ struct xui_context_t {
 	unsigned int cheight;
 	unsigned int * cells[2];
 	unsigned int cindex;
+	uint64_t last;
+	uint64_t now;
+	uint64_t delta;
+	int frame;
+	int fps;
 
 	/*
 	 * Core state
@@ -476,11 +481,6 @@ struct xui_context_t {
 	struct region_t last_rect;
 	int last_zindex;
 	int updated_focus;
-	uint64_t last;
-	uint64_t now;
-	uint64_t delta;
-	int frame;
-	int fps;
 	unsigned int resize_id;
 	int resize_cursor_x;
 	int resize_cursor_y;
@@ -544,7 +544,7 @@ struct xui_context_t {
 	/*
 	 * Misc
 	 */
-	char tempbuf[4096];
+	char fmtbuf[4096];
 
 	/*
 	 * Private

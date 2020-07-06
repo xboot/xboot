@@ -446,9 +446,9 @@ const char * xui_format(struct xui_context_t * ctx, const char * fmt, ...)
 	va_list ap;
 
 	va_start(ap, fmt);
-	vsnprintf(ctx->tempbuf, sizeof(ctx->tempbuf), fmt, ap);
+	vsnprintf(ctx->fmtbuf, sizeof(ctx->fmtbuf), fmt, ap);
 	va_end(ap);
-	return (const char *)ctx->tempbuf;
+	return (const char *)ctx->fmtbuf;
 }
 
 void xui_set_front(struct xui_context_t * ctx, struct xui_container_t * c)
@@ -1281,10 +1281,9 @@ struct xui_context_t * xui_context_alloc(const char * fb, const char * input, st
 	memset(ctx->cells[0], 0xff, len);
 	memset(ctx->cells[1], 0xff, len);
 	ctx->cindex = 0;
-
+	ctx->last = ctx->now = ktime_to_ns(ktime_get());
 	memcpy(&ctx->style, style ? style : &xui_style_default, sizeof(struct xui_style_t));
 	region_clone(&ctx->clip, &ctx->screen);
-	ctx->last = ctx->now = ktime_to_ns(ktime_get());
 	ctx->priv = data;
 
 	return ctx;

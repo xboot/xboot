@@ -345,8 +345,8 @@ static int xui_cmd_next(struct xui_context_t * ctx, union xui_cmd_t ** cmd)
 
 void xui_end(struct xui_context_t * ctx)
 {
-	struct region_t region, * r;
 	union xui_cmd_t * cmd = NULL;
+	struct region_t r;
 	unsigned int * ncell = ctx->cells[ctx->cindex];
 	unsigned int * ocell = ctx->cells[(ctx->cindex = (ctx->cindex + 1) & 0x1)];
 	unsigned int h;
@@ -355,9 +355,9 @@ void xui_end(struct xui_context_t * ctx)
 	int i, n;
 
 	assert(ctx->container_stack.idx == 0);
-	assert(ctx->clip_stack.idx      == 0);
-	assert(ctx->id_stack.idx        == 0);
-	assert(ctx->layout_stack.idx    == 0);
+	assert(ctx->clip_stack.idx == 0);
+	assert(ctx->id_stack.idx == 0);
+	assert(ctx->layout_stack.idx == 0);
 	if(ctx->scroll_target)
 	{
 		ctx->scroll_target->scroll_x += ctx->mouse.zx;
@@ -394,14 +394,14 @@ void xui_end(struct xui_context_t * ctx)
 	}
 	while(xui_cmd_next(ctx, &cmd))
 	{
-		if(region_intersect(&region, &ctx->screen, &cmd->base.r))
+		if(region_intersect(&r, &ctx->screen, &cmd->base.r))
 		{
 			h = 5381;
 			xui_hash(&h, &cmd->base, cmd->base.len);
-			x1 = region.x >> ctx->cpshift;
-			y1 = region.y >> ctx->cpshift;
-			x2 = (region.x + region.w) >> ctx->cpshift;
-			y2 = (region.y + region.h) >> ctx->cpshift;
+			x1 = r.x >> ctx->cpshift;
+			y1 = r.y >> ctx->cpshift;
+			x2 = (r.x + r.w) >> ctx->cpshift;
+			y2 = (r.y + r.h) >> ctx->cpshift;
 			for(y = y1; y <= y2; y++)
 			{
 				for(x = x1; x <= x2; x++)
@@ -419,24 +419,11 @@ void xui_end(struct xui_context_t * ctx)
 			i = x + y * ctx->cwidth;
 			if(ncell[i] != ocell[i])
 			{
-				region_init(&region, x, y, 1, 1);
-				region_list_add(ctx->w->rl, &region);
+				region_init(&r, x << ctx->cpshift, y << ctx->cpshift, 1 << ctx->cpshift, 1 << ctx->cpshift);
+				if(region_intersect(&r, &r, &ctx->screen))
+					region_list_add(ctx->w->rl, &r);
 			}
 			ocell[i] = 5381;
-		}
-	}
-	if((n = ctx->w->rl->count) > 0)
-	{
-		for(i = 0; i < n; i++)
-		{
-			r = &ctx->w->rl->region[i];
-			r->x = r->x << ctx->cpshift;
-			r->y = r->y << ctx->cpshift;
-			r->w = r->w << ctx->cpshift;
-			r->h = r->h << ctx->cpshift;
-			r->area = -1;
-			if(!region_intersect(r, r, &ctx->screen))
-				region_init(r, 0, 0, 0, 0);
 		}
 	}
 }

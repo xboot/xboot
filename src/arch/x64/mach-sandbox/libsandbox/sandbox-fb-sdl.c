@@ -123,22 +123,26 @@ int sandbox_fb_sdl_surface_present(void * context, struct sandbox_fb_surface_t *
 {
 	struct sandbox_fb_sdl_context_t * ctx = (struct sandbox_fb_sdl_context_t *)context;
 	struct sandbox_fb_region_t * r;
-	int i, n;
+	SDL_Rect rect;
+	int i;
 
-	if(rl && (n = rl->count > 0))
+	if(rl && (rl->count > 0))
 	{
-		for(i = 0; i < n; i++)
+		for(i = 0; i < rl->count; i++)
 		{
 			r = &rl->region[i];
-			SDL_BlitSurface(surface->priv, (SDL_Rect*)r, ctx->screen, (SDL_Rect*)r);
+			rect.x = r->x;
+			rect.y = r->y;
+			rect.w = r->w;
+			rect.h = r->h;
+			SDL_BlitSurface(surface->priv, &rect, ctx->screen, &rect);
 		}
-		SDL_UpdateWindowSurfaceRects(ctx->window, (SDL_Rect*)&rl->region[0], n);
 	}
 	else
 	{
 		SDL_BlitSurface(surface->priv, NULL, ctx->screen, NULL);
-		SDL_UpdateWindowSurface(ctx->window);
 	}
+	SDL_UpdateWindowSurface(ctx->window);
 	return 1;
 }
 

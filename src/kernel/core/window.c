@@ -278,13 +278,15 @@ void window_region_list_clear(struct window_t * w)
 		region_list_clear(w->rl);
 }
 
-void window_present(struct window_t * w, struct color_t * c, void * o, void (*draw)(struct window_t *, void *))
+void window_present(struct window_t * w, void * o, void (*draw)(struct window_t *, void *))
 {
 	struct surface_t * s = w->s;
 	struct region_t * r, region;
 	struct matrix_t m;
-	int count;
-	int i;
+	uint32_t * p, * q;
+	int x1, y1, x2, y2;
+	int l, x, y;
+	int n, i;
 
 	if(w->wm->refresh)
 	{
@@ -300,12 +302,27 @@ void window_present(struct window_t * w, struct color_t * c, void * o, void (*dr
 		window_region_list_add(w, &w->wm->cursor.rn);
 		w->wm->cursor.dirty = 0;
 	}
-	if((count = w->rl->count) > 0)
+	if((n = w->rl->count) > 0)
 	{
-		for(i = 0; i < count; i++)
+		l = s->stride >> 2;
+		for(i = 0; i < n; i++)
 		{
 			r = &w->rl->region[i];
-			surface_clear(s, c, r->x, r->y, r->w, r->h);
+			x1 = r->x;
+			y1 = r->y;
+			x2 = r->x + r->w;
+			y2 = r->y + r->h;
+			q = (uint32_t *)s->pixels + y1 * l + x1;
+			for(y = y1; y < y2; y++, q += l)
+			{
+				for(x = x1, p = q; x < x2; x++, p++)
+				{
+					if((x ^ y) & (1 << 3))
+						*p = 0xffabb9bd;
+					else
+						*p = 0xff899598;
+				}
+			}
 		}
 		if(draw)
 			draw(w, o);

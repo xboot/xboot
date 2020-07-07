@@ -2107,7 +2107,7 @@ static int m_render(lua_State * L)
 		dobject_layout(o);
 		window_region_list_clear(w);
 		window_region_list_fill(w, o);
-		window_present(w, &(struct color_t){ 0xff, 0xff, 0xff, 0xff }, (void *)o, (void (*)(struct window_t *, void *))display_draw);
+		window_present(w, o, (void (*)(struct window_t *, void *))display_draw);
 	}
 	return 0;
 }

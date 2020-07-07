@@ -1572,7 +1572,7 @@ void xui_loop(struct xui_context_t * ctx, void (*func)(struct xui_context_t *))
 		if(func)
 			func(ctx);
 		if(window_is_active(ctx->w))
-			window_present(ctx->w, &(struct color_t){ 0x33, 0x99, 0xcc, 0xff }, ctx, xui_draw);
+			window_present(ctx->w, ctx, xui_draw);
 		task_yield();
 	}
 }

@@ -69,7 +69,7 @@ static void arc_run(struct wboxtest_t * wbt, void * data)
 		while(frame-- > 0)
 		{
 			ktime_t timeout = ktime_add_ms(ktime_get(), 16);
-			window_present(pdat->w, &pdat->c, pdat, draw_arc);
+			window_present(pdat->w, pdat, draw_arc);
 			while(ktime_before(ktime_get(), timeout));
 		}
 	}

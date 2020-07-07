@@ -956,7 +956,7 @@ void xui_draw_arc(struct xui_context_t * ctx, int x, int y, int radius, int a1, 
 	}
 }
 
-void xui_draw_square(struct xui_context_t * ctx, int x, int y, int w, int h)
+void xui_draw_checkerboard(struct xui_context_t * ctx, int x, int y, int w, int h)
 {
 	union xui_cmd_t * cmd;
 	struct region_t r;
@@ -967,11 +967,11 @@ void xui_draw_square(struct xui_context_t * ctx, int x, int y, int w, int h)
 	{
 		if(clip < 0)
 			xui_cmd_push_clip(ctx, xui_get_clip(ctx));
-		cmd = xui_cmd_push(ctx, XUI_CMD_TYPE_SQUARE, sizeof(struct xui_cmd_square_t), &r);
-		cmd->square.x = x;
-		cmd->square.y = y;
-		cmd->square.w = w;
-		cmd->square.h = h;
+		cmd = xui_cmd_push(ctx, XUI_CMD_TYPE_CHECKERBOARD, sizeof(struct xui_cmd_checkerboard_t), &r);
+		cmd->board.x = x;
+		cmd->board.y = y;
+		cmd->board.w = w;
+		cmd->board.h = h;
 		if(clip < 0)
 			xui_cmd_push_clip(ctx, &unlimited_region);
 	}
@@ -1343,8 +1343,8 @@ static void xui_draw(struct window_t * w, void * o)
 				case XUI_CMD_TYPE_ARC:
 					surface_shape_arc(s, clip, cmd->arc.x, cmd->arc.y, cmd->arc.radius, cmd->arc.a1, cmd->arc.a2, cmd->arc.thickness, &cmd->arc.c);
 					break;
-				case XUI_CMD_TYPE_SQUARE:
-					surface_shape_square(s, clip, cmd->square.x, cmd->square.y, cmd->square.w, cmd->square.h);
+				case XUI_CMD_TYPE_CHECKERBOARD:
+					surface_shape_checkerboard(s, clip, cmd->board.x, cmd->board.y, cmd->board.w, cmd->board.h);
 					break;
 				case XUI_CMD_TYPE_GRADIENT:
 					surface_shape_gradient(s, clip, cmd->gradient.x, cmd->gradient.y, cmd->gradient.w, cmd->gradient.h, &cmd->gradient.lt, &cmd->gradient.rt, &cmd->gradient.rb, &cmd->gradient.lb);

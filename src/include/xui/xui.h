@@ -24,66 +24,66 @@ extern "C" {
 #define XUI_TREE_POOL_SIZE			(128)
 #define XUI_MAX_WIDTHS				(32)
 
-#define xui_push(stk, val)	do { assert((stk).idx < (int)(sizeof((stk).items) / sizeof(*(stk).items))); (stk).items[(stk).idx] = (val); (stk).idx++; } while(0)
-#define xui_pop(stk)		do { assert((stk).idx > 0); (stk).idx--; } while(0)
+#define xui_push(stk, val)		do { assert((stk).idx < (int)(sizeof((stk).items) / sizeof(*(stk).items))); (stk).items[(stk).idx] = (val); (stk).idx++; } while(0)
+#define xui_pop(stk)			do { assert((stk).idx > 0); (stk).idx--; } while(0)
 
 enum {
-	XUI_OPT_NOINTERACT		= (0x1 << 0),
-	XUI_OPT_NOSCROLL		= (0x1 << 1),
-	XUI_OPT_HOLDFOCUS		= (0x1 << 2),
-	XUI_OPT_CLOSED			= (0x1 << 3),
-	XUI_OPT_EXPANDED		= (0x1 << 4),
-	XUI_OPT_TEXT_LEFT		= (0x0 << 5),
-	XUI_OPT_TEXT_RIGHT		= (0x1 << 5),
-	XUI_OPT_TEXT_TOP		= (0x2 << 5),
-	XUI_OPT_TEXT_BOTTOM		= (0x3 << 5),
-	XUI_OPT_TEXT_CENTER		= (0x4 << 5),
+	XUI_OPT_NOINTERACT			= (0x1 << 0),
+	XUI_OPT_NOSCROLL			= (0x1 << 1),
+	XUI_OPT_HOLDFOCUS			= (0x1 << 2),
+	XUI_OPT_CLOSED				= (0x1 << 3),
+	XUI_OPT_EXPANDED			= (0x1 << 4),
+	XUI_OPT_TEXT_LEFT			= (0x0 << 5),
+	XUI_OPT_TEXT_RIGHT			= (0x1 << 5),
+	XUI_OPT_TEXT_TOP			= (0x2 << 5),
+	XUI_OPT_TEXT_BOTTOM			= (0x3 << 5),
+	XUI_OPT_TEXT_CENTER			= (0x4 << 5),
 };
 
 enum {
-	XUI_KEY_POWER			= (0x1 << 0),
-	XUI_KEY_UP				= (0x1 << 1),
-	XUI_KEY_DOWN			= (0x1 << 2),
-	XUI_KEY_LEFT			= (0x1 << 3),
-	XUI_KEY_RIGHT			= (0x1 << 4),
-	XUI_KEY_VOLUME_UP		= (0x1 << 5),
-	XUI_KEY_VOLUME_DOWN		= (0x1 << 6),
-	XUI_KEY_VOLUME_MUTE		= (0x1 << 7),
-	XUI_KEY_TAB				= (0x1 << 8),
-	XUI_KEY_TASK			= (0x1 << 9),
-	XUI_KEY_HOME			= (0x1 << 10),
-	XUI_KEY_BACK			= (0x1 << 11),
-	XUI_KEY_ENTER			= (0x1 << 12),
-	XUI_KEY_CTRL			= (0x1 << 13),
-	XUI_KEY_ALT				= (0x1 << 14),
-	XUI_KEY_SHIFT			= (0x1 << 15),
+	XUI_KEY_POWER				= (0x1 << 0),
+	XUI_KEY_UP					= (0x1 << 1),
+	XUI_KEY_DOWN				= (0x1 << 2),
+	XUI_KEY_LEFT				= (0x1 << 3),
+	XUI_KEY_RIGHT				= (0x1 << 4),
+	XUI_KEY_VOLUME_UP			= (0x1 << 5),
+	XUI_KEY_VOLUME_DOWN			= (0x1 << 6),
+	XUI_KEY_VOLUME_MUTE			= (0x1 << 7),
+	XUI_KEY_TAB					= (0x1 << 8),
+	XUI_KEY_TASK				= (0x1 << 9),
+	XUI_KEY_HOME				= (0x1 << 10),
+	XUI_KEY_BACK				= (0x1 << 11),
+	XUI_KEY_ENTER				= (0x1 << 12),
+	XUI_KEY_CTRL				= (0x1 << 13),
+	XUI_KEY_ALT					= (0x1 << 14),
+	XUI_KEY_SHIFT				= (0x1 << 15),
 };
 
 enum {
-	XUI_MOUSE_LEFT			= (0x1 << 0),
-	XUI_MOUSE_RIGHT			= (0x1 << 1),
-	XUI_MOUSE_MIDDLE		= (0x1 << 2),
-	XUI_MOUSE_X1			= (0x1 << 3),
-	XUI_MOUSE_X2			= (0x1 << 4),
+	XUI_MOUSE_LEFT				= (0x1 << 0),
+	XUI_MOUSE_RIGHT				= (0x1 << 1),
+	XUI_MOUSE_MIDDLE			= (0x1 << 2),
+	XUI_MOUSE_X1				= (0x1 << 3),
+	XUI_MOUSE_X2				= (0x1 << 4),
 };
 
 enum xui_cmd_type_t {
-	XUI_CMD_TYPE_BASE		= 0,
-	XUI_CMD_TYPE_JUMP		= 1,
-	XUI_CMD_TYPE_CLIP		= 2,
-	XUI_CMD_TYPE_LINE		= 3,
-	XUI_CMD_TYPE_POLYLINE	= 4,
-	XUI_CMD_TYPE_CURVE		= 5,
-	XUI_CMD_TYPE_TRIANGLE	= 6,
-	XUI_CMD_TYPE_RECTANGLE	= 7,
-	XUI_CMD_TYPE_POLYGON	= 8,
-	XUI_CMD_TYPE_CIRCLE		= 9,
-	XUI_CMD_TYPE_ELLIPSE	= 10,
-	XUI_CMD_TYPE_ARC		= 11,
-	XUI_CMD_TYPE_SQUARE		= 12,
-	XUI_CMD_TYPE_GRADIENT	= 13,
-	XUI_CMD_TYPE_TEXT		= 14,
-	XUI_CMD_TYPE_ICON		= 15,
+	XUI_CMD_TYPE_BASE			= 0,
+	XUI_CMD_TYPE_JUMP			= 1,
+	XUI_CMD_TYPE_CLIP			= 2,
+	XUI_CMD_TYPE_LINE			= 3,
+	XUI_CMD_TYPE_POLYLINE		= 4,
+	XUI_CMD_TYPE_CURVE			= 5,
+	XUI_CMD_TYPE_TRIANGLE		= 6,
+	XUI_CMD_TYPE_RECTANGLE		= 7,
+	XUI_CMD_TYPE_POLYGON		= 8,
+	XUI_CMD_TYPE_CIRCLE			= 9,
+	XUI_CMD_TYPE_ELLIPSE		= 10,
+	XUI_CMD_TYPE_ARC			= 11,
+	XUI_CMD_TYPE_CHECKERBOARD	= 12,
+	XUI_CMD_TYPE_GRADIENT		= 13,
+	XUI_CMD_TYPE_TEXT			= 14,
+	XUI_CMD_TYPE_ICON			= 15,
 };
 
 struct xui_cmd_base_t {
@@ -206,7 +206,7 @@ struct xui_cmd_arc_t {
 	struct color_t c;
 };
 
-struct xui_cmd_square_t {
+struct xui_cmd_checkerboard_t {
 	enum xui_cmd_type_t type;
 	int len;
 	struct region_t r;
@@ -263,7 +263,7 @@ union xui_cmd_t {
 	struct xui_cmd_circle_t circle;
 	struct xui_cmd_ellipse_t ellipse;
 	struct xui_cmd_arc_t arc;
-	struct xui_cmd_square_t square;
+	struct xui_cmd_checkerboard_t board;
 	struct xui_cmd_gradient_t gradient;
 	struct xui_cmd_text_t text;
 	struct xui_cmd_icon_t icon;
@@ -593,7 +593,7 @@ void xui_draw_polygon(struct xui_context_t * ctx, struct point_t * p, int n, int
 void xui_draw_circle(struct xui_context_t * ctx, int x, int y, int radius, int thickness, struct color_t * c);
 void xui_draw_ellipse(struct xui_context_t * ctx, int x, int y, int w, int h, int thickness, struct color_t * c);
 void xui_draw_arc(struct xui_context_t * ctx, int x, int y, int radius, int a1, int a2, int thickness, struct color_t * c);
-void xui_draw_square(struct xui_context_t * ctx, int x, int y, int w, int h);
+void xui_draw_checkerboard(struct xui_context_t * ctx, int x, int y, int w, int h);
 void xui_draw_gradient(struct xui_context_t * ctx, int x, int y, int w, int h, struct color_t * lt, struct color_t * rt, struct color_t * rb, struct color_t * lb);
 void xui_draw_text(struct xui_context_t * ctx, const char * family, int size, const char * utf8, int x, int y, int wrap, struct color_t * c);
 void xui_draw_icon(struct xui_context_t * ctx, const char * family, uint32_t code, int x, int y, int w, int h, struct color_t * c);

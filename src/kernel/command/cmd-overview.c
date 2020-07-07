@@ -48,7 +48,7 @@ static void xui_style_color(struct xui_context_t * ctx, struct color_t * c)
 	{
 		xui_open_popup(ctx, "!cpopup");
 	}
-	xui_draw_square(ctx, r->x, r->y, r->w, r->h);
+	xui_draw_checkerboard(ctx, r->x, r->y, r->w, r->h);
 	xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, 0, 0, c);
 	if(xui_begin_popup(ctx, "!cpopup"))
 	{

@@ -1509,7 +1509,7 @@ void render_default_shape_arc(struct surface_t * s, struct region_t * clip, int 
 	}
 }
 
-void render_default_shape_square(struct surface_t * s, struct region_t * clip, int x, int y, int w, int h)
+void render_default_shape_checkerboard(struct surface_t * s, struct region_t * clip, int x, int y, int w, int h)
 {
 	struct region_t region, r;
 	uint32_t * q, * p;

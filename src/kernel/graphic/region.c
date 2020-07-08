@@ -108,8 +108,6 @@ void region_list_merge(struct region_list_t * rl, struct region_list_t * o)
 
 	if(rl && o && ((count = o->count) > 0))
 	{
-		if(rl->size < o->size)
-			region_list_resize(rl, o->size);
 		for(i = 0; i < count; i++)
 			region_list_add(rl, &o->region[i]);
 	}
@@ -175,7 +173,7 @@ void region_list_add(struct region_list_t * rl, struct region_t * r)
 	}
 	else
 	{
-		if(rl->size < rl->count)
+		if(rl->size <= rl->count)
 			region_list_resize(rl, rl->size << 1);
 		region_clone(&rl->region[rl->count], r);
 		rl->count++;

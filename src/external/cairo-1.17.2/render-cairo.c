@@ -25,9 +25,9 @@ static void * render_cairo_create(struct surface_t * s)
 	return ctx;
 }
 
-static void render_cairo_destroy(void * pctx)
+static void render_cairo_destroy(void * rctx)
 {
-	struct render_cairo_context_t * ctx = (struct render_cairo_context_t *)pctx;
+	struct render_cairo_context_t * ctx = (struct render_cairo_context_t *)rctx;
 	cairo_destroy(ctx->cr);
 	cairo_surface_destroy(ctx->cs);
 	free(ctx);
@@ -35,7 +35,7 @@ static void render_cairo_destroy(void * pctx)
 
 static void render_cairo_blit(struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct surface_t * src, enum render_type_t type)
 {
-	cairo_t * cr = ((struct render_cairo_context_t *)s->pctx)->cr;
+	cairo_t * cr = ((struct render_cairo_context_t *)s->rctx)->cr;
 	struct region_t r;
 
 	cairo_save(cr);
@@ -57,7 +57,7 @@ static void render_cairo_blit(struct surface_t * s, struct region_t * clip, stru
 	{
 		cairo_set_matrix(cr, (cairo_matrix_t *)m);
 	}
-	cairo_set_source_surface(cr, ((struct render_cairo_context_t *)src->pctx)->cs, 0, 0);
+	cairo_set_source_surface(cr, ((struct render_cairo_context_t *)src->rctx)->cs, 0, 0);
 	switch(type)
 	{
 	case RENDER_TYPE_FAST:
@@ -78,7 +78,7 @@ static void render_cairo_blit(struct surface_t * s, struct region_t * clip, stru
 
 static void render_cairo_fill(struct surface_t * s, struct region_t * clip, struct matrix_t * m, int w, int h, struct color_t * c, enum render_type_t type)
 {
-	cairo_t * cr = ((struct render_cairo_context_t *)s->pctx)->cr;
+	cairo_t * cr = ((struct render_cairo_context_t *)s->rctx)->cr;
 	struct region_t r;
 
 	cairo_save(cr);
@@ -122,7 +122,7 @@ static void render_cairo_fill(struct surface_t * s, struct region_t * clip, stru
 
 static void render_cairo_shape_line(struct surface_t * s, struct region_t * clip, struct point_t * p0, struct point_t * p1, int thickness, struct color_t * c)
 {
-	cairo_t * cr = ((struct render_cairo_context_t *)s->pctx)->cr;
+	cairo_t * cr = ((struct render_cairo_context_t *)s->rctx)->cr;
 	struct region_t r;
 
 	cairo_save(cr);
@@ -150,7 +150,7 @@ static void render_cairo_shape_line(struct surface_t * s, struct region_t * clip
 
 static void render_cairo_shape_polyline(struct surface_t * s, struct region_t * clip, struct point_t * p, int n, int thickness, struct color_t * c)
 {
-	cairo_t * cr = ((struct render_cairo_context_t *)s->pctx)->cr;
+	cairo_t * cr = ((struct render_cairo_context_t *)s->rctx)->cr;
 	struct region_t r;
 	int i;
 
@@ -183,7 +183,7 @@ static void render_cairo_shape_polyline(struct surface_t * s, struct region_t * 
 
 static void render_cairo_shape_curve(struct surface_t * s, struct region_t * clip, struct point_t * p, int n, int thickness, struct color_t * c)
 {
-	cairo_t * cr = ((struct render_cairo_context_t *)s->pctx)->cr;
+	cairo_t * cr = ((struct render_cairo_context_t *)s->rctx)->cr;
 	struct region_t r;
 	int i;
 
@@ -216,7 +216,7 @@ static void render_cairo_shape_curve(struct surface_t * s, struct region_t * cli
 
 static void render_cairo_shape_triangle(struct surface_t * s, struct region_t * clip, struct point_t * p0, struct point_t * p1, struct point_t * p2, int thickness, struct color_t * c)
 {
-	cairo_t * cr = ((struct render_cairo_context_t *)s->pctx)->cr;
+	cairo_t * cr = ((struct render_cairo_context_t *)s->rctx)->cr;
 	struct region_t r;
 
 	cairo_save(cr);
@@ -253,7 +253,7 @@ static void render_cairo_shape_triangle(struct surface_t * s, struct region_t * 
 
 static void render_cairo_shape_rectangle(struct surface_t * s, struct region_t * clip, int x, int y, int w, int h, int radius, int thickness, struct color_t * c)
 {
-	cairo_t * cr = ((struct render_cairo_context_t *)s->pctx)->cr;
+	cairo_t * cr = ((struct render_cairo_context_t *)s->rctx)->cr;
 	struct region_t r;
 	int corner;
 
@@ -335,7 +335,7 @@ static void render_cairo_shape_rectangle(struct surface_t * s, struct region_t *
 
 static void render_cairo_shape_polygon(struct surface_t * s, struct region_t * clip, struct point_t * p, int n, int thickness, struct color_t * c)
 {
-	cairo_t * cr = ((struct render_cairo_context_t *)s->pctx)->cr;
+	cairo_t * cr = ((struct render_cairo_context_t *)s->rctx)->cr;
 	struct region_t r;
 	int i;
 
@@ -376,7 +376,7 @@ static void render_cairo_shape_polygon(struct surface_t * s, struct region_t * c
 
 static void render_cairo_shape_circle(struct surface_t * s, struct region_t * clip, int x, int y, int radius, int thickness, struct color_t * c)
 {
-	cairo_t * cr = ((struct render_cairo_context_t *)s->pctx)->cr;
+	cairo_t * cr = ((struct render_cairo_context_t *)s->rctx)->cr;
 	struct region_t r;
 
 	if(radius > 0)
@@ -414,7 +414,7 @@ static void render_cairo_shape_circle(struct surface_t * s, struct region_t * cl
 
 static void render_cairo_shape_ellipse(struct surface_t * s, struct region_t * clip, int x, int y, int w, int h, int thickness, struct color_t * c)
 {
-	cairo_t * cr = ((struct render_cairo_context_t *)s->pctx)->cr;
+	cairo_t * cr = ((struct render_cairo_context_t *)s->rctx)->cr;
 	cairo_matrix_t m;
 	struct region_t r;
 
@@ -459,7 +459,7 @@ static void render_cairo_shape_ellipse(struct surface_t * s, struct region_t * c
 
 void render_cairo_shape_arc(struct surface_t * s, struct region_t * clip, int x, int y, int radius, int a1, int a2, int thickness, struct color_t * c)
 {
-	cairo_t * cr = ((struct render_cairo_context_t *)s->pctx)->cr;
+	cairo_t * cr = ((struct render_cairo_context_t *)s->rctx)->cr;
 	struct region_t r;
 
 	if(radius > 0)

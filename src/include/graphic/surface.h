@@ -32,7 +32,7 @@ struct surface_t
 	int pixlen;
 	void * pixels;
 	struct render_t * r;
-	void * pctx;
+	void * rctx;
 	void * priv;
 };
 
@@ -48,7 +48,7 @@ struct render_t
 	struct list_head list;
 
 	void * (*create)(struct surface_t * s);
-	void (*destroy)(void * pctx);
+	void (*destroy)(void * rctx);
 
 	void (*blit)(struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct surface_t * src, enum render_type_t type);
 	void (*fill)(struct surface_t * s, struct region_t * clip, struct matrix_t * m, int w, int h, struct color_t * c, enum render_type_t type);
@@ -243,7 +243,7 @@ static inline void surface_filter_blur(struct surface_t * s, int radius)
 }
 
 void * render_default_create(struct surface_t * s);
-void render_default_destroy(void * pctx);
+void render_default_destroy(void * rctx);
 void render_default_blit(struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct surface_t * src, enum render_type_t type);
 void render_default_fill(struct surface_t * s, struct region_t * clip, struct matrix_t * m, int w, int h, struct color_t * c, enum render_type_t type);
 void render_default_text(struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct text_t * txt);

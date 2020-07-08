@@ -143,7 +143,7 @@ struct surface_t * surface_alloc(int width, int height, void * priv)
 	s->pixlen = pixlen;
 	s->pixels = pixels;
 	s->r = search_render();
-	s->pctx = s->r->create(s);
+	s->rctx = s->r->create(s);
 	s->priv = priv;
 	return s;
 }
@@ -153,7 +153,7 @@ void surface_free(struct surface_t * s)
 	if(s)
 	{
 		if(s->r)
-			s->r->destroy(s->pctx);
+			s->r->destroy(s->rctx);
 		free(s->pixels);
 		free(s);
 	}
@@ -351,7 +351,7 @@ struct surface_t * surface_clone(struct surface_t * s, int x, int y, int w, int 
 	o->pixlen = pixlen;
 	o->pixels = pixels;
 	o->r = s->r;
-	o->pctx = o->r->create(o);
+	o->rctx = o->r->create(o);
 	o->priv = NULL;
 	return o;
 }
@@ -440,7 +440,7 @@ struct surface_t * surface_extend(struct surface_t * s, int width, int height, c
 	o->pixlen = pixlen;
 	o->pixels = pixels;
 	o->r = s->r;
-	o->pctx = o->r->create(o);
+	o->rctx = o->r->create(o);
 	o->priv = NULL;
 	return o;
 }

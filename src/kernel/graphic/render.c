@@ -34,7 +34,7 @@ void * render_default_create(struct surface_t * s)
 	return NULL;
 }
 
-void render_default_destroy(void * pctx)
+void render_default_destroy(void * rctx)
 {
 }
 

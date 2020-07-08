@@ -956,27 +956,6 @@ void xui_draw_arc(struct xui_context_t * ctx, int x, int y, int radius, int a1, 
 	}
 }
 
-void xui_draw_checkerboard(struct xui_context_t * ctx, int x, int y, int w, int h)
-{
-	union xui_cmd_t * cmd;
-	struct region_t r;
-	int clip;
-
-	region_init(&r, x, y, w, h);
-	if((clip = xui_check_clip(ctx, &r)))
-	{
-		if(clip < 0)
-			xui_cmd_push_clip(ctx, xui_get_clip(ctx));
-		cmd = xui_cmd_push(ctx, XUI_CMD_TYPE_CHECKERBOARD, sizeof(struct xui_cmd_checkerboard_t), &r);
-		cmd->board.x = x;
-		cmd->board.y = y;
-		cmd->board.w = w;
-		cmd->board.h = h;
-		if(clip < 0)
-			xui_cmd_push_clip(ctx, &unlimited_region);
-	}
-}
-
 void xui_draw_gradient(struct xui_context_t * ctx, int x, int y, int w, int h, struct color_t * lt, struct color_t * rt, struct color_t * rb, struct color_t * lb)
 {
 	union xui_cmd_t * cmd;
@@ -997,6 +976,27 @@ void xui_draw_gradient(struct xui_context_t * ctx, int x, int y, int w, int h, s
 		memcpy(&cmd->gradient.rt, rt, sizeof(struct color_t));
 		memcpy(&cmd->gradient.rb, rb, sizeof(struct color_t));
 		memcpy(&cmd->gradient.lb, lb, sizeof(struct color_t));
+		if(clip < 0)
+			xui_cmd_push_clip(ctx, &unlimited_region);
+	}
+}
+
+void xui_draw_checkerboard(struct xui_context_t * ctx, int x, int y, int w, int h)
+{
+	union xui_cmd_t * cmd;
+	struct region_t r;
+	int clip;
+
+	region_init(&r, x, y, w, h);
+	if((clip = xui_check_clip(ctx, &r)))
+	{
+		if(clip < 0)
+			xui_cmd_push_clip(ctx, xui_get_clip(ctx));
+		cmd = xui_cmd_push(ctx, XUI_CMD_TYPE_CHECKERBOARD, sizeof(struct xui_cmd_checkerboard_t), &r);
+		cmd->board.x = x;
+		cmd->board.y = y;
+		cmd->board.w = w;
+		cmd->board.h = h;
 		if(clip < 0)
 			xui_cmd_push_clip(ctx, &unlimited_region);
 	}

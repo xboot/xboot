@@ -59,8 +59,8 @@ static struct render_t render_default = {
 	.shape_circle		= render_default_shape_circle,
 	.shape_ellipse		= render_default_shape_ellipse,
 	.shape_arc			= render_default_shape_arc,
-	.shape_checkerboard	= render_default_shape_checkerboard,
 	.shape_gradient		= render_default_shape_gradient,
+	.shape_checkerboard	= render_default_shape_checkerboard,
 	.shape_raster		= render_default_shape_raster,
 
 	.filter_haldclut	= render_default_filter_haldclut,

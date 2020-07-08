@@ -388,18 +388,6 @@ static int m_image_arc(lua_State * L)
 	return 1;
 }
 
-static int m_image_checkerboard(lua_State * L)
-{
-	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
-	int x = luaL_optinteger(L, 2, 0);
-	int y = luaL_optinteger(L, 3, 0);
-	int w = luaL_optinteger(L, 4, 0);
-	int h = luaL_optinteger(L, 5, 0);
-	surface_shape_checkerboard(img->s, NULL, x, y, w, h);
-	lua_settop(L, 1);
-	return 1;
-}
-
 static int m_image_gradient(lua_State * L)
 {
 	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
@@ -412,6 +400,18 @@ static int m_image_gradient(lua_State * L)
 	struct color_t * rb = luaL_checkudata(L, 8, MT_COLOR);
 	struct color_t * lb = luaL_checkudata(L, 9, MT_COLOR);
 	surface_shape_gradient(img->s, NULL, x, y, w, h, lt, rt, rb, lb);
+	lua_settop(L, 1);
+	return 1;
+}
+
+static int m_image_checkerboard(lua_State * L)
+{
+	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
+	int x = luaL_optinteger(L, 2, 0);
+	int y = luaL_optinteger(L, 3, 0);
+	int w = luaL_optinteger(L, 4, 0);
+	int h = luaL_optinteger(L, 5, 0);
+	surface_shape_checkerboard(img->s, NULL, x, y, w, h);
 	lua_settop(L, 1);
 	return 1;
 }
@@ -525,45 +525,45 @@ static int m_image_blur(lua_State * L)
 }
 
 static const luaL_Reg m_image[] = {
-	{"__gc",		m_image_gc},
-	{"__tostring",	m_image_tostring},
-	{"getWidth",	m_image_get_width},
-	{"getHeight",	m_image_get_height},
-	{"getSize",		m_image_get_size},
+	{"__gc",			m_image_gc},
+	{"__tostring",		m_image_tostring},
+	{"getWidth",		m_image_get_width},
+	{"getHeight",		m_image_get_height},
+	{"getSize",			m_image_get_size},
 
-	{"clone",		m_image_clone},
-	{"extend",		m_image_extend},
-	{"clear",		m_image_clear},
+	{"clone",			m_image_clone},
+	{"extend",			m_image_extend},
+	{"clear",			m_image_clear},
 
-	{"blit",		m_image_blit},
-	{"fill",		m_image_fill},
-	{"text",		m_image_text},
-	{"icon",		m_image_icon},
+	{"blit",			m_image_blit},
+	{"fill",			m_image_fill},
+	{"text",			m_image_text},
+	{"icon",			m_image_icon},
 
-	{"line",		m_image_line},
-	{"polyline",	m_image_polyline},
-	{"curve",		m_image_curve},
-	{"triangle",	m_image_triangle},
-	{"rectangle",	m_image_rectangle},
-	{"polygon",		m_image_polygon},
-	{"circle",		m_image_circle},
-	{"ellipse",		m_image_ellipse},
-	{"arc",			m_image_arc},
-	{"checkerboard",m_image_checkerboard},
-	{"gradient",	m_image_gradient},
+	{"line",			m_image_line},
+	{"polyline",		m_image_polyline},
+	{"curve",			m_image_curve},
+	{"triangle",		m_image_triangle},
+	{"rectangle",		m_image_rectangle},
+	{"polygon",			m_image_polygon},
+	{"circle",			m_image_circle},
+	{"ellipse",			m_image_ellipse},
+	{"arc",				m_image_arc},
+	{"gradient",		m_image_gradient},
+	{"checkerboard",	m_image_checkerboard},
 
-	{"haldclut",	m_image_haldclut},
-	{"grayscale",	m_image_grayscale},
-	{"sepia",		m_image_sepia},
-	{"invert",		m_image_invert},
-	{"threshold",	m_image_threshold},
-	{"colorize",	m_image_colorize},
-	{"hue",			m_image_hue},
-	{"saturate",	m_image_saturate},
-	{"brightness",	m_image_brightness},
-	{"contrast",	m_image_contrast},
-	{"opacity",		m_image_opacity},
-	{"blur",		m_image_blur},
+	{"haldclut",		m_image_haldclut},
+	{"grayscale",		m_image_grayscale},
+	{"sepia",			m_image_sepia},
+	{"invert",			m_image_invert},
+	{"threshold",		m_image_threshold},
+	{"colorize",		m_image_colorize},
+	{"hue",				m_image_hue},
+	{"saturate",		m_image_saturate},
+	{"brightness",		m_image_brightness},
+	{"contrast",		m_image_contrast},
+	{"opacity",			m_image_opacity},
+	{"blur",			m_image_blur},
 
 	{NULL, NULL}
 };

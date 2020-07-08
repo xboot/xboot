@@ -60,6 +60,13 @@ static inline int region_contains(struct region_t * r, struct region_t * o)
 	return 0;
 }
 
+static inline int region_overlap(struct region_t * r, struct region_t * o)
+{
+	if((o->x + o->w >= r->x) && (o->x <= r->x + r->w) && (o->y + o->h >= r->y) && (o->y <= r->y + r->h))
+		return 1;
+	return 0;
+}
+
 static inline void region_expand(struct region_t * r, struct region_t * o, int n)
 {
 	r->x = o->x - n;

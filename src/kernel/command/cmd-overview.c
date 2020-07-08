@@ -79,7 +79,7 @@ static void xui_style_color(struct xui_context_t * ctx, struct color_t * c)
 
 static void style_window(struct xui_context_t * ctx)
 {
-	if(xui_begin_window(ctx, "Style Window", &(struct region_t){20, 20, (ctx->screen.w - 60) / 2, ctx->screen.h - 40}))
+	if(xui_begin_window(ctx, "Style Window", &(struct region_t){ 20, 20, (ctx->screen.w - 60) / 2, ctx->screen.h - 40 }))
 	{
 		if(xui_begin_tree(ctx, "Color"))
 		{
@@ -422,7 +422,7 @@ static void overview_window(struct xui_context_t * ctx)
 		"Dark",
 	};
 
-	if(xui_begin_window(ctx, "Overview Window", &(struct region_t){40 + (ctx->screen.w - 60) / 2, 20, (ctx->screen.w - 60) / 2, ctx->screen.h - 40}))
+	if(xui_begin_window(ctx, "Overview Window", &(struct region_t){ 40 + (ctx->screen.w - 60) / 2, 20, (ctx->screen.w - 60) / 2, ctx->screen.h - 40 }))
 	{
 		struct xui_container_t * win = xui_get_current_container(ctx);
 		win->region.w = max(win->region.w, 48);

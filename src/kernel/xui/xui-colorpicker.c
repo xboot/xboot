@@ -107,7 +107,7 @@ int xui_colorpicker_ex(struct xui_context_t * ctx, struct color_t * c, int opt)
 	p1.x = r->x + r->w;
 	p1.y = p0.y;
 	xui_draw_checkerboard(ctx, r->x, r->y, r->w, r->h);
-	xui_draw_gradient(ctx, r->x, r->y, r->w, r->h, &trans_color, &trans_color, &(struct color_t){c->r, c->g, c->b, 255}, &(struct color_t){c->r, c->g, c->b, 255});
+	xui_draw_gradient(ctx, r->x, r->y, r->w, r->h, &trans_color, &trans_color, &(struct color_t){ c->r, c->g, c->b, 255 }, &(struct color_t){ c->r, c->g, c->b, 255 });
 	xui_draw_line(ctx, &p0, &p1, 2, &white_color);
 	xui_layout_end_column(ctx);
 	xui_pop_id(ctx);

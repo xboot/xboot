@@ -294,7 +294,6 @@ static struct region_t unlimited_region = {
 	.y = 0,
 	.w = INT_MAX,
 	.h = INT_MAX,
-	.area = -1,
 };
 
 void xui_begin(struct xui_context_t * ctx)

@@ -11,7 +11,6 @@ extern "C" {
 struct region_t {
 	int x, y;
 	int w, h;
-	int area;
 };
 
 static inline void region_init(struct region_t * r, int x, int y, int w, int h)
@@ -20,14 +19,6 @@ static inline void region_init(struct region_t * r, int x, int y, int w, int h)
 	r->y = y;
 	r->w = w;
 	r->h = h;
-	r->area = -1;
-}
-
-static inline int region_area(struct region_t * r)
-{
-	if(r->area < 0)
-		r->area = r->w * r->h;
-	return r->area;
 }
 
 static inline void region_clone(struct region_t * r, struct region_t * o)
@@ -73,7 +64,6 @@ static inline void region_expand(struct region_t * r, struct region_t * o, int n
 	r->y = o->y - n;
 	r->w = o->w + n * 2;
 	r->h = o->h + n * 2;
-	r->area = -1;
 }
 
 static inline int region_intersect(struct region_t * r, struct region_t * a, struct region_t * b)
@@ -90,7 +80,6 @@ static inline int region_intersect(struct region_t * r, struct region_t * a, str
 			r->y = y0;
 			r->w = x1 - x0;
 			r->h = y1 - y0;
-			r->area = -1;
 			return 1;
 		}
 	}
@@ -107,7 +96,6 @@ static inline int region_union(struct region_t * r, struct region_t * a, struct 
 	r->y = min(a->y, b->y);
 	r->w = max(ar, br) - r->x;
 	r->h = max(ab, bb) - r->y;
-	r->area = -1;
 	return 1;
 }
 

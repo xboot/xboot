@@ -76,7 +76,6 @@ struct sandbox_fb_surface_t {
 struct sandbox_fb_region_t {
 	int x, y;
 	int w, h;
-	int area;
 };
 
 struct sandbox_fb_region_list_t {

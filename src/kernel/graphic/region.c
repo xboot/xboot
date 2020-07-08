@@ -115,54 +115,19 @@ void region_list_merge(struct region_list_t * rl, struct region_list_t * o)
 
 void region_list_add(struct region_list_t * rl, struct region_t * r)
 {
-	struct region_t region, * p;
-	int area = INT_MAX;
+	struct region_t * p;
 	int index = -1;
 	int i;
 
 	if(!rl || !r)
 		return;
 
-	if(rl->count < 8)
+	for(i = 0; i < rl->count; i++)
 	{
-		for(i = 0; i < rl->count; i++)
+		if(region_overlap(&rl->region[i], r))
 		{
-			p = &rl->region[i];
-			if(region_intersect(&region, p, r))
-			{
-				if(region_area(&region) >= region_area(r))
-				{
-					return;
-				}
-				else
-				{
-					region_union(&region, p, r);
-					if(region_area(&region) < area)
-					{
-						area = region_area(&region);
-						index = i;
-					}
-				}
-			}
-		}
-	}
-	else
-	{
-		for(i = 0; i < rl->count; i++)
-		{
-			p = &rl->region[i];
-			if(region_union(&region, p, r))
-			{
-				if(region_area(&region) <= region_area(p))
-				{
-					return;
-				}
-				else if(region_area(&region) < area)
-				{
-					area = region_area(&region);
-					index = i;
-				}
-			}
+			index = i;
+			break;
 		}
 	}
 

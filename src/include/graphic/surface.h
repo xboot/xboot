@@ -80,6 +80,7 @@ struct render_t
 	void (*filter_contrast)(struct surface_t * s, int contrast);
 	void (*filter_opacity)(struct surface_t * s, int alpha);
 	void (*filter_blur)(struct surface_t * s, int radius);
+	void (*filter_glow)(struct surface_t * s, struct color_t * c, int strength);
 };
 
 static inline int surface_get_width(struct surface_t * s)
@@ -242,6 +243,11 @@ static inline void surface_filter_blur(struct surface_t * s, int radius)
 	s->r->filter_blur(s, radius);
 }
 
+static inline void surface_filter_glow(struct surface_t * s, struct color_t * c, int strength)
+{
+	s->r->filter_glow(s, c, strength);
+}
+
 void * render_default_create(struct surface_t * s);
 void render_default_destroy(void * rctx);
 void render_default_blit(struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct surface_t * src, enum render_type_t type);
@@ -272,6 +278,7 @@ void render_default_filter_brightness(struct surface_t * s, int brightness);
 void render_default_filter_contrast(struct surface_t * s, int contrast);
 void render_default_filter_opacity(struct surface_t * s, int alpha);
 void render_default_filter_blur(struct surface_t * s, int radius);
+void render_default_filter_glow(struct surface_t * s, struct color_t * c, int strength);
 
 struct render_t * search_render(void);
 bool_t register_render(struct render_t * r);

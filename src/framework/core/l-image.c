@@ -524,6 +524,16 @@ static int m_image_blur(lua_State * L)
 	return 1;
 }
 
+static int m_image_glow(lua_State * L)
+{
+	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
+	struct color_t * c = luaL_checkudata(L, 2, MT_COLOR);
+	int strength = luaL_optinteger(L, 3, 0);
+	surface_filter_glow(img->s, c, strength);
+	lua_settop(L, 1);
+	return 1;
+}
+
 static const luaL_Reg m_image[] = {
 	{"__gc",			m_image_gc},
 	{"__tostring",		m_image_tostring},
@@ -564,6 +574,7 @@ static const luaL_Reg m_image[] = {
 	{"contrast",		m_image_contrast},
 	{"opacity",			m_image_opacity},
 	{"blur",			m_image_blur},
+	{"glow",			m_image_glow},
 
 	{NULL, NULL}
 };

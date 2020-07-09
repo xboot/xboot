@@ -2457,3 +2457,45 @@ void render_default_filter_blur(struct surface_t * s, int radius)
 	if(radius > 0)
 		expblur(pixels, width, height, 4, radius);
 }
+
+void render_default_filter_glow(struct surface_t * s, struct color_t * c, int strength)
+{
+	struct surface_t * o = surface_clone(s, 0, 0, 0, 0, 0);
+	uint32_t * op = surface_get_pixels(o);
+	uint32_t * sp = surface_get_pixels(s);
+	int width = surface_get_width(s);
+	int height = surface_get_height(s);
+	int stride = surface_get_stride(s);
+	int r = c->r;
+	int g = c->g;
+	int b = c->b;
+	unsigned char * p, * q;
+	int x, y, i, n;
+
+	for(y = 0, q = surface_get_pixels(s); y < height; y++, q += stride)
+	{
+		for(x = 0, p = q; x < width; x++, p += 4)
+		{
+			if(p[3] != 0)
+			{
+				if(p[3] == 255)
+				{
+					p[0] = b;
+					p[1] = g;
+					p[2] = r;
+				}
+				else
+				{
+					p[0] = idiv255(b * p[3]);
+					p[1] = idiv255(g * p[3]);
+					p[2] = idiv255(r * p[3]);
+				}
+			}
+		}
+	}
+	if(strength > 0)
+		expblur((unsigned char *)sp, width, height, 4, strength);
+	for(i = 0, n = width * height; i < n; i++)
+		blend(sp++, op++);
+	surface_free(o);
+}

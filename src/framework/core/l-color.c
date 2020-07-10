@@ -57,7 +57,7 @@ static int l_color_new(lua_State * L)
 	else
 	{
 		c = lua_newuserdata(L, sizeof(struct color_t));
-		color_init(c, 0xff, 0xff, 0xff, 0xff);
+		memset(c, 0xff, sizeof(struct color_t));
 	}
 	luaL_setmetatable(L, MT_COLOR);
 	return 1;
@@ -139,6 +139,17 @@ static int m_color_level(lua_State * L)
 	return 1;
 }
 
+static int m_color_random(lua_State * L)
+{
+	struct color_t * c = luaL_checkudata(L, 1, MT_COLOR);
+	float s = luaL_optnumber(L, 3, 0.5);
+	float v = luaL_optnumber(L, 4, 1.0);
+	float a = luaL_optnumber(L, 5, 1.0);
+	color_random(c, s, v, a);
+	lua_settop(L, 1);
+	return 1;
+}
+
 static const luaL_Reg m_color[] = {
 	{"__tostring",	m_color_tostring},
 	{"setColor",	m_color_set_color},
@@ -147,6 +158,7 @@ static const luaL_Reg m_color[] = {
 	{"getHsv",		m_color_get_hsv},
 	{"mix",			m_color_mix},
 	{"level",		m_color_level},
+	{"random",		m_color_random},
 	{NULL,	NULL}
 };
 

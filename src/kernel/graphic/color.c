@@ -676,3 +676,9 @@ void color_get_hsva(struct color_t * c, float * h, float * s, float * v, float *
 	*v = r;
 	*a = c->a / 255.0f;
 }
+
+void color_random(struct color_t * c, float s, float v, float a)
+{
+	float h = (float)rand() * (1.0f / ((float)RAND_MAX + 1.0f)) + 0.618f;
+	color_set_hsva(c, fmodf(h, 1.0f), s, v, a);
+}

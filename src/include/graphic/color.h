@@ -58,6 +58,11 @@ void color_set_hsva(struct color_t * c, float h, float s, float v, float a);
 void color_get_hsva(struct color_t * c, float * h, float * s, float * v, float * a);
 
 /*
+ * Random color, s and v and a from 0 to 1
+ */
+void color_random(struct color_t * c, float s, float v, float a);
+
+/*
  * The value with pre-multiplied alpha
  */
 static inline void color_set_premult(struct color_t * c, uint32_t v)

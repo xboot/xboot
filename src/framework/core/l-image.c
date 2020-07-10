@@ -461,11 +461,11 @@ static int m_image_threshold(lua_State * L)
 	return 1;
 }
 
-static int m_image_colorize(lua_State * L)
+static int m_image_colormap(lua_State * L)
 {
 	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
 	const char * type = luaL_optstring(L, 2, "parula");
-	surface_filter_colorize(img->s, type);
+	surface_filter_colormap(img->s, type);
 	lua_settop(L, 1);
 	return 1;
 }
@@ -567,7 +567,7 @@ static const luaL_Reg m_image[] = {
 	{"sepia",			m_image_sepia},
 	{"invert",			m_image_invert},
 	{"threshold",		m_image_threshold},
-	{"colorize",		m_image_colorize},
+	{"colormap",		m_image_colormap},
 	{"hue",				m_image_hue},
 	{"saturate",		m_image_saturate},
 	{"brightness",		m_image_brightness},

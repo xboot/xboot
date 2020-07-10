@@ -2155,7 +2155,7 @@ static const unsigned char colormap_rainbow[256][3] = {
 	{ 0x36, 0x00, 0x28 }, { 0x35, 0x00, 0x27 }, { 0x34, 0x00, 0x27 }, { 0x34, 0x00, 0x27 }, { 0x33, 0x00, 0x26 }, { 0x33, 0x00, 0x26 }, { 0x33, 0x00, 0x26 }, { 0x32, 0x00, 0x26 },
 };
 
-void render_default_filter_colorize(struct surface_t * s, const char * type)
+void render_default_filter_colormap(struct surface_t * s, const char * type)
 {
 	int width = surface_get_width(s);
 	int height = surface_get_height(s);

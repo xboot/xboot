@@ -74,6 +74,7 @@ struct render_t
 	void (*filter_invert)(struct surface_t * s);
 	void (*filter_threshold)(struct surface_t * s, const char * type, int threshold, int value);
 	void (*filter_colormap)(struct surface_t * s, const char * type);
+	void (*filter_coloring)(struct surface_t * s, struct color_t * c);
 	void (*filter_hue)(struct surface_t * s, int angle);
 	void (*filter_saturate)(struct surface_t * s, int saturate);
 	void (*filter_brightness)(struct surface_t * s, int brightness);
@@ -213,6 +214,11 @@ static inline void surface_filter_colormap(struct surface_t * s, const char * ty
 	s->r->filter_colormap(s, type);
 }
 
+static inline void surface_filter_coloring(struct surface_t * s, struct color_t * c)
+{
+	s->r->filter_coloring(s, c);
+}
+
 static inline void surface_filter_hue(struct surface_t * s, int angle)
 {
 	s->r->filter_hue(s, angle);
@@ -272,6 +278,7 @@ void render_default_filter_sepia(struct surface_t * s);
 void render_default_filter_invert(struct surface_t * s);
 void render_default_filter_threshold(struct surface_t * s, const char * type, int threshold, int value);
 void render_default_filter_colormap(struct surface_t * s, const char * type);
+void render_default_filter_coloring(struct surface_t * s, struct color_t * c);
 void render_default_filter_hue(struct surface_t * s, int angle);
 void render_default_filter_saturate(struct surface_t * s, int saturate);
 void render_default_filter_brightness(struct surface_t * s, int brightness);

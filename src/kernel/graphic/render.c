@@ -2206,6 +2206,40 @@ void render_default_filter_colormap(struct surface_t * s, const char * type)
 	}
 }
 
+void render_default_filter_coloring(struct surface_t * s, struct color_t * c)
+{
+	int width = surface_get_width(s);
+	int height = surface_get_height(s);
+	int stride = surface_get_stride(s);
+	int r = c->r;
+	int g = c->g;
+	int b = c->b;
+	unsigned char * p, * q;
+	int x, y;
+
+	for(y = 0, q = surface_get_pixels(s); y < height; y++, q += stride)
+	{
+		for(x = 0, p = q; x < width; x++, p += 4)
+		{
+			if(p[3] != 0)
+			{
+				if(p[3] == 255)
+				{
+					p[0] = b;
+					p[1] = g;
+					p[2] = r;
+				}
+				else
+				{
+					p[0] = idiv255(b * p[3]);
+					p[1] = idiv255(g * p[3]);
+					p[2] = idiv255(r * p[3]);
+				}
+			}
+		}
+	}
+}
+
 void render_default_filter_hue(struct surface_t * s, int angle)
 {
 	float av = angle * M_PI / 180.0;

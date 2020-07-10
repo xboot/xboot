@@ -470,6 +470,15 @@ static int m_image_colormap(lua_State * L)
 	return 1;
 }
 
+static int m_image_coloring(lua_State * L)
+{
+	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
+	struct color_t * c = luaL_checkudata(L, 2, MT_COLOR);
+	surface_filter_coloring(img->s, c);
+	lua_settop(L, 1);
+	return 1;
+}
+
 static int m_image_hue(lua_State * L)
 {
 	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
@@ -568,6 +577,7 @@ static const luaL_Reg m_image[] = {
 	{"invert",			m_image_invert},
 	{"threshold",		m_image_threshold},
 	{"colormap",		m_image_colormap},
+	{"coloring",		m_image_coloring},
 	{"hue",				m_image_hue},
 	{"saturate",		m_image_saturate},
 	{"brightness",		m_image_brightness},

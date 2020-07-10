@@ -524,6 +524,7 @@ static struct render_t render_cairo = {
 	.filter_invert		= render_default_filter_invert,
 	.filter_threshold	= render_default_filter_threshold,
 	.filter_colormap	= render_default_filter_colormap,
+	.filter_coloring	= render_default_filter_coloring,
 	.filter_hue			= render_default_filter_hue,
 	.filter_saturate	= render_default_filter_saturate,
 	.filter_brightness	= render_default_filter_brightness,

@@ -119,10 +119,10 @@ int sandbox_fb_sdl_surface_destroy(void * context, struct sandbox_fb_surface_t *
 	return 1;
 }
 
-int sandbox_fb_sdl_surface_present(void * context, struct sandbox_fb_surface_t * surface, struct sandbox_fb_region_list_t * rl)
+int sandbox_fb_sdl_surface_present(void * context, struct sandbox_fb_surface_t * surface, struct sandbox_region_list_t * rl)
 {
 	struct sandbox_fb_sdl_context_t * ctx = (struct sandbox_fb_sdl_context_t *)context;
-	struct sandbox_fb_region_t * r;
+	struct sandbox_region_t * r;
 	SDL_Rect rect;
 	int i;
 

@@ -143,8 +143,8 @@ DEFINES		+=	$(NS_JMP) $(NS_CTYPE) $(NS_ENVIRON) $(NS_ERRNO) \
 
 DEFINES		+=	-D__SANDBOX__
 
-XFLAGS		:= $(shell sdl2-config --cflags)
-XLIBS		:= $(shell sdl2-config --libs)
+XFLAGS		:= `pkg-config --cflags libdrm` $(shell sdl2-config --cflags)
+XLIBS		:= `pkg-config --libs libdrm` $(shell sdl2-config --libs)
 
 ASFLAGS		:= -g -ggdb -Wall -O3
 CFLAGS		:= -g -ggdb -Wall -O3

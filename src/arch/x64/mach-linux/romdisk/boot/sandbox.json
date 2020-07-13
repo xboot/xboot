@@ -20,6 +20,12 @@
 		"physical-height": 135
 	},
 
+	"fb-sandbox-drm@0": {
+		"device": "/dev/dri/card0",
+		"physical-width": 216,
+		"physical-height": 135
+	},
+
 	"console-sandbox@0": {
 	}
 }

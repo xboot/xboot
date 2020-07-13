@@ -15,6 +15,9 @@
 		"status": "disabled"
 	},
 
+	"input-sandbox-sdl@0": {
+	},
+
 	"fb-sandbox@0": {
 		"device": "/dev/fb0",
 		"physical-width": 216,
@@ -22,7 +25,11 @@
 		"status": "disabled"
 	},
 
-	"input-sandbox-sdl@0": {
+	"fb-sandbox-drm@0": {
+		"device": "/dev/dri/card0",
+		"physical-width": 216,
+		"physical-height": 135,
+		"status": "disabled"
 	},
 
 	"fb-sandbox-sdl@0": {

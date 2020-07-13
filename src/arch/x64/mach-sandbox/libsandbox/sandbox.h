@@ -8,6 +8,12 @@ extern "C" {
 #include <stdint.h>
 
 /*
+ * Sandbox macro
+ */
+#define sandbox_min(a, b)	({typeof(a) _amin = (a); typeof(b) _bmin = (b); (void)(&_amin == &_bmin); _amin < _bmin ? _amin : _bmin;})
+#define sandbox_max(a, b)	({typeof(a) _amax = (a); typeof(b) _bmax = (b); (void)(&_amax == &_bmax); _amax > _bmax ? _amax : _bmax;})
+
+/*
  * Sandbox interface
  */
 struct sandbox_t {
@@ -21,6 +27,116 @@ struct sandbox_t {
 struct sandbox_t * sandbox_get(void);
 void sandbox_init(int argc, char * argv[]);
 void sandbox_exit(void);
+
+/*
+ * Sandbox region
+ */
+struct sandbox_region_t {
+	int x, y;
+	int w, h;
+};
+
+static inline void sandbox_region_init(struct sandbox_region_t * r, int x, int y, int w, int h)
+{
+	r->x = x;
+	r->y = y;
+	r->w = w;
+	r->h = h;
+}
+
+static inline void sandbox_region_clone(struct sandbox_region_t * r, struct sandbox_region_t * o)
+{
+	r->x = o->x;
+	r->y = o->y;
+	r->w = o->w;
+	r->h = o->h;
+}
+
+static inline int sandbox_region_isempty(struct sandbox_region_t * r)
+{
+	if((r->w > 0) && (r->h > 0))
+		return 0;
+	return 1;
+}
+
+static inline int sandbox_region_hit(struct sandbox_region_t * r, int x, int y)
+{
+	if((x >= r->x) && (x < r->x + r->w) && (y >= r->y) && (y < r->y + r->h))
+		return 1;
+	return 0;
+}
+
+static inline int sandbox_region_contains(struct sandbox_region_t * r, struct sandbox_region_t * o)
+{
+	int rr = r->x + r->w;
+	int rb = r->y + r->h;
+	int or = o->x + o->w;
+	int ob = o->y + o->h;
+	if((o->x >= r->x) && (o->x < rr) && (o->y >= r->y) && (o->y < rb) && (or > r->x) && (or <= rr) && (ob > r->y) && (ob <= rb))
+		return 1;
+	return 0;
+}
+
+static inline int sandbox_region_overlap(struct sandbox_region_t * r, struct sandbox_region_t * o)
+{
+	if((o->x + o->w >= r->x) && (o->x <= r->x + r->w) && (o->y + o->h >= r->y) && (o->y <= r->y + r->h))
+		return 1;
+	return 0;
+}
+
+static inline void sandbox_region_expand(struct sandbox_region_t * r, struct sandbox_region_t * o, int n)
+{
+	r->x = o->x - n;
+	r->y = o->y - n;
+	r->w = o->w + n * 2;
+	r->h = o->h + n * 2;
+}
+
+static inline int sandbox_region_intersect(struct sandbox_region_t * r, struct sandbox_region_t * a, struct sandbox_region_t * b)
+{
+	int x0 = sandbox_max(a->x, b->x);
+	int x1 = sandbox_min(a->x + a->w, b->x + b->w);
+	if(x0 <= x1)
+	{
+		int y0 = sandbox_max(a->y, b->y);
+		int y1 = sandbox_min(a->y + a->h, b->y + b->h);
+		if(y0 <= y1)
+		{
+			r->x = x0;
+			r->y = y0;
+			r->w = x1 - x0;
+			r->h = y1 - y0;
+			return 1;
+		}
+	}
+	return 0;
+}
+
+static inline int sandbox_region_union(struct sandbox_region_t * r, struct sandbox_region_t * a, struct sandbox_region_t * b)
+{
+	int ar = a->x + a->w;
+	int ab = a->y + a->h;
+	int br = b->x + b->w;
+	int bb = b->y + b->h;
+	r->x = sandbox_min(a->x, b->x);
+	r->y = sandbox_min(a->y, b->y);
+	r->w = sandbox_max(ar, br) - r->x;
+	r->h = sandbox_max(ab, bb) - r->y;
+	return 1;
+}
+
+struct sandbox_region_list_t {
+	struct sandbox_region_t * region;
+	unsigned int size;
+	unsigned int count;
+};
+
+struct sandbox_region_list_t * sandbox_region_list_alloc(unsigned int size);
+void sandbox_region_list_free(struct sandbox_region_list_t * rl);
+void sandbox_region_list_clone(struct sandbox_region_list_t * rl, struct sandbox_region_list_t * o);
+void sandbox_region_list_merge(struct sandbox_region_list_t * rl, struct sandbox_region_list_t * o);
+void sandbox_region_list_add(struct sandbox_region_list_t * rl, struct sandbox_region_t * r);
+void sandbox_region_list_clear(struct sandbox_region_list_t * rl);
 
 /*
  * Audio interface
@@ -100,17 +216,6 @@ struct sandbox_fb_surface_t {
 	void * priv;
 };
 
-struct sandbox_fb_region_t {
-	int x, y;
-	int w, h;
-};
-
-struct sandbox_fb_region_list_t {
-	struct sandbox_fb_region_t * region;
-	unsigned int size;
-	unsigned int count;
-};
-
 /* Framebuffer device */
 void * sandbox_fb_open(const char * dev);
 void sandbox_fb_close(void * context);
@@ -120,9 +225,22 @@ int sandbox_fb_get_pwidth(void * context);
 int sandbox_fb_get_pheight(void * context);
 int sandbox_fb_surface_create(void * context, struct sandbox_fb_surface_t * surface);
 int sandbox_fb_surface_destroy(void * context, struct sandbox_fb_surface_t * surface);
-int sandbox_fb_surface_present(void * context, struct sandbox_fb_surface_t * surface, struct sandbox_fb_region_list_t * rl);
+int sandbox_fb_surface_present(void * context, struct sandbox_fb_surface_t * surface, struct sandbox_region_list_t * rl);
 void sandbox_fb_set_backlight(void * context, int brightness);
 int sandbox_fb_get_backlight(void * context);
+
+/* DRM device */
+void * sandbox_fb_drm_open(const char * dev);
+void sandbox_fb_drm_close(void * context);
+int sandbox_fb_drm_get_width(void * context);
+int sandbox_fb_drm_get_height(void * context);
+int sandbox_fb_drm_get_pwidth(void * context);
+int sandbox_fb_drm_get_pheight(void * context);
+int sandbox_fb_drm_surface_create(void * context, struct sandbox_fb_surface_t * surface);
+int sandbox_fb_drm_surface_destroy(void * context, struct sandbox_fb_surface_t * surface);
+int sandbox_fb_drm_surface_present(void * context, struct sandbox_fb_surface_t * surface, struct sandbox_region_list_t * rl);
+void sandbox_fb_drm_set_backlight(void * context, int brightness);
+int sandbox_fb_drm_get_backlight(void * context);
 
 /* SDL windows */
 void * sandbox_fb_sdl_open(const char * title, int width, int height);
@@ -133,7 +251,7 @@ int sandbox_fb_sdl_get_pwidth(void * context);
 int sandbox_fb_sdl_get_pheight(void * context);
 int sandbox_fb_sdl_surface_create(void * context, struct sandbox_fb_surface_t * surface);
 int sandbox_fb_sdl_surface_destroy(void * context, struct sandbox_fb_surface_t * surface);
-int sandbox_fb_sdl_surface_present(void * context, struct sandbox_fb_surface_t * surface, struct sandbox_fb_region_list_t * rl);
+int sandbox_fb_sdl_surface_present(void * context, struct sandbox_fb_surface_t * surface, struct sandbox_region_list_t * rl);
 void sandbox_fb_sdl_set_backlight(void * context, int brightness);
 int sandbox_fb_sdl_get_backlight(void * context);
 

@@ -26,7 +26,6 @@
  *
  */
 
-#include <log2.h>
 #include <stddef.h>
 #include <limits.h>
 #include <string.h>
@@ -40,8 +39,6 @@ struct region_list_t * region_list_alloc(unsigned int size)
 
 	if(size < 16)
 		size = 16;
-	if(size & (size - 1))
-		size = roundup_pow_of_two(size);
 
 	r = malloc(size * sizeof(struct region_t));
 	if(!r)
@@ -75,8 +72,6 @@ static inline void region_list_resize(struct region_list_t * rl, unsigned int si
 	{
 		if(size < 16)
 			size = 16;
-		if(size & (size - 1))
-			size = roundup_pow_of_two(size);
 		rl->size = size;
 		rl->region = realloc(rl->region, rl->size * sizeof(struct region_t));
 	}

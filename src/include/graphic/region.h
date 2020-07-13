@@ -6,7 +6,6 @@ extern "C" {
 #endif
 
 #include <stddef.h>
-#include <string.h>
 
 struct region_t {
 	int x, y;
@@ -23,7 +22,10 @@ static inline void region_init(struct region_t * r, int x, int y, int w, int h)
 
 static inline void region_clone(struct region_t * r, struct region_t * o)
 {
-	memcpy(r, o, sizeof(struct region_t));
+	r->x = o->x;
+	r->y = o->y;
+	r->w = o->w;
+	r->h = o->h;
 }
 
 static inline int region_isempty(struct region_t * r)

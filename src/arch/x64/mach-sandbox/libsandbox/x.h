@@ -29,6 +29,7 @@ extern "C" {
 #include <sys/poll.h>
 #include <linux/fb.h>
 #include <linux/input.h>
+#include <linux/videodev2.h>
 #include <xf86drm.h>
 #include <xf86drmMode.h>
 #include <alsa/asoundlib.h>

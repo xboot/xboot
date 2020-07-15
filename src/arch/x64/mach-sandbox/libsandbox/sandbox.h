@@ -148,6 +148,14 @@ void sandbox_audio_capture_stop(void * context);
 int sandbox_audio_ioctl(const char * cmd, void * arg);
 
 /*
+ * Camera interface
+ */
+int sandbox_cam_exist(const char * dev);
+void * sandbox_cam_start(const char * dev, int * format, int * width, int * height);
+void sandbox_cam_stop(void * context);
+int sandbox_cam_capture(void * context, void ** buf);
+
+/*
  * Event interface
  */
 /* Input device */

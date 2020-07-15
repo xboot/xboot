@@ -56,6 +56,9 @@ struct device_t * register_camera(struct camera_t * cam, struct driver_t * drv)
 	if(!cam || !cam->name)
 		return NULL;
 
+	if(!cam->start || !cam->stop || !cam->capture)
+		return NULL;
+
 	dev = malloc(sizeof(struct device_t));
 	if(!dev)
 		return NULL;
@@ -90,4 +93,38 @@ void unregister_camera(struct camera_t * cam)
 			free(dev);
 		}
 	}
+}
+
+int camera_start(struct camera_t * cam, enum video_format_t fmt, int width, int height)
+{
+	if(cam && cam->start)
+		return cam->start(cam, fmt, width, height);
+	return 0;
+}
+
+int camera_stop(struct camera_t * cam)
+{
+	if(cam && cam->stop)
+		return cam->stop(cam);
+	return 0;
+}
+
+int camera_capture(struct camera_t * cam, struct video_frame_t * frame, int timeout)
+{
+	if(cam && cam->capture)
+	{
+		if(timeout > 0)
+		{
+			ktime_t t = ktime_add_ms(ktime_get(), timeout);
+			do {
+				if(cam->capture(cam, frame))
+					return 1;
+			} while(ktime_before(ktime_get(), t));
+		}
+		else
+		{
+			return cam->capture(cam, frame);
+		}
+	}
+	return 0;
 }

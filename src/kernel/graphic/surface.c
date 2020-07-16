@@ -696,13 +696,13 @@ static inline struct surface_t * surface_alloc_from_xfs_png(struct xfs_context_t
 	return s;
 }
 
-struct my_error_mgr
+struct x_error_mgr
 {
 	struct jpeg_error_mgr pub;
 	jmp_buf setjmp_buffer;
 };
 
-struct my_source_mgr
+struct x_source_mgr
 {
 	struct jpeg_source_mgr pub;
 	struct xfs_file_t * file;
@@ -710,30 +710,37 @@ struct my_source_mgr
 	int start_of_file;
 };
 
-static void my_error_exit(j_common_ptr cinfo)
+static void x_error_exit(j_common_ptr dinfo)
 {
-	struct my_error_mgr * myerr = (struct my_error_mgr *)cinfo->err;
-	(*cinfo->err->output_message)(cinfo);
-	longjmp(myerr->setjmp_buffer, 1);
+	struct x_error_mgr * err = (struct x_error_mgr *)dinfo->err;
+	(*dinfo->err->output_message)(dinfo);
+	longjmp(err->setjmp_buffer, 1);
 }
 
-static void init_source(j_decompress_ptr cinfo)
+static void x_emit_message(j_common_ptr dinfo, int msg_level)
 {
-	struct my_source_mgr * src = (struct my_source_mgr *)cinfo->src;
+	struct jpeg_error_mgr * err = dinfo->err;
+	if(msg_level < 0)
+		err->num_warnings++;
+}
+
+static void init_source(j_decompress_ptr dinfo)
+{
+	struct x_source_mgr * src = (struct x_source_mgr *)dinfo->src;
 	src->start_of_file = 1;
 }
 
-static boolean fill_input_buffer(j_decompress_ptr cinfo)
+static boolean fill_input_buffer(j_decompress_ptr dinfo)
 {
-	struct my_source_mgr * src = (struct my_source_mgr *)cinfo->src;
+	struct x_source_mgr * src = (struct x_source_mgr *)dinfo->src;
 	size_t nbytes;
 
 	nbytes = xfs_read(src->file, src->buffer, 4096);
 	if(nbytes <= 0)
 	{
 		if(src->start_of_file)
-			ERREXIT(cinfo, JERR_INPUT_EMPTY);
-		WARNMS(cinfo, JWRN_JPEG_EOF);
+			ERREXIT(dinfo, JERR_INPUT_EMPTY);
+		WARNMS(dinfo, JWRN_JPEG_EOF);
 		src->buffer[0] = (JOCTET)0xFF;
 		src->buffer[1] = (JOCTET)JPEG_EOI;
 		nbytes = 2;
@@ -744,38 +751,38 @@ static boolean fill_input_buffer(j_decompress_ptr cinfo)
 	return 1;
 }
 
-static void skip_input_data(j_decompress_ptr cinfo, long num_bytes)
+static void skip_input_data(j_decompress_ptr dinfo, long num_bytes)
 {
-	struct jpeg_source_mgr * src = cinfo->src;
+	struct jpeg_source_mgr * src = dinfo->src;
 
 	if(num_bytes > 0)
 	{
 		while(num_bytes > (long)src->bytes_in_buffer)
 		{
 			num_bytes -= (long)src->bytes_in_buffer;
-			(void)(*src->fill_input_buffer)(cinfo);
+			(void)(*src->fill_input_buffer)(dinfo);
 		}
 		src->next_input_byte += (size_t)num_bytes;
 		src->bytes_in_buffer -= (size_t)num_bytes;
 	}
 }
 
-static void term_source(j_decompress_ptr cinfo)
+static void term_source(j_decompress_ptr dinfo)
 {
 }
 
-static void jpeg_xfs_src(j_decompress_ptr cinfo, struct xfs_file_t * file)
+static void jpeg_xfs_src(j_decompress_ptr dinfo, struct xfs_file_t * file)
 {
-	struct my_source_mgr * src;
+	struct x_source_mgr * src;
 
-	if(cinfo->src == NULL)
+	if(dinfo->src == NULL)
 	{
-		cinfo->src = (struct jpeg_source_mgr *)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_PERMANENT, sizeof(struct my_source_mgr));
-		src = (struct my_source_mgr *)cinfo->src;
-		src->buffer = (JOCTET *)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_PERMANENT, 4096 * sizeof(JOCTET));
+		dinfo->src = (struct jpeg_source_mgr *)(*dinfo->mem->alloc_small)((j_common_ptr)dinfo, JPOOL_PERMANENT, sizeof(struct x_source_mgr));
+		src = (struct x_source_mgr *)dinfo->src;
+		src->buffer = (JOCTET *)(*dinfo->mem->alloc_small)((j_common_ptr)dinfo, JPOOL_PERMANENT, 4096 * sizeof(JOCTET));
 	}
 
-	src = (struct my_source_mgr *)cinfo->src;
+	src = (struct x_source_mgr *)dinfo->src;
 	src->pub.init_source = init_source;
 	src->pub.fill_input_buffer = fill_input_buffer;
 	src->pub.skip_input_data = skip_input_data;
@@ -788,8 +795,8 @@ static void jpeg_xfs_src(j_decompress_ptr cinfo, struct xfs_file_t * file)
 
 static inline struct surface_t * surface_alloc_from_xfs_jpeg(struct xfs_context_t * ctx, const char * filename)
 {
-	struct jpeg_decompress_struct cinfo;
-	struct my_error_mgr jerr;
+	struct jpeg_decompress_struct dinfo;
+	struct x_error_mgr jerr;
 	struct surface_t * s;
 	struct xfs_file_t * file;
 	JSAMPARRAY buf;
@@ -798,36 +805,37 @@ static inline struct surface_t * surface_alloc_from_xfs_jpeg(struct xfs_context_
 
 	if(!(file = xfs_open_read(ctx, filename)))
 		return NULL;
-	cinfo.err = jpeg_std_error(&jerr.pub);
-	jerr.pub.error_exit = my_error_exit;
+	dinfo.err = jpeg_std_error(&jerr.pub);
+	jerr.pub.error_exit = x_error_exit;
+	jerr.pub.emit_message = x_emit_message;
 	if(setjmp(jerr.setjmp_buffer))
 	{
-		jpeg_destroy_decompress(&cinfo);
+		jpeg_destroy_decompress(&dinfo);
 		xfs_close(file);
 		return 0;
 	}
-	jpeg_create_decompress(&cinfo);
-	jpeg_xfs_src(&cinfo, file);
-	jpeg_read_header(&cinfo, 1);
-	jpeg_start_decompress(&cinfo);
-	buf = (*cinfo.mem->alloc_sarray)((j_common_ptr)&cinfo, JPOOL_IMAGE, cinfo.output_width * cinfo.output_components, 1);
-	s = surface_alloc(cinfo.image_width, cinfo.image_height, NULL);
+	jpeg_create_decompress(&dinfo);
+	jpeg_xfs_src(&dinfo, file);
+	jpeg_read_header(&dinfo, 1);
+	jpeg_start_decompress(&dinfo);
+	buf = (*dinfo.mem->alloc_sarray)((j_common_ptr)&dinfo, JPOOL_IMAGE, dinfo.output_width * dinfo.output_components, 1);
+	s = surface_alloc(dinfo.image_width, dinfo.image_height, NULL);
 	p = surface_get_pixels(s);
-	while(cinfo.output_scanline < cinfo.output_height)
+	while(dinfo.output_scanline < dinfo.output_height)
 	{
-		scanline = cinfo.output_scanline * surface_get_stride(s);
-		jpeg_read_scanlines(&cinfo, buf, 1);
-		for(i = 0; i < cinfo.output_width; i++)
+		scanline = dinfo.output_scanline * surface_get_stride(s);
+		jpeg_read_scanlines(&dinfo, buf, 1);
+		for(i = 0; i < dinfo.output_width; i++)
 		{
 			offset = scanline + (i * 4);
 			p[offset + 3] = 0xff;
 			p[offset + 2] = buf[0][(i * 3) + 0];
 			p[offset + 1] = buf[0][(i * 3) + 1];
-			p[offset] = buf[0][(i * 3) + 2];
+			p[offset + 0] = buf[0][(i * 3) + 2];
 		}
 	}
-	jpeg_finish_decompress(&cinfo);
-	jpeg_destroy_decompress(&cinfo);
+	jpeg_finish_decompress(&dinfo);
+	jpeg_destroy_decompress(&dinfo);
 	xfs_close(file);
 
 	return s;

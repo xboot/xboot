@@ -44,7 +44,7 @@ static void * preview_setup(struct wboxtest_t * wbt)
 		return NULL;
 	}
 
-	if(!camera_capture(pdat->c, &pdat->frame, 5000))
+	if(!camera_capture(pdat->c, &pdat->frame, 3000))
 	{
 		camera_stop(pdat->c);
 		window_free(pdat->w);
@@ -95,6 +95,7 @@ static void preview_run(struct wboxtest_t * wbt, void * data)
 	struct wbt_preview_pdata_t * pdat = (struct wbt_preview_pdata_t *)data;
 	int frame = 1200;
 
+	assert_not_null(pdat);
 	if(pdat)
 	{
 		while(frame-- > 0)

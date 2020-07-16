@@ -242,6 +242,7 @@ INCDIRS		+=	wboxtest
 SRCDIRS		+=	wboxtest \
 				wboxtest/benchmark \
 				wboxtest/block \
+				wboxtest/camera \
 				wboxtest/crypto \
 				wboxtest/dma \
 				wboxtest/graphic \

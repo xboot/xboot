@@ -31,74 +31,47 @@
 #include <jerror.h>
 #include <camera/video.h>
 
-static int sign3 = 0;
-static int yuvtorgb(int y, int u, int v)
+static inline unsigned char yuv_to_red(int y, int u, int v)
 {
-	unsigned int pixel24 = 0;
-	unsigned char *pixel = (unsigned char *)&pixel24;
-	int r, g, b;
-	static long int ruv, guv, buv;
-
-	if(sign3)
-	{
-		sign3 = 0;
-		ruv = 1159 * (v - 128);
-		guv = 380 * (u - 128) + 813 * (v - 128);
-		buv = 2018 * (u - 128);
-	}
-
-	r = (1164 * (y - 16) + ruv) / 1000;
-	g = (1164 * (y - 16) - guv) / 1000;
-	b = (1164 * (y - 16) + buv) / 1000;
-
-	if(r > 255)
-		r = 255;
-	if(g > 255)
-		g = 255;
-	if(b > 255)
-		b = 255;
-	if(r < 0)
-		r = 0;
-	if(g < 0)
-		g = 0;
-	if(b < 0)
-		b = 0;
-
-	pixel[0] = b;
-	pixel[1] = g;
-	pixel[2] = r;
-
-	return pixel24;
+	int r = y + (v - 128) + ((v - 128) * 103 >> 8);
+	return (r < 0) ? 0 : ((r > 255) ? 255 : r);
 }
 
-static void yuyv_to_argb(unsigned char * argb, unsigned char * yuyv, int width, int height)
+static inline unsigned char yuv_to_green(int y, int u, int v)
 {
-	unsigned int pixel24;
-	unsigned char * pixel = (unsigned char *)&pixel24;
+	int g = y - ((u - 128) * 88 >> 8) - ((v - 128) * 183 >> 8);
+	return (g < 0) ? 0 : ((g > 255) ? 255 : g);
+}
+
+static inline unsigned char yuv_to_blue(int y, int u, int v)
+{
+	int b = y + (u - 128) + ((u - 128) * 198 >> 8);
+	return (b < 0) ? 0 : ((b > 255) ? 255 : b);
+}
+
+static void yuyv_to_argb(unsigned char * argb, unsigned char * yuyv, int len)
+{
+	unsigned char * p = yuyv;
+	unsigned char * q = argb;
 	int y0, u, y1, v;
-	int in, out;
-	int size = width * height * 2;
+	int i;
 
-	for(in = 0, out = 0; in < size; in += 4, out += 8)
+	for(i = 0; i < len; i += 4)
 	{
-		y0 = yuyv[in + 0];
-		u = yuyv[in + 1];
-		y1 = yuyv[in + 2];
-		v = yuyv[in + 3];
+		y0 = *p++;
+		u = *p++;
+		y1 = *p++;
+		v = *p++;
 
-		sign3 = 1;
-		pixel24 = yuvtorgb(y0, u, v);
-		argb[out + 0] = pixel[0];
-		argb[out + 1] = pixel[1];
-		argb[out + 2] = pixel[2];
-		argb[out + 3] = 255;
+		*q++ = yuv_to_blue(y0, u, v);
+		*q++ = yuv_to_green(y0, u, v);
+		*q++ = yuv_to_red(y0, u, v);
+		*q++ = 255;
 
-		//sign3 = 1;
-		pixel24 = yuvtorgb(y1, u, v);
-		argb[out + 4] = pixel[0];
-		argb[out + 5] = pixel[1];
-		argb[out + 6] = pixel[2];
-		argb[out + 7] = 255;
+		*q++ = yuv_to_blue(y1, u, v);
+		*q++ = yuv_to_green(y1, u, v);
+		*q++ = yuv_to_red(y1, u, v);
+		*q++ = 255;
 	}
 }
 
@@ -246,7 +219,7 @@ void video_frame_to_argb(struct video_frame_t * frame, void * pixels)
 		memcpy(pixels, frame->buf, frame->buflen);
 		break;
 	case VIDEO_FORMAT_YUYV:
-		yuyv_to_argb(pixels, frame->buf, frame->width, frame->height);
+		yuyv_to_argb(pixels, frame->buf, frame->buflen);
 		break;
 	case VIDEO_FORMAT_NV12:
 		break;

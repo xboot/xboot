@@ -9,7 +9,10 @@ enum video_format_t {
 	VIDEO_FORMAT_ARGB	= 0,
 	VIDEO_FORMAT_YUYV	= 1,
 	VIDEO_FORMAT_NV12	= 2,
-	VIDEO_FORMAT_MJPG	= 3,
+	VIDEO_FORMAT_NV21	= 3,
+	VIDEO_FORMAT_YU12	= 4,
+	VIDEO_FORMAT_YV12	= 5,
+	VIDEO_FORMAT_MJPG	= 6,
 };
 
 struct video_frame_t {

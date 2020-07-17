@@ -5,7 +5,10 @@ enum {
 	SANDBOX_VIDEO_FORMAT_ARGB	= 0,
 	SANDBOX_VIDEO_FORMAT_YUYV	= 1,
 	SANDBOX_VIDEO_FORMAT_NV12	= 2,
-	SANDBOX_VIDEO_FORMAT_MJPG	= 3,
+	SANDBOX_VIDEO_FORMAT_NV21	= 3,
+	SANDBOX_VIDEO_FORMAT_YU12	= 4,
+	SANDBOX_VIDEO_FORMAT_YV12	= 5,
+	SANDBOX_VIDEO_FORMAT_MJPG	= 6,
 };
 
 struct sandbox_cam_buf_t {
@@ -99,6 +102,15 @@ void * sandbox_cam_start(const char * dev, int * format, int * width, int * heig
 	case SANDBOX_VIDEO_FORMAT_NV12:
 		fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_NV12;
 		break;
+	case SANDBOX_VIDEO_FORMAT_NV21:
+		fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_NV21;
+		break;
+	case SANDBOX_VIDEO_FORMAT_YU12:
+		fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_YUV420;
+		break;
+	case SANDBOX_VIDEO_FORMAT_YV12:
+		fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_YVU420;
+		break;
 	case SANDBOX_VIDEO_FORMAT_MJPG:
 		fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_MJPEG;
 		break;
@@ -127,6 +139,15 @@ void * sandbox_cam_start(const char * dev, int * format, int * width, int * heig
 			break;
 		case V4L2_PIX_FMT_NV12:
 			*format = SANDBOX_VIDEO_FORMAT_NV12;
+			break;
+		case V4L2_PIX_FMT_NV21:
+			*format = SANDBOX_VIDEO_FORMAT_NV21;
+			break;
+		case V4L2_PIX_FMT_YUV420:
+			*format = SANDBOX_VIDEO_FORMAT_YU12;
+			break;
+		case V4L2_PIX_FMT_YVU420:
+			*format = SANDBOX_VIDEO_FORMAT_YV12;
 			break;
 		case V4L2_PIX_FMT_MJPEG:
 			*format = SANDBOX_VIDEO_FORMAT_MJPG;

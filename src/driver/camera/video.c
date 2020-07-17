@@ -49,14 +49,15 @@ static inline unsigned char yuv_to_blue(int y, int u, int v)
 	return (b < 0) ? 0 : ((b > 255) ? 255 : b);
 }
 
-static void yuyv_to_argb(unsigned char * argb, unsigned char * yuyv, int len)
+static inline void yuyv_to_argb(unsigned char * argb, unsigned char * yuv, int width, int height)
 {
-	unsigned char * p = yuyv;
 	unsigned char * q = argb;
+	unsigned char * p = yuv;
+	int len = width * height;
 	int y0, u, y1, v;
 	int i;
 
-	for(i = 0; i < len; i += 4)
+	for(i = 0; i < len; i += 2)
 	{
 		y0 = *p++;
 		u = *p++;
@@ -72,6 +73,108 @@ static void yuyv_to_argb(unsigned char * argb, unsigned char * yuyv, int len)
 		*q++ = yuv_to_green(y1, u, v);
 		*q++ = yuv_to_red(y1, u, v);
 		*q++ = 255;
+	}
+}
+
+static inline void nv12_to_argb(unsigned char * argb, unsigned char * yuv, int width, int height)
+{
+	unsigned char * q = argb;
+	unsigned char * py = yuv;
+	unsigned char * puv = yuv + width * height;
+	int y, u, v, t;
+	int i, j;
+
+	for(j = 0; j < height; j++)
+	{
+		for(i = 0; i < width; i++)
+		{
+			y = *py++;
+			t = ((j >> 1) * ((width + 1) >> 1) + (i >> 1)) << 1;
+			u = puv[t];
+			v = puv[t + 1];
+
+			*q++ = yuv_to_blue(y, u, v);
+			*q++ = yuv_to_green(y, u, v);
+			*q++ = yuv_to_red(y, u, v);
+			*q++ = 255;
+		}
+	}
+}
+
+static inline void nv21_to_argb(unsigned char * argb, unsigned char * yuv, int width, int height)
+{
+	unsigned char * q = argb;
+	unsigned char * py = yuv;
+	unsigned char * puv = yuv + width * height;
+	int y, u, v, t;
+	int i, j;
+
+	for(j = 0; j < height; j++)
+	{
+		for(i = 0; i < width; i++)
+		{
+			y = *py++;
+			t = ((j >> 1) * ((width + 1) >> 1) + (i >> 1)) << 1;
+			u = puv[t + 1];
+			v = puv[t];
+
+			*q++ = yuv_to_blue(y, u, v);
+			*q++ = yuv_to_green(y, u, v);
+			*q++ = yuv_to_red(y, u, v);
+			*q++ = 255;
+		}
+	}
+}
+
+static inline void yu12_to_argb(unsigned char * argb, unsigned char * yuv, int width, int height)
+{
+	unsigned char * q = argb;
+	unsigned char * py = yuv;
+	unsigned char * pu = yuv + width * height;
+	unsigned char * pv = yuv + width * height + ((width + 1) >> 1) * ((height + 1) >> 1);
+	int y, u, v, t;
+	int i, j;
+
+	for(j = 0; j < height; j++)
+	{
+		for(i = 0; i < width; i++)
+		{
+			y = *py++;
+			t = (j >> 1) * ((width + 1) >> 1) + (i >> 1);
+			u = pu[t];
+			v = pv[t];
+
+			*q++ = yuv_to_blue(y, u, v);
+			*q++ = yuv_to_green(y, u, v);
+			*q++ = yuv_to_red(y, u, v);
+			*q++ = 255;
+		}
+	}
+}
+
+static inline void yv12_to_argb(unsigned char * argb, unsigned char * yuv, int width, int height)
+{
+	unsigned char * q = argb;
+	unsigned char * py = yuv;
+	unsigned char * pu = yuv + width * height + ((width + 1) >> 1) * ((height + 1) >> 1);
+	unsigned char * pv = yuv + width * height;
+	int y, u, v, t;
+	int i, j;
+
+	for(j = 0; j < height; j++)
+	{
+		for(i = 0; i < width; i++)
+		{
+			y = *py++;
+			t = (j >> 1) * ((width + 1) >> 1) + (i >> 1);
+			u = pu[t];
+			v = pv[t];
+
+			*q++ = yuv_to_blue(y, u, v);
+			*q++ = yuv_to_green(y, u, v);
+			*q++ = yuv_to_red(y, u, v);
+			*q++ = 255;
+		}
 	}
 }
 
@@ -219,9 +322,19 @@ void video_frame_to_argb(struct video_frame_t * frame, void * pixels)
 		memcpy(pixels, frame->buf, frame->buflen);
 		break;
 	case VIDEO_FORMAT_YUYV:
-		yuyv_to_argb(pixels, frame->buf, frame->buflen);
+		yuyv_to_argb(pixels, frame->buf, frame->width, frame->height);
 		break;
 	case VIDEO_FORMAT_NV12:
+		nv12_to_argb(pixels, frame->buf, frame->width, frame->height);
+		break;
+	case VIDEO_FORMAT_NV21:
+		nv21_to_argb(pixels, frame->buf, frame->width, frame->height);
+		break;
+	case VIDEO_FORMAT_YU12:
+		yu12_to_argb(pixels, frame->buf, frame->width, frame->height);
+		break;
+	case VIDEO_FORMAT_YV12:
+		yv12_to_argb(pixels, frame->buf, frame->width, frame->height);
 		break;
 	case VIDEO_FORMAT_MJPG:
 		mjpg_to_argb(pixels, frame->buf, frame->buflen, frame->width << 2);

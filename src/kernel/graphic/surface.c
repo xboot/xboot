@@ -76,6 +76,8 @@ static struct render_t render_default = {
 	.filter_contrast	= render_default_filter_contrast,
 	.filter_opacity		= render_default_filter_opacity,
 	.filter_blur		= render_default_filter_blur,
+	.filter_erode		= render_default_filter_erode,
+	.filter_dilate		= render_default_filter_dilate,
 };
 
 inline __attribute__((always_inline)) struct render_t * search_render(void)

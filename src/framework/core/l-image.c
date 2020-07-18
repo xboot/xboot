@@ -533,6 +533,22 @@ static int m_image_blur(lua_State * L)
 	return 1;
 }
 
+static int m_image_erode(lua_State * L)
+{
+	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
+	surface_filter_erode(img->s);
+	lua_settop(L, 1);
+	return 1;
+}
+
+static int m_image_dilate(lua_State * L)
+{
+	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
+	surface_filter_dilate(img->s);
+	lua_settop(L, 1);
+	return 1;
+}
+
 static const luaL_Reg m_image[] = {
 	{"__gc",			m_image_gc},
 	{"__tostring",		m_image_tostring},
@@ -574,6 +590,8 @@ static const luaL_Reg m_image[] = {
 	{"contrast",		m_image_contrast},
 	{"opacity",			m_image_opacity},
 	{"blur",			m_image_blur},
+	{"erode",			m_image_erode},
+	{"dilate",			m_image_dilate},
 
 	{NULL, NULL}
 };

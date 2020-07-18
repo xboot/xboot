@@ -2491,3 +2491,143 @@ void render_default_filter_blur(struct surface_t * s, int radius)
 	if(radius > 0)
 		expblur(pixels, width, height, 4, radius);
 }
+
+void render_default_filter_erode(struct surface_t * s)
+{
+	int width = surface_get_width(s);
+	int height = surface_get_height(s);
+	int stride = surface_get_stride(s);
+	unsigned char * p, * q;
+	unsigned char * m, * n, * t;
+	int x, y;
+
+	for(y = 0, q = surface_get_pixels(s); y < height; y++, q += stride)
+	{
+		for(x = 0, p = q; x < width; x++, p += 4)
+		{
+			if(p[3] != 0)
+			{
+				if(p[0] == 255)
+				{
+					m = p - ((x - 2 > 0 ? 2 : x) << 2);
+					n = p + ((x + 2 < width ? 2 : width - x - 1) << 2);
+					for(t = m; t < n; t += 4)
+					{
+						if(t[0] == 0)
+						{
+							p[0] = 128;
+							break;
+						}
+					}
+				}
+			}
+		}
+	}
+	for(y = 0, q = surface_get_pixels(s); y < height; y++, q += stride)
+	{
+		for(x = 0, p = q; x < width; x++, p += 4)
+		{
+			if(p[3] != 0)
+			{
+				if(p[0] == 255)
+				{
+					m = p - ((y - 2 > 0 ? 2 : y) * stride);
+					n = p + ((y + 2 < height ? 2 : height - y - 1) * stride);
+					for(t = m; t < n; t += stride)
+					{
+						if(t[0] == 0)
+						{
+							p[0] = 128;
+							break;
+						}
+					}
+				}
+			}
+		}
+	}
+	for(y = 0, q = surface_get_pixels(s); y < height; y++, q += stride)
+	{
+		for(x = 0, p = q; x < width; x++, p += 4)
+		{
+			if(p[3] != 0)
+			{
+				if(p[0] == 128)
+				{
+					p[0] = 0;
+					p[1] = 0;
+					p[2] = 0;
+				}
+			}
+		}
+	}
+}
+
+void render_default_filter_dilate(struct surface_t * s)
+{
+	int width = surface_get_width(s);
+	int height = surface_get_height(s);
+	int stride = surface_get_stride(s);
+	unsigned char * p, * q;
+	unsigned char * m, * n, * t;
+	int x, y;
+
+	for(y = 0, q = surface_get_pixels(s); y < height; y++, q += stride)
+	{
+		for(x = 0, p = q; x < width; x++, p += 4)
+		{
+			if(p[3] != 0)
+			{
+				if(p[0] == 0)
+				{
+					m = p - ((x - 2 > 0 ? 2 : x) << 2);
+					n = p + ((x + 2 < width ? 2 : width - x - 1) << 2);
+					for(t = m; t < n; t += 4)
+					{
+						if(t[0] == 255)
+						{
+							p[0] = 128;
+							break;
+						}
+					}
+				}
+			}
+		}
+	}
+	for(y = 0, q = surface_get_pixels(s); y < height; y++, q += stride)
+	{
+		for(x = 0, p = q; x < width; x++, p += 4)
+		{
+			if(p[3] != 0)
+			{
+				if(p[0] == 0)
+				{
+					m = p - ((y - 2 > 0 ? 2 : y) * stride);
+					n = p + ((y + 2 < height ? 2 : height - y - 1) * stride);
+					for(t = m; t < n; t += stride)
+					{
+						if(t[0] == 255)
+						{
+							p[0] = 128;
+							break;
+						}
+					}
+				}
+			}
+		}
+	}
+	for(y = 0, q = surface_get_pixels(s); y < height; y++, q += stride)
+	{
+		for(x = 0, p = q; x < width; x++, p += 4)
+		{
+			if(p[3] != 0)
+			{
+				if(p[0] == 128)
+				{
+					p[0] = 255;
+					p[1] = 255;
+					p[2] = 255;
+				}
+			}
+		}
+	}
+}

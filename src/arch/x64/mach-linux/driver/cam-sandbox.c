@@ -76,6 +76,48 @@ static int cam_capture(struct camera_t * cam, struct video_frame_t * frame)
 	return 0;
 }
 
+static int cam_ioctl(struct camera_t * cam, const char * cmd, void * arg)
+{
+	switch(shash(cmd))
+	{
+	case 0x440a6553: /* "camera-set-gain" */
+		break;
+	case 0x30f46ac7: /* "camera-get-gain" */
+		break;
+	case 0x8531e7af: /* "camera-set-exposure" */
+		break;
+	case 0x39c98723: /* "camera-get-exposure" */
+		break;
+	case 0x2d64af48: /* "camera-set-white-balance" */
+		break;
+	case 0x4b2e173c: /* "camera-get-white-balance" */
+		break;
+	case 0xc54c8c54: /* "camera-set-focus" */
+		break;
+	case 0x4f774048: /* "camera-get-focus" */
+		break;
+	case 0x7ecdcd0f: /* "camera-set-mirror" */
+		break;
+	case 0x4e4eff83: /* "camera-get-mirror" */
+		break;
+	case 0xd5d73dfe: /* "camera-set-saturation" */
+		break;
+	case 0x0ed48a72: /* "camera-get-saturation" */
+		break;
+	case 0xdae4842d: /* "camera-set-brightness" */
+		break;
+	case 0x13e1d0a1: /* "camera-get-brightness" */
+		break;
+	case 0xf3916322: /* "camera-set-contrast" */
+		break;
+	case 0xa8290296: /* "camera-get-contrast" */
+		break;
+	default:
+		break;
+	}
+	return -1;
+}
+
 static struct device_t * cam_sandbox_probe(struct driver_t * drv, struct dtnode_t * n)
 {
 	struct cam_sandbox_pdata_t * pdat;
@@ -104,6 +146,7 @@ static struct device_t * cam_sandbox_probe(struct driver_t * drv, struct dtnode_
 	cam->start = cam_start;
 	cam->stop = cam_stop;
 	cam->capture = cam_capture;
+	cam->ioctl = cam_ioctl;
 	cam->priv = pdat;
 
 	if(!(dev = register_camera(cam, drv)))

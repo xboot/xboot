@@ -128,3 +128,10 @@ int camera_capture(struct camera_t * cam, struct video_frame_t * frame, int time
 	}
 	return 0;
 }
+
+int camera_ioctl(struct camera_t * cam, const char * cmd, void * arg)
+{
+	if(cam && cam->ioctl)
+		return cam->ioctl(cam, cmd, arg);
+	return -1;
+}

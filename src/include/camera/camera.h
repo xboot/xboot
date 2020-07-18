@@ -15,6 +15,7 @@ struct camera_t
 	int (*start)(struct camera_t * cam, enum video_format_t fmt, int width, int height);
 	int (*stop)(struct camera_t * cam);
 	int (*capture)(struct camera_t * cam, struct video_frame_t * frame);
+	int (*ioctl)(struct camera_t * cam, const char * cmd, void * arg);
 
 	void * priv;
 };
@@ -27,6 +28,7 @@ void unregister_camera(struct camera_t * cam);
 int camera_start(struct camera_t * cam, enum video_format_t fmt, int width, int height);
 int camera_stop(struct camera_t * cam);
 int camera_capture(struct camera_t * cam, struct video_frame_t * frame, int timeout);
+int camera_ioctl(struct camera_t * cam, const char * cmd, void * arg);
 
 #ifdef __cplusplus
 }

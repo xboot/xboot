@@ -76,6 +76,33 @@ static inline void yuyv_to_argb(unsigned char * argb, unsigned char * yuv, int w
 	}
 }
 
+static inline void uyvy_to_argb(unsigned char * argb, unsigned char * yuv, int width, int height)
+{
+	unsigned char * q = argb;
+	unsigned char * p = yuv;
+	int len = width * height;
+	int y0, u, y1, v;
+	int i;
+
+	for(i = 0; i < len; i += 2)
+	{
+		u = *p++;
+		y0 = *p++;
+		v = *p++;
+		y1 = *p++;
+
+		*q++ = yuv_to_blue(y0, u, v);
+		*q++ = yuv_to_green(y0, u, v);
+		*q++ = yuv_to_red(y0, u, v);
+		*q++ = 255;
+
+		*q++ = yuv_to_blue(y1, u, v);
+		*q++ = yuv_to_green(y1, u, v);
+		*q++ = yuv_to_red(y1, u, v);
+		*q++ = 255;
+	}
+}
+
 static inline void nv12_to_argb(unsigned char * argb, unsigned char * yuv, int width, int height)
 {
 	unsigned char * q = argb;
@@ -323,6 +350,9 @@ void video_frame_to_argb(struct video_frame_t * frame, void * pixels)
 		break;
 	case VIDEO_FORMAT_YUYV:
 		yuyv_to_argb(pixels, frame->buf, frame->width, frame->height);
+		break;
+	case VIDEO_FORMAT_UYVY:
+		uyvy_to_argb(pixels, frame->buf, frame->width, frame->height);
 		break;
 	case VIDEO_FORMAT_NV12:
 		nv12_to_argb(pixels, frame->buf, frame->width, frame->height);

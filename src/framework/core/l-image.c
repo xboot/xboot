@@ -416,16 +416,6 @@ static int m_image_checkerboard(lua_State * L)
 	return 1;
 }
 
-static int m_image_haldclut(lua_State * L)
-{
-	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
-	struct limage_t * clut = luaL_checkudata(L, 2, MT_IMAGE);
-	const char * type = luaL_optstring(L, 3, "nearest");
-	surface_filter_haldclut(img->s, clut->s, type);
-	lua_settop(L, 1);
-	return 1;
-}
-
 static int m_image_grayscale(lua_State * L)
 {
 	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
@@ -524,6 +514,16 @@ static int m_image_opacity(lua_State * L)
 	return 1;
 }
 
+static int m_image_haldclut(lua_State * L)
+{
+	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
+	struct limage_t * clut = luaL_checkudata(L, 2, MT_IMAGE);
+	const char * type = luaL_optstring(L, 3, "nearest");
+	surface_filter_haldclut(img->s, clut->s, type);
+	lua_settop(L, 1);
+	return 1;
+}
+
 static int m_image_blur(lua_State * L)
 {
 	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
@@ -577,7 +577,6 @@ static const luaL_Reg m_image[] = {
 	{"gradient",		m_image_gradient},
 	{"checkerboard",	m_image_checkerboard},
 
-	{"haldclut",		m_image_haldclut},
 	{"grayscale",		m_image_grayscale},
 	{"sepia",			m_image_sepia},
 	{"invert",			m_image_invert},
@@ -589,6 +588,7 @@ static const luaL_Reg m_image[] = {
 	{"brightness",		m_image_brightness},
 	{"contrast",		m_image_contrast},
 	{"opacity",			m_image_opacity},
+	{"haldclut",		m_image_haldclut},
 	{"blur",			m_image_blur},
 	{"erode",			m_image_erode},
 	{"dilate",			m_image_dilate},

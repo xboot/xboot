@@ -63,7 +63,6 @@ static struct render_t render_default = {
 	.shape_checkerboard	= render_default_shape_checkerboard,
 	.shape_raster		= render_default_shape_raster,
 
-	.filter_haldclut	= render_default_filter_haldclut,
 	.filter_grayscale	= render_default_filter_grayscale,
 	.filter_sepia		= render_default_filter_sepia,
 	.filter_invert		= render_default_filter_invert,
@@ -75,6 +74,7 @@ static struct render_t render_default = {
 	.filter_brightness	= render_default_filter_brightness,
 	.filter_contrast	= render_default_filter_contrast,
 	.filter_opacity		= render_default_filter_opacity,
+	.filter_haldclut	= render_default_filter_haldclut,
 	.filter_blur		= render_default_filter_blur,
 	.filter_erode		= render_default_filter_erode,
 	.filter_dilate		= render_default_filter_dilate,

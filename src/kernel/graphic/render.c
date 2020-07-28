@@ -1680,13 +1680,13 @@ void render_default_filter_haldclut(struct surface_t * s, struct surface_t * clu
 					{
 						if(p[3] == 255)
 						{
-							bi = p[0] * level_1 / 255;
+							bi = idiv255(p[0] * level_1);
 							if(bi > level_2)
 								bi = level_2;
-							gi = p[1] * level_1 / 255;
+							gi = idiv255(p[1] * level_1);
 							if(gi > level_2)
 								gi = level_2;
-							ri = p[2] * level_1 / 255;
+							ri = idiv255(p[2] * level_1);
 							if(ri > level_2)
 								ri = level_2;
 							cp = cq + ((bi * level2 + gi * level + ri) << 2);
@@ -1706,9 +1706,9 @@ void render_default_filter_haldclut(struct surface_t * s, struct surface_t * clu
 							if(ri > level_2)
 								ri = level_2;
 							cp = cq + ((bi * level2 + gi * level + ri) << 2);
-							p[0] = cp[0] * p[3] / 255;
-							p[1] = cp[1] * p[3] / 255;
-							p[2] = cp[2] * p[3] / 255;
+							p[0] = idiv255(cp[0] * p[3]);
+							p[1] = idiv255(cp[1] * p[3]);
+							p[2] = idiv255(cp[2] * p[3]);
 						}
 					}
 				}
@@ -1723,13 +1723,13 @@ void render_default_filter_haldclut(struct surface_t * s, struct surface_t * clu
 					{
 						if(p[3] == 255)
 						{
-							bi = p[0] * level_1 / 255;
+							bi = idiv255(p[0] * level_1);
 							if(bi > level_2)
 								bi = level_2;
-							gi = p[1] * level_1 / 255;
+							gi = idiv255(p[1] * level_1);
 							if(gi > level_2)
 								gi = level_2;
-							ri = p[2] * level_1 / 255;
+							ri = idiv255(p[2] * level_1);
 							if(ri > level_2)
 								ri = level_2;
 							db = (double)p[0] * level_1 / 255 - bi;
@@ -1859,189 +1859,124 @@ void render_default_filter_haldclut(struct surface_t * s, struct surface_t * clu
 
 void render_default_filter_grayscale(struct surface_t * s)
 {
-	int width = surface_get_width(s);
-	int height = surface_get_height(s);
-	int stride = surface_get_stride(s);
-	unsigned char * p, * q = surface_get_pixels(s);
-	unsigned char r, g, b;
+	int i, len = surface_get_width(s) * surface_get_height(s);
+	unsigned char * p = surface_get_pixels(s);
 	unsigned char gray;
-	int x, y;
 
-	for(y = 0; y < height; y++, q += stride)
+	for(i = 0; i < len; i++, p += 4)
 	{
-		for(x = 0, p = q; x < width; x++, p += 4)
+		if(p[3] != 0)
 		{
-			if(p[3] != 0)
-			{
-				if(p[3] == 255)
-				{
-					gray = (p[2] * 19595L + p[1] * 38469L + p[0] * 7472L) >> 16;
-					p[0] = gray;
-					p[1] = gray;
-					p[2] = gray;
-				}
-				else
-				{
-					b = p[0] * 255 / p[3];
-					g = p[1] * 255 / p[3];
-					r = p[2] * 255 / p[3];
-					gray = ((r * 19595L + g * 38469L + b * 7472L) >> 16) * p[3] / 255;
-					p[0] = gray;
-					p[1] = gray;
-					p[2] = gray;
-				}
-			}
+			gray = (p[2] * 19595L + p[1] * 38469L + p[0] * 7472L) >> 16;
+			p[0] = gray;
+			p[1] = gray;
+			p[2] = gray;
 		}
 	}
 }
 
 void render_default_filter_sepia(struct surface_t * s)
 {
-	int width = surface_get_width(s);
-	int height = surface_get_height(s);
-	int stride = surface_get_stride(s);
-	unsigned char * p, * q = surface_get_pixels(s);
-	unsigned char r, g, b;
-	int tr, tg, tb;
-	int x, y;
+	int i, len = surface_get_width(s) * surface_get_height(s);
+	unsigned char * p = surface_get_pixels(s);
+	int r, g, b;
 
-	for(y = 0; y < height; y++, q += stride)
+	for(i = 0; i < len; i++, p += 4)
 	{
-		for(x = 0, p = q; x < width; x++, p += 4)
+		if(p[3] != 0)
 		{
-			if(p[3] != 0)
-			{
-				if(p[3] == 255)
-				{
-					tb = (p[2] * 17826L + p[1] * 34996L + p[0] * 8585L) >> 16;
-					tg = (p[2] * 22872L + p[1] * 44958L + p[0] * 11010L) >> 16;
-					tr = (p[2] * 25756L + p[1] * 50397L + p[0] * 12386L) >> 16;
-					p[0] = min(tb, 255);
-					p[1] = min(tg, 255);
-					p[2] = min(tr, 255);
-				}
-				else
-				{
-					b = p[0] * 255 / p[3];
-					g = p[1] * 255 / p[3];
-					r = p[2] * 255 / p[3];
-					tb = ((r * 17826L + g * 34996L + b * 8585L) >> 16) * p[3] / 255;
-					tg = ((r * 22872L + g * 44958L + b * 11010L) >> 16) * p[3] / 255;
-					tr = ((r * 25756L + g * 50397L + b * 12386L) >> 16) * p[3] / 255;
-					p[0] = min(tb, 255);
-					p[1] = min(tg, 255);
-					p[2] = min(tr, 255);
-				}
-			}
+			b = (p[2] * 17826L + p[1] * 34996L + p[0] * 8585L) >> 16;
+			g = (p[2] * 22872L + p[1] * 44958L + p[0] * 11010L) >> 16;
+			r = (p[2] * 25756L + p[1] * 50397L + p[0] * 12386L) >> 16;
+			p[0] = min(b, 255);
+			p[1] = min(g, 255);
+			p[2] = min(r, 255);
 		}
 	}
 }
 
 void render_default_filter_invert(struct surface_t * s)
 {
-	int width = surface_get_width(s);
-	int height = surface_get_height(s);
-	int stride = surface_get_stride(s);
-	unsigned char * p, * q = surface_get_pixels(s);
-	int x, y;
-	for(y = 0; y < height; y++, q += stride)
+	int i, len = surface_get_width(s) * surface_get_height(s);
+	unsigned char * p = surface_get_pixels(s);
+
+	for(i = 0; i < len; i++, p += 4)
 	{
-		for(x = 0, p = q; x < width; x++, p += 4)
+		if(p[3] != 0)
 		{
-			if(p[3] != 0)
-			{
-				p[0] = p[3] - p[0];
-				p[1] = p[3] - p[1];
-				p[2] = p[3] - p[2];
-			}
+			p[0] = p[3] - p[0];
+			p[1] = p[3] - p[1];
+			p[2] = p[3] - p[2];
 		}
 	}
 }
 
 void render_default_filter_threshold(struct surface_t * s, const char * type, int threshold, int value)
 {
-	int width = surface_get_width(s);
-	int height = surface_get_height(s);
-	int stride = surface_get_stride(s);
-	unsigned char * p, * q = surface_get_pixels(s);
-	int x, y;
+	int i, len = surface_get_width(s) * surface_get_height(s);
+	unsigned char * p = surface_get_pixels(s);
 	threshold = clamp(threshold, 0, 255);
 	value = clamp(value, 0, 255);
 
 	switch(shash(type))
 	{
 	case 0xf4229cca: /* "binary" */
-		for(y = 0; y < height; y++, q += stride)
+		for(i = 0; i < len; i++, p += 4)
 		{
-			for(x = 0, p = q; x < width; x++, p += 4)
+			if(p[3] != 0)
 			{
-				if(p[3] != 0)
-				{
-					if(p[3] == 255)
-						p[2] = p[1] = p[0] = (p[0] > threshold) ? value : 0;
-					else
-						p[2] = p[1] = p[0] = (p[0] * 255 / p[3] > threshold) ? value * p[3] / 255 : 0;
-				}
+				if(p[3] == 255)
+					p[2] = p[1] = p[0] = (p[0] > threshold) ? value : 0;
+				else
+					p[2] = p[1] = p[0] = (p[0] * 255 / p[3] > threshold) ? idiv255(value * p[3]) : 0;
 			}
 		}
 		break;
 	case 0xc880666f: /* "binary-invert" */
-		for(y = 0; y < height; y++, q += stride)
+		for(i = 0; i < len; i++, p += 4)
 		{
-			for(x = 0, p = q; x < width; x++, p += 4)
+			if(p[3] != 0)
 			{
-				if(p[3] != 0)
-				{
-					if(p[3] == 255)
-						p[2] = p[1] = p[0] = (p[0] > threshold) ? 0: value;
-					else
-						p[2] = p[1] = p[0] = (p[0] * 255 / p[3] > threshold) ? 0: value * p[3] / 255;
-				}
+				if(p[3] == 255)
+					p[2] = p[1] = p[0] = (p[0] > threshold) ? 0: value;
+				else
+					p[2] = p[1] = p[0] = (p[0] * 255 / p[3] > threshold) ? 0 : idiv255(value * p[3]);
 			}
 		}
 		break;
 	case 0x1e92b0a8: /* "tozero" */
-		for(y = 0; y < height; y++, q += stride)
+		for(i = 0; i < len; i++, p += 4)
 		{
-			for(x = 0, p = q; x < width; x++, p += 4)
+			if(p[3] != 0)
 			{
-				if(p[3] != 0)
-				{
-					if(p[3] == 255)
-						p[2] = p[1] = p[0] = (p[0] > threshold) ? p[0] : 0;
-					else
-						p[2] = p[1] = p[0] = (p[0] * 255 / p[3] > threshold) ? p[0] * p[3] / 255 : 0;
-				}
+				if(p[3] == 255)
+					p[2] = p[1] = p[0] = (p[0] > threshold) ? p[0] : 0;
+				else
+					p[2] = p[1] = p[0] = (p[0] * 255 / p[3] > threshold) ? idiv255(p[0] * p[3]) : 0;
 			}
 		}
 		break;
 	case 0x98d3b48d: /* "tozero-invert" */
-		for(y = 0; y < height; y++, q += stride)
+		for(i = 0; i < len; i++, p += 4)
 		{
-			for(x = 0, p = q; x < width; x++, p += 4)
+			if(p[3] != 0)
 			{
-				if(p[3] != 0)
-				{
-					if(p[3] == 255)
-						p[2] = p[1] = p[0] = (p[0] > threshold) ? 0 : p[0];
-					else
-						p[2] = p[1] = p[0] = (p[0] * 255 / p[3] > threshold) ? 0 : p[0] * p[3] / 255;
-				}
+				if(p[3] == 255)
+					p[2] = p[1] = p[0] = (p[0] > threshold) ? 0 : p[0];
+				else
+					p[2] = p[1] = p[0] = (p[0] * 255 / p[3] > threshold) ? 0 : idiv255(p[0] * p[3]);
 			}
 		}
 		break;
 	case 0x10729e11: /* "trunc" */
-		for(y = 0; y < height; y++, q += stride)
+		for(i = 0; i < len; i++, p += 4)
 		{
-			for(x = 0, p = q; x < width; x++, p += 4)
+			if(p[3] != 0)
 			{
-				if(p[3] != 0)
-				{
-					if(p[3] == 255)
-						p[2] = p[1] = p[0] = (p[0] > threshold) ? threshold : value;
-					else
-						p[2] = p[1] = p[0] = (p[0] * 255 / p[3] > threshold) ? threshold * p[3] / 255 : value * p[3] / 255;
-				}
+				if(p[3] == 255)
+					p[2] = p[1] = p[0] = (p[0] > threshold) ? threshold : value;
+				else
+					p[2] = p[1] = p[0] = (p[0] * 255 / p[3] > threshold) ? idiv255(threshold * p[3]) : idiv255(value * p[3]);
 			}
 		}
 		break;
@@ -2157,13 +2092,10 @@ static const unsigned char colormap_rainbow[256][3] = {
 
 void render_default_filter_colormap(struct surface_t * s, const char * type)
 {
-	int width = surface_get_width(s);
-	int height = surface_get_height(s);
-	int stride = surface_get_stride(s);
-	unsigned char * p, * q = surface_get_pixels(s);
+	int i, len = surface_get_width(s) * surface_get_height(s);
+	unsigned char * p = surface_get_pixels(s);
 	const unsigned char (*cm)[3];
 	unsigned char r, g, b;
-	int x, y;
 
 	switch(shash(type))
 	{
@@ -2180,27 +2112,24 @@ void render_default_filter_colormap(struct surface_t * s, const char * type)
 		cm = colormap_parula;
 		break;
 	}
-	for(y = 0; y < height; y++, q += stride)
+	for(i = 0; i < len; i++, p += 4)
 	{
-		for(x = 0, p = q; x < width; x++, p += 4)
+		if(p[3] != 0)
 		{
-			if(p[3] != 0)
+			if(p[3] == 255)
 			{
-				if(p[3] == 255)
-				{
-					p[0] = cm[p[0]][0];
-					p[1] = cm[p[1]][1];
-					p[2] = cm[p[2]][2];
-				}
-				else
-				{
-					b = p[0] * 255 / p[3];
-					g = p[1] * 255 / p[3];
-					r = p[2] * 255 / p[3];
-					p[0] = cm[b][0] * p[3] / 255;
-					p[1] = cm[g][1] * p[3] / 255;
-					p[2] = cm[r][2] * p[3] / 255;
-				}
+				p[0] = cm[p[0]][0];
+				p[1] = cm[p[1]][1];
+				p[2] = cm[p[2]][2];
+			}
+			else
+			{
+				b = p[0] * 255 / p[3];
+				g = p[1] * 255 / p[3];
+				r = p[2] * 255 / p[3];
+				p[0] = idiv255(cm[b][0] * p[3]);
+				p[1] = idiv255(cm[g][1] * p[3]);
+				p[2] = idiv255(cm[r][2] * p[3]);
 			}
 		}
 	}
@@ -2208,50 +2137,38 @@ void render_default_filter_colormap(struct surface_t * s, const char * type)
 
 void render_default_filter_coloring(struct surface_t * s, struct color_t * c)
 {
-	int width = surface_get_width(s);
-	int height = surface_get_height(s);
-	int stride = surface_get_stride(s);
-	int r = c->r;
-	int g = c->g;
-	int b = c->b;
-	unsigned char * p, * q;
-	int x, y;
+	int i, len = surface_get_width(s) * surface_get_height(s);
+	unsigned char * p = surface_get_pixels(s);
+	unsigned char r = c->r;
+	unsigned char g = c->g;
+	unsigned char b = c->b;
 
-	for(y = 0, q = surface_get_pixels(s); y < height; y++, q += stride)
+	for(i = 0; i < len; i++, p += 4)
 	{
-		for(x = 0, p = q; x < width; x++, p += 4)
+		if(p[3] == 255)
 		{
-			if(p[3] != 0)
-			{
-				if(p[3] == 255)
-				{
-					p[0] = b;
-					p[1] = g;
-					p[2] = r;
-				}
-				else
-				{
-					p[0] = idiv255(b * p[3]);
-					p[1] = idiv255(g * p[3]);
-					p[2] = idiv255(r * p[3]);
-				}
-			}
+			p[0] = b;
+			p[1] = g;
+			p[2] = r;
+		}
+		else
+		{
+			p[0] = idiv255(b * p[3]);
+			p[1] = idiv255(g * p[3]);
+			p[2] = idiv255(r * p[3]);
 		}
 	}
 }
 
 void render_default_filter_hue(struct surface_t * s, int angle)
 {
+	int i, len = surface_get_width(s) * surface_get_height(s);
+	unsigned char * p = surface_get_pixels(s);
 	float av = angle * M_PI / 180.0;
 	float cv = cosf(av);
 	float sv = sinf(av);
-	int width = surface_get_width(s);
-	int height = surface_get_height(s);
-	int stride = surface_get_stride(s);
-	unsigned char * p, * q = surface_get_pixels(s);
 	int r, g, b;
 	int tr, tg, tb;
-	int x, y;
 	int m[9];
 
 	m[0] = (0.213 + cv * 0.787 - sv * 0.213) * 65536;
@@ -2263,152 +2180,203 @@ void render_default_filter_hue(struct surface_t * s, int angle)
 	m[6] = (0.213 - cv * 0.213 - sv * 0.787) * 65536;
 	m[7] = (0.715 - cv * 0.715 + sv * 0.715) * 65536;
 	m[8] = (0.072 + cv * 0.928 + sv * 0.072) * 65536;
-	for(y = 0; y < height; y++, q += stride)
+	for(i = 0; i < len; i++, p += 4)
 	{
-		for(x = 0, p = q; x < width; x++, p += 4)
+		if(p[3] != 0)
 		{
-			b = p[0];
-			g = p[1];
-			r = p[2];
-			tb = (m[6] * r + m[7] * g + m[8] * b) >> 16;
-			tg = (m[3] * r + m[4] * g + m[5] * b) >> 16;
-			tr = (m[0] * r + m[1] * g + m[2] * b) >> 16;
-			p[0] = clamp(tb, 0, 255);
-			p[1] = clamp(tg, 0, 255);
-			p[2] = clamp(tr, 0, 255);
+			if(p[3] == 255)
+			{
+				b = p[0];
+				g = p[1];
+				r = p[2];
+				tb = (m[6] * r + m[7] * g + m[8] * b) >> 16;
+				tg = (m[3] * r + m[4] * g + m[5] * b) >> 16;
+				tr = (m[0] * r + m[1] * g + m[2] * b) >> 16;
+				p[0] = clamp(tb, 0, 255);
+				p[1] = clamp(tg, 0, 255);
+				p[2] = clamp(tr, 0, 255);
+			}
+			else
+			{
+				b = p[0] * 255 / p[3];
+				g = p[1] * 255 / p[3];
+				r = p[2] * 255 / p[3];
+				tb = (m[6] * r + m[7] * g + m[8] * b) >> 16;
+				tg = (m[3] * r + m[4] * g + m[5] * b) >> 16;
+				tr = (m[0] * r + m[1] * g + m[2] * b) >> 16;
+				p[0] = clamp(idiv255(tb * p[3]), 0, 255);
+				p[1] = clamp(idiv255(tg * p[3]), 0, 255);
+				p[2] = clamp(idiv255(tr * p[3]), 0, 255);
+			}
 		}
 	}
 }
 
 void render_default_filter_saturate(struct surface_t * s, int saturate)
 {
-	int k = clamp(saturate, -100, 100) / 100.0 * 128.0;
-	int width = surface_get_width(s);
-	int height = surface_get_height(s);
-	int stride = surface_get_stride(s);
-	unsigned char * p, * q = surface_get_pixels(s);
-	int r, g, b, min, max;
+	int i, len = surface_get_width(s) * surface_get_height(s);
+	unsigned char * p = surface_get_pixels(s);
+	int v = clamp(saturate, -100, 100) * 128 / 100;
+	int r, g, b, vmin, vmax;
 	int alpha, delta, value, lv, sv;
-	int x, y;
 
-	for(y = 0; y < height; y++, q += stride)
+	for(i = 0; i < len; i++, p += 4)
 	{
-		for(x = 0, p = q; x < width; x++, p += 4)
+		if(p[3] != 0)
 		{
-			b = p[0];
-			g = p[1];
-			r = p[2];
-			min = min(min(r, g), b);
-			max = max(max(r, g), b);
-			delta = max - min;
-			value = max + min;
-			if(delta == 0)
-				continue;
-			lv = value >> 1;
-			sv = lv < 128 ? (delta << 7) / value : (delta << 7) / (510 - value);
-			if(k >= 0)
+			if(p[3] == 255)
 			{
-				alpha = (k + sv >= 128) ? sv : 128 - k;
-				if(alpha != 0)
-					alpha = 128 * 128 / alpha - 128;
+				b = p[0];
+				g = p[1];
+				r = p[2];
+				vmin = min(min(r, g), b);
+				vmax = max(max(r, g), b);
+				delta = vmax - vmin;
+				value = vmax + vmin;
+				if(delta == 0)
+					continue;
+				lv = value >> 1;
+				sv = lv < 128 ? (delta << 7) / value : (delta << 7) / (510 - value);
+				if(v >= 0)
+				{
+					alpha = (v + sv >= 128) ? sv : 128 - v;
+					if(alpha != 0)
+						alpha = 128 * 128 / alpha - 128;
+				}
+				else
+				{
+					alpha = v;
+				}
+				r = r + ((r - lv) * alpha >> 7);
+				g = g + ((g - lv) * alpha >> 7);
+				b = b + ((b - lv) * alpha >> 7);
+				p[0] = clamp(b, 0, 255);
+				p[1] = clamp(g, 0, 255);
+				p[2] = clamp(r, 0, 255);
 			}
 			else
 			{
-				alpha = k;
+				b = p[0] * 255 / p[3];
+				g = p[1] * 255 / p[3];
+				r = p[2] * 255 / p[3];
+				vmin = min(min(r, g), b);
+				vmax = max(max(r, g), b);
+				delta = vmax - vmin;
+				value = vmax + vmin;
+				if(delta == 0)
+					continue;
+				lv = value >> 1;
+				sv = lv < 128 ? (delta << 7) / value : (delta << 7) / (510 - value);
+				if(v >= 0)
+				{
+					alpha = (v + sv >= 128) ? sv : 128 - v;
+					if(alpha != 0)
+						alpha = 128 * 128 / alpha - 128;
+				}
+				else
+				{
+					alpha = v;
+				}
+				r = r + ((r - lv) * alpha >> 7);
+				g = g + ((g - lv) * alpha >> 7);
+				b = b + ((b - lv) * alpha >> 7);
+				p[0] = clamp(idiv255(b * p[3]), 0, 255);
+				p[1] = clamp(idiv255(g * p[3]), 0, 255);
+				p[2] = clamp(idiv255(r * p[3]), 0, 255);
 			}
-			r = r + ((r - lv) * alpha >> 7);
-			g = g + ((g - lv) * alpha >> 7);
-			b = b + ((b - lv) * alpha >> 7);
-			p[0] = clamp(b, 0, 255);
-			p[1] = clamp(g, 0, 255);
-			p[2] = clamp(r, 0, 255);
 		}
 	}
 }
 
 void render_default_filter_brightness(struct surface_t * s, int brightness)
 {
-	int delta = clamp(brightness, -100, 100) / 100.0 * 255.0;
-	int width = surface_get_width(s);
-	int height = surface_get_height(s);
-	int stride = surface_get_stride(s);
-	unsigned char * p, * q = surface_get_pixels(s);
-	int r, g, b;
-	int tr, tg, tb;
-	int x, y;
+	int i, len = surface_get_width(s) * surface_get_height(s);
+	unsigned char * p = surface_get_pixels(s);
+	int t, v = clamp(brightness, -100, 100) * 255 / 100;
 
-	for(y = 0; y < height; y++, q += stride)
+	for(i = 0; i < len; i++, p += 4)
 	{
-		for(x = 0, p = q; x < width; x++, p += 4)
+		if(p[3] != 0)
 		{
-			b = p[0];
-			g = p[1];
-			r = p[2];
-			tb = b + delta;
-			tg = g + delta;
-			tr = r + delta;
-			p[0] = clamp(tb, 0, 255);
-			p[1] = clamp(tg, 0, 255);
-			p[2] = clamp(tr, 0, 255);
+			if(p[3] == 255)
+			{
+				p[0] = clamp(p[0] + v, 0, 255);
+				p[1] = clamp(p[1] + v, 0, 255);
+				p[2] = clamp(p[2] + v, 0, 255);
+			}
+			else
+			{
+				t = idiv255(v * p[3]);
+				p[0] = clamp(p[0] + t, 0, 255);
+				p[1] = clamp(p[1] + t, 0, 255);
+				p[2] = clamp(p[2] + t, 0, 255);
+			}
 		}
 	}
 }
 
 void render_default_filter_contrast(struct surface_t * s, int contrast)
 {
-	int k = clamp(contrast, -100, 100) / 100.0 * 128.0;
-	int width = surface_get_width(s);
-	int height = surface_get_height(s);
-	int stride = surface_get_stride(s);
-	unsigned char * p, * q = surface_get_pixels(s);
+	int i, len = surface_get_width(s) * surface_get_height(s);
+	unsigned char * p = surface_get_pixels(s);
+	int v = clamp(contrast, -100, 100) * 128 / 100;
 	int r, g, b;
 	int tr, tg, tb;
-	int x, y;
 
-	for(y = 0; y < height; y++, q += stride)
+	for(i = 0; i < len; i++, p += 4)
 	{
-		for(x = 0, p = q; x < width; x++, p += 4)
+		if(p[3] != 0)
 		{
-			b = p[0];
-			g = p[1];
-			r = p[2];
-			tb = (b << 7) + (b - 128) * k;
-			tg = (g << 7) + (g - 128) * k;
-			tr = (r << 7) + (r - 128) * k;
-			p[0] = clamp(tb, 0, 255 << 7) >> 7;
-			p[1] = clamp(tg, 0, 255 << 7) >> 7;
-			p[2] = clamp(tr, 0, 255 << 7) >> 7;
+			if(p[3] == 255)
+			{
+				b = p[0];
+				g = p[1];
+				r = p[2];
+				tb = ((b << 7) + (b - 128) * v) >> 7;
+				tg = ((g << 7) + (g - 128) * v) >> 7;
+				tr = ((r << 7) + (r - 128) * v) >> 7;
+				p[0] = clamp(tb, 0, 255);
+				p[1] = clamp(tg, 0, 255);
+				p[2] = clamp(tr, 0, 255);
+			}
+			else
+			{
+				b = p[0] * 255 / p[3];
+				g = p[1] * 255 / p[3];
+				r = p[2] * 255 / p[3];
+				tb = ((b << 7) + (b - 128) * v) >> 7;
+				tg = ((g << 7) + (g - 128) * v) >> 7;
+				tr = ((r << 7) + (r - 128) * v) >> 7;
+				p[0] = clamp(idiv255(tb * p[3]), 0, 255);
+				p[1] = clamp(idiv255(tg * p[3]), 0, 255);
+				p[2] = clamp(idiv255(tr * p[3]), 0, 255);
+			}
 		}
 	}
 }
 
 void render_default_filter_opacity(struct surface_t * s, int alpha)
 {
-	alpha = clamp(alpha, 0, 100) * 255 / 100;
-	int width = surface_get_width(s);
-	int height = surface_get_height(s);
-	int stride = surface_get_stride(s);
-	unsigned char * p, * q = surface_get_pixels(s);
-	int x, y;
-	switch(alpha)
+	int i, len = surface_get_width(s) * surface_get_height(s);
+	unsigned char * p = surface_get_pixels(s);
+	int v = clamp(alpha, 0, 100) * 256 / 100;
+
+	switch(v)
 	{
 	case 0:
 		memset(s->pixels, 0, s->pixlen);
 		break;
-	case 255:
+	case 256:
 		break;
 	default:
-		for(y = 0; y < height; y++, q += stride)
+		for(i = 0; i < len; i++, p += 4)
 		{
-			for(x = 0, p = q; x < width; x++, p += 4)
+			if(p[3] != 0)
 			{
-				if(p[3] != 0)
-				{
-					p[0] = (p[0] * alpha) >> 8;
-					p[1] = (p[1] * alpha) >> 8;
-					p[2] = (p[2] * alpha) >> 8;
-					p[3] = (p[3] * alpha) >> 8;
-				}
+				p[0] = (p[0] * v) >> 8;
+				p[1] = (p[1] * v) >> 8;
+				p[2] = (p[2] * v) >> 8;
+				p[3] = (p[3] * v) >> 8;
 			}
 		}
 		break;

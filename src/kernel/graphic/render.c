@@ -1685,14 +1685,80 @@ void render_default_filter_invert(struct surface_t * s)
 
 void render_default_filter_threshold(struct surface_t * s, int threshold, const char * type)
 {
-	int i, len = surface_get_width(s) * surface_get_height(s);
+	int len = surface_get_width(s) * surface_get_height(s);
 	unsigned char * p = surface_get_pixels(s);
-	threshold = clamp(threshold, 0, 255);
+	float w0, w1, u0, u1;
+	float t, variance = 0;
+	int minpos = 0, maxpos = 255;
+	int histogram[256];
+	int i, j, k;
 
+	if((threshold < 0) || (threshold > 255))
+	{
+		threshold = 128;
+		memset(histogram, 0, sizeof(histogram));
+		for(i = 0, p = surface_get_pixels(s); i < len; i++, p += 4)
+		{
+			if(p[3] != 0)
+			{
+				if(p[3] == 255)
+					histogram[p[0]]++;
+				else
+					histogram[p[0] * 255 / p[3]]++;
+			}
+		}
+		for(i = 0; i < 255; i++)
+		{
+			if(histogram[i] != 0)
+			{
+				minpos = i;
+				break;
+			}
+		}
+		for(i = 255; i > 0; i--)
+		{
+			if(histogram[i] != 0)
+			{
+				maxpos = i;
+				break;
+			}
+		}
+		for(i = minpos; i <= maxpos; i++)
+		{
+			w1 = 0;
+			u1 = 0;
+			w0 = 0;
+			u0 = 0;
+			for(j = 0; j <= i; j++)
+			{
+				w1 += histogram[j];
+				u1 += j * histogram[j];
+			}
+			if(w1 == 0)
+				break;
+			u1 = u1 / w1;
+			w1 = w1 / len;
+			for(k = i + 1; k < 255; k++)
+			{
+				w0 += histogram[k];
+				u0 += k * histogram[k];
+			}
+			if(w0 == 0)
+				break;
+			u0 = u0 / w0;
+			w0 = w0 / len;
+			t = w0 * w1 * (u1 - u0) * (u1 - u0);
+			if(variance < t)
+			{
+				variance = t;
+				threshold = i;
+			}
+		}
+	}
 	switch(shash(type))
 	{
 	case 0xf4229cca: /* "binary" */
-		for(i = 0; i < len; i++, p += 4)
+		for(i = 0, p = surface_get_pixels(s); i < len; i++, p += 4)
 		{
 			if(p[3] != 0)
 			{
@@ -1704,7 +1770,7 @@ void render_default_filter_threshold(struct surface_t * s, int threshold, const 
 		}
 		break;
 	case 0xc880666f: /* "binary-invert" */
-		for(i = 0; i < len; i++, p += 4)
+		for(i = 0, p = surface_get_pixels(s); i < len; i++, p += 4)
 		{
 			if(p[3] != 0)
 			{
@@ -1716,7 +1782,7 @@ void render_default_filter_threshold(struct surface_t * s, int threshold, const 
 		}
 		break;
 	case 0x1e92b0a8: /* "tozero" */
-		for(i = 0; i < len; i++, p += 4)
+		for(i = 0, p = surface_get_pixels(s); i < len; i++, p += 4)
 		{
 			if(p[3] != 0)
 			{
@@ -1728,7 +1794,7 @@ void render_default_filter_threshold(struct surface_t * s, int threshold, const 
 		}
 		break;
 	case 0x98d3b48d: /* "tozero-invert" */
-		for(i = 0; i < len; i++, p += 4)
+		for(i = 0, p = surface_get_pixels(s); i < len; i++, p += 4)
 		{
 			if(p[3] != 0)
 			{
@@ -1740,7 +1806,7 @@ void render_default_filter_threshold(struct surface_t * s, int threshold, const 
 		}
 		break;
 	case 0xe9e0dc6b: /* "truncate" */
-		for(i = 0; i < len; i++, p += 4)
+		for(i = 0, p = surface_get_pixels(s); i < len; i++, p += 4)
 		{
 			if(p[3] != 0)
 			{

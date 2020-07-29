@@ -443,7 +443,7 @@ static int m_image_invert(lua_State * L)
 static int m_image_threshold(lua_State * L)
 {
 	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
-	int threshold = luaL_optinteger(L, 2, 128);
+	int threshold = luaL_optinteger(L, 2, -1);
 	const char * type = luaL_optstring(L, 3, "binary");
 	surface_filter_threshold(img->s, threshold, type);
 	lua_settop(L, 1);

@@ -1683,12 +1683,11 @@ void render_default_filter_invert(struct surface_t * s)
 	}
 }
 
-void render_default_filter_threshold(struct surface_t * s, const char * type, int threshold, int value)
+void render_default_filter_threshold(struct surface_t * s, int threshold, const char * type)
 {
 	int i, len = surface_get_width(s) * surface_get_height(s);
 	unsigned char * p = surface_get_pixels(s);
 	threshold = clamp(threshold, 0, 255);
-	value = clamp(value, 0, 255);
 
 	switch(shash(type))
 	{
@@ -1698,9 +1697,9 @@ void render_default_filter_threshold(struct surface_t * s, const char * type, in
 			if(p[3] != 0)
 			{
 				if(p[3] == 255)
-					p[2] = p[1] = p[0] = (p[0] > threshold) ? value : 0;
+					p[2] = p[1] = p[0] = (p[0] > threshold) ? 255 : 0;
 				else
-					p[2] = p[1] = p[0] = (p[0] * 255 / p[3] > threshold) ? idiv255(value * p[3]) : 0;
+					p[2] = p[1] = p[0] = (p[0] * 255 / p[3] > threshold) ? p[3] : 0;
 			}
 		}
 		break;
@@ -1710,9 +1709,9 @@ void render_default_filter_threshold(struct surface_t * s, const char * type, in
 			if(p[3] != 0)
 			{
 				if(p[3] == 255)
-					p[2] = p[1] = p[0] = (p[0] > threshold) ? 0: value;
+					p[2] = p[1] = p[0] = (p[0] > threshold) ? 0: 255;
 				else
-					p[2] = p[1] = p[0] = (p[0] * 255 / p[3] > threshold) ? 0 : idiv255(value * p[3]);
+					p[2] = p[1] = p[0] = (p[0] * 255 / p[3] > threshold) ? 0 : p[3];
 			}
 		}
 		break;
@@ -1724,7 +1723,7 @@ void render_default_filter_threshold(struct surface_t * s, const char * type, in
 				if(p[3] == 255)
 					p[2] = p[1] = p[0] = (p[0] > threshold) ? p[0] : 0;
 				else
-					p[2] = p[1] = p[0] = (p[0] * 255 / p[3] > threshold) ? idiv255(p[0] * p[3]) : 0;
+					p[2] = p[1] = p[0] = (p[0] * 255 / p[3] > threshold) ? p[0] : 0;
 			}
 		}
 		break;
@@ -1736,19 +1735,19 @@ void render_default_filter_threshold(struct surface_t * s, const char * type, in
 				if(p[3] == 255)
 					p[2] = p[1] = p[0] = (p[0] > threshold) ? 0 : p[0];
 				else
-					p[2] = p[1] = p[0] = (p[0] * 255 / p[3] > threshold) ? 0 : idiv255(p[0] * p[3]);
+					p[2] = p[1] = p[0] = (p[0] * 255 / p[3] > threshold) ? 0 : p[0];
 			}
 		}
 		break;
-	case 0x10729e11: /* "trunc" */
+	case 0xe9e0dc6b: /* "truncate" */
 		for(i = 0; i < len; i++, p += 4)
 		{
 			if(p[3] != 0)
 			{
 				if(p[3] == 255)
-					p[2] = p[1] = p[0] = (p[0] > threshold) ? threshold : value;
+					p[2] = p[1] = p[0] = (p[0] > threshold) ? threshold : p[0];
 				else
-					p[2] = p[1] = p[0] = (p[0] * 255 / p[3] > threshold) ? idiv255(threshold * p[3]) : idiv255(value * p[3]);
+					p[2] = p[1] = p[0] = (p[0] * 255 / p[3] > threshold) ? idiv255(threshold * p[3]) : p[3];
 			}
 		}
 		break;

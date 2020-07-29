@@ -444,9 +444,8 @@ static int m_image_threshold(lua_State * L)
 {
 	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
 	int threshold = luaL_optinteger(L, 2, 128);
-	int value = luaL_optinteger(L, 3, 255);
-	const char * type = luaL_optstring(L, 4, "binary");
-	surface_filter_threshold(img->s, type, threshold, value);
+	const char * type = luaL_optstring(L, 3, "binary");
+	surface_filter_threshold(img->s, threshold, type);
 	lua_settop(L, 1);
 	return 1;
 }

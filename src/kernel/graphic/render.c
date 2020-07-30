@@ -2525,142 +2525,242 @@ void render_default_filter_blur(struct surface_t * s, int radius)
 		expblur(pixels, width, height, 4, radius);
 }
 
-void render_default_filter_erode(struct surface_t * s)
+void render_default_filter_erode(struct surface_t * s, int times)
 {
 	int width = surface_get_width(s);
 	int height = surface_get_height(s);
 	int stride = surface_get_stride(s);
+	int len = width * height;
+	unsigned char * l, * t, * r, * b;
+	unsigned char * lt, * rt, * lb, * rb;
 	unsigned char * p, * q;
-	unsigned char * m, * n, * t;
-	int x, y;
+	unsigned char red, green, blue;
+	void * pixels;
+	int x, y, u, v;
+	int i;
 
-	for(y = 0, q = surface_get_pixels(s); y < height; y++, q += stride)
+	pixels = memalign(4, s->pixlen);
+	if(pixels)
 	{
-		for(x = 0, p = q; x < width; x++, p += 4)
+		while(times-- > 0)
 		{
-			if(p[3] != 0)
+			for(i = 0, p = surface_get_pixels(s), q = pixels; i < len; i++, p += 4, q += 4)
 			{
-				if(p[0] == 255)
+				if((p[3] != 0) && (p[3] != 255))
 				{
-					m = p - ((x - 2 > 0 ? 2 : x) << 2);
-					n = p + ((x + 2 < width ? 2 : width - x - 1) << 2);
-					for(t = m; t < n; t += 4)
+					q[0] = p[0] * 255 / p[3];
+					q[1] = p[1] * 255 / p[3];
+					q[2] = p[2] * 255 / p[3];
+					q[3] = p[3];
+				}
+				else
+				{
+					*((uint32_t *)q) = *((uint32_t *)p);
+				}
+			}
+			for(y = 0, p = surface_get_pixels(s), q = pixels; y < height; y++)
+			{
+				for(x = 0; x < width; x++, p += 4, q += 4)
+				{
+					if(q[3] != 0)
 					{
-						if(t[0] == 0)
+						u = (x - 1 > 0 ? 1 : x) << 2;
+						v = (x + 1 < width ? 1 : width - x - 1) << 2;
+						l = q - u;
+						t = q - ((y - 1 > 0 ? 1 : y) * stride);
+						r = q + v;
+						b = q + ((y + 1 < height ? 1 : height - y - 1) * stride);
+						lt = t - u;
+						rt = t + v;
+						lb = b - u;
+						rb = b + v;
+						blue = q[0];
+						if(l[0] < blue)
+							blue = l[0];
+						if(t[0] < blue)
+							blue = t[0];
+						if(r[0] < blue)
+							blue = r[0];
+						if(b[0] < blue)
+							blue = b[0];
+						if(lt[0] < blue)
+							blue = lt[0];
+						if(rt[0] < blue)
+							blue = rt[0];
+						if(lb[0] < blue)
+							blue = lb[0];
+						if(rb[0] < blue)
+							blue = rb[0];
+						green = q[1];
+						if(l[1] < green)
+							green = l[1];
+						if(t[1] < green)
+							green = t[1];
+						if(r[1] < green)
+							green = r[1];
+						if(b[1] < green)
+							green = b[1];
+						if(lt[1] < green)
+							green = lt[1];
+						if(rt[1] < green)
+							green = rt[1];
+						if(lb[1] < green)
+							green = lb[1];
+						if(rb[1] < green)
+							green = rb[1];
+						red = q[2];
+						if(l[2] < red)
+							red = l[2];
+						if(t[2] < red)
+							red = t[2];
+						if(r[2] < red)
+							red = r[2];
+						if(b[2] < red)
+							red = b[2];
+						if(lt[2] < red)
+							red = lt[2];
+						if(rt[2] < red)
+							red = rt[2];
+						if(lb[2] < red)
+							red = lb[2];
+						if(rb[2] < red)
+							red = rb[2];
+						if(q[3] == 255)
 						{
-							p[0] = 128;
-							break;
+							p[0] = blue;
+							p[1] = green;
+							p[2] = red;
+						}
+						else
+						{
+							p[0] = idiv255(blue * q[3]);
+							p[1] = idiv255(green * q[3]);
+							p[2] = idiv255(red * q[3]);
 						}
 					}
 				}
 			}
 		}
-	}
-	for(y = 0, q = surface_get_pixels(s); y < height; y++, q += stride)
-	{
-		for(x = 0, p = q; x < width; x++, p += 4)
-		{
-			if(p[3] != 0)
-			{
-				if(p[0] == 255)
-				{
-					m = p - ((y - 2 > 0 ? 2 : y) * stride);
-					n = p + ((y + 2 < height ? 2 : height - y - 1) * stride);
-					for(t = m; t < n; t += stride)
-					{
-						if(t[0] == 0)
-						{
-							p[0] = 128;
-							break;
-						}
-					}
-				}
-			}
-		}
-	}
-	for(y = 0, q = surface_get_pixels(s); y < height; y++, q += stride)
-	{
-		for(x = 0, p = q; x < width; x++, p += 4)
-		{
-			if(p[3] != 0)
-			{
-				if(p[0] == 128)
-				{
-					p[0] = 0;
-					p[1] = 0;
-					p[2] = 0;
-				}
-			}
-		}
+		free(pixels);
 	}
 }
 
-void render_default_filter_dilate(struct surface_t * s)
+void render_default_filter_dilate(struct surface_t * s, int times)
 {
 	int width = surface_get_width(s);
 	int height = surface_get_height(s);
 	int stride = surface_get_stride(s);
+	int len = width * height;
+	unsigned char * l, * t, * r, * b;
+	unsigned char * lt, * rt, * lb, * rb;
 	unsigned char * p, * q;
-	unsigned char * m, * n, * t;
-	int x, y;
+	unsigned char red, green, blue;
+	void * pixels;
+	int x, y, u, v;
+	int i;
 
-	for(y = 0, q = surface_get_pixels(s); y < height; y++, q += stride)
+	pixels = memalign(4, s->pixlen);
+	if(pixels)
 	{
-		for(x = 0, p = q; x < width; x++, p += 4)
+		while(times-- > 0)
 		{
-			if(p[3] != 0)
+			for(i = 0, p = surface_get_pixels(s), q = pixels; i < len; i++, p += 4, q += 4)
 			{
-				if(p[0] == 0)
+				if((p[3] != 0) && (p[3] != 255))
 				{
-					m = p - ((x - 2 > 0 ? 2 : x) << 2);
-					n = p + ((x + 2 < width ? 2 : width - x - 1) << 2);
-					for(t = m; t < n; t += 4)
+					q[0] = p[0] * 255 / p[3];
+					q[1] = p[1] * 255 / p[3];
+					q[2] = p[2] * 255 / p[3];
+					q[3] = p[3];
+				}
+				else
+				{
+					*((uint32_t *)q) = *((uint32_t *)p);
+				}
+			}
+			for(y = 0, p = surface_get_pixels(s), q = pixels; y < height; y++)
+			{
+				for(x = 0; x < width; x++, p += 4, q += 4)
+				{
+					if(q[3] != 0)
 					{
-						if(t[0] == 255)
+						u = (x - 1 > 0 ? 1 : x) << 2;
+						v = (x + 1 < width ? 1 : width - x - 1) << 2;
+						l = q - u;
+						t = q - ((y - 1 > 0 ? 1 : y) * stride);
+						r = q + v;
+						b = q + ((y + 1 < height ? 1 : height - y - 1) * stride);
+						lt = t - u;
+						rt = t + v;
+						lb = b - u;
+						rb = b + v;
+						blue = q[0];
+						if(l[0] > blue)
+							blue = l[0];
+						if(t[0] > blue)
+							blue = t[0];
+						if(r[0] > blue)
+							blue = r[0];
+						if(b[0] > blue)
+							blue = b[0];
+						if(lt[0] > blue)
+							blue = lt[0];
+						if(rt[0] > blue)
+							blue = rt[0];
+						if(lb[0] > blue)
+							blue = lb[0];
+						if(rb[0] > blue)
+							blue = rb[0];
+						green = q[1];
+						if(l[1] > green)
+							green = l[1];
+						if(t[1] > green)
+							green = t[1];
+						if(r[1] > green)
+							green = r[1];
+						if(b[1] > green)
+							green = b[1];
+						if(lt[1] > green)
+							green = lt[1];
+						if(rt[1] > green)
+							green = rt[1];
+						if(lb[1] > green)
+							green = lb[1];
+						if(rb[1] > green)
+							green = rb[1];
+						red = q[2];
+						if(l[2] > red)
+							red = l[2];
+						if(t[2] > red)
+							red = t[2];
+						if(r[2] > red)
+							red = r[2];
+						if(b[2] > red)
+							red = b[2];
+						if(lt[2] > red)
+							red = lt[2];
+						if(rt[2] > red)
+							red = rt[2];
+						if(lb[2] > red)
+							red = lb[2];
+						if(rb[2] > red)
+							red = rb[2];
+						if(q[3] == 255)
 						{
-							p[0] = 128;
-							break;
+							p[0] = blue;
+							p[1] = green;
+							p[2] = red;
+						}
+						else
+						{
+							p[0] = idiv255(blue * q[3]);
+							p[1] = idiv255(green * q[3]);
+							p[2] = idiv255(red * q[3]);
 						}
 					}
 				}
 			}
 		}
-	}
-	for(y = 0, q = surface_get_pixels(s); y < height; y++, q += stride)
-	{
-		for(x = 0, p = q; x < width; x++, p += 4)
-		{
-			if(p[3] != 0)
-			{
-				if(p[0] == 0)
-				{
-					m = p - ((y - 2 > 0 ? 2 : y) * stride);
-					n = p + ((y + 2 < height ? 2 : height - y - 1) * stride);
-					for(t = m; t < n; t += stride)
-					{
-						if(t[0] == 255)
-						{
-							p[0] = 128;
-							break;
-						}
-					}
-				}
-			}
-		}
-	}
-	for(y = 0, q = surface_get_pixels(s); y < height; y++, q += stride)
-	{
-		for(x = 0, p = q; x < width; x++, p += 4)
-		{
-			if(p[3] != 0)
-			{
-				if(p[0] == 128)
-				{
-					p[0] = 255;
-					p[1] = 255;
-					p[2] = 255;
-				}
-			}
-		}
+		free(pixels);
 	}
 }

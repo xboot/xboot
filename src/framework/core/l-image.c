@@ -535,7 +535,8 @@ static int m_image_blur(lua_State * L)
 static int m_image_erode(lua_State * L)
 {
 	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
-	surface_filter_erode(img->s);
+	int times = luaL_optinteger(L, 2, 1);
+	surface_filter_erode(img->s, times);
 	lua_settop(L, 1);
 	return 1;
 }
@@ -543,7 +544,8 @@ static int m_image_erode(lua_State * L)
 static int m_image_dilate(lua_State * L)
 {
 	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
-	surface_filter_dilate(img->s);
+	int times = luaL_optinteger(L, 2, 1);
+	surface_filter_dilate(img->s, times);
 	lua_settop(L, 1);
 	return 1;
 }

@@ -81,8 +81,8 @@ struct render_t
 	void (*filter_opacity)(struct surface_t * s, int alpha);
 	void (*filter_haldclut)(struct surface_t * s, struct surface_t * clut, const char * type);
 	void (*filter_blur)(struct surface_t * s, int radius);
-	void (*filter_erode)(struct surface_t * s);
-	void (*filter_dilate)(struct surface_t * s);
+	void (*filter_erode)(struct surface_t * s, int times);
+	void (*filter_dilate)(struct surface_t * s, int times);
 };
 
 static inline int surface_get_width(struct surface_t * s)
@@ -250,14 +250,14 @@ static inline void surface_filter_blur(struct surface_t * s, int radius)
 	s->r->filter_blur(s, radius);
 }
 
-static inline void surface_filter_erode(struct surface_t * s)
+static inline void surface_filter_erode(struct surface_t * s, int times)
 {
-	s->r->filter_erode(s);
+	s->r->filter_erode(s, times);
 }
 
-static inline void surface_filter_dilate(struct surface_t * s)
+static inline void surface_filter_dilate(struct surface_t * s, int times)
 {
-	s->r->filter_dilate(s);
+	s->r->filter_dilate(s, times);
 }
 
 void * render_default_create(struct surface_t * s);
@@ -291,8 +291,8 @@ void render_default_filter_contrast(struct surface_t * s, int contrast);
 void render_default_filter_opacity(struct surface_t * s, int alpha);
 void render_default_filter_haldclut(struct surface_t * s, struct surface_t * clut, const char * type);
 void render_default_filter_blur(struct surface_t * s, int radius);
-void render_default_filter_erode(struct surface_t * s);
-void render_default_filter_dilate(struct surface_t * s);
+void render_default_filter_erode(struct surface_t * s, int times);
+void render_default_filter_dilate(struct surface_t * s, int times);
 
 struct render_t * search_render(void);
 bool_t register_render(struct render_t * r);

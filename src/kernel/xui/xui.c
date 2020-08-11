@@ -365,7 +365,7 @@ void xui_end(struct xui_context_t * ctx)
 	if(!ctx->updated_focus)
 		ctx->focus = 0;
 	ctx->updated_focus = 0;
-	if((ctx->mouse.down || ctx->mouse.up) && ctx->next_hover_root && (ctx->next_hover_root->zindex < ctx->last_zindex) && (ctx->next_hover_root->zindex >= 0))
+	if(ctx->mouse.down && ctx->next_hover_root && (ctx->next_hover_root->zindex < ctx->last_zindex) && (ctx->next_hover_root->zindex >= 0))
 		xui_set_front(ctx, ctx->next_hover_root);
 	ctx->mouse.down = 0;
 	ctx->mouse.up = 0;

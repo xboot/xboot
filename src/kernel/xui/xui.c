@@ -202,6 +202,11 @@ static const struct xui_style_t xui_style_default = {
 		.thumb_color = { 0xb1, 0xb6, 0xba, 0xff },
 	},
 
+	.collapse = {
+		.border_radius = 2,
+		.border_width = 0,
+	},
+
 	.tree = {
 		.collapsed_icon = 0xf067,
 		.expanded_icon = 0xf068,

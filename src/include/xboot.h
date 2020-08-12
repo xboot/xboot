@@ -75,6 +75,7 @@ extern "C" {
 #include <xui/window.h>
 #include <xui/popup.h>
 #include <xui/panel.h>
+#include <xui/collapse.h>
 #include <xui/tree.h>
 #include <xui/button.h>
 #include <xui/checkbox.h>

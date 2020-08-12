@@ -21,6 +21,7 @@ extern "C" {
 #define XUI_ID_STACK_SIZE			(32)
 #define XUI_LAYOUT_STACK_SIZE		(32)
 #define XUI_CONTAINER_POOL_SIZE		(128)
+#define XUI_COLLAPSE_POOL_SIZE		(128)
 #define XUI_TREE_POOL_SIZE			(128)
 #define XUI_MAX_WIDTHS				(32)
 
@@ -364,6 +365,11 @@ struct xui_style_t {
 	} scroll;
 
 	struct {
+		int border_radius;
+		int border_width;
+	} collapse;
+
+	struct {
 		uint32_t collapsed_icon;
 		uint32_t expanded_icon;
 		int border_radius;
@@ -525,6 +531,7 @@ struct xui_context_t {
 	 */
 	struct xui_container_t containers[XUI_CONTAINER_POOL_SIZE];
 	struct xui_pool_item_t container_pool[XUI_CONTAINER_POOL_SIZE];
+	struct xui_pool_item_t collapse_pool[XUI_COLLAPSE_POOL_SIZE];
 	struct xui_pool_item_t tree_pool[XUI_TREE_POOL_SIZE];
 
 	/*

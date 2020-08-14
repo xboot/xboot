@@ -21,16 +21,16 @@ enum {
 	XUI_BUTTON_OUTLINE		= (0x1 << 12),
 };
 
-int xui_button_ex(struct xui_context_t * ctx, const char * label, int icon, int opt);
+int xui_button_ex(struct xui_context_t * ctx, int icon, const char * label, int opt);
 
 static inline int xui_button(struct xui_context_t * ctx, const char * label)
 {
-	return xui_button_ex(ctx, label, 0, XUI_BUTTON_PRIMARY | XUI_OPT_TEXT_CENTER);
+	return xui_button_ex(ctx, 0, label, XUI_BUTTON_PRIMARY | XUI_OPT_TEXT_CENTER);
 }
 
 static inline int xui_button_icon(struct xui_context_t * ctx, int icon)
 {
-	return xui_button_ex(ctx, NULL, icon, XUI_BUTTON_PRIMARY | XUI_OPT_TEXT_CENTER);
+	return xui_button_ex(ctx, icon, NULL, XUI_BUTTON_PRIMARY | XUI_OPT_TEXT_CENTER);
 }
 
 #ifdef __cplusplus

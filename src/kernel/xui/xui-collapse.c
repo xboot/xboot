@@ -39,6 +39,7 @@ int xui_collapse_ex(struct xui_context_t * ctx, int icon, const char * label, in
 	int radius, width;
 	int active, expanded;
 
+	xui_layout_row(ctx, 1, (int[]){ -1 }, 0);
 	region_clone(&r, xui_layout_next(ctx));
 	xui_control_update(ctx, id, &r, 0);
 	active = (idx >= 0);

@@ -33,12 +33,11 @@ enum {
 	XUI_OPT_NOSCROLL			= (0x1 << 1),
 	XUI_OPT_HOLDFOCUS			= (0x1 << 2),
 	XUI_OPT_CLOSED				= (0x1 << 3),
-	XUI_OPT_EXPANDED			= (0x1 << 4),
-	XUI_OPT_TEXT_LEFT			= (0x0 << 5),
-	XUI_OPT_TEXT_RIGHT			= (0x1 << 5),
-	XUI_OPT_TEXT_TOP			= (0x2 << 5),
-	XUI_OPT_TEXT_BOTTOM			= (0x3 << 5),
-	XUI_OPT_TEXT_CENTER			= (0x4 << 5),
+	XUI_OPT_TEXT_LEFT			= (0x0 << 4),
+	XUI_OPT_TEXT_RIGHT			= (0x1 << 4),
+	XUI_OPT_TEXT_TOP			= (0x2 << 4),
+	XUI_OPT_TEXT_BOTTOM			= (0x3 << 4),
+	XUI_OPT_TEXT_CENTER			= (0x4 << 4),
 };
 
 enum {
@@ -374,21 +373,6 @@ struct xui_style_t {
 		uint32_t expanded_icon;
 		int border_radius;
 		int border_width;
-		struct {
-			struct color_t face_color;
-			struct color_t border_color;
-			struct color_t text_color;
-		} normal;
-		struct {
-			struct color_t face_color;
-			struct color_t border_color;
-			struct color_t text_color;
-		} hover;
-		struct {
-			struct color_t face_color;
-			struct color_t border_color;
-			struct color_t text_color;
-		} focus;
 	} tree;
 
 	struct {

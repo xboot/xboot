@@ -24,7 +24,7 @@ int xui_collapse_ex(struct xui_context_t * ctx, int icon, const char * label, in
 
 static inline int xui_collapse(struct xui_context_t * ctx, int icon, const char * label)
 {
-	return xui_collapse_ex(ctx, icon, label, XUI_OPT_TEXT_LEFT);
+	return xui_collapse_ex(ctx, icon, label, XUI_COLLAPSE_PRIMARY | XUI_OPT_TEXT_LEFT);
 }
 
 #ifdef __cplusplus

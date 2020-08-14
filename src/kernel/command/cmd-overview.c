@@ -757,18 +757,20 @@ static void overview_window(struct xui_context_t * ctx)
 			xui_end_tree(ctx);
 		}
 
-		if(xui_header(ctx, "Label"))
+		if(xui_begin_tree(ctx, "Label"))
 		{
 			xui_label_ex(ctx, "Label align left", XUI_OPT_TEXT_LEFT);
 			xui_label_ex(ctx, "Label align center", XUI_OPT_TEXT_CENTER);
 			xui_label_ex(ctx, "Label align right", XUI_OPT_TEXT_RIGHT);
 			xui_label_ex(ctx, "Label align top", XUI_OPT_TEXT_TOP);
 			xui_label_ex(ctx, "Label align bottom", XUI_OPT_TEXT_BOTTOM);
+			xui_end_tree(ctx);
 		}
 
-		if(xui_header(ctx, "Text"))
+		if(xui_begin_tree(ctx, "Text"))
 		{
 			xui_text(ctx, "This is a long text to show dynamic window changes on multiline text");
+			xui_end_tree(ctx);
 		}
 
 		xui_end_window(ctx);

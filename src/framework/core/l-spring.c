@@ -73,7 +73,7 @@ static int m_spring_call(lua_State * L)
 	double delta = luaL_checknumber(L, 2);
 	double nv = s->velocity + (s->stiffness * (s->stop - s->start) - s->damping * s->velocity) * delta;
 	double ns = s->start + nv * delta;
-	if((abs(nv) < 0.01) && (abs(ns - s->stop) < 0.01))
+	if((fabs(nv) < 0.01) && (fabs(ns - s->stop) < 0.01))
 	{
 		s->start = s->stop;
 		s->velocity = 0;

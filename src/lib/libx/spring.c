@@ -13,11 +13,6 @@ static inline int spring_atrest(struct spring_t * s)
 	return (fabs(s->velocity) <= 0.005f) && ((fabs(s->stop - s->position) <= 0.005f) || (s->tension == 0.0f));
 }
 
-static inline int spring_overshoot(struct spring_t * s)
-{
-	return (s->tension > 0) && (((s->start < s->stop) && (s->position > s->stop)) || ((s->start > s->stop) && (s->position < s->stop)));
-}
-
 void spring_init(struct spring_t * s, double start, double stop, double velocity, double tension, double friction)
 {
 	s->tension = tension;
@@ -85,7 +80,7 @@ int spring_step(struct spring_t * s, double dt)
 		s->position = s->position * alpha + s->pposition * (1.0f - alpha);
 		s->velocity = s->velocity * alpha + s->pvelocity * (1.0f - alpha);
 	}
-	if(spring_atrest(s) || spring_overshoot(s))
+	if(spring_atrest(s))
 	{
 		if(s->tension > 0.0f)
 		{

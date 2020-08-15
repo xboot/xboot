@@ -27,37 +27,18 @@
  */
 
 #include <xboot.h>
+#include <spring.h>
 #include <framework/core/l-spring.h>
-
-/*
- * https://chenglou.github.io/react-motion/demos/demo5-spring-parameters-chooser/
- *
- * no-wobble: stiffness = 170, damping = 26
- * gentle: stiffness = 120, damping = 14
- * wobble: stiffness = 180, damping = 12
- * stiff: stiffness = 210, damping = 20
- */
-struct lspring_t {
-	double start;
-	double stop;
-	double velocity;
-	double stiffness;
-	double damping;
-};
 
 static int l_new(lua_State * L)
 {
 	double start = luaL_optnumber(L, 1, 0);
 	double stop = luaL_optnumber(L, 2, 1);
 	double velocity = luaL_optnumber(L, 3, 0);
-	double stiffness = luaL_optnumber(L, 4, 170);
-	double damping = luaL_optnumber(L, 5, 26);
-	struct lspring_t * s = lua_newuserdata(L, sizeof(struct lspring_t));
-	s->start = start;
-	s->stop = stop;
-	s->velocity = velocity;
-	s->stiffness = stiffness;
-	s->damping = damping;
+	double tension = luaL_optnumber(L, 4, 500);
+	double friction = luaL_optnumber(L, 5, 60);
+	struct spring_t * s = lua_newuserdata(L, sizeof(struct spring_t));
+	spring_init(s, start, stop, velocity, tension, friction);
 	luaL_setmetatable(L, MT_SPRING);
 	return 1;
 }
@@ -69,24 +50,14 @@ static const luaL_Reg l_spring[] = {
 
 static int m_spring_call(lua_State * L)
 {
-	struct lspring_t * s = luaL_checkudata(L, 1, MT_SPRING);
-	double delta = luaL_checknumber(L, 2);
-	double nv = s->velocity + (s->stiffness * (s->stop - s->start) - s->damping * s->velocity) * delta;
-	double ns = s->start + nv * delta;
-	if((fabs(nv) < 0.01) && (fabs(ns - s->stop) < 0.01))
-	{
-		s->start = s->stop;
-		s->velocity = 0;
-		lua_pushboolean(L, 0);
-	}
-	else
-	{
-		s->start = ns;
-		s->velocity = nv;
+	struct spring_t * s = luaL_checkudata(L, 1, MT_SPRING);
+	double dt = luaL_checknumber(L, 2);
+	if(spring_step(s, dt))
 		lua_pushboolean(L, 1);
-	}
-	lua_pushnumber(L, s->start);
-	lua_pushnumber(L, s->velocity);
+	else
+		lua_pushboolean(L, 0);
+	lua_pushnumber(L, spring_position(s));
+	lua_pushnumber(L, spring_velocity(s));
 	return 3;
 }
 

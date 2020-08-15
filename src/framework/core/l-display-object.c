@@ -502,7 +502,7 @@ function M:animate(properties, duration, easing)
 	return self
 end
 
-function M:spring(properties, velocity, stiffness, damping)
+function M:spring(properties, velocity, tension, friction)
 	local function listener(d, e)
 		if d._spring and type(d._spring) == "table" and next(d._spring) then
 			local complete = true
@@ -510,26 +510,26 @@ function M:spring(properties, velocity, stiffness, damping)
 			d._swatch:reset()
 
 			for k, v in pairs(d._spring) do
-				local flag, ns, nv = v(delta)
+				local flag, np, nv = v(delta)
 				if flag then
 					if k == "x" then
-						d:setX(ns)
+						d:setX(np)
 					elseif k == "y" then
-						d:setY(ns)
+						d:setY(np)
 					elseif k == "rotation" then
-						d:setRotation(ns)
+						d:setRotation(np)
 					elseif k == "scalex" then
-						d:setScaleX(ns)
+						d:setScaleX(np)
 					elseif k == "scaley" then
-						d:setScaleY(ns)
+						d:setScaleY(np)
 					elseif k == "skewx" then
-						d:setSkewX(ns)
+						d:setSkewX(np)
 					elseif k == "skewy" then
-						d:setSkewY(ns)
+						d:setSkewY(np)
 					elseif k == "width" then
-						d:setWidth(ns)
+						d:setWidth(np)
 					elseif k == "height" then
-						d:setHeight(ns)
+						d:setHeight(np)
 					end
 					complete = false
 				end
@@ -572,7 +572,7 @@ function M:spring(properties, velocity, stiffness, damping)
 				s = self:getHeight()
 			end
 			if s ~= nil then
-				self._spring[k] = Spring.new(s, v, velocity, stiffness, damping)
+				self._spring[k] = Spring.new(s, v, velocity, tension, friction)
 			end
 		end
 		if next(self._spring) and not self._swatch then

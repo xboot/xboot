@@ -31,7 +31,8 @@
 
 void xui_open_popup(struct xui_context_t * ctx, const char * name)
 {
-	struct xui_container_t * c = xui_get_container(ctx, name);
+	unsigned int id = xui_get_id(ctx, name, strlen(name));
+	struct xui_container_t * c = get_container(ctx, id, 0);
 	ctx->hover_root = ctx->next_hover_root = c;
 	region_init(&c->region, ctx->mouse.x, ctx->mouse.y, 1, 1);
 	c->open = 1;

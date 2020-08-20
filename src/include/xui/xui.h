@@ -455,7 +455,7 @@ struct xui_context_t {
 	unsigned int cindex;
 	uint64_t last;
 	uint64_t now;
-	uint64_t delta;
+	double delta;
 	int frame;
 	int fps;
 
@@ -542,38 +542,79 @@ struct xui_context_t {
 	void * priv;
 };
 
+static inline void xui_hash(unsigned int * h, const void * data, int size)
+{
+	const unsigned char * p = data;
+	while(size--)
+		*h = (*h << 5) + *h + (*p++);
+}
+
+static inline void xui_set_front(struct xui_context_t * ctx, struct xui_container_t * c)
+{
+	c->zindex = ++ctx->last_zindex;
+}
+
+static inline void xui_set_focus(struct xui_context_t * ctx, unsigned int id)
+{
+	ctx->focus = id;
+	ctx->updated_focus = 1;
+}
+
+static inline unsigned int xui_get_id(struct xui_context_t * ctx, const void * data, int size)
+{
+	unsigned int h = (ctx->id_stack.idx > 0) ? ctx->id_stack.items[ctx->id_stack.idx - 1] : 5381;
+
+	xui_hash(&h, data, size);
+	ctx->last_id = h;
+	return h;
+}
+
+static inline void xui_push_id(struct xui_context_t * ctx, const void * data, int size)
+{
+	xui_push(ctx->id_stack, xui_get_id(ctx, data, size));
+}
+
+static inline void xui_pop_id(struct xui_context_t * ctx)
+{
+	xui_pop(ctx->id_stack);
+}
+
+static inline struct region_t * xui_get_clip(struct xui_context_t * ctx)
+{
+	return &ctx->clip_stack.items[ctx->clip_stack.idx - 1];
+}
+
+static inline void xui_push_clip(struct xui_context_t * ctx, struct region_t * r)
+{
+	struct region_t clip;
+
+	if(!region_intersect(&clip, r, xui_get_clip(ctx)))
+		region_init(&clip, 0, 0, 0, 0);
+	xui_push(ctx->clip_stack, clip);
+}
+
+static inline void xui_pop_clip(struct xui_context_t * ctx)
+{
+	xui_pop(ctx->clip_stack);
+}
+
+static inline struct xui_layout_t * xui_get_layout(struct xui_context_t * ctx)
+{
+	return &ctx->layout_stack.items[ctx->layout_stack.idx - 1];
+}
+
+static inline struct xui_container_t * xui_get_container(struct xui_context_t * ctx)
+{
+	return ctx->container_stack.items[ctx->container_stack.idx - 1];
+}
+
 void xui_begin(struct xui_context_t * ctx);
 void xui_end(struct xui_context_t * ctx);
 const char * xui_format(struct xui_context_t * ctx, const char * fmt, ...);
-void xui_set_front(struct xui_context_t * ctx, struct xui_container_t * c);
-void xui_set_focus(struct xui_context_t * ctx, unsigned int id);
-unsigned int xui_get_id(struct xui_context_t * ctx, const void * data, int size);
-void xui_push_id(struct xui_context_t * ctx, const void * data, int size);
-void xui_pop_id(struct xui_context_t * ctx);
-struct region_t * xui_get_clip(struct xui_context_t * ctx);
-void xui_push_clip(struct xui_context_t * ctx, struct region_t * r);
-void xui_pop_clip(struct xui_context_t * ctx);
-struct xui_layout_t * xui_get_layout(struct xui_context_t * ctx);
-struct xui_container_t * xui_get_container(struct xui_context_t * ctx, const char * name);
-struct xui_container_t * xui_get_current_container(struct xui_context_t * ctx);
 
 int xui_pool_init(struct xui_context_t * ctx, struct xui_pool_item_t * items, int len, unsigned int id);
 int xui_pool_get(struct xui_context_t * ctx, struct xui_pool_item_t * items, int len, unsigned int id);
 void xui_pool_update(struct xui_context_t * ctx, struct xui_pool_item_t * items, int idx);
-
-void pop_container(struct xui_context_t * ctx);
-struct xui_container_t * get_container(struct xui_context_t * ctx, unsigned int id, int opt);
-void push_container_body(struct xui_context_t * ctx, struct xui_container_t * c, struct region_t * body, int opt);
-void begin_root_container(struct xui_context_t * ctx, struct xui_container_t * c);
-void end_root_container(struct xui_context_t * ctx);
-
-void xui_layout_width(struct xui_context_t * ctx, int width);
-void xui_layout_height(struct xui_context_t * ctx, int height);
-void xui_layout_row(struct xui_context_t * ctx, int items, const int * widths, int height);
-void xui_layout_begin_column(struct xui_context_t * ctx);
-void xui_layout_end_column(struct xui_context_t * ctx);
-void xui_layout_set_next(struct xui_context_t * ctx, struct region_t * r, int relative);
-struct region_t * xui_layout_next(struct xui_context_t * ctx);
 
 void xui_draw_line(struct xui_context_t * ctx, struct point_t * p0, struct point_t * p1, int thickness, struct color_t * c);
 void xui_draw_polyline(struct xui_context_t * ctx, struct point_t * p, int n, int thickness, struct color_t * c);
@@ -589,8 +630,22 @@ void xui_draw_checkerboard(struct xui_context_t * ctx, int x, int y, int w, int 
 void xui_draw_text(struct xui_context_t * ctx, const char * family, int size, const char * utf8, int x, int y, int wrap, struct color_t * c);
 void xui_draw_icon(struct xui_context_t * ctx, const char * family, uint32_t code, int x, int y, int w, int h, struct color_t * c);
 
+struct xui_container_t * get_container(struct xui_context_t * ctx, unsigned int id, int opt);
+void push_container_body(struct xui_context_t * ctx, struct xui_container_t * c, struct region_t * body, int opt);
+void pop_container(struct xui_context_t * ctx);
+void root_container_begin(struct xui_context_t * ctx, struct xui_container_t * c);
+void root_container_end(struct xui_context_t * ctx);
+
 void xui_control_update(struct xui_context_t * ctx, unsigned int id, struct region_t * r, int opt);
 void xui_control_draw_text(struct xui_context_t * ctx, const char * utf8, struct region_t * r, struct color_t * c, int opt);
+
+void xui_layout_width(struct xui_context_t * ctx, int width);
+void xui_layout_height(struct xui_context_t * ctx, int height);
+void xui_layout_row(struct xui_context_t * ctx, int items, const int * widths, int height);
+void xui_layout_begin_column(struct xui_context_t * ctx);
+void xui_layout_end_column(struct xui_context_t * ctx);
+void xui_layout_set_next(struct xui_context_t * ctx, struct region_t * r, int relative);
+struct region_t * xui_layout_next(struct xui_context_t * ctx);
 
 struct xui_context_t * xui_context_alloc(const char * fb, const char * input, struct xui_style_t * style, void * data);
 void xui_context_free(struct xui_context_t * ctx);

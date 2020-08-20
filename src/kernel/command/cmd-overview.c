@@ -424,13 +424,13 @@ static void overview_window(struct xui_context_t * ctx)
 
 	if(xui_begin_window(ctx, "Overview Window", &(struct region_t){ 40 + (ctx->screen.w - 60) / 2, 20, (ctx->screen.w - 60) / 2, ctx->screen.h - 40 }))
 	{
-		struct xui_container_t * win = xui_get_current_container(ctx);
+		struct xui_container_t * win = xui_get_container(ctx);
 		win->region.w = max(win->region.w, 48);
 		win->region.h = max(win->region.h, 48);
 
 		if(xui_begin_tree(ctx, "Window Info"))
 		{
-			struct xui_container_t * win = xui_get_current_container(ctx);
+			struct xui_container_t * win = xui_get_container(ctx);
 			xui_layout_row(ctx, 2, (int[]){ 100, -1 }, 0);
 			xui_label(ctx, "Position :");
 			xui_label(ctx, xui_format(ctx, "%d, %d", win->region.x, win->region.y));

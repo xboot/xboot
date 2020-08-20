@@ -298,23 +298,16 @@ void xui_begin(struct xui_context_t * ctx)
 	ctx->mouse.ox = ctx->mouse.x;
 	ctx->mouse.oy = ctx->mouse.y;
 	ctx->now = ktime_to_ns(ktime_get());
-	ctx->delta = ctx->now - ctx->last;
+	ctx->delta = (ctx->now - ctx->last) / 1000000000.0;
 	ctx->last = ctx->now;
 	ctx->frame++;
 	if(ctx->delta > 0)
-		ctx->fps = 1000000000.0 / ctx->delta * 0.382 + ctx->fps * 0.618;
+		ctx->fps = ctx->fps * 0.618 + 0.382 / ctx->delta;
 }
 
 static int compare_zindex(const void * a, const void * b)
 {
 	return (*(struct xui_container_t **)a)->zindex - (*(struct xui_container_t **)b)->zindex;
-}
-
-static void xui_hash(unsigned int * h, const void * buf, int size)
-{
-	const unsigned char * p = buf;
-	while(size--)
-		*h = (*h << 5) + *h + (*p++);
 }
 
 static int xui_cmd_next(struct xui_context_t * ctx, union xui_cmd_t ** cmd)
@@ -427,58 +420,9 @@ const char * xui_format(struct xui_context_t * ctx, const char * fmt, ...)
 	return (const char *)ctx->fmtbuf;
 }
 
-void xui_set_front(struct xui_context_t * ctx, struct xui_container_t * c)
-{
-	c->zindex = ++ctx->last_zindex;
-}
-
-void xui_set_focus(struct xui_context_t * ctx, unsigned int id)
-{
-	ctx->focus = id;
-	ctx->updated_focus = 1;
-}
-
-unsigned int xui_get_id(struct xui_context_t * ctx, const void * data, int size)
-{
-	int idx = ctx->id_stack.idx;
-	unsigned int h = (idx > 0) ? ctx->id_stack.items[idx - 1] : 5381;
-	xui_hash(&h, data, size);
-	ctx->last_id = h;
-	return h;
-}
-
-void xui_push_id(struct xui_context_t * ctx, const void * data, int size)
-{
-	xui_push(ctx->id_stack, xui_get_id(ctx, data, size));
-}
-
-void xui_pop_id(struct xui_context_t * ctx)
-{
-	xui_pop(ctx->id_stack);
-}
-
-struct region_t * xui_get_clip(struct xui_context_t * ctx)
-{
-	assert(ctx->clip_stack.idx > 0);
-	return &ctx->clip_stack.items[ctx->clip_stack.idx - 1];
-}
-
-void xui_push_clip(struct xui_context_t * ctx, struct region_t * r)
-{
-	struct region_t region;
-	if(!region_intersect(&region, r, xui_get_clip(ctx)))
-		region_init(&region, 0, 0, 0, 0);
-	xui_push(ctx->clip_stack, region);
-}
-
-void xui_pop_clip(struct xui_context_t * ctx)
-{
-	xui_pop(ctx->clip_stack);
-}
-
 int xui_pool_init(struct xui_context_t * ctx, struct xui_pool_item_t * items, int len, unsigned int id)
 {
-	int i, n = -1, f = ctx->frame;
+	int i, n = 0, f = ctx->frame;
 	for(i = 0; i < len; i++)
 	{
 		if(items[i].last_update < f)
@@ -487,7 +431,6 @@ int xui_pool_init(struct xui_context_t * ctx, struct xui_pool_item_t * items, in
 			n = i;
 		}
 	}
-	assert(n > -1);
 	items[n].id = id;
 	items[n].last_update = ctx->frame;
 	return n;
@@ -507,161 +450,6 @@ int xui_pool_get(struct xui_context_t * ctx, struct xui_pool_item_t * items, int
 void xui_pool_update(struct xui_context_t * ctx, struct xui_pool_item_t * items, int idx)
 {
 	items[idx].last_update = ctx->frame;
-}
-
-static void push_layout(struct xui_context_t * ctx, struct region_t * body, int scrollx, int scrolly)
-{
-	struct xui_layout_t layout;
-	memset(&layout, 0, sizeof(layout));
-	region_init(&layout.body, body->x - scrollx, body->y - scrolly, body->w, body->h);
-	layout.max_width = INT_MIN;
-	layout.max_height = INT_MIN;
-	xui_push(ctx->layout_stack, layout);
-	xui_layout_row(ctx, 1, (int[]){ 0 }, 0);
-}
-
-struct xui_layout_t * xui_get_layout(struct xui_context_t * ctx)
-{
-	return &ctx->layout_stack.items[ctx->layout_stack.idx - 1];
-}
-
-void pop_container(struct xui_context_t * ctx)
-{
-	struct xui_container_t * c = xui_get_current_container(ctx);
-	struct xui_layout_t * layout = xui_get_layout(ctx);
-	c->content_width = layout->max_width - layout->body.x;
-	c->content_height = layout->max_height - layout->body.y;
-	xui_pop(ctx->container_stack);
-	xui_pop(ctx->layout_stack);
-	xui_pop_id(ctx);
-}
-
-struct xui_container_t * get_container(struct xui_context_t * ctx, unsigned int id, int opt)
-{
-	struct xui_container_t * c;
-	int idx = xui_pool_get(ctx, ctx->container_pool, XUI_CONTAINER_POOL_SIZE, id);
-	if(idx >= 0)
-	{
-		if(ctx->containers[idx].open || (~opt & XUI_OPT_CLOSED))
-			xui_pool_update(ctx, ctx->container_pool, idx);
-		return &ctx->containers[idx];
-	}
-	if(opt & XUI_OPT_CLOSED)
-		return NULL;
-	idx = xui_pool_init(ctx, ctx->container_pool, XUI_CONTAINER_POOL_SIZE, id);
-	c = &ctx->containers[idx];
-	memset(c, 0, sizeof(struct xui_container_t));
-	c->open = 1;
-	xui_set_front(ctx, c);
-	return c;
-}
-
-struct xui_container_t * xui_get_container(struct xui_context_t * ctx, const char * name)
-{
-	unsigned int id = xui_get_id(ctx, name, strlen(name));
-	return get_container(ctx, id, 0);
-}
-
-struct xui_container_t * xui_get_current_container(struct xui_context_t * ctx)
-{
-	assert(ctx->container_stack.idx > 0);
-	return ctx->container_stack.items[ctx->container_stack.idx - 1];
-}
-
-void xui_layout_width(struct xui_context_t * ctx, int width)
-{
-	xui_get_layout(ctx)->size_width = width;
-}
-
-void xui_layout_height(struct xui_context_t * ctx, int height)
-{
-	xui_get_layout(ctx)->size_height = height;
-}
-
-void xui_layout_row(struct xui_context_t * ctx, int items, const int * widths, int height)
-{
-	struct xui_layout_t * layout = xui_get_layout(ctx);
-	if(widths)
-	{
-		assert(items <= XUI_MAX_WIDTHS);
-		memcpy(layout->widths, widths, items * sizeof(widths[0]));
-	}
-	layout->items = items;
-	layout->position_x = layout->indent;
-	layout->position_y = layout->next_row;
-	layout->size_height = height;
-	layout->item_index = 0;
-}
-
-void xui_layout_begin_column(struct xui_context_t * ctx)
-{
-	push_layout(ctx, xui_layout_next(ctx), 0, 0);
-}
-
-void xui_layout_end_column(struct xui_context_t * ctx)
-{
-	struct xui_layout_t * a, * b;
-	b = xui_get_layout(ctx);
-	xui_pop(ctx->layout_stack);
-	a = xui_get_layout(ctx);
-	a->position_x = max(a->position_x, b->position_x + b->body.x - a->body.x);
-	a->next_row = max(a->next_row, b->next_row + b->body.y - a->body.y);
-	a->max_width = max(a->max_width, b->max_width);
-	a->max_height = max(a->max_height, b->max_height);
-}
-
-void xui_layout_set_next(struct xui_context_t * ctx, struct region_t * r, int relative)
-{
-	struct xui_layout_t * layout = xui_get_layout(ctx);
-	region_clone(&layout->next, r);
-	layout->next_type = relative ? 1 : 2;
-}
-
-struct region_t * xui_layout_next(struct xui_context_t * ctx)
-{
-	struct xui_layout_t * layout = xui_get_layout(ctx);
-	struct xui_style_t * style = &ctx->style;
-	struct region_t r;
-
-	if(layout->next_type)
-	{
-		int type = layout->next_type;
-		layout->next_type = 0;
-		region_clone(&r, &layout->next);
-		if(type == 2)
-		{
-			region_clone(&ctx->last_rect, &r);
-			return &ctx->last_rect;
-		}
-	}
-	else
-	{
-		if(layout->item_index == layout->items)
-			xui_layout_row(ctx, layout->items, NULL, layout->size_height);
-		r.x = layout->position_x;
-		r.y = layout->position_y;
-		r.w = layout->items > 0 ? layout->widths[layout->item_index] : layout->size_width;
-		r.h = layout->size_height;
-		if(r.w == 0)
-			r.w = style->layout.width + style->layout.padding * 2;
-		if(r.h == 0)
-			r.h = style->layout.height + style->layout.padding * 2;
-		if(r.w < 0)
-			r.w += layout->body.w - r.x + 1;
-		if(r.h < 0)
-			r.h += layout->body.h - r.y + 1;
-		layout->item_index++;
-	}
-
-	layout->position_x += r.w + style->layout.spacing;
-	layout->next_row = max(layout->next_row, r.y + r.h + style->layout.spacing);
-	r.x += layout->body.x;
-	r.y += layout->body.y;
-	layout->max_width = max(layout->max_width, r.x + r.w);
-	layout->max_height = max(layout->max_height, r.y + r.h);
-
-	region_clone(&ctx->last_rect, &r);
-	return &ctx->last_rect;
 }
 
 static union xui_cmd_t * xui_cmd_push(struct xui_context_t * ctx, enum xui_cmd_type_t type, int len, struct region_t * r)
@@ -1044,6 +832,37 @@ void xui_draw_icon(struct xui_context_t * ctx, const char * family, uint32_t cod
 	}
 }
 
+static void push_layout(struct xui_context_t * ctx, struct region_t * body, int scrollx, int scrolly)
+{
+	struct xui_layout_t layout;
+	memset(&layout, 0, sizeof(layout));
+	region_init(&layout.body, body->x - scrollx, body->y - scrolly, body->w, body->h);
+	layout.max_width = INT_MIN;
+	layout.max_height = INT_MIN;
+	xui_push(ctx->layout_stack, layout);
+	xui_layout_row(ctx, 1, (int[]){ 0 }, 0);
+}
+
+struct xui_container_t * get_container(struct xui_context_t * ctx, unsigned int id, int opt)
+{
+	struct xui_container_t * c;
+	int idx = xui_pool_get(ctx, ctx->container_pool, XUI_CONTAINER_POOL_SIZE, id);
+	if(idx >= 0)
+	{
+		if(ctx->containers[idx].open || (~opt & XUI_OPT_CLOSED))
+			xui_pool_update(ctx, ctx->container_pool, idx);
+		return &ctx->containers[idx];
+	}
+	if(opt & XUI_OPT_CLOSED)
+		return NULL;
+	idx = xui_pool_init(ctx, ctx->container_pool, XUI_CONTAINER_POOL_SIZE, id);
+	c = &ctx->containers[idx];
+	memset(c, 0, sizeof(struct xui_container_t));
+	c->open = 1;
+	xui_set_front(ctx, c);
+	return c;
+}
+
 static int in_hover_root(struct xui_context_t * ctx)
 {
 	int i = ctx->container_stack.idx;
@@ -1060,73 +879,6 @@ static int in_hover_root(struct xui_context_t * ctx)
 static int xui_mouse_over(struct xui_context_t * ctx, struct region_t * r)
 {
 	return region_hit(r, ctx->mouse.x, ctx->mouse.y) && region_hit(xui_get_clip(ctx), ctx->mouse.x, ctx->mouse.y) && in_hover_root(ctx);
-}
-
-void xui_control_update(struct xui_context_t * ctx, unsigned int id, struct region_t * r, int opt)
-{
-	if(ctx->focus == id)
-		ctx->updated_focus = 1;
-	if(!(opt & XUI_OPT_NOINTERACT))
-	{
-		int over = xui_mouse_over(ctx, r);
-		if(!ctx->mouse.state && over)
-			ctx->hover = id;
-		if((ctx->hover == id) && !over)
-			ctx->hover = 0;
-		if(ctx->focus == id)
-		{
-			if((ctx->mouse.up || ctx->mouse.down) && !over)
-				xui_set_focus(ctx, 0);
-			if(!ctx->mouse.state && (~opt & XUI_OPT_HOLDFOCUS))
-				xui_set_focus(ctx, 0);
-		}
-		if((ctx->mouse.up || ctx->mouse.down) && over)
-			xui_set_focus(ctx, id);
-	}
-}
-
-void xui_control_draw_text(struct xui_context_t * ctx, const char * utf8, struct region_t * r, struct color_t * c, int opt)
-{
-	struct text_t txt;
-	const char * family = ctx->style.font.font_family;
-	int size = ctx->style.font.size;
-	int tw, th;
-	int x, y;
-
-	text_init(&txt, utf8, c, 0, ctx->f, family, size);
-	tw = txt.metrics.width;
-	th = txt.metrics.height;
-
-	xui_push_clip(ctx, r);
-	switch(opt & (0x7 << 5))
-	{
-	case XUI_OPT_TEXT_LEFT:
-		x = r->x + ctx->style.layout.padding;
-		y = r->y + (r->h - th) / 2;
-		break;
-	case XUI_OPT_TEXT_RIGHT:
-		x = r->x + r->w - tw - ctx->style.layout.padding;
-		y = r->y + (r->h - th) / 2;
-		break;
-	case XUI_OPT_TEXT_TOP:
-		x = r->x + (r->w - tw) / 2;
-		y = r->y + ctx->style.layout.padding;
-		break;
-	case XUI_OPT_TEXT_BOTTOM:
-		x = r->x + (r->w - tw) / 2;
-		y = r->y + r->h - th - ctx->style.layout.padding;
-		break;
-	case XUI_OPT_TEXT_CENTER:
-		x = r->x + (r->w - tw) / 2;
-		y = r->y + (r->h - th) / 2;
-		break;
-	default:
-		x = r->x + ctx->style.layout.padding;
-		y = r->y + (r->h - th) / 2;
-		break;
-	}
-	xui_draw_text(ctx, family, size, utf8, x, y, 0, c);
-	xui_pop_clip(ctx);
 }
 
 static void scrollbars(struct xui_context_t * ctx, struct xui_container_t * c, struct region_t * body)
@@ -1206,7 +958,18 @@ void push_container_body(struct xui_context_t * ctx, struct xui_container_t * c,
 	region_clone(&c->body, body);
 }
 
-void begin_root_container(struct xui_context_t * ctx, struct xui_container_t * c)
+void pop_container(struct xui_context_t * ctx)
+{
+	struct xui_container_t * c = xui_get_container(ctx);
+	struct xui_layout_t * layout = xui_get_layout(ctx);
+	c->content_width = layout->max_width - layout->body.x;
+	c->content_height = layout->max_height - layout->body.y;
+	xui_pop(ctx->container_stack);
+	xui_pop(ctx->layout_stack);
+	xui_pop_id(ctx);
+}
+
+void root_container_begin(struct xui_context_t * ctx, struct xui_container_t * c)
 {
 	xui_push(ctx->container_stack, c);
 	xui_push(ctx->root_list, c);
@@ -1216,13 +979,176 @@ void begin_root_container(struct xui_context_t * ctx, struct xui_container_t * c
 	xui_push(ctx->clip_stack, unlimited_region);
 }
 
-void end_root_container(struct xui_context_t * ctx)
+void root_container_end(struct xui_context_t * ctx)
 {
-	struct xui_container_t * c = xui_get_current_container(ctx);
+	struct xui_container_t * c = xui_get_container(ctx);
 	c->tail = xui_cmd_push_jump(ctx, NULL);
 	c->head->jump.addr = ctx->cmd_list.items + ctx->cmd_list.idx;
 	xui_pop_clip(ctx);
 	pop_container(ctx);
+}
+
+void xui_control_update(struct xui_context_t * ctx, unsigned int id, struct region_t * r, int opt)
+{
+	if(ctx->focus == id)
+		ctx->updated_focus = 1;
+	if(!(opt & XUI_OPT_NOINTERACT))
+	{
+		int over = xui_mouse_over(ctx, r);
+		if(!ctx->mouse.state && over)
+			ctx->hover = id;
+		if((ctx->hover == id) && !over)
+			ctx->hover = 0;
+		if(ctx->focus == id)
+		{
+			if((ctx->mouse.up || ctx->mouse.down) && !over)
+				xui_set_focus(ctx, 0);
+			if(!ctx->mouse.state && (~opt & XUI_OPT_HOLDFOCUS))
+				xui_set_focus(ctx, 0);
+		}
+		if((ctx->mouse.up || ctx->mouse.down) && over)
+			xui_set_focus(ctx, id);
+	}
+}
+
+void xui_control_draw_text(struct xui_context_t * ctx, const char * utf8, struct region_t * r, struct color_t * c, int opt)
+{
+	struct text_t txt;
+	const char * family = ctx->style.font.font_family;
+	int size = ctx->style.font.size;
+	int tw, th;
+	int x, y;
+
+	text_init(&txt, utf8, c, 0, ctx->f, family, size);
+	tw = txt.metrics.width;
+	th = txt.metrics.height;
+
+	xui_push_clip(ctx, r);
+	switch(opt & (0x7 << 5))
+	{
+	case XUI_OPT_TEXT_LEFT:
+		x = r->x + ctx->style.layout.padding;
+		y = r->y + (r->h - th) / 2;
+		break;
+	case XUI_OPT_TEXT_RIGHT:
+		x = r->x + r->w - tw - ctx->style.layout.padding;
+		y = r->y + (r->h - th) / 2;
+		break;
+	case XUI_OPT_TEXT_TOP:
+		x = r->x + (r->w - tw) / 2;
+		y = r->y + ctx->style.layout.padding;
+		break;
+	case XUI_OPT_TEXT_BOTTOM:
+		x = r->x + (r->w - tw) / 2;
+		y = r->y + r->h - th - ctx->style.layout.padding;
+		break;
+	case XUI_OPT_TEXT_CENTER:
+		x = r->x + (r->w - tw) / 2;
+		y = r->y + (r->h - th) / 2;
+		break;
+	default:
+		x = r->x + ctx->style.layout.padding;
+		y = r->y + (r->h - th) / 2;
+		break;
+	}
+	xui_draw_text(ctx, family, size, utf8, x, y, 0, c);
+	xui_pop_clip(ctx);
+}
+
+void xui_layout_width(struct xui_context_t * ctx, int width)
+{
+	xui_get_layout(ctx)->size_width = width;
+}
+
+void xui_layout_height(struct xui_context_t * ctx, int height)
+{
+	xui_get_layout(ctx)->size_height = height;
+}
+
+void xui_layout_row(struct xui_context_t * ctx, int items, const int * widths, int height)
+{
+	struct xui_layout_t * layout = xui_get_layout(ctx);
+	if(widths)
+	{
+		assert(items <= XUI_MAX_WIDTHS);
+		memcpy(layout->widths, widths, items * sizeof(widths[0]));
+	}
+	layout->items = items;
+	layout->position_x = layout->indent;
+	layout->position_y = layout->next_row;
+	layout->size_height = height;
+	layout->item_index = 0;
+}
+
+void xui_layout_begin_column(struct xui_context_t * ctx)
+{
+	push_layout(ctx, xui_layout_next(ctx), 0, 0);
+}
+
+void xui_layout_end_column(struct xui_context_t * ctx)
+{
+	struct xui_layout_t * a, * b;
+	b = xui_get_layout(ctx);
+	xui_pop(ctx->layout_stack);
+	a = xui_get_layout(ctx);
+	a->position_x = max(a->position_x, b->position_x + b->body.x - a->body.x);
+	a->next_row = max(a->next_row, b->next_row + b->body.y - a->body.y);
+	a->max_width = max(a->max_width, b->max_width);
+	a->max_height = max(a->max_height, b->max_height);
+}
+
+void xui_layout_set_next(struct xui_context_t * ctx, struct region_t * r, int relative)
+{
+	struct xui_layout_t * layout = xui_get_layout(ctx);
+	region_clone(&layout->next, r);
+	layout->next_type = relative ? 1 : 2;
+}
+
+struct region_t * xui_layout_next(struct xui_context_t * ctx)
+{
+	struct xui_layout_t * layout = xui_get_layout(ctx);
+	struct xui_style_t * style = &ctx->style;
+	struct region_t r;
+
+	if(layout->next_type)
+	{
+		int type = layout->next_type;
+		layout->next_type = 0;
+		region_clone(&r, &layout->next);
+		if(type == 2)
+		{
+			region_clone(&ctx->last_rect, &r);
+			return &ctx->last_rect;
+		}
+	}
+	else
+	{
+		if(layout->item_index == layout->items)
+			xui_layout_row(ctx, layout->items, NULL, layout->size_height);
+		r.x = layout->position_x;
+		r.y = layout->position_y;
+		r.w = layout->items > 0 ? layout->widths[layout->item_index] : layout->size_width;
+		r.h = layout->size_height;
+		if(r.w == 0)
+			r.w = style->layout.width + style->layout.padding * 2;
+		if(r.h == 0)
+			r.h = style->layout.height + style->layout.padding * 2;
+		if(r.w < 0)
+			r.w += layout->body.w - r.x + 1;
+		if(r.h < 0)
+			r.h += layout->body.h - r.y + 1;
+		layout->item_index++;
+	}
+
+	layout->position_x += r.w + style->layout.spacing;
+	layout->next_row = max(layout->next_row, r.y + r.h + style->layout.spacing);
+	r.x += layout->body.x;
+	r.y += layout->body.y;
+	layout->max_width = max(layout->max_width, r.x + r.w);
+	layout->max_height = max(layout->max_height, r.y + r.h);
+
+	region_clone(&ctx->last_rect, &r);
+	return &ctx->last_rect;
 }
 
 struct xui_context_t * xui_context_alloc(const char * fb, const char * input, struct xui_style_t * style, void * data)

@@ -42,7 +42,7 @@ int xui_begin_window_ex(struct xui_context_t * ctx, const char * title, struct r
 			region_clone(&c->region, &ctx->screen);
 		else if(c->region.w == 0)
 			region_clone(&c->region, r ? r : &ctx->screen);
-		begin_root_container(ctx, c);
+		root_container_begin(ctx, c);
 		region_clone(&body, &c->region);
 		region_clone(&region, &c->region);
 		if(opt & XUI_WINDOW_FULLSCREEN)
@@ -122,5 +122,5 @@ int xui_begin_window_ex(struct xui_context_t * ctx, const char * title, struct r
 void xui_end_window(struct xui_context_t * ctx)
 {
 	xui_pop_clip(ctx);
-	end_root_container(ctx);
+	root_container_end(ctx);
 }

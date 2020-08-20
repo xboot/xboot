@@ -43,6 +43,7 @@ extern "C" {
 #include <fifo.h>
 #include <queue.h>
 #include <ssize.h>
+#include <spring.h>
 #include <malloc.h>
 #include <charset.h>
 #include <version.h>

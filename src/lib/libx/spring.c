@@ -23,7 +23,7 @@ int spring_step(struct spring_t * s, double dt)
 {
 	double v, p;
 
-	if((s->tension == 0.0f) || (fabs(s->velocity) <= SPRING_PRECISION && fabs(s->start - s->stop) <= SPRING_PRECISION))
+	if((s->tension == 0.0f) || (fabs(s->velocity) <= SPRING_PRECISION && fabs(s->stop - s->start) <= SPRING_PRECISION))
 		return 0;
 	if(dt > SPRING_MAX_DELTA_TIME)
 		dt = SPRING_MAX_DELTA_TIME;
@@ -33,7 +33,7 @@ int spring_step(struct spring_t * s, double dt)
 		s->acc -= SPRING_STEP_TIME;
 		v = s->velocity + (s->tension * (s->stop - s->start) - s->friction * s->velocity) * SPRING_STEP_TIME;
 		p = s->start + v * SPRING_STEP_TIME;
-		if(fabs(v) <= SPRING_PRECISION && fabs(p - s->stop) <= SPRING_PRECISION)
+		if(fabs(v) <= SPRING_PRECISION && fabs(s->stop - p) <= SPRING_PRECISION)
 		{
 			s->start = s->stop;
 			s->velocity = 0;

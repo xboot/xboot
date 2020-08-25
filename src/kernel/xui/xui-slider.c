@@ -42,7 +42,7 @@ int xui_slider_ex(struct xui_context_t * ctx, double * value, double low, double
 	xui_control_update(ctx, id, r, opt);
 	radius = min(r->w, r->h) / 2;
 	width = ctx->style.slider.border_width;
-	if((ctx->focus == id) && ((ctx->mouse.state & XUI_MOUSE_LEFT) || (ctx->mouse.down & XUI_MOUSE_LEFT)))
+	if((ctx->active == id) && ((ctx->mouse.state & XUI_MOUSE_LEFT) || (ctx->mouse.down & XUI_MOUSE_LEFT)))
 	{
 		if(opt & XUI_SLIDER_VERTICAL)
 			v = high - (ctx->mouse.y - (r->y + radius)) * (high - low) / (r->h - radius * 2);
@@ -82,10 +82,10 @@ int xui_slider_ex(struct xui_context_t * ctx, double * value, double low, double
 		wc = &ctx->style.primary;
 		break;
 	}
-	if(ctx->focus == id)
+	if(ctx->active == id)
 	{
-		bg = &wc->focus.background;
-		bc = &wc->focus.border;
+		bg = &wc->active.background;
+		bc = &wc->active.border;
 	}
 	else if(ctx->hover == id)
 	{

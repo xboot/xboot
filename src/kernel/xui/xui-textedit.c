@@ -74,7 +74,7 @@ int xui_textedit_ex(struct xui_context_t * ctx, char * buf, int size, int opt)
 		wc = &ctx->style.primary;
 		break;
 	}
-	if(ctx->focus == id)
+	if(ctx->active == id)
 	{
 		int len = strlen(buf);
 		int n = min(size - len - 1, (int)strlen(ctx->input_text));
@@ -93,12 +93,12 @@ int xui_textedit_ex(struct xui_context_t * ctx, char * buf, int size, int opt)
 		}
 		if(ctx->key_pressed & XUI_KEY_ENTER)
 		{
-			xui_set_focus(ctx, 0);
+			xui_set_active(ctx, 0);
 			change |= (1 << 1);
 		}
-		bg = &wc->focus.background;
-		fg = &wc->focus.foreground;
-		bc = &wc->focus.border;
+		bg = &wc->active.background;
+		fg = &wc->active.foreground;
+		bc = &wc->active.border;
 		if(bc->a && (width > 0))
 			xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, radius, width, bc);
 		if(bg->a)

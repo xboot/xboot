@@ -59,7 +59,7 @@ int xui_colorpicker_ex(struct xui_context_t * ctx, struct color_t * c, int opt)
 	r = xui_layout_next(ctx);
 	id = xui_get_id(ctx, "!svpicker", 9);
 	xui_control_update(ctx, id, r, opt);
-	if((ctx->focus == id) && ((ctx->mouse.state & XUI_MOUSE_LEFT) || (ctx->mouse.down & XUI_MOUSE_LEFT)))
+	if((ctx->active == id) && ((ctx->mouse.state & XUI_MOUSE_LEFT) || (ctx->mouse.down & XUI_MOUSE_LEFT)))
 	{
 		color_get_hsva(c, &h, &s, &v, &a);
 		s = clamp(ctx->mouse.x - r->x, 0, r->w) / (float)r->w;
@@ -77,7 +77,7 @@ int xui_colorpicker_ex(struct xui_context_t * ctx, struct color_t * c, int opt)
 	r = xui_layout_next(ctx);
 	id = xui_get_id(ctx, "!hpicker", 8);
 	xui_control_update(ctx, id, r, opt);
-	if((ctx->focus == id) && ((ctx->mouse.state & XUI_MOUSE_LEFT) || (ctx->mouse.down & XUI_MOUSE_LEFT)))
+	if((ctx->active == id) && ((ctx->mouse.state & XUI_MOUSE_LEFT) || (ctx->mouse.down & XUI_MOUSE_LEFT)))
 	{
 		h = clamp(ctx->mouse.y - r->y, 0, r->h) / (float)r->h;
 		color_set_hsva(c, h, s, v, a);
@@ -96,7 +96,7 @@ int xui_colorpicker_ex(struct xui_context_t * ctx, struct color_t * c, int opt)
 	r = xui_layout_next(ctx);
 	id = xui_get_id(ctx, "!apicker", 8);
 	xui_control_update(ctx, id, r, opt);
-	if((ctx->focus == id) && ((ctx->mouse.state & XUI_MOUSE_LEFT) || (ctx->mouse.down & XUI_MOUSE_LEFT)))
+	if((ctx->active == id) && ((ctx->mouse.state & XUI_MOUSE_LEFT) || (ctx->mouse.down & XUI_MOUSE_LEFT)))
 	{
 		a = clamp(ctx->mouse.y - r->y, 0, r->h) / (float)r->h;
 		c->a = roundf(a * 255.0f);

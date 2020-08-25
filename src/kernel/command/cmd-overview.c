@@ -44,7 +44,7 @@ static void xui_style_color(struct xui_context_t * ctx, struct color_t * c)
 	id = xui_get_id(ctx, &c, sizeof(struct color_t *));
 	r = xui_layout_next(ctx);
 	xui_control_update(ctx, id, r, 0);
-	if((ctx->focus == id) && (ctx->mouse.down & XUI_MOUSE_LEFT))
+	if((ctx->active == id) && (ctx->mouse.down & XUI_MOUSE_LEFT))
 	{
 		xui_open_popup(ctx, "!cpopup");
 	}
@@ -111,11 +111,11 @@ static void style_window(struct xui_context_t * ctx)
 				{
 					xui_layout_row(ctx, 2, (int[]){ 100, -1 }, 0);
 					xui_label(ctx, "Background :");
-					xui_style_color(ctx, &ctx->style.primary.focus.background);
+					xui_style_color(ctx, &ctx->style.primary.active.background);
 					xui_label(ctx, "Foreground :");
-					xui_style_color(ctx, &ctx->style.primary.focus.foreground);
+					xui_style_color(ctx, &ctx->style.primary.active.foreground);
 					xui_label(ctx, "Border :");
-					xui_style_color(ctx, &ctx->style.primary.focus.border);
+					xui_style_color(ctx, &ctx->style.primary.active.border);
 					xui_end_tree(ctx);
 				}
 				xui_end_tree(ctx);
@@ -148,11 +148,11 @@ static void style_window(struct xui_context_t * ctx)
 				{
 					xui_layout_row(ctx, 2, (int[]){ 100, -1 }, 0);
 					xui_label(ctx, "Background :");
-					xui_style_color(ctx, &ctx->style.secondary.focus.background);
+					xui_style_color(ctx, &ctx->style.secondary.active.background);
 					xui_label(ctx, "Foreground :");
-					xui_style_color(ctx, &ctx->style.secondary.focus.foreground);
+					xui_style_color(ctx, &ctx->style.secondary.active.foreground);
 					xui_label(ctx, "Border :");
-					xui_style_color(ctx, &ctx->style.secondary.focus.border);
+					xui_style_color(ctx, &ctx->style.secondary.active.border);
 					xui_end_tree(ctx);
 				}
 				xui_end_tree(ctx);
@@ -185,11 +185,11 @@ static void style_window(struct xui_context_t * ctx)
 				{
 					xui_layout_row(ctx, 2, (int[]){ 100, -1 }, 0);
 					xui_label(ctx, "Background :");
-					xui_style_color(ctx, &ctx->style.success.focus.background);
+					xui_style_color(ctx, &ctx->style.success.active.background);
 					xui_label(ctx, "Foreground :");
-					xui_style_color(ctx, &ctx->style.success.focus.foreground);
+					xui_style_color(ctx, &ctx->style.success.active.foreground);
 					xui_label(ctx, "Border :");
-					xui_style_color(ctx, &ctx->style.success.focus.border);
+					xui_style_color(ctx, &ctx->style.success.active.border);
 					xui_end_tree(ctx);
 				}
 				xui_end_tree(ctx);
@@ -222,11 +222,11 @@ static void style_window(struct xui_context_t * ctx)
 				{
 					xui_layout_row(ctx, 2, (int[]){ 100, -1 }, 0);
 					xui_label(ctx, "Background :");
-					xui_style_color(ctx, &ctx->style.info.focus.background);
+					xui_style_color(ctx, &ctx->style.info.active.background);
 					xui_label(ctx, "Foreground :");
-					xui_style_color(ctx, &ctx->style.info.focus.foreground);
+					xui_style_color(ctx, &ctx->style.info.active.foreground);
 					xui_label(ctx, "Border :");
-					xui_style_color(ctx, &ctx->style.info.focus.border);
+					xui_style_color(ctx, &ctx->style.info.active.border);
 					xui_end_tree(ctx);
 				}
 				xui_end_tree(ctx);
@@ -259,11 +259,11 @@ static void style_window(struct xui_context_t * ctx)
 				{
 					xui_layout_row(ctx, 2, (int[]){ 100, -1 }, 0);
 					xui_label(ctx, "Background :");
-					xui_style_color(ctx, &ctx->style.warning.focus.background);
+					xui_style_color(ctx, &ctx->style.warning.active.background);
 					xui_label(ctx, "Foreground :");
-					xui_style_color(ctx, &ctx->style.warning.focus.foreground);
+					xui_style_color(ctx, &ctx->style.warning.active.foreground);
 					xui_label(ctx, "Border :");
-					xui_style_color(ctx, &ctx->style.warning.focus.border);
+					xui_style_color(ctx, &ctx->style.warning.active.border);
 					xui_end_tree(ctx);
 				}
 				xui_end_tree(ctx);
@@ -296,11 +296,11 @@ static void style_window(struct xui_context_t * ctx)
 				{
 					xui_layout_row(ctx, 2, (int[]){ 100, -1 }, 0);
 					xui_label(ctx, "Background :");
-					xui_style_color(ctx, &ctx->style.danger.focus.background);
+					xui_style_color(ctx, &ctx->style.danger.active.background);
 					xui_label(ctx, "Foreground :");
-					xui_style_color(ctx, &ctx->style.danger.focus.foreground);
+					xui_style_color(ctx, &ctx->style.danger.active.foreground);
 					xui_label(ctx, "Border :");
-					xui_style_color(ctx, &ctx->style.danger.focus.border);
+					xui_style_color(ctx, &ctx->style.danger.active.border);
 					xui_end_tree(ctx);
 				}
 				xui_end_tree(ctx);
@@ -333,11 +333,11 @@ static void style_window(struct xui_context_t * ctx)
 				{
 					xui_layout_row(ctx, 2, (int[]){ 100, -1 }, 0);
 					xui_label(ctx, "Background :");
-					xui_style_color(ctx, &ctx->style.light.focus.background);
+					xui_style_color(ctx, &ctx->style.light.active.background);
 					xui_label(ctx, "Foreground :");
-					xui_style_color(ctx, &ctx->style.light.focus.foreground);
+					xui_style_color(ctx, &ctx->style.light.active.foreground);
 					xui_label(ctx, "Border :");
-					xui_style_color(ctx, &ctx->style.light.focus.border);
+					xui_style_color(ctx, &ctx->style.light.active.border);
 					xui_end_tree(ctx);
 				}
 				xui_end_tree(ctx);
@@ -370,11 +370,11 @@ static void style_window(struct xui_context_t * ctx)
 				{
 					xui_layout_row(ctx, 2, (int[]){ 100, -1 }, 0);
 					xui_label(ctx, "Background :");
-					xui_style_color(ctx, &ctx->style.dark.focus.background);
+					xui_style_color(ctx, &ctx->style.dark.active.background);
 					xui_label(ctx, "Foreground :");
-					xui_style_color(ctx, &ctx->style.dark.focus.foreground);
+					xui_style_color(ctx, &ctx->style.dark.active.foreground);
 					xui_label(ctx, "Border :");
-					xui_style_color(ctx, &ctx->style.dark.focus.border);
+					xui_style_color(ctx, &ctx->style.dark.active.border);
 					xui_end_tree(ctx);
 				}
 				xui_end_tree(ctx);
@@ -649,7 +649,7 @@ static void overview_window(struct xui_context_t * ctx)
 			xui_layout_row(ctx, 1, (int[]){ -1 }, 0);
 			if(xui_textedit(ctx, buf, sizeof(buf)) & (1 << 1))
 			{
-				xui_set_focus(ctx, ctx->last_id);
+				xui_set_active(ctx, ctx->last_id);
 				buf[0] = 0;
 			}
 			xui_end_tree(ctx);

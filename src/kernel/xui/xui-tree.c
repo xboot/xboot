@@ -44,7 +44,7 @@ int xui_begin_tree_ex(struct xui_context_t * ctx, const char * label, int opt)
 	xui_control_update(ctx, id, &r, 0);
 	active = (idx >= 0);
 	expanded = (opt & XUI_TREE_EXPANDED) ? !active : active;
-	active ^= ((ctx->focus == id) && (ctx->mouse.down & XUI_MOUSE_LEFT));
+	active ^= ((ctx->active == id) && (ctx->mouse.down & XUI_MOUSE_LEFT));
 	if(idx >= 0)
 	{
 		if(active)
@@ -88,11 +88,11 @@ int xui_begin_tree_ex(struct xui_context_t * ctx, const char * label, int opt)
 		wc = &ctx->style.primary;
 		break;
 	}
-	if(ctx->focus == id)
+	if(ctx->active == id)
 	{
-		bg = &wc->focus.background;
-		fg = &wc->focus.foreground;
-		bc = &wc->focus.border;
+		bg = &wc->active.background;
+		fg = &wc->active.foreground;
+		bc = &wc->active.border;
 		if(bc->a && (width > 0))
 			xui_draw_rectangle(ctx, r.x, r.y, r.w, r.h, radius, width, bc);
 		if(bg->a)

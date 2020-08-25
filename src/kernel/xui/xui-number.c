@@ -39,7 +39,7 @@ int xui_number_ex(struct xui_context_t * ctx, double * value, double low, double
 	int radius, width;
 
 	xui_control_update(ctx, id, r, opt);
-	if((ctx->focus == id) && ((ctx->mouse.state & XUI_MOUSE_LEFT) || (ctx->mouse.down & XUI_MOUSE_LEFT)))
+	if((ctx->active == id) && ((ctx->mouse.state & XUI_MOUSE_LEFT) || (ctx->mouse.down & XUI_MOUSE_LEFT)))
 		v += ctx->mouse.dx * step;
 	v = clamp(v, low, high);
 	if(opt & XUI_NUMBER_ROUNDED)
@@ -77,11 +77,11 @@ int xui_number_ex(struct xui_context_t * ctx, double * value, double low, double
 		wc = &ctx->style.primary;
 		break;
 	}
-	if(ctx->focus == id)
+	if(ctx->active == id)
 	{
-		bg = &wc->focus.background;
-		fg = &wc->focus.foreground;
-		bc = &wc->focus.border;
+		bg = &wc->active.background;
+		fg = &wc->active.foreground;
+		bc = &wc->active.border;
 		if(bc->a && (width > 0))
 			xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, radius, width, bc);
 		if(bg->a)

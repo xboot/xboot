@@ -29,7 +29,7 @@
 #include <xboot.h>
 #include <xui/radio.h>
 
-int xui_radio_ex(struct xui_context_t * ctx, const char * label, int active, int opt)
+int xui_radio_ex(struct xui_context_t * ctx, const char * label, int state, int opt)
 {
 	unsigned int id = xui_get_id(ctx, label, strlen(label));
 	struct region_t region, * r = xui_layout_next(ctx);
@@ -39,11 +39,11 @@ int xui_radio_ex(struct xui_context_t * ctx, const char * label, int active, int
 	int click = 0;
 
 	xui_control_update(ctx, id, r, opt);
-	if((ctx->focus == id) && (ctx->mouse.up & XUI_MOUSE_LEFT))
+	if((ctx->active == id) && (ctx->mouse.up & XUI_MOUSE_LEFT))
 		click = 1;
 	radius = r->h / 2;
 	width = ctx->style.radio.border_width;
-	if(active)
+	if(state)
 	{
 		switch(opt & (0x7 << 8))
 		{
@@ -80,11 +80,11 @@ int xui_radio_ex(struct xui_context_t * ctx, const char * label, int active, int
 	{
 		wc = &ctx->style.secondary;
 	}
-	if(ctx->focus == id)
+	if(ctx->active == id)
 	{
-		bg = &wc->focus.background;
-		fg = &wc->focus.foreground;
-		bc = &wc->focus.border;
+		bg = &wc->active.background;
+		fg = &wc->active.foreground;
+		bc = &wc->active.border;
 	}
 	else if(ctx->hover == id)
 	{
@@ -101,8 +101,8 @@ int xui_radio_ex(struct xui_context_t * ctx, const char * label, int active, int
 	if(bc->a && (width > 0))
 		xui_draw_circle(ctx, r->x + radius, r->y + radius, radius, width, bc);
 	if(bg->a)
-		xui_draw_circle(ctx, r->x + radius, r->y + radius, radius, active ? 0 : ctx->style.radio.outline_width, bg);
-	if(active)
+		xui_draw_circle(ctx, r->x + radius, r->y + radius, radius, state ? 0 : ctx->style.radio.outline_width, bg);
+	if(state)
 		xui_draw_circle(ctx, r->x + radius, r->y + radius, radius * 392 / 1000, 0, fg);
 	if(label && fg->a)
 	{

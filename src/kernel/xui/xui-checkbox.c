@@ -39,7 +39,7 @@ int xui_checkbox_ex(struct xui_context_t * ctx, const char * label, int * state,
 	int click = 0;
 
 	xui_control_update(ctx, id, r, opt);
-	if((ctx->focus == id) && (ctx->mouse.up & XUI_MOUSE_LEFT))
+	if((ctx->active == id) && (ctx->mouse.up & XUI_MOUSE_LEFT))
 	{
 		*state = !*state;
 		click = 1;
@@ -83,11 +83,11 @@ int xui_checkbox_ex(struct xui_context_t * ctx, const char * label, int * state,
 	{
 		wc = &ctx->style.secondary;
 	}
-	if(ctx->focus == id)
+	if(ctx->active == id)
 	{
-		bg = &wc->focus.background;
-		fg = &wc->focus.foreground;
-		bc = &wc->focus.border;
+		bg = &wc->active.background;
+		fg = &wc->active.foreground;
+		bc = &wc->active.border;
 	}
 	else if(ctx->hover == id)
 	{

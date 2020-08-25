@@ -74,11 +74,11 @@ int xui_button_ex(struct xui_context_t * ctx, int icon, const char * label, int 
 		wc = &ctx->style.primary;
 		break;
 	}
-	if(ctx->focus == id)
+	if(ctx->active == id)
 	{
-		bg = &wc->focus.background;
-		fg = &wc->focus.foreground;
-		bc = &wc->focus.border;
+		bg = &wc->active.background;
+		fg = &wc->active.foreground;
+		bc = &wc->active.border;
 		if(bc->a && (width > 0))
 			xui_draw_rectangle(ctx, r.x, r.y, r.w, r.h, radius, width, bc);
 		if(bg->a)

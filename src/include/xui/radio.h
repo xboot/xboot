@@ -18,11 +18,11 @@ enum {
 	XUI_RADIO_DARK		= (0x7 << 8),
 };
 
-int xui_radio_ex(struct xui_context_t * ctx, const char * label, int active, int opt);
+int xui_radio_ex(struct xui_context_t * ctx, const char * label, int state, int opt);
 
-static inline int xui_radio(struct xui_context_t * ctx, const char * label, int active)
+static inline int xui_radio(struct xui_context_t * ctx, const char * label, int state)
 {
-	return xui_radio_ex(ctx, label, active, XUI_RADIO_PRIMARY | XUI_OPT_TEXT_LEFT);
+	return xui_radio_ex(ctx, label, state, XUI_RADIO_PRIMARY | XUI_OPT_TEXT_LEFT);
 }
 
 #ifdef __cplusplus

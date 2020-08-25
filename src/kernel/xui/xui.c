@@ -41,7 +41,7 @@ static const struct xui_style_t xui_style_default = {
 			.foreground = { 0xff, 0xff, 0xff, 0xff },
 			.border = { 0x00, 0x00, 0x00, 0x00 },
 		},
-		.focus = {
+		.active = {
 			.background = { 0x26, 0x47, 0xe0, 0xff },
 			.foreground = { 0xff, 0xff, 0xff, 0xff },
 			.border = { 0x53, 0x6d, 0xe6, 0x60 },
@@ -58,7 +58,7 @@ static const struct xui_style_t xui_style_default = {
 			.foreground = { 0xff, 0xff, 0xff, 0xff },
 			.border = { 0x00, 0x00, 0x00, 0x00 },
 		},
-		.focus = {
+		.active = {
 			.background = { 0x54, 0x5b, 0x62, 0xff },
 			.foreground = { 0xff, 0xff, 0xff, 0xff },
 			.border = { 0x6c, 0x75, 0x7d, 0x60 },
@@ -75,7 +75,7 @@ static const struct xui_style_t xui_style_default = {
 			.foreground = { 0xff, 0xff, 0xff, 0xff },
 			.border = { 0x00, 0x00, 0x00, 0x00 },
 		},
-		.focus = {
+		.active = {
 			.background = { 0x0c, 0x95, 0x50, 0xff },
 			.foreground = { 0xff, 0xff, 0xff, 0xff },
 			.border = { 0x10, 0xc4, 0x69, 0x60 },
@@ -92,7 +92,7 @@ static const struct xui_style_t xui_style_default = {
 			.border = { 0x00, 0x00, 0x00, 0x00 },
 			.foreground = { 0xff, 0xff, 0xff, 0xff },
 		},
-		.focus = {
+		.active = {
 			.background = { 0x1e, 0x9d, 0xc4, 0xff },
 			.foreground = { 0xff, 0xff, 0xff, 0xff },
 			.border = { 0x35, 0xb8, 0xe0, 0x60 },
@@ -109,7 +109,7 @@ static const struct xui_style_t xui_style_default = {
 			.foreground = { 0xff, 0xff, 0xff, 0xff },
 			.border = { 0x00, 0x00, 0x00, 0x00 },
 		},
-		.focus = {
+		.active = {
 			.background = { 0xf7, 0xb8, 0x20, 0xff },
 			.foreground = { 0xff, 0xff, 0xff, 0xff },
 			.border = { 0xf9, 0xc8, 0x51, 0x60 },
@@ -126,7 +126,7 @@ static const struct xui_style_t xui_style_default = {
 			.foreground = { 0xff, 0xff, 0xff, 0xff },
 			.border = { 0x00, 0x00, 0x00, 0x00 },
 		},
-		.focus = {
+		.active = {
 			.background = { 0xff, 0x28, 0x28, 0xff },
 			.foreground = { 0xff, 0xff, 0xff, 0xff },
 			.border = { 0xff, 0x5b, 0x5b, 0x60 },
@@ -143,7 +143,7 @@ static const struct xui_style_t xui_style_default = {
 			.foreground = { 0x32, 0x3a, 0x46, 0xff },
 			.border = { 0x00, 0x00, 0x00, 0x00 },
 		},
-		.focus = {
+		.active = {
 			.background = { 0xcb, 0xd7, 0xe7, 0xff },
 			.foreground = { 0x32, 0x3a, 0x46, 0xff },
 			.border = { 0xee, 0xf2, 0xf7, 0x60 },
@@ -160,7 +160,7 @@ static const struct xui_style_t xui_style_default = {
 			.foreground = { 0xff, 0xff, 0xff, 0xff },
 			.border = { 0x00, 0x00, 0x00, 0x00 },
 		},
-		.focus = {
+		.active = {
 			.background = { 0x1d, 0x21, 0x28, 0xff },
 			.foreground = { 0xff, 0xff, 0xff, 0xff },
 			.border = { 0x32, 0x3a, 0x46, 0x60 },
@@ -288,6 +288,8 @@ static struct region_t unlimited_region = {
 
 void xui_begin(struct xui_context_t * ctx)
 {
+	uint64_t stamp = ktime_to_ns(ktime_get());
+
 	ctx->cmd_list.idx = 0;
 	ctx->root_list.idx = 0;
 	ctx->scroll_target = NULL;
@@ -297,9 +299,8 @@ void xui_begin(struct xui_context_t * ctx)
 	ctx->mouse.dy = ctx->mouse.y - ctx->mouse.oy;
 	ctx->mouse.ox = ctx->mouse.x;
 	ctx->mouse.oy = ctx->mouse.y;
-	ctx->now = ktime_to_ns(ktime_get());
-	ctx->delta = (ctx->now - ctx->last) / 1000000000.0;
-	ctx->last = ctx->now;
+	ctx->delta = (stamp - ctx->stamp) / 1000000000.0;
+	ctx->stamp = stamp;
 	ctx->frame++;
 	if(ctx->delta > 0)
 		ctx->fps = ctx->fps * 0.618 + 0.382 / ctx->delta;
@@ -345,9 +346,9 @@ void xui_end(struct xui_context_t * ctx)
 		ctx->scroll_target->scroll_x += ctx->mouse.zx;
 		ctx->scroll_target->scroll_y += ctx->mouse.zy;
 	}
-	if(!ctx->updated_focus)
-		ctx->focus = 0;
-	ctx->updated_focus = 0;
+	if(!ctx->updated_active)
+		ctx->active = 0;
+	ctx->updated_active = 0;
 	if(ctx->mouse.down && ctx->next_hover_root && (ctx->next_hover_root->zindex < ctx->last_zindex) && (ctx->next_hover_root->zindex >= 0))
 		xui_set_front(ctx, ctx->next_hover_root);
 	ctx->mouse.down = 0;
@@ -906,7 +907,7 @@ static void scrollbars(struct xui_context_t * ctx, struct xui_container_t * c, s
 		base.x = body->x + body->w;
 		base.w = ctx->style.scroll.scroll_size;
 		xui_control_update(ctx, id, &base, 0);
-		if((ctx->focus == id) && (ctx->mouse.state & XUI_MOUSE_LEFT))
+		if((ctx->active == id) && (ctx->mouse.state & XUI_MOUSE_LEFT))
 			c->scroll_y += ctx->mouse.dy * height / base.h;
 		c->scroll_y = clamp(c->scroll_y, 0, maxscroll);
 		xui_draw_rectangle(ctx, base.x, base.y, base.w, base.h, ctx->style.scroll.scroll_radius, 0, &ctx->style.scroll.scroll_color);
@@ -930,7 +931,7 @@ static void scrollbars(struct xui_context_t * ctx, struct xui_container_t * c, s
 		base.y = body->y + body->h;
 		base.h = ctx->style.scroll.scroll_size;
 		xui_control_update(ctx, id, &base, 0);
-		if((ctx->focus == id) && (ctx->mouse.state & XUI_MOUSE_LEFT))
+		if((ctx->active == id) && (ctx->mouse.state & XUI_MOUSE_LEFT))
 			c->scroll_x += ctx->mouse.dx * width / base.w;
 		c->scroll_x = clamp(c->scroll_x, 0, maxscroll);
 		xui_draw_rectangle(ctx, base.x, base.y, base.w, base.h, ctx->style.scroll.scroll_radius, 0, &ctx->style.scroll.scroll_color);
@@ -990,8 +991,8 @@ void root_container_end(struct xui_context_t * ctx)
 
 void xui_control_update(struct xui_context_t * ctx, unsigned int id, struct region_t * r, int opt)
 {
-	if(ctx->focus == id)
-		ctx->updated_focus = 1;
+	if(ctx->active == id)
+		ctx->updated_active = 1;
 	if(!(opt & XUI_OPT_NOINTERACT))
 	{
 		int over = xui_mouse_over(ctx, r);
@@ -999,15 +1000,15 @@ void xui_control_update(struct xui_context_t * ctx, unsigned int id, struct regi
 			ctx->hover = id;
 		if((ctx->hover == id) && !over)
 			ctx->hover = 0;
-		if(ctx->focus == id)
+		if(ctx->active == id)
 		{
 			if((ctx->mouse.up || ctx->mouse.down) && !over)
-				xui_set_focus(ctx, 0);
+				xui_set_active(ctx, 0);
 			if(!ctx->mouse.state && (~opt & XUI_OPT_HOLDFOCUS))
-				xui_set_focus(ctx, 0);
+				xui_set_active(ctx, 0);
 		}
 		if((ctx->mouse.up || ctx->mouse.down) && over)
-			xui_set_focus(ctx, id);
+			xui_set_active(ctx, id);
 	}
 }
 
@@ -1182,7 +1183,7 @@ struct xui_context_t * xui_context_alloc(const char * fb, const char * input, st
 	memset(ctx->cells[0], 0xff, len);
 	memset(ctx->cells[1], 0xff, len);
 	ctx->cindex = 0;
-	ctx->last = ctx->now = ktime_to_ns(ktime_get());
+	ctx->stamp = ktime_to_ns(ktime_get());
 	memcpy(&ctx->style, style ? style : &xui_style_default, sizeof(struct xui_style_t));
 	region_clone(&ctx->clip, &ctx->screen);
 	ctx->priv = data;

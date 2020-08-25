@@ -63,7 +63,7 @@ int xui_begin_window_ex(struct xui_context_t * ctx, const char * title, struct r
 				id = xui_get_id(ctx, "!title", 6);
 				xui_control_update(ctx, id, &hr, opt);
 				xui_control_draw_text(ctx, title, &hr, &ctx->style.window.text_color, opt);
-				if((ctx->focus == id) && (ctx->mouse.state & XUI_MOUSE_LEFT))
+				if((ctx->active == id) && (ctx->mouse.state & XUI_MOUSE_LEFT))
 				{
 					c->region.x += ctx->mouse.dx;
 					c->region.y += ctx->mouse.dy;
@@ -77,7 +77,7 @@ int xui_begin_window_ex(struct xui_context_t * ctx, const char * title, struct r
 					hr.w -= tr.w;
 					xui_draw_icon(ctx, ctx->style.font.icon_family, ctx->style.window.close_icon, tr.x, tr.y, tr.w, tr.h, &ctx->style.window.text_color);
 					xui_control_update(ctx, id, &tr, opt);
-					if((ctx->focus == id) && (ctx->mouse.up & XUI_MOUSE_LEFT))
+					if((ctx->active == id) && (ctx->mouse.up & XUI_MOUSE_LEFT))
 						c->open = 0;
 				}
 			}
@@ -88,7 +88,7 @@ int xui_begin_window_ex(struct xui_context_t * ctx, const char * title, struct r
 				id = xui_get_id(ctx, "!resize", 7);
 				region_init(&tr, region.x + region.w - sz, region.y + region.h - sz, sz, sz);
 				xui_control_update(ctx, id, &tr, opt);
-				if((ctx->focus == id) && (ctx->mouse.state & XUI_MOUSE_LEFT))
+				if((ctx->active == id) && (ctx->mouse.state & XUI_MOUSE_LEFT))
 				{
 					if(ctx->resize_id != id)
 					{

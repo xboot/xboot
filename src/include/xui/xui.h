@@ -315,7 +315,7 @@ struct xui_widget_color_t {
 		struct color_t background;
 		struct color_t foreground;
 		struct color_t border;
-	} focus;
+	} active;
 };
 
 struct xui_style_t {
@@ -453,8 +453,7 @@ struct xui_context_t {
 	unsigned int cheight;
 	unsigned int * cells[2];
 	unsigned int cindex;
-	uint64_t last;
-	uint64_t now;
+	uint64_t stamp;
 	double delta;
 	int frame;
 	int fps;
@@ -465,11 +464,11 @@ struct xui_context_t {
 	struct xui_style_t style;
 	struct region_t clip;
 	unsigned int hover;
-	unsigned int focus;
+	unsigned int active;
 	unsigned int last_id;
 	struct region_t last_rect;
 	int last_zindex;
-	int updated_focus;
+	int updated_active;
 	unsigned int resize_id;
 	int resize_cursor_x;
 	int resize_cursor_y;
@@ -513,8 +512,8 @@ struct xui_context_t {
 	/*
 	 * Retained state pool
 	 */
-	struct xui_container_t containers[XUI_CONTAINER_POOL_SIZE];
 	struct xui_pool_item_t container_pool[XUI_CONTAINER_POOL_SIZE];
+	struct xui_container_t containers[XUI_CONTAINER_POOL_SIZE];
 	struct xui_pool_item_t collapse_pool[XUI_COLLAPSE_POOL_SIZE];
 	struct xui_pool_item_t tree_pool[XUI_TREE_POOL_SIZE];
 
@@ -554,10 +553,10 @@ static inline void xui_set_front(struct xui_context_t * ctx, struct xui_containe
 	c->zindex = ++ctx->last_zindex;
 }
 
-static inline void xui_set_focus(struct xui_context_t * ctx, unsigned int id)
+static inline void xui_set_active(struct xui_context_t * ctx, unsigned int id)
 {
-	ctx->focus = id;
-	ctx->updated_focus = 1;
+	ctx->active = id;
+	ctx->updated_active = 1;
 }
 
 static inline unsigned int xui_get_id(struct xui_context_t * ctx, const void * data, int size)

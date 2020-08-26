@@ -463,12 +463,11 @@ struct xui_context_t {
 	 */
 	struct xui_style_t style;
 	struct region_t clip;
-	unsigned int hover;
-	unsigned int active;
+	unsigned int hover, ohover, hflag;
+	unsigned int active, oactive, aflag;
 	unsigned int last_id;
 	struct region_t last_rect;
 	int last_zindex;
-	int updated_active;
 	unsigned int resize_id;
 	int resize_cursor_x;
 	int resize_cursor_y;
@@ -551,12 +550,6 @@ static inline void xui_hash(unsigned int * h, const void * data, int size)
 static inline void xui_set_front(struct xui_context_t * ctx, struct xui_container_t * c)
 {
 	c->zindex = ++ctx->last_zindex;
-}
-
-static inline void xui_set_active(struct xui_context_t * ctx, unsigned int id)
-{
-	ctx->active = id;
-	ctx->updated_active = 1;
 }
 
 static inline unsigned int xui_get_id(struct xui_context_t * ctx, const void * data, int size)

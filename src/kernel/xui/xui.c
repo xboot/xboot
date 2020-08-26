@@ -292,9 +292,13 @@ void xui_begin(struct xui_context_t * ctx)
 
 	ctx->cmd_list.idx = 0;
 	ctx->root_list.idx = 0;
-	ctx->scroll_target = NULL;
+	ctx->ohover = ctx->hover;
+	ctx->hflag = 0;
+	ctx->oactive = ctx->active;
+	ctx->aflag = 0;
 	ctx->hover_root = ctx->next_hover_root;
 	ctx->next_hover_root = NULL;
+	ctx->scroll_target = NULL;
 	ctx->mouse.dx = ctx->mouse.x - ctx->mouse.ox;
 	ctx->mouse.dy = ctx->mouse.y - ctx->mouse.oy;
 	ctx->mouse.ox = ctx->mouse.x;
@@ -346,9 +350,6 @@ void xui_end(struct xui_context_t * ctx)
 		ctx->scroll_target->scroll_x += ctx->mouse.zx;
 		ctx->scroll_target->scroll_y += ctx->mouse.zy;
 	}
-	if(!ctx->updated_active)
-		ctx->active = 0;
-	ctx->updated_active = 0;
 	if(ctx->mouse.down && ctx->next_hover_root && (ctx->next_hover_root->zindex < ctx->last_zindex) && (ctx->next_hover_root->zindex >= 0))
 		xui_set_front(ctx, ctx->next_hover_root);
 	ctx->mouse.down = 0;
@@ -991,24 +992,30 @@ void root_container_end(struct xui_context_t * ctx)
 
 void xui_control_update(struct xui_context_t * ctx, unsigned int id, struct region_t * r, int opt)
 {
-	if(ctx->active == id)
-		ctx->updated_active = 1;
 	if(!(opt & XUI_OPT_NOINTERACT))
 	{
-		int over = xui_mouse_over(ctx, r);
-		if(!ctx->mouse.state && over)
-			ctx->hover = id;
-		if((ctx->hover == id) && !over)
-			ctx->hover = 0;
-		if(ctx->active == id)
+		if(!ctx->mouse.state && (ctx->active == id) && (~opt & XUI_OPT_HOLDFOCUS))
+			ctx->active = 0;
+		if(xui_mouse_over(ctx, r))
 		{
-			if((ctx->mouse.up || ctx->mouse.down) && !over)
-				xui_set_active(ctx, 0);
-			if(!ctx->mouse.state && (~opt & XUI_OPT_HOLDFOCUS))
-				xui_set_active(ctx, 0);
+			if((ctx->mouse.up || ctx->mouse.down) && !ctx->aflag)
+			{
+				ctx->active = id;
+				ctx->aflag = 1;
+			}
+			if(!ctx->mouse.state && !ctx->hflag)
+			{
+				ctx->hover = id;
+				ctx->hflag = 1;
+			}
 		}
-		if((ctx->mouse.up || ctx->mouse.down) && over)
-			xui_set_active(ctx, id);
+		else
+		{
+			if((ctx->mouse.up || ctx->mouse.down) && (ctx->active == id))
+				ctx->active = 0;
+			if(ctx->hover == id)
+				ctx->hover = 0;
+		}
 	}
 }
 

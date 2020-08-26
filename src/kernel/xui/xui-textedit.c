@@ -92,10 +92,7 @@ int xui_textedit_ex(struct xui_context_t * ctx, char * buf, int size, int opt)
 			change |= (1 << 0);
 		}
 		if(ctx->key_pressed & XUI_KEY_ENTER)
-		{
-			xui_set_active(ctx, 0);
 			change |= (1 << 1);
-		}
 		bg = &wc->active.background;
 		fg = &wc->active.foreground;
 		bc = &wc->active.border;

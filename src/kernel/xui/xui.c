@@ -992,18 +992,18 @@ void root_container_end(struct xui_context_t * ctx)
 
 void xui_control_update(struct xui_context_t * ctx, unsigned int id, struct region_t * r, int opt)
 {
-	if(!(opt & XUI_OPT_NOINTERACT))
+	if(~opt & XUI_OPT_NOINTERACT)
 	{
 		if(!ctx->mouse.state && (ctx->active == id) && (~opt & XUI_OPT_HOLDFOCUS))
 			ctx->active = 0;
 		if(xui_mouse_over(ctx, r))
 		{
-			if((ctx->mouse.up || ctx->mouse.down) && !ctx->aflag)
+			if((ctx->mouse.up || ctx->mouse.down) && (!ctx->aflag || !ctx->active))
 			{
 				ctx->active = id;
 				ctx->aflag = 1;
 			}
-			if(!ctx->mouse.state && !ctx->hflag)
+			if(!ctx->mouse.state && (!ctx->hflag || !ctx->hover))
 			{
 				ctx->hover = id;
 				ctx->hflag = 1;

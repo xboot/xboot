@@ -74,20 +74,7 @@ int xui_button_ex(struct xui_context_t * ctx, int icon, const char * label, int 
 		wc = &ctx->style.primary;
 		break;
 	}
-	if(ctx->active != ctx->oactive)
-	{
-		if(ctx->active == id)
-			;
-		if(ctx->oactive == id)
-			;
-	}
-	if(ctx->hover != ctx->ohover)
-	{
-		if(ctx->hover == id)
-			;
-		if(ctx->ohover == id)
-			;
-	}
+
 	if(ctx->active == id)
 	{
 		bg = &wc->active.background;

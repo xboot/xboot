@@ -21,6 +21,7 @@ extern "C" {
 #define XUI_ID_STACK_SIZE			(32)
 #define XUI_LAYOUT_STACK_SIZE		(32)
 #define XUI_CONTAINER_POOL_SIZE		(128)
+#define XUI_SPRING_POOL_SIZE		(128)
 #define XUI_COLLAPSE_POOL_SIZE		(128)
 #define XUI_TREE_POOL_SIZE			(128)
 #define XUI_MAX_WIDTHS				(32)
@@ -513,6 +514,8 @@ struct xui_context_t {
 	 */
 	struct xui_pool_item_t container_pool[XUI_CONTAINER_POOL_SIZE];
 	struct xui_container_t containers[XUI_CONTAINER_POOL_SIZE];
+	struct xui_pool_item_t spring_pool[XUI_SPRING_POOL_SIZE];
+	struct spring_t springs[XUI_SPRING_POOL_SIZE];
 	struct xui_pool_item_t collapse_pool[XUI_COLLAPSE_POOL_SIZE];
 	struct xui_pool_item_t tree_pool[XUI_TREE_POOL_SIZE];
 

@@ -32,19 +32,21 @@
 int xui_toggle_ex(struct xui_context_t * ctx, int * state, int opt)
 {
 	unsigned int id = xui_get_id(ctx, &state, sizeof(int *));
+	int idx = xui_pool_get(ctx, ctx->spring_pool, XUI_COLLAPSE_POOL_SIZE, id);
 	struct region_t * r = xui_layout_next(ctx);
 	struct xui_widget_color_t * wc;
 	struct color_t * bg, * fg, * bc;
-	int radius, width;
+	double alpha = 1;
 	int click = 0;
+	int radius, width;
 
 	xui_control_update(ctx, id, r, opt);
-	if((ctx->active == id) && (ctx->mouse.up & XUI_MOUSE_LEFT))
+	if((ctx->active == id) && (ctx->mouse.down & XUI_MOUSE_LEFT))
 	{
 		*state = !*state;
 		click = 1;
 	}
-	radius = min(r->w, r->h) / 2;
+	radius = min(r->w, r->h) >> 1;
 	width = ctx->style.toggle.border_width;
 	if(*state)
 	{
@@ -83,6 +85,23 @@ int xui_toggle_ex(struct xui_context_t * ctx, int * state, int opt)
 	{
 		wc = &ctx->style.secondary;
 	}
+	if(idx >= 0)
+	{
+		xui_pool_update(ctx, ctx->spring_pool, idx);
+		if(spring_step(&ctx->springs[idx], ctx->delta))
+			alpha = spring_position(&ctx->springs[idx]);
+		else
+			memset(&ctx->spring_pool[idx], 0, sizeof(struct xui_pool_item_t));
+	}
+	if(ctx->active != ctx->oactive)
+	{
+		if(ctx->active == id)
+		{
+			if(idx < 0)
+				idx = xui_pool_init(ctx, ctx->spring_pool, XUI_COLLAPSE_POOL_SIZE, id);
+			spring_init(&ctx->springs[idx], 0, 1, 0, 618, 60);
+		}
+	}
 	if(ctx->active == id)
 	{
 		bg = &wc->active.background;
@@ -104,20 +123,20 @@ int xui_toggle_ex(struct xui_context_t * ctx, int * state, int opt)
 	if(*state)
 	{
 		if(bc->a && (width > 0))
-			xui_draw_rectangle(ctx, r->x, r->y, radius * 4, radius * 2, radius, width, bc);
+			xui_draw_rectangle(ctx, r->x, r->y, radius << 2, radius << 1, radius, width, bc);
 		if(bg->a)
-			xui_draw_rectangle(ctx, r->x, r->y, radius * 4, radius * 2, radius, 0, bg);
+			xui_draw_rectangle(ctx, r->x, r->y, radius << 2, radius << 1, radius, 0, bg);
 		if(fg->a)
-			xui_draw_circle(ctx, r->x + radius * 3, r->y + radius, radius * 4 / 5, 0, fg);
+			xui_draw_circle(ctx, r->x + radius + (radius << 1) * alpha, r->y + radius, (radius * 7) >> 3, 0, fg);
 	}
 	else
 	{
 		if(bc->a && (width > 0))
-			xui_draw_rectangle(ctx, r->x, r->y, radius * 4, radius * 2, radius, width, bc);
+			xui_draw_rectangle(ctx, r->x, r->y, radius << 2, radius << 1, radius, width, bc);
 		if(bg->a)
 		{
-			xui_draw_rectangle(ctx, r->x, r->y, radius * 4, radius * 2, radius, ctx->style.toggle.outline_width, bg);
-			xui_draw_circle(ctx, r->x + radius, r->y + radius, radius * 4 / 5, 0, bg);
+			xui_draw_rectangle(ctx, r->x, r->y, radius << 2, radius << 1, radius, ctx->style.toggle.outline_width, bg);
+			xui_draw_circle(ctx, r->x + radius + (radius << 1) * (1 - alpha), r->y + radius, (radius * 7) >> 3, 0, bg);
 		}
 	}
 	return click;

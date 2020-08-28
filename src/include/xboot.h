@@ -38,6 +38,7 @@ extern "C" {
 #include <bcd.h>
 #include <div.h>
 #include <list.h>
+#include <lsort.h>
 #include <slist.h>
 #include <hmap.h>
 #include <fifo.h>

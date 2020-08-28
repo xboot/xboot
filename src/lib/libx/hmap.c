@@ -4,17 +4,14 @@
 
 #include <types.h>
 #include <stddef.h>
-#include <malloc.h>
+#include <string.h>
+#include <spinlock.h>
 #include <shash.h>
 #include <log2.h>
+#include <list.h>
+#include <lsort.h>
+#include <malloc.h>
 #include <hmap.h>
-
-struct hmap_node_t {
-	struct hlist_node node;
-	struct list_head head;
-	char * key;
-	void * value;
-};
 
 struct hmap_t * hmap_alloc(unsigned int size)
 {
@@ -46,19 +43,19 @@ struct hmap_t * hmap_alloc(unsigned int size)
 	return m;
 }
 
-void hmap_free(struct hmap_t * m)
+void hmap_free(struct hmap_t * m, void (*cb)(struct hmap_entry_t *))
 {
 	if(m)
 	{
-		hmap_clear(m);
+		hmap_clear(m, cb);
 		free(m->hash);
 		free(m);
 	}
 }
 
-void hmap_clear(struct hmap_t * m)
+void hmap_clear(struct hmap_t * m, void (*cb)(struct hmap_entry_t *))
 {
-	struct hmap_node_t * pos, * n;
+	struct hmap_entry_t * pos, * n;
 	irq_flags_t flags;
 
 	if(m)
@@ -70,6 +67,8 @@ void hmap_clear(struct hmap_t * m)
 			list_del(&pos->head);
 			m->n--;
 			spin_unlock_irqrestore(&m->lock, flags);
+			if(cb)
+				cb(pos);
 			free(pos->key);
 			free(pos);
 		}
@@ -78,7 +77,7 @@ void hmap_clear(struct hmap_t * m)
 
 static void hmap_resize(struct hmap_t * m, unsigned int size)
 {
-	struct hmap_node_t * pos, * n;
+	struct hmap_entry_t * pos, * n;
 	struct hlist_head * hash;
 	irq_flags_t flags;
 	int i;
@@ -117,7 +116,7 @@ static void hmap_resize(struct hmap_t * m, unsigned int size)
 
 void hmap_add(struct hmap_t * m, const char * key, void * value)
 {
-	struct hmap_node_t * pos;
+	struct hmap_entry_t * pos;
 	struct hlist_node * n;
 	irq_flags_t flags;
 
@@ -136,7 +135,7 @@ void hmap_add(struct hmap_t * m, const char * key, void * value)
 	if(m->n > (m->size >> 1))
 		hmap_resize(m, m->size << 1);
 
-	pos = malloc(sizeof(struct hmap_node_t));
+	pos = malloc(sizeof(struct hmap_entry_t));
 	if(!pos)
 		return;
 
@@ -153,7 +152,7 @@ void hmap_add(struct hmap_t * m, const char * key, void * value)
 
 void hmap_remove(struct hmap_t * m, const char * key)
 {
-	struct hmap_node_t * pos;
+	struct hmap_entry_t * pos;
 	struct hlist_node * n;
 	irq_flags_t flags;
 
@@ -179,22 +178,28 @@ void hmap_remove(struct hmap_t * m, const char * key)
 	}
 }
 
-void hmap_walk(struct hmap_t * m, void (*cb)(const char * key, void * value))
+static int hmap_compare(void * priv, struct list_head * a, struct list_head * b)
 {
-	struct hmap_node_t * pos, * n;
+	char * keya = (char *)list_entry(a, struct hmap_entry_t, head)->key;
+	char * keyb = (char *)list_entry(b, struct hmap_entry_t, head)->key;
+	return strcmp(keya, keyb);
+}
 
-	if(m && cb)
+void hmap_sort(struct hmap_t * m)
+{
+	irq_flags_t flags;
+
+	if(m)
 	{
-		list_for_each_entry_safe(pos, n, &m->list, head)
-		{
-			cb(pos->key, pos->value);
-		}
+		spin_lock_irqsave(&m->lock, flags);
+		lsort(NULL, &m->list, hmap_compare);
+		spin_unlock_irqrestore(&m->lock, flags);
 	}
 }
 
 void * hmap_search(struct hmap_t * m, const char * key)
 {
-	struct hmap_node_t * pos;
+	struct hmap_entry_t * pos;
 	struct hlist_node * n;
 
 	if(!m || !key)

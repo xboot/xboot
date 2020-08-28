@@ -73,7 +73,7 @@ void sandbox_init(int argc, char * argv[])
 		}
 		else if(!strcmp(argv[i], "--json") && (argc > i + 1))
 		{
-			if(sandbox_file_isfile(argv[++i]) == 0)
+			if(sandbox_file_isfile(argv[++i]))
 			{
 				if((len = file_read_to_memory(argv[i], &buf)) > 0)
 				{

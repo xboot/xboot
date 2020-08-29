@@ -57,7 +57,7 @@ static void buzzer_pwm_set_frequency(struct buzzer_pwm_pdata_t * pdat, int frequ
 	}
 }
 
-static void iter_queue_node(struct queue_node_t * node)
+static void queue_node_callback(struct queue_node_t * node)
 {
 	if(node && node->data)
 		free(node->data);
@@ -88,7 +88,7 @@ static void buzzer_pwm_beep(struct buzzer_t * buzzer, int frequency, int millise
 	if((frequency == 0) && (millisecond == 0))
 	{
 		timer_cancel(&pdat->timer);
-		queue_clear(pdat->queue, iter_queue_node);
+		queue_clear(pdat->queue, queue_node_callback);
 		buzzer_pwm_set(buzzer, 0);
 		return;
 	}
@@ -159,7 +159,7 @@ static struct device_t * buzzer_pwm_probe(struct driver_t * drv, struct dtnode_t
 	if(!(dev = register_buzzer(buzzer, drv)))
 	{
 		timer_cancel(&pdat->timer);
-		queue_free(pdat->queue, iter_queue_node);
+		queue_free(pdat->queue, queue_node_callback);
 		free_device_name(buzzer->name);
 		free(buzzer->priv);
 		free(buzzer);
@@ -177,7 +177,7 @@ static void buzzer_pwm_remove(struct device_t * dev)
 	{
 		unregister_buzzer(buzzer);
 		timer_cancel(&pdat->timer);
-		queue_free(pdat->queue, iter_queue_node);
+		queue_free(pdat->queue, queue_node_callback);
 		free_device_name(buzzer->name);
 		free(buzzer->priv);
 		free(buzzer);

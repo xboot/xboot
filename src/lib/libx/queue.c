@@ -23,17 +23,17 @@ struct queue_t * queue_alloc(void)
 }
 EXPORT_SYMBOL(queue_alloc);
 
-void queue_free(struct queue_t * q, void (*iter)(struct queue_node_t *))
+void queue_free(struct queue_t * q, void (*cb)(struct queue_node_t *))
 {
 	if(q)
 	{
-		queue_clear(q, iter);
+		queue_clear(q, cb);
 		free(q);
 	}
 }
 EXPORT_SYMBOL(queue_free);
 
-void queue_clear(struct queue_t * q, void (*iter)(struct queue_node_t *))
+void queue_clear(struct queue_t * q, void (*cb)(struct queue_node_t *))
 {
 	struct queue_node_t * pos, * n;
 	irq_flags_t flags;
@@ -45,8 +45,8 @@ void queue_clear(struct queue_t * q, void (*iter)(struct queue_node_t *))
 	list_for_each_entry_safe(pos, n, &(q->node.entry), entry)
 	{
 		list_del(&(pos->entry));
-		if(iter)
-			iter(pos);
+		if(cb)
+			cb(pos);
 		free(pos);
 	}
 	q->available = 0;

@@ -21,8 +21,8 @@ struct queue_t
 };
 
 struct queue_t * queue_alloc(void);
-void queue_free(struct queue_t * q, void (*iter)(struct queue_node_t *));
-void queue_clear(struct queue_t * q, void (*iter)(struct queue_node_t *));
+void queue_free(struct queue_t * q, void (*cb)(struct queue_node_t *));
+void queue_clear(struct queue_t * q, void (*cb)(struct queue_node_t *));
 int queue_avail(struct queue_t * q);
 void queue_push(struct queue_t * q, void * data);
 void * queue_pop(struct queue_t * q);

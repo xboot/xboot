@@ -42,7 +42,7 @@ void do_show_logo(void)
 
 	if(!list_empty_careful(&__device_head[DEVICE_TYPE_FRAMEBUFFER]))
 	{
-		ctx = xfs_alloc("/framework", 0);
+		ctx = xfs_alloc("/private/framework", 0);
 		if(ctx)
 		{
 			logo = surface_alloc_from_xfs(ctx, "assets/images/logo.png");

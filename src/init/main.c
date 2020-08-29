@@ -44,7 +44,10 @@ void xboot_main(void)
 	do_initcalls();
 
 	/* Do show logo */
-	do_showlogo();
+	do_show_logo();
+
+	/* Do play audio */
+	do_play_audio();
 
 	/* Do auto mount */
 	do_automount();

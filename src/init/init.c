@@ -31,7 +31,7 @@
 #include <graphic/surface.h>
 #include <init.h>
 
-void do_showlogo(void)
+void do_show_logo(void)
 {
 	struct device_t * pos, * n;
 	struct xfs_context_t * ctx;
@@ -68,6 +68,10 @@ void do_showlogo(void)
 			xfs_free(ctx);
 		}
 	}
+}
+
+void do_play_audio(void)
+{
 }
 
 static int nm_call(struct notifier_t * n, int cmd, void * arg)

@@ -9,13 +9,6 @@ extern "C" {
 
 #define MT_APPLICATION	"__mt_application__"
 
-struct lapplication_t {
-	char * path;
-	char * name;
-	char * desc;
-	struct surface_t * icon;
-};
-
 int luaopen_application(lua_State * L);
 
 #ifdef __cplusplus

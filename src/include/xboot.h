@@ -56,7 +56,6 @@ extern "C" {
 #include <xboot/profiler.h>
 #include <xboot/notifier.h>
 #include <xboot/initcall.h>
-#include <xboot/module.h>
 #include <xboot/machine.h>
 #include <xboot/dtree.h>
 #include <xboot/device.h>
@@ -65,6 +64,8 @@ extern "C" {
 #include <xboot/mutex.h>
 #include <xboot/channel.h>
 #include <xboot/window.h>
+#include <xboot/module.h>
+#include <xboot/package.h>
 #include <time/delay.h>
 #include <time/timer.h>
 #include <clockevent/clockevent.h>

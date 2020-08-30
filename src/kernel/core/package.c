@@ -165,7 +165,7 @@ struct package_t * package_search(const char * path)
 	return hmap_search(__package_list, path);
 }
 
-void package_rebuild(const char * lang)
+void package_rescan(const char * lang)
 {
 	struct package_t * pkg;
 	struct vfs_stat_t st;
@@ -226,5 +226,5 @@ int package_removeable(struct package_t * pkg)
 void do_init_package(void)
 {
 	__package_list = hmap_alloc(0);
-	package_rebuild("en-US");
+	package_rescan("en-US");
 }

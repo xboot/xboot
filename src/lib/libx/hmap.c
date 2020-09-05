@@ -96,12 +96,12 @@ static void hmap_resize(struct hmap_t * m, unsigned int size)
 	for(i = 0; i < size; i++)
 		init_hlist_head(&hash[i]);
 
+	spin_lock_irqsave(&m->lock, flags);
 	list_for_each_entry_safe(pos, n, &m->list, head)
 	{
-		spin_lock_irqsave(&m->lock, flags);
 		hlist_del(&pos->node);
-		spin_unlock_irqrestore(&m->lock, flags);
 	}
+	spin_unlock_irqrestore(&m->lock, flags);
 	free(m->hash);
 
 	spin_lock_irqsave(&m->lock, flags);
@@ -127,7 +127,8 @@ void hmap_add(struct hmap_t * m, const char * key, void * value)
 	{
 		if(strcmp(pos->key, key) == 0)
 		{
-			pos->value = value;
+			if(pos->value != value)
+				pos->value = value;
 			return;
 		}
 	}

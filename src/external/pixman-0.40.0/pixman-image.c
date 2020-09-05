@@ -684,6 +684,41 @@ pixman_image_set_repeat (pixman_image_t *image,
     image_property_changed (image);
 }
 
+PIXMAN_EXPORT void
+pixman_image_set_dither (pixman_image_t *image,
+			 pixman_dither_t dither)
+{
+    if (image->type == BITS)
+    {
+	if (image->bits.dither == dither)
+	    return;
+
+	image->bits.dither = dither;
+
+	image_property_changed (image);
+    }
+}
+
+PIXMAN_EXPORT void
+pixman_image_set_dither_offset (pixman_image_t *image,
+				int             offset_x,
+				int             offset_y)
+{
+    if (image->type == BITS)
+    {
+	if (image->bits.dither_offset_x == offset_x &&
+	    image->bits.dither_offset_y == offset_y)
+	{
+	    return;
+	}
+
+	image->bits.dither_offset_x = offset_x;
+	image->bits.dither_offset_y = offset_y;
+
+	image_property_changed (image);
+    }
+}
+
 PIXMAN_EXPORT pixman_bool_t
 pixman_image_set_filter (pixman_image_t *      image,
                          pixman_filter_t       filter,
@@ -925,7 +960,7 @@ _pixman_image_get_solid (pixman_implementation_t *imp,
 	else if (image->bits.format == PIXMAN_x8r8g8b8)
 	    result = image->bits.bits[0] | 0xff000000;
 	else if (image->bits.format == PIXMAN_a8)
-	    result = (*(uint8_t *)image->bits.bits) << 24;
+	    result = (uint32_t)(*(uint8_t *)image->bits.bits) << 24;
 	else
 	    goto otherwise;
     }

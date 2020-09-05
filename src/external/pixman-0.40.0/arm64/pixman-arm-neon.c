@@ -194,7 +194,7 @@ arm_neon_fill (pixman_implementation_t *imp,
 	       uint32_t                 _xor)
 {
     /* stride is always multiple of 32bit units in pixman */
-	int32_t byte_stride = stride * sizeof(uint32_t);
+    uint32_t byte_stride = stride * sizeof(uint32_t);
 
     switch (bpp)
     {

@@ -63,7 +63,7 @@ typedef struct
     } cache [N_CACHED_FAST_PATHS];
 } cache_t;
 
-PIXMAN_DEFINE_THREAD_LOCAL (cache_t, fast_path_cache);
+PIXMAN_DEFINE_THREAD_LOCAL (cache_t, fast_path_cache)
 
 static void
 dummy_composite_rect (pixman_implementation_t *imp,
@@ -401,8 +401,8 @@ _pixman_choose_implementation (void)
 
     imp = _pixman_implementation_create_general();
 
-    if (!_pixman_disabled ("fast"))
-	imp = _pixman_implementation_create_fast_path (imp);
+	if(!_pixman_disabled ("fast"))
+		imp = _pixman_implementation_create_fast_path (imp);
 
 	imp = _pixman_x64_get_implementations (imp);
 	imp = _pixman_arm32_get_implementations (imp);

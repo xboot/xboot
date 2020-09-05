@@ -223,10 +223,10 @@ SRCDIRS		+=	external/freetype-2.10.1/src/autofit \
 				external/freetype-2.10.1/src/type42 \
 				external/freetype-2.10.1/src/winfonts
 
-INCDIRS		+= 	external/pixman-0.38.4 \
-				external/pixman-0.38.4/$(ARCH)
-SRCDIRS		+=	external/pixman-0.38.4 \
-				external/pixman-0.38.4/$(ARCH)
+INCDIRS		+= 	external/pixman-0.40.0 \
+				external/pixman-0.40.0/$(ARCH)
+SRCDIRS		+=	external/pixman-0.40.0 \
+				external/pixman-0.40.0/$(ARCH)
 
 INCDIRS		+= 	external/cairo-1.17.2
 SRCDIRS		+=	external/cairo-1.17.2

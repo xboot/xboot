@@ -20,8 +20,8 @@ struct package_t {
 extern struct hmap_t * __package_list;
 
 struct package_t * package_search(const char * path);
-void package_rescan(const char * lang);
 int package_removeable(struct package_t * pkg);
+void package_rescan(void);
 
 void do_init_package(void);
 

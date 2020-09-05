@@ -41,6 +41,8 @@ static struct package_t * package_alloc(const char * path, const char * lang)
 	size_t len;
 	int i, j;
 
+	if(!lang)
+		lang = "en-US";
 	ctx = xfs_alloc(path, 0);
 	if(ctx && xfs_isfile(ctx, "main.lua"))
 	{
@@ -165,17 +167,23 @@ struct package_t * package_search(const char * path)
 	return hmap_search(__package_list, path);
 }
 
-void package_rescan(const char * lang)
+int package_removeable(struct package_t * pkg)
+{
+	if(pkg && (strncmp(pkg->path, "/private/application/", 21) == 0))
+		return 1;
+	return 0;
+}
+
+void package_rescan(void)
 {
 	struct package_t * pkg;
 	struct vfs_stat_t st;
 	struct vfs_dirent_t dir;
 	struct slist_t * sl, * e;
+	const char * lang = setting_get("language", "en-US");
 	const char * path;
 	int fd;
 
-	if(!lang)
-		lang = "en-US";
 	hmap_clear(__package_list, hmap_entry_callback);
 	sl = slist_alloc();
 	path = "/application";
@@ -216,15 +224,8 @@ void package_rescan(const char * lang)
 	slist_free(sl);
 }
 
-int package_removeable(struct package_t * pkg)
-{
-	if(pkg && (strncmp(pkg->path, "/private/application/", 21) == 0))
-		return 1;
-	return 0;
-}
-
 void do_init_package(void)
 {
 	__package_list = hmap_alloc(0);
-	package_rescan("en-US");
+	package_rescan();
 }

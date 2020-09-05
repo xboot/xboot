@@ -151,7 +151,7 @@ static void luaopen_prelibs(lua_State * L)
 static const char boot_lua[] = X(
 	stage = Stage.new()
 	assets = Assets.new()
-	T = I18n.new("en-US")
+	T = I18n.new(Setting.get("language", "en-US"))
 	if require("main") then
 		stage:loop()
 	end

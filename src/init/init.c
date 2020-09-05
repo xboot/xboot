@@ -39,6 +39,8 @@ void do_show_logo(void)
 	struct framebuffer_t * fb;
 	struct matrix_t m;
 	struct color_t c;
+	char key[256];
+	int brightness;
 
 	if(!list_empty_careful(&__device_head[DEVICE_TYPE_FRAMEBUFFER]))
 	{
@@ -60,7 +62,11 @@ void do_show_logo(void)
 						surface_blit(s, NULL, &m, logo, RENDER_TYPE_GOOD);
 						framebuffer_present_surface(fb, s, NULL);
 						framebuffer_destroy_surface(fb, s);
-						framebuffer_set_backlight(fb, CONFIG_MAX_BRIGHTNESS * 618 / 1000);
+						sprintf(key, "backlight(%s)", fb->name);
+						brightness = strtol(setting_get(key, "-1"), NULL, 0);
+						if(brightness <= 0)
+							brightness = (CONFIG_MAX_BRIGHTNESS * 633) >> 10;
+						framebuffer_set_backlight(fb, brightness);
 					}
 				}
 				surface_free(logo);

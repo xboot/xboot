@@ -49,6 +49,7 @@
 #include <framework/core/l-matrix.h>
 #include <framework/core/l-ninepatch.h>
 #include <framework/core/l-printr.h>
+#include <framework/core/l-setting.h>
 #include <framework/core/l-spring.h>
 #include <framework/core/l-stage.h>
 #include <framework/core/l-stopwatch.h>
@@ -66,6 +67,7 @@ static void luaopen_glblibs(lua_State * L)
 	const luaL_Reg glblibs[] = {
 		{ "Class",					luaopen_class },
 		{ "Printr",					luaopen_printr },
+		{ "Setting",				luaopen_setting },
 		{ "Xfs",					luaopen_xfs },
 		{ "Window",					luaopen_window },
 		{ "I18n",					luaopen_i18n },

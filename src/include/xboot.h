@@ -65,6 +65,7 @@ extern "C" {
 #include <xboot/channel.h>
 #include <xboot/window.h>
 #include <xboot/module.h>
+#include <xboot/setting.h>
 #include <xboot/package.h>
 #include <time/delay.h>
 #include <time/timer.h>

@@ -40,8 +40,11 @@ void xboot_main(void)
 	/* Do initial vfs */
 	do_init_vfs();
 
-	/* Do all initial calls */
+	/* Do initial calls */
 	do_initcalls();
+
+	/* Do initial setting */
+	do_init_setting();
 
 	/* Do show logo */
 	do_show_logo();
@@ -69,6 +72,6 @@ void xboot_main(void)
 	/* Scheduler loop */
 	scheduler_loop();
 
-	/* Do all exit calls */
+	/* Do exit calls */
 	do_exitcalls();
 }

@@ -94,7 +94,6 @@ void setting_clear(void)
 void setting_summary(void)
 {
 	struct hmap_entry_t * e;
-	int i;
 
 	hmap_sort(__setting.map);
 	hmap_for_each_entry(e, __setting.map)

@@ -781,6 +781,31 @@ void xui_draw_checkerboard(struct xui_context_t * ctx, int x, int y, int w, int 
 	}
 }
 
+void xui_draw_surface(struct xui_context_t * ctx, struct surface_t * s, struct matrix_t * m, int refresh)
+{
+	union xui_cmd_t * cmd;
+	struct region_t r;
+	double x1 = 0;
+	double y1 = 0;
+	double x2 = surface_get_width(s);
+	double y2 = surface_get_height(s);
+	int clip;
+
+	matrix_transform_bounds(m, &x1, &y1, &x2, &y2);
+	region_init(&r, x1, y1, x2 - x1 + 1, y2 - y1 + 1);
+	if((clip = xui_check_clip(ctx, &r)))
+	{
+		if(clip < 0)
+			xui_cmd_push_clip(ctx, xui_get_clip(ctx));
+		cmd = xui_cmd_push(ctx, XUI_CMD_TYPE_SURFACE, sizeof(struct xui_cmd_surface_t), &r);
+		cmd->surface.s = s;
+		memcpy(&cmd->surface.m, m, sizeof(struct matrix_t));
+		cmd->surface.refresh ^= refresh ? 1 : 0;
+		if(clip < 0)
+			xui_cmd_push_clip(ctx, &unlimited_region);
+	}
+}
+
 void xui_draw_text(struct xui_context_t * ctx, const char * family, int size, const char * utf8, int x, int y, int wrap, struct color_t * c)
 {
 	union xui_cmd_t * cmd;
@@ -1271,6 +1296,9 @@ static void xui_draw(struct window_t * w, void * o)
 					break;
 				case XUI_CMD_TYPE_GRADIENT:
 					surface_shape_gradient(s, clip, cmd->gradient.x, cmd->gradient.y, cmd->gradient.w, cmd->gradient.h, &cmd->gradient.lt, &cmd->gradient.rt, &cmd->gradient.rb, &cmd->gradient.lb);
+					break;
+				case XUI_CMD_TYPE_SURFACE:
+					surface_blit(s, clip, &cmd->surface.m, cmd->surface.s, RENDER_TYPE_GOOD);
 					break;
 				case XUI_CMD_TYPE_TEXT:
 					text_init(&txt, cmd->text.utf8, &cmd->text.c, cmd->text.wrap, ctx->f, cmd->text.family, cmd->text.size);

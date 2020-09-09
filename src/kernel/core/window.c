@@ -251,7 +251,7 @@ struct window_t * window_alloc(const char * fb, const char * input, void * data)
 		}
 	}
 	spin_lock(&wm->lock);
-	list_add_tail(&w->list, &wm->window);
+	list_add(&w->list, &wm->window);
 	wm->wcount++;
 	wm->refresh = 1;
 	spin_unlock(&wm->lock);
@@ -280,10 +280,10 @@ void window_free(struct window_t * w)
 
 void window_to_front(struct window_t * w)
 {
-	if(w && w->wm && !list_is_last(&w->list, &w->wm->window))
+	if(w && w->wm && !list_is_first(&w->list, &w->wm->window))
 	{
 		spin_lock(&w->wm->lock);
-		list_move_tail(&w->list, &w->wm->window);
+		list_move(&w->list, &w->wm->window);
 		w->wm->refresh = 1;
 		spin_unlock(&w->wm->lock);
 	}
@@ -291,10 +291,10 @@ void window_to_front(struct window_t * w)
 
 void window_to_back(struct window_t * w)
 {
-	if(w && w->wm && !list_is_first(&w->list, &w->wm->window))
+	if(w && w->wm && !list_is_last(&w->list, &w->wm->window))
 	{
 		spin_lock(&w->wm->lock);
-		list_move(&w->list, &w->wm->window);
+		list_move_tail(&w->list, &w->wm->window);
 		w->wm->refresh = 1;
 		spin_unlock(&w->wm->lock);
 	}

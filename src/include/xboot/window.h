@@ -45,7 +45,7 @@ extern struct list_head __window_manager_list;
 
 static inline int window_is_active(struct window_t * w)
 {
-	return list_is_last(&w->list, &w->wm->window);
+	return list_is_first(&w->list, &w->wm->window);
 }
 
 static inline int window_get_width(struct window_t * w)

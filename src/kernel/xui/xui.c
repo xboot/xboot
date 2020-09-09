@@ -1215,6 +1215,7 @@ struct xui_context_t * xui_context_alloc(const char * fb, const char * input, st
 	memset(ctx->cells[0], 0xff, len);
 	memset(ctx->cells[1], 0xff, len);
 	ctx->cindex = 0;
+	ctx->running = 1;
 	ctx->stamp = ktime_to_ns(ktime_get());
 	memcpy(&ctx->style, style ? style : &xui_style_default, sizeof(struct xui_style_t));
 	region_clone(&ctx->clip, &ctx->screen);
@@ -1325,7 +1326,7 @@ void xui_loop(struct xui_context_t * ctx, void (*func)(struct xui_context_t *))
 	char utf8[16];
 	int l, sz;
 
-	while(1)
+	while(ctx->running)
 	{
 		while(window_pump_event(ctx->w, &e))
 		{

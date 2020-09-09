@@ -466,6 +466,7 @@ struct xui_context_t {
 	unsigned int cheight;
 	unsigned int * cells[2];
 	unsigned int cindex;
+	unsigned int running;
 	uint64_t stamp;
 	double delta;
 	int frame;
@@ -613,6 +614,11 @@ static inline struct xui_layout_t * xui_get_layout(struct xui_context_t * ctx)
 static inline struct xui_container_t * xui_get_container(struct xui_context_t * ctx)
 {
 	return ctx->container_stack.items[ctx->container_stack.idx - 1];
+}
+
+static inline void xui_exit(struct xui_context_t * ctx)
+{
+	ctx->running = 0;
 }
 
 void xui_begin(struct xui_context_t * ctx);

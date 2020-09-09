@@ -75,21 +75,42 @@ static const luaL_Reg l_application[] = {
 static int m_application_get_path(lua_State * L)
 {
 	struct lapplication_t * app = luaL_checkudata(L, 1, MT_APPLICATION);
-	lua_pushstring(L, app->pkg->path);
+	lua_pushstring(L, package_get_path(app->pkg));
 	return 1;
 }
 
 static int m_application_get_name(lua_State * L)
 {
 	struct lapplication_t * app = luaL_checkudata(L, 1, MT_APPLICATION);
-	lua_pushstring(L, app->pkg->name);
+	lua_pushstring(L, package_get_name(app->pkg));
 	return 1;
 }
 
 static int m_application_get_description(lua_State * L)
 {
 	struct lapplication_t * app = luaL_checkudata(L, 1, MT_APPLICATION);
-	lua_pushstring(L, app->pkg->desc);
+	lua_pushstring(L, package_get_desc(app->pkg));
+	return 1;
+}
+
+static int m_application_get_developer(lua_State * L)
+{
+	struct lapplication_t * app = luaL_checkudata(L, 1, MT_APPLICATION);
+	lua_pushstring(L, package_get_developer(app->pkg));
+	return 1;
+}
+
+static int m_application_get_version(lua_State * L)
+{
+	struct lapplication_t * app = luaL_checkudata(L, 1, MT_APPLICATION);
+	lua_pushstring(L, package_get_version(app->pkg));
+	return 1;
+}
+
+static int m_application_get_url(lua_State * L)
+{
+	struct lapplication_t * app = luaL_checkudata(L, 1, MT_APPLICATION);
+	lua_pushstring(L, package_get_url(app->pkg));
 	return 1;
 }
 
@@ -99,7 +120,7 @@ static int m_application_get_icon(lua_State * L)
 	if(!app->pkg->icon)
 		return 0;
 	struct limage_t * img = lua_newuserdata(L, sizeof(struct limage_t));
-	img->s = surface_clone(app->pkg->icon, 0, 0, 0, 0, 0);
+	img->s = surface_clone(package_get_icon(app->pkg), 0, 0, 0, 0, 0);
 	luaL_setmetatable(L, MT_IMAGE);
 	return 1;
 }
@@ -110,7 +131,7 @@ static int m_application_get_panel(lua_State * L)
 	if(!app->pkg->panel)
 		return 0;
 	struct limage_t * img = lua_newuserdata(L, sizeof(struct limage_t));
-	img->s = surface_clone(app->pkg->panel, 0, 0, 0, 0, 0);
+	img->s = surface_clone(package_get_panel(app->pkg), 0, 0, 0, 0, 0);
 	luaL_setmetatable(L, MT_IMAGE);
 	return 1;
 }
@@ -120,7 +141,7 @@ static int m_application_execute(lua_State * L)
 	struct lapplication_t * app = luaL_checkudata(L, 1, MT_APPLICATION);
 	const char * fb = luaL_optstring(L, 2, NULL);
 	const char * input = luaL_optstring(L, 3, NULL);
-	lua_pushboolean(L, (vmexec(app->pkg->path, fb, input) < 0) ? 0 : 1);
+	lua_pushboolean(L, (vmexec(package_get_path(app->pkg), fb, input) < 0) ? 0 : 1);
 	return 1;
 }
 
@@ -128,6 +149,9 @@ static const luaL_Reg m_application[] = {
 	{"getPath",			m_application_get_path},
 	{"getName",			m_application_get_name},
 	{"getDescription",	m_application_get_description},
+	{"getDeveloper",	m_application_get_developer},
+	{"getVersion",		m_application_get_version},
+	{"getUrl",			m_application_get_url},
 	{"getIcon",			m_application_get_icon},
 	{"getPanel",		m_application_get_panel},
 	{"execute",			m_application_execute},

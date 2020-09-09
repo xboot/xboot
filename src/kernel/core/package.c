@@ -29,7 +29,9 @@
 #include <xboot.h>
 #include <xboot/package.h>
 
-struct hmap_t * __package_list;
+static struct surface_t * __package_icon = NULL;
+static struct surface_t * __package_panel = NULL;
+struct hmap_t * __package_list = NULL;
 
 static struct package_t * package_alloc(const char * path, const char * lang)
 {
@@ -116,6 +118,32 @@ static struct package_t * package_alloc(const char * path, const char * lang)
 								}
 							}
 						}
+
+						for(i = 0; i < v->u.object.length; i++)
+						{
+							if(v->u.object.values[i].value->type == JSON_STRING)
+							{
+								p = v->u.object.values[i].name;
+								if(strcmp(p, "developer") == 0)
+								{
+									t = v->u.object.values[i].value;
+									if(t && (t->type == JSON_STRING))
+										pkg->developer = strdup(t->u.string.ptr);
+								}
+								else if(strcmp(p, "version") == 0)
+								{
+									t = v->u.object.values[i].value;
+									if(t && (t->type == JSON_STRING))
+										pkg->version = strdup(t->u.string.ptr);
+								}
+								else if(strcmp(p, "url") == 0)
+								{
+									t = v->u.object.values[i].value;
+									if(t && (t->type == JSON_STRING))
+										pkg->url = strdup(t->u.string.ptr);
+								}
+							}
+						}
 					}
 					json_free(v);
 				}
@@ -143,11 +171,17 @@ static void package_free(struct package_t * pkg)
 	if(pkg)
 	{
 		if(pkg->path)
-			free(pkg->path);
+			free((void *)pkg->path);
 		if(pkg->name)
-			free(pkg->name);
+			free((void *)pkg->name);
 		if(pkg->desc)
-			free(pkg->desc);
+			free((void *)pkg->desc);
+		if(pkg->developer)
+			free((void *)pkg->developer);
+		if(pkg->version)
+			free((void *)pkg->version);
+		if(pkg->url)
+			free((void *)pkg->url);
 		if(pkg->icon)
 			surface_free(pkg->icon);
 		if(pkg->panel)
@@ -156,22 +190,55 @@ static void package_free(struct package_t * pkg)
 	}
 }
 
-static void hmap_entry_callback(struct hmap_entry_t * e)
-{
-	if(e)
-		package_free(e->value);
-}
-
 struct package_t * package_search(const char * path)
 {
 	return hmap_search(__package_list, path);
 }
 
-int package_removeable(struct package_t * pkg)
+const char * package_get_path(struct package_t * pkg)
 {
-	if(pkg && (strncmp(pkg->path, "/private/application/", 21) == 0))
-		return 1;
-	return 0;
+	return pkg->path;
+}
+
+const char * package_get_name(struct package_t * pkg)
+{
+	return pkg->name;
+}
+
+const char * package_get_desc(struct package_t * pkg)
+{
+	return pkg->desc ? pkg->desc : "None";
+}
+
+const char * package_get_developer(struct package_t * pkg)
+{
+	return pkg->developer ? pkg->developer : "Unkown";
+}
+
+const char * package_get_version(struct package_t * pkg)
+{
+	return pkg->version ? pkg->version : "0.0.0";
+}
+
+const char * package_get_url(struct package_t * pkg)
+{
+	return pkg->url ? pkg->url : "http://";
+}
+
+struct surface_t * package_get_icon(struct package_t * pkg)
+{
+	return pkg->icon ? pkg->icon : __package_icon;
+}
+
+struct surface_t * package_get_panel(struct package_t * pkg)
+{
+	return pkg->panel ? pkg->panel : __package_panel;
+}
+
+static void hmap_entry_callback(struct hmap_entry_t * e)
+{
+	if(e)
+		package_free(e->value);
 }
 
 void package_rescan(void)
@@ -226,6 +293,15 @@ void package_rescan(void)
 
 void do_init_package(void)
 {
+	struct xfs_context_t * ctx;
+
+	ctx = xfs_alloc("/private/framework", 0);
+	if(ctx)
+	{
+		__package_icon = surface_alloc_from_xfs(ctx, "assets/images/icon.png");
+		__package_panel = surface_alloc_from_xfs(ctx, "assets/images/panel.png");
+		xfs_free(ctx);
+	}
 	__package_list = hmap_alloc(0);
 	package_rescan();
 }

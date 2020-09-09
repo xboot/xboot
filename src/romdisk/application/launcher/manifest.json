@@ -1,6 +1,9 @@
 {
 	"name": "Launcher",
 	"description": "Application launcher, a kind of utility software.",
+	"developer": "JianJun Jiang",
+	"version": "1.0.0",
+	"url": "http://xboot.org",
 
 	"zh-CN": {
 		"name": "启动器",

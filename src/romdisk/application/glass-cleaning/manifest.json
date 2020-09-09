@@ -1,6 +1,9 @@
 {
 	"name": "Glass Cleaning",
 	"description": "Clean the water drops from the glass.",
+	"developer": "JianJun Jiang",
+	"version": "1.0.0",
+	"url": "http://xboot.org",
 
 	"zh-CN": {
 		"name": "擦玻璃",

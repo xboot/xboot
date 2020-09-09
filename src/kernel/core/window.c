@@ -380,15 +380,8 @@ void window_present(struct window_t * w, void * o, void (*draw)(struct window_t 
 
 int window_pump_event(struct window_t * w, struct event_t * e)
 {
-	if(w && e)
-	{
-		if(fifo_get(w->event, (unsigned char *)e, sizeof(struct event_t)) == sizeof(struct event_t))
-		{
-			if(w->map)
-				return hmap_search(w->map, ((struct input_t *)e->device)->name) ? 1 : 0;
-			return 1;
-		}
-	}
+	if(w && (fifo_get(w->event, (unsigned char *)e, sizeof(struct event_t)) == sizeof(struct event_t)))
+		return 1;
 	return 0;
 }
 
@@ -396,74 +389,85 @@ void push_event(struct event_t * e)
 {
 	struct window_manager_t * pos, * n;
 	struct window_t * wpos, * wn;
+	int action;
 
 	if(e)
 	{
 		e->timestamp = ktime_get();
 		list_for_each_entry_safe(pos, n, &__window_manager_list, list)
 		{
-			switch(e->type)
-			{
-			case EVENT_TYPE_KEY_DOWN:
-				if((e->e.key_down.key == KEY_TASK) || (e->e.key_down.key == KEY_HOME))
-				{
-					list_for_each_entry_safe(wpos, wn, &pos->window, list)
-					{
-						if(wpos->launcher)
-						{
-							window_to_front(wpos);
-							break;
-						}
-					}
-				}
-				break;
-			case EVENT_TYPE_KEY_UP:
-				break;
-			case EVENT_TYPE_MOUSE_DOWN:
-				if(!pos->cursor.dirty)
-				{
-					region_clone(&pos->cursor.ro, &pos->cursor.rn);
-					pos->cursor.dirty = 1;
-				}
-				region_init(&pos->cursor.rn, e->e.mouse_down.x, e->e.mouse_down.y, pos->cursor.rn.w, pos->cursor.rn.h);
-				pos->cursor.show = 1;
-				break;
-			case EVENT_TYPE_MOUSE_MOVE:
-				if(!pos->cursor.dirty)
-				{
-					region_clone(&pos->cursor.ro, &pos->cursor.rn);
-					pos->cursor.dirty = 1;
-				}
-				region_init(&pos->cursor.rn, e->e.mouse_move.x, e->e.mouse_move.y, pos->cursor.rn.w, pos->cursor.rn.h);
-				pos->cursor.show = 1;
-				break;
-			case EVENT_TYPE_MOUSE_UP:
-				if(!pos->cursor.dirty)
-				{
-					region_clone(&pos->cursor.ro, &pos->cursor.rn);
-					pos->cursor.dirty = 1;
-				}
-				region_init(&pos->cursor.rn, e->e.mouse_up.x, e->e.mouse_up.y, pos->cursor.rn.w, pos->cursor.rn.h);
-				pos->cursor.show = 1;
-				break;
-			case EVENT_TYPE_MOUSE_WHEEL:
-				pos->cursor.show = 1;
-				break;
-			case EVENT_TYPE_TOUCH_BEGIN:
-				pos->cursor.show = 0;
-				break;
-			case EVENT_TYPE_TOUCH_MOVE:
-				pos->cursor.show = 0;
-				break;
-			case EVENT_TYPE_TOUCH_END:
-				pos->cursor.show = 0;
-				break;
-			default:
-				break;
-			}
+			action = 0;
 			list_for_each_entry_safe(wpos, wn, &pos->window, list)
 			{
+				if(wpos->map && !hmap_search(wpos->map, ((struct input_t *)e->device)->name))
+					continue;
 				fifo_put(wpos->event, (unsigned char *)e, sizeof(struct event_t));
+				action = 1;
+			}
+			if(action)
+			{
+				switch(e->type)
+				{
+				case EVENT_TYPE_KEY_DOWN:
+					if((e->e.key_down.key == KEY_TASK) || (e->e.key_down.key == KEY_HOME))
+					{
+						list_for_each_entry_safe(wpos, wn, &pos->window, list)
+						{
+							if(wpos->launcher)
+							{
+								window_to_front(wpos);
+								break;
+							}
+						}
+					}
+					break;
+				case EVENT_TYPE_KEY_UP:
+					break;
+
+				case EVENT_TYPE_MOUSE_DOWN:
+					if(!pos->cursor.dirty)
+					{
+						region_clone(&pos->cursor.ro, &pos->cursor.rn);
+						pos->cursor.dirty = 1;
+					}
+					region_init(&pos->cursor.rn, e->e.mouse_down.x, e->e.mouse_down.y, pos->cursor.rn.w, pos->cursor.rn.h);
+					pos->cursor.show = 1;
+					break;
+				case EVENT_TYPE_MOUSE_MOVE:
+					if(!pos->cursor.dirty)
+					{
+						region_clone(&pos->cursor.ro, &pos->cursor.rn);
+						pos->cursor.dirty = 1;
+					}
+					region_init(&pos->cursor.rn, e->e.mouse_move.x, e->e.mouse_move.y, pos->cursor.rn.w, pos->cursor.rn.h);
+					pos->cursor.show = 1;
+					break;
+				case EVENT_TYPE_MOUSE_UP:
+					if(!pos->cursor.dirty)
+					{
+						region_clone(&pos->cursor.ro, &pos->cursor.rn);
+						pos->cursor.dirty = 1;
+					}
+					region_init(&pos->cursor.rn, e->e.mouse_up.x, e->e.mouse_up.y, pos->cursor.rn.w, pos->cursor.rn.h);
+					pos->cursor.show = 1;
+					break;
+				case EVENT_TYPE_MOUSE_WHEEL:
+					pos->cursor.show = 1;
+					break;
+
+				case EVENT_TYPE_TOUCH_BEGIN:
+					pos->cursor.show = 0;
+					break;
+				case EVENT_TYPE_TOUCH_MOVE:
+					pos->cursor.show = 0;
+					break;
+				case EVENT_TYPE_TOUCH_END:
+					pos->cursor.show = 0;
+					break;
+
+				default:
+					break;
+				}
 			}
 		}
 	}

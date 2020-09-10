@@ -27,6 +27,7 @@
  */
 
 #include <xboot.h>
+#include <framework/vm.h>
 #include <command/command.h>
 
 static void usage(void)
@@ -57,7 +58,25 @@ static void launcher_window(struct xui_context_t * ctx)
 			xui_layout_begin_column(ctx);
 			xui_layout_row(ctx, 1, (int[]){ -1 }, -50);
 			pkg = e->value;
-			xui_image_ex(ctx, package_get_panel(pkg), 0, XUI_IMAGE_COVER);
+
+			if(xui_button(ctx, package_get_name(pkg)))
+			{
+				struct window_t * pos, *n;
+				int runing = 0;
+				list_for_each_entry_safe(pos, n, &ctx->w->wm->window, list)
+				{
+						if(strcmp(pos->task->name, package_get_path(pkg)) == 0)
+						{
+							window_to_front(pos);
+							runing = 1;
+							break;
+						}
+				}
+				if(!runing)
+					vmexec(package_get_path(pkg), ctx->w->wm->fb->name, NULL);
+			}
+			//xui_image_ex(ctx, package_get_panel(pkg), 0, XUI_IMAGE_COVER);
+
 			xui_layout_row(ctx, 1, (int[]){ -1 }, -1);
 			xui_label(ctx, package_get_name(pkg));
 			xui_layout_end_column(ctx);
@@ -90,6 +109,7 @@ static void launcher_task(struct task_t * task, void * data)
 		ctx = xui_context_alloc(td->fb, td->input, NULL, td->data);
 		if(ctx)
 		{
+			window_set_launcher(ctx->w, 1);
 			xui_loop(ctx, launcher);
 			xui_context_free(ctx);
 		}

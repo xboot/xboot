@@ -387,6 +387,31 @@ void task_yield(void)
 	}
 }
 
+struct task_data_t * task_data_alloc(const char * fb, const char * input, void * data)
+{
+	struct task_data_t * td;
+
+	td = malloc(sizeof(struct task_data_t));
+	if(!td)
+		return NULL;
+	td->fb = strdup(fb);
+	td->input = strdup(input);
+	td->data = data;
+	return td;
+}
+
+void task_data_free(struct task_data_t * td)
+{
+	if(td)
+	{
+		if(td->fb)
+			free((void *)td->fb);
+		if(td->input)
+			free((void *)td->input);
+		free(td);
+	}
+}
+
 static void idle_task(struct task_t * task, void * data)
 {
 	while(1)

@@ -197,7 +197,7 @@ static void window_manager_free(struct window_manager_t * wm)
 	}
 }
 
-struct window_t * window_alloc(const char * fb, const char * input, void * data)
+struct window_t * window_alloc(const char * fb, const char * input)
 {
 	struct window_manager_t * wm = window_manager_alloc(fb);
 	struct window_t * w;
@@ -213,12 +213,12 @@ struct window_t * window_alloc(const char * fb, const char * input, void * data)
 	if(!w)
 		return NULL;
 
+	w->task = task_self();
 	w->wm = wm;
 	w->s = framebuffer_create_surface(w->wm->fb);
 	w->rl = region_list_alloc(0);
 	w->event = fifo_alloc(sizeof(struct event_t) * CONFIG_EVENT_FIFO_SIZE);
 	w->launcher = 0;
-	w->priv = data;
 	if(p)
 	{
 		w->map = hmap_alloc(0);

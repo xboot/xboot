@@ -24,6 +24,12 @@ enum task_status_t {
 	TASK_STATUS_SUSPEND	= 2,
 };
 
+struct task_data_t {
+	const char * fb;
+	const char * input;
+	void * data;
+};
+
 struct task_t {
 	struct rb_node node;
 	struct list_head list;
@@ -74,6 +80,9 @@ void task_renice(struct task_t * task, int nice);
 void task_suspend(struct task_t * task);
 void task_resume(struct task_t * task);
 void task_yield(void);
+
+struct task_data_t * task_data_alloc(const char * fb, const char * input, void * data);
+void task_data_free(struct task_data_t * td);
 
 void scheduler_loop(void);
 void do_init_sched(void);

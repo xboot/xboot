@@ -31,6 +31,7 @@ struct window_manager_t {
 };
 
 struct window_t {
+	struct task_t * task;
 	struct list_head list;
 	struct window_manager_t * wm;
 	struct surface_t * s;
@@ -38,7 +39,6 @@ struct window_t {
 	struct fifo_t * event;
 	struct hmap_t * map;
 	int launcher;
-	void * priv;
 };
 
 extern struct list_head __window_manager_list;
@@ -100,7 +100,7 @@ static inline int window_get_launcher(struct window_t * w)
 	return w ? w->launcher : 0;
 }
 
-struct window_t * window_alloc(const char * fb, const char * input, void * data);
+struct window_t * window_alloc(const char * fb, const char * input);
 void window_free(struct window_t * w);
 void window_to_front(struct window_t * w);
 void window_to_back(struct window_t * w);

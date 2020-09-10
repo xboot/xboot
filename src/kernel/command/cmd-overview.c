@@ -32,7 +32,7 @@
 static void usage(void)
 {
 	printf("usage:\r\n");
-	printf("    overview\r\n");
+	printf("    overview [fb] [input]\r\n");
 }
 
 static void xui_style_color(struct xui_context_t * ctx, struct color_t * c)
@@ -786,14 +786,26 @@ static void overview(struct xui_context_t * ctx)
 
 static void overview_task(struct task_t * task, void * data)
 {
-	struct xui_context_t * ctx = xui_context_alloc(NULL, NULL, NULL, data);
-	xui_loop(ctx, overview);
-	xui_context_free(ctx);
+	struct task_data_t * td = (struct task_data_t *)data;
+	struct xui_context_t * ctx;
+
+	if(td)
+	{
+		ctx = xui_context_alloc(td->fb, td->input, NULL, td->data);
+		if(ctx)
+		{
+			xui_loop(ctx, overview);
+			xui_context_free(ctx);
+		}
+		task_data_free(td);
+	}
 }
 
 static int do_overview(int argc, char ** argv)
 {
-	task_resume(task_create(NULL, "overview", overview_task, NULL, 0, 0));
+	const char * fb = (argc >= 2) ? argv[1] : NULL;
+	const char * input = (argc >= 3) ? argv[2] : NULL;
+	task_resume(task_create(NULL, "overview", overview_task, task_data_alloc(fb, input, NULL), 0, 0));
 	return 0;
 }
 

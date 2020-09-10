@@ -17,7 +17,7 @@ static void * rectangle_setup(struct wboxtest_t * wbt)
 	if(!pdat)
 		return NULL;
 
-	pdat->w = window_alloc(NULL, NULL, NULL);
+	pdat->w = window_alloc(NULL, NULL);
 	if(!pdat->w)
 	{
 		free(pdat);

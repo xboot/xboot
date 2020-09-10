@@ -46,12 +46,9 @@ static int l_window_list(lua_State * L)
 	lua_newtable(L);
 	list_for_each_entry_safe(pos, n, &w->wm->window, list)
 	{
-		if(pos->priv)
-		{
-			lua_pushlightuserdata(L, pos);
-			luaL_setmetatable(L, MT_WINDOW);
-			lua_setfield(L, -2, ((struct vmctx_t *)pos->priv)->path);
-		}
+		lua_pushlightuserdata(L, pos);
+		luaL_setmetatable(L, MT_WINDOW);
+		lua_setfield(L, -2, pos->task->name);
 	}
 	return 1;
 }

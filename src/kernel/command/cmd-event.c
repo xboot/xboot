@@ -40,7 +40,7 @@ static void usage(void)
 
 static int do_event(int argc, char ** argv)
 {
-	struct window_t * w = window_alloc(NULL, NULL, NULL);
+	struct window_t * w = window_alloc(NULL, NULL);
 	struct input_t * input;
 	struct event_t e;
 

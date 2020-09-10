@@ -410,7 +410,7 @@ static struct vmctx_t * vmctx_alloc(const char * path, const char * fb, const ch
 	ctx->path = strdup(path);
 	ctx->xfs = xfs_alloc(path, 1);
 	ctx->f = font_context_alloc();
-	ctx->w = window_alloc(fb, input, ctx);
+	ctx->w = window_alloc(fb, input);
 	return ctx;
 }
 
@@ -428,43 +428,55 @@ static void vmctx_free(struct vmctx_t * ctx)
 
 static void vm_task(struct task_t * task, void * data)
 {
-	struct vmctx_t * ctx = (struct vmctx_t *)data;
+	struct task_data_t * td = (struct task_data_t *)data;
+	struct vmctx_t * ctx;
 	lua_State * L;
 
-	L = l_newstate(ctx);
-	if(L)
+	if(td)
 	{
-		lua_pushcfunction(L, &pmain);
-		if(luahelper_pcall(L, 0, 0) != LUA_OK)
+		ctx = vmctx_alloc(task->name, td->fb, td->input);
+		if(ctx)
 		{
-			lua_writestringerror("%s: ", task->name);
-			lua_writestringerror("%s\r\n", lua_tostring(L, -1));
-			lua_pop(L, 1);
+			L = l_newstate(ctx);
+			if(L)
+			{
+				lua_pushcfunction(L, &pmain);
+				if(luahelper_pcall(L, 0, 0) != LUA_OK)
+				{
+					lua_writestringerror("%s: ", task->name);
+					lua_writestringerror("%s\r\n", lua_tostring(L, -1));
+					lua_pop(L, 1);
+				}
+				lua_close(L);
+			}
+			vmctx_free(ctx);
 		}
-		lua_close(L);
+		task_data_free(td);
 	}
-	vmctx_free(ctx);
 }
 
 int vmexec(const char * path, const char * fb, const char * input)
 {
-	struct task_t * task;
-	struct vmctx_t * ctx;
+	struct vfs_stat_t st;
 
 	if(!is_absolute_path(path))
-		return -1;
-
-	ctx = vmctx_alloc(path, fb, input);
-	if(!ctx)
-		return -1;
-
-	task = task_create(NULL, path, vm_task, ctx, 0, 0);
-	if(!task)
 	{
-		vmctx_free(ctx);
+		printf("%s: Not a absolute path\r\n", path);
 		return -1;
 	}
 
-	task_resume(task);
+	if(vfs_stat(path, &st) < 0)
+	{
+		printf("%s: No such file or directory\r\n", path);
+		return -1;
+	}
+
+	if(!S_ISREG(st.st_mode) && !S_ISDIR(st.st_mode))
+	{
+		printf("%s: Isn't a execute file or directory\r\n", path);
+		return -1;
+	}
+
+	task_resume(task_create(NULL, path, vm_task, task_data_alloc(fb, input, NULL), 0, 0));
 	return 0;
 }

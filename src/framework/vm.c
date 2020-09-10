@@ -396,21 +396,19 @@ static lua_State * l_newstate(void * ud)
 	return L;
 }
 
-static struct vmctx_t * vmctx_alloc(const char * path, const char * fb, const char * input)
+static struct vmctx_t * vmctx_alloc(const char * path, const char * fb, const char * input, void * data)
 {
 	struct vmctx_t * ctx;
-
-	if(!is_absolute_path(path))
-		return NULL;
 
 	ctx = malloc(sizeof(struct vmctx_t));
 	if(!ctx)
 		return NULL;
 
-	ctx->path = strdup(path);
 	ctx->xfs = xfs_alloc(path, 1);
 	ctx->f = font_context_alloc();
 	ctx->w = window_alloc(fb, input);
+	ctx->priv = data;
+
 	return ctx;
 }
 
@@ -419,7 +417,6 @@ static void vmctx_free(struct vmctx_t * ctx)
 	if(!ctx)
 		return;
 
-	free(ctx->path);
 	xfs_free(ctx->xfs);
 	font_context_free(ctx->f);
 	window_free(ctx->w);
@@ -434,7 +431,7 @@ static void vm_task(struct task_t * task, void * data)
 
 	if(td)
 	{
-		ctx = vmctx_alloc(task->name, td->fb, td->input);
+		ctx = vmctx_alloc(task->name, td->fb, td->input, td->data);
 		if(ctx)
 		{
 			L = l_newstate(ctx);

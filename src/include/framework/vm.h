@@ -11,10 +11,10 @@ extern "C" {
 
 struct vmctx_t
 {
-	char * path;
 	struct xfs_context_t * xfs;
 	struct font_context_t * f;
 	struct window_t * w;
+	void * priv;
 };
 
 int vmexec(const char * path, const char * fb, const char * input);

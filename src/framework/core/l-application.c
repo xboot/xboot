@@ -37,7 +37,7 @@ struct lapplication_t {
 
 static int l_application_new(lua_State * L)
 {
-	const char * path = ((struct vmctx_t *)luahelper_vmctx(L))->path;
+	const char * path = ((struct vmctx_t *)luahelper_vmctx(L))->w->task->name;
 	struct package_t * pkg = package_search(path);
 	struct lapplication_t * app;
 	if(pkg)

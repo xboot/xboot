@@ -61,19 +61,19 @@ static void launcher_window(struct xui_context_t * ctx)
 
 			if(xui_button(ctx, package_get_name(pkg)))
 			{
-				struct window_t * pos, *n;
+				struct window_t * pos, * n;
 				int runing = 0;
 				list_for_each_entry_safe(pos, n, &ctx->w->wm->window, list)
 				{
-						if(strcmp(pos->task->name, package_get_path(pkg)) == 0)
-						{
-							window_to_front(pos);
-							runing = 1;
-							break;
-						}
+					if(strcmp(pos->task->name, package_get_path(pkg)) == 0)
+					{
+						window_to_front(pos);
+						runing = 1;
+						break;
+					}
 				}
 				if(!runing)
-					vmexec(package_get_path(pkg), ctx->w->wm->fb->name, NULL);
+					vmexec(package_get_path(pkg), ((struct task_data_t *)(ctx->priv))->fb, ((struct task_data_t *)(ctx->priv))->input);
 			}
 			//xui_image_ex(ctx, package_get_panel(pkg), 0, XUI_IMAGE_COVER);
 

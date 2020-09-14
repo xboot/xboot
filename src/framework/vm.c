@@ -431,7 +431,7 @@ static void vm_task(struct task_t * task, void * data)
 
 	if(td)
 	{
-		ctx = vmctx_alloc(task->name, td->fb, td->input, td->data);
+		ctx = vmctx_alloc(task->name, td->fb, td->input, td);
 		if(ctx)
 		{
 			L = l_newstate(ctx);

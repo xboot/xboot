@@ -791,7 +791,7 @@ static void overview_task(struct task_t * task, void * data)
 
 	if(td)
 	{
-		ctx = xui_context_alloc(td->fb, td->input, NULL, td->data);
+		ctx = xui_context_alloc(td->fb, td->input, NULL, td);
 		if(ctx)
 		{
 			xui_loop(ctx, overview);

@@ -106,7 +106,7 @@ static void launcher_task(struct task_t * task, void * data)
 
 	if(td)
 	{
-		ctx = xui_context_alloc(td->fb, td->input, NULL, td->data);
+		ctx = xui_context_alloc(td->fb, td->input, NULL, td);
 		if(ctx)
 		{
 			window_set_launcher(ctx->w, 1);

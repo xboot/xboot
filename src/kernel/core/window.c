@@ -388,29 +388,23 @@ int window_pump_event(struct window_t * w, struct event_t * e)
 void push_event(struct event_t * e)
 {
 	struct window_manager_t * pos, * n;
-	struct window_t * wpos, * wn;
-	int action;
+	struct window_t * w;
 
 	if(e)
 	{
 		e->timestamp = ktime_get();
 		list_for_each_entry_safe(pos, n, &__window_manager_list, list)
 		{
-			action = 0;
-			list_for_each_entry_safe(wpos, wn, &pos->window, list)
+			w = (struct window_t *)list_first_entry_or_null(&pos->window, struct window_t, list);
+			if(w && (!w->map || hmap_search(w->map, ((struct input_t *)e->device)->name)))
 			{
-				if(wpos->map && !hmap_search(wpos->map, ((struct input_t *)e->device)->name))
-					continue;
-				fifo_put(wpos->event, (unsigned char *)e, sizeof(struct event_t));
-				action = 1;
-			}
-			if(action)
-			{
+				fifo_put(w->event, (unsigned char *)e, sizeof(struct event_t));
 				switch(e->type)
 				{
 				case EVENT_TYPE_KEY_DOWN:
 					if((e->e.key_down.key == KEY_TASK) || (e->e.key_down.key == KEY_HOME))
 					{
+						struct window_t * wpos, * wn;
 						list_for_each_entry_safe(wpos, wn, &pos->window, list)
 						{
 							if(wpos->launcher)

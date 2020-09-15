@@ -16,17 +16,11 @@ extern "C" {
 /*
  * Sandbox interface
  */
-struct sandbox_t {
-	struct {
-		char * buffer;
-		size_t size;
-	} json;
-
-	char * app;
-};
-struct sandbox_t * sandbox_get(void);
 void sandbox_init(int argc, char * argv[]);
 void sandbox_exit(void);
+char * sandbox_get_json_buffer(void);
+size_t sandbox_get_json_size(void);
+char * sandbox_get_application(void);
 
 /*
  * Sandbox region

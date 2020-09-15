@@ -53,36 +53,49 @@ static void subsys_init_rootfs(void)
 
 static void subsys_init_dtree(void)
 {
-	struct vfs_stat_t st;
-	char path[VFS_MAX_PATH];
-	char * json;
-	int fd, n, len = 0;
+	char * json = NULL;
+	int len = 0;
 
-	sprintf(path, "/boot/%s.json", get_machine()->name);
-	if(vfs_stat(path, &st) < 0)
-		return;
-	if(!S_ISREG(st.st_mode))
-		return;
-	if(st.st_size <= 0)
-		return;
-
-	json = malloc(st.st_size + 1);
-	if(!json)
-		return;
-
-	if((fd = vfs_open(path, O_RDONLY, 0)) >= 0)
+#ifdef __SANDBOX__
+	extern void * sandbox_get_json_buffer(void);
+	extern size_t sandbox_get_json_size(void);
+	json = sandbox_get_json_buffer();
+	len = sandbox_get_json_size();
+#endif
+	if(json && (len > 0))
 	{
-		for(;;)
-		{
-			n = vfs_read(fd, (void *)(json + len), SZ_64K);
-			if(n <= 0)
-				break;
-			len += n;
-		}
-		vfs_close(fd);
-		probe_device(json, len, path);
+		probe_device(json, len, NULL);
 	}
-	free(json);
+	else
+	{
+		struct vfs_stat_t st;
+		char path[VFS_MAX_PATH];
+		int fd, n;
+		sprintf(path, "/boot/%s.json", get_machine()->name);
+		if(vfs_stat(path, &st) < 0)
+			return;
+		if(!S_ISREG(st.st_mode))
+			return;
+		if(st.st_size <= 0)
+			return;
+		json = malloc(st.st_size + 1);
+		if(!json)
+			return;
+		len = 0;
+		if((fd = vfs_open(path, O_RDONLY, 0)) >= 0)
+		{
+			for(;;)
+			{
+				n = vfs_read(fd, (void *)(json + len), SZ_64K);
+				if(n <= 0)
+					break;
+				len += n;
+			}
+			vfs_close(fd);
+			probe_device(json, len, path);
+		}
+		free(json);
+	}
 }
 
 static void subsys_init_private(void)

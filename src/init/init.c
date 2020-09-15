@@ -27,8 +27,6 @@
  */
 
 #include <xboot.h>
-#include <framebuffer/framebuffer.h>
-#include <graphic/surface.h>
 #include <init.h>
 
 void do_show_logo(void)
@@ -184,7 +182,7 @@ void do_automount(void)
 	register_device_notifier(&nm);
 }
 
-static void __do_autoboot(void)
+void do_autoboot(void)
 {
 	int delay = CONFIG_AUTO_BOOT_DELAY * 1000;
 
@@ -201,6 +199,13 @@ static void __do_autoboot(void)
 		printf("\rPress any key to stop autoboot:%3d.%03d%s", delay / 1000, delay % 1000, (delay == 0) ? "\r\n" : "");
 	} while(delay > 0);
 
+#ifdef __SANDBOX__
+	extern char * sandbox_get_application(void);
+	if(sandbox_get_application())
+		shell_system(sandbox_get_application());
+	else
+		shell_system(CONFIG_AUTO_BOOT_COMMAND);
+#else
 	shell_system(CONFIG_AUTO_BOOT_COMMAND);
+#endif
 }
-extern __typeof(__do_autoboot) do_autoboot __attribute__((weak, alias("__do_autoboot")));

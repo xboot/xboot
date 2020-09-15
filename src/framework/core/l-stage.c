@@ -32,7 +32,7 @@ static const char stage_lua[] = X(
 local M = Class(DisplayObject)
 
 function M:init()
-	self._exiting = false
+	self._running = true
 	self._timerlist = {}
 	self._window = Window.new()
 	self.super:init(self._window:getSize())
@@ -40,7 +40,7 @@ function M:init()
 end
 
 function M:exit()
-	self._exiting = true
+	self._running = false
 	return self
 end
 
@@ -144,9 +144,12 @@ function M:loop()
 		collectgarbage("step")
 	end))
 
-	while not self._exiting do
+	while self._running do
 		local e = Event.pump()
 		if e ~= nil then
+			if e.type == "system-exit" then
+				self:exit()
+			end
 			self:dispatch(e)
 		end
 

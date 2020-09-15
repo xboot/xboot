@@ -33,7 +33,7 @@
 static void usage(void)
 {
 	printf("usage:\r\n");
-	printf("    launcher [fb] [input]\r\n");
+	printf("    launcher [framebuffer] [input]\r\n");
 }
 
 static void launcher_window(struct xui_context_t * ctx)

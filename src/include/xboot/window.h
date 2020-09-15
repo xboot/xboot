@@ -107,6 +107,7 @@ void window_to_back(struct window_t * w);
 void window_region_list_add(struct window_t * w, struct region_t * r);
 void window_region_list_clear(struct window_t * w);
 void window_present(struct window_t * w, void * o, void (*draw)(struct window_t *, void *));
+void window_exit(struct window_t * w);
 int window_pump_event(struct window_t * w, struct event_t * e);
 void push_event(struct event_t * e);
 

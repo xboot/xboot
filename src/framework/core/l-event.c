@@ -282,6 +282,16 @@ static int l_event_pump(lua_State * L)
 		lua_setfield(L, -2, "button");
 		return 1;
 
+	case EVENT_TYPE_SYSTEM_EXIT:
+		lua_newtable(L);
+		lua_pushstring(L, ((struct input_t *)e.device)->name);
+		lua_setfield(L, -2, "device");
+		lua_pushstring(L, "system-exit");
+		lua_setfield(L, -2, "type");
+		lua_pushnumber(L, ktime_to_ns(e.timestamp));
+		lua_setfield(L, -2, "time");
+		return 1;
+
 	default:
 		break;
 	}

@@ -32,7 +32,7 @@
 static void usage(void)
 {
 	printf("usage:\r\n");
-	printf("    overview [fb] [input]\r\n");
+	printf("    overview [framebuffer] [input]\r\n");
 }
 
 static void xui_style_color(struct xui_context_t * ctx, struct color_t * c)

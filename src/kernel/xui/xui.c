@@ -1517,6 +1517,9 @@ void xui_loop(struct xui_context_t * ctx, void (*func)(struct xui_context_t *))
 					ctx->mouse.up |= MOUSE_BUTTON_LEFT;
 				}
 				break;
+			case EVENT_TYPE_SYSTEM_EXIT:
+				xui_exit(ctx);
+				break;
 			default:
 				break;
 			}

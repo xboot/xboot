@@ -378,6 +378,19 @@ void window_present(struct window_t * w, void * o, void (*draw)(struct window_t 
 	framebuffer_present_surface(w->wm->fb, w->s, w->rl);
 }
 
+void window_exit(struct window_t * w)
+{
+	struct event_t e;
+
+	if(w)
+	{
+		e.device = &(struct input_t){ "system", NULL, NULL };
+		e.type = EVENT_TYPE_SYSTEM_EXIT;
+		e.timestamp = ktime_get();
+		fifo_put(w->event, (unsigned char *)&e, sizeof(struct event_t));
+	}
+}
+
 int window_pump_event(struct window_t * w, struct event_t * e)
 {
 	if(w && (fifo_get(w->event, (unsigned char *)e, sizeof(struct event_t)) == sizeof(struct event_t)))

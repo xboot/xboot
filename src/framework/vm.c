@@ -454,26 +454,8 @@ static void vm_task(struct task_t * task, void * data)
 
 int vmexec(const char * path, const char * fb, const char * input)
 {
-	struct vfs_stat_t st;
-
 	if(!is_absolute_path(path))
-	{
-		printf("%s: Not a absolute path\r\n", path);
 		return -1;
-	}
-
-	if(vfs_stat(path, &st) < 0)
-	{
-		printf("%s: No such file or directory\r\n", path);
-		return -1;
-	}
-
-	if(!S_ISREG(st.st_mode) && !S_ISDIR(st.st_mode))
-	{
-		printf("%s: Isn't a execute file or directory\r\n", path);
-		return -1;
-	}
-
 	task_resume(task_create(NULL, path, vm_task, task_data_alloc(fb, input, NULL), 0, 0));
 	return 0;
 }

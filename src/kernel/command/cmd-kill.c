@@ -77,7 +77,7 @@ static int do_kill(int argc, char ** argv)
 			}
 		}
 	}
-	printf("No such task '%s'\r\n", argv[1]);
+	printf("No such window task '%s'\r\n", argv[1]);
 	return -1;
 }
 

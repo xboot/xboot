@@ -1,7 +1,0 @@
-%rename link                old_link
-
-*link:
-%(old_link) -T arch/arm32/mach-n3ds/xboot.ld%s -d --emit-relocs --use-blx --gc-sections
-
-*startfile:
-3dsx_crt0%O%s crti%O%s crtbegin%O%s

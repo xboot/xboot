@@ -62,11 +62,8 @@ void xboot_main(void)
 	do_autoboot();
 
 #if defined(CONFIG_SHELL_TASK) && (CONFIG_SHELL_TASK > 0)
-	/* Create shell task */
-	struct task_t * task = task_create(scheduler_self(), "shell", shell_task, NULL, 0, 0);
-
-	/* Resume shell task */
-	task_resume(task);
+	/* Create and resume shell task */
+	task_resume(task_create(scheduler_self(), "shell", shell_task, NULL, 0, 0));
 #endif
 
 	/* Scheduler loop */

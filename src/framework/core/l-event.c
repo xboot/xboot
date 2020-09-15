@@ -57,7 +57,7 @@ static int l_event_pump(lua_State * L)
 	struct window_t * w = ((struct vmctx_t *)luahelper_vmctx(L))->w;
 	struct event_t e;
 
-	if(!window_is_active(w) || !window_pump_event(w, &e))
+	if(!window_pump_event(w, &e))
 		return 0;
 
 	switch(e.type)

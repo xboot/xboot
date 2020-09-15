@@ -24,6 +24,7 @@ struct slist_t * slist_alloc(void);
 void slist_free(struct slist_t * sl);
 void slist_add(struct slist_t * sl, void * priv, const char * fmt, ...);
 void slist_sort(struct slist_t * sl);
+int slist_empty(struct slist_t * sl);
 
 #ifdef __cplusplus
 }

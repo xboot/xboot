@@ -88,3 +88,10 @@ void slist_sort(struct slist_t * sl)
 	if(sl)
 		lsort(NULL, &sl->list, slist_compare);
 }
+
+int slist_empty(struct slist_t * sl)
+{
+	if(sl && !list_empty_careful(&sl->list))
+		return 0;
+	return 1;
+}

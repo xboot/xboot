@@ -18,12 +18,15 @@ extern "C" {
 #include <fcntl.h>
 #include <unistd.h>
 #include <dirent.h>
+#include <libgen.h>
 #include <termios.h>
 #include <pthread.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
+#include <sys/wait.h>
 #include <sys/types.h>
 #include <sys/ioctl.h>
+#include <sys/reboot.h>
 #include <sys/timerfd.h>
 #include <sys/inotify.h>
 #include <sys/poll.h>

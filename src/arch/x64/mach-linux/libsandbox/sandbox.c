@@ -74,7 +74,6 @@ void sandbox_init(int argc, char * argv[])
 	int i, idx = 0;
 
 	memset(&sandbox, 0, sizeof(struct sandbox_t));
-
 	for(i = 1; i < argc; i++)
 	{
 		if(!strcmp(argv[i], "--help"))
@@ -127,9 +126,6 @@ void sandbox_init(int argc, char * argv[])
 		}
 	}
 
-	if(geteuid() != 0)
-		printf("WARNING: Running without root permission.\r\n");
-
 	sandbox.heap.size = heap_size;
 	sandbox.heap.buffer = memalign(64, sandbox.heap.size);
 	if(!sandbox.heap.buffer)
@@ -155,6 +151,12 @@ void sandbox_init(int argc, char * argv[])
 			free(sandbox.application);
 		exit(-1);
 	}
+
+	if(geteuid() != 0)
+		printf("WARNING: Running without root permission.(%d)\r\n", geteuid());
+
+	if((readlink("/proc/self/exe", path, sizeof(path)) <= 0) || (chdir(dirname(path)) != 0))
+		printf("WARNING: Can't change working directory.(%s)\r\n", getcwd(path, sizeof(path)));
 
 	tcgetattr(0, &tconfig);
 	ta = tconfig;

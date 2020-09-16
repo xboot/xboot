@@ -253,6 +253,11 @@ void sandbox_pm_reboot(void);
 void sandbox_pm_sleep(void);
 
 /*
+ * Shell interface
+ */
+void sandbox_shell(const char * cmd, char * msg, int sz, int async);
+
+/*
  * Stdio interface
  */
 ssize_t sandbox_stdio_read(void * buf, size_t count);

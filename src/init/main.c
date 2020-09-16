@@ -56,10 +56,10 @@ void xboot_main(void)
 	do_init_package();
 
 	/* Do auto mount */
-	do_automount();
+	do_auto_mount();
 
 	/* Do auto boot */
-	do_autoboot();
+	do_auto_boot();
 
 #if defined(CONFIG_SHELL_TASK) && (CONFIG_SHELL_TASK > 0)
 	/* Create and resume shell task */

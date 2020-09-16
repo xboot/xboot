@@ -140,7 +140,7 @@ static struct notifier_t nm = {
 	.call		= nm_call,
 };
 
-void do_automount(void)
+void do_auto_mount(void)
 {
 	struct filesystem_t * fpos, * fn;
 	struct device_t * dpos, * dn;
@@ -182,7 +182,7 @@ void do_automount(void)
 	register_device_notifier(&nm);
 }
 
-void do_autoboot(void)
+void do_auto_boot(void)
 {
 	int delay = CONFIG_AUTO_BOOT_DELAY * 1000;
 
@@ -196,7 +196,7 @@ void do_autoboot(void)
 		delay -= 10;
 		if(delay < 0)
 			delay = 0;
-		printf("\rPress any key to stop autoboot:%3d.%03d%s", delay / 1000, delay % 1000, (delay == 0) ? "\r\n" : "");
+		printf("\rPress any key to stop auto boot:%3d.%03d%s", delay / 1000, delay % 1000, (delay == 0) ? "\r\n" : "");
 	} while(delay > 0);
 
 #ifdef __SANDBOX__

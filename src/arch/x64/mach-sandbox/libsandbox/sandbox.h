@@ -18,8 +18,12 @@ extern "C" {
  */
 void sandbox_init(int argc, char * argv[]);
 void sandbox_exit(void);
-char * sandbox_get_json_buffer(void);
-size_t sandbox_get_json_size(void);
+void * sandbox_get_heap_buffer(void);
+size_t sandbox_get_heap_size(void);
+void * sandbox_get_dma_buffer(void);
+size_t sandbox_get_dma_size(void);
+void * sandbox_get_dtree_buffer(void);
+size_t sandbox_get_dtree_size(void);
 char * sandbox_get_application(void);
 
 /*

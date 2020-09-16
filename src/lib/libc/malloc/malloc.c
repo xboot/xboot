@@ -892,9 +892,10 @@ void do_init_mem(void)
 	size_t size;
 
 #ifdef __SANDBOX__
-	static char __heap_buf[CONFIG_HEAP_MEMORY_SIZE];
-	heap = (void *)&__heap_buf;
-	size = (size_t)(sizeof(__heap_buf));
+	extern void * sandbox_get_heap_buffer(void);
+	extern size_t sandbox_get_heap_size(void);
+	heap = sandbox_get_heap_buffer();
+	size = sandbox_get_heap_size();
 #else
 	extern unsigned char __heap_start;
 	extern unsigned char __heap_end;

@@ -93,9 +93,10 @@ static __init void dma_pure_init(void)
 	size_t size;
 
 #ifdef __SANDBOX__
-	static char __dma_buf[CONFIG_DMA_MEMORY_SIZE];
-	dma = (void *)&__dma_buf;
-	size = (size_t)(sizeof(__dma_buf));
+	extern void * sandbox_get_dma_buffer(void);
+	extern size_t sandbox_get_dma_size(void);
+	dma = sandbox_get_dma_buffer();
+	size = sandbox_get_dma_size();
 #else
 	extern unsigned char __dma_start;
 	extern unsigned char __dma_end;

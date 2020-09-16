@@ -57,10 +57,10 @@ static void subsys_init_dtree(void)
 	int len = 0;
 
 #ifdef __SANDBOX__
-	extern void * sandbox_get_json_buffer(void);
-	extern size_t sandbox_get_json_size(void);
-	json = sandbox_get_json_buffer();
-	len = sandbox_get_json_size();
+	extern void * sandbox_get_dtree_buffer(void);
+	extern size_t sandbox_get_dtree_size(void);
+	json = sandbox_get_dtree_buffer();
+	len = sandbox_get_dtree_size();
 #endif
 	if(json && (len > 0))
 	{

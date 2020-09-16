@@ -2,22 +2,34 @@
 #include <sandbox.h>
 
 struct sandbox_t {
-	struct {
-		char * buffer;
+	struct
+	{
+		void * buffer;
 		size_t size;
-	} json;
+	} heap;
+	struct
+	{
+		void * buffer;
+		size_t size;
+	} dma;
+	struct {
+		void * buffer;
+		size_t size;
+	} dtree;
 	char * application;
 };
-static struct sandbox_t __sandbox;
-static struct termios __tconfig;
+static struct sandbox_t sandbox;
+static struct termios tconfig;
 
 static void print_usage(void)
 {
 	printf(
-		"Usage: xboot [OPTIONS] <application>\n"
-		"Options:\n"
-		"  --help        Print help information\n"
-		"  --json <FILE> Start xboot with a specified file of device tree using json format\n"
+		"Usage: xboot [OPTIONS] <application>\r\n"
+		"Options:\r\n"
+		"  --help         Print help information.\r\n"
+		"  --heap  <SIZE> Setting heap memory size, The default is 256MB.\r\n"
+		"  --dma   <SIZE> Setting dma memory size, The default is 32MB.\r\n"
+		"  --dtree <FILE> Start xboot using the specified device tree in json format.\r\n"
 	);
 	exit(-1);
 }
@@ -53,30 +65,42 @@ static size_t file_read_to_memory(const char * filename, char ** buffer)
 
 void sandbox_init(int argc, char * argv[])
 {
+	size_t heap_size = 256 * 1024 * 1024;
+	size_t dma_size = 32 * 1024 * 1024;
 	struct termios ta;
 	char path[PATH_MAX];
-	int i, idx = 0;
 	char * buf;
 	size_t len;
+	int i, idx = 0;
 
-	/* Clear __sandbox */
-	memset(&__sandbox, 0, sizeof(struct sandbox_t));
+	memset(&sandbox, 0, sizeof(struct sandbox_t));
 
-	/* Parse command line */
 	for(i = 1; i < argc; i++)
 	{
 		if(!strcmp(argv[i], "--help"))
 		{
 			print_usage();
 		}
-		else if(!strcmp(argv[i], "--json") && (argc > i + 1))
+		else if(!strcmp(argv[i], "--heap") && (argc > i + 1))
+		{
+			heap_size = strtoul(argv[++i], NULL, 0);
+			if(heap_size <= 0)
+				heap_size = 256 * 1024 * 1024;
+		}
+		else if(!strcmp(argv[i], "--dma") && (argc > i + 1))
+		{
+			dma_size = strtoul(argv[++i], NULL, 0);
+			if(dma_size <= 0)
+				dma_size = 32 * 1024 * 1024;
+		}
+		else if(!strcmp(argv[i], "--dtree") && (argc > i + 1))
 		{
 			if(sandbox_file_isfile(argv[++i]))
 			{
 				if((len = file_read_to_memory(argv[i], &buf)) > 0)
 				{
-					__sandbox.json.buffer = buf;
-					__sandbox.json.size = len;
+					sandbox.dtree.buffer = buf;
+					sandbox.dtree.size = len;
 				}
 			}
 			else
@@ -84,12 +108,16 @@ void sandbox_init(int argc, char * argv[])
 				print_usage();
 			}
 		}
+		else if(*argv[i] == '-')
+		{
+			print_usage();
+		}
 		else
 		{
 			if(idx == 0)
 			{
 				if(sandbox_file_isdir(argv[i]) || sandbox_file_isfile(argv[i]))
-					__sandbox.application = strdup(realpath(argv[i], path));
+					sandbox.application = strdup(realpath(argv[i], path));
 			}
 			else
 			{
@@ -99,13 +127,37 @@ void sandbox_init(int argc, char * argv[])
 		}
 	}
 
-	/* Require root privileges */
 	if(geteuid() != 0)
 		printf("WARNING: Running without root permission.\r\n");
 
-	/* Save terminal config */
-	tcgetattr(0, &__tconfig);
-	ta = __tconfig;
+	sandbox.heap.size = heap_size;
+	sandbox.heap.buffer = memalign(64, sandbox.heap.size);
+	if(!sandbox.heap.buffer)
+	{
+		printf("ERROR: Can't alloc heap memory.\r\n");
+		if(sandbox.dtree.buffer)
+			free(sandbox.dtree.buffer);
+		if(sandbox.application)
+			free(sandbox.application);
+		exit(-1);
+	}
+
+	sandbox.dma.size = dma_size;
+	sandbox.dma.buffer = memalign(64, sandbox.dma.size);
+	if(!sandbox.dma.buffer)
+	{
+		printf("ERROR: Can't alloc dma memory.\r\n");
+		if(sandbox.heap.buffer)
+			free(sandbox.heap.buffer);
+		if(sandbox.dtree.buffer)
+			free(sandbox.dtree.buffer);
+		if(sandbox.application)
+			free(sandbox.application);
+		exit(-1);
+	}
+
+	tcgetattr(0, &tconfig);
+	ta = tconfig;
 	ta.c_lflag &= (~ICANON & ~ECHO & ~ISIG);
 	ta.c_iflag &= (~IXON & ~ICRNL);
 	ta.c_oflag |= (ONLCR);
@@ -116,31 +168,52 @@ void sandbox_init(int argc, char * argv[])
 
 void sandbox_exit(void)
 {
-	/* Free some memroy */
-	if(__sandbox.json.buffer && (__sandbox.json.size > 0))
-		free(__sandbox.json.buffer);
-	if(__sandbox.application)
-		free(__sandbox.application);
+	if(sandbox.heap.buffer)
+		free(sandbox.heap.buffer);
+	if(sandbox.dma.buffer)
+		free(sandbox.dma.buffer);
+	if(sandbox.dtree.buffer)
+		free(sandbox.dtree.buffer);
+	if(sandbox.application)
+		free(sandbox.application);
 
-	/* Restore terminal config */
 	fflush(stdout);
-	tcsetattr(0, TCSANOW, &__tconfig);
+	tcsetattr(0, TCSANOW, &tconfig);
 
-	/* Program exit */
 	exit(0);
 }
 
-char * sandbox_get_json_buffer(void)
+void * sandbox_get_heap_buffer(void)
 {
-	return __sandbox.json.buffer;
+	return sandbox.heap.buffer;
 }
 
-size_t sandbox_get_json_size(void)
+size_t sandbox_get_heap_size(void)
 {
-	return __sandbox.json.size;
+	return sandbox.heap.size;
+}
+
+void * sandbox_get_dma_buffer(void)
+{
+	return sandbox.dma.buffer;
+}
+
+size_t sandbox_get_dma_size(void)
+{
+	return sandbox.dma.size;
+}
+
+void * sandbox_get_dtree_buffer(void)
+{
+	return sandbox.dtree.buffer;
+}
+
+size_t sandbox_get_dtree_size(void)
+{
+	return sandbox.dtree.size;
 }
 
 char * sandbox_get_application(void)
 {
-	return __sandbox.application;
+	return sandbox.application;
 }

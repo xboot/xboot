@@ -36,6 +36,7 @@ extern "C" {
 #include <xf86drm.h>
 #include <xf86drmMode.h>
 #include <alsa/asoundlib.h>
+#include <gperftools/profiler.h>
 #include <SDL.h>
 
 #ifdef __cplusplus

@@ -152,7 +152,7 @@ LDFLAGS		:= -T arch/$(ARCH)/$(MACH)/xboot.ld
 MCFLAGS		:= -m64 -mmmx -msse -msse2 -mssse3 -mfpmath=sse
 
 LIBDIRS		:= arch/$(ARCH)/$(MACH)/libsandbox
-LIBS 		:= -lsandbox -lc -lm -lgcc -lrt -lpthread -lasound $(XLIBS)
+LIBS 		:= -lsandbox -lc -lm -lgcc -lrt -lpthread -lasound -lprofiler $(XLIBS)
 INCDIRS		:= arch/$(ARCH)/$(MACH)/libsandbox
 SRCDIRS		:=
 

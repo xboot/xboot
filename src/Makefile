@@ -5,8 +5,8 @@
 #
 # You can pass CROSS_COMPILE and PLATFORM variable.
 #
-CROSS_COMPILE	?=
-PLATFORM		?=
+CROSS_COMPILE	?= ~/9tripod/rockchip/px30_linux/buildroot/output/rockchip_px30_64/host/bin/aarch64-buildroot-linux-gnu-
+PLATFORM		?= arm64-px30linux
 
 #
 # Configurable advanced custom components

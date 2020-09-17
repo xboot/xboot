@@ -1,0 +1,52 @@
+{
+	"ce-sandbox@0": {
+	},
+
+	"cs-sandbox@0": {
+	},
+
+	"audio-sandbox@0": {
+	},
+
+	"uart-sandbox@0": {
+		"device": "/dev/ttyS4",
+		"baud-rates": 9600,
+		"data-bits": 8,
+		"parity-bits": 0,
+		"stop-bits": 1
+	},
+
+	"gnss-uart@0": {
+		"uart-bus": "uart-sandbox.0",
+		"baud-rates": 9600,
+		"data-bits": 8,
+		"parity-bits": 0,
+		"stop-bits": 1
+	},
+
+	"cam-sandbox@0": {
+		"device": "/dev/video0"
+	},
+
+	"input-sandbox@0": {
+		"pointer-range-x": 800,
+		"pointer-range-y": 480,
+		"pointer-sensitivity": 6
+	},
+
+	"fb-sandbox@0": {
+		"device": "/dev/fb0",
+		"physical-width": 216,
+		"physical-height": 135,
+		"status": "disabled"
+	},
+
+	"fb-sandbox-drm@0": {
+		"device": "/dev/dri/card0",
+		"physical-width": 216,
+		"physical-height": 135
+	},
+
+	"console-sandbox@0": {
+	}
+}

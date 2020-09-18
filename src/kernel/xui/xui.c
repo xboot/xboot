@@ -244,6 +244,11 @@ static const struct xui_style_t xui_style_default = {
 		.outline_width = 2,
 	},
 
+	.tabbar = {
+		.border_width = 4,
+		.outline_width = 2,
+	},
+
 	.slider = {
 		.invalid = { 0xee, 0xf2, 0xf7, 0xff },
 		.border_width = 4,

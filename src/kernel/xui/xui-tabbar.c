@@ -1,5 +1,5 @@
 /*
- * kernel/xui/xui-radio.c
+ * kernel/xui/xui-tabbar.c
  *
  * Copyright(c) 2007-2020 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -27,9 +27,9 @@
  */
 
 #include <xboot.h>
-#include <xui/radio.h>
+#include <xui/tabbar.h>
 
-int xui_radio_ex(struct xui_context_t * ctx, const char * label, int state, int opt)
+int xui_tabbar_ex(struct xui_context_t * ctx, const char * label, int state, int opt)
 {
 	unsigned int id = xui_get_id(ctx, label, strlen(label));
 	struct region_t region, * r = xui_layout_next(ctx);
@@ -42,33 +42,33 @@ int xui_radio_ex(struct xui_context_t * ctx, const char * label, int state, int 
 	if((ctx->active == id) && (ctx->mouse.up & XUI_MOUSE_LEFT))
 		click = 1;
 	radius = r->h / 2;
-	width = ctx->style.radio.border_width;
+	width = ctx->style.tabbar.border_width;
 	if(state)
 	{
 		switch(opt & (0x7 << 8))
 		{
-		case XUI_RADIO_PRIMARY:
+		case XUI_TABBAR_PRIMARY:
 			wc = &ctx->style.primary;
 			break;
-		case XUI_RADIO_SECONDARY:
+		case XUI_TABBAR_SECONDARY:
 			wc = &ctx->style.secondary;
 			break;
-		case XUI_RADIO_SUCCESS:
+		case XUI_TABBAR_SUCCESS:
 			wc = &ctx->style.success;
 			break;
-		case XUI_RADIO_INFO:
+		case XUI_TABBAR_INFO:
 			wc = &ctx->style.info;
 			break;
-		case XUI_RADIO_WARNING:
+		case XUI_TABBAR_WARNING:
 			wc = &ctx->style.warning;
 			break;
-		case XUI_RADIO_DANGER:
+		case XUI_TABBAR_DANGER:
 			wc = &ctx->style.danger;
 			break;
-		case XUI_RADIO_LIGHT:
+		case XUI_TABBAR_LIGHT:
 			wc = &ctx->style.light;
 			break;
-		case XUI_RADIO_DARK:
+		case XUI_TABBAR_DARK:
 			wc = &ctx->style.dark;
 			break;
 		default:
@@ -101,7 +101,7 @@ int xui_radio_ex(struct xui_context_t * ctx, const char * label, int state, int 
 	if(bc->a && (width > 0))
 		xui_draw_circle(ctx, r->x + radius, r->y + radius, radius, width, bc);
 	if(bg->a)
-		xui_draw_circle(ctx, r->x + radius, r->y + radius, radius, state ? 0 : ctx->style.radio.outline_width, bg);
+		xui_draw_circle(ctx, r->x + radius, r->y + radius, radius, state ? 0 : ctx->style.tabbar.outline_width, bg);
 	if(state)
 		xui_draw_circle(ctx, r->x + radius, r->y + radius, (radius * 391) >> 10, 0, fg);
 	if(label && fg->a)

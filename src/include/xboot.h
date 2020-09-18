@@ -85,6 +85,7 @@ extern "C" {
 #include <xui/checkbox.h>
 #include <xui/radio.h>
 #include <xui/toggle.h>
+#include <xui/tabbar.h>
 #include <xui/slider.h>
 #include <xui/number.h>
 #include <xui/textedit.h>

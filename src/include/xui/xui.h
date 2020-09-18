@@ -419,6 +419,11 @@ struct xui_style_t {
 	} toggle;
 
 	struct {
+		int border_width;
+		int outline_width;
+	} tabbar;
+
+	struct {
 		struct color_t invalid;
 		int border_width;
 	} slider;

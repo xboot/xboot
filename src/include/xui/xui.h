@@ -368,6 +368,13 @@ struct xui_style_t {
 	} window;
 
 	struct {
+		int border_radius;
+		int border_width;
+		struct color_t background_color;
+		struct color_t border_color;
+	} panel;
+
+	struct {
 		int scroll_size;
 		int scroll_radius;
 		int thumb_size;

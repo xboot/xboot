@@ -32,13 +32,26 @@
 void xui_begin_panel_ex(struct xui_context_t * ctx, const char * name, int opt)
 {
 	struct xui_container_t * c;
+	struct color_t * bg, * bc;
 	struct region_t * r;
+	int radius, width;
 
 	xui_push_id(ctx, name, strlen(name));
 	c = get_container(ctx, ctx->last_id, opt);
 	r = xui_layout_next(ctx);
 	region_clone(&c->region, r);
 	xui_push(ctx->container_stack, c);
+	if(~opt & XUI_PANEL_TRANSPARENT)
+	{
+		radius = ctx->style.panel.border_radius;
+		width = ctx->style.panel.border_width;
+		bg = &ctx->style.panel.background_color;
+		bc = &ctx->style.panel.border_color;
+		if(bc->a && (width > 0))
+			xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, radius, width, bc);
+		if(bg->a)
+			xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, radius, 0, bg);
+	}
 	push_container_body(ctx, c, &c->region, opt);
 	xui_push_clip(ctx, &c->body);
 }

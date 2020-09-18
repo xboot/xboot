@@ -361,7 +361,7 @@ struct xui_style_t {
 		int border_radius;
 		int border_width;
 		int title_height;
-		struct color_t face_color;
+		struct color_t background_color;
 		struct color_t border_color;
 		struct color_t title_color;
 		struct color_t text_color;

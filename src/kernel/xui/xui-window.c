@@ -47,14 +47,14 @@ int xui_begin_window_ex(struct xui_context_t * ctx, const char * title, struct r
 		region_clone(&body, &c->region);
 		if(opt & XUI_WINDOW_FULLSCREEN)
 		{
-			xui_draw_rectangle(ctx, region.x, region.y, region.w, region.h, 0, 0, &ctx->style.window.face_color);
+			xui_draw_rectangle(ctx, region.x, region.y, region.w, region.h, 0, 0, &ctx->style.window.background_color);
 			push_container_body(ctx, c, &body, opt);
 		}
 		else
 		{
 			if(ctx->style.window.border_color.a && (ctx->style.window.border_width > 0))
 				xui_draw_rectangle(ctx, region.x, region.y, region.w, region.h, ctx->style.window.border_radius, ctx->style.window.border_width, &ctx->style.window.border_color);
-			xui_draw_rectangle(ctx, region.x, region.y, region.w, region.h, ctx->style.window.border_radius, 0, &ctx->style.window.face_color);
+			xui_draw_rectangle(ctx, region.x, region.y, region.w, region.h, ctx->style.window.border_radius, 0, &ctx->style.window.background_color);
 			if(~opt & XUI_WINDOW_NOTITLE)
 			{
 				struct region_t hr, hdr, hcr;

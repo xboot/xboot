@@ -17,7 +17,7 @@ enum {
 	XUI_TREE_LIGHT		= (0x6 << 8),
 	XUI_TREE_DARK		= (0x7 << 8),
 
-	XUI_TREE_EXPANDED	= (0x1 << 11),
+	XUI_TREE_EXPANDED	= (0x1 << 12),
 };
 
 int xui_begin_tree_ex(struct xui_context_t * ctx, const char * label, int opt);

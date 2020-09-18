@@ -8,11 +8,11 @@ extern "C" {
 #include <xui/xui.h>
 
 enum {
-	XUI_WINDOW_FULLSCREEN	= (0x1 << 11),
-	XUI_WINDOW_NOTITLE		= (0x1 << 12),
-	XUI_WINDOW_NOCLOSE		= (0x1 << 13),
-	XUI_WINDOW_NORESIZE		= (0x1 << 14),
-	XUI_WINDOW_POPUP		= (0x1 << 15),
+	XUI_WINDOW_FULLSCREEN	= (0x1 << 12),
+	XUI_WINDOW_NOTITLE		= (0x1 << 13),
+	XUI_WINDOW_NOCLOSE		= (0x1 << 14),
+	XUI_WINDOW_NORESIZE		= (0x1 << 15),
+	XUI_WINDOW_POPUP		= (0x1 << 16),
 };
 
 int xui_begin_window_ex(struct xui_context_t * ctx, const char * title, struct region_t * r, int opt);

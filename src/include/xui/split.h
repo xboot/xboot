@@ -17,8 +17,8 @@ enum {
 	XUI_SPLIT_LIGHT			= (0x6 << 8),
 	XUI_SPLIT_DARK			= (0x7 << 8),
 
-	XUI_SPLIT_HORIZONTAL	= (0x0 << 11),
-	XUI_SPLIT_VERTICAL		= (0x1 << 11),
+	XUI_SPLIT_HORIZONTAL	= (0x0 << 12),
+	XUI_SPLIT_VERTICAL		= (0x1 << 12),
 };
 
 void xui_split_ex(struct xui_context_t * ctx, int opt);

@@ -17,8 +17,8 @@ enum {
 	XUI_SLIDER_LIGHT		= (0x6 << 8),
 	XUI_SLIDER_DARK			= (0x7 << 8),
 
-	XUI_SLIDER_HORIZONTAL	= (0x0 << 11),
-	XUI_SLIDER_VERTICAL		= (0x1 << 11),
+	XUI_SLIDER_HORIZONTAL	= (0x0 << 12),
+	XUI_SLIDER_VERTICAL		= (0x1 << 12),
 };
 
 int xui_slider_ex(struct xui_context_t * ctx, double * value, double low, double high, double step, int opt);

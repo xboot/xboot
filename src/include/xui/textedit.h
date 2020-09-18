@@ -17,8 +17,8 @@ enum {
 	XUI_TEXTEDIT_LIGHT		= (0x6 << 8),
 	XUI_TEXTEDIT_DARK		= (0x7 << 8),
 
-	XUI_TEXTEDIT_ROUNDED	= (0x1 << 11),
-	XUI_TEXTEDIT_OUTLINE	= (0x1 << 12),
+	XUI_TEXTEDIT_ROUNDED	= (0x1 << 12),
+	XUI_TEXTEDIT_OUTLINE	= (0x1 << 13),
 };
 
 int xui_textedit_ex(struct xui_context_t * ctx, char * buf, int size, int opt);

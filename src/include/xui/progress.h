@@ -17,8 +17,8 @@ enum {
 	XUI_PROGRESS_LIGHT		= (0x6 << 8),
 	XUI_PROGRESS_DARK		= (0x7 << 8),
 
-	XUI_PROGRESS_HORIZONTAL	= (0x0 << 11),
-	XUI_PROGRESS_VERTICAL	= (0x1 << 11),
+	XUI_PROGRESS_HORIZONTAL	= (0x0 << 12),
+	XUI_PROGRESS_VERTICAL	= (0x1 << 12),
 };
 
 void xui_progress_ex(struct xui_context_t * ctx, int percent, int opt);

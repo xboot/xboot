@@ -17,8 +17,8 @@ enum {
 	XUI_BADGE_LIGHT		= (0x6 << 8),
 	XUI_BADGE_DARK		= (0x7 << 8),
 
-	XUI_BADGE_ROUNDED	= (0x1 << 11),
-	XUI_BADGE_OUTLINE	= (0x1 << 12),
+	XUI_BADGE_ROUNDED	= (0x1 << 12),
+	XUI_BADGE_OUTLINE	= (0x1 << 13),
 };
 
 void xui_badge_ex(struct xui_context_t * ctx, const char * label, int opt);

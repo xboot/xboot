@@ -8,12 +8,12 @@ extern "C" {
 #include <xui/xui.h>
 
 enum {
-	XUI_IMAGE_NONE		= (0x0 << 8),
-	XUI_IMAGE_CONTAIN	= (0x1 << 8),
-	XUI_IMAGE_COVER		= (0x2 << 8),
-	XUI_IMAGE_FILL		= (0x3 << 8),
+	XUI_IMAGE_NONE		= (0x0 << 12),
+	XUI_IMAGE_CONTAIN	= (0x1 << 12),
+	XUI_IMAGE_COVER		= (0x2 << 12),
+	XUI_IMAGE_FILL		= (0x3 << 12),
 
-	XUI_IMAGE_REFRESH	= (0x1 << 10),
+	XUI_IMAGE_REFRESH	= (0x1 << 14),
 };
 
 void xui_image_ex(struct xui_context_t * ctx, struct surface_t * s, double angle, int opt);

@@ -17,8 +17,8 @@ enum {
 	XUI_NUMBER_LIGHT		= (0x6 << 8),
 	XUI_NUMBER_DARK			= (0x7 << 8),
 
-	XUI_NUMBER_ROUNDED		= (0x1 << 11),
-	XUI_NUMBER_OUTLINE		= (0x1 << 12),
+	XUI_NUMBER_ROUNDED		= (0x1 << 12),
+	XUI_NUMBER_OUTLINE		= (0x1 << 13),
 };
 
 int xui_number_ex(struct xui_context_t * ctx, double * value, double low, double high, double step, const char * fmt, int opt);

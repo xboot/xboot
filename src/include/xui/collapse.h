@@ -17,7 +17,7 @@ enum {
 	XUI_COLLAPSE_LIGHT		= (0x6 << 8),
 	XUI_COLLAPSE_DARK		= (0x7 << 8),
 
-	XUI_COLLAPSE_EXPANDED	= (0x1 << 11),
+	XUI_COLLAPSE_EXPANDED	= (0x1 << 12),
 };
 
 int xui_collapse_ex(struct xui_context_t * ctx, int icon, const char * label, int opt);

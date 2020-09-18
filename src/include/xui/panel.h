@@ -8,7 +8,7 @@ extern "C" {
 #include <xui/xui.h>
 
 enum {
-	XUI_PANEL_TRANSPARENT	= (0x1 << 11),
+	XUI_PANEL_TRANSPARENT	= (0x1 << 12),
 };
 
 void xui_begin_panel_ex(struct xui_context_t * ctx, const char * name, int opt);

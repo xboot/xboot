@@ -43,8 +43,6 @@ static struct package_t * package_alloc(const char * path, const char * lang)
 	size_t len;
 	int i, j;
 
-	if(!lang)
-		lang = "en-US";
 	ctx = xfs_alloc(path, 0);
 	if(ctx && xfs_isfile(ctx, "main.lua"))
 	{
@@ -67,7 +65,7 @@ static struct package_t * package_alloc(const char * path, const char * lang)
 						{
 							if(v->u.object.values[i].value->type == JSON_OBJECT)
 							{
-								if(strcmp(v->u.object.values[i].name, lang) == 0)
+								if(lang && (strcmp(v->u.object.values[i].name, lang) == 0))
 								{
 									w = v->u.object.values[i].value;
 									if(w && (w->type == JSON_OBJECT))
@@ -247,7 +245,7 @@ void package_rescan(void)
 	struct vfs_stat_t st;
 	struct vfs_dirent_t dir;
 	struct slist_t * sl, * e;
-	const char * lang = setting_get("language", "en-US");
+	const char * lang = setting_get("language", NULL);
 	const char * path;
 	int fd;
 

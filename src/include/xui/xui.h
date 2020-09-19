@@ -26,66 +26,68 @@ extern "C" {
 #define XUI_TREE_POOL_SIZE			(128)
 #define XUI_MAX_WIDTHS				(32)
 
-#define xui_push(stk, val)		do { assert((stk).idx < (int)(sizeof((stk).items) / sizeof(*(stk).items))); (stk).items[(stk).idx] = (val); (stk).idx++; } while(0)
-#define xui_pop(stk)			do { assert((stk).idx > 0); (stk).idx--; } while(0)
+#define T(str)						xui_translate(ctx, (str))
+
+#define xui_push(stk, val)			do { assert((stk).idx < (int)(sizeof((stk).items) / sizeof(*(stk).items))); (stk).items[(stk).idx] = (val); (stk).idx++; } while(0)
+#define xui_pop(stk)				do { assert((stk).idx > 0); (stk).idx--; } while(0)
 
 enum {
-	XUI_OPT_NOINTERACT			= (0x1 << 0),
-	XUI_OPT_NOSCROLL			= (0x1 << 1),
-	XUI_OPT_HOLDFOCUS			= (0x1 << 2),
-	XUI_OPT_CLOSED				= (0x1 << 3),
-	XUI_OPT_TEXT_LEFT			= (0x0 << 4),
-	XUI_OPT_TEXT_RIGHT			= (0x1 << 4),
-	XUI_OPT_TEXT_TOP			= (0x2 << 4),
-	XUI_OPT_TEXT_BOTTOM			= (0x3 << 4),
-	XUI_OPT_TEXT_CENTER			= (0x4 << 4),
+	XUI_OPT_NOINTERACT				= (0x1 << 0),
+	XUI_OPT_NOSCROLL				= (0x1 << 1),
+	XUI_OPT_HOLDFOCUS				= (0x1 << 2),
+	XUI_OPT_CLOSED					= (0x1 << 3),
+	XUI_OPT_TEXT_LEFT				= (0x0 << 4),
+	XUI_OPT_TEXT_RIGHT				= (0x1 << 4),
+	XUI_OPT_TEXT_TOP				= (0x2 << 4),
+	XUI_OPT_TEXT_BOTTOM				= (0x3 << 4),
+	XUI_OPT_TEXT_CENTER				= (0x4 << 4),
 };
 
 enum {
-	XUI_KEY_POWER				= (0x1 << 0),
-	XUI_KEY_UP					= (0x1 << 1),
-	XUI_KEY_DOWN				= (0x1 << 2),
-	XUI_KEY_LEFT				= (0x1 << 3),
-	XUI_KEY_RIGHT				= (0x1 << 4),
-	XUI_KEY_VOLUME_UP			= (0x1 << 5),
-	XUI_KEY_VOLUME_DOWN			= (0x1 << 6),
-	XUI_KEY_VOLUME_MUTE			= (0x1 << 7),
-	XUI_KEY_TAB					= (0x1 << 8),
-	XUI_KEY_TASK				= (0x1 << 9),
-	XUI_KEY_HOME				= (0x1 << 10),
-	XUI_KEY_BACK				= (0x1 << 11),
-	XUI_KEY_ENTER				= (0x1 << 12),
-	XUI_KEY_CTRL				= (0x1 << 13),
-	XUI_KEY_ALT					= (0x1 << 14),
-	XUI_KEY_SHIFT				= (0x1 << 15),
+	XUI_KEY_POWER					= (0x1 << 0),
+	XUI_KEY_UP						= (0x1 << 1),
+	XUI_KEY_DOWN					= (0x1 << 2),
+	XUI_KEY_LEFT					= (0x1 << 3),
+	XUI_KEY_RIGHT					= (0x1 << 4),
+	XUI_KEY_VOLUME_UP				= (0x1 << 5),
+	XUI_KEY_VOLUME_DOWN				= (0x1 << 6),
+	XUI_KEY_VOLUME_MUTE				= (0x1 << 7),
+	XUI_KEY_TAB						= (0x1 << 8),
+	XUI_KEY_TASK					= (0x1 << 9),
+	XUI_KEY_HOME					= (0x1 << 10),
+	XUI_KEY_BACK					= (0x1 << 11),
+	XUI_KEY_ENTER					= (0x1 << 12),
+	XUI_KEY_CTRL					= (0x1 << 13),
+	XUI_KEY_ALT						= (0x1 << 14),
+	XUI_KEY_SHIFT					= (0x1 << 15),
 };
 
 enum {
-	XUI_MOUSE_LEFT				= (0x1 << 0),
-	XUI_MOUSE_RIGHT				= (0x1 << 1),
-	XUI_MOUSE_MIDDLE			= (0x1 << 2),
-	XUI_MOUSE_X1				= (0x1 << 3),
-	XUI_MOUSE_X2				= (0x1 << 4),
+	XUI_MOUSE_LEFT					= (0x1 << 0),
+	XUI_MOUSE_RIGHT					= (0x1 << 1),
+	XUI_MOUSE_MIDDLE				= (0x1 << 2),
+	XUI_MOUSE_X1					= (0x1 << 3),
+	XUI_MOUSE_X2					= (0x1 << 4),
 };
 
 enum xui_cmd_type_t {
-	XUI_CMD_TYPE_BASE			= 0,
-	XUI_CMD_TYPE_JUMP			= 1,
-	XUI_CMD_TYPE_CLIP			= 2,
-	XUI_CMD_TYPE_LINE			= 3,
-	XUI_CMD_TYPE_POLYLINE		= 4,
-	XUI_CMD_TYPE_CURVE			= 5,
-	XUI_CMD_TYPE_TRIANGLE		= 6,
-	XUI_CMD_TYPE_RECTANGLE		= 7,
-	XUI_CMD_TYPE_POLYGON		= 8,
-	XUI_CMD_TYPE_CIRCLE			= 9,
-	XUI_CMD_TYPE_ELLIPSE		= 10,
-	XUI_CMD_TYPE_ARC			= 11,
-	XUI_CMD_TYPE_GRADIENT		= 12,
-	XUI_CMD_TYPE_CHECKERBOARD	= 13,
-	XUI_CMD_TYPE_SURFACE		= 14,
-	XUI_CMD_TYPE_TEXT			= 15,
-	XUI_CMD_TYPE_ICON			= 16,
+	XUI_CMD_TYPE_BASE				= 0,
+	XUI_CMD_TYPE_JUMP				= 1,
+	XUI_CMD_TYPE_CLIP				= 2,
+	XUI_CMD_TYPE_LINE				= 3,
+	XUI_CMD_TYPE_POLYLINE			= 4,
+	XUI_CMD_TYPE_CURVE				= 5,
+	XUI_CMD_TYPE_TRIANGLE			= 6,
+	XUI_CMD_TYPE_RECTANGLE			= 7,
+	XUI_CMD_TYPE_POLYGON			= 8,
+	XUI_CMD_TYPE_CIRCLE				= 9,
+	XUI_CMD_TYPE_ELLIPSE			= 10,
+	XUI_CMD_TYPE_ARC				= 11,
+	XUI_CMD_TYPE_GRADIENT			= 12,
+	XUI_CMD_TYPE_CHECKERBOARD		= 13,
+	XUI_CMD_TYPE_SURFACE			= 14,
+	XUI_CMD_TYPE_TEXT				= 15,
+	XUI_CMD_TYPE_ICON				= 16,
 };
 
 struct xui_cmd_base_t {
@@ -471,6 +473,7 @@ struct xui_context_t {
 	 */
 	struct window_t * w;
 	struct font_context_t * f;
+	struct hmap_t * m;
 	struct region_t screen;
 	unsigned int cpshift;
 	unsigned int cpsize;
@@ -635,6 +638,7 @@ static inline void xui_exit(struct xui_context_t * ctx)
 
 void xui_begin(struct xui_context_t * ctx);
 void xui_end(struct xui_context_t * ctx);
+const char * xui_translate(struct xui_context_t * ctx, const char * str);
 const char * xui_format(struct xui_context_t * ctx, const char * fmt, ...);
 
 int xui_pool_init(struct xui_context_t * ctx, struct xui_pool_item_t * items, int len, unsigned int id);
@@ -673,8 +677,10 @@ void xui_layout_end_column(struct xui_context_t * ctx);
 void xui_layout_set_next(struct xui_context_t * ctx, struct region_t * r, int relative);
 struct region_t * xui_layout_next(struct xui_context_t * ctx);
 
-struct xui_context_t * xui_context_alloc(const char * fb, const char * input, struct xui_style_t * style, void * data);
+struct xui_context_t * xui_context_alloc(const char * fb, const char * input, void * data);
 void xui_context_free(struct xui_context_t * ctx);
+void xui_load_style(struct xui_context_t * ctx, const char * json, int len);
+void xui_load_lang(struct xui_context_t * ctx, const char * json, int len);
 void xui_loop(struct xui_context_t * ctx, void (*func)(struct xui_context_t *));
 
 #ifdef __cplusplus

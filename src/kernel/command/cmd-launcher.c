@@ -36,6 +36,10 @@ static void usage(void)
 	printf("    launcher [framebuffer] [input]\r\n");
 }
 
+static const char zh_CN[] = X({
+	"launcher":"启动器",
+});
+
 static void launcher_window(struct xui_context_t * ctx)
 {
 	struct package_t * pkg;
@@ -106,9 +110,17 @@ static void launcher_task(struct task_t * task, void * data)
 
 	if(td)
 	{
-		ctx = xui_context_alloc(td->fb, td->input, NULL, td);
+		ctx = xui_context_alloc(td->fb, td->input, td);
 		if(ctx)
 		{
+			switch(shash(setting_get("language", NULL)))
+			{
+			case 0x10d87d65: /* "zh-CN" */
+				xui_load_lang(ctx, zh_CN, sizeof(zh_CN));
+				break;
+			default:
+				break;
+			}
 			window_set_launcher(ctx->w, 1);
 			xui_loop(ctx, launcher);
 			xui_context_free(ctx);

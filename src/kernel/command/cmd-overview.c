@@ -35,6 +35,11 @@ static void usage(void)
 	printf("    overview [framebuffer] [input]\r\n");
 }
 
+static const char zh_CN[] = X({
+	"Window Info": "窗口信息",
+	"Button": "按钮",
+});
+
 static void xui_style_color(struct xui_context_t * ctx, struct color_t * c)
 {
 	struct region_t * r;
@@ -428,7 +433,7 @@ static void overview_window(struct xui_context_t * ctx)
 		win->region.w = max(win->region.w, 48);
 		win->region.h = max(win->region.h, 48);
 
-		if(xui_begin_tree(ctx, "Window Info"))
+		if(xui_begin_tree(ctx, T("Window Info")))
 		{
 			struct xui_container_t * win = xui_get_container(ctx);
 			xui_layout_row(ctx, 2, (int[]){ 100, -1 }, 0);
@@ -443,7 +448,7 @@ static void overview_window(struct xui_context_t * ctx)
 			xui_end_tree(ctx);
 		}
 
-		if(xui_begin_tree(ctx, "Button"))
+		if(xui_begin_tree(ctx, T("Button")))
 		{
 			if(xui_begin_tree(ctx, "Normal Button"))
 			{
@@ -791,9 +796,17 @@ static void overview_task(struct task_t * task, void * data)
 
 	if(td)
 	{
-		ctx = xui_context_alloc(td->fb, td->input, NULL, td);
+		ctx = xui_context_alloc(td->fb, td->input, td);
 		if(ctx)
 		{
+			switch(shash(setting_get("language", NULL)))
+			{
+			case 0x10d87d65: /* "zh-CN" */
+				xui_load_lang(ctx, zh_CN, sizeof(zh_CN));
+				break;
+			default:
+				break;
+			}
 			xui_loop(ctx, overview);
 			xui_context_free(ctx);
 		}

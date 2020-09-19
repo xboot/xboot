@@ -424,6 +424,12 @@ void xui_end(struct xui_context_t * ctx)
 	}
 }
 
+const char * xui_translate(struct xui_context_t * ctx, const char * str)
+{
+	const char * v = hmap_search(ctx->m, str);
+	return v ? v : str;
+}
+
 const char * xui_format(struct xui_context_t * ctx, const char * fmt, ...)
 {
 	va_list ap;
@@ -1196,7 +1202,7 @@ struct region_t * xui_layout_next(struct xui_context_t * ctx)
 	return &ctx->last_rect;
 }
 
-struct xui_context_t * xui_context_alloc(const char * fb, const char * input, struct xui_style_t * style, void * data)
+struct xui_context_t * xui_context_alloc(const char * fb, const char * input, void * data)
 {
 	struct xui_context_t * ctx;
 	int len;
@@ -1208,6 +1214,7 @@ struct xui_context_t * xui_context_alloc(const char * fb, const char * input, st
 	memset(ctx, 0, sizeof(struct xui_context_t));
 	ctx->w = window_alloc(fb, input);
 	ctx->f = font_context_alloc();
+	ctx->m = hmap_alloc(0);
 	region_init(&ctx->screen, 0, 0, window_get_width(ctx->w), window_get_height(ctx->w));
 	ctx->cpshift = 7;
 	ctx->cpsize = 1 << ctx->cpshift;
@@ -1229,11 +1236,17 @@ struct xui_context_t * xui_context_alloc(const char * fb, const char * input, st
 	ctx->cindex = 0;
 	ctx->running = 1;
 	ctx->stamp = ktime_to_ns(ktime_get());
-	memcpy(&ctx->style, style ? style : &xui_style_default, sizeof(struct xui_style_t));
+	memcpy(&ctx->style, &xui_style_default, sizeof(struct xui_style_t));
 	region_clone(&ctx->clip, &ctx->screen);
 	ctx->priv = data;
 
 	return ctx;
+}
+
+static void hmap_entry_callback(struct hmap_entry_t * e)
+{
+	if(e)
+		free(e->value);
 }
 
 void xui_context_free(struct xui_context_t * ctx)
@@ -1242,11 +1255,47 @@ void xui_context_free(struct xui_context_t * ctx)
 	{
 		window_free(ctx->w);
 		font_context_free(ctx->f);
+		hmap_free(ctx->m, hmap_entry_callback);
 		if(ctx->cells[0])
 			free(ctx->cells[0]);
 		if(ctx->cells[1])
 			free(ctx->cells[1]);
 		free(ctx);
+	}
+}
+void xui_load_style(struct xui_context_t * ctx, const char * json, int len)
+{
+}
+
+void xui_load_lang(struct xui_context_t * ctx, const char * json, int len)
+{
+	struct json_value_t * v, * t;
+	char * key;
+	void * value;
+	int i;
+
+	hmap_clear(ctx->m, hmap_entry_callback);
+	if(json && (len > 0))
+	{
+		v = json_parse(json, len, NULL);
+		if(v && (v->type == JSON_OBJECT))
+		{
+			for(i = 0; i < v->u.object.length; i++)
+			{
+				t = v->u.object.values[i].value;
+				if(t && (t->type == JSON_STRING))
+				{
+					key = v->u.object.values[i].name;
+					value = hmap_search(ctx->m, key);
+					if(value)
+					{
+						hmap_remove(ctx->m, key);
+						free(value);
+					}
+					hmap_add(ctx->m, key, t->u.string.ptr);
+				}
+			}
+		}
 	}
 }
 

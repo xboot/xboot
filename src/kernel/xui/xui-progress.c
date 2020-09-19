@@ -70,7 +70,7 @@ void xui_progress_ex(struct xui_context_t * ctx, int percent, int opt)
 	}
 	bg = &wc->normal.background;
 	fg = &wc->normal.foreground;
-	c = &ctx->style.progress.invalid;
+	c = &ctx->style.progress.invalid_color;
 	if(opt & XUI_PROGRESS_VERTICAL)
 	{
 		region_init(&region, r->x, r->y + r->h * (100 - percent) / 100, r->w, r->h * percent / 100);

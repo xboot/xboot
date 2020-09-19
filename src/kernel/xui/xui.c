@@ -29,267 +29,195 @@
 #include <xboot.h>
 #include <xui/xui.h>
 
-static const struct xui_style_t xui_style_default = {
-	.primary = {
-		.normal = {
-			.background = { 0x53, 0x6d, 0xe6, 0xff },
-			.foreground = { 0xff, 0xff, 0xff, 0xff },
-			.border = { 0x00, 0x00, 0x00, 0x00 },
-		},
-		.hover = {
-			.background = { 0x3a, 0x57, 0xe2, 0xff },
-			.foreground = { 0xff, 0xff, 0xff, 0xff },
-			.border = { 0x00, 0x00, 0x00, 0x00 },
-		},
-		.active = {
-			.background = { 0x26, 0x47, 0xe0, 0xff },
-			.foreground = { 0xff, 0xff, 0xff, 0xff },
-			.border = { 0x53, 0x6d, 0xe6, 0x60 },
-		},
+static const char style_default[] = X({
+	"primary": {
+		"normal-bakcground-color": "#536de6ff",
+		"normal-foreground-color": "#ffffffff",
+		"normal-border-color": "#00000000",
+
+		"hover-bakcground-color": "#3a57e2ff",
+		"hover-foreground-color": "#ffffffff",
+		"hover-border-color": "#00000000",
+
+		"active-bakcground-color": "#2647e0ff",
+		"active-foreground-color": "#ffffffff",
+		"active-border-color": "#536de660",
 	},
-	.secondary = {
-		.normal = {
-			.background = { 0x6c, 0x75, 0x7d, 0xff },
-			.foreground = { 0xff, 0xff, 0xff, 0xff },
-			.border = { 0x00, 0x00, 0x00, 0x00 },
-		},
-		.hover = {
-			.background = { 0x5a, 0x62, 0x68, 0xff },
-			.foreground = { 0xff, 0xff, 0xff, 0xff },
-			.border = { 0x00, 0x00, 0x00, 0x00 },
-		},
-		.active = {
-			.background = { 0x54, 0x5b, 0x62, 0xff },
-			.foreground = { 0xff, 0xff, 0xff, 0xff },
-			.border = { 0x6c, 0x75, 0x7d, 0x60 },
-		},
+	"secondary": {
+		"normal-bakcground-color": "#6c757dff",
+		"normal-foreground-color": "#ffffffff",
+		"normal-border-color": "#00000000",
+
+		"hover-bakcground-color": "#5a6268ff",
+		"hover-foreground-color": "#ffffffff",
+		"hover-border-color": "#00000000",
+
+		"active-bakcground-color": "#545b62ff",
+		"active-foreground-color": "#ffffffff",
+		"active-border-color": "#6c757d60",
 	},
-	.success = {
-		.normal = {
-			.background = { 0x10, 0xc4, 0x69, 0xff },
-			.foreground = { 0xff, 0xff, 0xff, 0xff },
-			.border = { 0x00, 0x00, 0x00, 0x00 },
-		},
-		.hover = {
-			.background = { 0x0d, 0xa1, 0x56, 0xff },
-			.foreground = { 0xff, 0xff, 0xff, 0xff },
-			.border = { 0x00, 0x00, 0x00, 0x00 },
-		},
-		.active = {
-			.background = { 0x0c, 0x95, 0x50, 0xff },
-			.foreground = { 0xff, 0xff, 0xff, 0xff },
-			.border = { 0x10, 0xc4, 0x69, 0x60 },
-		},
+	"success": {
+		"normal-bakcground-color": "#10c469ff",
+		"normal-foreground-color": "#ffffffff",
+		"normal-border-color": "#00000000",
+
+		"hover-bakcground-color": "#0da156ff",
+		"hover-foreground-color": "#ffffffff",
+		"hover-border-color": "#00000000",
+
+		"active-bakcground-color": "#0c9550ff",
+		"active-foreground-color": "#ffffffff",
+		"active-border-color": "#10c46960",
 	},
-	.info = {
-		.normal = {
-			.background = { 0x35, 0xb8, 0xe0, 0xff },
-			.foreground = { 0xff, 0xff, 0xff, 0xff },
-			.border = { 0x00, 0x00, 0x00, 0x00 },
-		},
-		.hover = {
-			.background = { 0x20, 0xa6, 0xcf, 0xff },
-			.border = { 0x00, 0x00, 0x00, 0x00 },
-			.foreground = { 0xff, 0xff, 0xff, 0xff },
-		},
-		.active = {
-			.background = { 0x1e, 0x9d, 0xc4, 0xff },
-			.foreground = { 0xff, 0xff, 0xff, 0xff },
-			.border = { 0x35, 0xb8, 0xe0, 0x60 },
-		},
+	"info": {
+		"normal-bakcground-color": "#35b8e0ff",
+		"normal-foreground-color": "#ffffffff",
+		"normal-border-color": "#00000000",
+
+		"hover-bakcground-color": "#20a6cfff",
+		"hover-foreground-color": "#ffffffff",
+		"hover-border-color": "#00000000",
+
+		"active-bakcground-color": "#1e9dc4ff",
+		"active-foreground-color": "#ffffffff",
+		"active-border-color": "#35b8e060",
 	},
-	.warning = {
-		.normal = {
-			.background = { 0xf9, 0xc8, 0x51, 0xff },
-			.foreground = { 0xff, 0xff, 0xff, 0xff },
-			.border = { 0x00, 0x00, 0x00, 0x00 },
-		},
-		.hover = {
-			.background = { 0xf8, 0xbc, 0x2c, 0xff },
-			.foreground = { 0xff, 0xff, 0xff, 0xff },
-			.border = { 0x00, 0x00, 0x00, 0x00 },
-		},
-		.active = {
-			.background = { 0xf7, 0xb8, 0x20, 0xff },
-			.foreground = { 0xff, 0xff, 0xff, 0xff },
-			.border = { 0xf9, 0xc8, 0x51, 0x60 },
-		},
+	"warning": {
+		"normal-bakcground-color": "#f9c851ff",
+		"normal-foreground-color": "#ffffffff",
+		"normal-border-color": "#00000000",
+
+		"hover-bakcground-color": "#f8bc2cff",
+		"hover-foreground-color": "#ffffffff",
+		"hover-border-color": "#00000000",
+
+		"active-bakcground-color": "#f7b820ff",
+		"active-foreground-color": "#ffffffff",
+		"active-border-color": "#f9c85160",
 	},
-	.danger = {
-		.normal = {
-			.background = { 0xff, 0x5b, 0x5b, 0xff },
-			.foreground = { 0xff, 0xff, 0xff, 0xff },
-			.border = { 0x00, 0x00, 0x00, 0x00 },
-		},
-		.hover = {
-			.background = { 0xff, 0x35, 0x35, 0xff },
-			.foreground = { 0xff, 0xff, 0xff, 0xff },
-			.border = { 0x00, 0x00, 0x00, 0x00 },
-		},
-		.active = {
-			.background = { 0xff, 0x28, 0x28, 0xff },
-			.foreground = { 0xff, 0xff, 0xff, 0xff },
-			.border = { 0xff, 0x5b, 0x5b, 0x60 },
-		},
+	"danger": {
+		"normal-bakcground-color": "#ff5b5bff",
+		"normal-foreground-color": "#ffffffff",
+		"normal-border-color": "#00000000",
+
+		"hover-bakcground-color": "#ff3535ff",
+		"hover-foreground-color": "#ffffffff",
+		"hover-border-color": "#00000000",
+
+		"active-bakcground-color": "#ff2828ff",
+		"active-foreground-color": "#ffffffff",
+		"active-border-color": "#ff5b5b60",
 	},
-	.light = {
-		.normal = {
-			.background = { 0xee, 0xf2, 0xf7, 0xff },
-			.foreground = { 0x32, 0x3a, 0x46, 0xff },
-			.border = { 0x00, 0x00, 0x00, 0x00 },
-		},
-		.hover = {
-			.background = { 0xd4, 0xde, 0xeb, 0xff },
-			.foreground = { 0x32, 0x3a, 0x46, 0xff },
-			.border = { 0x00, 0x00, 0x00, 0x00 },
-		},
-		.active = {
-			.background = { 0xcb, 0xd7, 0xe7, 0xff },
-			.foreground = { 0x32, 0x3a, 0x46, 0xff },
-			.border = { 0xee, 0xf2, 0xf7, 0x60 },
-		},
+	"light": {
+		"normal-bakcground-color": "#eef2f7ff",
+		"normal-foreground-color": "#323a46ff",
+		"normal-border-color": "#00000000",
+
+		"hover-bakcground-color": "#d4deebff",
+		"hover-foreground-color": "#323a46ff",
+		"hover-border-color": "#00000000",
+
+		"active-bakcground-color": "#cbd7e7ff",
+		"active-foreground-color": "#323a46ff",
+		"active-border-color": "#eef2f760",
 	},
-	.dark = {
-		.normal = {
-			.background = { 0x32, 0x3a, 0x46, 0xff },
-			.foreground = { 0xff, 0xff, 0xff, 0xff },
-			.border = { 0x00, 0x00, 0x00, 0x00 },
-		},
-		.hover = {
-			.background = { 0x22, 0x28, 0x30, 0xff },
-			.foreground = { 0xff, 0xff, 0xff, 0xff },
-			.border = { 0x00, 0x00, 0x00, 0x00 },
-		},
-		.active = {
-			.background = { 0x1d, 0x21, 0x28, 0xff },
-			.foreground = { 0xff, 0xff, 0xff, 0xff },
-			.border = { 0x32, 0x3a, 0x46, 0x60 },
-		},
+	"dark": {
+		"normal-bakcground-color": "#323a46ff",
+		"normal-foreground-color": "#ffffffff",
+		"normal-border-color": "#00000000",
+
+		"hover-bakcground-color": "#222830ff",
+		"hover-foreground-color": "#ffffffff",
+		"hover-border-color": "#00000000",
+
+		"active-bakcground-color": "#1d2128ff",
+		"active-foreground-color": "#ffffffff",
+		"active-border-color": "#323a4660",
 	},
 
-	.font = {
-		.icon_family = "font-awesome",
-		.font_family = "roboto",
-		.color = { 0x6c, 0x75, 0x7d, 0xff },
-		.size = 16,
-	},
+	"icon-family": "font-awesome",
+	"font-family": "roboto",
+	"text-color": "#6c757dff",
+	"font-size": 16,
 
-	.layout = {
-		.width = 64,
-		.height = 16,
-		.padding = 4,
-		.spacing = 4,
-		.indent = 24,
-	},
+	"layout-width": 64,
+	"layout-height": 16,
+	"layout-padding": 4,
+	"layout-spacing": 4,
+	"layout-indent": 24,
 
-	.window = {
-		.close_icon = 0xf057,
-		.border_radius = 4,
-		.border_width = 4,
-		.title_height = 24,
-		.background_color = { 0xf4, 0xf5, 0xf8, 0xff },
-		.border_color = { 0x26, 0x47, 0xe0, 0xff },
-		.title_color = { 0x26, 0x47, 0xe0, 0xff },
-		.text_color = { 0xff, 0xff, 0xff, 0xff },
-	},
+	"window-close-icon": 61527,
+	"window-border-radius": 4,
+	"window-border-width": 4,
+	"window-title-height": 24,
+	"window-background-color": "#f4f5f8ff",
+	"window-border-color": "#2647e0ff",
+	"window-title-color": "#2647e0ff",
+	"window-text-color": "#ffffffff",
 
-	.panel = {
-		.border_radius = 4,
-		.border_width = 4,
-		.background_color = { 0xff, 0xff, 0xff, 0xff },
-		.border_color = { 0xbf, 0xbf, 0xbf, 0xff },
-	},
+	"panel-border-radius": 4,
+	"panel-border-width": 4,
+	"panel-background-color": "#ffffffff",
+	"panel-border-color": "#bfbfbfff",
 
-	.scroll = {
-		.scroll_size = 12,
-		.scroll_radius = 6,
-		.thumb_size = 8,
-		.thumb_radius = 6,
-		.scroll_color = { 0xd1, 0xd6, 0xdb, 0xff },
-		.thumb_color = { 0xb1, 0xb6, 0xba, 0xff },
-	},
+	"scroll-scroll-size": 12,
+	"scroll-scroll-radius": 6,
+	"scroll-thumb-size": 8,
+	"scroll-thumb-radius": 6,
+	"scroll-scroll-color": "#d1d6dbff",
+	"scroll-thumb-color": "#b1b6baff",
 
-	.collapse = {
-		.border_radius = 2,
-		.border_width = 0,
-	},
+	"collapse-border-radius": 2,
+	"collapse-border-width": 0,
 
-	.tree = {
-		.collapsed_icon = 0xf067,
-		.expanded_icon = 0xf068,
-		.border_radius = 2,
-		.border_width = 0,
-	},
+	"tree-collapsed-icon": 61543,
+	"tree-expanded-icon": 61544,
+	"tree-border-radius": 2,
+	"tree-border-width": 0,
 
-	.button = {
-		.border_radius = 4,
-		.border_width = 4,
-		.outline_width = 2,
-	},
+	"button-border-radius": 4,
+	"button-border-width": 4,
+	"button-outline-width": 2,
 
-	.checkbox = {
-		.check_icon = 0xf00c,
-		.border_radius = 4,
-		.border_width = 4,
-		.outline_width = 2,
-	},
+	"checkbox-check-icon": 61452,
+	"checkbox-border-radius": 4,
+	"checkbox-border-width": 4,
+	"checkbox-outline-width": 2,
 
-	.radio = {
-		.border_width = 4,
-		.outline_width = 2,
-	},
+	"radio-border-width": 4,
+	"radio-outline-width": 2,
 
-	.toggle = {
-		.border_width = 4,
-		.outline_width = 2,
-	},
+	"toggle-border-width": 4,
+	"toggle-outline-width": 2,
 
-	.tabbar = {
-		.border_width = 4,
-		.outline_width = 2,
-	},
+	"tabbar-border-width": 4,
+	"tabbar-outline-width": 2,
 
-	.slider = {
-		.invalid = { 0xee, 0xf2, 0xf7, 0xff },
-		.border_width = 4,
-	},
+	"slider-invalid-color": "#eef2f7ff",
+	"slider-border-width": 4,
 
-	.number = {
-		.border_radius = 4,
-		.border_width = 4,
-		.outline_width = 2,
-	},
+	"number-border-radius": 4,
+	"number-border-width": 4,
+	"number-outline-width": 2,
 
-	.textedit = {
-		.border_radius = 4,
-		.border_width = 4,
-		.outline_width = 2,
-	},
+	"textedit-border-radius": 4,
+	"textedit-border-width": 4,
+	"textedit-outline-width": 2,
 
-	.badge = {
-		.border_radius = 4,
-		.border_width = 4,
-		.outline_width = 2,
-	},
+	"badge-border-radius": 4,
+	"badge-border-width": 4,
+	"badge-outline-width": 2,
 
-	.progress = {
-		.invalid = { 0xee, 0xf2, 0xf7, 0xff },
-		.border_radius = 4,
-	},
+	"progress-invalid-color": "#eef2f7ff",
+	"progress-border-radius": 4,
 
-	.radialbar = {
-		.invalid = { 0xee, 0xf2, 0xf7, 0xff },
-		.width = 8,
-	},
+	"radialbar-invalid-color": "#eef2f7ff",
+	"radialbar-width": 4,
 
-	.spinner = {
-		.width = 4,
-	},
+	"spinner-width": 4,
 
-	.split = {
-		.width = 2,
-	},
-};
+	"split-width": 2,
+});
 
 static struct region_t unlimited_region = {
 	.x = 0,
@@ -1235,9 +1163,9 @@ struct xui_context_t * xui_context_alloc(const char * fb, const char * input, vo
 	memset(ctx->cells[1], 0xff, len);
 	ctx->cindex = 0;
 	ctx->running = 1;
-	ctx->stamp = ktime_to_ns(ktime_get());
-	memcpy(&ctx->style, &xui_style_default, sizeof(struct xui_style_t));
 	region_clone(&ctx->clip, &ctx->screen);
+	xui_load_style(ctx, style_default, sizeof(style_default));
+	ctx->stamp = ktime_to_ns(ktime_get());
 	ctx->priv = data;
 
 	return ctx;
@@ -1263,15 +1191,389 @@ void xui_context_free(struct xui_context_t * ctx)
 		free(ctx);
 	}
 }
+
+static void style_widget_color(struct json_value_t * v, struct xui_widget_color_t * wc)
+{
+	struct json_value_t * o;
+	int i;
+
+	if(v && (v->type == JSON_OBJECT))
+	{
+		for(i = 0; i < v->u.object.length; i++)
+		{
+			o = v->u.object.values[i].value;
+			switch(shash(v->u.object.values[i].name))
+			{
+			case 0x52d1c547: /* "normal-bakcground-color" */
+				if(o && (o->type == JSON_STRING))
+					color_init_string(&wc->normal.background, o->u.string.ptr);
+				break;
+			case 0xaf0e03c2: /* "normal-foreground-color" */
+				if(o && (o->type == JSON_STRING))
+					color_init_string(&wc->normal.foreground, o->u.string.ptr);
+				break;
+			case 0xa0d36ca5: /* "normal-border-color" */
+				if(o && (o->type == JSON_STRING))
+					color_init_string(&wc->normal.border, o->u.string.ptr);
+				break;
+
+			case 0xd8fbc302: /* "hover-bakcground-color" */
+				if(o && (o->type == JSON_STRING))
+					color_init_string(&wc->hover.background, o->u.string.ptr);
+				break;
+			case 0x3538017d: /* "hover-foreground-color" */
+				if(o && (o->type == JSON_STRING))
+					color_init_string(&wc->hover.foreground, o->u.string.ptr);
+				break;
+			case 0xf165c4e0: /* "hover-border-color" */
+				if(o && (o->type == JSON_STRING))
+					color_init_string(&wc->hover.border, o->u.string.ptr);
+				break;
+
+			case 0x38d1e5da: /* "active-bakcground-color" */
+				if(o && (o->type == JSON_STRING))
+					color_init_string(&wc->active.background, o->u.string.ptr);
+				break;
+			case 0x950e2455: /* "active-foreground-color" */
+				if(o && (o->type == JSON_STRING))
+					color_init_string(&wc->active.foreground, o->u.string.ptr);
+				break;
+			case 0x37ac3bb8: /* "active-border-color" */
+				if(o && (o->type == JSON_STRING))
+					color_init_string(&wc->active.border, o->u.string.ptr);
+				break;
+
+			default:
+				break;
+			}
+		}
+	}
+}
+
 void xui_load_style(struct xui_context_t * ctx, const char * json, int len)
 {
+	struct json_value_t * v, * o;
+	int i;
+
+	if(json && (len > 0))
+	{
+		v = json_parse(json, len, NULL);
+		if(v && (v->type == JSON_OBJECT))
+		{
+			for(i = 0; i < v->u.object.length; i++)
+			{
+				o = v->u.object.values[i].value;
+				switch(shash(v->u.object.values[i].name))
+				{
+				case 0xc2cfc789: /* "primary" */
+					style_widget_color(o, &ctx->style.primary);
+					break;
+				case 0x4bad706d: /* "secondary" */
+					style_widget_color(o, &ctx->style.secondary);
+					break;
+				case 0xb04bf9fe: /* "success" */
+					style_widget_color(o, &ctx->style.success);
+					break;
+				case 0x7c9884d1: /* "info" */
+					style_widget_color(o, &ctx->style.info);
+					break;
+				case 0xb6a3487b: /* "warning" */
+					style_widget_color(o, &ctx->style.warning);
+					break;
+				case 0xf83c41d6: /* "danger" */
+					style_widget_color(o, &ctx->style.danger);
+					break;
+				case 0x0fdcae5d: /* "light" */
+					style_widget_color(o, &ctx->style.light);
+					break;
+				case 0x7c959127: /* "dark" */
+					style_widget_color(o, &ctx->style.dark);
+					break;
+
+				case 0xb1c870bd: /* "icon-family" */
+					if(o && (o->type == JSON_STRING))
+						strlcpy(ctx->style.font.icon_family, o->u.string.ptr, sizeof(ctx->style.font.icon_family));
+					break;
+				case 0x673faacb: /* "font-family" */
+					if(o && (o->type == JSON_STRING))
+						strlcpy(ctx->style.font.font_family, o->u.string.ptr, sizeof(ctx->style.font.font_family));
+					break;
+				case 0x1005def6: /* "text-color" */
+					if(o && (o->type == JSON_STRING))
+						color_init_string(&ctx->style.font.color, o->u.string.ptr);
+					break;
+				case 0xf1c88f84: /* "font-size" */
+					if(o && (o->type == JSON_INTEGER))
+						ctx->style.font.size = o->u.integer;
+					break;
+
+				case 0x3f791630: /* "layout-width" */
+					if(o && (o->type == JSON_INTEGER))
+						ctx->style.layout.width = o->u.integer;
+					break;
+				case 0x0b589fc9: /* "layout-height" */
+					if(o && (o->type == JSON_INTEGER))
+						ctx->style.layout.height = o->u.integer;
+					break;
+				case 0xd48dc0a7: /* "layout-padding" */
+					if(o && (o->type == JSON_INTEGER))
+						ctx->style.layout.padding = o->u.integer;
+					break;
+				case 0xde430275: /* "layout-spacing" */
+					if(o && (o->type == JSON_INTEGER))
+						ctx->style.layout.spacing = o->u.integer;
+					break;
+				case 0x0e4ddf52: /* "layout-indent" */
+					if(o && (o->type == JSON_INTEGER))
+						ctx->style.layout.indent = o->u.integer;
+					break;
+
+				case 0x4f4608f6: /* "window-close-icon" */
+					if(o && (o->type == JSON_INTEGER))
+						ctx->style.window.close_icon = o->u.integer;
+					break;
+				case 0xb2771add: /* "window-border-radius" */
+					if(o && (o->type == JSON_INTEGER))
+						ctx->style.window.border_radius = o->u.integer;
+					break;
+				case 0x05c75415: /* "window-border-width" */
+					if(o && (o->type == JSON_INTEGER))
+						ctx->style.window.border_width = o->u.integer;
+					break;
+				case 0xcb989ef2: /* "window-title-height" */
+					if(o && (o->type == JSON_INTEGER))
+						ctx->style.window.title_height = o->u.integer;
+					break;
+				case 0xc2f19cd6: /* "window-background-color" */
+					if(o && (o->type == JSON_STRING))
+						color_init_string(&ctx->style.window.background_color, o->u.string.ptr);
+					break;
+				case 0x0460d5b4: /* "window-border-color" */
+					if(o && (o->type == JSON_STRING))
+						color_init_string(&ctx->style.window.border_color, o->u.string.ptr);
+					break;
+				case 0xd74ad5d8: /* "window-title-color" */
+					if(o && (o->type == JSON_STRING))
+						color_init_string(&ctx->style.window.title_color, o->u.string.ptr);
+					break;
+				case 0x8111065b: /* "window-text-color" */
+					if(o && (o->type == JSON_STRING))
+						color_init_string(&ctx->style.window.text_color, o->u.string.ptr);
+					break;
+
+				case 0x573ba135: /* "panel-border-radius" */
+					if(o && (o->type == JSON_INTEGER))
+						ctx->style.panel.border_radius = o->u.integer;
+					break;
+				case 0x96686f6d: /* "panel-border-width" */
+					if(o && (o->type == JSON_INTEGER))
+						ctx->style.panel.border_width = o->u.integer;
+					break;
+				case 0xaae0a42e: /* "panel-background-color" */
+					if(o && (o->type == JSON_STRING))
+						color_init_string(&ctx->style.panel.background_color, o->u.string.ptr);
+					break;
+				case 0x9501f10c: /* "panel-border-color" */
+					if(o && (o->type == JSON_STRING))
+						color_init_string(&ctx->style.panel.border_color, o->u.string.ptr);
+					break;
+
+				case 0xb0155f18: /* "scroll-scroll-size" */
+					if(o && (o->type == JSON_INTEGER))
+						ctx->style.scroll.scroll_size = o->u.integer;
+					break;
+				case 0x07f7a8a5: /* "scroll-scroll-radius" */
+					if(o && (o->type == JSON_INTEGER))
+						ctx->style.scroll.scroll_radius = o->u.integer;
+					break;
+				case 0xf2633ba9: /* "scroll-thumb-size" */
+					if(o && (o->type == JSON_INTEGER))
+						ctx->style.scroll.thumb_size = o->u.integer;
+					break;
+				case 0x152eed76: /* "scroll-thumb-radius" */
+					if(o && (o->type == JSON_INTEGER))
+						ctx->style.scroll.thumb_radius = o->u.integer;
+					break;
+				case 0xb1a2ca7c: /* "scroll-scroll-color" */
+					if(o && (o->type == JSON_STRING))
+						color_init_string(&ctx->style.scroll.scroll_color, o->u.string.ptr);
+					break;
+				case 0x3dac392d: /* "scroll-thumb-color" */
+					if(o && (o->type == JSON_STRING))
+						color_init_string(&ctx->style.scroll.thumb_color, o->u.string.ptr);
+					break;
+
+				case 0xa6c2fb38: /* "collapse-border-radius" */
+					if(o && (o->type == JSON_INTEGER))
+						ctx->style.collapse.border_radius = o->u.integer;
+					break;
+				case 0xbf9b1510: /* "collapse-border-width" */
+					if(o && (o->type == JSON_INTEGER))
+						ctx->style.collapse.border_width = o->u.integer;
+					break;
+
+				case 0xfa1f8d0f: /* "tree-collapsed-icon" */
+					if(o && (o->type == JSON_INTEGER))
+						ctx->style.tree.collapsed_icon = o->u.integer;
+					break;
+				case 0x11dfc2e1: /* "tree-expanded-icon" */
+					if(o && (o->type == JSON_INTEGER))
+						ctx->style.tree.expanded_icon = o->u.integer;
+					break;
+				case 0xa2dc6c55: /* "tree-border-radius" */
+					if(o && (o->type == JSON_INTEGER))
+						ctx->style.tree.border_radius = o->u.integer;
+					break;
+				case 0xfd8c568d: /* "tree-border-width" */
+					if(o && (o->type == JSON_INTEGER))
+						ctx->style.tree.border_width = o->u.integer;
+					break;
+
+				case 0x421d2901: /* "button-border-radius" */
+					if(o && (o->type == JSON_INTEGER))
+						ctx->style.button.border_radius = o->u.integer;
+					break;
+				case 0xcc122db9: /* "button-border-width" */
+					if(o && (o->type == JSON_INTEGER))
+						ctx->style.button.border_width = o->u.integer;
+					break;
+				case 0xf2f7533b: /* "button-outline-width" */
+					if(o && (o->type == JSON_INTEGER))
+						ctx->style.button.outline_width = o->u.integer;
+					break;
+
+				case 0x8ef2db2d: /* "checkbox-check-icon" */
+					if(o && (o->type == JSON_INTEGER))
+						ctx->style.checkbox.check_icon = o->u.integer;
+					break;
+				case 0xd513cbcc: /* "checkbox-border-radius" */
+					if(o && (o->type == JSON_INTEGER))
+						ctx->style.checkbox.border_radius = o->u.integer;
+					break;
+				case 0xe00a2324: /* "checkbox-border-width" */
+					if(o && (o->type == JSON_INTEGER))
+						ctx->style.checkbox.border_width = o->u.integer;
+					break;
+				case 0x85edf606: /* "checkbox-outline-width" */
+					if(o && (o->type == JSON_INTEGER))
+						ctx->style.checkbox.outline_width = o->u.integer;
+					break;
+
+				case 0x375f9ccc: /* "radio-border-width" */
+					if(o && (o->type == JSON_INTEGER))
+						ctx->style.radio.border_width = o->u.integer;
+					break;
+				case 0xc7f2a4ae: /* "radio-outline-width" */
+					if(o && (o->type == JSON_INTEGER))
+						ctx->style.radio.outline_width = o->u.integer;
+					break;
+
+				case 0x940cdb1f: /* "toggle-border-width" */
+					if(o && (o->type == JSON_INTEGER))
+						ctx->style.toggle.border_width = o->u.integer;
+					break;
+				case 0xba47ad61: /* "toggle-outline-width" */
+					if(o && (o->type == JSON_INTEGER))
+						ctx->style.toggle.outline_width = o->u.integer;
+					break;
+
+				case 0x71bd0bc9: /* "tabbar-border-width" */
+					if(o && (o->type == JSON_INTEGER))
+						ctx->style.tabbar.border_width = o->u.integer;
+					break;
+				case 0x4dfdf34b: /* "tabbar-outline-width" */
+					if(o && (o->type == JSON_INTEGER))
+						ctx->style.tabbar.outline_width = o->u.integer;
+					break;
+
+				case 0x118b4b08: /* "slider-invalid-color" */
+					if(o && (o->type == JSON_STRING))
+						color_init_string(&ctx->style.slider.invalid_color, o->u.string.ptr);
+					break;
+				case 0xa5534dc0: /* "slider-border-width" */
+					if(o && (o->type == JSON_INTEGER))
+						ctx->style.slider.border_width = o->u.integer;
+					break;
+
+				case 0x1110bece: /* "number-border-radius" */
+					if(o && (o->type == JSON_INTEGER))
+						ctx->style.number.border_radius = o->u.integer;
+					break;
+				case 0xc2d3bde6: /* "number-border-width" */
+					if(o && (o->type == JSON_INTEGER))
+						ctx->style.number.border_width = o->u.integer;
+					break;
+				case 0xc1eae908: /* "number-outline-width" */
+					if(o && (o->type == JSON_INTEGER))
+						ctx->style.number.outline_width = o->u.integer;
+					break;
+
+				case 0x1f996970: /* "textedit-border-radius" */
+					if(o && (o->type == JSON_INTEGER))
+						ctx->style.textedit.border_radius = o->u.integer;
+					break;
+				case 0xb3c09c48: /* "textedit-border-width" */
+					if(o && (o->type == JSON_INTEGER))
+						ctx->style.textedit.border_width = o->u.integer;
+					break;
+				case 0xd07393aa: /* "textedit-outline-width" */
+					if(o && (o->type == JSON_INTEGER))
+						ctx->style.textedit.outline_width = o->u.integer;
+					break;
+
+				case 0x903d8118: /* "badge-border-radius" */
+					if(o && (o->type == JSON_INTEGER))
+						ctx->style.badge.border_radius = o->u.integer;
+					break;
+				case 0xbeec5ef0: /* "badge-border-width" */
+					if(o && (o->type == JSON_INTEGER))
+						ctx->style.badge.border_width = o->u.integer;
+					break;
+				case 0x4117ab52: /* "badge-outline-width" */
+					if(o && (o->type == JSON_INTEGER))
+						ctx->style.badge.outline_width = o->u.integer;
+					break;
+
+				case 0x98e7d09a: /* "progress-invalid-color" */
+					if(o && (o->type == JSON_STRING))
+						color_init_string(&ctx->style.progress.invalid_color, o->u.string.ptr);
+					break;
+				case 0xcadecf7a: /* "progress-border-radius" */
+					if(o && (o->type == JSON_INTEGER))
+						ctx->style.progress.border_radius = o->u.integer;
+					break;
+
+				case 0xc2184287: /* "radialbar-invalid-color" */
+					if(o && (o->type == JSON_STRING))
+						color_init_string(&ctx->style.radialbar.invalid_color, o->u.string.ptr);
+					break;
+				case 0xe971a174: /* "radialbar-width" */
+					if(o && (o->type == JSON_INTEGER))
+						ctx->style.radialbar.width = o->u.integer;
+					break;
+
+				case 0xeb339651: /* "spinner-width" */
+					if(o && (o->type == JSON_INTEGER))
+						ctx->style.spinner.width = o->u.integer;
+					break;
+
+				case 0xf72f0b7e: /* "split-width" */
+					if(o && (o->type == JSON_INTEGER))
+						ctx->style.split.width = o->u.integer;
+					break;
+
+				default:
+					break;
+				}
+			}
+		}
+	}
 }
 
 void xui_load_lang(struct xui_context_t * ctx, const char * json, int len)
 {
-	struct json_value_t * v, * t;
-	char * key;
-	void * value;
+	struct json_value_t * v;
+	char * key, * value;
 	int i;
 
 	hmap_clear(ctx->m, hmap_entry_callback);
@@ -1282,8 +1584,7 @@ void xui_load_lang(struct xui_context_t * ctx, const char * json, int len)
 		{
 			for(i = 0; i < v->u.object.length; i++)
 			{
-				t = v->u.object.values[i].value;
-				if(t && (t->type == JSON_STRING))
+				if(v->u.object.values[i].value->type == JSON_STRING)
 				{
 					key = v->u.object.values[i].name;
 					value = hmap_search(ctx->m, key);
@@ -1292,7 +1593,7 @@ void xui_load_lang(struct xui_context_t * ctx, const char * json, int len)
 						hmap_remove(ctx->m, key);
 						free(value);
 					}
-					hmap_add(ctx->m, key, t->u.string.ptr);
+					hmap_add(ctx->m, key, v->u.object.values[i].value->u.string.ptr);
 				}
 			}
 		}

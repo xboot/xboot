@@ -344,8 +344,8 @@ struct xui_style_t {
 	struct xui_widget_color_t dark;
 
 	struct {
-		const char * icon_family;
-		const char * font_family;
+		char icon_family[128];
+		char font_family[128];
 		struct color_t color;
 		int size;
 	} font;
@@ -426,7 +426,7 @@ struct xui_style_t {
 	} tabbar;
 
 	struct {
-		struct color_t invalid;
+		struct color_t invalid_color;
 		int border_width;
 	} slider;
 
@@ -449,12 +449,12 @@ struct xui_style_t {
 	} badge;
 
 	struct {
-		struct color_t invalid;
+		struct color_t invalid_color;
 		int border_radius;
 	} progress;
 
 	struct {
-		struct color_t invalid;
+		struct color_t invalid_color;
 		int width;
 	} radialbar;
 

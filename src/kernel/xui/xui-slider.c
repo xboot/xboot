@@ -97,7 +97,7 @@ int xui_slider_ex(struct xui_context_t * ctx, double * value, double low, double
 		bg = &wc->normal.background;
 		bc = &wc->normal.border;
 	}
-	c = &ctx->style.slider.invalid;
+	c = &ctx->style.slider.invalid_color;
 	if(opt & XUI_SLIDER_VERTICAL)
 	{
 		region_init(&region, r->x + (r->w - radius) / 2, r->y + radius, radius, r->h - radius * 2);

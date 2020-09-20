@@ -188,7 +188,7 @@ struct font_context_t * font_context_alloc(void)
 	font_add(ctx, NULL, "roboto-italic", "/framework/assets/fonts/Roboto-Italic.ttf");
 	font_add(ctx, NULL, "roboto-bold", "/framework/assets/fonts/Roboto-Bold.ttf");
 	font_add(ctx, NULL, "roboto-bold-italic", "/framework/assets/fonts/Roboto-BoldItalic.ttf");
-	font_add(ctx, NULL, "font-awesome", "/framework/assets/fonts/FontAwesome.ttf");
+	font_add(ctx, NULL, "bootstrap-icons", "/framework/assets/fonts/Bootstrap-Icons.ttf");
 
 	return ctx;
 }

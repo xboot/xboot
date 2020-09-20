@@ -1,6 +1,6 @@
 local DisplayIcon = DisplayIcon
 
-local ico = DisplayIcon.new(0xf067, Color.new("skyblue"), "font-awesome", 64)
+local ico = DisplayIcon.new(0xe900, Color.new("skyblue"), "bootstrap-icons", 64)
 ico:setPosition(200, 200):setAnchor(0.5, 0.5)
 stage:addChild(ico)
 

@@ -648,6 +648,17 @@ static void overview_window(struct xui_context_t * ctx)
 			xui_end_tree(ctx);
 		}
 
+		if(xui_begin_tree(ctx, "Collapse"))
+		{
+			xui_layout_row(ctx, 1, (int[]){ -1 }, 0);
+			for(int i = 0; i < 8; i++)
+			{
+				if(xui_collapse_ex(ctx, 0xe9bb + i, wcstr[i], (i << 8) | XUI_OPT_TEXT_LEFT))
+					xui_label(ctx, xui_format(ctx, "This is %s", wcstr[i]));
+			}
+			xui_end_tree(ctx);
+		}
+
 		if(xui_begin_tree(ctx, "Textedit"))
 		{
 			static char buf[128];

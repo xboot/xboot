@@ -136,7 +136,7 @@ static const char style_default[] = X({
 	},
 
 	"icon-family": "bootstrap-icons",
-	"font-family": "roboto",
+	"font-family": "roboto-regular",
 	"text-color": "#6c757dff",
 	"font-size": 16,
 

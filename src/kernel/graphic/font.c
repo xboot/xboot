@@ -184,7 +184,7 @@ struct font_context_t * font_context_alloc(void)
 	FTC_SBitCache_New((FTC_Manager)ctx->manager, (FTC_SBitCache *)&ctx->sbit);
 	FTC_ImageCache_New((FTC_Manager)ctx->manager, (FTC_ImageCache *)&ctx->image);
 	init_list_head(&ctx->list);
-	font_add(ctx, NULL, "roboto", "/framework/assets/fonts/Roboto-Regular.ttf");
+	font_add(ctx, NULL, "roboto-regular", "/framework/assets/fonts/Roboto-Regular.ttf");
 	font_add(ctx, NULL, "roboto-italic", "/framework/assets/fonts/Roboto-Italic.ttf");
 	font_add(ctx, NULL, "roboto-bold", "/framework/assets/fonts/Roboto-Bold.ttf");
 	font_add(ctx, NULL, "roboto-bold-italic", "/framework/assets/fonts/Roboto-BoldItalic.ttf");
@@ -228,7 +228,7 @@ void * font_lookup_bitmap(struct font_context_t * ctx, const char * family, int 
 	scaler.x_res = 0;
 	scaler.y_res = 0;
 
-	p = family ? family : "roboto";
+	p = family ? family : "roboto-regular";
 	while(family_hash(&p, &v))
 	{
 		scaler.face_id = (FTC_FaceID)((unsigned long)v);
@@ -251,7 +251,7 @@ void * font_lookup_bitmap(struct font_context_t * ctx, const char * family, int 
 			}
 		}
 	}
-	p = "roboto";
+	p = "roboto-regular";
 	if(family_hash(&p, &v))
 	{
 		scaler.face_id = (FTC_FaceID)((unsigned long)v);
@@ -279,7 +279,7 @@ void * font_lookup_glyph(struct font_context_t * ctx, const char * family, int s
 	scaler.x_res = 0;
 	scaler.y_res = 0;
 
-	p = family ? family : "roboto";
+	p = family ? family : "roboto-regular";
 	while(family_hash(&p, &v))
 	{
 		scaler.face_id = (FTC_FaceID)((unsigned long)v);
@@ -302,7 +302,7 @@ void * font_lookup_glyph(struct font_context_t * ctx, const char * family, int s
 			}
 		}
 	}
-	p = "roboto";
+	p = "roboto-regular";
 	if(family_hash(&p, &v))
 	{
 		scaler.face_id = (FTC_FaceID)((unsigned long)v);

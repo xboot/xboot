@@ -1600,6 +1600,12 @@ void xui_load_lang(struct xui_context_t * ctx, const char * json, int len)
 	}
 }
 
+void xui_add_font(struct xui_context_t * ctx,  const char * family, const char * path)
+{
+	if(ctx)
+		font_add(ctx->f, NULL, family, path);
+}
+
 static void xui_draw(struct window_t * w, void * o)
 {
 	struct xui_context_t * ctx = (struct xui_context_t *)o;

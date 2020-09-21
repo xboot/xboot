@@ -681,6 +681,7 @@ struct xui_context_t * xui_context_alloc(const char * fb, const char * input, vo
 void xui_context_free(struct xui_context_t * ctx);
 void xui_load_style(struct xui_context_t * ctx, const char * json, int len);
 void xui_load_lang(struct xui_context_t * ctx, const char * json, int len);
+void xui_add_font(struct xui_context_t * ctx,  const char * family, const char * path);
 void xui_loop(struct xui_context_t * ctx, void (*func)(struct xui_context_t *));
 
 #ifdef __cplusplus

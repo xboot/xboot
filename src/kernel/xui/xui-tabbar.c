@@ -38,7 +38,6 @@ int xui_tabbar_ex(struct xui_context_t * ctx, int icon, const char * label, int 
 	int radius, width;
 	int click = 0;
 
-	xui_layout_row(ctx, 1, (int[]){ -1 }, 0);
 	region_clone(&r, xui_layout_next(ctx));
 	xui_control_update(ctx, id, &r, 0);
 	if((ctx->active == id) && (ctx->mouse.up & XUI_MOUSE_LEFT))

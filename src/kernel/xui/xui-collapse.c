@@ -60,28 +60,28 @@ int xui_collapse_ex(struct xui_context_t * ctx, int icon, const char * label, in
 	width = ctx->style.collapse.border_width;
 	switch(opt & (0x7 << 8))
 	{
-	case XUI_BUTTON_PRIMARY:
+	case XUI_COLLAPSE_PRIMARY:
 		wc = &ctx->style.primary;
 		break;
-	case XUI_BUTTON_SECONDARY:
+	case XUI_COLLAPSE_SECONDARY:
 		wc = &ctx->style.secondary;
 		break;
-	case XUI_BUTTON_SUCCESS:
+	case XUI_COLLAPSE_SUCCESS:
 		wc = &ctx->style.success;
 		break;
-	case XUI_BUTTON_INFO:
+	case XUI_COLLAPSE_INFO:
 		wc = &ctx->style.info;
 		break;
-	case XUI_BUTTON_WARNING:
+	case XUI_COLLAPSE_WARNING:
 		wc = &ctx->style.warning;
 		break;
-	case XUI_BUTTON_DANGER:
+	case XUI_COLLAPSE_DANGER:
 		wc = &ctx->style.danger;
 		break;
-	case XUI_BUTTON_LIGHT:
+	case XUI_COLLAPSE_LIGHT:
 		wc = &ctx->style.light;
 		break;
-	case XUI_BUTTON_DARK:
+	case XUI_COLLAPSE_DARK:
 		wc = &ctx->style.dark;
 		break;
 	default:

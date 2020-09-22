@@ -202,27 +202,14 @@ void * hmap_search(struct hmap_t * m, const char * key)
 {
 	struct hmap_entry_t * pos;
 	struct hlist_node * n;
-	struct hlist_head * h;
 
 	if(!m || !key)
 		return NULL;
 
-	h = &m->hash[shash(key) & (m->size - 1)];
-	if(!hlist_empty(h))
+	hlist_for_each_entry_safe(pos, n, &m->hash[shash(key) & (m->size - 1)], node)
 	{
-		if(hlist_is_singular_node(h->first, h))
-		{
-			pos = hlist_entry_safe(h->first, struct hmap_entry_t, node);
+		if(strcmp(pos->key, key) == 0)
 			return pos->value;
-		}
-		else
-		{
-			hlist_for_each_entry_safe(pos, n, h, node)
-			{
-				if(strcmp(pos->key, key) == 0)
-					return pos->value;
-			}
-		}
 	}
 	return NULL;
 }

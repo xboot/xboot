@@ -29,19 +29,21 @@
 #include <xboot.h>
 #include <xui/tabbar.h>
 
-int xui_tabbar_ex(struct xui_context_t * ctx, const char * label, int state, int opt)
+int xui_tabbar_ex(struct xui_context_t * ctx, int icon, const char * label, int state, int opt)
 {
-	unsigned int id = xui_get_id(ctx, label, strlen(label));
-	struct region_t region, * r = xui_layout_next(ctx);
+	unsigned int id = label ? xui_get_id(ctx, label, strlen(label)) : xui_get_id(ctx, &icon, sizeof(int));
+	struct region_t r;
 	struct xui_widget_color_t * wc;
 	struct color_t * bg, * fg, * bc;
 	int radius, width;
 	int click = 0;
 
-	xui_control_update(ctx, id, r, opt);
+	xui_layout_row(ctx, 1, (int[]){ -1 }, 0);
+	region_clone(&r, xui_layout_next(ctx));
+	xui_control_update(ctx, id, &r, 0);
 	if((ctx->active == id) && (ctx->mouse.up & XUI_MOUSE_LEFT))
 		click = 1;
-	radius = r->h / 2;
+	radius = ctx->style.tabbar.border_radius;
 	width = ctx->style.tabbar.border_width;
 	if(state)
 	{
@@ -99,15 +101,19 @@ int xui_tabbar_ex(struct xui_context_t * ctx, const char * label, int state, int
 		bc = &wc->normal.border;
 	}
 	if(bc->a && (width > 0))
-		xui_draw_circle(ctx, r->x + radius, r->y + radius, radius, width, bc);
+		xui_draw_rectangle(ctx, r.x, r.y, r.w, r.h, radius, width, bc);
 	if(bg->a)
-		xui_draw_circle(ctx, r->x + radius, r->y + radius, radius, state ? 0 : ctx->style.tabbar.outline_width, bg);
-	if(state)
-		xui_draw_circle(ctx, r->x + radius, r->y + radius, (radius * 391) >> 10, 0, fg);
-	if(label && fg->a)
+		xui_draw_rectangle(ctx, r.x, r.y, r.w, r.h, radius, 0, bg);
+	if(fg->a)
 	{
-		region_init(&region, r->x + r->h, r->y, r->w - r->h, r->h);
-		xui_control_draw_text(ctx, label, &region, &ctx->style.font.color, opt);
+		if(icon > 0)
+		{
+			xui_draw_icon(ctx, ctx->style.font.icon_family, icon, r.x, r.y, r.h, r.h, fg);
+			r.x += r.h - ctx->style.layout.padding;
+			r.w -= r.h - ctx->style.layout.padding;
+		}
+		if(label)
+			xui_control_draw_text(ctx, label, &r, fg, opt);
 	}
 	return click;
 }

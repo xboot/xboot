@@ -421,8 +421,8 @@ struct xui_style_t {
 	} toggle;
 
 	struct {
+		int border_radius;
 		int border_width;
-		int outline_width;
 	} tabbar;
 
 	struct {

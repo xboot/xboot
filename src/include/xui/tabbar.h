@@ -18,11 +18,11 @@ enum {
 	XUI_TABBAR_DARK			= (0x7 << 8),
 };
 
-int xui_tabbar_ex(struct xui_context_t * ctx, const char * label, int state, int opt);
+int xui_tabbar_ex(struct xui_context_t * ctx, int icon, const char * label, int state, int opt);
 
-static inline int xui_tabbar(struct xui_context_t * ctx, const char * label, int state)
+static inline int xui_tabbar(struct xui_context_t * ctx, int icon, const char * label, int state)
 {
-	return xui_tabbar_ex(ctx, label, state, XUI_TABBAR_PRIMARY | XUI_OPT_TEXT_LEFT);
+	return xui_tabbar_ex(ctx, icon, label, state, XUI_TABBAR_PRIMARY | XUI_OPT_TEXT_LEFT);
 }
 
 #ifdef __cplusplus

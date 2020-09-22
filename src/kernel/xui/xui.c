@@ -190,8 +190,8 @@ static const char style_default[] = X({
 	"toggle-border-width": 4,
 	"toggle-outline-width": 2,
 
-	"tabbar-border-width": 4,
-	"tabbar-outline-width": 2,
+	"tabbar-border-radius": 2,
+	"tabbar-border-width": 0,
 
 	"slider-invalid-color": "#eef2f7ff",
 	"slider-border-width": 4,
@@ -1477,13 +1477,13 @@ void xui_load_style(struct xui_context_t * ctx, const char * json, int len)
 						ctx->style.toggle.outline_width = o->u.integer;
 					break;
 
+				case 0x9d23c911: /* "tabbar-border-radius" */
+					if(o && (o->type == JSON_INTEGER))
+						ctx->style.tabbar.border_radius = o->u.integer;
+					break;
 				case 0x71bd0bc9: /* "tabbar-border-width" */
 					if(o && (o->type == JSON_INTEGER))
 						ctx->style.tabbar.border_width = o->u.integer;
-					break;
-				case 0x4dfdf34b: /* "tabbar-outline-width" */
-					if(o && (o->type == JSON_INTEGER))
-						ctx->style.tabbar.outline_width = o->u.integer;
 					break;
 
 				case 0x118b4b08: /* "slider-invalid-color" */

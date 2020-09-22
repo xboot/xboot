@@ -156,9 +156,9 @@ static const char style_default[] = X({
 	"window-text-color": "#ffffffff",
 
 	"panel-border-radius": 4,
-	"panel-border-width": 4,
+	"panel-border-width": 0,
 	"panel-background-color": "#ffffffff",
-	"panel-border-color": "#bfbfbfff",
+	"panel-border-color": "#00000000",
 
 	"scroll-scroll-size": 12,
 	"scroll-scroll-radius": 6,

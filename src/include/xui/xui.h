@@ -631,6 +631,14 @@ static inline struct xui_container_t * xui_get_container(struct xui_context_t * 
 	return ctx->container_stack.items[ctx->container_stack.idx - 1];
 }
 
+static inline const char * xui_translate(struct xui_context_t * ctx, const char * s)
+{
+	const char * v = NULL;
+	if(ctx->m)
+		v = hmap_search(ctx->m, s);
+	return v ? v : s;
+}
+
 static inline void xui_exit(struct xui_context_t * ctx)
 {
 	ctx->running = 0;
@@ -638,7 +646,6 @@ static inline void xui_exit(struct xui_context_t * ctx)
 
 void xui_begin(struct xui_context_t * ctx);
 void xui_end(struct xui_context_t * ctx);
-const char * xui_translate(struct xui_context_t * ctx, const char * str);
 const char * xui_format(struct xui_context_t * ctx, const char * fmt, ...);
 
 int xui_pool_init(struct xui_context_t * ctx, struct xui_pool_item_t * items, int len, unsigned int id);

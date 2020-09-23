@@ -352,12 +352,6 @@ void xui_end(struct xui_context_t * ctx)
 	}
 }
 
-const char * xui_translate(struct xui_context_t * ctx, const char * str)
-{
-	const char * v = hmap_search(ctx->m, str);
-	return v ? v : str;
-}
-
 const char * xui_format(struct xui_context_t * ctx, const char * fmt, ...)
 {
 	va_list ap;
@@ -1142,7 +1136,7 @@ struct xui_context_t * xui_context_alloc(const char * fb, const char * input, vo
 	memset(ctx, 0, sizeof(struct xui_context_t));
 	ctx->w = window_alloc(fb, input);
 	ctx->f = font_context_alloc();
-	ctx->m = hmap_alloc(0);
+	ctx->m = NULL;
 	region_init(&ctx->screen, 0, 0, window_get_width(ctx->w), window_get_height(ctx->w));
 	ctx->cpshift = 7;
 	ctx->cpsize = 1 << ctx->cpshift;
@@ -1183,7 +1177,8 @@ void xui_context_free(struct xui_context_t * ctx)
 	{
 		window_free(ctx->w);
 		font_context_free(ctx->f);
-		hmap_free(ctx->m, hmap_entry_callback);
+		if(ctx->m)
+			hmap_free(ctx->m, hmap_entry_callback);
 		if(ctx->cells[0])
 			free(ctx->cells[0]);
 		if(ctx->cells[1])
@@ -1577,28 +1572,33 @@ void xui_load_lang(struct xui_context_t * ctx, const char * json, int len)
 	char * key, * value;
 	int i;
 
-	hmap_clear(ctx->m, hmap_entry_callback);
 	if(json && (len > 0))
 	{
-		v = json_parse(json, len, NULL);
-		if(v && (v->type == JSON_OBJECT))
+		if(!ctx->m)
+			ctx->m = hmap_alloc(0);
+		if(ctx->m)
 		{
-			for(i = 0; i < v->u.object.length; i++)
+			hmap_clear(ctx->m, hmap_entry_callback);
+			v = json_parse(json, len, NULL);
+			if(v && (v->type == JSON_OBJECT))
 			{
-				if(v->u.object.values[i].value->type == JSON_STRING)
+				for(i = 0; i < v->u.object.length; i++)
 				{
-					key = v->u.object.values[i].name;
-					value = hmap_search(ctx->m, key);
-					if(value)
+					if(v->u.object.values[i].value->type == JSON_STRING)
 					{
-						hmap_remove(ctx->m, key);
-						free(value);
+						key = v->u.object.values[i].name;
+						value = hmap_search(ctx->m, key);
+						if(value)
+						{
+							hmap_remove(ctx->m, key);
+							free(value);
+						}
+						hmap_add(ctx->m, key, strdup(v->u.object.values[i].value->u.string.ptr));
 					}
-					hmap_add(ctx->m, key, strdup(v->u.object.values[i].value->u.string.ptr));
 				}
 			}
+			json_free(v);
 		}
-		json_free(v);
 	}
 }
 

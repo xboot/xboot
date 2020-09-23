@@ -3,6 +3,7 @@
  */
 
 #include <xboot.h>
+#include <camera/camera.h>
 #include <command/command.h>
 #include <sandbox.h>
 
@@ -14,7 +15,7 @@ static void usage(void)
 
 static const char zh_CN[] = X({
 	"Fail": "失败",
-	"Success": "成功",
+	"Pass": "成功",
 	"Unknown": "未知",
 
 	"RED": "红色",
@@ -23,9 +24,10 @@ static const char zh_CN[] = X({
 	"WHITE": "白色",
 	"BLACK": "黑色",
 
-	"LCD Test": "液晶屏测试",
-	"Backlight Test": "背光测试",
-	"Touchscreen Test": "触摸屏测试",
+	"LCD": "液晶屏",
+	"Backlight": "背光",
+	"Touchscreen": "触摸屏",
+	"Camera": "摄像头",
 });
 
 static void xui_badge_result(struct xui_context_t * ctx, int result)
@@ -36,7 +38,7 @@ static void xui_badge_result(struct xui_context_t * ctx, int result)
 		xui_badge_ex(ctx, T("Fail"), XUI_BADGE_DANGER | XUI_BADGE_ROUNDED);
 		break;
 	case 1:
-		xui_badge_ex(ctx, T("Success"), XUI_BADGE_SUCCESS | XUI_BADGE_ROUNDED);
+		xui_badge_ex(ctx, T("Pass"), XUI_BADGE_SUCCESS | XUI_BADGE_ROUNDED);
 		break;
 	default:
 		xui_badge_ex(ctx, T("Unknown"), XUI_BADGE_INFO | XUI_BADGE_ROUNDED);
@@ -46,31 +48,33 @@ static void xui_badge_result(struct xui_context_t * ctx, int result)
 
 static void pcba_window(struct xui_context_t * ctx)
 {
-	if(xui_begin_window_ex(ctx, "Test Window", NULL, XUI_WINDOW_FULLSCREEN))
+	if(xui_begin_window_ex(ctx, "Test Window", NULL, 0))//XUI_WINDOW_FULLSCREEN))
 	{
 		static enum {
 			PCBA_ITEM_LCD			= 0,
 			PCBA_ITEM_BACKLIGHT		= 1,
 			PCBA_ITEM_TOUCHSCREEN	= 2,
-			PCBA_ITEM_MAX			= 3,
+			PCBA_ITEM_CAMERA		= 3,
+			PCBA_ITEM_MAX			= 4,
 		} item = PCBA_ITEM_LCD;
 
 		static int result[] = {
 			[PCBA_ITEM_LCD]			= -1,
 			[PCBA_ITEM_BACKLIGHT]	= -1,
 			[PCBA_ITEM_TOUCHSCREEN]	= -1,
+			[PCBA_ITEM_CAMERA]		= -1,
 		};
 
 		xui_layout_row(ctx, 3, (int[]){ xui_get_container(ctx)->region.w * 0.3, 10, -1 }, -1);
 		xui_begin_panel_ex(ctx, "!items", XUI_PANEL_TRANSPARENT);
 		{
 			xui_layout_row(ctx, 2, (int[]){ -80, -1 }, 40);
-			if(xui_tabbar(ctx, 60683, T("LCD Test"), item == PCBA_ITEM_LCD))
+			if(xui_tabbar(ctx, 60683, T("LCD"), item == PCBA_ITEM_LCD))
 				item = PCBA_ITEM_LCD;
 			xui_badge_result(ctx, result[PCBA_ITEM_LCD]);
 
 			xui_layout_row(ctx, 2, (int[]){ -80, -1 }, 40);
-			if(xui_tabbar(ctx, 0xe9bb, T("Backlight Test"), item == PCBA_ITEM_BACKLIGHT))
+			if(xui_tabbar(ctx, 0xe9bb, T("Backlight"), item == PCBA_ITEM_BACKLIGHT))
 				item = PCBA_ITEM_BACKLIGHT;
 			xui_badge_result(ctx, result[PCBA_ITEM_BACKLIGHT]);
 
@@ -78,9 +82,14 @@ static void pcba_window(struct xui_context_t * ctx)
 			xui_split_ex(ctx, XUI_SPLIT_HORIZONTAL | XUI_SPLIT_PRIMARY);
 
 			xui_layout_row(ctx, 2, (int[]){ -80, -1 }, 40);
-			if(xui_tabbar(ctx, 0xe9bb, T("Touchscreen Test"), item == PCBA_ITEM_TOUCHSCREEN))
+			if(xui_tabbar(ctx, 0xe9bb, T("Touchscreen"), item == PCBA_ITEM_TOUCHSCREEN))
 				item = PCBA_ITEM_TOUCHSCREEN;
 			xui_badge_result(ctx, result[PCBA_ITEM_TOUCHSCREEN]);
+
+			xui_layout_row(ctx, 2, (int[]){ -80, -1 }, 40);
+			if(xui_tabbar(ctx, 0xe9bb, T("Camera"), item == PCBA_ITEM_CAMERA))
+				item = PCBA_ITEM_CAMERA;
+			xui_badge_result(ctx, result[PCBA_ITEM_CAMERA]);
 
 			xui_layout_row(ctx, 1, (int[]){ -1 }, 0);
 			xui_split(ctx);
@@ -138,7 +147,6 @@ static void pcba_window(struct xui_context_t * ctx)
 					break;
 				case PCBA_ITEM_BACKLIGHT:
 					{
-						//xui_layout_row(ctx, 1, (int[]){ -1 }, -80);
 						xui_begin_panel(ctx, "!panel");
 						{
 							xui_layout_set_next(ctx, &(struct region_t){0, (xui_get_container(ctx)->region.h - 40) / 2, xui_get_container(ctx)->region.w - ctx->style.layout.padding * 2, 40}, 1);
@@ -168,6 +176,41 @@ static void pcba_window(struct xui_context_t * ctx)
 						}
 					}
 					break;
+				case PCBA_ITEM_CAMERA:
+					{
+						static struct camera_t * c = NULL;
+						static struct surface_t * s = NULL;
+						struct video_frame_t frame;
+						xui_layout_row(ctx, 1, (int[]){ -1 }, -80);
+						xui_begin_panel(ctx, "!panel");
+						{
+							xui_layout_row(ctx, 1, (int[]) { -1 }, -1);
+							if(c)
+							{
+								if(camera_capture(c, &frame, 0))
+									video_frame_to_argb(&frame, s->pixels);
+								xui_image_ex(ctx, s, 0, XUI_IMAGE_CONTAIN | XUI_IMAGE_REFRESH);
+							}
+						}
+						xui_end_panel(ctx);
+						xui_layout_row(ctx, 1, (int[]){ -1 }, -1);
+						if(xui_button_ex(ctx, 0, "Start", XUI_BUTTON_PRIMARY | XUI_BUTTON_ROUNDED | XUI_BUTTON_OUTLINE | XUI_OPT_TEXT_CENTER))
+						{
+							if(!c)
+							{
+								c = search_first_camera();
+								if(!camera_start(c, VIDEO_FORMAT_MJPG, 320, 240))
+									c = NULL;
+								if(!camera_capture(c, &frame, 3000))
+								{
+									camera_stop(c);
+									c = NULL;
+								}
+								s = surface_alloc(frame.width, frame.height, NULL);
+							}
+						}
+					}
+					break;
 				default:
 					break;
 				}
@@ -181,7 +224,7 @@ static void pcba_window(struct xui_context_t * ctx)
 			xui_begin_panel_ex(ctx, "!result", XUI_PANEL_TRANSPARENT);
 			{
 				xui_layout_row(ctx, 2, (int[]){ xui_get_container(ctx)->region.w * 0.5, -1 }, -1);
-				if(xui_button_ex(ctx, 60133, T("Success"), XUI_BUTTON_SUCCESS | XUI_BUTTON_ROUNDED | XUI_OPT_TEXT_LEFT))
+				if(xui_button_ex(ctx, 60133, T("Pass"), XUI_BUTTON_SUCCESS | XUI_BUTTON_ROUNDED | XUI_OPT_TEXT_LEFT))
 				{
 					result[item] = 1;
 					if(item + 1 < PCBA_ITEM_MAX)

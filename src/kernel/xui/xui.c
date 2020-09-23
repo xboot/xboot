@@ -155,7 +155,7 @@ static const char style_default[] = X({
 	"window-title-color": "#2647e0ff",
 	"window-text-color": "#ffffffff",
 
-	"panel-border-radius": 4,
+	"panel-border-radius": 8,
 	"panel-border-width": 0,
 	"panel-background-color": "#ffffffff",
 	"panel-border-color": "#00000000",

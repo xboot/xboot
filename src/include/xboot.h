@@ -91,6 +91,7 @@ extern "C" {
 #include <xui/textedit.h>
 #include <xui/colorpicker.h>
 #include <xui/image.h>
+#include <xui/icon.h>
 #include <xui/badge.h>
 #include <xui/progress.h>
 #include <xui/radialbar.h>

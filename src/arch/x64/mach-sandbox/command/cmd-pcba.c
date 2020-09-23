@@ -14,9 +14,15 @@ static void usage(void)
 }
 
 static const char zh_CN[] = X({
-	"Fail": "失败",
-	"Pass": "成功",
-	"Unknown": "未知",
+	"Information": "信息",
+	"LCD": "液晶屏",
+	"Backlight": "背光",
+	"Touchscreen": "触摸屏",
+	"Camera": "摄像头",
+	"Sleep": "休眠",
+	"Reboot": "重启",
+	"Shutdown": "关机",
+	"Submit": "提交",
 
 	"RED": "红色",
 	"GREEN": "绿色",
@@ -24,10 +30,11 @@ static const char zh_CN[] = X({
 	"WHITE": "白色",
 	"BLACK": "黑色",
 
-	"LCD": "液晶屏",
-	"Backlight": "背光",
-	"Touchscreen": "触摸屏",
-	"Camera": "摄像头",
+	"Open": "打开",
+	"Close": "关闭",
+
+	"Pass": "通过",
+	"Fail": "失败",
 });
 
 static void xui_badge_result(struct xui_context_t * ctx, int result)
@@ -35,30 +42,34 @@ static void xui_badge_result(struct xui_context_t * ctx, int result)
 	switch(result)
 	{
 	case 0:
-		xui_badge_ex(ctx, T("Fail"), XUI_BADGE_DANGER | XUI_BADGE_ROUNDED);
+		xui_icon(ctx, 60760, &(struct color_t){0xff, 0x5b, 0x5b, 0xff});
 		break;
 	case 1:
-		xui_badge_ex(ctx, T("Pass"), XUI_BADGE_SUCCESS | XUI_BADGE_ROUNDED);
+		xui_icon(ctx, 59998, &(struct color_t){0x10, 0xc4, 0x69, 0xff});
 		break;
 	default:
-		xui_badge_ex(ctx, T("Unknown"), XUI_BADGE_INFO | XUI_BADGE_ROUNDED);
+		xui_icon(ctx, 60084, &(struct color_t){0xcf, 0xcf, 0xcf, 0xff});
 		break;
 	}
 }
 
 static void pcba_window(struct xui_context_t * ctx)
 {
-	if(xui_begin_window_ex(ctx, "Test Window", NULL, 0))//XUI_WINDOW_FULLSCREEN))
+	if(xui_begin_window_ex(ctx, "Test Window", NULL, XUI_WINDOW_FULLSCREEN))
 	{
+		static char qrcode[128] = { 0 };
+
 		static enum {
-			PCBA_ITEM_LCD			= 0,
-			PCBA_ITEM_BACKLIGHT		= 1,
-			PCBA_ITEM_TOUCHSCREEN	= 2,
-			PCBA_ITEM_CAMERA		= 3,
-			PCBA_ITEM_MAX			= 4,
-		} item = PCBA_ITEM_LCD;
+			PCBA_ITEM_INFORMATION	= 0,
+			PCBA_ITEM_LCD			= 1,
+			PCBA_ITEM_BACKLIGHT		= 2,
+			PCBA_ITEM_TOUCHSCREEN	= 3,
+			PCBA_ITEM_CAMERA		= 4,
+			PCBA_ITEM_MAX			= 5,
+		} item = PCBA_ITEM_INFORMATION;
 
 		static int result[] = {
+			[PCBA_ITEM_INFORMATION]	= -1,
 			[PCBA_ITEM_LCD]			= -1,
 			[PCBA_ITEM_BACKLIGHT]	= -1,
 			[PCBA_ITEM_TOUCHSCREEN]	= -1,
@@ -66,37 +77,60 @@ static void pcba_window(struct xui_context_t * ctx)
 		};
 
 		xui_layout_row(ctx, 3, (int[]){ xui_get_container(ctx)->region.w * 0.3, 10, -1 }, -1);
-		xui_begin_panel_ex(ctx, "!items", XUI_PANEL_TRANSPARENT);
+		xui_begin_panel(ctx, "!items");
 		{
-			xui_layout_row(ctx, 2, (int[]){ -80, -1 }, 40);
+			xui_layout_row(ctx, 2, (int[]){ -40, -1 }, 40);
+			if(xui_textedit(ctx, qrcode, sizeof(qrcode)) & (1 << 1))
+				qrcode[0] = 0;
+			if(xui_button_ex(ctx, 59669, NULL, XUI_BUTTON_PRIMARY | XUI_BUTTON_OUTLINE))
+				qrcode[0] = 0;
+
+			xui_layout_row(ctx, 1, (int[]){ -1 }, 40);
+			xui_split(ctx);
+
+			xui_layout_row(ctx, 2, (int[]){ -40, -1 }, 40);
+			if(xui_tabbar(ctx, 60683, T("Information"), item == PCBA_ITEM_INFORMATION))
+				item = PCBA_ITEM_INFORMATION;
+			xui_badge_result(ctx, result[PCBA_ITEM_INFORMATION]);
+
+			xui_layout_row(ctx, 2, (int[]){ -40, -1 }, 40);
 			if(xui_tabbar(ctx, 60683, T("LCD"), item == PCBA_ITEM_LCD))
 				item = PCBA_ITEM_LCD;
 			xui_badge_result(ctx, result[PCBA_ITEM_LCD]);
 
-			xui_layout_row(ctx, 2, (int[]){ -80, -1 }, 40);
+			xui_layout_row(ctx, 2, (int[]){ -40, -1 }, 40);
 			if(xui_tabbar(ctx, 0xe9bb, T("Backlight"), item == PCBA_ITEM_BACKLIGHT))
 				item = PCBA_ITEM_BACKLIGHT;
 			xui_badge_result(ctx, result[PCBA_ITEM_BACKLIGHT]);
 
-			xui_layout_row(ctx, 1, (int[]){ -1 }, 10);
-			xui_split_ex(ctx, XUI_SPLIT_HORIZONTAL | XUI_SPLIT_PRIMARY);
-
-			xui_layout_row(ctx, 2, (int[]){ -80, -1 }, 40);
+			xui_layout_row(ctx, 2, (int[]){ -40, -1 }, 40);
 			if(xui_tabbar(ctx, 0xe9bb, T("Touchscreen"), item == PCBA_ITEM_TOUCHSCREEN))
 				item = PCBA_ITEM_TOUCHSCREEN;
 			xui_badge_result(ctx, result[PCBA_ITEM_TOUCHSCREEN]);
 
-			xui_layout_row(ctx, 2, (int[]){ -80, -1 }, 40);
+			xui_layout_row(ctx, 2, (int[]){ -40, -1 }, 40);
 			if(xui_tabbar(ctx, 0xe9bb, T("Camera"), item == PCBA_ITEM_CAMERA))
 				item = PCBA_ITEM_CAMERA;
 			xui_badge_result(ctx, result[PCBA_ITEM_CAMERA]);
 
-			xui_layout_row(ctx, 1, (int[]){ -1 }, 0);
+			xui_layout_row(ctx, 1, (int[]){ -1 }, 40);
 			xui_split(ctx);
-			if(xui_button(ctx, "chinese"))
-				xui_load_lang(ctx, zh_CN, sizeof(zh_CN));
-			if(xui_button(ctx, "default"))
-				xui_load_lang(ctx, NULL, 0);
+
+			xui_layout_row(ctx, 1, (int[]){ -1 }, 40);
+			if(xui_button(ctx, T("Sleep")))
+				machine_sleep();
+			if(xui_button(ctx, T("Reboot")))
+				machine_reboot();
+			if(xui_button(ctx, T("Shutdown")))
+				machine_shutdown();
+
+			xui_layout_row(ctx, 1, (int[]){ -1 }, 40);
+			xui_split(ctx);
+
+			xui_layout_row(ctx, 1, (int[]){ -1 }, 60);
+			if(xui_button_ex(ctx, 0, T("Submit"), XUI_BUTTON_INFO | XUI_BUTTON_ROUNDED | XUI_BUTTON_OUTLINE | XUI_OPT_TEXT_CENTER))
+			{
+			}
 		}
 		xui_end_panel(ctx);
 
@@ -110,6 +144,24 @@ static void pcba_window(struct xui_context_t * ctx)
 				xui_layout_row(ctx, 1, (int[]){ -1 }, -1);
 				switch(item)
 				{
+				case PCBA_ITEM_INFORMATION:
+					{
+						xui_begin_panel(ctx, "!detial");
+						{
+							xui_layout_row(ctx, 2, (int[]){ 100, -1 }, 0);
+							xui_label(ctx, T("Unique ID"));
+							xui_label(ctx, xui_format(ctx, ": %s", machine_uniqueid()));
+							xui_label(ctx, T("Screen size"));
+							xui_label(ctx, xui_format(ctx, ": %d x %d", ctx->screen.w, ctx->screen.h));
+							xui_label(ctx, T("Frame"));
+							xui_label(ctx, xui_format(ctx, ": %d", ctx->frame));
+							xui_label(ctx, T("Fps"));
+							xui_label(ctx, xui_format(ctx, ": %d", ctx->fps));
+						}
+						xui_end_panel(ctx);
+					}
+					break;
+
 				case PCBA_ITEM_LCD:
 					{
 						static int index = 0;
@@ -121,23 +173,23 @@ static void pcba_window(struct xui_context_t * ctx)
 						switch(index)
 						{
 						case 0:
-							xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, 12, 0, &(struct color_t){255, 0, 0, 255});
+							xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, 8, 0, &(struct color_t){255, 0, 0, 255});
 							xui_control_draw_text(ctx, T("RED"), r, &(struct color_t){255, 255, 255, 255}, XUI_OPT_TEXT_CENTER);
 							break;
 						case 1:
-							xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, 12, 0, &(struct color_t){0, 255, 0, 255});
+							xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, 8, 0, &(struct color_t){0, 255, 0, 255});
 							xui_control_draw_text(ctx, T("GREEN"), r, &(struct color_t){255, 255, 255, 255}, XUI_OPT_TEXT_CENTER);
 							break;
 						case 2:
-							xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, 12, 0, &(struct color_t){0, 0, 255, 255});
+							xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, 8, 0, &(struct color_t){0, 0, 255, 255});
 							xui_control_draw_text(ctx, T("BLUE"), r, &(struct color_t){255, 255, 255, 255}, XUI_OPT_TEXT_CENTER);
 							break;
 						case 3:
-							xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, 12, 0, &(struct color_t){255, 255, 255, 255});
+							xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, 8, 0, &(struct color_t){255, 255, 255, 255});
 							xui_control_draw_text(ctx, T("WHITE"), r, &(struct color_t){0, 0, 0, 255}, XUI_OPT_TEXT_CENTER);
 							break;
 						case 4:
-							xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, 12, 0, &(struct color_t){0, 0, 0, 255});
+							xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, 8, 0, &(struct color_t){0, 0, 0, 255});
 							xui_control_draw_text(ctx, T("BLACK"), r, &(struct color_t){255, 255, 255, 255}, XUI_OPT_TEXT_CENTER);
 							break;
 						default:
@@ -147,7 +199,7 @@ static void pcba_window(struct xui_context_t * ctx)
 					break;
 				case PCBA_ITEM_BACKLIGHT:
 					{
-						xui_begin_panel(ctx, "!panel");
+						xui_begin_panel(ctx, "!detial");
 						{
 							xui_layout_set_next(ctx, &(struct region_t){0, (xui_get_container(ctx)->region.h - 40) / 2, xui_get_container(ctx)->region.w - ctx->style.layout.padding * 2, 40}, 1);
 							static int brightness = -1;
@@ -163,7 +215,7 @@ static void pcba_window(struct xui_context_t * ctx)
 					{
 						static char log[2048] = { 0 };
 						xui_layout_row(ctx, 1, (int[]){ -1 }, -80);
-						xui_begin_panel(ctx, "!panel");
+						xui_begin_panel(ctx, "!detial");
 						{
 							xui_layout_row(ctx, 1, (int[]) { -1 }, -1);
 							xui_text(ctx, log);
@@ -178,35 +230,55 @@ static void pcba_window(struct xui_context_t * ctx)
 					break;
 				case PCBA_ITEM_CAMERA:
 					{
-						static struct camera_t * c = NULL;
-						static struct surface_t * s = NULL;
+						static int start = 0;
+						static struct camera_t * c;
+						static struct surface_t * s;
 						struct video_frame_t frame;
 						xui_layout_row(ctx, 1, (int[]){ -1 }, -80);
-						xui_begin_panel(ctx, "!panel");
+						xui_begin_panel(ctx, "!detial");
 						{
 							xui_layout_row(ctx, 1, (int[]) { -1 }, -1);
-							if(c)
+							if(start)
 							{
 								if(camera_capture(c, &frame, 0))
 									video_frame_to_argb(&frame, s->pixels);
 								xui_image_ex(ctx, s, 0, XUI_IMAGE_CONTAIN | XUI_IMAGE_REFRESH);
 							}
+							else
+							{
+								xui_layout_set_next(ctx, &(struct region_t){(xui_get_container(ctx)->region.w - 80) / 2, (xui_get_container(ctx)->region.h - 80) / 2, 80, 80}, 1);
+								xui_spinner(ctx);
+							}
 						}
 						xui_end_panel(ctx);
-						xui_layout_row(ctx, 1, (int[]){ -1 }, -1);
-						if(xui_button_ex(ctx, 0, "Start", XUI_BUTTON_PRIMARY | XUI_BUTTON_ROUNDED | XUI_BUTTON_OUTLINE | XUI_OPT_TEXT_CENTER))
+						xui_layout_row(ctx, 2, (int[]){ xui_get_container(ctx)->region.w * 0.5, -1 }, -1);
+						if(xui_button_ex(ctx, 0, T("Open"), XUI_BUTTON_PRIMARY | XUI_BUTTON_ROUNDED | XUI_BUTTON_OUTLINE | XUI_OPT_TEXT_CENTER))
 						{
-							if(!c)
+							if(!start)
 							{
 								c = search_first_camera();
-								if(!camera_start(c, VIDEO_FORMAT_MJPG, 320, 240))
-									c = NULL;
-								if(!camera_capture(c, &frame, 3000))
+								if(c && camera_start(c, VIDEO_FORMAT_MJPG, 320, 240) && camera_capture(c, &frame, 3000))
 								{
-									camera_stop(c);
-									c = NULL;
+									s = surface_alloc(frame.width, frame.height, NULL);
+									start = 1;
 								}
-								s = surface_alloc(frame.width, frame.height, NULL);
+								else
+								{
+									c = NULL;
+									s = NULL;
+									start = 0;
+								}
+							}
+						}
+						if(xui_button_ex(ctx, 0, T("Close"), XUI_BUTTON_PRIMARY | XUI_BUTTON_ROUNDED | XUI_BUTTON_OUTLINE | XUI_OPT_TEXT_CENTER))
+						{
+							if(start)
+							{
+								camera_stop(c);
+								surface_free(s);
+								c = NULL;
+								s = NULL;
+								start = 0;
 							}
 						}
 					}
@@ -221,7 +293,7 @@ static void pcba_window(struct xui_context_t * ctx)
 			xui_split_ex(ctx, XUI_SPLIT_HORIZONTAL | XUI_SPLIT_SUCCESS);
 
 			xui_layout_row(ctx, 1, (int[]){ -1 }, -1);
-			xui_begin_panel_ex(ctx, "!result", XUI_PANEL_TRANSPARENT);
+			xui_begin_panel(ctx, "!result");
 			{
 				xui_layout_row(ctx, 2, (int[]){ xui_get_container(ctx)->region.w * 0.5, -1 }, -1);
 				if(xui_button_ex(ctx, 60133, T("Pass"), XUI_BUTTON_SUCCESS | XUI_BUTTON_ROUNDED | XUI_OPT_TEXT_LEFT))

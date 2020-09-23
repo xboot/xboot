@@ -1173,7 +1173,7 @@ struct xui_context_t * xui_context_alloc(const char * fb, const char * input, vo
 
 static void hmap_entry_callback(struct hmap_entry_t * e)
 {
-	if(e)
+	if(e && e->value)
 		free(e->value);
 }
 
@@ -1567,6 +1567,7 @@ void xui_load_style(struct xui_context_t * ctx, const char * json, int len)
 				}
 			}
 		}
+		json_free(v);
 	}
 }
 
@@ -1593,10 +1594,11 @@ void xui_load_lang(struct xui_context_t * ctx, const char * json, int len)
 						hmap_remove(ctx->m, key);
 						free(value);
 					}
-					hmap_add(ctx->m, key, v->u.object.values[i].value->u.string.ptr);
+					hmap_add(ctx->m, key, strdup(v->u.object.values[i].value->u.string.ptr));
 				}
 			}
 		}
+		json_free(v);
 	}
 }
 

@@ -35,7 +35,7 @@ void xui_image_ex(struct xui_context_t * ctx, struct surface_t * s, double angle
 	struct matrix_t m;
 	double sx, sy;
 
-	switch(opt & (0x3 << 8))
+	switch(opt & (0x3 << 12))
 	{
 	case XUI_IMAGE_NONE:
 		if(angle != 0.0)

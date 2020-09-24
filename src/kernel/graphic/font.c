@@ -199,7 +199,7 @@ struct font_context_t * font_context_alloc(void)
 	font_add(ctx, NULL, "roboto-black",			"/framework/assets/fonts/Roboto-Black.ttf");
 	font_add(ctx, NULL, "roboto-black-italic",	"/framework/assets/fonts/Roboto-BlackItalic.ttf");
 
-	font_add(ctx, NULL, "bootstrap-icons",		"/framework/assets/fonts/Bootstrap-Icons.ttf");
+	font_add(ctx, NULL, "fa-solid",				"/framework/assets/fonts/fa-solid-900.ttf");
 
 	return ctx;
 }

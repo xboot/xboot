@@ -495,7 +495,7 @@ static void overview_window(struct xui_context_t * ctx)
 				xui_layout_row(ctx, 3, (int[]){ 100, 100, -1 }, 40);
 				for(int i = 0; i < 8; i++)
 				{
-					xui_button_ex(ctx, 0xe9bb + i, NULL, (i << 8) | XUI_OPT_TEXT_CENTER);
+					xui_button_ex(ctx, 0xf000 + i, NULL, (i << 8) | XUI_OPT_TEXT_CENTER);
 				}
 				xui_end_tree(ctx);
 			}
@@ -505,7 +505,7 @@ static void overview_window(struct xui_context_t * ctx)
 				xui_layout_row(ctx, 3, (int[]){ 100, 100, -1 }, 40);
 				for(int i = 0; i < 8; i++)
 				{
-					xui_button_ex(ctx, 0xe9bb + i, NULL, (i << 8) | XUI_OPT_TEXT_CENTER | XUI_BUTTON_ROUNDED);
+					xui_button_ex(ctx, 0xf000 + i, NULL, (i << 8) | XUI_OPT_TEXT_CENTER | XUI_BUTTON_ROUNDED);
 				}
 				xui_end_tree(ctx);
 			}
@@ -515,7 +515,7 @@ static void overview_window(struct xui_context_t * ctx)
 				xui_layout_row(ctx, 3, (int[]){ 100, 100, -1 }, 40);
 				for(int i = 0; i < 8; i++)
 				{
-					xui_button_ex(ctx, 0xe9bb + i, NULL, (i << 8) | XUI_OPT_TEXT_CENTER | XUI_BUTTON_OUTLINE);
+					xui_button_ex(ctx, 0xf000 + i, NULL, (i << 8) | XUI_OPT_TEXT_CENTER | XUI_BUTTON_OUTLINE);
 				}
 				xui_end_tree(ctx);
 			}
@@ -525,7 +525,7 @@ static void overview_window(struct xui_context_t * ctx)
 				xui_layout_row(ctx, 3, (int[]){ 100, 100, -1 }, 40);
 				for(int i = 0; i < 8; i++)
 				{
-					xui_button_ex(ctx, 0xe9bb + i, NULL, (i << 8) | XUI_OPT_TEXT_CENTER | XUI_BUTTON_ROUNDED | XUI_BUTTON_OUTLINE);
+					xui_button_ex(ctx, 0xf000 + i, NULL, (i << 8) | XUI_OPT_TEXT_CENTER | XUI_BUTTON_ROUNDED | XUI_BUTTON_OUTLINE);
 				}
 				xui_end_tree(ctx);
 			}
@@ -653,7 +653,7 @@ static void overview_window(struct xui_context_t * ctx)
 			xui_layout_row(ctx, 1, (int[]){ -1 }, 0);
 			for(int i = 0; i < 8; i++)
 			{
-				if(xui_collapse_ex(ctx, 0xe9bb + i, wcstr[i], (i << 8) | XUI_OPT_TEXT_LEFT))
+				if(xui_collapse_ex(ctx, 0xf000 + i, wcstr[i], (i << 8) | XUI_OPT_TEXT_LEFT))
 					xui_label(ctx, xui_format(ctx, "This is %s", wcstr[i]));
 			}
 			xui_end_tree(ctx);

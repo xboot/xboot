@@ -62,13 +62,13 @@ static void xui_badge_result(struct xui_context_t * ctx, int result)
 	switch(result)
 	{
 	case 0:
-		xui_icon(ctx, 60760, &(struct color_t){0xff, 0x5b, 0x5b, 0xff});
+		xui_icon(ctx, 0xf057, &(struct color_t){0xff, 0x5b, 0x5b, 0xff});
 		break;
 	case 1:
-		xui_icon(ctx, 59998, &(struct color_t){0x10, 0xc4, 0x69, 0xff});
+		xui_icon(ctx, 0xf058, &(struct color_t){0x10, 0xc4, 0x69, 0xff});
 		break;
 	default:
-		xui_icon(ctx, 60084, &(struct color_t){0xcf, 0xcf, 0xcf, 0xff});
+		xui_icon(ctx, 0xf056, &(struct color_t){0xcf, 0xcf, 0xcf, 0xff});
 		break;
 	}
 }
@@ -121,79 +121,79 @@ static void pcba_window(struct xui_context_t * ctx)
 			if(xui_textedit(ctx, qrcode, sizeof(qrcode)) & (1 << 0))
 			{
 			}
-			if(xui_button_ex(ctx, 59669, NULL, XUI_BUTTON_PRIMARY | XUI_BUTTON_OUTLINE))
+			if(xui_button_ex(ctx, 0xf2ed, NULL, XUI_BUTTON_PRIMARY | XUI_BUTTON_OUTLINE))
 				qrcode[0] = 0;
 
 			xui_layout_row(ctx, 1, (int[]){ -1 }, 40);
 			xui_split(ctx);
 
 			xui_layout_row(ctx, 2, (int[]){ -40, -1 }, 40);
-			if(xui_tabbar(ctx, 60683, T("Information"), item == PCBA_ITEM_INFORMATION))
+			if(xui_tabbar(ctx, 62637, T("Information"), item == PCBA_ITEM_INFORMATION))
 				item = PCBA_ITEM_INFORMATION;
 			xui_badge_result(ctx, result[PCBA_ITEM_INFORMATION]);
 
 			xui_layout_row(ctx, 2, (int[]){ -40, -1 }, 40);
-			if(xui_tabbar(ctx, 60683, T("LCD"), item == PCBA_ITEM_LCD))
+			if(xui_tabbar(ctx, 62060, T("LCD"), item == PCBA_ITEM_LCD))
 				item = PCBA_ITEM_LCD;
 			xui_badge_result(ctx, result[PCBA_ITEM_LCD]);
 
 			xui_layout_row(ctx, 2, (int[]){ -40, -1 }, 40);
-			if(xui_tabbar(ctx, 0xe9bb, T("Touchscreen"), item == PCBA_ITEM_TOUCHSCREEN))
+			if(xui_tabbar(ctx, 62042, T("Touchscreen"), item == PCBA_ITEM_TOUCHSCREEN))
 				item = PCBA_ITEM_TOUCHSCREEN;
 			xui_badge_result(ctx, result[PCBA_ITEM_TOUCHSCREEN]);
 
 			xui_layout_row(ctx, 2, (int[]){ -40, -1 }, 40);
-			if(xui_tabbar(ctx, 0xe9bb, T("Backlight"), item == PCBA_ITEM_BACKLIGHT))
+			if(xui_tabbar(ctx, 0xf042, T("Backlight"), item == PCBA_ITEM_BACKLIGHT))
 				item = PCBA_ITEM_BACKLIGHT;
 			xui_badge_result(ctx, result[PCBA_ITEM_BACKLIGHT]);
 
 			xui_layout_row(ctx, 2, (int[]){ -40, -1 }, 40);
-			if(xui_tabbar(ctx, 0xe9bb, T("Led"), item == PCBA_ITEM_LED))
+			if(xui_tabbar(ctx, 0xf0eb, T("Led"), item == PCBA_ITEM_LED))
 				item = PCBA_ITEM_LED;
 			xui_badge_result(ctx, result[PCBA_ITEM_LED]);
 
 			xui_layout_row(ctx, 2, (int[]){ -40, -1 }, 40);
-			if(xui_tabbar(ctx, 0xe9bb, T("Buzzer"), item == PCBA_ITEM_BUZZER))
+			if(xui_tabbar(ctx, 0xf2ce, T("Buzzer"), item == PCBA_ITEM_BUZZER))
 				item = PCBA_ITEM_BUZZER;
 			xui_badge_result(ctx, result[PCBA_ITEM_BUZZER]);
 
 			xui_layout_row(ctx, 2, (int[]){ -40, -1 }, 40);
-			if(xui_tabbar(ctx, 0xe9bb, T("Vibrator"), item == PCBA_ITEM_VIBRATOR))
+			if(xui_tabbar(ctx, 0xf2ce, T("Vibrator"), item == PCBA_ITEM_VIBRATOR))
 				item = PCBA_ITEM_VIBRATOR;
 			xui_badge_result(ctx, result[PCBA_ITEM_VIBRATOR]);
 
 			xui_layout_row(ctx, 2, (int[]){ -40, -1 }, 40);
-			if(xui_tabbar(ctx, 0xe9bb, T("Gnns"), item == PCBA_ITEM_GNNS))
+			if(xui_tabbar(ctx, 0xf3c5, T("Gnns"), item == PCBA_ITEM_GNNS))
 				item = PCBA_ITEM_GNNS;
 			xui_badge_result(ctx, result[PCBA_ITEM_GNNS]);
 
 			xui_layout_row(ctx, 2, (int[]){ -40, -1 }, 40);
-			if(xui_tabbar(ctx, 0xe9bb, T("Camera"), item == PCBA_ITEM_CAMERA))
+			if(xui_tabbar(ctx, 0xf030, T("Camera"), item == PCBA_ITEM_CAMERA))
 				item = PCBA_ITEM_CAMERA;
 			xui_badge_result(ctx, result[PCBA_ITEM_CAMERA]);
 
 			xui_layout_row(ctx, 2, (int[]){ -40, -1 }, 40);
-			if(xui_tabbar(ctx, 0xe9bb, T("Ethernet"), item == PCBA_ITEM_ETHERNET))
+			if(xui_tabbar(ctx, 0xf796, T("Ethernet"), item == PCBA_ITEM_ETHERNET))
 				item = PCBA_ITEM_ETHERNET;
 			xui_badge_result(ctx, result[PCBA_ITEM_ETHERNET]);
 
 			xui_layout_row(ctx, 2, (int[]){ -40, -1 }, 40);
-			if(xui_tabbar(ctx, 0xe9bb, T("Wifi"), item == PCBA_ITEM_WIFI))
+			if(xui_tabbar(ctx, 0xf1eb, T("Wifi"), item == PCBA_ITEM_WIFI))
 				item = PCBA_ITEM_WIFI;
 			xui_badge_result(ctx, result[PCBA_ITEM_WIFI]);
 
 			xui_layout_row(ctx, 2, (int[]){ -40, -1 }, 40);
-			if(xui_tabbar(ctx, 0xe9bb, T("Bluetooth"), item == PCBA_ITEM_BLUETOOTH))
+			if(xui_tabbar(ctx, 0xf7c0, T("Bluetooth"), item == PCBA_ITEM_BLUETOOTH))
 				item = PCBA_ITEM_BLUETOOTH;
 			xui_badge_result(ctx, result[PCBA_ITEM_BLUETOOTH]);
 
 			xui_layout_row(ctx, 2, (int[]){ -40, -1 }, 40);
-			if(xui_tabbar(ctx, 0xe9bb, T("Udisk"), item == PCBA_ITEM_UDISK))
+			if(xui_tabbar(ctx, 0xf0a0, T("Udisk"), item == PCBA_ITEM_UDISK))
 				item = PCBA_ITEM_UDISK;
 			xui_badge_result(ctx, result[PCBA_ITEM_UDISK]);
 
 			xui_layout_row(ctx, 2, (int[]){ -40, -1 }, 40);
-			if(xui_tabbar(ctx, 0xe9bb, T("Tfcard"), item == PCBA_ITEM_TFCARD))
+			if(xui_tabbar(ctx, 0xf7c2, T("Tfcard"), item == PCBA_ITEM_TFCARD))
 				item = PCBA_ITEM_TFCARD;
 			xui_badge_result(ctx, result[PCBA_ITEM_TFCARD]);
 
@@ -702,13 +702,13 @@ static void pcba_window(struct xui_context_t * ctx)
 			xui_begin_panel(ctx, "!result");
 			{
 				xui_layout_row(ctx, 2, (int[]){ xui_get_container(ctx)->region.w * 0.5, -1 }, -1);
-				if(xui_button_ex(ctx, 60133, T("Pass"), XUI_BUTTON_SUCCESS | XUI_BUTTON_ROUNDED | XUI_OPT_TEXT_LEFT))
+				if(xui_button_ex(ctx, 61796, T("Pass"), XUI_BUTTON_SUCCESS | XUI_BUTTON_ROUNDED | XUI_OPT_TEXT_LEFT))
 				{
 					result[item] = 1;
 					if(item + 1 < PCBA_ITEM_MAX)
 						item++;
 				}
-				if(xui_button_ex(ctx, 60130, T("Fail"), XUI_BUTTON_DANGER | XUI_BUTTON_ROUNDED | XUI_OPT_TEXT_LEFT))
+				if(xui_button_ex(ctx, 61797, T("Fail"), XUI_BUTTON_DANGER | XUI_BUTTON_ROUNDED | XUI_OPT_TEXT_LEFT))
 				{
 					result[item] = 0;
 					if(item + 1 < PCBA_ITEM_MAX)

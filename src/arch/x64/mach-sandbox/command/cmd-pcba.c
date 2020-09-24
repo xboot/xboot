@@ -3,6 +3,10 @@
  */
 
 #include <xboot.h>
+#include <led/led.h>
+#include <buzzer/buzzer.h>
+#include <vibrator/vibrator.h>
+#include <gnss/gnss.h>
 #include <camera/camera.h>
 #include <command/command.h>
 #include <sandbox.h>
@@ -16,25 +20,41 @@ static void usage(void)
 static const char zh_CN[] = X({
 	"Information": "信息",
 	"LCD": "液晶屏",
-	"Backlight": "背光",
 	"Touchscreen": "触摸屏",
+	"Backlight": "背光",
+	"Led": "发光二极管",
+	"Buzzer": "蜂鸣器",
+	"Vibrator": "振动马达",
+	"Gnns": "全球卫星导航",
 	"Camera": "摄像头",
+	"Ethernet": "以太网",
+	"Wifi": "无线网络",
+	"Bluetooth": "蓝牙",
+	"Udisk": "优盘",
+	"Tfcard": "TF卡",
+
 	"Sleep": "休眠",
 	"Reboot": "重启",
 	"Shutdown": "关机",
 	"Submit": "提交",
+
+	"Play": "播放",
+	"Start": "开始",
+	"Open": "打开",
+	"Close": "关闭",
+	"Pass": "通过",
+	"Fail": "失败",
+
+	"Unique ID": "唯一序列号",
+	"Screen resolution": "屏幕分辨率",
+	"Frame": "帧数",
+	"Fps": "帧率",
 
 	"RED": "红色",
 	"GREEN": "绿色",
 	"BLUE": "蓝色",
 	"WHITE": "白色",
 	"BLACK": "黑色",
-
-	"Open": "打开",
-	"Close": "关闭",
-
-	"Pass": "通过",
-	"Fail": "失败",
 });
 
 static void xui_badge_result(struct xui_context_t * ctx, int result)
@@ -61,27 +81,46 @@ static void pcba_window(struct xui_context_t * ctx)
 
 		static enum {
 			PCBA_ITEM_INFORMATION	= 0,
-			PCBA_ITEM_LCD			= 1,
-			PCBA_ITEM_BACKLIGHT		= 2,
-			PCBA_ITEM_TOUCHSCREEN	= 3,
-			PCBA_ITEM_CAMERA		= 4,
-			PCBA_ITEM_MAX			= 5,
+			PCBA_ITEM_LCD,
+			PCBA_ITEM_TOUCHSCREEN,
+			PCBA_ITEM_BACKLIGHT,
+			PCBA_ITEM_LED,
+			PCBA_ITEM_BUZZER,
+			PCBA_ITEM_VIBRATOR,
+			PCBA_ITEM_GNNS,
+			PCBA_ITEM_CAMERA,
+			PCBA_ITEM_ETHERNET,
+			PCBA_ITEM_WIFI,
+			PCBA_ITEM_BLUETOOTH,
+			PCBA_ITEM_UDISK,
+			PCBA_ITEM_TFCARD,
+			PCBA_ITEM_MAX,
 		} item = PCBA_ITEM_INFORMATION;
 
 		static int result[] = {
 			[PCBA_ITEM_INFORMATION]	= -1,
 			[PCBA_ITEM_LCD]			= -1,
-			[PCBA_ITEM_BACKLIGHT]	= -1,
 			[PCBA_ITEM_TOUCHSCREEN]	= -1,
+			[PCBA_ITEM_BACKLIGHT]	= -1,
+			[PCBA_ITEM_LED]			= -1,
+			[PCBA_ITEM_BUZZER]		= -1,
+			[PCBA_ITEM_VIBRATOR]	= -1,
+			[PCBA_ITEM_GNNS]		= -1,
 			[PCBA_ITEM_CAMERA]		= -1,
+			[PCBA_ITEM_ETHERNET]	= -1,
+			[PCBA_ITEM_WIFI]		= -1,
+			[PCBA_ITEM_BLUETOOTH]	= -1,
+			[PCBA_ITEM_UDISK]		= -1,
+			[PCBA_ITEM_TFCARD]		= -1,
 		};
 
 		xui_layout_row(ctx, 3, (int[]){ xui_get_container(ctx)->region.w * 0.3, 10, -1 }, -1);
 		xui_begin_panel(ctx, "!items");
 		{
 			xui_layout_row(ctx, 2, (int[]){ -40, -1 }, 40);
-			if(xui_textedit(ctx, qrcode, sizeof(qrcode)) & (1 << 1))
-				qrcode[0] = 0;
+			if(xui_textedit(ctx, qrcode, sizeof(qrcode)) & (1 << 0))
+			{
+			}
 			if(xui_button_ex(ctx, 59669, NULL, XUI_BUTTON_PRIMARY | XUI_BUTTON_OUTLINE))
 				qrcode[0] = 0;
 
@@ -99,19 +138,64 @@ static void pcba_window(struct xui_context_t * ctx)
 			xui_badge_result(ctx, result[PCBA_ITEM_LCD]);
 
 			xui_layout_row(ctx, 2, (int[]){ -40, -1 }, 40);
-			if(xui_tabbar(ctx, 0xe9bb, T("Backlight"), item == PCBA_ITEM_BACKLIGHT))
-				item = PCBA_ITEM_BACKLIGHT;
-			xui_badge_result(ctx, result[PCBA_ITEM_BACKLIGHT]);
-
-			xui_layout_row(ctx, 2, (int[]){ -40, -1 }, 40);
 			if(xui_tabbar(ctx, 0xe9bb, T("Touchscreen"), item == PCBA_ITEM_TOUCHSCREEN))
 				item = PCBA_ITEM_TOUCHSCREEN;
 			xui_badge_result(ctx, result[PCBA_ITEM_TOUCHSCREEN]);
 
 			xui_layout_row(ctx, 2, (int[]){ -40, -1 }, 40);
+			if(xui_tabbar(ctx, 0xe9bb, T("Backlight"), item == PCBA_ITEM_BACKLIGHT))
+				item = PCBA_ITEM_BACKLIGHT;
+			xui_badge_result(ctx, result[PCBA_ITEM_BACKLIGHT]);
+
+			xui_layout_row(ctx, 2, (int[]){ -40, -1 }, 40);
+			if(xui_tabbar(ctx, 0xe9bb, T("Led"), item == PCBA_ITEM_LED))
+				item = PCBA_ITEM_LED;
+			xui_badge_result(ctx, result[PCBA_ITEM_LED]);
+
+			xui_layout_row(ctx, 2, (int[]){ -40, -1 }, 40);
+			if(xui_tabbar(ctx, 0xe9bb, T("Buzzer"), item == PCBA_ITEM_BUZZER))
+				item = PCBA_ITEM_BUZZER;
+			xui_badge_result(ctx, result[PCBA_ITEM_BUZZER]);
+
+			xui_layout_row(ctx, 2, (int[]){ -40, -1 }, 40);
+			if(xui_tabbar(ctx, 0xe9bb, T("Vibrator"), item == PCBA_ITEM_VIBRATOR))
+				item = PCBA_ITEM_VIBRATOR;
+			xui_badge_result(ctx, result[PCBA_ITEM_VIBRATOR]);
+
+			xui_layout_row(ctx, 2, (int[]){ -40, -1 }, 40);
+			if(xui_tabbar(ctx, 0xe9bb, T("Gnns"), item == PCBA_ITEM_GNNS))
+				item = PCBA_ITEM_GNNS;
+			xui_badge_result(ctx, result[PCBA_ITEM_GNNS]);
+
+			xui_layout_row(ctx, 2, (int[]){ -40, -1 }, 40);
 			if(xui_tabbar(ctx, 0xe9bb, T("Camera"), item == PCBA_ITEM_CAMERA))
 				item = PCBA_ITEM_CAMERA;
 			xui_badge_result(ctx, result[PCBA_ITEM_CAMERA]);
+
+			xui_layout_row(ctx, 2, (int[]){ -40, -1 }, 40);
+			if(xui_tabbar(ctx, 0xe9bb, T("Ethernet"), item == PCBA_ITEM_ETHERNET))
+				item = PCBA_ITEM_ETHERNET;
+			xui_badge_result(ctx, result[PCBA_ITEM_ETHERNET]);
+
+			xui_layout_row(ctx, 2, (int[]){ -40, -1 }, 40);
+			if(xui_tabbar(ctx, 0xe9bb, T("Wifi"), item == PCBA_ITEM_WIFI))
+				item = PCBA_ITEM_WIFI;
+			xui_badge_result(ctx, result[PCBA_ITEM_WIFI]);
+
+			xui_layout_row(ctx, 2, (int[]){ -40, -1 }, 40);
+			if(xui_tabbar(ctx, 0xe9bb, T("Bluetooth"), item == PCBA_ITEM_BLUETOOTH))
+				item = PCBA_ITEM_BLUETOOTH;
+			xui_badge_result(ctx, result[PCBA_ITEM_BLUETOOTH]);
+
+			xui_layout_row(ctx, 2, (int[]){ -40, -1 }, 40);
+			if(xui_tabbar(ctx, 0xe9bb, T("Udisk"), item == PCBA_ITEM_UDISK))
+				item = PCBA_ITEM_UDISK;
+			xui_badge_result(ctx, result[PCBA_ITEM_UDISK]);
+
+			xui_layout_row(ctx, 2, (int[]){ -40, -1 }, 40);
+			if(xui_tabbar(ctx, 0xe9bb, T("Tfcard"), item == PCBA_ITEM_TFCARD))
+				item = PCBA_ITEM_TFCARD;
+			xui_badge_result(ctx, result[PCBA_ITEM_TFCARD]);
 
 			xui_layout_row(ctx, 1, (int[]){ -1 }, 40);
 			xui_split(ctx);
@@ -151,7 +235,7 @@ static void pcba_window(struct xui_context_t * ctx)
 							xui_layout_row(ctx, 2, (int[]){ 100, -1 }, 0);
 							xui_label(ctx, T("Unique ID"));
 							xui_label(ctx, xui_format(ctx, ": %s", machine_uniqueid()));
-							xui_label(ctx, T("Screen size"));
+							xui_label(ctx, T("Screen resolution"));
 							xui_label(ctx, xui_format(ctx, ": %d x %d", ctx->screen.w, ctx->screen.h));
 							xui_label(ctx, T("Frame"));
 							xui_label(ctx, xui_format(ctx, ": %d", ctx->frame));
@@ -161,7 +245,6 @@ static void pcba_window(struct xui_context_t * ctx)
 						xui_end_panel(ctx);
 					}
 					break;
-
 				case PCBA_ITEM_LCD:
 					{
 						static int index = 0;
@@ -197,6 +280,23 @@ static void pcba_window(struct xui_context_t * ctx)
 						}
 					}
 					break;
+				case PCBA_ITEM_TOUCHSCREEN:
+					{
+						static char log[2048] = { 0 };
+						xui_layout_row(ctx, 1, (int[]){ -1 }, -80);
+						xui_begin_panel(ctx, "!detial");
+						{
+							xui_layout_row(ctx, 1, (int[]){ -1 }, -1);
+							xui_text(ctx, log);
+						}
+						xui_end_panel(ctx);
+						xui_layout_row(ctx, 1, (int[]){ -1 }, -1);
+						if(xui_button_ex(ctx, 0, "Start", XUI_BUTTON_PRIMARY | XUI_BUTTON_ROUNDED | XUI_BUTTON_OUTLINE | XUI_OPT_TEXT_CENTER))
+						{
+							sandbox_shell("./test.sh 2>&1", log, sizeof(log), 1);
+						}
+					}
+					break;
 				case PCBA_ITEM_BACKLIGHT:
 					{
 						xui_begin_panel(ctx, "!detial");
@@ -211,44 +311,265 @@ static void pcba_window(struct xui_context_t * ctx)
 						xui_end_panel(ctx);
 					}
 					break;
-				case PCBA_ITEM_TOUCHSCREEN:
+				case PCBA_ITEM_LED:
 					{
-						static char log[2048] = { 0 };
-						xui_layout_row(ctx, 1, (int[]){ -1 }, -80);
 						xui_begin_panel(ctx, "!detial");
 						{
-							xui_layout_row(ctx, 1, (int[]) { -1 }, -1);
-							xui_text(ctx, log);
+							struct device_t * pos, * n;
+							struct led_t * led;
+							int state;
+							xui_layout_row(ctx, 2, (int[]){ -100, -1 }, 40);
+							list_for_each_entry_safe(pos, n, &__device_head[DEVICE_TYPE_LED], head)
+							{
+								led = (struct led_t *)(pos->priv);
+								if(!led)
+									continue;
+								xui_push_id(ctx, &led, sizeof(struct led_t *));
+								state = led_get_brightness(led) > 0 ? 1 : 0;
+								xui_label(ctx, xui_format(ctx, "%s :", pos->name));
+								if(xui_toggle_ex(ctx, &state, XUI_TOGGLE_PRIMARY))
+								{
+									if(state)
+										led_set_brightness(led, CONFIG_MAX_BRIGHTNESS);
+									else
+										led_set_brightness(led, 0);
+								}
+								xui_pop_id(ctx);
+							}
 						}
 						xui_end_panel(ctx);
-						xui_layout_row(ctx, 1, (int[]){ -1 }, -1);
-						if(xui_button_ex(ctx, 0, "Start", XUI_BUTTON_PRIMARY | XUI_BUTTON_ROUNDED | XUI_BUTTON_OUTLINE | XUI_OPT_TEXT_CENTER))
+					}
+					break;
+				case PCBA_ITEM_BUZZER:
+					{
+						xui_begin_panel(ctx, "!detial");
 						{
-							sandbox_shell("./test.sh 2>&1", log, sizeof(log), 1);
+							struct device_t * pos, * n;
+							struct buzzer_t * buzzer;
+							xui_layout_row(ctx, 2, (int[]){ -100, -1 }, 40);
+							list_for_each_entry_safe(pos, n, &__device_head[DEVICE_TYPE_BUZZER], head)
+							{
+								buzzer = (struct buzzer_t *)(pos->priv);
+								if(!buzzer)
+									continue;
+								xui_push_id(ctx, &buzzer, sizeof(struct buzzer *));
+								xui_label(ctx, xui_format(ctx, "%s :", pos->name));
+								if(xui_button(ctx, T("Play")))
+								{
+									buzzer_play(buzzer, "AuldLangSyne:d=4,o=5,b=100:g,c.6,8c6,c6,e6,d.6,8c6,d6,8e6,"
+										"8d6,c.6,8c6,e6,g6,2a.6,a6,g.6,8e6,e6,c6,d.6,8c6,d6,8e6,8d6,c.6,8a,a,g,2c.6");
+								}
+								xui_pop_id(ctx);
+							}
 						}
+						xui_end_panel(ctx);
+					}
+					break;
+				case PCBA_ITEM_VIBRATOR:
+					{
+						xui_begin_panel(ctx, "!detial");
+						{
+							struct device_t * pos, * n;
+							struct vibrator_t * vib;
+							xui_layout_row(ctx, 2, (int[]){ -100, -1 }, 40);
+							list_for_each_entry_safe(pos, n, &__device_head[DEVICE_TYPE_VIBRATOR], head)
+							{
+								vib = (struct vibrator_t *)(pos->priv);
+								if(!vib)
+									continue;
+								xui_push_id(ctx, &vib, sizeof(struct buzzer *));
+								xui_label(ctx, xui_format(ctx, "%s :", pos->name));
+								if(xui_button(ctx, T("Play")))
+									vibrator_play(vib, "xboot");
+								xui_pop_id(ctx);
+							}
+						}
+						xui_end_panel(ctx);
+					}
+					break;
+				case PCBA_ITEM_GNNS:
+					{
+						xui_begin_panel(ctx, "!detial");
+						{
+							static struct gnss_t * nav = NULL;
+							if(!nav)
+							{
+								nav = search_first_gnss();
+								gnss_enable(nav);
+							}
+							if(nav)
+							{
+								struct gnss_nmea_t * nmea = gnss_nmea(nav);
+								gnss_refresh(nav);
+								if(xui_begin_tree(ctx, "Information"))
+								{
+									xui_layout_row(ctx, 2, (int[]){ 150, -1 }, 0);
+									xui_label(ctx, "Signal:");
+									switch(nmea->signal)
+									{
+									case GNSS_SIGNAL_INVALID:
+										xui_label(ctx, "Invalid");
+										break;
+									case GNSS_SIGNAL_FIX:
+										xui_label(ctx, "FIX");
+										break;
+									case GNSS_SIGNAL_DIFFERENTIAL:
+										xui_label(ctx, "Differential");
+										break;
+									case GNSS_SIGNAL_PPS:
+										xui_label(ctx, "Pps");
+										break;
+									case GNSS_SIGNAL_RTK:
+										xui_label(ctx, "Rtk");
+										break;
+									case GNSS_SIGNAL_FLOAT_RTK:
+										xui_label(ctx, "Float rtk");
+										break;
+									case GNSS_SIGNAL_ESTIMATED:
+										xui_label(ctx, "Estimated");
+										break;
+									case GNSS_SIGNAL_MANUAL:
+										xui_label(ctx, "Manual");
+										break;
+									case GNSS_SIGNAL_SIMULATION:
+										xui_label(ctx, "Simulation");
+										break;
+									default:
+										xui_label(ctx, "Unknown");
+										break;
+									}
+
+									xui_label(ctx, "Fix:");
+									switch(nmea->fix)
+									{
+									case GNSS_FIX_NONE:
+										xui_label(ctx, "None");
+										break;
+									case GNSS_FIX_2D:
+										xui_label(ctx, "Fix 2D");
+										break;
+									case GNSS_FIX_3D:
+										xui_label(ctx, "Fix 3D");
+										break;
+									default:
+										xui_label(ctx, "Unknown");
+										break;
+									}
+
+									xui_label(ctx, "Latitude:");
+									xui_label(ctx, xui_format(ctx, "%g", nmea->latitude));
+
+									xui_label(ctx, "Longitude:");
+									xui_label(ctx, xui_format(ctx, "%g", nmea->longitude));
+
+									xui_label(ctx, "Altitude:");
+									xui_label(ctx, xui_format(ctx, "%g m", nmea->altitude));
+
+									xui_label(ctx, "Speed:");
+									xui_label(ctx, xui_format(ctx, "%g km/h", nmea->speed));
+
+									xui_label(ctx, "Track:");
+									xui_label(ctx, xui_format(ctx, "%g", nmea->track));
+
+									xui_label(ctx, "Magnetic track:");
+									xui_label(ctx, xui_format(ctx, "%g", nmea->mtrack));
+
+									xui_label(ctx, "Magnetic variation:");
+									xui_label(ctx, xui_format(ctx, "%g", nmea->magvar));
+
+									xui_end_tree(ctx);
+								}
+								if(xui_begin_tree(ctx, "UTC Time"))
+								{
+									xui_layout_row(ctx, 2, (int[]){ 150, -1 }, 0);
+									xui_label(ctx, "Data:");
+									xui_label(ctx, xui_format(ctx, "%d-%d-%d", nmea->utc.year, nmea->utc.month, nmea->utc.day));
+
+									xui_label(ctx, "Time:");
+									xui_label(ctx, xui_format(ctx, "%d:%d:%d:%d", nmea->utc.hour, nmea->utc.minute, nmea->utc.second, nmea->utc.millisecond));
+
+									xui_end_tree(ctx);
+								}
+								if(xui_begin_tree(ctx, "Precision"))
+								{
+									xui_layout_row(ctx, 2, (int[]){ 150, -1 }, 0);
+									xui_label(ctx, "Position Precision:");
+									xui_label(ctx, xui_format(ctx, "%f", nmea->precision.pdop));
+
+									xui_label(ctx, "Horizontal Precision:");
+									xui_label(ctx, xui_format(ctx, "%f", nmea->precision.hdop));
+
+									xui_label(ctx, "Vertical Precision:");
+									xui_label(ctx, xui_format(ctx, "%f", nmea->precision.vdop));
+
+									xui_end_tree(ctx);
+								}
+								if(xui_begin_tree(ctx, "Satellite"))
+								{
+									xui_layout_row(ctx, 2, (int[]){ 150, -1 }, 0);
+									xui_label(ctx, "Satellites in used:");
+									xui_label(ctx, xui_format(ctx, "%d", nmea->used));
+
+									if(xui_begin_tree(ctx, "Gps"))
+									{
+										xui_layout_row(ctx, 2, (int[]){ 150, -1 }, 0);
+										xui_label(ctx, "Satellites in viewed:");
+										xui_label(ctx, xui_format(ctx, "%d", nmea->satellite.gps.n));
+
+										xui_layout_row(ctx, 1, (int[] ) { -1 }, 0);
+										for(int i = 0; i < ARRAY_SIZE(nmea->satellite.gps.sv); i++)
+										{
+											xui_progress(ctx, nmea->satellite.gps.sv[i].snr * 100 / 99);
+										}
+										xui_end_tree(ctx);
+									}
+
+									if(xui_begin_tree(ctx, "Beidou"))
+									{
+										xui_layout_row(ctx, 2, (int[]){ 150, -1 }, 0);
+										xui_label(ctx, "Satellites in viewed:");
+										xui_label(ctx, xui_format(ctx, "%d", nmea->satellite.beidou.n));
+
+										xui_layout_row(ctx, 1, (int[] ) { -1 }, 0);
+										for(int i = 0; i < ARRAY_SIZE(nmea->satellite.beidou.sv); i++)
+										{
+											xui_progress(ctx, nmea->satellite.beidou.sv[i].snr * 100 / 99);
+										}
+										xui_end_tree(ctx);
+									}
+									xui_end_tree(ctx);
+								}
+							}
+							else
+							{
+								xui_text(ctx, "No Gnns");
+							}
+						}
+						xui_end_panel(ctx);
 					}
 					break;
 				case PCBA_ITEM_CAMERA:
 					{
 						static int start = 0;
 						static struct camera_t * c;
-						static struct surface_t * s;
+						static struct surface_t * s = NULL;
 						struct video_frame_t frame;
+						if(!s)
+						{
+							s = surface_alloc(320, 240, NULL);
+							surface_clear(s, &(struct color_t){224, 224, 224, 255}, 0, 0, 0, 0);
+						}
 						xui_layout_row(ctx, 1, (int[]){ -1 }, -80);
 						xui_begin_panel(ctx, "!detial");
 						{
-							xui_layout_row(ctx, 1, (int[]) { -1 }, -1);
+							xui_layout_row(ctx, 1, (int[]){ -1 }, -1);
 							if(start)
 							{
-								if(camera_capture(c, &frame, 0))
+								if(c && camera_capture(c, &frame, 0))
 									video_frame_to_argb(&frame, s->pixels);
+							}
+							if(s)
 								xui_image_ex(ctx, s, 0, XUI_IMAGE_CONTAIN | XUI_IMAGE_REFRESH);
-							}
-							else
-							{
-								xui_layout_set_next(ctx, &(struct region_t){(xui_get_container(ctx)->region.w - 80) / 2, (xui_get_container(ctx)->region.h - 80) / 2, 80, 80}, 1);
-								xui_spinner(ctx);
-							}
 						}
 						xui_end_panel(ctx);
 						xui_layout_row(ctx, 2, (int[]){ xui_get_container(ctx)->region.w * 0.5, -1 }, -1);
@@ -259,14 +580,12 @@ static void pcba_window(struct xui_context_t * ctx)
 								c = search_first_camera();
 								if(c && camera_start(c, VIDEO_FORMAT_MJPG, 320, 240) && camera_capture(c, &frame, 3000))
 								{
-									s = surface_alloc(frame.width, frame.height, NULL);
+									if(s)
+									{
+										surface_free(s);
+										s = surface_alloc(frame.width, frame.height, NULL);
+									}
 									start = 1;
-								}
-								else
-								{
-									c = NULL;
-									s = NULL;
-									start = 0;
 								}
 							}
 						}
@@ -275,11 +594,98 @@ static void pcba_window(struct xui_context_t * ctx)
 							if(start)
 							{
 								camera_stop(c);
-								surface_free(s);
+								surface_clear(s, &(struct color_t){224, 224, 224, 255}, 0, 0, 0, 0);
 								c = NULL;
-								s = NULL;
 								start = 0;
 							}
+						}
+					}
+					break;
+				case PCBA_ITEM_ETHERNET:
+					{
+						static char log[2048] = { 0 };
+						xui_layout_row(ctx, 1, (int[]){ -1 }, -80);
+						xui_begin_panel(ctx, "!detial");
+						{
+							xui_layout_row(ctx, 1, (int[]){ -1 }, -1);
+							xui_text(ctx, log);
+						}
+						xui_end_panel(ctx);
+						xui_layout_row(ctx, 1, (int[]){ -1 }, -1);
+						if(xui_button_ex(ctx, 0, T("Start"), XUI_BUTTON_PRIMARY | XUI_BUTTON_ROUNDED | XUI_BUTTON_OUTLINE | XUI_OPT_TEXT_CENTER))
+						{
+							sandbox_shell("ping -c 5 www.baidu.com 2>&1", log, sizeof(log), 1);
+						}
+					}
+					break;
+				case PCBA_ITEM_WIFI:
+					{
+						static char log[2048] = { 0 };
+						xui_layout_row(ctx, 1, (int[]){ -1 }, -80);
+						xui_begin_panel(ctx, "!detial");
+						{
+							xui_layout_row(ctx, 1, (int[]){ -1 }, -1);
+							xui_text(ctx, log);
+						}
+						xui_end_panel(ctx);
+						xui_layout_row(ctx, 1, (int[]){ -1 }, -1);
+						if(xui_button_ex(ctx, 0, T("Start"), XUI_BUTTON_PRIMARY | XUI_BUTTON_ROUNDED | XUI_BUTTON_OUTLINE | XUI_OPT_TEXT_CENTER))
+						{
+							sandbox_shell("iwlist wlan0 scanning 2>&1", log, sizeof(log), 1);
+						}
+					}
+					break;
+				case PCBA_ITEM_BLUETOOTH:
+					{
+						static char log[2048] = { 0 };
+						xui_layout_row(ctx, 1, (int[]){ -1 }, -80);
+						xui_begin_panel(ctx, "!detial");
+						{
+							xui_layout_row(ctx, 1, (int[]){ -1 }, -1);
+							xui_text(ctx, log);
+						}
+						xui_end_panel(ctx);
+						xui_layout_row(ctx, 1, (int[]){ -1 }, -1);
+						if(xui_button_ex(ctx, 0, T("Start"), XUI_BUTTON_PRIMARY | XUI_BUTTON_ROUNDED | XUI_BUTTON_OUTLINE | XUI_OPT_TEXT_CENTER))
+						{
+						}
+					}
+					break;
+				case PCBA_ITEM_UDISK:
+					{
+						static char log[2048] = { 0 };
+						xui_layout_row(ctx, 1, (int[]){ -1 }, -80);
+						xui_begin_panel(ctx, "!detial");
+						{
+							xui_layout_row(ctx, 1, (int[]){ -1 }, -1);
+							xui_text(ctx, log);
+						}
+						xui_end_panel(ctx);
+						xui_layout_row(ctx, 1, (int[]){ -1 }, -1);
+						if(xui_button_ex(ctx, 0, T("Start"), XUI_BUTTON_PRIMARY | XUI_BUTTON_ROUNDED | XUI_BUTTON_OUTLINE | XUI_OPT_TEXT_CENTER))
+						{
+							sandbox_shell(X(
+								mount -t vfat /dev/sda1 /mnt/ && ls -l /mnt && umount /mnt;
+							), log, sizeof(log), 1);
+						}
+					}
+					break;
+				case PCBA_ITEM_TFCARD:
+					{
+						static char log[2048] = { 0 };
+						xui_layout_row(ctx, 1, (int[]){ -1 }, -80);
+						xui_begin_panel(ctx, "!detial");
+						{
+							xui_layout_row(ctx, 1, (int[]) { -1 }, -1);
+							xui_text(ctx, log);
+						}
+						xui_end_panel(ctx);
+						xui_layout_row(ctx, 1, (int[]){ -1 }, -1);
+						if(xui_button_ex(ctx, 0, T("Start"), XUI_BUTTON_PRIMARY | XUI_BUTTON_ROUNDED | XUI_BUTTON_OUTLINE | XUI_OPT_TEXT_CENTER))
+						{
+							sandbox_shell(X(
+								mount -t vfat /dev/mmcblk1p1 /mnt/ && ls -l /mnt && umount /mnt;
+							), log, sizeof(log), 1);
 						}
 					}
 					break;
@@ -333,6 +739,7 @@ static void pcba_task(struct task_t * task, void * data)
 		ctx = xui_context_alloc(td->fb, td->input, td);
 		if(ctx)
 		{
+			//setting_set("language", "zh-CN");
 			switch(shash(setting_get("language", NULL)))
 			{
 			case 0x10d87d65: /* "zh-CN" */

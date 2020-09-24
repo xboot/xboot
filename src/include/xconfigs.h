@@ -40,7 +40,7 @@ extern "C" {
 #endif
 
 #if !defined(CONFIG_EVENT_FIFO_SIZE)
-#define CONFIG_EVENT_FIFO_SIZE				(8)
+#define CONFIG_EVENT_FIFO_SIZE				(64)
 #endif
 
 #if !defined(CONFIG_MOUNT_PRIVATE_DEVICE)

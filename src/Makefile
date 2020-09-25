@@ -185,6 +185,9 @@ SRCDIRS		+=	external/lua-5.4.0
 INCDIRS		+= 	external/lua-cjson-2.1.0
 SRCDIRS		+=	external/lua-cjson-2.1.0
 
+INCDIRS		+=	external/quirc-1.1.0
+SRCDIRS		+=	external/quirc-1.1.0
+
 INCDIRS		+= 	external/freetype-2.10.1/include \
 				external/freetype-2.10.1/src/autofit \
 				external/freetype-2.10.1/src/base \

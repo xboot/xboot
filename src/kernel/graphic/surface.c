@@ -31,6 +31,7 @@
 #include <pngstruct.h>
 #include <jpeglib.h>
 #include <jerror.h>
+#include <qrcgen.h>
 #include <graphic/surface.h>
 
 static struct list_head __render_list = {
@@ -870,5 +871,53 @@ struct surface_t * surface_alloc_from_xfs(struct xfs_context_t * ctx, const char
 		return surface_alloc_from_xfs_png(ctx, filename);
 	else if((strcasecmp(ext, "jpg") == 0) || (strcasecmp(ext, "jpeg") == 0))
 		return surface_alloc_from_xfs_jpeg(ctx, filename);
+	return NULL;
+}
+
+struct surface_t * surface_alloc_qrcode(const char * txt, int pixsz)
+{
+	struct surface_t * s;
+	uint32_t * p, * q;
+	uint8_t qrc[QRCGEN_BUFFER_LEN_MAX];
+	uint8_t tmp[QRCGEN_BUFFER_LEN_MAX];
+	int qrs, i, j;
+	int x1, y1, x2, y2;
+	int l, x, y;
+
+	if(qrcgen_encode_text(txt, tmp, qrc, QRCGEN_ECC_MEDIUM, QRCGEN_VERSION_MIN, QRCGEN_VERSION_MAX, QRCGEN_MASK_AUTO, 1))
+	{
+		qrs = qrcgen_get_size(qrc);
+		if(qrs > 0)
+		{
+			if(pixsz < 0)
+				pixsz = 1;
+			s = surface_alloc((qrs + 4) * pixsz, (qrs + 4) * pixsz, NULL);
+			if(s)
+			{
+				memset(s->pixels, 0xff, s->pixlen);
+				l = s->stride >> 2;
+				for(j = 0; j < qrs; j++)
+				{
+					for(i = 0; i < qrs; i++)
+					{
+						if(qrcgen_get_pixel(qrc, i, j))
+						{
+							x1 = (i + 2) * pixsz;
+							y1 = (j + 2) * pixsz;
+							x2 = x1 + pixsz;
+							y2 = y1 + pixsz;
+							q = (uint32_t *)s->pixels + y1 * l + x1;
+							for(y = y1; y < y2; y++, q += l)
+							{
+								for(x = x1, p = q; x < x2; x++, p++)
+									*p = 0xff000000;
+							}
+						}
+					}
+				}
+				return s;
+			}
+		}
+	}
 	return NULL;
 }

@@ -36,11 +36,20 @@
 static int l_image_new(lua_State * L)
 {
 	struct surface_t * s = NULL;
-	if((lua_gettop(L) == 2) && lua_isnumber(L, 1) && lua_isnumber(L, 2))
+	if(lua_gettop(L) == 2)
 	{
-		int width = luaL_checkinteger(L, 1);
-		int height = luaL_checkinteger(L, 2);
-		s = surface_alloc(width, height, NULL);
+		if(lua_isnumber(L, 1) && lua_isnumber(L, 2))
+		{
+			int width = luaL_checkinteger(L, 1);
+			int height = luaL_checkinteger(L, 2);
+			s = surface_alloc(width, height, NULL);
+		}
+		else if(lua_isstring(L, 1) && lua_isnumber(L, 2))
+		{
+			const char * txt = luaL_checkstring(L, 1);
+			int pixsz = luaL_checkinteger(L, 2);
+			s = surface_alloc_qrcode(txt, pixsz);
+		}
 	}
 	else
 	{

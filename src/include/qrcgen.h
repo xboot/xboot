@@ -34,21 +34,6 @@ enum qrcgen_mask_t {
 	QRCGEN_MASK_7				= 7,
 };
 
-enum qrcgen_mode_t {
-	QRCGEN_MODE_NUMERIC			= 0x1,
-	QRCGEN_MODE_ALPHANUMERIC	= 0x2,
-	QRCGEN_MODE_BYTE			= 0x4,
-	QRCGEN_MODE_KANJI			= 0x8,
-	QRCGEN_MODE_ECI				= 0x7,
-};
-
-struct qrcgen_segment_t {
-	enum qrcgen_mode_t mode;
-	int nchar;
-	uint8_t * data;
-	int blen;
-};
-
 int qrcgen_encode_text(const char * txt, uint8_t * tmp, uint8_t * qrc, enum qrcgen_ecc_t ecc, int minv, int maxv, enum qrcgen_mask_t mask, int boost);
 int qrcgen_encode_binary(uint8_t * buf, int len, uint8_t * qrc, enum qrcgen_ecc_t ecc, int minv, int maxv, enum qrcgen_mask_t mask, int boost);
 int qrcgen_get_size(uint8_t * qrc);

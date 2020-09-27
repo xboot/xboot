@@ -4,6 +4,21 @@
 
 #include <qrcgen.h>
 
+enum qrcgen_mode_t {
+	QRCGEN_MODE_NUMERIC			= 0x1,
+	QRCGEN_MODE_ALPHANUMERIC	= 0x2,
+	QRCGEN_MODE_BYTE			= 0x4,
+	QRCGEN_MODE_KANJI			= 0x8,
+	QRCGEN_MODE_ECI				= 0x7,
+};
+
+struct qrcgen_segment_t {
+	enum qrcgen_mode_t mode;
+	int nchar;
+	uint8_t * data;
+	int blen;
+};
+
 static const char ALPHANUMERIC_CHARSET[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ $%*+-./:";
 
 static const int8_t ECC_CODEWORDS_PER_BLOCK[4][41] = {

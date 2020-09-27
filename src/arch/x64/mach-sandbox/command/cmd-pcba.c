@@ -57,6 +57,8 @@ static const char zh_CN[] = X({
 	"BLACK": "黑色",
 });
 
+static struct surface_t * qrc = NULL;
+
 static void xui_badge_result(struct xui_context_t * ctx, int result)
 {
 	switch(result)
@@ -201,11 +203,11 @@ static void pcba_window(struct xui_context_t * ctx)
 			xui_split(ctx);
 
 			xui_layout_row(ctx, 1, (int[]){ -1 }, 40);
-			if(xui_button(ctx, T("Sleep")))
+			if(xui_button_ex(ctx, 0xf7b6, T("Sleep"), XUI_BUTTON_PRIMARY | XUI_OPT_TEXT_LEFT))
 				machine_sleep();
-			if(xui_button(ctx, T("Reboot")))
+			if(xui_button_ex(ctx, 0xf2ea, T("Reboot"), XUI_BUTTON_PRIMARY | XUI_OPT_TEXT_LEFT))
 				machine_reboot();
-			if(xui_button(ctx, T("Shutdown")))
+			if(xui_button_ex(ctx, 0xf011, T("Shutdown"), XUI_BUTTON_PRIMARY | XUI_OPT_TEXT_LEFT))
 				machine_shutdown();
 
 			xui_layout_row(ctx, 1, (int[]){ -1 }, 40);
@@ -241,6 +243,11 @@ static void pcba_window(struct xui_context_t * ctx)
 							xui_label(ctx, xui_format(ctx, ": %d", ctx->frame));
 							xui_label(ctx, T("Fps"));
 							xui_label(ctx, xui_format(ctx, ": %d", ctx->fps));
+							if(qrc)
+							{
+								xui_layout_row(ctx, 1, (int[]){ -1 }, 260);
+								xui_image_ex(ctx, qrc, 0, XUI_IMAGE_CONTAIN);
+							}
 						}
 						xui_end_panel(ctx);
 					}
@@ -745,7 +752,9 @@ static void pcba_task(struct task_t * task, void * data)
 			default:
 				break;
 			}
+			qrc = surface_alloc_qrcode(machine_uniqueid(), 16);
 			xui_loop(ctx, pcba);
+			surface_free(qrc);
 			xui_context_free(ctx);
 		}
 		task_data_free(td);

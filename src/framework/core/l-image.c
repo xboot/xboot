@@ -449,6 +449,14 @@ static int m_image_invert(lua_State * L)
 	return 1;
 }
 
+static int m_image_dither(lua_State * L)
+{
+	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
+	surface_filter_dither(img->s);
+	lua_settop(L, 1);
+	return 1;
+}
+
 static int m_image_threshold(lua_State * L)
 {
 	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
@@ -590,6 +598,7 @@ static const luaL_Reg m_image[] = {
 	{"grayscale",		m_image_grayscale},
 	{"sepia",			m_image_sepia},
 	{"invert",			m_image_invert},
+	{"dither",			m_image_dither},
 	{"threshold",		m_image_threshold},
 	{"colormap",		m_image_colormap},
 	{"coloring",		m_image_coloring},

@@ -71,6 +71,7 @@ struct render_t
 	void (*filter_grayscale)(struct surface_t * s);
 	void (*filter_sepia)(struct surface_t * s);
 	void (*filter_invert)(struct surface_t * s);
+	void (*filter_dither)(struct surface_t * s);
 	void (*filter_threshold)(struct surface_t * s, int threshold, const char * type);
 	void (*filter_colormap)(struct surface_t * s, const char * type);
 	void (*filter_coloring)(struct surface_t * s, struct color_t * c);
@@ -200,6 +201,11 @@ static inline void surface_filter_invert(struct surface_t * s)
 	s->r->filter_invert(s);
 }
 
+static inline void surface_filter_dither(struct surface_t * s)
+{
+	s->r->filter_dither(s);
+}
+
 static inline void surface_filter_threshold(struct surface_t * s, int threshold, const char * type)
 {
 	s->r->filter_threshold(s, threshold, type);
@@ -281,6 +287,7 @@ void render_default_shape_raster(struct surface_t * s, struct svg_t * svg, float
 void render_default_filter_grayscale(struct surface_t * s);
 void render_default_filter_sepia(struct surface_t * s);
 void render_default_filter_invert(struct surface_t * s);
+void render_default_filter_dither(struct surface_t * s);
 void render_default_filter_threshold(struct surface_t * s, int threshold, const char * type);
 void render_default_filter_colormap(struct surface_t * s, const char * type);
 void render_default_filter_coloring(struct surface_t * s, struct color_t * c);

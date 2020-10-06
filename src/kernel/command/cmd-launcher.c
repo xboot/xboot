@@ -40,58 +40,126 @@ static const char zh_CN[] = X({
 	"launcher":"启动器",
 });
 
-static void launcher_window(struct xui_context_t * ctx)
+static inline void tabbar_main(struct xui_context_t * ctx)
 {
-	struct package_t * pkg;
-	struct hmap_entry_t * e;
-
-	if(xui_begin_window_ex(ctx, "Launcher Window", NULL, XUI_WINDOW_FULLSCREEN))
+	xui_layout_row(ctx, 1, (int[]){ -1 }, 50);
+	xui_begin_panel_ex(ctx, "!header", XUI_PANEL_TRANSPARENT);
 	{
-		xui_layout_row(ctx, 1, (int[]){ -1 }, 100);
-		xui_text(ctx, "This is head");
+		xui_layout_row(ctx, 1, (int[]){ -1 }, -1);
+		xui_text(ctx, "This is header");
+	}
+	xui_end_panel(ctx);
 
-		xui_layout_row(ctx, 1, (int[]){ -1 }, 0);
-		xui_split(ctx);
+	xui_layout_row(ctx, 1, (int[]){ -1 }, 10);
+	xui_split(ctx);
 
-		xui_layout_row(ctx, 1, (int[]){ -1 }, -50);
-		xui_begin_panel(ctx, "Main panel");
-		xui_layout_row(ctx, 0, NULL, -1);
-		xui_layout_width(ctx, 200);
+	xui_layout_row(ctx, 1, (int[]){ -1 }, -100);
+	xui_begin_panel_ex(ctx, "!package", XUI_PANEL_TRANSPARENT);
+	{
+		struct hmap_entry_t * e;
+		int widths[XUI_MAX_WIDTHS];
+		int pw = 160;
+		int n = clamp(xui_get_container(ctx)->region.w / pw, 1, XUI_MAX_WIDTHS);
+		int w = xui_get_container(ctx)->region.w / n;
+		for(int i = 0; i < n - 1; i++)
+			widths[i] = w;
+		widths[n - 1] = -1;
+		xui_layout_row(ctx, n, widths, pw * 3 / 2 + 80);
+
 		hmap_for_each_entry(e, __package_list)
 		{
+			struct package_t * pkg = (struct package_t *)e->value;
 			xui_layout_begin_column(ctx);
-			xui_layout_row(ctx, 1, (int[]){ -1 }, -50);
-			pkg = e->value;
-
-			if(xui_button(ctx, package_get_name(pkg)))
 			{
-				struct window_t * pos, * n;
-				int runing = 0;
-				list_for_each_entry_safe(pos, n, &ctx->w->wm->window, list)
+				xui_layout_row(ctx, 1, (int[]){ -1 }, -50);
+				if(xui_image_ex(ctx, package_get_panel(pkg), 0, XUI_IMAGE_COVER))
 				{
-					if(strcmp(pos->task->name, package_get_path(pkg)) == 0)
+					struct window_t * pos, * n;
+					int flag = 0;
+					list_for_each_entry_safe(pos, n, &ctx->w->wm->window, list)
 					{
-						window_to_front(pos);
-						runing = 1;
-						break;
+						if(strcmp(pos->task->name, package_get_path(pkg)) == 0)
+						{
+							window_to_front(pos);
+							flag = 1;
+							break;
+						}
 					}
+					if(!flag)
+						vmexec(package_get_path(pkg), ((struct task_data_t *)(ctx->priv))->fb, ((struct task_data_t *)(ctx->priv))->input);
 				}
-				if(!runing)
-					vmexec(package_get_path(pkg), ((struct task_data_t *)(ctx->priv))->fb, ((struct task_data_t *)(ctx->priv))->input);
+				xui_layout_row(ctx, 1, (int[]){ -1 }, -1);
+				xui_label_ex(ctx,package_get_name(pkg), XUI_OPT_TEXT_TOP);
 			}
-			//xui_image_ex(ctx, package_get_panel(pkg), 0, XUI_IMAGE_COVER);
-
-			xui_layout_row(ctx, 1, (int[]){ -1 }, -1);
-			xui_label(ctx, package_get_name(pkg));
 			xui_layout_end_column(ctx);
 		}
+	}
+	xui_end_panel(ctx);
+
+	xui_layout_row(ctx, 1, (int[]){ -1 }, 10);
+	xui_split(ctx);
+
+	xui_layout_row(ctx, 1, (int[]){ -1 }, -1);
+	xui_begin_panel_ex(ctx, "!bottom", XUI_PANEL_TRANSPARENT);
+	{
+		struct window_t * pos, * n;
+		xui_layout_row(ctx, 0, NULL, -1);
+		xui_layout_width(ctx, 80);
+		list_for_each_entry_safe(pos, n, &ctx->w->wm->window, list)
+		{
+			if(pos != ctx->w)
+			{
+				if(xui_image_ex(ctx, package_get_icon(package_search(pos->task->name)), 0, XUI_IMAGE_COVER))
+				{
+					window_to_front(pos);
+				}
+			}
+		}
+	}
+	xui_end_panel(ctx);
+}
+
+static inline void tabbar_setting(struct xui_context_t * ctx)
+{
+	xui_layout_row(ctx, 1, (int[]){ -1 }, -1);
+	xui_badge(ctx, "This is setting");
+}
+
+static void launcher_window(struct xui_context_t * ctx)
+{
+	if(xui_begin_window_ex(ctx, "Launcher Window", NULL, XUI_WINDOW_FULLSCREEN))
+	{
+		static enum {
+			LAUNCHER_TABBAR_MAIN	= 0,
+			LAUNCHER_TABBAR_SETTING,
+		} tabbar = LAUNCHER_TABBAR_MAIN;
+
+		xui_layout_row(ctx, 2, (int[]){ 60, -1 }, -1);
+		xui_begin_panel(ctx, "!tabbar");
+		{
+			xui_layout_row(ctx, 1, (int[]){ -1 }, 40);
+			if(xui_tabbar(ctx, 62060, NULL, tabbar == LAUNCHER_TABBAR_MAIN))
+				tabbar = LAUNCHER_TABBAR_MAIN;
+			if(xui_tabbar(ctx, 62061, NULL, tabbar == LAUNCHER_TABBAR_SETTING))
+				tabbar = LAUNCHER_TABBAR_SETTING;
+		}
 		xui_end_panel(ctx);
-
-		xui_layout_row(ctx, 1, (int[]){ -1 }, 0);
-		xui_split(ctx);
-		xui_layout_row(ctx, 1, (int[]){ -1 }, -1);
-		xui_text(ctx, "This is bottom");
-
+		xui_begin_panel(ctx, "!context");
+		{
+			xui_layout_row(ctx, 1, (int[]){ -1 }, -1);
+			switch(tabbar)
+			{
+			case LAUNCHER_TABBAR_MAIN:
+				tabbar_main(ctx);
+				break;
+			case LAUNCHER_TABBAR_SETTING:
+				tabbar_setting(ctx);
+				break;
+			default:
+				break;
+			}
+		}
+		xui_end_panel(ctx);
 		xui_end_window(ctx);
 	}
 }

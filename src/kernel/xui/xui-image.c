@@ -31,7 +31,7 @@
 
 int xui_image_ex(struct xui_context_t * ctx, struct surface_t * s, double angle, int opt)
 {
-	unsigned int id = xui_get_id(ctx, s, sizeof(struct surface_t *));
+	unsigned int id = xui_get_id(ctx, &s, sizeof(struct surface_t *));
 	struct region_t * r = xui_layout_next(ctx);
 	struct matrix_t m;
 	double sx, sy;

@@ -16,11 +16,11 @@ enum {
 	XUI_IMAGE_REFRESH	= (0x1 << 14),
 };
 
-void xui_image_ex(struct xui_context_t * ctx, struct surface_t * s, double angle, int opt);
+int xui_image_ex(struct xui_context_t * ctx, struct surface_t * s, double angle, int opt);
 
-static inline void xui_image(struct xui_context_t * ctx, struct surface_t * s)
+static inline int xui_image(struct xui_context_t * ctx, struct surface_t * s)
 {
-	xui_image_ex(ctx, s, 0, XUI_IMAGE_NONE);
+	return xui_image_ex(ctx, s, 0, XUI_IMAGE_NONE);
 }
 
 #ifdef __cplusplus

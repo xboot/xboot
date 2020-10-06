@@ -29,25 +29,19 @@
 #include <xboot.h>
 #include <xui/image.h>
 
-void xui_image_ex(struct xui_context_t * ctx, struct surface_t * s, double angle, int opt)
+int xui_image_ex(struct xui_context_t * ctx, struct surface_t * s, double angle, int opt)
 {
+	unsigned int id = xui_get_id(ctx, s, sizeof(struct surface_t *));
 	struct region_t * r = xui_layout_next(ctx);
 	struct matrix_t m;
 	double sx, sy;
 
+	xui_control_update(ctx, id, r, opt);
 	switch(opt & (0x3 << 12))
 	{
 	case XUI_IMAGE_NONE:
-		if(angle != 0.0)
-		{
-			matrix_init_translate(&m, r->x + r->w / 2, r->y + r->h / 2);
-			matrix_rotate(&m, angle);
-			matrix_translate(&m, -surface_get_width(s) / 2, -surface_get_height(s) / 2);
-		}
-		else
-		{
-			matrix_init_translate(&m, r->x + (r->w - surface_get_width(s)) / 2, r->y + (r->h - surface_get_height(s)) / 2);
-		}
+		sx = 1.0;
+		sy = 1.0;
 		break;
 	case XUI_IMAGE_CONTAIN:
 		sx = (double)r->w / (double)surface_get_width(s);
@@ -56,11 +50,6 @@ void xui_image_ex(struct xui_context_t * ctx, struct surface_t * s, double angle
 			sx = sy;
 		else
 			sy = sx;
-		matrix_init_translate(&m, r->x + r->w / 2, r->y + r->h / 2);
-		if(angle != 0.0)
-			matrix_rotate(&m, angle);
-		matrix_translate(&m, -surface_get_width(s) / 2 * sx, -surface_get_height(s) / 2 * sy);
-		matrix_scale(&m, sx, sy);
 		break;
 	case XUI_IMAGE_COVER:
 		sx = (double)r->w / (double)surface_get_width(s);
@@ -69,25 +58,34 @@ void xui_image_ex(struct xui_context_t * ctx, struct surface_t * s, double angle
 			sx = sy;
 		else
 			sy = sx;
-		matrix_init_translate(&m, r->x + r->w / 2, r->y + r->h / 2);
-		if(angle != 0.0)
-			matrix_rotate(&m, angle);
-		matrix_translate(&m, -surface_get_width(s) / 2 * sx, -surface_get_height(s) / 2 * sy);
-		matrix_scale(&m, sx, sy);
 		break;
 	case XUI_IMAGE_FILL:
 		sx = (double)r->w / (double)surface_get_width(s);
 		sy = (double)r->h / (double)surface_get_height(s);
-		matrix_init_translate(&m, r->x + r->w / 2, r->y + r->h / 2);
-		if(angle != 0.0)
-			matrix_rotate(&m, angle);
-		matrix_translate(&m, -surface_get_width(s) / 2 * sx, -surface_get_height(s) / 2 * sy);
-		matrix_scale(&m, sx, sy);
 		break;
 	default:
+		sx = 1.0;
+		sy = 1.0;
 		break;
 	}
+	matrix_init_translate(&m, r->x + r->w / 2, r->y + r->h / 2);
+	if(angle != 0.0)
+		matrix_rotate(&m, angle);
+	matrix_translate(&m, -surface_get_width(s) / 2 * sx, -surface_get_height(s) / 2 * sy);
+	matrix_scale(&m, sx, sy);
+
 	xui_push_clip(ctx, r);
 	xui_draw_surface(ctx, s, &m, opt & XUI_IMAGE_REFRESH);
 	xui_pop_clip(ctx);
+	if(ctx->active == id)
+	{
+		xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, 0, 0, &(struct color_t){ 0x7f, 0x7f, 0x7f, 0x7f });
+		if(ctx->mouse.up & XUI_MOUSE_LEFT)
+			return 1;
+	}
+	else if(ctx->hover == id)
+	{
+		xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, 0, 0, &(struct color_t){ 0x7f, 0x7f, 0x7f, 0x7f });
+	}
+	return 0;
 }

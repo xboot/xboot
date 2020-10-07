@@ -103,18 +103,23 @@ static inline void tabbar_main(struct xui_context_t * ctx)
 	xui_begin_panel_ex(ctx, "!bottom", XUI_PANEL_TRANSPARENT);
 	{
 		struct window_t * pos, * n;
+		struct slist_t * sl, * e;
 		xui_layout_row(ctx, 0, NULL, -1);
 		xui_layout_width(ctx, 80);
+		sl = slist_alloc();
 		list_for_each_entry_safe(pos, n, &ctx->w->wm->window, list)
 		{
 			if(pos != ctx->w)
-			{
-				if(xui_image_ex(ctx, package_get_icon(package_search(pos->task->name)), 0, XUI_IMAGE_COVER))
-				{
-					window_to_front(pos);
-				}
-			}
+				slist_add(sl, pos, "%s", pos->task->name);
 		}
+		slist_sort(sl);
+		slist_for_each_entry(e, sl)
+		{
+			pos = (struct window_t *)e->priv;
+			if(xui_image_ex(ctx, package_get_icon(package_search(pos->task->name)), 0, XUI_IMAGE_COVER))
+				window_to_front(pos);
+		}
+		slist_free(sl);
 	}
 	xui_end_panel(ctx);
 }

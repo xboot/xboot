@@ -195,42 +195,58 @@ struct package_t * package_search(const char * path)
 
 const char * package_get_path(struct package_t * pkg)
 {
-	return pkg->path;
+	if(pkg && pkg->path)
+		return pkg->path;
+	return "";
 }
 
 const char * package_get_name(struct package_t * pkg)
 {
-	return pkg->name;
+	if(pkg && pkg->name)
+		return pkg->name;
+	return "";
 }
 
 const char * package_get_desc(struct package_t * pkg)
 {
-	return pkg->desc ? pkg->desc : "None";
+	if(pkg && pkg->desc)
+		return pkg->desc;
+	return "";
 }
 
 const char * package_get_developer(struct package_t * pkg)
 {
-	return pkg->developer ? pkg->developer : "Unkown";
+	if(pkg && pkg->developer)
+		return pkg->developer;
+	return "";
 }
 
 const char * package_get_version(struct package_t * pkg)
 {
-	return pkg->version ? pkg->version : "0.0.0";
+	if(pkg && pkg->version)
+		return pkg->version;
+	return "0.0.0";
 }
 
 const char * package_get_url(struct package_t * pkg)
 {
-	return pkg->url ? pkg->url : "http://";
+	if(pkg && pkg->url)
+		return pkg->url;
+	return "http://";
 }
 
 struct surface_t * package_get_icon(struct package_t * pkg)
 {
-	return pkg->icon ? pkg->icon : __package_icon;
+	if(pkg && pkg->icon)
+		return pkg->icon;
+	return __package_icon;
 }
 
 struct surface_t * package_get_panel(struct package_t * pkg)
 {
-	return pkg->panel ? pkg->panel : __package_panel;
+	if(pkg && pkg->panel)
+		return pkg->panel;
+	return __package_panel;
 }
 
 static void hmap_entry_callback(struct hmap_entry_t * e)

@@ -225,10 +225,10 @@ static unsigned int keycode_map(int code)
 	case 115: key = 6; break;
 	case 114: key = 7; break;
 	case 113: key = 8; break;
-	case 102: key = 9;  break;
-	case 15:  key = 10; break;
-	case 1:   key = 11; break;
-	case 14:  key = 12; break;
+	case 15:  key = 9;  break;
+	case 1:   key = 10; break;
+	case 14:  key = 11; break;
+	case 102: key = 12; break;
 	case 28:  key = 13; break;
 	case 29:  key = 14; break;
 	case 97:  key = 15; break;

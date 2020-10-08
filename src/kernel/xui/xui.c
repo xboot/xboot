@@ -1741,10 +1741,6 @@ void xui_loop(struct xui_context_t * ctx, void (*func)(struct xui_context_t *))
 					ctx->key_down |= XUI_KEY_TAB;
 					ctx->key_pressed |= XUI_KEY_TAB;
 					break;
-				case KEY_TASK:
-					ctx->key_down |= XUI_KEY_TASK;
-					ctx->key_pressed |= XUI_KEY_TASK;
-					break;
 				case KEY_HOME:
 					ctx->key_down |= XUI_KEY_HOME;
 					ctx->key_pressed |= XUI_KEY_HOME;
@@ -1752,6 +1748,10 @@ void xui_loop(struct xui_context_t * ctx, void (*func)(struct xui_context_t *))
 				case KEY_BACK:
 					ctx->key_down |= XUI_KEY_BACK;
 					ctx->key_pressed |= XUI_KEY_BACK;
+					break;
+				case KEY_MENU:
+					ctx->key_down |= XUI_KEY_MENU;
+					ctx->key_pressed |= XUI_KEY_MENU;
 					break;
 				case KEY_ENTER:
 					ctx->key_down |= XUI_KEY_ENTER;
@@ -1814,14 +1814,14 @@ void xui_loop(struct xui_context_t * ctx, void (*func)(struct xui_context_t *))
 				case KEY_TAB:
 					ctx->key_down &= ~XUI_KEY_TAB;
 					break;
-				case KEY_TASK:
-					ctx->key_down &= ~XUI_KEY_TASK;
-					break;
 				case KEY_HOME:
 					ctx->key_down &= ~XUI_KEY_HOME;
 					break;
 				case KEY_BACK:
 					ctx->key_down &= ~XUI_KEY_BACK;
+					break;
+				case KEY_MENU:
+					ctx->key_down &= ~XUI_KEY_MENU;
 					break;
 				case KEY_ENTER:
 					ctx->key_down &= ~XUI_KEY_ENTER;

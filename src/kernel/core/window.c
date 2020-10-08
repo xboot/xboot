@@ -415,7 +415,7 @@ void push_event(struct event_t * e)
 				switch(e->type)
 				{
 				case EVENT_TYPE_KEY_DOWN:
-					if((e->e.key_down.key == KEY_TASK) || (e->e.key_down.key == KEY_HOME))
+					if(e->e.key_down.key == KEY_HOME)
 					{
 						struct window_t * wpos, * wn;
 						list_for_each_entry_safe(wpos, wn, &pos->window, list)

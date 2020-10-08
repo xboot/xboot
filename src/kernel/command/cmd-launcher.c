@@ -194,7 +194,7 @@ static void launcher_task(struct task_t * task, void * data)
 			default:
 				break;
 			}
-			window_set_launcher(ctx->w, 1);
+			ctx->w->launcher = 1;
 			xui_loop(ctx, launcher);
 			xui_context_free(ctx);
 		}

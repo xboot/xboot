@@ -89,17 +89,6 @@ static inline int window_get_backlight(struct window_t * w)
 	return 0;
 }
 
-static inline void window_set_launcher(struct window_t * w, int enable)
-{
-	if(w)
-		w->launcher = enable ? 1 : 0;
-}
-
-static inline int window_get_launcher(struct window_t * w)
-{
-	return w ? w->launcher : 0;
-}
-
 struct window_t * window_alloc(const char * fb, const char * input);
 void window_free(struct window_t * w);
 void window_to_front(struct window_t * w);

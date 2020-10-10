@@ -1,0 +1,14 @@
+#
+# Normal rules
+#
+*.elf
+*.map
+*.d
+*.o
+*.a
+*~
+
+#
+# Generated files
+#
+

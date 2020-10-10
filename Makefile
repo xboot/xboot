@@ -1,6 +1,8 @@
 #
-# Top makefile
+# Top Makefile
 #
+
+export TOPDIR = $(shell dirname $(shell pwd)/$(lastword $(MAKEFILE_LIST)))
 
 .PHONY: all clean
 

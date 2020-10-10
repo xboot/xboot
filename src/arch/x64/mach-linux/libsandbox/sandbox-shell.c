@@ -50,7 +50,6 @@ static void * sandbox_shell_thread(void * arg)
 		sandbox_shell_exec(ctx->cmd, ctx->msg, ctx->sz);
 		free(ctx);
 	}
-	pthread_exit(NULL);
 	return NULL;
 }
 

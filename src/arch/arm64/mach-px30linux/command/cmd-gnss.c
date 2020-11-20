@@ -172,7 +172,7 @@ static void gnss(struct xui_context_t * ctx)
 static void gnss_task(struct task_t * task, void * data)
 {
 	struct gnss_t * nav = (struct gnss_t *)data;
-	struct xui_context_t * ctx = xui_context_alloc(NULL, NULL, NULL, nav);
+	struct xui_context_t * ctx = xui_context_alloc(NULL, NULL, nav);
 	gnss_enable(nav);
 	xui_loop(ctx, gnss);
 	gnss_disable(nav);

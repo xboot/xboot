@@ -1,6 +1,10 @@
 #include <x.h>
 #include <sandbox.h>
 
+#ifndef EVIOCSCLOCKID
+#define EVIOCSCLOCKID	_IOW('E', 0xa0, int)
+#endif
+
 struct sandbox_event_callback_t {
 	struct {
 		void * device;

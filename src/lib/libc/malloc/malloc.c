@@ -380,11 +380,11 @@ static void remove_free_block(control_t * control, block_header_t * block, int f
 
 		if(next == &control->block_null)
 		{
-			control->sl_bitmap[fl] &= ~(1 << sl);
+			control->sl_bitmap[fl] &= ~(1U << sl);
 
 			if(!control->sl_bitmap[fl])
 			{
-				control->fl_bitmap &= ~(1 << fl);
+				control->fl_bitmap &= ~(1U << fl);
 			}
 		}
 	}
@@ -402,8 +402,8 @@ static void insert_free_block(control_t * control, block_header_t * block, int f
 	tlsf_assert(block_to_ptr(block) == align_ptr(block_to_ptr(block), ALIGN_SIZE) && "block not aligned properly");
 
 	control->blocks[fl][sl] = block;
-	control->fl_bitmap |= (1 << fl);
-	control->sl_bitmap[fl] |= (1 << sl);
+	control->fl_bitmap |= (1U << fl);
+	control->sl_bitmap[fl] |= (1U << sl);
 }
 
 static void block_remove(control_t * control, block_header_t * block)

@@ -3,7 +3,7 @@
 
 #define V831_CCU_BASE				(0x03001000)
 
-#define CCU_PLL_CPUX_CTRL			(0x000)
+#define CCU_PLL_CPU_CTRL			(0x000)
 #define CCU_PLL_DDR0_CTRL			(0x010)
 #define CCU_PLL_PERI0_CTRL			(0x020)
 #define CCU_PLL_UNI_CTRL			(0x028)

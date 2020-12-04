@@ -658,7 +658,7 @@ static size_t qrcgen_calc_segment_buffer_size(enum qrcgen_mode_t mode, size_t nc
 static int qrcgen_encode_segments_advanced(struct qrcgen_segment_t * segs, size_t len, enum qrcgen_ecc_t ecc, int minv, int maxv, enum qrcgen_mask_t mask, int boost, uint8_t * tmp, uint8_t * qrc)
 {
 	struct qrcgen_segment_t * seg;
-	long penalty, minpenalty;
+	long long penalty, minpenalty;
 	int blen = 0;
 	int version, bits;
 	int dcbits, tbits;
@@ -710,7 +710,7 @@ static int qrcgen_encode_segments_advanced(struct qrcgen_segment_t * segs, size_
 
 	if(mask == QRCGEN_MASK_AUTO)
 	{
-		minpenalty = 0x7fffffffffffffffL;
+		minpenalty = 0x7fffffffffffffffLL;
 		for(i = 0; i < 8; i++)
 		{
 			apply_mask(tmp, qrc, i);

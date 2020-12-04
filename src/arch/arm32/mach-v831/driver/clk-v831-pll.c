@@ -67,7 +67,7 @@ static u64_t clk_v831_pll_get_rate(struct clk_t * clk, u64_t prate)
 	switch(pdat->channel)
 	{
 	case 0:
-		r = read32(pdat->virt + CCU_PLL_CPU_CTRL);
+		r = read32(pdat->virt + CCU_PLL_CPUX_CTRL);
 		n = ((r >> 8) & 0xff) + 1;
 		m = ((r >> 0) & 0x3) + 1;
 		p = (r >> 16) & 0x3;
@@ -87,9 +87,7 @@ static u64_t clk_v831_pll_get_rate(struct clk_t * clk, u64_t prate)
 		n = ((r >> 8) & 0xff) + 1;
 		m1 = ((r >> 1) & 0x1) + 1;
 		m0 = ((r >> 0) & 0x1) + 1;
-		rate = (u64_t)((prate * n) / m0 / m1);
-		if(r & (1 << 31))
-			rate >>= 1;
+		rate = (u64_t)((prate * n) / m0 / m1) >> 1;
 		break;
 
 	case 3:
@@ -97,18 +95,14 @@ static u64_t clk_v831_pll_get_rate(struct clk_t * clk, u64_t prate)
 		n = ((r >> 8) & 0xff) + 1;
 		m1 = ((r >> 1) & 0x1) + 1;
 		m0 = ((r >> 0) & 0x1) + 1;
-		rate = (u64_t)((prate * n) / m0 / m1);
-		if(r & (1 << 31))
-			rate >>= 1;
+		rate = (u64_t)((prate * n) / m0 / m1) >> 1;
 		break;
 
 	case 4:
 		r = read32(pdat->virt + CCU_PLL_VIDEO0_CTRL);
 		n = ((r >> 8) & 0xff) + 1;
 		m = ((r >> 1) & 0x1) + 1;
-		rate = (u64_t)((prate * n) / m);
-		if(r & (1 << 31))
-			rate >>= 2;
+		rate = (u64_t)((prate * n) / m) >> 2;
 		break;
 
 	case 5:
@@ -117,11 +111,12 @@ static u64_t clk_v831_pll_get_rate(struct clk_t * clk, u64_t prate)
 		n = ((r >> 8) & 0xff) + 1;
 		m1 = ((r >> 1) & 0x1) + 1;
 		m0 = ((r >> 0) & 0x1) + 1;
-		rate = (u64_t)((prate * n) / m0 / m1);
-		if(r & (1 << 31))
-			rate >>= 2;
+		if((n == 32) && (p == 17) && (m0 == 0) && (m1 == 1))
+			rate = 22579200;
+		else if((n == 39) && (p == 19) && (m0 == 0) && (m1 == 1))
+			rate = 24576000;
 		else
-			rate >>= 1;
+			rate = (u64_t)((prate * n) / m0 / m1 / p);
 		break;
 
 	case 6:

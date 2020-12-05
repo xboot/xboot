@@ -331,7 +331,134 @@
 	"clk-gate@0x03001a5c": {"parent": "div-codec4x", "name": "gate-codec4x", "shift": 0, "invert": false },
 	"clk-gate@0x03001a54": {"parent": "gate-codec4x", "name": "codec4x", "shift": 31, "invert": false },
 
-	"clk-link": { "parent": "osc24m-750", "name": "link-wdt" },
+	"clk-mux@0x03001a70": {
+		"parent": [
+			{ "name": "osc48m-4", "value": 0 },
+			{ "name": "osc24m-2", "value": 1 },
+			{ "name": "losc", "value": 2 }
+		],
+		"name": "mux-usbohci0", "shift": 24, "width": 2
+	},
+	"clk-gate@0x03001a70": {"parent": "osc24m", "name": "usbphy0", "shift": 29, "invert": false },
+	"clk-gate@0x03001a8c": {"parent": "ahb3", "name": "gate-usbohci0", "shift": 0, "invert": false },
+	"clk-gate@0x03001a70": {"parent": "gate-usbohci0", "name": "usbohci0", "shift": 31, "invert": false },
+	"clk-gate@0x03001a8c": {"parent": "ahb3", "name": "usbehci0", "shift": 4, "invert": false },
+	"clk-gate@0x03001a8c": {"parent": "ahb3", "name": "usbotg", "shift": 8, "invert": false },
+
+	"clk-mux@0x03001b20": {
+		"parent": [
+			{ "name": "pll-video0", "value": 0 },
+			{ "name": "pll-video0x4", "value": 1 }
+		],
+		"name": "mux-mipidphy0", "shift": 24, "width": 2
+	},
+	"clk-divider@0x03001b20": { "parent": "mux-mipidphy0", "name": "div-mipidphy0", "shift": 0, "width": 4, "divider-one-based": true },
+	"clk-ratio@0x03001b20": { "parent": "div-mipidphy0", "name": "radio-mipidphy0", "shift": 8, "width": 2 },
+	"clk-gate@0x03001b4c": {"parent": "radio-mipidphy0", "name": "gate-mipidphy0", "shift": 0, "invert": false },
+	"clk-gate@0x03001b20": {"parent": "gate-mipidphy0", "name": "mipidphy0", "shift": 31, "invert": false },
+
+	"clk-mux@0x03001b24": {
+		"parent": [
+			{ "name": "pll-periph0", "value": 0 },
+			{ "name": "pll-periph0x2", "value": 1 },
+			{ "name": "osc24m", "value": 2 }
+		],
+		"name": "mux-mipihost0", "shift": 24, "width": 2
+	},
+	"clk-divider@0x03001b24": { "parent": "mux-mipihost0", "name": "div-mipihost0", "shift": 0, "width": 4, "divider-one-based": true },
+	"clk-gate@0x03001b4c": {"parent": "div-mipihost0", "name": "gate-mipihost0", "shift": 0, "invert": false },
+	"clk-gate@0x03001b24": {"parent": "gate-mipihost0", "name": "mipihost0", "shift": 31, "invert": false },
+
+	"clk-gate@0x03001b5c": {"parent": "ahb3", "name": "displaytop", "shift": 0, "invert": false },
+
+	"clk-mux@0x03001b60": {
+		"parent": [
+			{ "name": "pll-video0", "value": 0 },
+			{ "name": "pll-video0x4", "value": 1 }
+		],
+		"name": "mux-tcon", "shift": 24, "width": 3
+	},
+	"clk-gate@0x03001b74": {"parent": "mux-tcon", "name": "gate-tcon", "shift": 0, "invert": false },
+	"clk-gate@0x03001b60": {"parent": "gate-tcon", "name": "tcon", "shift": 31, "invert": false },
+
+	"clk-mux@0x03001c04": {
+		"parent": [
+			{ "name": "pll-uni", "value": 0 },
+			{ "name": "pll-unix2", "value": 1 },
+			{ "name": "pll-periph0", "value": 2 },
+			{ "name": "pll-periph0x2", "value": 3 },
+			{ "name": "pll-video0x4", "value": 4 },
+			{ "name": "pll-csi", "value": 5 }
+		],
+		"name": "mux-csitop", "shift": 24, "width": 3
+	},
+	"clk-divider@0x03001c04": { "parent": "mux-csitop", "name": "div-csitop", "shift": 0, "width": 5, "divider-one-based": true },
+	"clk-gate@0x03001c2c": {"parent": "div-csitop", "name": "gate-csitop", "shift": 0, "invert": false },
+	"clk-gate@0x03001c04": {"parent": "gate-csitop", "name": "csitop", "shift": 31, "invert": false },
+
+	"clk-mux@0x03001c08": {
+		"parent": [
+			{ "name": "osc24m", "value": 0 },
+			{ "name": "pll-uni", "value": 1 },
+			{ "name": "pll-unix2", "value": 2 },
+			{ "name": "pll-periph0", "value": 3 },
+			{ "name": "pll-periph0x2", "value": 4 },
+			{ "name": "pll-video0", "value": 5 },
+			{ "name": "pll-csi", "value": 6 }
+		],
+		"name": "mux-csimaster0", "shift": 24, "width": 3
+	},
+	"clk-divider@0x03001c08": { "parent": "mux-csimaster0", "name": "div-csimaster0", "shift": 0, "width": 5, "divider-one-based": true },
+	"clk-gate@0x03001c2c": {"parent": "div-csimaster0", "name": "gate-csimaster0", "shift": 0, "invert": false },
+	"clk-gate@0x03001c08": {"parent": "gate-csimaster0", "name": "csimaster0", "shift": 31, "invert": false },
+
+	"clk-mux@0x03001c0c": {
+		"parent": [
+			{ "name": "osc24m", "value": 0 },
+			{ "name": "pll-uni", "value": 1 },
+			{ "name": "pll-unix2", "value": 2 },
+			{ "name": "pll-periph0", "value": 3 },
+			{ "name": "pll-periph0x2", "value": 4 },
+			{ "name": "pll-video0", "value": 5 },
+			{ "name": "pll-csi", "value": 6 }
+		],
+		"name": "mux-csimaster1", "shift": 24, "width": 3
+	},
+	"clk-divider@0x03001c0c": { "parent": "mux-csimaster1", "name": "div-csimaster1", "shift": 0, "width": 5, "divider-one-based": true },
+	"clk-gate@0x03001c2c": {"parent": "div-csimaster1", "name": "gate-csimaster1", "shift": 0, "invert": false },
+	"clk-gate@0x03001c0c": {"parent": "gate-csimaster1", "name": "csimaster1", "shift": 31, "invert": false },
+
+	"clk-mux@0x03001c20": {
+		"parent": [
+			{ "name": "pll-uni", "value": 0 },
+			{ "name": "pll-unix2", "value": 1 },
+			{ "name": "pll-periph0", "value": 2 },
+			{ "name": "pll-video0", "value": 3 },
+			{ "name": "pll-csi", "value": 4 }
+		],
+		"name": "mux-isp", "shift": 24, "width": 3
+	},
+	"clk-divider@0x03001c20": { "parent": "mux-isp", "name": "div-isp", "shift": 0, "width": 5, "divider-one-based": true },
+	"clk-gate@0x03001c20": {"parent": "div-isp", "name": "isp", "shift": 31, "invert": false },
+
+	"clk-mux@0x03001c60": {
+		"parent": [
+			{ "name": "pll-video0", "value": 0 },
+			{ "name": "pll-video0x4", "value": 1 },
+			{ "name": "pll-periph0", "value": 2 },
+			{ "name": "pll-periph0x2", "value": 3 },
+			{ "name": "pll-uni", "value": 4 },
+			{ "name": "pll-unix2", "value": 5 }
+		],
+		"name": "mux-dspo", "shift": 24, "width": 3
+	},
+	"clk-divider@0x03001c60": { "parent": "mux-dspo", "name": "div-dspo", "shift": 0, "width": 5, "divider-one-based": true },
+	"clk-ratio@0x03001c60": { "parent": "div-dspo", "name": "radio-dspo", "shift": 8, "width": 2 },
+	"clk-gate@0x03001c6c": {"parent": "radio-dspo", "name": "gate-dspo", "shift": 0, "invert": false },
+	"clk-gate@0x03001c60": {"parent": "gate-dspo", "name": "dspo", "shift": 31, "invert": false },
+
+	"clk-link": { "parent": "apb1", "name": "pio" },
+	"clk-link": { "parent": "osc24m-750", "name": "wdg" },
 
 	"irq-gic400@0x03020000": { "interrupt-base": 0, "interrupt-count": 192 },
 
@@ -388,7 +515,7 @@
 	},
 
 	"wdg-v831@0x030090a0": {
-		"clock-name": "link-wdt"
+		"clock-name": "wdg"
 	},
 
 	"console-uart@0": {

@@ -239,9 +239,10 @@
 			{ "name": "pll-periph0x2", "value": 3 },
 			{ "name": "pll-unix2", "value": 4 }
 		],
-		"name": "mux-spi0", "shift": 24, "width": 3
+		"name": "mux-spi0", "shift": 24, "width": 3,
+		"default": { "parent": "pll-periph0" }
 	},
-	"clk-divider@0x03001940": { "parent": "mux-spi0", "name": "div-spi0", "shift": 0, "width": 4, "divider-one-based": true },
+	"clk-divider@0x03001940": { "parent": "mux-spi0", "name": "div-spi0", "shift": 0, "width": 4, "divider-one-based": true, "default": { "rate": 100000000 } },
 	"clk-ratio@0x03001940": { "parent": "div-spi0", "name": "radio-spi0", "shift": 8, "width": 2 },
 	"clk-gate@0x0300196c": {"parent": "radio-spi0", "name": "gate-spi0", "shift": 0, "invert": false },
 	"clk-gate@0x03001940": {"parent": "gate-spi0", "name": "spi0", "shift": 31, "invert": false },
@@ -254,9 +255,10 @@
 			{ "name": "pll-periph0x2", "value": 3 },
 			{ "name": "pll-unix2", "value": 4 }
 		],
-		"name": "mux-spi1", "shift": 24, "width": 3
+		"name": "mux-spi1", "shift": 24, "width": 3,
+		"default": { "parent": "pll-periph0" }
 	},
-	"clk-divider@0x03001944": { "parent": "mux-spi1", "name": "div-spi1", "shift": 0, "width": 4, "divider-one-based": true },
+	"clk-divider@0x03001944": { "parent": "mux-spi1", "name": "div-spi1", "shift": 0, "width": 4, "divider-one-based": true, "default": { "rate": 100000000 } },
 	"clk-ratio@0x03001944": { "parent": "div-spi1", "name": "radio-spi1", "shift": 8, "width": 2 },
 	"clk-gate@0x0300196c": {"parent": "radio-spi1", "name": "gate-spi1", "shift": 1, "invert": false },
 	"clk-gate@0x03001944": {"parent": "gate-spi1", "name": "spi1", "shift": 31, "invert": false },
@@ -269,9 +271,10 @@
 			{ "name": "pll-periph0x2", "value": 3 },
 			{ "name": "pll-unix2", "value": 4 }
 		],
-		"name": "mux-spi2", "shift": 24, "width": 3
+		"name": "mux-spi2", "shift": 24, "width": 3,
+		"default": { "parent": "pll-periph0" }
 	},
-	"clk-divider@0x03001948": { "parent": "mux-spi2", "name": "div-spi2", "shift": 0, "width": 4, "divider-one-based": true },
+	"clk-divider@0x03001948": { "parent": "mux-spi2", "name": "div-spi2", "shift": 0, "width": 4, "divider-one-based": true, "default": { "rate": 100000000 } },
 	"clk-ratio@0x03001948": { "parent": "div-spi2", "name": "radio-spi2", "shift": 8, "width": 2 },
 	"clk-gate@0x0300196c": {"parent": "radio-spi2", "name": "gate-spi2", "shift": 2, "invert": false },
 	"clk-gate@0x03001948": {"parent": "gate-spi2", "name": "spi2", "shift": 31, "invert": false },
@@ -619,6 +622,44 @@
 		"scl-gpio": 233,
 		"scl-gpio-config": 4,
 		"status": "disabled"
+	},
+
+	"spi-v831@0x05010000": {
+		"clock-name": "spi0",
+		"reset": 496,
+		"sclk-gpio": 64,
+		"sclk-gpio-config": 4,
+		"mosi-gpio": 66,
+		"mosi-gpio-config": 4,
+		"miso-gpio": 67,
+		"miso-gpio-config": 4,
+		"cs-gpio": 65,
+		"cs-gpio-config": 4
+	},
+
+	"spi-v831@0x05011000": {
+		"clock-name": "spi1",
+		"reset": 497,
+		"sclk-gpio": 235,
+		"sclk-gpio-config": 4,
+		"mosi-gpio": 236,
+		"mosi-gpio-config": 4,
+		"miso-gpio": 237,
+		"miso-gpio-config": 4,
+		"cs-gpio": 238,
+		"cs-gpio-config": 4,
+		"status": "disabled"
+	},
+
+	"blk-spinor@0": {
+		"spi-bus": "spi-v831.0",
+		"chip-select": 0,
+		"mode": 0,
+		"speed": 50000000,
+		"partition": [
+			{ "name": "xboot",   "offset": 0,       "length": 4194304 },
+			{ "name": "private", "offset": 4194304, "length": 0 }
+		]
 	},
 
 	"wdg-v831@0x030090a0": {

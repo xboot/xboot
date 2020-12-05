@@ -20,11 +20,11 @@ extern "C" {
 #endif
 
 #if !defined(CONFIG_DRIVER_HASH_SIZE)
-#define CONFIG_DRIVER_HASH_SIZE				(257)
+#define CONFIG_DRIVER_HASH_SIZE				(521)
 #endif
 
 #if !defined(CONFIG_DEVICE_HASH_SIZE)
-#define CONFIG_DEVICE_HASH_SIZE				(257)
+#define CONFIG_DEVICE_HASH_SIZE				(521)
 #endif
 
 #if !defined(CONFIG_KVDB_HASH_SIZE)

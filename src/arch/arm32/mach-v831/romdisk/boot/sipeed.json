@@ -584,6 +584,18 @@
 		"clock-name": "wdg"
 	},
 
+	"led-gpio@0": {
+		"gpio": 238,
+		"gpio-config": 1,
+		"active-low": true,
+		"default-brightness": 0
+	},
+
+	"ledtrigger-heartbeat@0": {
+		"led-name": "led-gpio.0",
+		"period-ms": 1260
+	},
+
 	"console-uart@0": {
 		"uart-bus": "uart-16550.0"
 	}

@@ -457,6 +457,24 @@
 	"clk-gate@0x03001c6c": {"parent": "radio-dspo", "name": "gate-dspo", "shift": 0, "invert": false },
 	"clk-gate@0x03001c60": {"parent": "gate-dspo", "name": "dspo", "shift": 31, "invert": false },
 
+	"clk-mux@0x03009010": {
+		"parent": [
+			{ "name": "losc", "value": 0 },
+			{ "name": "osc24m", "value": 1 }
+		],
+		"name": "mux-timer0", "shift": 2, "width": 2
+	},
+	"clk-ratio@0x01c20c10": { "parent": "mux-timer0", "name": "timer0", "shift": 4, "width": 3 },
+
+	"clk-mux@0x03009020": {
+		"parent": [
+			{ "name": "losc", "value": 0 },
+			{ "name": "osc24m", "value": 1 }
+		],
+		"name": "mux-timer1", "shift": 2, "width": 2
+	},
+	"clk-ratio@0x01c20c20": { "parent": "mux-timer1", "name": "timer1", "shift": 4, "width": 3 },
+
 	"clk-link": { "parent": "apb1", "name": "pio" },
 	"clk-link": { "parent": "osc24m-750", "name": "wdg" },
 
@@ -498,6 +516,15 @@
 	"gpio-v831@0x0300b0fc": { "gpio-base": 224, "gpio-count": 16, "interrupt-offset": -1 },
 	"gpio-v831@0x0300b120": { "gpio-base": 256, "gpio-count":  5, "interrupt-offset": -1 },
 	"gpio-v831@0x0300b144": { "gpio-base": 288, "gpio-count":  6, "interrupt-offset": -1 },
+
+	"ce-v831-timer@0x03009000": {
+		"clock-name": "timer0",
+		"interrupt": 92
+	},
+
+	"cs-v831-timer@0x03009000": {
+		"clock-name": "timer1"
+	},
 
 	"uart-16550@0x05000000": {
 		"clock-name": "uart0",

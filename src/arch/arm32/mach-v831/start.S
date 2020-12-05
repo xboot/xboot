@@ -171,15 +171,19 @@ reset:
 	mov r0, #0x40000000
 	vmsr fpexc, r0
 
-	/* Initial system uart, clock and ddr */
+	/* Initial system uart, clock and ddr using master */
+	mrc p15, 0, r0, c0, c0, 5
+	ands r0, #3
+	bne 1f
 	bl sys_uart_init
 	bl sys_clock_init
 	bl sys_dram_init
+1:	nop
 
 	/* Initialize stacks */
 	mrc p15, 0, r4, c0, c0, 5
 	and r4, r4, #0xf
-	mov r5, #CONFIG_MAX_SMP_CPUS
+	mov r5, #1
 
 	ldr r0, _stack_und_start
 	ldr r1, _stack_und_end
@@ -251,7 +255,11 @@ reset:
 	ldr r1, =_start
 	cmp r0, r1
 	beq 1f
-	bl sys_copyself
+	ldr r0, _image_start
+	adr r1, _start
+	ldr r2, _image_end
+	sub r2, r2, r0
+	bl memcpy
 1:	nop
 
 	/* Clear bss section */

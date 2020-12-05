@@ -492,7 +492,7 @@
 
 	"uart-16550@0x05000000": {
 		"clock-name": "uart0",
-		"reset": -1,
+		"reset": 432,
 		"txd-gpio": -1,
 		"txd-gpio-config": -1,
 		"rxd-gpio": -1,
@@ -505,7 +505,7 @@
 
 	"uart-16550@0x05000400": {
 		"clock-name": "uart1",
-		"reset": -1,
+		"reset": 433,
 		"txd-gpio": -1,
 		"txd-gpio-config": -1,
 		"rxd-gpio": -1,
@@ -518,7 +518,7 @@
 
 	"uart-16550@0x05000800": {
 		"clock-name": "uart2",
-		"reset": -1,
+		"reset": 434,
 		"txd-gpio": -1,
 		"txd-gpio-config": -1,
 		"rxd-gpio": -1,
@@ -531,7 +531,7 @@
 
 	"uart-16550@0x05000c00": {
 		"clock-name": "uart3",
-		"reset": -1,
+		"reset": 435,
 		"txd-gpio": -1,
 		"txd-gpio-config": -1,
 		"rxd-gpio": -1,

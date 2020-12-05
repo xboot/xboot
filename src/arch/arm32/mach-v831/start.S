@@ -273,8 +273,8 @@ reset:
 	ldr r1, =_main
 	mov pc, r1
 _main:
-//	bl mmu_setup
-//	bl mmu_enable
+	bl mmu_setup
+	bl mmu_enable
 	bl xboot_main
 	b _main
 

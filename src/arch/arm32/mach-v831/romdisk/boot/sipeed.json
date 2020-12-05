@@ -580,6 +580,47 @@
 		"status": "disabled"
 	},
 
+	"i2c-v831@0x05002000": {
+		"clock-name": "twi0",
+		"clock-frequency": 400000,
+		"reset": 464,
+		"sda-gpio": 145,
+		"sda-gpio-config": 5,
+		"scl-gpio": 144,
+		"scl-gpio-config": 5
+	},
+
+	"i2c-v831@0x05002400": {
+		"clock-name": "twi1",
+		"clock-frequency": 400000,
+		"reset": 465,
+		"sda-gpio": 258,
+		"sda-gpio-config": 5,
+		"scl-gpio": 257,
+		"scl-gpio-config": 5
+	},
+
+	"i2c-v831@0x05002800": {
+		"clock-name": "twi2",
+		"clock-frequency": 400000,
+		"reset": 466,
+		"sda-gpio": 236,
+		"sda-gpio-config": 5,
+		"scl-gpio": 235,
+		"scl-gpio-config": 5
+	},
+
+	"i2c-v831@0x05002c00": {
+		"clock-name": "twi3",
+		"clock-frequency": 400000,
+		"reset": 467,
+		"sda-gpio": 234,
+		"sda-gpio-config": 4,
+		"scl-gpio": 233,
+		"scl-gpio-config": 4,
+		"status": "disabled"
+	},
+
 	"wdg-v831@0x030090a0": {
 		"clock-name": "wdg"
 	},

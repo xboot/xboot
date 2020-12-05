@@ -490,6 +490,15 @@
 
 	"irq-gic400@0x03020000": { "interrupt-base": 0, "interrupt-count": 192 },
 
+	"gpio-v831@0x0300b048": { "gpio-base":  64, "gpio-count": 12, "interrupt-offset": -1 },
+	"gpio-v831@0x0300b06c": { "gpio-base":  96, "gpio-count": 23, "interrupt-offset": -1 },
+	"gpio-v831@0x0300b090": { "gpio-base": 128, "gpio-count": 22, "interrupt-offset": -1 },
+	"gpio-v831@0x0300b0b4": { "gpio-base": 160, "gpio-count":  7, "interrupt-offset": -1 },
+	"gpio-v831@0x0300b0d8": { "gpio-base": 192, "gpio-count":  8, "interrupt-offset": -1 },
+	"gpio-v831@0x0300b0fc": { "gpio-base": 224, "gpio-count": 16, "interrupt-offset": -1 },
+	"gpio-v831@0x0300b120": { "gpio-base": 256, "gpio-count":  5, "interrupt-offset": -1 },
+	"gpio-v831@0x0300b144": { "gpio-base": 288, "gpio-count":  6, "interrupt-offset": -1 },
+
 	"uart-16550@0x05000000": {
 		"clock-name": "uart0",
 		"reset": 432,

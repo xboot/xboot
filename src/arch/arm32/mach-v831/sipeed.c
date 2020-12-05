@@ -1,5 +1,5 @@
 /*
- * maix-ii.c
+ * sipeed.c
  *
  * Copyright(c) 2007-2020 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -88,9 +88,9 @@ static int mach_keygen(struct machine_t * mach, const char * msg, void * key)
 	return 0;
 }
 
-static struct machine_t maix_ii = {
-	.name 		= "maix-ii",
-	.desc 		= "Sipeed Maix-II Based On Allwinner V831 SOC",
+static struct machine_t sipeed = {
+	.name 		= "sipeed",
+	.desc 		= "Sipeed(Maix-II) Based On Allwinner V831 SOC",
 	.detect 	= mach_detect,
 	.smpinit	= mach_smpinit,
 	.smpboot	= mach_smpboot,
@@ -103,15 +103,15 @@ static struct machine_t maix_ii = {
 	.keygen		= mach_keygen,
 };
 
-static __init void maix_ii_machine_init(void)
+static __init void sipeed_machine_init(void)
 {
-	register_machine(&maix_ii);
+	register_machine(&sipeed);
 }
 
-static __exit void maix_ii_machine_exit(void)
+static __exit void sipeed_machine_exit(void)
 {
-	unregister_machine(&maix_ii);
+	unregister_machine(&sipeed);
 }
 
-machine_initcall(maix_ii_machine_init);
-machine_exitcall(maix_ii_machine_exit);
+machine_initcall(sipeed_machine_init);
+machine_exitcall(sipeed_machine_exit);

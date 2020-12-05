@@ -105,13 +105,6 @@ extern "C" {
 #define V831_GPIOI3			(256 + 3)
 #define V831_GPIOI4			(256 + 4)
 
-#define V831_GPIOL0			(288 + 0)
-#define V831_GPIOL1			(288 + 1)
-#define V831_GPIOL2			(288 + 2)
-#define V831_GPIOL3			(288 + 3)
-#define V831_GPIOL4			(288 + 4)
-#define V831_GPIOL5			(288 + 5)
-
 #ifdef __cplusplus
 }
 #endif

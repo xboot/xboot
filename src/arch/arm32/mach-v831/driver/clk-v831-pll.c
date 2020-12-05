@@ -79,7 +79,7 @@ static u64_t clk_v831_pll_get_rate(struct clk_t * clk, u64_t prate)
 		n = ((r >> 8) & 0xff) + 1;
 		m1 = ((r >> 1) & 0x1) + 1;
 		m0 = ((r >> 0) & 0x1) + 1;
-		rate = (u64_t)((prate * n) / m0 / m1);
+		rate = (u64_t)((prate * n) / m0 / m1) >> 1;
 		break;
 
 	case 2:

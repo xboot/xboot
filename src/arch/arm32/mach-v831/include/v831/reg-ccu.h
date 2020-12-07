@@ -29,5 +29,10 @@
 #define CCU_PLL_AUDIO_BIAS			(0x378)
 #define CCU_PLL_CSI_BIAS			(0x3e0)
 #define CCU_PLL_CPUX_TUN			(0x400)
+#define CCU_CPUX_AXI_CFG			(0x500)
+#define CCU_PSI_AHB1_AHB2_CFG		(0x510)
+#define CCU_AHB3_CFG				(0x51c)
+#define CCU_APB1_CFG				(0x520)
+#define CCU_APB2_CFG				(0x524)
 
 #endif /* __V831_REG_CCU_H__ */

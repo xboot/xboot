@@ -123,8 +123,8 @@ _fiq:
  * The actual reset code
  */
 reset:
-	/* Save boot params to 0x00000040 */
-	ldr r0, =0x00000040
+	/* Save boot params to 0x00037ff8 */
+	ldr r0, =0x00037ff8
 	str sp, [r0, #0]
 	str lr, [r0, #4]
 	mrs lr, cpsr
@@ -298,11 +298,11 @@ udiv32:
 	lsr r2, r2, #1
 	lsrs r3, r3, #1
 	bcc 2b
-3:	mov pc,lr
+3:	mov pc, lr
 
 	.global return_to_fel
 return_to_fel:
-	ldr r0, =0x00000040
+	ldr r0, =0x00037ff8
 	ldr sp, [r0, #0]
 	ldr lr, [r0, #4]
 	ldr r1, [r0, #20]

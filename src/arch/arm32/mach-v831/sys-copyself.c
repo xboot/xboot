@@ -32,12 +32,15 @@ extern unsigned char __image_start;
 extern unsigned char __image_end;
 extern void return_to_fel(void);
 extern void sys_uart_putc(char c);
+extern void sys_spinor_init(void);
+extern void sys_spinor_exit(void);
+extern void sys_spinor_read(int addr, void * buf, int count);
 
 enum {
 	BOOT_DEVICE_FEL		= 0,
-	BOOT_DEVICE_SDCARD	= 1,
-	BOOT_DEVICE_SPINOR	= 2,
-	BOOT_DEVICE_SPINAND	= 3,
+	BOOT_DEVICE_SPINOR	= 1,
+	BOOT_DEVICE_SPINAND	= 2,
+	BOOT_DEVICE_SDCARD	= 3,
 	BOOT_DEVICE_EMMC	= 4,
 };
 
@@ -80,17 +83,21 @@ void sys_copyself(void)
 		sys_uart_putc('\n');
 		return_to_fel();
 	}
-	else if(d == BOOT_DEVICE_SDCARD)
-	{
-		mem = (void *)&__image_start;
-		size = (&__image_end - &__image_start + 512) >> 9;
-	}
 	else if(d == BOOT_DEVICE_SPINOR)
 	{
 		mem = (void *)&__image_start;
 		size = &__image_end - &__image_start;
+
+		sys_spinor_init();
+		sys_spinor_read(0, mem, size);
+		sys_spinor_exit();
 	}
 	else if(d == BOOT_DEVICE_SPINAND)
+	{
+		mem = (void *)&__image_start;
+		size = (&__image_end - &__image_start + 512) >> 9;
+	}
+	else if(d == BOOT_DEVICE_SDCARD)
 	{
 		mem = (void *)&__image_start;
 		size = (&__image_end - &__image_start + 512) >> 9;

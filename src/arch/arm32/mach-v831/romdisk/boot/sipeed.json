@@ -693,8 +693,7 @@
 		"partition": [
 			{ "name": "xboot",   "offset": 0,       "length": 4194304 },
 			{ "name": "private", "offset": 4194304, "length": 0 }
-		],
-		"status": "disabled"
+		]
 	},
 
 	"wdg-v831@0x030090a0": {

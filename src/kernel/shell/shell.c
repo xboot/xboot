@@ -146,6 +146,12 @@ int shell_setcwd(const char * path)
 	return -1;
 }
 
+static int __vmexec(const char * path, const char * fb, const char * input)
+{
+	return -1;
+}
+extern __typeof(__vmexec) vmexec __attribute__((weak, alias("__vmexec")));
+
 int shell_system(const char * cmdline)
 {
 	struct command_t * cmd;

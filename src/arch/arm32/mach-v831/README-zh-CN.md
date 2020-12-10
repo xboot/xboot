@@ -18,6 +18,11 @@ sunxi-fel spl xboot.bin; sunxi-fel -p write 0x40000000 xboot.bin; sunxi-fel exec
 sunxi-fel -p spiflash-write 0 xboot.bin
 ```
 
+## 烧写压缩镜像到SPI Flash
+```shell
+sunxi-fel -p spiflash-write 0 xboot.bin.z
+```
+
 ## 关于sunxi-fel工具
 
 sunxi-fel工具默认并没有集成spi flash写入功能，这里需要自行下载源码并编译，以支持spi flash烧写功能

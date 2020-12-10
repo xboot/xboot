@@ -31,6 +31,12 @@ SECTIONS
 		.obj/arch/arm32/mach-v831/sys-dram.o (.text*)
 		.obj/arch/arm32/mach-v831/sys-spinor.o (.text*)
 		.obj/arch/arm32/mach-v831/sys-copyself.o (.text*)
+		PROVIDE(__dram_param_start = .);
+		KEEP(*(.dram.param))
+		PROVIDE(__dram_param_end = .);
+		PROVIDE(__dram_bin_start = .);
+		KEEP(*(.dram.bin))
+		PROVIDE(__dram_bin_end = .);
 		PROVIDE(__spl_end = .);
 		*(.text*)
 		*(.init.text)

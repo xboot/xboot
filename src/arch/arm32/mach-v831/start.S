@@ -171,15 +171,60 @@ reset:
 	mov r0, #0x40000000
 	vmsr fpexc, r0
 
-	/* Initial system jtag, uart, clock and ddr using master */
-	mrc p15, 0, r0, c0, c0, 5
-	ands r0, #3
-	bne 1f
+	/* Check initialized or not */
+	adr r0, _start
+	ldr r1, =_start
+	cmp r0, r1
+	beq _initialized
+
+	/* Initial system jtag, uart and clock */
 	bl sys_jtag_init
 	bl sys_uart_init
 	bl sys_clock_init
+
+	/* Avoid using dram binary space, copy self to 0x00030000 */
+	ldr r0, =0x00030000
+	adr r1, _start
+	cmp r0, r1
+	beq _avoid
+	ldr r2, =__spl_size
+	bl memcpy
+	ldr r0, =_avoid
+	ldr r1, =_start
+	sub r0, r0, r1
+	ldr r1, =0x00030000
+	add r0, r0, r1
+	mov pc, r0
+_avoid:
+	nop
+
+	/* Copy dram bin to 0x00022000 */
+	ldr r0, _dram_bin_start
+	ldr r2, _dram_bin_end
+	sub r2, r2, r0
+	ldr r1, _image_start
+	sub r0, r0, r1
+	adr r1, _start
+	add r1, r1, r0
+	ldr r0, =0x00022000
+	bl memcpy
+
+	/* Copy dram param to 0x00027400 */
+	ldr r0, _dram_param_start
+	ldr r2, _dram_param_end
+	sub r2, r2, r0
+	ldr r1, _image_start
+	sub r0, r0, r1
+	adr r1, _start
+	add r1, r1, r0
+	ldr r0, =0x00027400
+	bl memcpy
+
+	/* Initial dram */
 	bl sys_dram_init
-1:	nop
+
+_initialized:
+	nop
 
 	/* Initialize stacks */
 	mrc p15, 0, r4, c0, c0, 5
@@ -256,11 +301,7 @@ reset:
 	ldr r1, =_start
 	cmp r0, r1
 	beq 1f
-	ldr r0, _image_start
-	adr r1, _start
-	ldr r2, _image_end
-	sub r2, r2, r0
-	bl memcpy
+	bl sys_copyself
 1:	nop
 
 	/* Clear bss section */
@@ -401,3 +442,11 @@ _stack_srv_start:
 	.long __stack_srv_start
 _stack_srv_end:
 	.long __stack_srv_end
+_dram_param_start:
+	.long __dram_param_start
+_dram_param_end:
+	.long __dram_param_end
+_dram_bin_start:
+	.long __dram_bin_start
+_dram_bin_end:
+	.long __dram_bin_end

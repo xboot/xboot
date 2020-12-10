@@ -46,7 +46,7 @@ enum {
 
 static int get_boot_device(void)
 {
-	u32_t * sig = (void *)0x4;
+	u32_t * sig = (void *)0x00020004;
 
 	if((sig[0] == 0x4e4f4765) && (sig[1] == 0x3054422e))
 	{

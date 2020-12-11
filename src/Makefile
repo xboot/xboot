@@ -330,16 +330,17 @@ xbegin : romdisk
 
 romdisk :
 	@echo [ROMDISK] Packing romdisk
-	@$(MKDIR) $(X_OBJDIRS) $(X_OUT) \
-		&& $(RM) .obj/init/version.o \
-		&& $(RM) .obj/driver/block/romdisk.o \
-		&& $(RM) .obj/romdisk \
-		&& $(RM) .obj/romdisk.cpio \
-		&& $(CP) romdisk .obj \
-		&& $(CP) arch/$(ARCH)/$(MACH)/romdisk .obj \
-		&& $(CD) .obj/romdisk \
-		&& $(FIND) . -not -name . | $(CPIO) > ../romdisk.cpio \
-		&& $(CD) ../..
+	@$(MKDIR) $(X_OBJDIRS) $(X_OUT)
+	@$(RM) .obj/init/version.o
+	@$(RM) .obj/driver/block/romdisk.o
+	@$(RM) .obj/romdisk
+	@$(RM) .obj/romdisk.cpio
+	@$(CP) romdisk .obj
+ifeq ($(strip $(CFG_FRAMEWORK)), y)
+	@$(CP) framework/romdisk .obj
+endif
+	@$(CP) arch/$(ARCH)/$(MACH)/romdisk .obj
+	@$(CD) .obj/romdisk && $(FIND) . -not -name . | $(CPIO) > ../romdisk.cpio
 
 clean : xclean
 	@$(RM) .obj $(X_OUT)

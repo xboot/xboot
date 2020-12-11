@@ -27,7 +27,6 @@
  */
 
 #include <xboot.h>
-#include <framework/vm.h>
 #include <command/command.h>
 #include <shell/readline.h>
 #include <shell/shell.h>

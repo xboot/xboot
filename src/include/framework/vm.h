@@ -17,8 +17,6 @@ struct vmctx_t
 	void * priv;
 };
 
-int vmexec(const char * path, const char * fb, const char * input);
-
 #ifdef __cplusplus
 }
 #endif

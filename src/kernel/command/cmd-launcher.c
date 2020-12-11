@@ -27,7 +27,7 @@
  */
 
 #include <xboot.h>
-#include <framework/vm.h>
+#include <shell/shell.h>
 #include <command/command.h>
 
 static void usage(void)

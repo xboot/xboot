@@ -3,11 +3,15 @@
 #
 
 #
-# You can pass CROSS_COMPILE, PLATFORM and WBOXTEST variable.
+# You can pass CROSS_COMPILE and PLATFORM variable.
 #
 CROSS_COMPILE	?=
 PLATFORM		?=
-WBOXTEST		?=
+
+#
+# Configurable advanced custom components
+#
+CFG_WBOXTEST 	?= n
 
 #
 # Get platform information about ARCH and MACH from PLATFORM variable.
@@ -162,7 +166,7 @@ SRCDIRS		+=	arch/$(ARCH)/lib/cpu \
 				framework/hardware
 
 #
-# Add external library
+# Add necessary external library
 #
 INCDIRS		+= 	external/libfdt-1.4.2
 SRCDIRS		+=	external/libfdt-1.4.2
@@ -238,9 +242,9 @@ INCDIRS		+=	external/chipmunk-7.0.3/include
 SRCDIRS		+=	external/chipmunk-7.0.3/src
 
 #
-# Add whitebox test
+# Advanced custom components
 #
-ifneq ($(strip $(WBOXTEST)),)
+ifeq ($(strip $(CFG_WBOXTEST)), y)
 INCDIRS		+=	wboxtest
 SRCDIRS		+=	wboxtest \
 				wboxtest/benchmark \

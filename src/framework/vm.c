@@ -57,8 +57,7 @@
 #include <core/l-timer.h>
 #include <core/l-window.h>
 #include <core/l-xfs.h>
-#include <codec/l-base64.h>
-#include <codec/l-json.h>
+#include <codec/l-codec.h>
 #include <hardware/l-hardware.h>
 #include <vm.h>
 

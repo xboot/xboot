@@ -175,7 +175,7 @@ reset:
 	adr r0, _start
 	ldr r1, =_start
 	cmp r0, r1
-	beq _initialized
+	beq _speedup
 
 	/* Initial system jtag, uart and clock */
 	bl sys_jtag_init
@@ -223,7 +223,22 @@ _avoid:
 	/* Initial dram */
 	bl sys_dram_init
 
-_initialized:
+	/* Boot speed up, leave slower sram */
+	adr r0, _start
+	ldr r1, =_start
+	cmp r0, r1
+	beq _speedup
+	ldr r0, =0x43f80000
+	adr r1, _start
+	ldr r2, =__spl_size
+	bl memcpy
+	ldr r0, =_speedup
+	ldr r1, =_start
+	sub r0, r0, r1
+	ldr r1, =0x43f80000
+	add r0, r0, r1
+	mov pc, r0
+_speedup:
 	nop
 
 	/* Initialize stacks */

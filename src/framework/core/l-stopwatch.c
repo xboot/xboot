@@ -26,7 +26,7 @@
  *
  */
 
-#include <framework/core/l-stopwatch.h>
+#include <core/l-stopwatch.h>
 
 #define	MT_STOPWATCH	"__mt_stopwatch__"
 

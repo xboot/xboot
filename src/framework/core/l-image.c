@@ -27,11 +27,11 @@
  */
 
 #include <xboot.h>
-#include <framework/core/l-color.h>
-#include <framework/core/l-matrix.h>
-#include <framework/core/l-text.h>
-#include <framework/core/l-icon.h>
-#include <framework/core/l-image.h>
+#include <core/l-color.h>
+#include <core/l-matrix.h>
+#include <core/l-text.h>
+#include <core/l-icon.h>
+#include <core/l-image.h>
 
 static int l_image_new(lua_State * L)
 {

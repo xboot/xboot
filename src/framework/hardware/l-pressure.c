@@ -27,7 +27,7 @@
  */
 
 #include <pressure/pressure.h>
-#include <framework/hardware/l-hardware.h>
+#include <hardware/l-hardware.h>
 
 static int l_pressure_new(lua_State * L)
 {

@@ -26,7 +26,7 @@
  *
  */
 
-#include <framework/core/l-display-pager.h>
+#include <core/l-display-pager.h>
 
 static const char display_pager_lua[] = X(
 local M = Class(DisplayObject)

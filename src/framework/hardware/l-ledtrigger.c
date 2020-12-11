@@ -27,7 +27,7 @@
  */
 
 #include <led/ledtrigger.h>
-#include <framework/hardware/l-hardware.h>
+#include <hardware/l-hardware.h>
 
 static int l_ledtrigger_new(lua_State * L)
 {

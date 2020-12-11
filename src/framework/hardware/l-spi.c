@@ -27,7 +27,7 @@
  */
 
 #include <spi/spi.h>
-#include <framework/hardware/l-hardware.h>
+#include <hardware/l-hardware.h>
 
 struct lspi_t {
 	struct spi_device_t * dev;

@@ -27,7 +27,7 @@
  */
 
 #include <xboot.h>
-#include <framework/core/l-easing.h>
+#include <core/l-easing.h>
 
 /*
  * t = elapsed time

@@ -26,7 +26,7 @@
  *
  */
 
-#include <framework/core/l-class.h>
+#include <core/l-class.h>
 
 static const char class_lua[] = X(
 local function rethack(t, bbak, mbak, ...)

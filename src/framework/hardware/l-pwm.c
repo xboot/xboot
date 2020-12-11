@@ -27,7 +27,7 @@
  */
 
 #include <pwm/pwm.h>
-#include <framework/hardware/l-hardware.h>
+#include <hardware/l-hardware.h>
 
 static int l_pwm_new(lua_State * L)
 {

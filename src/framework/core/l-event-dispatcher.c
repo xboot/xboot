@@ -26,7 +26,7 @@
  *
  */
 
-#include <framework/core/l-event-dispatcher.h>
+#include <core/l-event-dispatcher.h>
 
 static const char event_dispatcher_lua[] = X(
 local table = table

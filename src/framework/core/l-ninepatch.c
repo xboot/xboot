@@ -27,7 +27,7 @@
  */
 
 #include <xboot.h>
-#include <framework/core/l-ninepatch.h>
+#include <core/l-ninepatch.h>
 
 void ninepatch_stretch(struct lninepatch_t * ninepatch, double width, double height)
 {

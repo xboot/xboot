@@ -26,7 +26,7 @@
  *
  */
 
-#include <framework/core/l-display-image.h>
+#include <core/l-display-image.h>
 
 static const char display_image_lua[] = X(
 local M = Class(DisplayObject)

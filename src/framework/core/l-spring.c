@@ -27,7 +27,7 @@
  */
 
 #include <xboot.h>
-#include <framework/core/l-spring.h>
+#include <core/l-spring.h>
 
 static int l_new(lua_State * L)
 {

@@ -26,7 +26,7 @@
  *
  */
 
-#include <framework/core/l-display-ninepatch.h>
+#include <core/l-display-ninepatch.h>
 
 static const char display_ninepatch_lua[] = X(
 local M = Class(DisplayObject)

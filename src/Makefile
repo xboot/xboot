@@ -12,6 +12,7 @@ PLATFORM		?=
 # Configurable advanced custom components
 #
 CFG_CAIRO		?= y
+CFG_FRAMEWORK	?= y
 CFG_WBOXTEST 	?= n
 
 #
@@ -160,11 +161,7 @@ SRCDIRS		+=	arch/$(ARCH)/lib/cpu \
 				driver/thermometer \
 				driver/uart \
 				driver/vibrator \
-				driver/watchdog \
-				framework \
-				framework/codec \
-				framework/core \
-				framework/hardware
+				driver/watchdog
 
 #
 # Add necessary external library
@@ -183,12 +180,6 @@ SRCDIRS		+=	external/libpng-1.6.37
 
 INCDIRS		+= 	external/jpeg-9d
 SRCDIRS		+=	external/jpeg-9d
-
-INCDIRS		+= 	external/lua-5.4.0
-SRCDIRS		+=	external/lua-5.4.0
-
-INCDIRS		+= 	external/lua-cjson-2.1.0
-SRCDIRS		+=	external/lua-cjson-2.1.0
 
 INCDIRS		+=	external/quirc-1.1.0
 SRCDIRS		+=	external/quirc-1.1.0
@@ -231,8 +222,6 @@ SRCDIRS		+=	external/freetype-2.10.1/src/autofit \
 				external/freetype-2.10.1/src/type42 \
 				external/freetype-2.10.1/src/winfonts
 
-
-
 #
 # Advanced custom components
 #
@@ -243,6 +232,18 @@ SRCDIRS		+=	external/pixman-0.40.0 \
 				external/pixman-0.40.0/$(ARCH)
 INCDIRS		+= 	external/cairo-1.17.2
 SRCDIRS		+=	external/cairo-1.17.2
+endif
+
+ifeq ($(strip $(CFG_FRAMEWORK)), y)
+INCDIRS		+= 	external/lua-5.4.0
+SRCDIRS		+=	external/lua-5.4.0
+INCDIRS		+= 	external/lua-cjson-2.1.0
+SRCDIRS		+=	external/lua-cjson-2.1.0
+INCDIRS		+= 	framework
+SRCDIRS		+=	framework \
+				framework/codec \
+				framework/core \
+				framework/hardware
 endif
 
 ifeq ($(strip $(CFG_WBOXTEST)), y)

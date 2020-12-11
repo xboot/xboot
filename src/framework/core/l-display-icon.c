@@ -26,7 +26,7 @@
  *
  */
 
-#include <framework/core/l-display-icon.h>
+#include <core/l-display-icon.h>
 
 static const char display_icon_lua[] = X(
 local M = Class(DisplayObject)

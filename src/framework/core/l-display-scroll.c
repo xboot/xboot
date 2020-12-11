@@ -26,7 +26,7 @@
  *
  */
 
-#include <framework/core/l-display-scroll.h>
+#include <core/l-display-scroll.h>
 
 static const char display_scroll_lua[] = X(
 local M = Class(DisplayObject)

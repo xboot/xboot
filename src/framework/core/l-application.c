@@ -28,8 +28,8 @@
 
 #include <xboot.h>
 #include <xfs/xfs.h>
-#include <framework/core/l-image.h>
-#include <framework/core/l-application.h>
+#include <core/l-image.h>
+#include <core/l-application.h>
 
 struct lapplication_t {
 	struct package_t * pkg;

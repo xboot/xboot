@@ -26,7 +26,7 @@
  *
  */
 
-#include <framework/core/l-i18n.h>
+#include <core/l-i18n.h>
 
 static const char i18n_lua[] = X(
 local M = Class()

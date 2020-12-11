@@ -26,7 +26,7 @@
  *
  */
 
-#include <framework/core/l-printr.h>
+#include <core/l-printr.h>
 
 static const char printr_lua[] = X(
 return function(o)

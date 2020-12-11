@@ -27,13 +27,13 @@
  */
 
 #include <xboot.h>
-#include <framework/core/l-color.h>
-#include <framework/core/l-image.h>
-#include <framework/core/l-ninepatch.h>
-#include <framework/core/l-text.h>
-#include <framework/core/l-icon.h>
-#include <framework/core/l-window.h>
-#include <framework/core/l-dobject.h>
+#include <core/l-color.h>
+#include <core/l-image.h>
+#include <core/l-ninepatch.h>
+#include <core/l-text.h>
+#include <core/l-icon.h>
+#include <core/l-window.h>
+#include <core/l-dobject.h>
 
 enum {
 	MFLAG_TRANSLATE					= (0x1 << 0),

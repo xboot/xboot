@@ -27,7 +27,7 @@
  */
 
 #include <servo/servo.h>
-#include <framework/hardware/l-hardware.h>
+#include <hardware/l-hardware.h>
 
 static int l_servo_new(lua_State * L)
 {

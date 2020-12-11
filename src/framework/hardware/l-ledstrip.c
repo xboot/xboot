@@ -27,8 +27,8 @@
  */
 
 #include <led/ledstrip.h>
-#include <framework/core/l-color.h>
-#include <framework/hardware/l-hardware.h>
+#include <core/l-color.h>
+#include <hardware/l-hardware.h>
 
 static int l_ledstrip_new(lua_State * L)
 {

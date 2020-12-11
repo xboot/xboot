@@ -27,8 +27,8 @@
  */
 
 #include <xboot.h>
-#include <framework/core/l-color.h>
-#include <framework/core/l-icon.h>
+#include <core/l-color.h>
+#include <core/l-icon.h>
 
 static int l_icon_new(lua_State * L)
 {

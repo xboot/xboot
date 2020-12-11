@@ -27,7 +27,7 @@
  */
 
 #include <light/light.h>
-#include <framework/hardware/l-hardware.h>
+#include <hardware/l-hardware.h>
 
 static int l_light_new(lua_State * L)
 {

@@ -27,7 +27,7 @@
  */
 
 #include <motor/motor.h>
-#include <framework/hardware/l-hardware.h>
+#include <hardware/l-hardware.h>
 
 static int l_motor_new(lua_State * L)
 {

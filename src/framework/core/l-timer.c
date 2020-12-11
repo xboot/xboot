@@ -26,7 +26,7 @@
  *
  */
 
-#include <framework/core/l-timer.h>
+#include <core/l-timer.h>
 
 static const char timer_lua[] = X(
 local M = Class()

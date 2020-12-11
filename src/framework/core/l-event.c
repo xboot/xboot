@@ -27,7 +27,7 @@
  */
 
 #include <input/input.h>
-#include <framework/core/l-event.h>
+#include <core/l-event.h>
 
 static int l_event_new(lua_State * L)
 {

@@ -26,7 +26,7 @@
  *
  */
 
-#include <framework/core/l-stage.h>
+#include <core/l-stage.h>
 
 static const char stage_lua[] = X(
 local M = Class(DisplayObject)

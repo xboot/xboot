@@ -26,7 +26,7 @@
  *
  */
 
-#include <framework/luahelper.h>
+#include <luahelper.h>
 
 void luahelper_dump_stack(lua_State * L)
 {

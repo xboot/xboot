@@ -27,7 +27,7 @@
  */
 
 #include <xboot.h>
-#include <framework/core/l-xfs.h>
+#include <core/l-xfs.h>
 
 static int l_xfs_open(lua_State * L)
 {

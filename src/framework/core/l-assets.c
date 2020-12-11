@@ -26,7 +26,7 @@
  *
  */
 
-#include <framework/core/l-assets.h>
+#include <core/l-assets.h>
 
 static const char assets_lua[] = X(
 local Xfs = Xfs

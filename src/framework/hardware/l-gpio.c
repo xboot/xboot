@@ -27,7 +27,7 @@
  */
 
 #include <gpio/gpio.h>
-#include <framework/hardware/l-hardware.h>
+#include <hardware/l-hardware.h>
 
 struct lgpio_t {
 	struct gpiochip_t * chip;

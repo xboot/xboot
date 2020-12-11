@@ -27,8 +27,8 @@
  */
 
 #include <xboot.h>
-#include <framework/core/l-image.h>
-#include <framework/core/l-window.h>
+#include <core/l-image.h>
+#include <core/l-window.h>
 
 static int l_window_new(lua_State * L)
 {

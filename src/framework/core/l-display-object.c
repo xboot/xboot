@@ -26,7 +26,7 @@
  *
  */
 
-#include <framework/core/l-display-object.h>
+#include <core/l-display-object.h>
 
 static const char display_object_lua[] = X(
 local Dobject = Dobject

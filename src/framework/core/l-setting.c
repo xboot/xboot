@@ -26,7 +26,7 @@
  *
  */
 
-#include <framework/core/l-setting.h>
+#include <core/l-setting.h>
 
 static int l_setting_set(lua_State * L)
 {

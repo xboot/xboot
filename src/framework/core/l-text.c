@@ -27,8 +27,8 @@
  */
 
 #include <xboot.h>
-#include <framework/core/l-color.h>
-#include <framework/core/l-text.h>
+#include <core/l-color.h>
+#include <core/l-text.h>
 
 static int l_text_new(lua_State * L)
 {

@@ -27,7 +27,7 @@
  */
 
 #include <i2c/i2c.h>
-#include <framework/hardware/l-hardware.h>
+#include <hardware/l-hardware.h>
 
 struct li2c_t {
 	struct i2c_device_t * dev;

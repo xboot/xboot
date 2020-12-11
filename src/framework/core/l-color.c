@@ -27,7 +27,7 @@
  */
 
 #include <xboot.h>
-#include <framework/core/l-color.h>
+#include <core/l-color.h>
 
 static int l_color_new(lua_State * L)
 {

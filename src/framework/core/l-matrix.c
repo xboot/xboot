@@ -27,7 +27,7 @@
  */
 
 #include <xboot.h>
-#include <framework/core/l-matrix.h>
+#include <core/l-matrix.h>
 
 static int l_matrix_new(lua_State * L)
 {

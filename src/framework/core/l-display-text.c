@@ -26,7 +26,7 @@
  *
  */
 
-#include <framework/core/l-display-text.h>
+#include <core/l-display-text.h>
 
 static const char display_text_lua[] = X(
 local M = Class(DisplayObject)

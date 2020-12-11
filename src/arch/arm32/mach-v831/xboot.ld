@@ -29,6 +29,7 @@ SECTIONS
 		.obj/arch/arm32/mach-v831/sys-uart.o (.text*)
 		.obj/arch/arm32/mach-v831/sys-clock.o (.text*)
 		.obj/arch/arm32/mach-v831/sys-dram.o (.text*)
+		.obj/arch/arm32/mach-v831/sys-mmu.o (.text*)
 		.obj/arch/arm32/mach-v831/sys-decompress.o (.text*)
 		.obj/arch/arm32/mach-v831/sys-spinor.o (.text*)
 		.obj/arch/arm32/mach-v831/sys-copyself.o (.text*)
@@ -117,7 +118,7 @@ SECTIONS
 
 	.data ALIGN(8) :
 	{
-		PROVIDE(__data_start = .);	
+		PROVIDE(__data_start = .);
 		*(.data*)
 		. = ALIGN(8);
   		PROVIDE(__data_end = .);
@@ -132,6 +133,13 @@ SECTIONS
 		*(COMMON)
 		. = ALIGN(8);
 		PROVIDE(__bss_end = .);
+	} > ram
+
+	.mmu ALIGN(0x4000) (NOLOAD) :
+	{
+		PROVIDE(__mmu_start = .);
+		. += 4096;
+		PROVIDE(__mmu_end = .);
 	} > ram
 
 	.stack ALIGN(8) (NOLOAD) :

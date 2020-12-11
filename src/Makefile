@@ -11,8 +11,8 @@ PLATFORM		?=
 #
 # Configurable advanced custom components
 #
-CFG_CAIRO		?= y
 CFG_FRAMEWORK	?= y
+CFG_CAIRO		?= y
 CFG_WBOXTEST 	?= n
 
 #
@@ -225,15 +225,6 @@ SRCDIRS		+=	external/freetype-2.10.1/src/autofit \
 #
 # Advanced custom components
 #
-ifeq ($(strip $(CFG_CAIRO)), y)
-INCDIRS		+= 	external/pixman-0.40.0 \
-				external/pixman-0.40.0/$(ARCH)
-SRCDIRS		+=	external/pixman-0.40.0 \
-				external/pixman-0.40.0/$(ARCH)
-INCDIRS		+= 	external/cairo-1.17.2
-SRCDIRS		+=	external/cairo-1.17.2
-endif
-
 ifeq ($(strip $(CFG_FRAMEWORK)), y)
 INCDIRS		+= 	external/lua-5.4.0
 SRCDIRS		+=	external/lua-5.4.0
@@ -244,6 +235,15 @@ SRCDIRS		+=	framework \
 				framework/codec \
 				framework/core \
 				framework/hardware
+endif
+
+ifeq ($(strip $(CFG_CAIRO)), y)
+INCDIRS		+= 	external/pixman-0.40.0 \
+				external/pixman-0.40.0/$(ARCH)
+SRCDIRS		+=	external/pixman-0.40.0 \
+				external/pixman-0.40.0/$(ARCH)
+INCDIRS		+= 	external/cairo-1.17.2
+SRCDIRS		+=	external/cairo-1.17.2
 endif
 
 ifeq ($(strip $(CFG_WBOXTEST)), y)

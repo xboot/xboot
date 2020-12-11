@@ -12,7 +12,6 @@ PLATFORM		?=
 # Configurable advanced custom components
 #
 CFG_CAIRO		?= y
-CFG_CHIPMUNK	?= y
 CFG_WBOXTEST 	?= n
 
 #
@@ -244,11 +243,6 @@ SRCDIRS		+=	external/pixman-0.40.0 \
 				external/pixman-0.40.0/$(ARCH)
 INCDIRS		+= 	external/cairo-1.17.2
 SRCDIRS		+=	external/cairo-1.17.2
-endif
-
-ifeq ($(strip $(CFG_CHIPMUNK)), y)
-INCDIRS		+=	external/chipmunk-7.0.3/include
-SRCDIRS		+=	external/chipmunk-7.0.3/src
 endif
 
 ifeq ($(strip $(CFG_WBOXTEST)), y)

@@ -1,5 +1,5 @@
 /*
- * kernel/core/package.c
+ * framework/package.c
  *
  * Copyright(c) 2007-2020 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -27,11 +27,11 @@
  */
 
 #include <xboot.h>
-#include <xboot/package.h>
+#include <package.h>
 
 static struct surface_t * __package_icon = NULL;
 static struct surface_t * __package_panel = NULL;
-struct hmap_t * __package_list = NULL;
+static struct hmap_t * __package_list = NULL;
 
 static struct package_t * package_alloc(const char * path, const char * lang)
 {
@@ -188,9 +188,47 @@ static void package_free(struct package_t * pkg)
 	}
 }
 
+static struct surface_t * package_icon_default(void)
+{
+	struct xfs_context_t * ctx;
+
+	if(!__package_icon)
+	{
+		ctx = xfs_alloc("/private/framework", 0);
+		if(ctx)
+			__package_icon = surface_alloc_from_xfs(ctx, "assets/images/icon.png");
+		xfs_free(ctx);
+	}
+	return __package_icon;
+}
+
+static struct surface_t * package_panel_default(void)
+{
+	struct xfs_context_t * ctx;
+
+	if(!__package_panel)
+	{
+		ctx = xfs_alloc("/private/framework", 0);
+		if(ctx)
+			__package_panel = surface_alloc_from_xfs(ctx, "assets/images/panel.png");
+		xfs_free(ctx);
+	}
+	return __package_panel;
+}
+
+struct hmap_t * get_package_list(void)
+{
+	if(!__package_list)
+	{
+		__package_list = hmap_alloc(0);
+		package_rescan();
+	}
+	return __package_list;
+}
+
 struct package_t * package_search(const char * path)
 {
-	return hmap_search(__package_list, path);
+	return hmap_search(get_package_list(), path);
 }
 
 const char * package_get_path(struct package_t * pkg)
@@ -239,14 +277,14 @@ struct surface_t * package_get_icon(struct package_t * pkg)
 {
 	if(pkg && pkg->icon)
 		return pkg->icon;
-	return __package_icon;
+	return package_icon_default();
 }
 
 struct surface_t * package_get_panel(struct package_t * pkg)
 {
 	if(pkg && pkg->panel)
 		return pkg->panel;
-	return __package_panel;
+	return package_panel_default();
 }
 
 static void hmap_entry_callback(struct hmap_entry_t * e)
@@ -261,61 +299,48 @@ void package_rescan(void)
 	struct vfs_stat_t st;
 	struct vfs_dirent_t dir;
 	struct slist_t * sl, * e;
-	const char * lang = setting_get("language", NULL);
 	const char * path;
 	int fd;
 
-	hmap_clear(__package_list, hmap_entry_callback);
-	sl = slist_alloc();
-	path = "/application";
-	if(vfs_stat(path, &st) >= 0 && S_ISDIR(st.st_mode))
+	if(__package_list)
 	{
-		if((fd = vfs_opendir(path)) >= 0)
+		hmap_clear(__package_list, hmap_entry_callback);
+		sl = slist_alloc();
+		path = "/application";
+		if(vfs_stat(path, &st) >= 0 && S_ISDIR(st.st_mode))
 		{
-			while(vfs_readdir(fd, &dir) >= 0)
+			if((fd = vfs_opendir(path)) >= 0)
 			{
-				if(dir.d_name && (dir.d_name[0] == '.'))
-					continue;
-				slist_add(sl, NULL, "%s/%s", path, dir.d_name);
+				while(vfs_readdir(fd, &dir) >= 0)
+				{
+					if(dir.d_name && (dir.d_name[0] == '.'))
+						continue;
+					slist_add(sl, NULL, "%s/%s", path, dir.d_name);
+				}
+				vfs_closedir(fd);
 			}
-			vfs_closedir(fd);
 		}
-	}
-	path = "/private/application";
-	if(vfs_stat(path, &st) >= 0 && S_ISDIR(st.st_mode))
-	{
-		if((fd = vfs_opendir(path)) >= 0)
+		path = "/private/application";
+		if(vfs_stat(path, &st) >= 0 && S_ISDIR(st.st_mode))
 		{
-			while(vfs_readdir(fd, &dir) >= 0)
+			if((fd = vfs_opendir(path)) >= 0)
 			{
-				if(dir.d_name && (dir.d_name[0] == '.'))
-					continue;
-				slist_add(sl, NULL, "%s/%s", path, dir.d_name);
+				while(vfs_readdir(fd, &dir) >= 0)
+				{
+					if(dir.d_name && (dir.d_name[0] == '.'))
+						continue;
+					slist_add(sl, NULL, "%s/%s", path, dir.d_name);
+				}
+				vfs_closedir(fd);
 			}
-			vfs_closedir(fd);
 		}
+		slist_sort(sl);
+		slist_for_each_entry(e, sl)
+		{
+			pkg = package_alloc(e->key, setting_get("language", NULL));
+			if(pkg)
+				hmap_add(__package_list, e->key, pkg);
+		}
+		slist_free(sl);
 	}
-	slist_sort(sl);
-	slist_for_each_entry(e, sl)
-	{
-		pkg = package_alloc(e->key, lang);
-		if(pkg)
-			hmap_add(__package_list, e->key, pkg);
-	}
-	slist_free(sl);
-}
-
-void do_init_package(void)
-{
-	struct xfs_context_t * ctx;
-
-	ctx = xfs_alloc("/private/framework", 0);
-	if(ctx)
-	{
-		__package_icon = surface_alloc_from_xfs(ctx, "assets/images/icon.png");
-		__package_panel = surface_alloc_from_xfs(ctx, "assets/images/panel.png");
-		xfs_free(ctx);
-	}
-	__package_list = hmap_alloc(0);
-	package_rescan();
 }

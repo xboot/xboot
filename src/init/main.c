@@ -52,9 +52,6 @@ void xboot_main(void)
 	/* Do play audio */
 	do_play_audio();
 
-	/* Do initial package */
-	do_init_package();
-
 	/* Do auto mount */
 	do_auto_mount();
 

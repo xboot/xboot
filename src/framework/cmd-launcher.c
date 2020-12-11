@@ -27,6 +27,7 @@
  */
 
 #include <xboot.h>
+#include <package.h>
 #include <shell/shell.h>
 #include <command/command.h>
 
@@ -66,7 +67,7 @@ static inline void tabbar_main(struct xui_context_t * ctx)
 		widths[n - 1] = -1;
 		xui_layout_row(ctx, n, widths, pw * 3 / 2 + 80);
 
-		hmap_for_each_entry(e, __package_list)
+		hmap_for_each_entry(e, get_package_list())
 		{
 			struct package_t * pkg = (struct package_t *)e->value;
 			xui_layout_begin_column(ctx);

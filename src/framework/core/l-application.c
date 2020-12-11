@@ -27,6 +27,7 @@
  */
 
 #include <xboot.h>
+#include <package.h>
 #include <xfs/xfs.h>
 #include <core/l-image.h>
 #include <core/l-application.h>
@@ -56,7 +57,7 @@ static int l_application_list(lua_State * L)
 	struct hmap_entry_t * e;
 
 	lua_newtable(L);
-	hmap_for_each_entry(e, __package_list)
+	hmap_for_each_entry(e, get_package_list())
 	{
 		app = lua_newuserdata(L, sizeof(struct lapplication_t));
 		app->pkg = e->value;

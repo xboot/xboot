@@ -379,10 +379,18 @@ int shell_system(const char * cmdline)
 				}
 				else
 				{
-					if(shell_realpath(args[0], fpath) < 0)
+					if(vmexec == __vmexec)
+					{
+						printf(" could not found \'%s\' command\r\n", args[0]);
 						ret = -1;
+					}
 					else
-						ret = vmexec(fpath, (n > 1) ? args[1] : NULL, (n > 2) ? args[2] : NULL);
+					{
+						if(shell_realpath(args[0], fpath) >= 0)
+							ret = vmexec(fpath, (n > 1) ? args[1] : NULL, (n > 2) ? args[2] : NULL);
+						else
+							ret = -1;
+					}
 				}
 				if((ret < 0) && pos)
 				{

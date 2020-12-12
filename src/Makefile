@@ -226,8 +226,8 @@ SRCDIRS		+=	external/freetype-2.10.1/src/autofit \
 # Advanced custom components
 #
 ifeq ($(strip $(CFG_FRAMEWORK)), y)
-INCDIRS		+= 	external/lua-5.4.0
-SRCDIRS		+=	external/lua-5.4.0
+INCDIRS		+= 	external/lua-5.4.2
+SRCDIRS		+=	external/lua-5.4.2
 INCDIRS		+= 	external/lua-cjson-2.1.0
 SRCDIRS		+=	external/lua-cjson-2.1.0
 INCDIRS		+= 	framework

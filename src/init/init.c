@@ -186,7 +186,8 @@ void do_auto_boot(void)
 {
 	int delay = CONFIG_AUTO_BOOT_DELAY * 1000;
 
-	do {
+	while(delay > 0)
+	{
 		if(getchar() != EOF)
 		{
 			printf("\r\n");
@@ -197,7 +198,7 @@ void do_auto_boot(void)
 		if(delay < 0)
 			delay = 0;
 		printf("\rPress any key to stop auto boot:%3d.%03d%s", delay / 1000, delay % 1000, (delay == 0) ? "\r\n" : "");
-	} while(delay > 0);
+	}
 
 #ifdef __SANDBOX__
 	extern char * sandbox_get_application(void);

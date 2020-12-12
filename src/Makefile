@@ -169,8 +169,8 @@ SRCDIRS		+=	arch/$(ARCH)/lib/cpu \
 INCDIRS		+= 	external/libfdt-1.4.2
 SRCDIRS		+=	external/libfdt-1.4.2
 
-INCDIRS		+= 	external/lz4-1.8.2
-SRCDIRS		+=	external/lz4-1.8.2
+INCDIRS		+= 	external/lz4-1.9.3
+SRCDIRS		+=	external/lz4-1.9.3
 
 INCDIRS		+= 	external/zlib-1.2.11
 SRCDIRS		+=	external/zlib-1.2.11

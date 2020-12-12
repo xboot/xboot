@@ -23,10 +23,6 @@ sunxi-fel -p spiflash-write 0 xboot.bin
 sunxi-fel -p spiflash-write 0 xboot.bin.z
 ```
 
-## About sunxi-fel tool
-
-The default sunxi-fel tool don't support spi flash, and you need to download the source code and compile it to support spi flash programming
-
 ## Download sunxi-fel source code
 ```shell
 git clone https://github.com/linux-sunxi/sunxi-tools.git

@@ -18,6 +18,11 @@ sunxi-fel spl xboot.bin; sunxi-fel -p write 0x40000000 xboot.bin; sunxi-fel exec
 sunxi-fel -p spiflash-write 0 xboot.bin
 ```
 
+## 烧写压缩镜像到SPI Flash
+```shell
+sunxi-fel -p spiflash-write 0 xboot.bin.z
+```
+
 ## 下载sunxi-fel源码
 ```shell
 git clone https://github.com/linux-sunxi/sunxi-tools.git

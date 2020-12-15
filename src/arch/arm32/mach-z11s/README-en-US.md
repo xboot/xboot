@@ -18,6 +18,11 @@ sunxi-fel spl xboot.bin; sunxi-fel -p write 0x40000000 xboot.bin; sunxi-fel exec
 sunxi-fel -p spiflash-write 0 xboot.bin
 ```
 
+## Brun compress image to SPI Flash
+```shell
+sunxi-fel -p spiflash-write 0 xboot.bin.z
+```
+
 ## Download sunxi-fel source code
 ```shell
 git clone https://github.com/linux-sunxi/sunxi-tools.git

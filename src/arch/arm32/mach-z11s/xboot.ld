@@ -28,6 +28,8 @@ SECTIONS
 		.obj/arch/arm32/mach-z11s/sys-uart.o (.text*)
 		.obj/arch/arm32/mach-z11s/sys-clock.o (.text*)
 		.obj/arch/arm32/mach-z11s/sys-dram.o (.text*)
+		.obj/arch/arm32/mach-z11s/sys-mmu.o (.text*)
+		.obj/arch/arm32/mach-z11s/sys-decompress.o (.text*)
 		.obj/arch/arm32/mach-z11s/sys-spinor.o (.text*)
 		.obj/arch/arm32/mach-z11s/sys-copyself.o (.text*)
 		PROVIDE(__spl_end = .);

@@ -28,9 +28,9 @@
 
 #include <xboot.h>
 
-extern unsigned char __image_start;
-extern unsigned char __image_end;
-extern unsigned char __heap_start;
+extern unsigned char __image_start[];
+extern unsigned char __image_end[];
+extern unsigned char __heap_start[];
 extern void return_to_fel(void);
 extern void sys_mmu_init(void);
 extern void sys_uart_putc(char c);
@@ -105,9 +105,9 @@ void sys_copyself(void)
 	}
 	else if(d == BOOT_DEVICE_SPI)
 	{
-		mem = (void *)&__image_start;
-		tmp = (void *)&__heap_start;
-		size = &__image_end - &__image_start;
+		mem = (void *)__image_start;
+		tmp = (void *)__heap_start;
+		size = __image_end - __image_start;
 		sys_mmu_init();
 
 		sys_spinor_init();
@@ -134,8 +134,8 @@ void sys_copyself(void)
 	}
 	else if(d == BOOT_DEVICE_MMC)
 	{
-		mem = (void *)&__image_start;
-		size = (&__image_end - &__image_start + 512) >> 9;
+		mem = (void *)__image_start;
+		size = (__image_end - __image_start + 512) >> 9;
 		sys_mmu_init();
 	}
 }

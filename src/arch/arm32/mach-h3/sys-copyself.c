@@ -28,8 +28,8 @@
 
 #include <xboot.h>
 
-extern unsigned char __image_start;
-extern unsigned char __image_end;
+extern unsigned char __image_start[];
+extern unsigned char __image_end[];
 extern void return_to_fel(void);
 extern void sys_uart_putc(char c);
 extern void sys_spinor_init(void);
@@ -90,18 +90,18 @@ void sys_copyself(void)
 	}
 	else if(d == BOOT_DEVICE_MMC0)
 	{
-		mem = (void *)&__image_start;
-		size = (&__image_end - &__image_start + 512) >> 9;
+		mem = (void *)__image_start;
+		size = (__image_end - __image_start + 512) >> 9;
 	}
 	else if(d == BOOT_DEVICE_MMC2)
 	{
-		mem = (void *)&__image_start;
-		size = (&__image_end - &__image_start + 512) >> 9;
+		mem = (void *)__image_start;
+		size = (__image_end - __image_start + 512) >> 9;
 	}
 	else if(d == BOOT_DEVICE_SPI)
 	{
-		mem = (void *)&__image_start;
-		size = &__image_end - &__image_start;
+		mem = (void *)__image_start;
+		size = __image_end - __image_start;
 
 		sys_spinor_init();
 		sys_spinor_read(0, mem, size);

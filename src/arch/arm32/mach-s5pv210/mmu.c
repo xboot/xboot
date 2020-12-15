@@ -71,13 +71,13 @@ static void map_l1_section(virtual_addr_t virt, physical_addr_t phys, physical_s
 
 void mmu_setup(void)
 {
-	extern unsigned char __dma_start;
-	extern unsigned char __dma_end;
+	extern unsigned char __dma_start[];
+	extern unsigned char __dma_end[];
 
 	map_l1_section(0x00000000, 0x00000000, SZ_2G, 0);
 	map_l1_section(0x80000000, 0x80000000, SZ_2G, 0);
 	map_l1_section(0x32000000, 0x32000000, SZ_256M, MAP_TYPE_CB);
-	map_l1_section((virtual_addr_t)&__dma_start, (physical_addr_t)&__dma_start, (physical_size_t)(&__dma_end - &__dma_start), MAP_TYPE_NCNB);
+	map_l1_section((virtual_addr_t)__dma_start, (physical_addr_t)__dma_start, (physical_size_t)(__dma_end - __dma_start), MAP_TYPE_NCNB);
 }
 
 void mmu_enable(void)

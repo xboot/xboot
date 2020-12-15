@@ -28,8 +28,8 @@
 
 #include <xboot.h>
 
-extern unsigned char __image_start;
-extern unsigned char __image_end;
+extern unsigned char __image_start[];
+extern unsigned char __image_end[];
 
 #define irom_sdmmc_to_mem(sector, count, mem) \
 	(((u32_t(*)(u32_t, u32_t, u32_t *))(*((u32_t *)(0x02020030))))(sector, count, mem))
@@ -49,8 +49,8 @@ void sys_copyself(void)
 	/* SDMMC CH2 */
 	if(om == 0x2)
 	{
-		mem = (u32_t *)&__image_start;
-		size = (&__image_end - &__image_start + 0x00040000) >> 18;
+		mem = (u32_t *)__image_start;
+		size = (__image_end - __image_start + 0x00040000) >> 18;
 		size = size << 9;
 		irom_sdmmc_to_mem(1, size, mem);
 	}

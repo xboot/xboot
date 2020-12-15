@@ -5,7 +5,7 @@
 ## Compile source code and generate the target files at the  output directory
 ```shell
 make clean
-make CROSS_COMPILE=/path/to/arm-eabi- PLATFORM=arm32-f1c100s
+make CROSS_COMPILE=/path/to/arm-none-eabi- PLATFORM=arm32-f1c100s
 ```
 
 ## Brun to RAM and execute

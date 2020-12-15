@@ -5,7 +5,7 @@
 ## 编译源码，生成的目标文件在output目录下
 ```shell
 make clean
-make CROSS_COMPILE=/path/to/arm-eabi- PLATFORM=arm32-f1c100s
+make CROSS_COMPILE=/path/to/arm-none-eabi- PLATFORM=arm32-f1c100s
 ```
 
 ## 烧写到RAM中并运行

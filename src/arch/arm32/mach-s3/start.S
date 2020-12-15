@@ -179,7 +179,7 @@ reset:
 	/* Initialize stacks */
 	mrc p15, 0, r4, c0, c0, 5
 	and r4, r4, #0xf
-	mov r5, #CONFIG_MAX_SMP_CPUS
+	mov r5, #1
 
 	ldr r0, _stack_und_start
 	ldr r1, _stack_und_end
@@ -290,7 +290,7 @@ udiv32:
 	lsr r2, r2, #1
 	lsrs r3, r3, #1
 	bcc 2b
-3:	mov pc,lr
+3:	mov pc, lr
 
 	.global return_to_fel
 return_to_fel:

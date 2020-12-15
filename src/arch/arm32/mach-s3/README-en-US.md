@@ -18,14 +18,14 @@ sunxi-fel spl xboot.bin; sunxi-fel -p write 0x40000000 xboot.bin; sunxi-fel exec
 sunxi-fel -p spiflash-write 0 xboot.bin
 ```
 
-## About sunxi-fel tool
-
-The default sunxi-fel tool don't support spi flash, and you need to download the source code and compile it to support spi flash programming
+## Brun compress image to SPI Flash
+```shell
+sunxi-fel -p spiflash-write 0 xboot.bin.z
+```
 
 ## Download sunxi-fel source code
 ```shell
-git clone https://github.com/Icenowy/sunxi-tools.git
-git checkout -b spi-rebase origin/spi-rebase
+git clone https://github.com/linux-sunxi/sunxi-tools.git
 ```
 
 ## Make and install sunxi-fel

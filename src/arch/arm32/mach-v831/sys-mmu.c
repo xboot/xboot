@@ -29,8 +29,8 @@
 #include <xboot.h>
 #include <arm32.h>
 
-extern unsigned char __mmu_start;
-extern unsigned char __mmu_end;
+extern unsigned char * __mmu_start;
+extern unsigned char * __mmu_end;
 
 static inline void mmu_ttb_set(uint32_t base)
 {
@@ -66,7 +66,7 @@ static void map_l1_section(uint32_t * ttb, virtual_addr_t virt, physical_addr_t 
 
 void sys_mmu_init(void)
 {
-	uint32_t * ttb = (uint32_t *)&__mmu_start;
+	uint32_t * ttb = (uint32_t *)__mmu_start;
 
 	map_l1_section(ttb, 0x00000000, 0x00000000, SZ_2G, 0);
 	map_l1_section(ttb, 0x80000000, 0x80000000, SZ_2G, 0);

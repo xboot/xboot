@@ -28,10 +28,10 @@
 
 #include <cache.h>
 
-extern unsigned char __mmu_start;
-extern unsigned char __mmu_end;
-extern unsigned char __dma_start;
-extern unsigned char __dma_end;
+extern unsigned char * __mmu_start;
+extern unsigned char * __mmu_end;
+extern unsigned char * __dma_start;
+extern unsigned char * __dma_end;
 
 enum {
 	MAP_TYPE_NCNB	= 0x0,
@@ -74,17 +74,17 @@ static void map_l1_section(uint32_t * ttb, virtual_addr_t virt, physical_addr_t 
 
 void mmu_setup(void)
 {
-	uint32_t * ttb = (uint32_t *)&__mmu_start;
+	uint32_t * ttb = (uint32_t *)__mmu_start;
 
 	map_l1_section(ttb, 0x00000000, 0x00000000, SZ_2G, 0);
 	map_l1_section(ttb, 0x80000000, 0x80000000, SZ_2G, 0);
 	map_l1_section(ttb, 0x40000000, 0x40000000, SZ_64M, MAP_TYPE_CB);
-	map_l1_section(ttb, (virtual_addr_t)&__dma_start, (physical_addr_t)&__dma_start, (physical_size_t)(&__dma_end - &__dma_start), MAP_TYPE_NCNB);
+	map_l1_section(ttb, (virtual_addr_t)__dma_start, (physical_addr_t)__dma_start, (physical_size_t)(__dma_end - __dma_start), MAP_TYPE_NCNB);
 }
 
 void mmu_enable(void)
 {
-	mmu_ttb_set((uint32_t)(&__mmu_start));
+	mmu_ttb_set((uint32_t)(__mmu_start));
 	cache_inv_range(0, ~0);
 	outer_cache_enable();
 	outer_cache_inv_range(0, ~0);

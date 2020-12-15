@@ -286,7 +286,7 @@ static int __fatfs_control_get_next_cluster(struct fatfs_control_t * ctrl, u32_t
 
 static int __fatfs_control_set_next_cluster(struct fatfs_control_t * ctrl, u32_t clust, u32_t next)
 {
-	u8_t fat_entry_b[4];
+	u8_t fat_entry_b[4] = { 0 };
 	u32_t fat_entry, fat_off, fat_len, len;
 
 	if(!__fatfs_control_valid_cluster(ctrl, clust))

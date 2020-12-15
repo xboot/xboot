@@ -897,10 +897,10 @@ void do_init_mem(void)
 	heap = sandbox_get_heap_buffer();
 	size = sandbox_get_heap_size();
 #else
-	extern unsigned char __heap_start;
-	extern unsigned char __heap_end;
-	heap = (void *)&__heap_start;
-	size = (size_t)(&__heap_end - &__heap_start);
+	extern unsigned char * __heap_start;
+	extern unsigned char * __heap_end;
+	heap = (void *)__heap_start;
+	size = (size_t)(__heap_end - __heap_start);
 #endif
 
 	spin_lock_init(&__heap_lock);

@@ -28,14 +28,17 @@
 
 #include <cache.h>
 
+extern unsigned char __mmu_start[];
+extern unsigned char __mmu_end[];
+extern unsigned char __dma_start[];
+extern unsigned char __dma_end[];
+
 enum {
 	MAP_TYPE_NCNB	= 0x0,
 	MAP_TYPE_NCB	= 0x1,
 	MAP_TYPE_CNB	= 0x2,
 	MAP_TYPE_CB		= 0x3,
 };
-
-static uint32_t __mmu_ttb[4096] __attribute__((aligned(0x4000)));
 
 static inline void mmu_ttb_set(uint32_t base)
 {
@@ -56,7 +59,7 @@ static inline void mmu_inv_tlb(void)
 	isb();
 }
 
-static void map_l1_section(virtual_addr_t virt, physical_addr_t phys, physical_size_t size, int type)
+static void map_l1_section(uint32_t * ttb, virtual_addr_t virt, physical_addr_t phys, physical_size_t size, int type)
 {
 	physical_size_t i;
 
@@ -66,23 +69,22 @@ static void map_l1_section(virtual_addr_t virt, physical_addr_t phys, physical_s
 	type &= 0x3;
 
 	for(i = size; i > 0; i--, virt++, phys++)
-		__mmu_ttb[virt] = (phys << 20) | (1 << 16) | (0x3 << 10) | (0x0 << 5) | (type << 2) | (0x2 << 0);
+		ttb[virt] = (phys << 20) | (1 << 16) | (0x3 << 10) | (0x0 << 5) | (type << 2) | (0x2 << 0);
 }
 
 void mmu_setup(void)
 {
-	extern unsigned char __dma_start;
-	extern unsigned char __dma_end;
+	uint32_t * ttb = (uint32_t *)__mmu_start;
 
-	map_l1_section(0x00000000, 0x00000000, SZ_2G, 0);
-	map_l1_section(0x80000000, 0x80000000, SZ_2G, 0);
-	map_l1_section(0x40000000, 0x40000000, SZ_64M, MAP_TYPE_CB);
-	map_l1_section((virtual_addr_t)&__dma_start, (physical_addr_t)&__dma_start, (physical_size_t)(&__dma_end - &__dma_start), MAP_TYPE_NCNB);
+	map_l1_section(ttb, 0x00000000, 0x00000000, SZ_2G, 0);
+	map_l1_section(ttb, 0x80000000, 0x80000000, SZ_2G, 0);
+	map_l1_section(ttb, 0x40000000, 0x40000000, SZ_64M, MAP_TYPE_CB);
+	map_l1_section(ttb, (virtual_addr_t)__dma_start, (physical_addr_t)__dma_start, (physical_size_t)(__dma_end - __dma_start), MAP_TYPE_NCNB);
 }
 
 void mmu_enable(void)
 {
-	mmu_ttb_set((uint32_t)(__mmu_ttb));
+	mmu_ttb_set((uint32_t)(__mmu_start));
 	cache_inv_range(0, ~0);
 	outer_cache_enable();
 	outer_cache_inv_range(0, ~0);

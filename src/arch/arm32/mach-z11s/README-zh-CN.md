@@ -18,14 +18,9 @@ sunxi-fel spl xboot.bin; sunxi-fel -p write 0x40000000 xboot.bin; sunxi-fel exec
 sunxi-fel -p spiflash-write 0 xboot.bin
 ```
 
-## 关于sunxi-fel工具
-
-sunxi-fel工具默认并没有集成spi flash写入功能，这里需要自行下载源码并编译，以支持spi flash烧写功能
-
 ## 下载sunxi-fel源码
 ```shell
-git clone https://github.com/Icenowy/sunxi-tools.git
-git checkout -b spi-rebase origin/spi-rebase
+git clone https://github.com/linux-sunxi/sunxi-tools.git
 ```
 
 ## 编译安装sunxi-fel

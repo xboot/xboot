@@ -10,9 +10,9 @@ STACK_SRV_SIZE = 0x100000 * 1;
 
 MEMORY
 {
-	ram  : org = 0x40000000, len = 16M
-	dma  : org = 0x41000000, len = 16M
-	heap : org = 0x42000000, len = 32M
+	ram  : org = 0x40000000, len = 8M
+	dma  : org = 0x40800000, len = 8M
+	heap : org = 0x41000000, len = 48M
 }
 
 SECTIONS
@@ -28,6 +28,8 @@ SECTIONS
 		.obj/arch/arm32/mach-v3s/sys-uart.o (.text*)
 		.obj/arch/arm32/mach-v3s/sys-clock.o (.text*)
 		.obj/arch/arm32/mach-v3s/sys-dram.o (.text*)
+		.obj/arch/arm32/mach-v3s/sys-mmu.o (.text*)
+		.obj/arch/arm32/mach-v3s/sys-decompress.o (.text*)
 		.obj/arch/arm32/mach-v3s/sys-spinor.o (.text*)
 		.obj/arch/arm32/mach-v3s/sys-copyself.o (.text*)
 		PROVIDE(__spl_end = .);
@@ -109,7 +111,7 @@ SECTIONS
 
 	.data ALIGN(8) :
 	{
-		PROVIDE(__data_start = .);	
+		PROVIDE(__data_start = .);
 		*(.data*)
 		. = ALIGN(8);
   		PROVIDE(__data_end = .);
@@ -124,6 +126,13 @@ SECTIONS
 		*(COMMON)
 		. = ALIGN(8);
 		PROVIDE(__bss_end = .);
+	} > ram
+
+	.mmu ALIGN(0x4000) (NOLOAD) :
+	{
+		PROVIDE(__mmu_start = .);
+		. += 4096;
+		PROVIDE(__mmu_end = .);
 	} > ram
 
 	.stack ALIGN(8) (NOLOAD) :

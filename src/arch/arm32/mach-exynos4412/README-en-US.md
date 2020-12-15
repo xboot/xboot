@@ -5,7 +5,7 @@
 ## Compile source code
 ```shell
 make clean
-make CROSS_COMPILE=/path/to/arm-linux-gnueabihf- PLATFORM=arm32-exynos4412
+make CROSS_COMPILE=/path/to/arm-none-linux-gnueabihf- PLATFORM=arm32-exynos4412
 ```
 
 ## Burn to SDCARD

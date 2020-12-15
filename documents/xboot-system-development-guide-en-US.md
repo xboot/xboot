@@ -217,21 +217,21 @@ Makefile中有两个变量在编译时需要传递，一个是交叉工具链，
 
 ```shell
 make clean
-make CROSS_COMPILE=/path/to/arm-linux-gnueabihf- PLATFORM=arm32-realview
+make CROSS_COMPILE=/path/to/arm-none-linux-gnueabihf- PLATFORM=arm32-realview
 ```
 
 * ### 全志V3S，荔枝派(lichee-pi zero)
 
 ```shell
 make clean
-make CROSS_COMPILE=/path/to/arm-linux-gnueabihf- PLATFORM=arm32-v3s
+make CROSS_COMPILE=/path/to/arm-none-linux-gnueabihf- PLATFORM=arm32-v3s
 ```
 
 * ### Raspberry PI 2代
 
 ```shell
 make clean
-make CROSS_COMPILE=/path/to/arm-linux-gnueabihf- PLATFORM=arm32-raspi2
+make CROSS_COMPILE=/path/to/arm-none-linux-gnueabihf- PLATFORM=arm32-raspi2
 ```
 
 * ### Raspberry PI 3代

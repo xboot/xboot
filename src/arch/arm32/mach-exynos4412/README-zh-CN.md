@@ -5,7 +5,7 @@
 ## 编译源码
 ```shell
 make clean
-make CROSS_COMPILE=/path/to/arm-linux-gnueabihf- PLATFORM=arm32-exynos4412
+make CROSS_COMPILE=/path/to/arm-none-linux-gnueabihf- PLATFORM=arm32-exynos4412
 ```
 
 ## 烧写到SD卡

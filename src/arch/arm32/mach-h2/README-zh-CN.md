@@ -5,7 +5,7 @@
 ## 编译源码，生成的目标文件在output目录下
 ```shell
 make clean
-make CROSS_COMPILE=/path/to/arm-linux-gnueabihf- PLATFORM=arm32-h2
+make CROSS_COMPILE=/path/to/arm-none-linux-gnueabihf- PLATFORM=arm32-h2
 ```
 
 ## 烧写到RAM中并运行

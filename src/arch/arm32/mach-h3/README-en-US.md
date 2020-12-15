@@ -5,7 +5,7 @@
 ## Compile source code and generate the target files at the  output directory
 ```shell
 make clean
-make CROSS_COMPILE=/path/to/arm-linux-gnueabihf- PLATFORM=arm32-h3
+make CROSS_COMPILE=/path/to/arm-none-linux-gnueabihf- PLATFORM=arm32-h3
 ```
 
 ## Brun to RAM and execute

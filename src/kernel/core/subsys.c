@@ -28,8 +28,8 @@
 
 #include <xboot.h>
 
-extern unsigned char * __romdisk_start;
-extern unsigned char * __romdisk_end;
+extern unsigned char __romdisk_start[];
+extern unsigned char __romdisk_end[];
 
 static void subsys_init_romdisk(void)
 {

@@ -98,8 +98,8 @@ static __init void dma_pure_init(void)
 	dma = sandbox_get_dma_buffer();
 	size = sandbox_get_dma_size();
 #else
-	extern unsigned char * __dma_start;
-	extern unsigned char * __dma_end;
+	extern unsigned char __dma_start[];
+	extern unsigned char __dma_end[];
 	dma = (void *)__dma_start;
 	size = (size_t)(__dma_end - __dma_start);
 #endif

@@ -29,8 +29,8 @@
 #include <xboot.h>
 #include <arm32.h>
 
-extern unsigned char * __mmu_start;
-extern unsigned char * __mmu_end;
+extern unsigned char __mmu_start[];
+extern unsigned char __mmu_end[];
 
 static inline void mmu_ttb_set(uint32_t base)
 {

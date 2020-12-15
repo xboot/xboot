@@ -28,9 +28,9 @@
 
 #include <xboot.h>
 
-extern unsigned char * __image_start;
-extern unsigned char * __image_end;
-extern unsigned char * __heap_start;
+extern unsigned char __image_start[];
+extern unsigned char __image_end[];
+extern unsigned char __heap_start[];
 extern void return_to_fel(void);
 extern void sys_mmu_init(void);
 extern void sys_uart_putc(char c);

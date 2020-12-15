@@ -28,10 +28,10 @@
 
 #include <cache.h>
 
-extern unsigned char * __mmu_start;
-extern unsigned char * __mmu_end;
-extern unsigned char * __dma_start;
-extern unsigned char * __dma_end;
+extern unsigned char __mmu_start[];
+extern unsigned char __mmu_end[];
+extern unsigned char __dma_start[];
+extern unsigned char __dma_end[];
 
 enum {
 	MAP_TYPE_NCNB	= 0x0,

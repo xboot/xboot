@@ -45,14 +45,14 @@ enum tlsf_private
 {
 #if defined(TLSF_64BIT)
 	/*
+	 * All allocation sizes and addresses are aligned to 16 bytes
+	 */
+	ALIGN_SIZE_LOG2 = 4,
+#else
+	/*
 	 * All allocation sizes and addresses are aligned to 8 bytes
 	 */
 	ALIGN_SIZE_LOG2 = 3,
-#else
-	/*
-	 * All allocation sizes and addresses are aligned to 4 bytes
-	 */
-	ALIGN_SIZE_LOG2 = 2,
 #endif
 	ALIGN_SIZE = (1 << ALIGN_SIZE_LOG2),
 
@@ -73,10 +73,14 @@ enum tlsf_private
  */
 typedef struct block_header_t
 {
-	/*
-	 * Points to the previous physical block
-	 */
-	struct block_header_t * prev_phys_block;
+	union
+	{
+		/*
+		 * Points to the previous physical block
+		 */
+		struct block_header_t * prev_phys_block;
+		char align_data[ALIGN_SIZE];
+	};
 
 	/*
 	 * The size of this block, excluding the block header
@@ -424,12 +428,12 @@ static int block_can_split(block_header_t * block, size_t size)
 
 static block_header_t * block_split(block_header_t * block, size_t size)
 {
-	block_header_t* remaining = offset_to_block(block_to_ptr(block), size - block_header_overhead);
-	const size_t remain_size = block_get_size(block) - (size + block_header_overhead);
+	block_header_t * remaining = offset_to_block(block_to_ptr(block), size - block_header_overhead);
+	const size_t remain_size = block_get_size(block) - (size + ALIGN_SIZE);
 
 	tlsf_assert(block_to_ptr(remaining) == align_ptr(block_to_ptr(remaining), ALIGN_SIZE) && "remaining block not aligned properly");
 
-	tlsf_assert(block_get_size(block) == remain_size + size + block_header_overhead);
+	tlsf_assert(block_get_size(block) == remain_size + size + ALIGN_SIZE);
 	block_set_size(remaining, remain_size);
 	tlsf_assert(block_get_size(remaining) >= block_size_min && "block split with invalid size");
 
@@ -442,7 +446,7 @@ static block_header_t * block_split(block_header_t * block, size_t size)
 static block_header_t * block_absorb(block_header_t * prev, block_header_t * block)
 {
 	tlsf_assert(!block_is_last(prev) && "previous block can't be last!");
-	prev->size += block_get_size(block) + block_header_overhead;
+	prev->size += block_get_size(block) + ALIGN_SIZE;
 	block_link_next(prev);
 	return prev;
 }
@@ -506,7 +510,7 @@ static block_header_t * block_trim_free_leading(control_t * control, block_heade
 	block_header_t * remaining_block = block;
 	if(block_can_split(block, size))
 	{
-		remaining_block = block_split(block, size - block_header_overhead);
+		remaining_block = block_split(block, size - ALIGN_SIZE);
 		block_set_prev_free(remaining_block);
 
 		block_link_next(block);
@@ -620,7 +624,7 @@ static inline void * tlsf_create(void * mem)
 static inline void * tlsf_create_with_pool(void * mem, size_t bytes)
 {
 	void * tlsf = tlsf_create(mem);
-	tlsf_add_pool(tlsf, (char *)mem + sizeof(control_t), bytes - sizeof(control_t));
+	tlsf_add_pool(tlsf, (char *)mem + align_up(sizeof(control_t), ALIGN_SIZE), bytes - align_up(sizeof(control_t), ALIGN_SIZE));
 	return tlsf;
 }
 
@@ -631,7 +635,7 @@ static inline void tlsf_destroy(void * mem)
 
 static inline void * tlsf_get(void * mem)
 {
-	return tlsf_cast(void *, (char *)mem + sizeof(control_t));
+	return tlsf_cast(void *, (char *)mem + align_up(sizeof(control_t), ALIGN_SIZE));
 }
 
 static inline void * tlsf_malloc(void * tlsf, size_t size)

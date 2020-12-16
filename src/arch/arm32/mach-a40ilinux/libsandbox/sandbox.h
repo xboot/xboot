@@ -18,10 +18,6 @@ extern "C" {
  */
 void sandbox_init(int argc, char * argv[]);
 void sandbox_exit(void);
-void * sandbox_get_heap_buffer(void);
-size_t sandbox_get_heap_size(void);
-void * sandbox_get_dma_buffer(void);
-size_t sandbox_get_dma_size(void);
 void * sandbox_get_dtree_buffer(void);
 size_t sandbox_get_dtree_size(void);
 char * sandbox_get_application(void);
@@ -244,6 +240,16 @@ int64_t sandbox_file_length(int fd);
  */
 const char * sandbox_uniqueid(void);
 int sandbox_keygen(const char * msg, void * key);
+
+/*
+ * Malloc interface
+ */
+void * sandbox_malloc(size_t size);
+void * sandbox_memalign(size_t align, size_t size);
+void * sandbox_realloc(void * ptr, size_t size);
+void * sandbox_calloc(size_t nmemb, size_t size);
+void sandbox_free(void * ptr);
+void sandbox_meminfo(size_t * mused, size_t * mfree);
 
 /*
  * PM interface

@@ -152,7 +152,7 @@ XLIBS		+= -L$(TOPDIR)/../out/sun8iw11p1/linux/common/buildroot/staging/usr/lib
 ASFLAGS		:= -g -ggdb -Wall -O3
 CFLAGS		:= -g -ggdb -Wall -O3
 LDFLAGS		:= -T arch/$(ARCH)/$(MACH)/xboot.ld
-MCFLAGS		:= -march=armv7-a -mtune=cortex-a7 -mfpu=vfpv4 -mfloat-abi=softfp -marm -mno-thumb-interwork
+MCFLAGS		:= -march=armv7-a -mtune=cortex-a7 -mfpu=vfpv4 -mfloat-abi=softfp -marm -mno-thumb-interwork -mno-unaligned-access
 
 LIBDIRS		:= arch/$(ARCH)/$(MACH)/libsandbox
 LIBS 		:= -lsandbox -lc -lm -lgcc -lrt -lpthread -lasound $(XLIBS)

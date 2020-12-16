@@ -99,7 +99,7 @@ static bool_t rk808_write(struct i2c_device_t * dev, u8_t reg, u8_t val)
 static bool_t rtc_rk808_settime(struct rtc_t * rtc, struct rtc_time_t * time)
 {
 	struct rtc_rk808_pdata_t * pdat = (struct rtc_rk808_pdata_t *)rtc->priv;
-	u8_t val;
+	u8_t val = 0;
 
 	rk808_read(pdat->dev, RK808_RTC_CTRL, &val);
 	val |= (0x1 << 0);

@@ -5,7 +5,7 @@
 ## 编译源码，生成的目标文件在output目录下
 ```shell
 make clean
-make CROSS_COMPILE=/path/to/aarch64-elf- PLATFORM=arm64-px30
+make CROSS_COMPILE=/path/to/aarch64-none-elf- PLATFORM=arm64-px30
 ```
 
 ## 进入maskrom模式，烧写镜像到emmc

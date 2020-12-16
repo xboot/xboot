@@ -5,7 +5,7 @@
 ## Compile source code and generate the target files at the  output directory
 ```shell
 make clean
-make CROSS_COMPILE=/path/to/aarch64-elf- PLATFORM=arm64-rk3399
+make CROSS_COMPILE=/path/to/aarch64-none-elf- PLATFORM=arm64-rk3399
 ```
 
 ## Enter maskrom mode and burn image to emmc

@@ -11,9 +11,6 @@
 #include <xboot/kobj.h>
 #include <xboot/module.h>
 
-static void * __heap_pool = NULL;
-static spinlock_t __heap_lock = SPIN_LOCK_INIT();
-
 /*
  * Some macros.
  */
@@ -816,40 +813,55 @@ void mm_info(void * mm, size_t * mused, size_t * mfree)
 		tlsf_info(mm, mused, mfree);
 }
 
-void * malloc(size_t size)
+static void * __heap_pool = NULL;
+static spinlock_t __heap_lock = SPIN_LOCK_INIT();
+
+static void * __malloc(size_t size)
 {
 	void * m;
 
-	spin_lock(&__heap_lock);
-	m = tlsf_malloc(__heap_pool, size);
-	spin_unlock(&__heap_lock);
-	return m;
+	if(__heap_pool)
+	{
+		spin_lock(&__heap_lock);
+		m = tlsf_malloc(__heap_pool, size);
+		spin_unlock(&__heap_lock);
+		return m;
+	}
+	return NULL;
 }
-EXPORT_SYMBOL(malloc);
+extern __typeof(__malloc) malloc __attribute__((weak, alias("__malloc")));
 
-void * memalign(size_t align, size_t size)
+static void * __memalign(size_t align, size_t size)
 {
 	void * m;
 
-	spin_lock(&__heap_lock);
-	m = tlsf_memalign(__heap_pool, align, size);
-	spin_unlock(&__heap_lock);
-	return m;
+	if(__heap_pool)
+	{
+		spin_lock(&__heap_lock);
+		m = tlsf_memalign(__heap_pool, align, size);
+		spin_unlock(&__heap_lock);
+		return m;
+	}
+	return NULL;
 }
-EXPORT_SYMBOL(memalign);
+extern __typeof(__memalign) memalign __attribute__((weak, alias("__memalign")));
 
-void * realloc(void * ptr, size_t size)
+static void * __realloc(void * ptr, size_t size)
 {
 	void * m;
 
-	spin_lock(&__heap_lock);
-	m = tlsf_realloc(__heap_pool, ptr, size);
-	spin_unlock(&__heap_lock);
-	return m;
+	if(__heap_pool)
+	{
+		spin_lock(&__heap_lock);
+		m = tlsf_realloc(__heap_pool, ptr, size);
+		spin_unlock(&__heap_lock);
+		return m;
+	}
+	return NULL;
 }
-EXPORT_SYMBOL(realloc);
+extern __typeof(__realloc) realloc __attribute__((weak, alias("__realloc")));
 
-void * calloc(size_t nmemb, size_t size)
+static void * __calloc(size_t nmemb, size_t size)
 {
 	void * m;
 
@@ -857,15 +869,28 @@ void * calloc(size_t nmemb, size_t size)
 		memset(m, 0, nmemb * size);
 	return m;
 }
-EXPORT_SYMBOL(calloc);
+extern __typeof(__calloc) calloc __attribute__((weak, alias("__calloc")));
 
-void free(void * ptr)
+static void __free(void * ptr)
 {
-	spin_lock(&__heap_lock);
-	tlsf_free(__heap_pool, ptr);
-	spin_unlock(&__heap_lock);
+	if(__heap_pool)
+	{
+		spin_lock(&__heap_lock);
+		tlsf_free(__heap_pool, ptr);
+		spin_unlock(&__heap_lock);
+	}
 }
-EXPORT_SYMBOL(free);
+extern __typeof(__free) free __attribute__((weak, alias("__free")));
+
+static void __meminfo(size_t * mused, size_t * mfree)
+{
+	if(__heap_pool)
+	{
+		if(mused && mfree)
+			tlsf_info(mm_get(__heap_pool), mused, mfree);
+	}
+}
+extern __typeof(__meminfo) meminfo __attribute__((weak, alias("__meminfo")));
 
 static struct kobj_t * search_class_memory_kobj(void)
 {
@@ -875,12 +900,12 @@ static struct kobj_t * search_class_memory_kobj(void)
 
 static ssize_t memory_read_meminfo(struct kobj_t * kobj, void * buf, size_t size)
 {
-	void * mm = (void *)kobj->priv;
-	size_t mused, mfree;
+	size_t mused = 0;
+	size_t mfree = 0;
 	char * p = buf;
 	int len = 0;
 
-	mm_info(mm, &mused, &mfree);
+	meminfo(&mused, &mfree);
 	len += sprintf((char *)(p + len), " memory used: %ld\r\n", mused);
 	len += sprintf((char *)(p + len), " memory free: %ld\r\n", mfree);
 	return len;
@@ -888,22 +913,11 @@ static ssize_t memory_read_meminfo(struct kobj_t * kobj, void * buf, size_t size
 
 void do_init_mem(void)
 {
-	void * heap;
-	size_t size;
-
-#ifdef __SANDBOX__
-	extern void * sandbox_get_heap_buffer(void);
-	extern size_t sandbox_get_heap_size(void);
-	heap = sandbox_get_heap_buffer();
-	size = sandbox_get_heap_size();
-#else
+#ifndef __SANDBOX__
 	extern unsigned char __heap_start[];
 	extern unsigned char __heap_end[];
-	heap = (void *)__heap_start;
-	size = (size_t)(__heap_end - __heap_start);
-#endif
-
 	spin_lock_init(&__heap_lock);
-	__heap_pool = mm_create(heap, size);
-	kobj_add_regular(search_class_memory_kobj(), "meminfo", memory_read_meminfo, NULL, mm_get(__heap_pool));
+	__heap_pool = mm_create((void *)__heap_start, (size_t)(__heap_end - __heap_start));
+#endif
+	kobj_add_regular(search_class_memory_kobj(), "meminfo", memory_read_meminfo, NULL, NULL);
 }

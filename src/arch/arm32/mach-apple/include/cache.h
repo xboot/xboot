@@ -11,12 +11,12 @@ extern "C" {
 #include <arm32.h>
 #include <dma/dma.h>
 
+void cache_flush_range(unsigned long start, unsigned long stop);
+void cache_inv_range(unsigned long start, unsigned long stop);
 void outer_cache_enable(void);
 void outer_cache_disable(void);
 void outer_cache_flush_range(unsigned long start, unsigned long stop);
 void outer_cache_inv_range(unsigned long start, unsigned long stop);
-void cache_flush_range(unsigned long start, unsigned long stop);
-void cache_inv_range(unsigned long start, unsigned long stop);
 
 void mmu_setup(void);
 void mmu_enable(void);

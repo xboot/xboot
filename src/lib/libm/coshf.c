@@ -29,7 +29,7 @@ float coshf(float x)
 	}
 
 	/* |x| > log(FLT_MAX) or nan */
-	t = __expo2f(x);
+	t = __expo2f(x, 1.0f);
 	return t;
 }
 EXPORT_SYMBOL(coshf);

@@ -64,8 +64,7 @@ static float __sqrtf(float x)
 		}
 	}
 	ix = (q>>1) + 0x3f000000;
-	ix += m << 23;
-	SET_FLOAT_WORD(z, ix);
+	SET_FLOAT_WORD(z, ix + ((uint32_t)m << 23));
 	return z;
 }
 

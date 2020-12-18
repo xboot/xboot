@@ -27,7 +27,7 @@ float sinhf(float x)
 	}
 
 	/* |x| > logf(FLT_MAX) or nan */
-	t = 2*h*__expo2f(absx);
+	t = __expo2f(absx, 2*h);
 	return t;
 }
 EXPORT_SYMBOL(sinhf);

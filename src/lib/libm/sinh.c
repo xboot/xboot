@@ -35,7 +35,7 @@ double sinh(double x)
 
 	/* |x| > log(DBL_MAX) or nan */
 	/* note: the result is stored to handle overflow */
-	t = 2*h*__expo2(absx);
+	t = __expo2(absx, 2*h);
 	return t;
 }
 EXPORT_SYMBOL(sinh);

@@ -88,6 +88,9 @@ do { \
 #define	islessgreater(x, y)		__builtin_islessgreater((x), (y))
 #define	isunordered(x, y)		__builtin_isunordered((x), (y))
 
+#define predict_true(x)			__builtin_expect(!!(x), 1)
+#define predict_false(x)		__builtin_expect(x, 0)
+
 static __inline unsigned __FLOAT_BITS(float __f)
 {
 	union {float __f; unsigned __i;} __u;
@@ -234,8 +237,8 @@ float	truncf(float);
  */
 double	__cos(double, double);
 float	__cosdf(double);
-double	__expo2(double);
-float	__expo2f(float);
+double	__expo2(double, double);
+float	__expo2f(float, float);
 int		__fpclassify(double);
 int		__fpclassifyf(float);
 int		__rem_pio2_large(double *, double *, int, int, int);

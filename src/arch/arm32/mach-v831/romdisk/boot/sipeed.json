@@ -526,6 +526,14 @@
 	"gpio-v831@0x0300b0fc": { "gpio-base": 224, "gpio-count": 16, "interrupt-offset": 352 },
 	"gpio-v831@0x0300b120": { "gpio-base": 256, "gpio-count":  5, "interrupt-offset": 384 },
 
+	"dma-v831@0x03002000": {
+		"clock-name": "dma",
+		"reset": 208,
+		"interrupt": 42,
+		"dma-base": 0,
+		"dma-count": 8
+	},
+
 	"ce-v831-timer@0x03009000": {
 		"clock-name": "timer0",
 		"interrupt": 92

@@ -102,4 +102,7 @@ void sys_clock_init(void)
 
 	/* apb2 = osc24m / (0 + 1) / (0 + 1) */
 	write32(V831_CCU_BASE + CCU_APB2_CFG, 0x00000000);
+
+	/* mclk gating enable for core component */
+	write32(V831_CCU_BASE + 0x0804, 0x08800707);
 }

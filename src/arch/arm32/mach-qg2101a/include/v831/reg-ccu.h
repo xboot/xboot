@@ -1,0 +1,38 @@
+#ifndef __V831_REG_CCU_H__
+#define __V831_REG_CCU_H__
+
+#define V831_CCU_BASE				(0x03001000)
+
+#define CCU_PLL_CPUX_CTRL			(0x000)
+#define CCU_PLL_DDR0_CTRL			(0x010)
+#define CCU_PLL_PERI0_CTRL			(0x020)
+#define CCU_PLL_UNI_CTRL			(0x028)
+#define CCU_PLL_VIDEO0_CTRL			(0x040)
+#define CCU_PLL_AUDIO_CTRL			(0x078)
+#define CCU_PLL_CSI_CTRL			(0x0e0)
+#define CCU_PLL_DDR0_PAT_CTRL		(0x110)
+#define CCU_PLL_PERI0_PAT0_CTRL		(0x120)
+#define CCU_PLL_PERI0_PAT1_CTRL		(0x124)
+#define CCU_PLL_UNI_PAT0_CTRL		(0x128)
+#define CCU_PLL_UNI_PAT1_CTRL		(0x12c)
+#define CCU_PLL_VIDEO0_PAT0_CTRL	(0x140)
+#define CCU_PLL_VIDEO0_PAT1_CTRL	(0x144)
+#define CCU_PLL_AUDIO_PAT0_CTRL		(0x178)
+#define CCU_PLL_AUDIO_PAT1_CTRL		(0x17c)
+#define CCU_PLL_CSI_PAT0_CTRL		(0x1e0)
+#define CCU_PLL_CSI_PAT1_CTRL		(0x1e4)
+#define CCU_PLL_CPUX_BIAS			(0x300)
+#define CCU_PLL_DDR0_BIAS			(0x310)
+#define CCU_PLL_PERI0_BIAS			(0x320)
+#define CCU_PLL_UNI_BIAS			(0x328)
+#define CCU_PLL_VIDEO0_BIAS			(0x340)
+#define CCU_PLL_AUDIO_BIAS			(0x378)
+#define CCU_PLL_CSI_BIAS			(0x3e0)
+#define CCU_PLL_CPUX_TUN			(0x400)
+#define CCU_CPUX_AXI_CFG			(0x500)
+#define CCU_PSI_AHB1_AHB2_CFG		(0x510)
+#define CCU_AHB3_CFG				(0x51c)
+#define CCU_APB1_CFG				(0x520)
+#define CCU_APB2_CFG				(0x524)
+
+#endif /* __V831_REG_CCU_H__ */

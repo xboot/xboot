@@ -714,6 +714,16 @@
 		"clock-name": "wdg"
 	},
 
+	"key-adc@0": {
+		"adc-name": "adc-v831.0",
+		"adc-channel": 0,
+		"poll-interval-ms": 100,
+		"keys": [
+			{ "min-voltage":  850000, "max-voltage":  950000, "key-code": 10 },
+			{ "min-voltage": 1000000, "max-voltage": 1100000, "key-code": 11 }
+		]
+	},
+
 	"led-gpio@0": {
 		"gpio": 238,
 		"gpio-config": 1,

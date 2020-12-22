@@ -534,6 +534,12 @@
 		"dma-count": 8
 	},
 
+	"adc-v831@0x05070000": {
+		"clock-name": "gpadc",
+		"reset": 560,
+		"reference-voltage": 1800000
+	},
+
 	"ce-v831-timer@0x03009000": {
 		"clock-name": "timer0",
 		"interrupt": 92

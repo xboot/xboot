@@ -31,6 +31,7 @@ struct sound_t
 };
 
 struct sound_t * sound_alloc(size_t length, void * priv);
+struct sound_t * sound_alloc_tone(int frequency, int millisecond);
 void sound_free(struct sound_t * s);
 
 #ifdef __cplusplus

@@ -69,3 +69,35 @@ void sound_free(struct sound_t * s)
 		free(s);
 	}
 }
+
+struct sound_t * sound_alloc_tone(int frequency, int millisecond)
+{
+	struct sound_t * s;
+	uint32_t * p;
+	int16_t v;
+	float t;
+	int samples;
+	int i;
+
+	if((frequency > 0) && (frequency < 24000))
+	{
+		if(millisecond <= 0)
+			samples = 48000.0 / (float)frequency;
+		else
+			samples = millisecond * 48;
+		s = sound_alloc(samples * 4, NULL);
+		if(s)
+		{
+			t = (2 * M_PI / 48000.0) * (float)frequency ;
+			for(i = 0, p = s->datas; i < samples; i++, p++)
+			{
+				v = (int16_t)(sinf(t * (float)i) * 32767.0);
+				*p = (v << 16) | v;
+			}
+			if(millisecond <= 0)
+				s->loop = 1;
+			return s;
+		}
+	}
+	return NULL;
+}

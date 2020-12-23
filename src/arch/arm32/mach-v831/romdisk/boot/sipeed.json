@@ -710,13 +710,17 @@
 		]
 	},
 
-
 	"rtc-v831@0x07000000": {
 		"clock-name": "losc"
 	},
 
 	"wdg-v831@0x030090a0": {
 		"clock-name": "wdg"
+	},
+
+	"audio-v831@0x05096000": {
+		"clock-name": "codec1x",
+		"reset": 656
 	},
 
 	"key-adc@0": {

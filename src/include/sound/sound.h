@@ -18,7 +18,7 @@ enum sound_state_t {
 /*
  * The sound is short audio, fixed to stereo, 48khz, 16bits format.
  */
-struct audio_sound_t
+struct sound_t
 {
 	struct list_head list;
 	void * datas;
@@ -29,6 +29,9 @@ struct audio_sound_t
 	int loop;
 	void * priv;
 };
+
+struct sound_t * sound_alloc(size_t length, void * priv);
+void sound_free(struct sound_t * s);
 
 #ifdef __cplusplus
 }

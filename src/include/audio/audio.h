@@ -5,7 +5,29 @@
 extern "C" {
 #endif
 
-#include <audio/sound.h>
+#include <xboot.h>
+
+enum pcm_format_t {
+	PCM_FORMAT_BIT8		= 8,
+	PCM_FORMAT_BIT16	= 16,
+	PCM_FORMAT_BIT24	= 24,
+	PCM_FORMAT_BIT32	= 32,
+};
+
+enum pcm_rate_t {
+	PCM_RATE_8000		= 8000,
+	PCM_RATE_11025		= 11025,
+	PCM_RATE_16000		= 16000,
+	PCM_RATE_22050		= 22050,
+	PCM_RATE_32000		= 32000,
+	PCM_RATE_44100		= 44100,
+	PCM_RATE_48000		= 48000,
+	PCM_RATE_64000		= 64000,
+	PCM_RATE_88200		= 88200,
+	PCM_RATE_96000		= 96000,
+	PCM_RATE_176400		= 176400,
+	PCM_RATE_192000		= 192000,
+};
 
 typedef int (*audio_callback_t)(void * data, void * buf, int count);
 

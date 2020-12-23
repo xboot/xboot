@@ -29,15 +29,15 @@
 #include <xboot.h>
 #include <sound/sound.h>
 
-struct audio_sound_t * audio_sound_alloc(size_t length, void * priv)
+struct sound_t * sound_alloc(size_t length, void * priv)
 {
-	struct audio_sound_t * s;
+	struct sound_t * s;
 	void * datas;
 
 	if((length <= 0) || ((length & 0x3) != 0))
 		return NULL;
 
-	s = malloc(sizeof(struct audio_sound_t));
+	s = malloc(sizeof(struct sound_t));
 	if(!s)
 		return NULL;
 
@@ -61,7 +61,7 @@ struct audio_sound_t * audio_sound_alloc(size_t length, void * priv)
 	return s;
 }
 
-void audio_sound_free(struct audio_sound_t * s)
+void sound_free(struct sound_t * s)
 {
 	if(s)
 	{

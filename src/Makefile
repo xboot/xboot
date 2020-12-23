@@ -109,6 +109,7 @@ SRCDIRS		+=	arch/$(ARCH)/lib/cpu \
 				kernel/core \
 				kernel/graphic \
 				kernel/shell \
+				kernel/sound \
 				kernel/time \
 				kernel/vfs \
 				kernel/vfs/cpio \

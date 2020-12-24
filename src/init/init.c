@@ -76,6 +76,41 @@ void do_show_logo(void)
 
 void do_play_audio(void)
 {
+	struct device_t * pos, * n;
+	struct xfs_context_t * ctx;
+	struct sound_t * snd;
+	struct audio_t * audio;
+	char key[256];
+	int volume;
+
+	if(!list_empty_careful(&__device_head[DEVICE_TYPE_AUDIO]))
+	{
+		ctx = xfs_alloc("/private/framework", 0);
+		if(ctx)
+		{
+			list_for_each_entry_safe(pos, n, &__device_head[DEVICE_TYPE_AUDIO], head)
+			{
+				if((audio = (struct audio_t *)(pos->priv)))
+				{
+					if(audio->playback_start && audio->playback_stop)
+					{
+						sprintf(key, "playback-volume(%s)", audio->name);
+						volume = strtol(setting_get(key, "-1"), NULL, 0);
+						if(volume <= 0)
+							volume = (1000 * 633) >> 10;
+						audio_ioctl(audio, "audio-set-playback-volume", &volume);
+						snd = sound_alloc_from_xfs(ctx, "assets/sounds/boot.wav");
+						if(snd)
+						{
+							sound_set_callback(snd, sound_free);
+							sound_play_by_audio(snd, audio);
+						}
+					}
+				}
+			}
+			xfs_free(ctx);
+		}
+	}
 }
 
 static int nm_call(struct notifier_t * n, int cmd, void * arg)

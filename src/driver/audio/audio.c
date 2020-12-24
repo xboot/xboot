@@ -91,3 +91,34 @@ void unregister_audio(struct audio_t * audio)
 		}
 	}
 }
+
+void audio_playback_start(struct audio_t * audio, enum pcm_rate_t rate, enum pcm_format_t fmt, int ch, audio_callback_t cb, void * data)
+{
+	if(audio && audio->playback_start)
+		audio->playback_start(audio, rate, fmt, ch, cb, data);
+}
+
+void audio_playback_stop(struct audio_t * audio)
+{
+	if(audio && audio->playback_stop)
+		audio->playback_stop(audio);
+}
+
+void audio_capture_start(struct audio_t * audio, enum pcm_rate_t rate, enum pcm_format_t fmt, int ch, audio_callback_t cb, void * data)
+{
+	if(audio && audio->capture_start)
+		audio->capture_start(audio, rate, fmt, ch, cb, data);
+}
+
+void audio_capture_stop(struct audio_t * audio)
+{
+	if(audio && audio->capture_stop)
+		audio->capture_stop(audio);
+}
+
+int audio_ioctl(struct audio_t * audio, const char * cmd, void * arg)
+{
+	if(audio && audio->ioctl)
+		return audio->ioctl(audio, cmd, arg);
+	return -1;
+}

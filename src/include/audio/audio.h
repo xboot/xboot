@@ -60,7 +60,11 @@ struct audio_t * search_first_audio(void);
 struct device_t * register_audio(struct audio_t * audio, struct driver_t * drv);
 void unregister_audio(struct audio_t * audio);
 
-void audio_playback(struct audio_t * audio);
+void audio_playback_start(struct audio_t * audio, enum pcm_rate_t rate, enum pcm_format_t fmt, int ch, audio_callback_t cb, void * data);
+void audio_playback_stop(struct audio_t * audio);
+void audio_capture_start(struct audio_t * audio, enum pcm_rate_t rate, enum pcm_format_t fmt, int ch, audio_callback_t cb, void * data);
+void audio_capture_stop(struct audio_t * audio);
+int audio_ioctl(struct audio_t * audio, const char * cmd, void * arg);
 
 #ifdef __cplusplus
 }

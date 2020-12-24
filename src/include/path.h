@@ -21,6 +21,7 @@ static inline int is_relative_path(const char * path)
 
 char * basename(char * path);
 char * dirname(char * path);
+const char * fileext(const char * filename);
 
 #ifdef __cplusplus
 }

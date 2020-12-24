@@ -13,6 +13,7 @@ extern "C" {
 #include <stdarg.h>
 #include <string.h>
 #include <stdlib.h>
+#include <path.h>
 #include <malloc.h>
 #include <irqflags.h>
 #include <spinlock.h>

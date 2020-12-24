@@ -22,6 +22,7 @@ struct sound_t
 	int lvol;
 	int rvol;
 	int loop;
+	void (*cb)(struct sound_t *);
 };
 
 static inline uint32_t * sound_get_source(struct sound_t * snd)
@@ -81,10 +82,17 @@ static inline void sound_set_loop(struct sound_t * snd, int loop)
 	snd->loop = loop;
 }
 
+static inline void sound_set_callback(struct sound_t * snd, void (*cb)(struct sound_t *))
+{
+	snd->cb = cb;
+}
+
 struct sound_t * sound_alloc(int sample);
 struct sound_t * sound_alloc_from_xfs(struct xfs_context_t * ctx, const char * filename);
 struct sound_t * sound_alloc_tone(int frequency, int millisecond);
 void sound_free(struct sound_t * snd);
+
+void sound_play(struct sound_t * snd);
 
 #ifdef __cplusplus
 }

@@ -29,6 +29,12 @@
 #include <xboot.h>
 #include <sound/sound.h>
 
+static struct list_head __soundpool_list = {
+	.next = &__soundpool_list,
+	.prev = &__soundpool_list,
+};
+static spinlock_t __soundpool_lock = SPIN_LOCK_INIT();
+
 struct sound_t * sound_alloc(int sample)
 {
 	struct sound_t * snd;
@@ -55,6 +61,7 @@ struct sound_t * sound_alloc(int sample)
 	snd->lvol = 4096;
 	snd->rvol = 4096;
 	snd->loop = 1;
+	snd->cb = NULL;
 
 	return snd;
 }
@@ -272,4 +279,112 @@ struct sound_t * sound_alloc_tone(int frequency, int millisecond)
 		}
 	}
 	return NULL;
+}
+
+static int audio_playback_callback(void * data, void * buf, int count)
+{
+	struct sound_t * pos, * n;
+	irq_flags_t flags;
+	char * pbuf = buf;
+	int32_t left[480];
+	int32_t right[480];
+	int32_t result[480];
+	int bytes = 0;
+	int sample;
+	int length;
+	int nsound;
+	int i;
+
+	if(list_empty_careful(&__soundpool_list))
+		return 0;
+	while(count > 0)
+	{
+		sample = min((int)(count >> 2), 480);
+		length = sample << 2;
+		nsound = 0;
+		memset(left, 0, length);
+		memset(right, 0, length);
+		list_for_each_entry_safe(pos, n, &__soundpool_list, list)
+		{
+			if(pos->loop != 0)
+			{
+				for(i = 0; i < sample; i++)
+				{
+					if(pos->sample > pos->postion)
+					{
+						int16_t * p = (int16_t *)(&pos->source[pos->postion]);
+						left[i] += (p[0] * pos->lvol) >> 12;
+						right[i] += (p[1] * pos->rvol) >> 12;
+						pos->postion++;
+					}
+					else
+					{
+						if(pos->loop > 0)
+							pos->loop--;
+						if(pos->loop != 0)
+						{
+							pos->postion = 0;
+							int16_t * p = (int16_t *)(&pos->source[pos->postion]);
+							left[i] += (p[0] * pos->lvol) >> 12;
+							right[i] += (p[1] * pos->rvol) >> 12;
+						}
+					}
+				}
+				nsound++;
+			}
+		}
+		if(nsound > 0)
+		{
+			int16_t * p = (int16_t *)result;
+			int32_t * pl = left;
+			int32_t * pr = right;
+			for(i = 0; i < sample; i++)
+			{
+				*p++ = clamp(pl[i] / nsound, -32768, 32767);
+				*p++ = clamp(pr[i] / nsound, -32768, 32767);
+			}
+			memcpy(pbuf, result, length);
+		}
+		else
+			memset(pbuf, 0, length);
+		bytes += length;
+		pbuf += length;
+		count -= length;
+	}
+	spin_lock_irqsave(&__soundpool_lock, flags);
+	list_for_each_entry_safe(pos, n, &__soundpool_list, list)
+	{
+		if(pos->loop == 0)
+		{
+			list_del(&pos->list);
+			if(pos->cb)
+				pos->cb(pos);
+		}
+	}
+	spin_unlock_irqrestore(&__soundpool_lock, flags);
+
+	return bytes;
+}
+
+void sound_play(struct sound_t * snd)
+{
+	struct audio_t * audio;
+	struct sound_t * pos, * n;
+	irq_flags_t flags;
+
+	if(snd)
+	{
+		list_for_each_entry_safe(pos, n, &__soundpool_list, list)
+		{
+			if(pos == snd)
+				return;
+		}
+		spin_lock_irqsave(&__soundpool_lock, flags);
+		list_add_tail(&snd->list, &__soundpool_list);
+		spin_unlock_irqrestore(&__soundpool_lock, flags);
+
+		audio = search_first_audio();
+		if(audio)
+			audio_playback_start(audio, PCM_RATE_48000, PCM_FORMAT_BIT16, 2, audio_playback_callback, audio);
+	}
 }

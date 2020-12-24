@@ -366,13 +366,12 @@ static int audio_playback_callback(void * data, void * buf, int count)
 	return bytes;
 }
 
-void sound_play(struct sound_t * snd)
+void sound_play_by_audio(struct sound_t * snd, struct audio_t * audio)
 {
-	struct audio_t * audio;
 	struct sound_t * pos, * n;
 	irq_flags_t flags;
 
-	if(snd)
+	if(snd && audio)
 	{
 		list_for_each_entry_safe(pos, n, &__soundpool_list, list)
 		{
@@ -382,9 +381,11 @@ void sound_play(struct sound_t * snd)
 		spin_lock_irqsave(&__soundpool_lock, flags);
 		list_add_tail(&snd->list, &__soundpool_list);
 		spin_unlock_irqrestore(&__soundpool_lock, flags);
-
-		audio = search_first_audio();
-		if(audio)
-			audio_playback_start(audio, PCM_RATE_48000, PCM_FORMAT_BIT16, 2, audio_playback_callback, audio);
+		audio_playback_start(audio, PCM_RATE_48000, PCM_FORMAT_BIT16, 2, audio_playback_callback, audio);
 	}
+}
+
+void sound_play(struct sound_t * snd)
+{
+	sound_play_by_audio(snd, search_first_audio());
 }

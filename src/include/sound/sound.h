@@ -92,6 +92,7 @@ struct sound_t * sound_alloc_from_xfs(struct xfs_context_t * ctx, const char * f
 struct sound_t * sound_alloc_tone(int frequency, int millisecond);
 void sound_free(struct sound_t * snd);
 
+void sound_play_by_audio(struct sound_t * snd, struct audio_t * audio);
 void sound_play(struct sound_t * snd);
 
 #ifdef __cplusplus

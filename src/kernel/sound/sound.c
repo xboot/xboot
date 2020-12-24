@@ -29,19 +29,19 @@
 #include <xboot.h>
 #include <sound/sound.h>
 
-struct sound_t * sound_alloc(size_t length)
+struct sound_t * sound_alloc(int sample)
 {
 	struct sound_t * snd;
 	void * source;
 
-	if((length <= 0) || ((length & 0x3) != 0))
+	if(sample <= 0)
 		return NULL;
 
 	snd = malloc(sizeof(struct sound_t));
 	if(!snd)
 		return NULL;
 
-	source = memalign(4, length);
+	source = memalign(4, sample << 2);
 	if(!source)
 	{
 		free(snd);
@@ -50,12 +50,11 @@ struct sound_t * sound_alloc(size_t length)
 
 	init_list_head(&snd->list);
 	snd->source = source;
-	snd->length = length;
+	snd->sample = sample;
 	snd->postion = 0;
-	snd->state = SOUND_STATE_STOPPED;
-	snd->lgain = 255;
-	snd->rgain = 255;
-	snd->loop = 0;
+	snd->lvol = 4096;
+	snd->rvol = 4096;
+	snd->loop = 1;
 
 	return snd;
 }
@@ -156,7 +155,7 @@ static inline struct sound_t * sound_alloc_from_xfs_wav(struct xfs_context_t * c
 		xfs_close(file);
 		return NULL;
 	}
-	snd = sound_alloc(osample << 2);
+	snd = sound_alloc(osample);
 	if(!snd)
 	{
 		free(inbuf);
@@ -256,16 +255,18 @@ struct sound_t * sound_alloc_tone(int frequency, int millisecond)
 			sample = 48000.0 / (float)frequency;
 		else
 			sample = millisecond * 48;
-		snd = sound_alloc(sample << 2);
+		snd = sound_alloc(sample);
 		if(snd)
 		{
-			t = (2 * M_PI / 48000.0) * (float)frequency ;
+			t = (2 * M_PI / 48000.0) * (float)frequency;
 			for(i = 0, p = snd->source; i < sample; i++, p++)
 			{
 				v = (int16_t)(sinf(t * (float)i) * 32767.0);
 				*p = (v << 16) | v;
 			}
-			if(millisecond <= 0)
+			if(millisecond > 0)
+				snd->loop = 1;
+			else
 				snd->loop = -1;
 			return snd;
 		}

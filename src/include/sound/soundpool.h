@@ -7,10 +7,14 @@ extern "C" {
 
 #include <sound/sound.h>
 
-extern struct list_head __soundpool_list;
-
 bool_t soundpool_add(struct sound_t * snd);
 bool_t soundpool_remove(struct sound_t * snd);
+bool_t soundpool_clear(void (*cb)(struct sound_t *));
+
+int soundpool_get_volume(void);
+void soundpool_set_volume(int vol);
+
+void soundpool_playback(struct audio_t * audio);
 
 #ifdef __cplusplus
 }

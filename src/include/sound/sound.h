@@ -8,12 +8,7 @@ extern "C" {
 #include <types.h>
 #include <stdint.h>
 #include <xfs/xfs.h>
-
-enum sound_state_t {
-	SOUND_STATE_PLAYING	= 0,
-	SOUND_STATE_PAUSED	= 1,
-	SOUND_STATE_STOPPED	= 2,
-};
+#include <audio/audio.h>
 
 /*
  * The sound is short audio, fixed to stereo, 48khz, 16bits signed format.
@@ -21,52 +16,72 @@ enum sound_state_t {
 struct sound_t
 {
 	struct list_head list;
-	void * source;
-	size_t length;
-	size_t postion;
-	enum sound_state_t state;
-	int lgain, rgain;
+	uint32_t * source;
+	int sample;
+	int postion;
+	int lvol;
+	int rvol;
 	int loop;
 };
 
-static inline void * sound_get_source(struct sound_t * snd)
+static inline uint32_t * sound_get_source(struct sound_t * snd)
 {
 	return snd->source;
 }
 
-static inline size_t sound_get_length(struct sound_t * snd)
+static inline int sound_get_sample(struct sound_t * snd)
 {
-	return snd->length;
+	return snd->sample;
 }
 
-static inline size_t sound_get_sample(struct sound_t * snd)
-{
-	return (snd->length >> 2);
-}
-
-static inline size_t sound_get_postion(struct sound_t * snd)
+static inline int sound_get_postion(struct sound_t * snd)
 {
 	return snd->postion;
 }
 
-static inline void * sound_get_remaining_source(struct sound_t * snd)
+static inline int sound_get_left_volume(struct sound_t * snd)
 {
-	if(snd->length - snd->postion > 1)
-		return &((uint8_t *)snd->source)[snd->postion];
+	return snd->lvol;
+}
+
+static inline int sound_get_right_volume(struct sound_t * snd)
+{
+	return snd->rvol;
+}
+
+static inline int sound_get_loop(struct sound_t * snd)
+{
+	return snd->loop;
+}
+
+static inline uint32_t * sound_get_remaining_source(struct sound_t * snd)
+{
+	if(snd->sample > snd->postion)
+		return &snd->source[snd->postion];
 	return NULL;
 }
 
-static inline size_t sound_get_remaining_length(struct sound_t * snd)
+static inline int sound_get_remaining_sample(struct sound_t * snd)
 {
-	return snd->length - snd->postion - 1;
+	return snd->sample - snd->postion;
 }
 
-static inline size_t sound_get_remaining_sample(struct sound_t * snd)
+static inline void sound_set_left_volume(struct sound_t * snd, int vol)
 {
-	return (snd->length - snd->postion - 1) >> 2;
+	snd->lvol = clamp(vol, 0, 4096);
 }
 
-struct sound_t * sound_alloc(size_t length);
+static inline void sound_set_right_volume(struct sound_t * snd, int vol)
+{
+	snd->rvol = clamp(vol, 0, 4096);
+}
+
+static inline void sound_set_loop(struct sound_t * snd, int loop)
+{
+	snd->loop = loop;
+}
+
+struct sound_t * sound_alloc(int sample);
 struct sound_t * sound_alloc_from_xfs(struct xfs_context_t * ctx, const char * filename);
 struct sound_t * sound_alloc_tone(int frequency, int millisecond);
 void sound_free(struct sound_t * snd);

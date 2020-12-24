@@ -41,10 +41,16 @@ static void audio_sandbox_playback_start(struct audio_t * audio, enum pcm_rate_t
 	struct audio_sandbox_pdata_t * pdat = (struct audio_sandbox_pdata_t *)audio->priv;
 	if(pdat->pctx)
 	{
-		sandbox_audio_playback_stop(pdat->pctx);
-		pdat->pctx = NULL;
+		if(!sandbox_audio_playback_status(pdat->pctx))
+		{
+			sandbox_audio_playback_stop(pdat->pctx);
+			pdat->pctx = NULL;
+		}
 	}
-	pdat->pctx = sandbox_audio_playback_start(rate, fmt, ch, cb, data);
+	else
+	{
+		pdat->pctx = sandbox_audio_playback_start(rate, fmt, ch, cb, data);
+	}
 }
 
 static void audio_sandbox_playback_stop(struct audio_t * audio)
@@ -62,10 +68,16 @@ static void audio_sandbox_capture_start(struct audio_t * audio, enum pcm_rate_t 
 	struct audio_sandbox_pdata_t * pdat = (struct audio_sandbox_pdata_t *)audio->priv;
 	if(pdat->cctx)
 	{
-		sandbox_audio_capture_stop(pdat->cctx);
-		pdat->cctx = NULL;
+		if(!sandbox_audio_capture_status(pdat->pctx))
+		{
+			sandbox_audio_capture_stop(pdat->cctx);
+			pdat->cctx = NULL;
+		}
 	}
-	pdat->cctx = sandbox_audio_capture_start(rate, fmt, ch, cb, data);
+	else
+	{
+		pdat->cctx = sandbox_audio_capture_start(rate, fmt, ch, cb, data);
+	}
 }
 
 static void audio_sandbox_capture_stop(struct audio_t * audio)

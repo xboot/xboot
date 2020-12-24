@@ -20,7 +20,6 @@ static void * sandbox_audio_playback_thread(void * arg)
 	struct sandbox_audio_context_t * ctx = (struct sandbox_audio_context_t *)arg;
 	int len, ret;
 
-	ctx->running = 1;
 	while(ctx->running)
 	{
 		len = ctx->cb(ctx->data, ctx->buffer, ctx->buflen) / ctx->bytes_per_frame;
@@ -135,6 +134,7 @@ void * sandbox_audio_playback_start(int rate, int fmt, int ch, int(*cb)(void *, 
 		free(ctx);
 		return NULL;
 	}
+	ctx->running = 1;
 	if(pthread_create(&ctx->thread, NULL, sandbox_audio_playback_thread, ctx) < 0)
 	{
 		free(ctx->buffer);
@@ -160,12 +160,19 @@ void sandbox_audio_playback_stop(void * context)
 	}
 }
 
+int sandbox_audio_playback_status(void * context)
+{
+	struct sandbox_audio_context_t * ctx = (struct sandbox_audio_context_t *)context;
+	if(ctx)
+		return ctx->running;
+	return 0;
+}
+
 static void * sandbox_audio_capture_thread(void * arg)
 {
 	struct sandbox_audio_context_t * ctx = (struct sandbox_audio_context_t *)arg;
 	int len, l, ret;
 
-	ctx->running = 1;
 	while(ctx->running)
 	{
 		ret = snd_pcm_readi(ctx->handle, ctx->buffer, ctx->frames);
@@ -277,6 +284,7 @@ void * sandbox_audio_capture_start(int rate, int fmt, int ch, int(*cb)(void *, v
 		free(ctx);
 		return NULL;
 	}
+	ctx->running = 1;
 	if(pthread_create(&ctx->thread, NULL, sandbox_audio_capture_thread, ctx) < 0)
 	{
 		free(ctx->buffer);
@@ -300,6 +308,14 @@ void sandbox_audio_capture_stop(void * context)
 		free(ctx->buffer);
 		free(ctx);
 	}
+}
+
+int sandbox_audio_capture_status(void * context)
+{
+	struct sandbox_audio_context_t * ctx = (struct sandbox_audio_context_t *)context;
+	if(ctx)
+		return ctx->running;
+	return 0;
 }
 
 int sandbox_audio_ioctl(const char * cmd, void * arg)

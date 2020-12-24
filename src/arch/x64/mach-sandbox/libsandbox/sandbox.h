@@ -137,8 +137,10 @@ void sandbox_region_list_clear(struct sandbox_region_list_t * rl);
  */
 void * sandbox_audio_playback_start(int rate, int fmt, int ch, int(*cb)(void *, void *, int), void * data);
 void sandbox_audio_playback_stop(void * context);
+int sandbox_audio_playback_status(void * context);
 void * sandbox_audio_capture_start(int rate, int fmt, int ch, int(*cb)(void *, void *, int), void * data);
 void sandbox_audio_capture_stop(void * context);
+int sandbox_audio_capture_status(void * context);
 int sandbox_audio_ioctl(const char * cmd, void * arg);
 
 /*

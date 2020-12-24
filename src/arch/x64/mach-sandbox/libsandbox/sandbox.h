@@ -141,7 +141,10 @@ int sandbox_audio_playback_status(void * context);
 void * sandbox_audio_capture_start(int rate, int fmt, int ch, int(*cb)(void *, void *, int), void * data);
 void sandbox_audio_capture_stop(void * context);
 int sandbox_audio_capture_status(void * context);
-int sandbox_audio_ioctl(const char * cmd, void * arg);
+void sandbox_audio_set_playback_volume(int vol);
+int sandbox_audio_get_playback_volume(void);
+void sandbox_audio_set_capture_volume(int vol);
+int sandbox_audio_get_capture_volume(void);
 
 /*
  * Camera interface

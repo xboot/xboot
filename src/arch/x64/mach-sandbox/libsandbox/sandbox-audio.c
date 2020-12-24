@@ -318,7 +318,20 @@ int sandbox_audio_capture_status(void * context)
 	return 0;
 }
 
-int sandbox_audio_ioctl(const char * cmd, void * arg)
+void sandbox_audio_set_playback_volume(int vol)
 {
-	return -1;
+}
+
+int sandbox_audio_get_playback_volume(void)
+{
+	return 1000;
+}
+
+void sandbox_audio_set_capture_volume(int vol)
+{
+}
+
+int sandbox_audio_get_capture_volume(void)
+{
+	return 1000;
 }

@@ -29,74 +29,245 @@
 #include <xboot.h>
 #include <sound/sound.h>
 
-struct sound_t * sound_alloc(size_t length, void * priv)
+struct sound_t * sound_alloc(size_t length)
 {
-	struct sound_t * s;
-	void * datas;
+	struct sound_t * snd;
+	void * source;
 
 	if((length <= 0) || ((length & 0x3) != 0))
 		return NULL;
 
-	s = malloc(sizeof(struct sound_t));
-	if(!s)
+	snd = malloc(sizeof(struct sound_t));
+	if(!snd)
 		return NULL;
 
-	datas = memalign(4, length);
-	if(!datas)
+	source = memalign(4, length);
+	if(!source)
 	{
-		free(s);
+		free(snd);
 		return NULL;
 	}
 
-	init_list_head(&s->list);
-	s->datas = datas;
-	s->length = length;
-	s->postion = 0;
-	s->state = SOUND_STATE_STOPPED;
-	s->lgain = 255;
-	s->rgain = 255;
-	s->loop = 0;
-	s->priv = priv;
+	init_list_head(&snd->list);
+	snd->source = source;
+	snd->length = length;
+	snd->postion = 0;
+	snd->state = SOUND_STATE_STOPPED;
+	snd->lgain = 255;
+	snd->rgain = 255;
+	snd->loop = 0;
 
-	return s;
+	return snd;
 }
 
-void sound_free(struct sound_t * s)
+void sound_free(struct sound_t * snd)
 {
-	if(s)
+	if(snd)
 	{
-		free(s->datas);
-		free(s);
+		free(snd->source);
+		free(snd);
 	}
+}
+
+static void sound_resample(int16_t * out, int osr, int osample, int16_t * in, int isr, int isample, int channel)
+{
+	if(out && in)
+	{
+		float fixed = (1.0 / (1LL << 32));
+		uint64_t frac = (1LL << 32);
+		uint64_t step = ((uint64_t)((float)isr / (float)osr * frac + 0.5));
+		uint64_t offset = 0;
+		for(int i = 0; i < osample; i += 1)
+		{
+			for(int c = 0; c < channel; c++)
+				*out++ = (int16_t)(in[c] + (in[c + channel] - in[c]) * ((float)(offset >> 32) + ((offset & (frac - 1)) * fixed)));
+			offset += step;
+			in += (offset >> 32) * channel;
+			offset &= (frac - 1);
+		}
+	}
+}
+
+struct wav_header_t {
+	uint8_t riff[4];
+	uint32_t riffsz;
+	uint8_t wave[4];
+	uint8_t fmt[4];
+	uint32_t fmtsz;
+	uint16_t fmttag;
+	uint16_t channel;
+	uint32_t samplerate;
+	uint32_t byterate;
+	uint16_t align;
+	uint16_t bps;
+	uint8_t data[4];
+	uint32_t datasz;
+};
+
+static inline struct sound_t * sound_alloc_from_xfs_wav(struct xfs_context_t * ctx, const char * filename)
+{
+	struct wav_header_t header;
+	struct xfs_file_t * file;
+	struct sound_t * snd;
+	uint32_t tmp[512];
+	uint32_t * inbuf;
+	int isample, osample;
+
+	if(!(file = xfs_open_read(ctx, filename)))
+		return NULL;
+
+	if(xfs_read(file, &header, sizeof(struct wav_header_t)) != sizeof(struct wav_header_t))
+	{
+		xfs_close(file);
+		return NULL;
+	}
+
+	header.riffsz = be32_to_cpu(header.riffsz);
+	header.fmtsz = be32_to_cpu(header.fmtsz);
+	header.fmttag = be16_to_cpu(header.fmttag);
+	header.channel = be16_to_cpu(header.channel);
+	header.samplerate = be32_to_cpu(header.samplerate);
+	header.byterate = be32_to_cpu(header.byterate);
+	header.align = be16_to_cpu(header.align);
+	header.bps = be16_to_cpu(header.bps);
+	header.datasz = be32_to_cpu(header.datasz);
+
+	if( (memcmp(header.riff, "RIFF", 4) != 0) ||
+		(memcmp(header.wave, "WAVE", 4) != 0) ||
+		(memcmp(header.fmt,  "fmt ", 4) != 0) ||
+		(memcmp(header.data, "data", 4) != 0) ||
+		(header.fmttag != 1) || (header.datasz < header.align) )
+	{
+		xfs_close(file);
+		return NULL;
+	}
+	if(((header.channel != 1) && (header.channel != 2)) || ((header.bps != 8) && (header.bps != 16)))
+	{
+		xfs_close(file);
+		return NULL;
+	}
+
+	isample = header.datasz / header.align;
+	osample = isample * 48000.0 / header.samplerate;
+	osample -= osample % 2;
+	inbuf = malloc(isample << 2);
+	if(!inbuf)
+	{
+		xfs_close(file);
+		return NULL;
+	}
+	snd = sound_alloc(osample << 2);
+	if(!snd)
+	{
+		free(inbuf);
+		xfs_close(file);
+		return NULL;
+	}
+	if(header.channel == 1)
+	{
+		if(header.bps == 8)
+		{
+			int16_t * p = (int16_t *)inbuf;
+			int8_t * q = (int8_t *)tmp;
+			int16_t v;
+			s64_t n, i;
+			while((n = xfs_read(file, tmp, sizeof(tmp))) > 0)
+			{
+				for(i = 0; i < n; i++)
+				{
+					v = q[i] << 8;
+					*p++ = v;
+					*p++ = v;
+				}
+			}
+		}
+		else if(header.bps == 16)
+		{
+			int16_t * p = (int16_t *)inbuf;
+			int16_t * q = (int16_t *)tmp;
+			int16_t v;
+			s64_t n, i;
+			while((n = xfs_read(file, tmp, sizeof(tmp))) > 0)
+			{
+				for(i = 0; i < (n >> 1); i++)
+				{
+					v = q[i];
+					*p++ = v;
+					*p++ = v;
+				}
+			}
+		}
+	}
+	else if(header.channel == 2)
+	{
+		if(header.bps == 8)
+		{
+			int16_t * p = (int16_t *)inbuf;
+			int8_t * q = (int8_t *)tmp;
+			s64_t n, i;
+			while((n = xfs_read(file, tmp, sizeof(tmp))) > 0)
+			{
+				for(i = 0; i < n; i += 2)
+				{
+					*p++ = q[i] << 8;
+					*p++ = q[i + 1] << 8;
+				}
+			}
+		}
+		else if(header.bps == 16)
+		{
+			xfs_read(file, inbuf, header.datasz);
+		}
+	}
+	sound_resample((int16_t *)snd->source, 48000, osample, (int16_t *)inbuf, header.samplerate, isample, 2);
+	free(inbuf);
+	xfs_close(file);
+
+	return snd;
+}
+
+static inline struct sound_t * sound_alloc_from_xfs_ogg(struct xfs_context_t * ctx, const char * filename)
+{
+	return NULL;
+}
+
+struct sound_t * sound_alloc_from_xfs(struct xfs_context_t * ctx, const char * filename)
+{
+	const char * ext = fileext(filename);
+	if(strcasecmp(ext, "wav") == 0)
+		return sound_alloc_from_xfs_wav(ctx, filename);
+	else if(strcasecmp(ext, "ogg") == 0)
+		return sound_alloc_from_xfs_ogg(ctx, filename);
+	return NULL;
 }
 
 struct sound_t * sound_alloc_tone(int frequency, int millisecond)
 {
-	struct sound_t * s;
+	struct sound_t * snd;
 	uint32_t * p;
 	int16_t v;
 	float t;
-	int samples;
+	int sample;
 	int i;
 
 	if((frequency > 0) && (frequency < 24000))
 	{
 		if(millisecond <= 0)
-			samples = 48000.0 / (float)frequency;
+			sample = 48000.0 / (float)frequency;
 		else
-			samples = millisecond * 48;
-		s = sound_alloc(samples * 4, NULL);
-		if(s)
+			sample = millisecond * 48;
+		snd = sound_alloc(sample << 2);
+		if(snd)
 		{
 			t = (2 * M_PI / 48000.0) * (float)frequency ;
-			for(i = 0, p = s->datas; i < samples; i++, p++)
+			for(i = 0, p = snd->source; i < sample; i++, p++)
 			{
 				v = (int16_t)(sinf(t * (float)i) * 32767.0);
 				*p = (v << 16) | v;
 			}
 			if(millisecond <= 0)
-				s->loop = 1;
-			return s;
+				snd->loop = -1;
+			return snd;
 		}
 	}
 	return NULL;

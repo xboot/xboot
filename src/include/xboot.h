@@ -74,6 +74,8 @@ extern "C" {
 #include <shell/shell.h>
 #include <vfs/vfs.h>
 #include <xfs/xfs.h>
+#include <sound/sound.h>
+#include <sound/soundpool.h>
 #include <xui/xui.h>
 #include <xui/window.h>
 #include <xui/popup.h>

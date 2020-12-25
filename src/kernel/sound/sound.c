@@ -289,10 +289,13 @@ static int audio_playback_callback(void * data, void * buf, int count)
 	int32_t left[240];
 	int32_t right[240];
 	int32_t result[240];
+	int32_t * pl = left;
+	int32_t * pr = right;
+	int16_t * p;
+
 	int bytes = 0;
 	int sample;
 	int length;
-	int nsound;
 	int i;
 
 	if(list_empty_careful(&__soundpool_list))
@@ -301,7 +304,6 @@ static int audio_playback_callback(void * data, void * buf, int count)
 	{
 		sample = min((int)(count >> 2), 240);
 		length = sample << 2;
-		nsound = 0;
 		memset(left, 0, length);
 		memset(right, 0, length);
 		list_for_each_entry_safe(pos, n, &__soundpool_list, list)
@@ -312,7 +314,7 @@ static int audio_playback_callback(void * data, void * buf, int count)
 				{
 					if(pos->sample > pos->postion)
 					{
-						int16_t * p = (int16_t *)(&pos->source[pos->postion]);
+						p = (int16_t *)(&pos->source[pos->postion]);
 						left[i] += (p[0] * pos->lvol) >> 12;
 						right[i] += (p[1] * pos->rvol) >> 12;
 						pos->postion++;
@@ -324,29 +326,21 @@ static int audio_playback_callback(void * data, void * buf, int count)
 						if(pos->loop != 0)
 						{
 							pos->postion = 0;
-							int16_t * p = (int16_t *)(&pos->source[pos->postion]);
+							p = (int16_t *)(&pos->source[pos->postion]);
 							left[i] += (p[0] * pos->lvol) >> 12;
 							right[i] += (p[1] * pos->rvol) >> 12;
 						}
 					}
 				}
-				nsound++;
 			}
 		}
-		if(nsound > 0)
+		p = (int16_t *)result;
+		for(i = 0; i < sample; i++)
 		{
-			int16_t * p = (int16_t *)result;
-			int32_t * pl = left;
-			int32_t * pr = right;
-			for(i = 0; i < sample; i++)
-			{
-				*p++ = clamp(pl[i] / nsound, -32768, 32767);
-				*p++ = clamp(pr[i] / nsound, -32768, 32767);
-			}
-			memcpy(pbuf, result, length);
+			*p++ = clamp(pl[i], -32768, 32767);
+			*p++ = clamp(pr[i], -32768, 32767);
 		}
-		else
-			memset(pbuf, 0, length);
+		memcpy(pbuf, result, length);
 		bytes += length;
 		pbuf += length;
 		count -= length;

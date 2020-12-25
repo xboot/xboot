@@ -44,7 +44,7 @@ static void audio_sandbox_playback_start(struct audio_t * audio, enum pcm_rate_t
 		if(!sandbox_audio_playback_status(pdat->pctx))
 		{
 			sandbox_audio_playback_stop(pdat->pctx);
-			pdat->pctx = NULL;
+			pdat->pctx = sandbox_audio_playback_start(rate, fmt, ch, cb, data);
 		}
 	}
 	else
@@ -71,7 +71,7 @@ static void audio_sandbox_capture_start(struct audio_t * audio, enum pcm_rate_t 
 		if(!sandbox_audio_capture_status(pdat->pctx))
 		{
 			sandbox_audio_capture_stop(pdat->cctx);
-			pdat->cctx = NULL;
+			pdat->cctx = sandbox_audio_capture_start(rate, fmt, ch, cb, data);
 		}
 	}
 	else

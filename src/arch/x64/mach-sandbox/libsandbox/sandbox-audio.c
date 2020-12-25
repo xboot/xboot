@@ -52,6 +52,8 @@ void * sandbox_audio_playback_start(int rate, int fmt, int ch, int(*cb)(void *, 
 {
 	struct sandbox_audio_context_t * ctx;
 	unsigned int val = rate;
+	unsigned int buffer_time;
+	unsigned int period_time;
 	int dir = 0;
 
 	ctx = malloc(sizeof(struct sandbox_audio_context_t));
@@ -104,6 +106,24 @@ void * sandbox_audio_playback_start(int rate, int fmt, int ch, int(*cb)(void *, 
 		return NULL;
 	}
 	if(snd_pcm_hw_params_set_rate_near(ctx->handle, ctx->params, &val, &dir) < 0)
+	{
+		free(ctx);
+		return NULL;
+	}
+	if(snd_pcm_hw_params_get_buffer_time_max(ctx->params, &buffer_time, 0) < 0)
+	{
+		free(ctx);
+		return NULL;
+	}
+	if(buffer_time > 100000)
+		buffer_time = 100000;
+	period_time = buffer_time / 4;
+	if(snd_pcm_hw_params_set_period_time_near(ctx->handle, ctx->params, &period_time, 0) < 0)
+	{
+		free(ctx);
+		return NULL;
+	}
+	if(snd_pcm_hw_params_set_buffer_time_near(ctx->handle, ctx->params, &buffer_time, 0) < 0)
 	{
 		free(ctx);
 		return NULL;

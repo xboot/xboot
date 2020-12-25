@@ -286,9 +286,9 @@ static int audio_playback_callback(void * data, void * buf, int count)
 	struct sound_t * pos, * n;
 	irq_flags_t flags;
 	char * pbuf = buf;
-	int32_t left[480];
-	int32_t right[480];
-	int32_t result[480];
+	int32_t left[240];
+	int32_t right[240];
+	int32_t result[240];
 	int bytes = 0;
 	int sample;
 	int length;
@@ -299,7 +299,7 @@ static int audio_playback_callback(void * data, void * buf, int count)
 		return 0;
 	while(count > 0)
 	{
-		sample = min((int)(count >> 2), 480);
+		sample = min((int)(count >> 2), 240);
 		length = sample << 2;
 		nsound = 0;
 		memset(left, 0, length);

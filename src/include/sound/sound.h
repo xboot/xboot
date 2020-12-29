@@ -77,6 +77,13 @@ static inline void sound_set_right_volume(struct sound_t * snd, int vol)
 	snd->rvol = clamp(vol, 0, 4096);
 }
 
+static inline void sound_set_gain_pan(struct sound_t * snd, float gain, float pan)
+{
+	pan = clamp(pan, -1.0f, 1.0f);
+	snd->lvol = gain * (pan <= 0.0f ? 1.0f : 1.0f - pan) * 4096;
+	snd->rvol = gain * (pan >= 0.0f ? 1.0f : 1.0f + pan) * 4096;
+}
+
 static inline void sound_set_loop(struct sound_t * snd, int loop)
 {
 	snd->loop = loop;

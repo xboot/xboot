@@ -36,6 +36,12 @@ struct audio_t
 	/* The audio name */
 	char * name;
 
+	/* The sound pool */
+	struct {
+		struct list_head list;
+		spinlock_t lock;
+	} soundpool;
+
 	/* Audio playback start */
 	void (*playback_start)(struct audio_t * audio, enum pcm_rate_t rate, enum pcm_format_t fmt, int ch, audio_callback_t cb, void * data);
 
@@ -65,6 +71,8 @@ void audio_playback_stop(struct audio_t * audio);
 void audio_capture_start(struct audio_t * audio, enum pcm_rate_t rate, enum pcm_format_t fmt, int ch, audio_callback_t cb, void * data);
 void audio_capture_stop(struct audio_t * audio);
 int audio_ioctl(struct audio_t * audio, const char * cmd, void * arg);
+
+void audio_playback(struct audio_t * audio, struct sound_t * snd);
 
 #ifdef __cplusplus
 }

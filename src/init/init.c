@@ -103,7 +103,7 @@ void do_play_audio(void)
 						if(snd)
 						{
 							sound_set_callback(snd, sound_free);
-							sound_play_by_audio(snd, audio);
+							audio_playback(audio, snd);
 						}
 					}
 				}

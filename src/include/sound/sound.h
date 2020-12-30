@@ -8,7 +8,6 @@ extern "C" {
 #include <types.h>
 #include <stdint.h>
 #include <xfs/xfs.h>
-#include <audio/audio.h>
 
 /*
  * The sound is short audio, fixed to stereo, 48khz, 16bits signed format.
@@ -97,9 +96,6 @@ struct sound_t * sound_alloc(int sample);
 struct sound_t * sound_alloc_from_xfs(struct xfs_context_t * ctx, const char * filename);
 struct sound_t * sound_alloc_tone(int frequency, int millisecond);
 void sound_free(struct sound_t * snd);
-
-void sound_play_by_audio(struct sound_t * snd, struct audio_t * audio);
-void sound_play(struct sound_t * snd);
 
 #ifdef __cplusplus
 }

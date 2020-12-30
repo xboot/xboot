@@ -95,7 +95,7 @@ void unregister_audio(struct audio_t * audio)
 	}
 }
 
-void audio_playback_start(struct audio_t * audio, enum pcm_rate_t rate, enum pcm_format_t fmt, int ch, audio_callback_t cb, void * data)
+void audio_playback_start(struct audio_t * audio, enum audio_rate_t rate, enum audio_format_t fmt, int ch, audio_callback_t cb, void * data)
 {
 	if(audio && audio->playback_start)
 		audio->playback_start(audio, rate, fmt, ch, cb, data);
@@ -107,7 +107,7 @@ void audio_playback_stop(struct audio_t * audio)
 		audio->playback_stop(audio);
 }
 
-void audio_capture_start(struct audio_t * audio, enum pcm_rate_t rate, enum pcm_format_t fmt, int ch, audio_callback_t cb, void * data)
+void audio_capture_start(struct audio_t * audio, enum audio_rate_t rate, enum audio_format_t fmt, int ch, audio_callback_t cb, void * data)
 {
 	if(audio && audio->capture_start)
 		audio->capture_start(audio, rate, fmt, ch, cb, data);
@@ -234,7 +234,7 @@ void audio_playback(struct audio_t * audio, struct sound_t * snd)
 			spin_lock_irqsave(&audio->soundpool.lock, flags);
 			list_add_tail(&snd->list, &audio->soundpool.list);
 			spin_unlock_irqrestore(&audio->soundpool.lock, flags);
-			audio_playback_start(audio, PCM_RATE_48000, PCM_FORMAT_BIT16, 2, audio_playback_callback, audio);
+			audio_playback_start(audio, AUDIO_RATE_48000, AUDIO_FORMAT_BIT16, 2, audio_playback_callback, audio);
 		}
 	}
 }

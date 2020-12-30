@@ -7,26 +7,26 @@ extern "C" {
 
 #include <xboot.h>
 
-enum pcm_format_t {
-	PCM_FORMAT_BIT8		= 8,
-	PCM_FORMAT_BIT16	= 16,
-	PCM_FORMAT_BIT24	= 24,
-	PCM_FORMAT_BIT32	= 32,
+enum audio_format_t {
+	AUDIO_FORMAT_BIT8	= 8,
+	AUDIO_FORMAT_BIT16	= 16,
+	AUDIO_FORMAT_BIT24	= 24,
+	AUDIO_FORMAT_BIT32	= 32,
 };
 
-enum pcm_rate_t {
-	PCM_RATE_8000		= 8000,
-	PCM_RATE_11025		= 11025,
-	PCM_RATE_16000		= 16000,
-	PCM_RATE_22050		= 22050,
-	PCM_RATE_32000		= 32000,
-	PCM_RATE_44100		= 44100,
-	PCM_RATE_48000		= 48000,
-	PCM_RATE_64000		= 64000,
-	PCM_RATE_88200		= 88200,
-	PCM_RATE_96000		= 96000,
-	PCM_RATE_176400		= 176400,
-	PCM_RATE_192000		= 192000,
+enum audio_rate_t {
+	AUDIO_RATE_8000		= 8000,
+	AUDIO_RATE_11025	= 11025,
+	AUDIO_RATE_16000	= 16000,
+	AUDIO_RATE_22050	= 22050,
+	AUDIO_RATE_32000	= 32000,
+	AUDIO_RATE_44100	= 44100,
+	AUDIO_RATE_48000	= 48000,
+	AUDIO_RATE_64000	= 64000,
+	AUDIO_RATE_88200	= 88200,
+	AUDIO_RATE_96000	= 96000,
+	AUDIO_RATE_176400	= 176400,
+	AUDIO_RATE_192000	= 192000,
 };
 
 typedef int (*audio_callback_t)(void * data, void * buf, int count);
@@ -43,13 +43,13 @@ struct audio_t
 	} soundpool;
 
 	/* Audio playback start */
-	void (*playback_start)(struct audio_t * audio, enum pcm_rate_t rate, enum pcm_format_t fmt, int ch, audio_callback_t cb, void * data);
+	void (*playback_start)(struct audio_t * audio, enum audio_rate_t rate, enum audio_format_t fmt, int ch, audio_callback_t cb, void * data);
 
 	/* Audio playback stop */
 	void (*playback_stop)(struct audio_t * audio);
 
 	/* Audio capture start */
-	void (*capture_start)(struct audio_t * audio, enum pcm_rate_t rate, enum pcm_format_t fmt, int ch, audio_callback_t cb, void * data);
+	void (*capture_start)(struct audio_t * audio, enum audio_rate_t rate, enum audio_format_t fmt, int ch, audio_callback_t cb, void * data);
 
 	/* Audio capture stop */
 	void (*capture_stop)(struct audio_t * audio);
@@ -66,9 +66,9 @@ struct audio_t * search_first_audio(void);
 struct device_t * register_audio(struct audio_t * audio, struct driver_t * drv);
 void unregister_audio(struct audio_t * audio);
 
-void audio_playback_start(struct audio_t * audio, enum pcm_rate_t rate, enum pcm_format_t fmt, int ch, audio_callback_t cb, void * data);
+void audio_playback_start(struct audio_t * audio, enum audio_rate_t rate, enum audio_format_t fmt, int ch, audio_callback_t cb, void * data);
 void audio_playback_stop(struct audio_t * audio);
-void audio_capture_start(struct audio_t * audio, enum pcm_rate_t rate, enum pcm_format_t fmt, int ch, audio_callback_t cb, void * data);
+void audio_capture_start(struct audio_t * audio, enum audio_rate_t rate, enum audio_format_t fmt, int ch, audio_callback_t cb, void * data);
 void audio_capture_stop(struct audio_t * audio);
 int audio_ioctl(struct audio_t * audio, const char * cmd, void * arg);
 

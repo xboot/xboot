@@ -37,7 +37,7 @@ static void fb_dummy_setbl(struct framebuffer_t * fb, int brightness)
 
 static int fb_dummy_getbl(struct framebuffer_t * fb)
 {
-	return CONFIG_MAX_BRIGHTNESS;
+	return 1000;
 }
 
 static struct surface_t * fb_dummy_create(struct framebuffer_t * fb)

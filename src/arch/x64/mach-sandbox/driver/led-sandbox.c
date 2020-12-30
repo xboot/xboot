@@ -44,7 +44,7 @@ static void led_sandbox_set(struct led_t * led, int brightness)
 
 	if(pdat->brightness != brightness)
 	{
-		v = brightness * pdat->max_brightness / CONFIG_MAX_BRIGHTNESS;
+		v = brightness * pdat->max_brightness / 1000;
 		sprintf(tmp, "%d", v);
 		sandbox_sysfs_write_string(pdat->path, tmp);
 		pdat->brightness = brightness;
@@ -82,7 +82,7 @@ static struct device_t * led_sandbox_probe(struct driver_t * drv, struct dtnode_
 	{
 		brightness = strtol(tmp, NULL, 0);
 		if(max_brightness > 0)
-			brightness = brightness * CONFIG_MAX_BRIGHTNESS / max_brightness > 0;
+			brightness = brightness * 1000 / max_brightness > 0;
 	}
 
 	pdat = malloc(sizeof(struct led_sandbox_pdata_t));

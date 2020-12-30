@@ -312,7 +312,7 @@ static void pcba_window(struct xui_context_t * ctx)
 							static int brightness = -1;
 							if(brightness < 0)
 								brightness = window_get_backlight(ctx->w);
-							if(xui_slider_int(ctx, &brightness, 0, CONFIG_MAX_BRIGHTNESS, 1))
+							if(xui_slider_int(ctx, &brightness, 0, 1000, 1))
 								window_set_backlight(ctx->w, brightness);
 						}
 						xui_end_panel(ctx);
@@ -337,7 +337,7 @@ static void pcba_window(struct xui_context_t * ctx)
 								if(xui_toggle_ex(ctx, &state, XUI_TOGGLE_PRIMARY))
 								{
 									if(state)
-										led_set_brightness(led, CONFIG_MAX_BRIGHTNESS);
+										led_set_brightness(led, 1000);
 									else
 										led_set_brightness(led, 0);
 								}

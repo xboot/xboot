@@ -63,7 +63,7 @@ void do_show_logo(void)
 						sprintf(key, "backlight(%s)", fb->name);
 						brightness = strtol(setting_get(key, "-1"), NULL, 0);
 						if(brightness <= 0)
-							brightness = (CONFIG_MAX_BRIGHTNESS * 633) >> 10;
+							brightness = (1000 * 633) >> 10;
 						framebuffer_set_backlight(fb, brightness);
 					}
 				}

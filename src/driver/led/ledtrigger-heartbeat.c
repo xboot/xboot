@@ -51,7 +51,7 @@ static int ledtrigger_heartbeat_timer_function(struct timer_t * timer, void * da
 	case 0:
 		delay = 70;
 		pdat->phase++;
-		brightness = CONFIG_MAX_BRIGHTNESS;
+		brightness = 1000;
 		break;
 
 	case 1:
@@ -63,7 +63,7 @@ static int ledtrigger_heartbeat_timer_function(struct timer_t * timer, void * da
 	case 2:
 		delay = 70;
 		pdat->phase++;
-		brightness = CONFIG_MAX_BRIGHTNESS;
+		brightness = 1000;
 		break;
 
 	default:

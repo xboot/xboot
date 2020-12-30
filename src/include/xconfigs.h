@@ -31,10 +31,6 @@ extern "C" {
 #define CONFIG_KVDB_HASH_SIZE				(4099)
 #endif
 
-#if !defined(CONFIG_MAX_BRIGHTNESS)
-#define CONFIG_MAX_BRIGHTNESS				(1000)
-#endif
-
 #if !defined(CONFIG_EVENT_FIFO_SIZE)
 #define CONFIG_EVENT_FIFO_SIZE				(64)
 #endif

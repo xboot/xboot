@@ -12,7 +12,7 @@ struct led_t
 	/* The LED name */
 	char * name;
 
-	/* Set LED's brightness (0 ~ CONFIG_MAX_BRIGHTNESS) */
+	/* Set LED's brightness (0 ~ 1000) */
 	void (*set)(struct led_t * led, int brightness);
 
 	/* Get LED's brightness */

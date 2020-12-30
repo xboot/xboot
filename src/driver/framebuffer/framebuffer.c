@@ -71,11 +71,6 @@ static ssize_t framebuffer_write_brightness(struct kobj_t * kobj, void * buf, si
 	return size;
 }
 
-static ssize_t framebuffer_read_max_brightness(struct kobj_t * kobj, void * buf, size_t size)
-{
-	return sprintf(buf, "%u", CONFIG_MAX_BRIGHTNESS);
-}
-
 struct framebuffer_t * search_framebuffer(const char * name)
 {
 	struct device_t * dev;
@@ -117,7 +112,6 @@ struct device_t * register_framebuffer(struct framebuffer_t * fb, struct driver_
 	kobj_add_regular(dev->kobj, "pwidth", framebuffer_read_pwidth, NULL, fb);
 	kobj_add_regular(dev->kobj, "pheight", framebuffer_read_pheight, NULL, fb);
 	kobj_add_regular(dev->kobj, "brightness", framebuffer_read_brightness, framebuffer_write_brightness, fb);
-	kobj_add_regular(dev->kobj, "max_brightness", framebuffer_read_max_brightness, NULL, fb);
 
 	if(fb->setbl)
 		fb->setbl(fb, 0);
@@ -156,8 +150,8 @@ void framebuffer_set_backlight(struct framebuffer_t * fb, int brightness)
 	{
 		if(brightness < 0)
 			brightness = 0;
-		else if(brightness > CONFIG_MAX_BRIGHTNESS)
-			brightness = CONFIG_MAX_BRIGHTNESS;
+		else if(brightness > 1000)
+			brightness = 1000;
 		fb->setbl(fb, brightness);
 	}
 }

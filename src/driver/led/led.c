@@ -47,11 +47,6 @@ static ssize_t led_write_brightness(struct kobj_t * kobj, void * buf, size_t siz
 	return size;
 }
 
-static ssize_t led_read_max_brightness(struct kobj_t * kobj, void * buf, size_t size)
-{
-	return sprintf(buf, "%u", CONFIG_MAX_BRIGHTNESS);
-}
-
 struct led_t * search_led(const char * name)
 {
 	struct device_t * dev;
@@ -79,7 +74,6 @@ struct device_t * register_led(struct led_t * led, struct driver_t * drv)
 	dev->priv = led;
 	dev->kobj = kobj_alloc_directory(dev->name);
 	kobj_add_regular(dev->kobj, "brightness", led_read_brightness, led_write_brightness, led);
-	kobj_add_regular(dev->kobj, "max_brightness", led_read_max_brightness, NULL, led);
 
 	if(!register_device(dev))
 	{
@@ -113,8 +107,8 @@ void led_set_brightness(struct led_t * led, int brightness)
 	{
 		if(brightness < 0)
 			brightness = 0;
-		else if(brightness > CONFIG_MAX_BRIGHTNESS)
-			brightness = CONFIG_MAX_BRIGHTNESS;
+		else if(brightness > 1000)
+			brightness = 1000;
 		led->set(led, brightness);
 	}
 }
@@ -128,8 +122,8 @@ int led_get_brightness(struct led_t * led)
 
 	if(brightness < 0)
 		brightness = 0;
-	else if(brightness > CONFIG_MAX_BRIGHTNESS)
-		brightness = CONFIG_MAX_BRIGHTNESS;
+	else if(brightness > 1000)
+		brightness = 1000;
 
 	return brightness;
 }

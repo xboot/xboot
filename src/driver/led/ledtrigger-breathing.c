@@ -46,11 +46,11 @@ static int ledtrigger_breathing_timer_function(struct timer_t * timer, void * da
 	pdat->phase += pdat->interval;
 	if(pdat->phase < (pdat->period / 2))
 	{
-		brightness = CONFIG_MAX_BRIGHTNESS * pdat->phase / (pdat->period / 2);
+		brightness = 1000 * pdat->phase / (pdat->period / 2);
 	}
 	else if(pdat->phase < pdat->period)
 	{
-		brightness = CONFIG_MAX_BRIGHTNESS * (pdat->period - pdat->phase) / (pdat->period / 2);
+		brightness = 1000 * (pdat->period - pdat->phase) / (pdat->period / 2);
 	}
 	else
 	{

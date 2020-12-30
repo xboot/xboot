@@ -61,7 +61,7 @@ static void led_pwm_set_brightness(struct led_pwm_pdata_t * pdat, int brightness
 {
 	if(brightness > 0)
 	{
-		int duty = brightness * pdat->period / CONFIG_MAX_BRIGHTNESS;
+		int duty = brightness * pdat->period / 1000;
 		pwm_config(pdat->pwm, duty, pdat->period, pdat->polarity);
 		pwm_enable(pdat->pwm);
 	}

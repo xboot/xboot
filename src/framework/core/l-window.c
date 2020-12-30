@@ -78,7 +78,7 @@ static int m_window_get_physical_size(lua_State * L)
 static int m_window_set_backlight(lua_State * L)
 {
 	struct window_t * w = luaL_checkudata(L, 1, MT_WINDOW);
-	int brightness = luaL_checknumber(L, 2) * (lua_Number)(CONFIG_MAX_BRIGHTNESS);
+	int brightness = luaL_checknumber(L, 2) * (lua_Number)(1000);
 	window_set_backlight(w, brightness);
 	return 0;
 }
@@ -87,7 +87,7 @@ static int m_window_get_backlight(lua_State * L)
 {
 	struct window_t * w = luaL_checkudata(L, 1, MT_WINDOW);
 	int brightness = window_get_backlight(w);
-	lua_pushnumber(L, brightness / (lua_Number)(CONFIG_MAX_BRIGHTNESS));
+	lua_pushnumber(L, brightness / (lua_Number)(1000));
 	return 1;
 }
 

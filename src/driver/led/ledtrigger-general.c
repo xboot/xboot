@@ -44,7 +44,7 @@ static int ledtrigger_general_timer_function(struct timer_t * timer, void * data
 	if(pdat->last_activity != pdat->activity)
 	{
 		pdat->last_activity = pdat->activity;
-		led_set_brightness(pdat->led, CONFIG_MAX_BRIGHTNESS);
+		led_set_brightness(pdat->led, 1000);
 		timer_forward_now(timer, ms_to_ktime(20));
 		return 1;
 	}

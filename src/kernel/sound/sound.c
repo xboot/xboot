@@ -60,6 +60,8 @@ struct sound_t * sound_alloc(int sample)
 	snd->postion = 0;
 	snd->lvol = 4096;
 	snd->rvol = 4096;
+	snd->gain = 1.0f;
+	snd->pan = 0.0f;
 	snd->loop = 1;
 	snd->cb = NULL;
 

@@ -8,10 +8,10 @@ extern "C" {
 #include <xboot.h>
 
 enum audio_format_t {
-	AUDIO_FORMAT_BIT8	= 8,
-	AUDIO_FORMAT_BIT16	= 16,
-	AUDIO_FORMAT_BIT24	= 24,
-	AUDIO_FORMAT_BIT32	= 32,
+	AUDIO_FORMAT_S8		= 8,
+	AUDIO_FORMAT_S16	= 16,
+	AUDIO_FORMAT_S24	= 24,
+	AUDIO_FORMAT_S32	= 32,
 };
 
 enum audio_rate_t {

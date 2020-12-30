@@ -234,7 +234,7 @@ void audio_playback(struct audio_t * audio, struct sound_t * snd)
 			spin_lock_irqsave(&audio->soundpool.lock, flags);
 			list_add_tail(&snd->list, &audio->soundpool.list);
 			spin_unlock_irqrestore(&audio->soundpool.lock, flags);
-			audio_playback_start(audio, AUDIO_RATE_48000, AUDIO_FORMAT_BIT16, 2, audio_playback_callback, audio);
+			audio_playback_start(audio, AUDIO_RATE_48000, AUDIO_FORMAT_S16, 2, audio_playback_callback, audio);
 		}
 	}
 }

@@ -70,7 +70,8 @@ void sound_free(struct sound_t * snd)
 {
 	if(snd)
 	{
-		free(snd->source);
+		if(snd->source)
+			free(snd->source);
 		free(snd);
 	}
 }
@@ -306,6 +307,7 @@ static int audio_playback_callback(void * data, void * buf, int count)
 		length = sample << 2;
 		memset(left, 0, length);
 		memset(right, 0, length);
+		spin_lock_irqsave(&__soundpool_lock, flags);
 		list_for_each_entry_safe(pos, n, &__soundpool_list, list)
 		{
 			if(pos->loop != 0)
@@ -334,6 +336,7 @@ static int audio_playback_callback(void * data, void * buf, int count)
 				}
 			}
 		}
+		spin_unlock_irqrestore(&__soundpool_lock, flags);
 		p = (int16_t *)result;
 		for(i = 0; i < sample; i++)
 		{

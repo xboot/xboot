@@ -27,6 +27,7 @@ static const char zh_CN[] = X({
 	"Vibrator": "振动马达",
 	"Gnns": "全球卫星导航",
 	"Camera": "摄像头",
+	"Speaker": "喇叭",
 	"Ethernet": "以太网",
 	"Wifi": "无线网络",
 	"Bluetooth": "蓝牙",
@@ -91,6 +92,7 @@ static void pcba_window(struct xui_context_t * ctx)
 			PCBA_ITEM_VIBRATOR,
 			PCBA_ITEM_GNNS,
 			PCBA_ITEM_CAMERA,
+			PCBA_ITEM_SPEAKER,
 			PCBA_ITEM_ETHERNET,
 			PCBA_ITEM_WIFI,
 			PCBA_ITEM_BLUETOOTH,
@@ -109,6 +111,7 @@ static void pcba_window(struct xui_context_t * ctx)
 			[PCBA_ITEM_VIBRATOR]	= -1,
 			[PCBA_ITEM_GNNS]		= -1,
 			[PCBA_ITEM_CAMERA]		= -1,
+			[PCBA_ITEM_SPEAKER]		= -1,
 			[PCBA_ITEM_ETHERNET]	= -1,
 			[PCBA_ITEM_WIFI]		= -1,
 			[PCBA_ITEM_BLUETOOTH]	= -1,
@@ -173,6 +176,11 @@ static void pcba_window(struct xui_context_t * ctx)
 			if(xui_tabbar(ctx, 0xf030, T("Camera"), item == PCBA_ITEM_CAMERA))
 				item = PCBA_ITEM_CAMERA;
 			xui_badge_result(ctx, result[PCBA_ITEM_CAMERA]);
+
+			xui_layout_row(ctx, 2, (int[]){ -40, -1 }, 40);
+			if(xui_tabbar(ctx, 0xf030, T("Speaker"), item == PCBA_ITEM_SPEAKER))
+				item = PCBA_ITEM_SPEAKER;
+			xui_badge_result(ctx, result[PCBA_ITEM_SPEAKER]);
 
 			xui_layout_row(ctx, 2, (int[]){ -40, -1 }, 40);
 			if(xui_tabbar(ctx, 0xf796, T("Ethernet"), item == PCBA_ITEM_ETHERNET))
@@ -603,6 +611,25 @@ static void pcba_window(struct xui_context_t * ctx)
 							start = 1;
 						if(xui_button_ex(ctx, 0, T("Close"), XUI_BUTTON_PRIMARY | XUI_BUTTON_ROUNDED | XUI_BUTTON_OUTLINE | XUI_OPT_TEXT_CENTER))
 							start = 0;
+					}
+					break;
+				case PCBA_ITEM_SPEAKER:
+					{
+						xui_layout_row(ctx, 1, (int[]){ -1 }, -1);
+						if(xui_button_ex(ctx, 0, T("Play"), XUI_BUTTON_PRIMARY | XUI_BUTTON_ROUNDED | XUI_BUTTON_OUTLINE | XUI_OPT_TEXT_CENTER))
+						{
+							struct xfs_context_t * ctx = xfs_alloc("/private/framework", 0);
+							if(ctx)
+							{
+								struct sound_t * snd = sound_alloc_from_xfs(ctx, "assets/sounds/boot.ogg");
+								if(snd)
+								{
+									sound_set_callback(snd, sound_free);
+									audio_playback(search_first_audio(), snd);
+								}
+								xfs_free(ctx);
+							}
+						}
 					}
 					break;
 				case PCBA_ITEM_ETHERNET:

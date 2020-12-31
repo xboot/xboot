@@ -229,9 +229,84 @@ static inline struct sound_t * sound_alloc_from_xfs_wav(struct xfs_context_t * c
 	return snd;
 }
 
+#define STB_VORBIS_NO_STDIO
+#include <stb_vorbis.c.h>
 static inline struct sound_t * sound_alloc_from_xfs_ogg(struct xfs_context_t * ctx, const char * filename)
 {
-	return NULL;
+	struct xfs_file_t * file;
+	struct sound_t * snd;
+	uint32_t * inbuf;
+	int isample, osample;
+	uint8_t * mem;
+	s64_t mlen;
+	int channel;
+	int rate;
+	short * ogg;
+
+	if(!(file = xfs_open_read(ctx, filename)))
+		return NULL;
+	if((mlen = xfs_length(file)) <= 0)
+	{
+		xfs_close(file);
+		return NULL;
+	}
+	if(!(mem = malloc(mlen)))
+	{
+		xfs_close(file);
+		return NULL;
+	}
+	if(xfs_read(file, mem, mlen) != mlen)
+	{
+		xfs_close(file);
+		return NULL;
+	}
+	xfs_close(file);
+
+	isample = stb_vorbis_decode_memory(mem, mlen, &channel, &rate, &ogg);
+	if(isample <= 0)
+	{
+		free(mem);
+		return NULL;
+	}
+	osample = isample * 48000.0 / rate;
+	osample -= osample % 2;
+	inbuf = malloc(isample << 2);
+	if(!inbuf)
+	{
+		free(mem);
+		free(ogg);
+		return NULL;
+	}
+	snd = sound_alloc(osample);
+	if(!snd)
+	{
+		free(mem);
+		free(ogg);
+		free(inbuf);
+		return NULL;
+	}
+	if(channel == 1)
+	{
+		int16_t * p = (int16_t *)inbuf;
+		int16_t * q = (int16_t *)ogg;
+		int16_t v;
+		for(int i = 0; i < isample; i++)
+		{
+			v = q[i];
+			*p++ = v;
+			*p++ = v;
+		}
+	}
+	else if(channel == 2)
+	{
+		memcpy(inbuf, ogg, isample << 2);
+	}
+	sound_resample((int16_t *)snd->source, 48000, osample, (int16_t *)inbuf, rate, isample, 2);
+	free(mem);
+	free(ogg);
+	free(inbuf);
+
+	return snd;
 }
 
 struct sound_t * sound_alloc_from_xfs(struct xfs_context_t * ctx, const char * filename)

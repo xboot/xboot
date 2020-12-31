@@ -182,6 +182,9 @@ SRCDIRS		+=	external/libpng-1.6.37
 INCDIRS		+= 	external/jpeg-9d
 SRCDIRS		+=	external/jpeg-9d
 
+INCDIRS		+=	external/stb_vorbis-1.20
+SRCDIRS		+=	external/stb_vorbis-1.20
+
 INCDIRS		+=	external/quirc-1.1.0
 SRCDIRS		+=	external/quirc-1.1.0
 

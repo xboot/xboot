@@ -99,7 +99,7 @@ void do_play_audio(void)
 						if(volume <= 0)
 							volume = (1000 * 633) >> 10;
 						audio_ioctl(audio, "audio-set-playback-volume", &volume);
-						snd = sound_alloc_from_xfs(ctx, "assets/sounds/boot.wav");
+						snd = sound_alloc_from_xfs(ctx, "assets/sounds/boot.ogg");
 						if(snd)
 						{
 							sound_set_callback(snd, sound_free);

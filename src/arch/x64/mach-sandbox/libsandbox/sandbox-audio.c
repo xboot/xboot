@@ -344,7 +344,7 @@ void sandbox_audio_set_playback_volume(int vol)
 	snd_mixer_selem_id_t * sid;
 	snd_mixer_elem_t * elem;
 	const char * card = "default";
-	const char * selem_name = "Master";
+	const char * name = "Master";
 	long minvol, maxvol;
 
 	snd_mixer_open(&handle, 0);
@@ -354,7 +354,7 @@ void sandbox_audio_set_playback_volume(int vol)
 
 	snd_mixer_selem_id_alloca(&sid);
 	snd_mixer_selem_id_set_index(sid, 0);
-	snd_mixer_selem_id_set_name(sid, selem_name);
+	snd_mixer_selem_id_set_name(sid, name);
 	elem = snd_mixer_find_selem(handle, sid);
 
 	snd_mixer_selem_get_playback_volume_range(elem, &minvol, &maxvol);
@@ -368,7 +368,7 @@ int sandbox_audio_get_playback_volume(void)
 	snd_mixer_selem_id_t * sid;
 	snd_mixer_elem_t * elem;
 	const char * card = "default";
-	const char * selem_name = "Master";
+	const char * name = "Master";
 	long minvol, maxvol;
 	long vol;
 
@@ -379,7 +379,7 @@ int sandbox_audio_get_playback_volume(void)
 
 	snd_mixer_selem_id_alloca(&sid);
 	snd_mixer_selem_id_set_index(sid, 0);
-	snd_mixer_selem_id_set_name(sid, selem_name);
+	snd_mixer_selem_id_set_name(sid, name);
 	elem = snd_mixer_find_selem(handle, sid);
 
 	snd_mixer_selem_get_playback_volume_range(elem, &minvol, &maxvol);
@@ -400,7 +400,7 @@ void sandbox_audio_set_capture_volume(int vol)
 	snd_mixer_selem_id_t * sid;
 	snd_mixer_elem_t * elem;
 	const char * card = "default";
-	const char * selem_name = "Capture";
+	const char * name = "Capture";
 	long minvol, maxvol;
 
 	snd_mixer_open(&handle, 0);
@@ -410,7 +410,7 @@ void sandbox_audio_set_capture_volume(int vol)
 
 	snd_mixer_selem_id_alloca(&sid);
 	snd_mixer_selem_id_set_index(sid, 0);
-	snd_mixer_selem_id_set_name(sid, selem_name);
+	snd_mixer_selem_id_set_name(sid, name);
 	elem = snd_mixer_find_selem(handle, sid);
 
 	snd_mixer_selem_get_capture_volume_range(elem, &minvol, &maxvol);
@@ -424,7 +424,7 @@ int sandbox_audio_get_capture_volume(void)
 	snd_mixer_selem_id_t * sid;
 	snd_mixer_elem_t * elem;
 	const char * card = "default";
-	const char * selem_name = "Capture";
+	const char * name = "Capture";
 	long minvol, maxvol;
 	long vol;
 
@@ -435,7 +435,7 @@ int sandbox_audio_get_capture_volume(void)
 
 	snd_mixer_selem_id_alloca(&sid);
 	snd_mixer_selem_id_set_index(sid, 0);
-	snd_mixer_selem_id_set_name(sid, selem_name);
+	snd_mixer_selem_id_set_name(sid, name);
 	elem = snd_mixer_find_selem(handle, sid);
 
 	snd_mixer_selem_get_capture_volume_range(elem, &minvol, &maxvol);

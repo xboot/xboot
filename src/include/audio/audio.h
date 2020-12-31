@@ -74,6 +74,32 @@ int audio_ioctl(struct audio_t * audio, const char * cmd, void * arg);
 
 void audio_playback(struct audio_t * audio, struct sound_t * snd);
 
+static inline int audio_get_playback_volume(struct audio_t * audio)
+{
+	int vol = 0;
+
+	audio_ioctl(audio, "audio-get-playback-volume", &vol);
+	return vol;
+}
+
+static inline void audio_set_playback_volume(struct audio_t * audio, int vol)
+{
+	audio_ioctl(audio, "audio-set-playback-volume", &vol);
+}
+
+static inline int audio_get_capture_volume(struct audio_t * audio)
+{
+	int vol = 0;
+
+	audio_ioctl(audio, "audio-get-capture-volume", &vol);
+	return vol;
+}
+
+static inline void audio_set_capture_volume(struct audio_t * audio, int vol)
+{
+	audio_ioctl(audio, "audio-set-capture-volume", &vol);
+}
+
 #ifdef __cplusplus
 }
 #endif

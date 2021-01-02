@@ -31,7 +31,7 @@
 
 void vision_threshold(struct vision_t * v, float threshold, const char * type)
 {
-	if(v && (v->type == VISION_TYPE_GRAY))
+	if(v && (v->type == VISION_TYPE_GRAY_F32))
 	{
 		if((threshold < 0.0f) || (threshold > 1.0f))
 		{

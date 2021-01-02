@@ -8,9 +8,11 @@ extern "C" {
 #include <graphic/surface.h>
 
 enum vision_type_t {
-	VISION_TYPE_GRAY		= 0x0100,
-	VISION_TYPE_RGB			= 0x0301,
-	VISION_TYPE_HSV			= 0x0302,
+	VISION_TYPE_GRAY_U8		= 0x0110,
+	VISION_TYPE_GRAY_F32	= 0x0141,
+	VISION_TYPE_RGB_U8		= 0x0312,
+	VISION_TYPE_RGB_F32		= 0x0343,
+	VISION_TYPE_HSV_F32		= 0x0344,
 };
 
 struct vision_t
@@ -22,6 +24,16 @@ struct vision_t
 	void * datas;
 	size_t ndata;
 };
+
+static inline int vision_type_get_bytes(enum vision_type_t type)
+{
+	return (type >> 4) & 0xf;
+}
+
+static inline int vision_type_get_channels(enum vision_type_t type)
+{
+	return (type >> 8) & 0xff;
+}
 
 static inline enum vision_type_t vision_get_type(struct vision_t * v)
 {
@@ -36,11 +48,6 @@ static inline int vision_get_width(struct vision_t * v)
 static inline int vision_get_height(struct vision_t * v)
 {
 	return v->height;
-}
-
-static inline int vision_get_channel(struct vision_t * v)
-{
-	return (v->type >> 8) & 0xff;
 }
 
 static inline int vision_get_npixel(struct vision_t * v)
@@ -65,7 +72,6 @@ void vision_clear(struct vision_t * v);
 
 void vision_copy_from_surface(struct vision_t * v, struct surface_t * s);
 void vision_copy_to_surface(struct vision_t * v, struct surface_t * s);
-struct vision_t * vision_alloc_from_surface(struct surface_t * s);
 
 void vision_inrange_gray(struct vision_t * v, float l, float h);
 void vision_inrange_rgb(struct vision_t * v, float lr, float lg, float lb, float hr, float hg, float hb);

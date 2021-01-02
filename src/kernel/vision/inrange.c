@@ -31,7 +31,7 @@
 
 void vision_inrange_gray(struct vision_t * v, float l, float h)
 {
-	if(v && (v->type == VISION_TYPE_GRAY))
+	if(v && (v->type == VISION_TYPE_GRAY_F32))
 	{
 		float * pgray = &((float *)v->datas)[v->npixel * 0];
 		for(int i = 0; i < v->npixel; i++, pgray++)
@@ -44,7 +44,7 @@ void vision_inrange_gray(struct vision_t * v, float l, float h)
 
 void vision_inrange_rgb(struct vision_t * v, float lr, float lg, float lb, float hr, float hg, float hb)
 {
-	if(v && (v->type == VISION_TYPE_RGB))
+	if(v && (v->type == VISION_TYPE_RGB_F32))
 	{
 		float * pr = &((float *)v->datas)[v->npixel * 0];
 		float * pg = &((float *)v->datas)[v->npixel * 1];
@@ -63,7 +63,7 @@ void vision_inrange_rgb(struct vision_t * v, float lr, float lg, float lb, float
 
 void vision_inrange_hsv(struct vision_t * v, float lh, float ls, float lv, float hh, float hs, float hv)
 {
-	if(v && (v->type == VISION_TYPE_HSV))
+	if(v && (v->type == VISION_TYPE_HSV_F32))
 	{
 		float * ph = &((float *)v->datas)[v->npixel * 0];
 		float * ps = &((float *)v->datas)[v->npixel * 1];

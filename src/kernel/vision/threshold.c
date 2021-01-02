@@ -43,7 +43,7 @@ void vision_threshold(struct vision_t * v, float threshold, const char * type)
 			int histogram[256];
 			threshold = 0.5f;
 			memset(histogram, 0, sizeof(histogram));
-			pgray = &v->datas[v->npixel * 0];
+			pgray = &((float *)v->datas)[v->npixel * 0];
 			for(int i = 0; i < v->npixel; i++, pgray++)
 			{
 				histogram[clamp((int)((*pgray) * 255), 0, 255)]++;
@@ -100,21 +100,21 @@ void vision_threshold(struct vision_t * v, float threshold, const char * type)
 		{
 		case 0xf4229cca: /* "binary" */
 			{
-				float * pgray = &v->datas[v->npixel * 0];
+				float * pgray = &((float *)v->datas)[v->npixel * 0];
 				for(int i = 0; i < v->npixel; i++, pgray++)
 					*pgray = (*pgray > threshold) ? 1.0f : 0.0f;
 			}
 			break;
 		case 0xc880666f: /* "binary-invert" */
 			{
-				float * pgray = &v->datas[v->npixel * 0];
+				float * pgray = &((float *)v->datas)[v->npixel * 0];
 				for(int i = 0; i < v->npixel; i++, pgray++)
 					*pgray = (*pgray > threshold) ? 0.0f : 1.0f;
 			}
 			break;
 		case 0x1e92b0a8: /* "tozero" */
 			{
-				float * pgray = &v->datas[v->npixel * 0];
+				float * pgray = &((float *)v->datas)[v->npixel * 0];
 				for(int i = 0; i < v->npixel; i++, pgray++)
 				{
 					if(!(*pgray > threshold))
@@ -124,7 +124,7 @@ void vision_threshold(struct vision_t * v, float threshold, const char * type)
 			break;
 		case 0x98d3b48d: /* "tozero-invert" */
 			{
-				float * pgray = &v->datas[v->npixel * 0];
+				float * pgray = &((float *)v->datas)[v->npixel * 0];
 				for(int i = 0; i < v->npixel; i++, pgray++)
 				{
 					if(*pgray > threshold)
@@ -134,7 +134,7 @@ void vision_threshold(struct vision_t * v, float threshold, const char * type)
 			break;
 		case 0xe9e0dc6b: /* "truncate" */
 			{
-				float * pgray = &v->datas[v->npixel * 0];
+				float * pgray = &((float *)v->datas)[v->npixel * 0];
 				for(int i = 0; i < v->npixel; i++, pgray++)
 				{
 					if(*pgray > threshold)

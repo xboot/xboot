@@ -37,16 +37,16 @@ void vision_invert(struct vision_t * v)
 		{
 		case VISION_TYPE_GRAY:
 			{
-				float * pgray = &v->datas[v->npixel * 0];
+				float * pgray = &((float *)v->datas)[v->npixel * 0];
 				for(int i = 0; i < v->npixel; i++, pgray++)
 					*pgray = 1.0f - *pgray;
 			}
 			break;
 		case VISION_TYPE_RGB:
 			{
-				float * pr = &v->datas[v->npixel * 0];
-				float * pg = &v->datas[v->npixel * 1];
-				float * pb = &v->datas[v->npixel * 2];
+				float * pr = &((float *)v->datas)[v->npixel * 0];
+				float * pg = &((float *)v->datas)[v->npixel * 1];
+				float * pb = &((float *)v->datas)[v->npixel * 2];
 				for(int i = 0; i < v->npixel; i++, pr++, pg++, pb++)
 				{
 					*pr = 1.0f - *pr;
@@ -57,9 +57,9 @@ void vision_invert(struct vision_t * v)
 			break;
 		case VISION_TYPE_HSV:
 			{
-				float * ph = &v->datas[v->npixel * 0];
-				float * ps = &v->datas[v->npixel * 1];
-				float * pv = &v->datas[v->npixel * 2];
+				float * ph = &((float *)v->datas)[v->npixel * 0];
+				float * ps = &((float *)v->datas)[v->npixel * 1];
+				float * pv = &((float *)v->datas)[v->npixel * 2];
 				for(int i = 0; i < v->npixel; ph++, ps++, pv++)
 				{
 					*ph = 1.0f - *ph;

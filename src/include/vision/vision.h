@@ -19,7 +19,7 @@ struct vision_t
 	int width;
 	int height;
 	int npixel;
-	float * datas;
+	void * datas;
 	size_t ndata;
 };
 
@@ -62,8 +62,6 @@ struct vision_t * vision_alloc(enum vision_type_t type, int width, int height);
 void vision_free(struct vision_t * v);
 void vision_convert(struct vision_t * v, enum vision_type_t type);
 void vision_clear(struct vision_t * v);
-void vision_set_pixel(struct vision_t * v, int x, int y, int c, float px);
-float vision_get_pixel(struct vision_t * v, int x, int y, int c);
 
 void vision_copy_from_surface(struct vision_t * v, struct surface_t * s);
 void vision_copy_to_surface(struct vision_t * v, struct surface_t * s);

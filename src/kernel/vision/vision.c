@@ -256,37 +256,80 @@ float vision_get_pixel(struct vision_t * v, int x, int y, int c)
 	return 0;
 }
 
-struct vision_t * vision_alloc_from_surface(struct surface_t * s)
+void vision_copy_from_surface(struct vision_t * v, struct surface_t * s)
 {
-	struct vision_t * v;
-
-	if(s && (v = vision_alloc(VISION_TYPE_RGB, surface_get_width(s), surface_get_height(s))))
+	if(v && s && (v->width == s->width) && (v->height == s->height))
 	{
-		unsigned char * p = surface_get_pixels(s);
-		float * pr = &v->datas[v->npixel * 0];
-		float * pg = &v->datas[v->npixel * 1];
-		float * pb = &v->datas[v->npixel * 2];
-		for(int i = 0; i < v->npixel; i++, p += 4, pr++, pg++, pb++)
+		switch(v->type)
 		{
-			if(p[3] != 0)
+		case VISION_TYPE_GRAY:
 			{
-				*pr = (float)p[2] / (float)p[3];
-				*pg = (float)p[1] / (float)p[3];
-				*pb = (float)p[0] / (float)p[3];
+				unsigned char * p = surface_get_pixels(s);
+				float * pgray = &v->datas[v->npixel * 0];
+				for(int i = 0; i < v->npixel; i++, p += 4, pgray++)
+				{
+					if(p[3] != 0)
+						*pgray = (float)p[2] / (float)p[3] * 0.299f + (float)p[1] / (float)p[3] * 0.587f + (float)p[0] / (float)p[3] * 0.114f;
+					else
+						*pgray = 1.0f;
+				}
 			}
-			else
+			break;
+		case VISION_TYPE_RGB:
 			{
-				*pr = 0.0f;
-				*pg = 0.0f;
-				*pb = 0.0f;
+				unsigned char * p = surface_get_pixels(s);
+				float * pr = &v->datas[v->npixel * 0];
+				float * pg = &v->datas[v->npixel * 1];
+				float * pb = &v->datas[v->npixel * 2];
+				for(int i = 0; i < v->npixel; i++, p += 4, pr++, pg++, pb++)
+				{
+					if(p[3] != 0)
+					{
+						*pr = (float)p[2] / (float)p[3];
+						*pg = (float)p[1] / (float)p[3];
+						*pb = (float)p[0] / (float)p[3];
+					}
+					else
+					{
+						*pr = 1.0f;
+						*pg = 1.0f;
+						*pb = 1.0f;
+					}
+				}
 			}
+			break;
+		case VISION_TYPE_HSV:
+			{
+				unsigned char * p = surface_get_pixels(s);
+				float * ph = &v->datas[v->npixel * 0];
+				float * ps = &v->datas[v->npixel * 1];
+				float * pv = &v->datas[v->npixel * 2];
+				struct color_t c;
+				for(int i = 0; i < v->npixel; i++, p += 4, ph++, ps++, pv++)
+				{
+					if(p[3] != 0)
+					{
+						c.r = (float)p[2] / (float)p[3];
+						c.g = (float)p[1] / (float)p[3];
+						c.b = (float)p[0] / (float)p[3];
+						color_get_hsva(&c, ph, ps, pv, NULL);
+					}
+					else
+					{
+						*ph = 0.0f;
+						*ps = 0.0f;
+						*pv = 1.0f;
+					}
+				}
+			}
+			break;
+		default:
+			break;
 		}
-		return v;
 	}
-	return NULL;
 }
 
-void vision_copyto_surface(struct vision_t * v, struct surface_t * s)
+void vision_copy_to_surface(struct vision_t * v, struct surface_t * s)
 {
 	if(v && s && (v->width == s->width) && (v->height == s->height))
 	{
@@ -339,4 +382,34 @@ void vision_copyto_surface(struct vision_t * v, struct surface_t * s)
 			break;
 		}
 	}
+}
+
+struct vision_t * vision_alloc_from_surface(struct surface_t * s)
+{
+	struct vision_t * v;
+
+	if(s && (v = vision_alloc(VISION_TYPE_RGB, surface_get_width(s), surface_get_height(s))))
+	{
+		unsigned char * p = surface_get_pixels(s);
+		float * pr = &v->datas[v->npixel * 0];
+		float * pg = &v->datas[v->npixel * 1];
+		float * pb = &v->datas[v->npixel * 2];
+		for(int i = 0; i < v->npixel; i++, p += 4, pr++, pg++, pb++)
+		{
+			if(p[3] != 0)
+			{
+				*pr = (float)p[2] / (float)p[3];
+				*pg = (float)p[1] / (float)p[3];
+				*pb = (float)p[0] / (float)p[3];
+			}
+			else
+			{
+				*pr = 1.0f;
+				*pg = 1.0f;
+				*pb = 1.0f;
+			}
+		}
+		return v;
+	}
+	return NULL;
 }

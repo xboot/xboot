@@ -65,8 +65,9 @@ void vision_clear(struct vision_t * v);
 void vision_set_pixel(struct vision_t * v, int x, int y, int c, float px);
 float vision_get_pixel(struct vision_t * v, int x, int y, int c);
 
+void vision_copy_from_surface(struct vision_t * v, struct surface_t * s);
+void vision_copy_to_surface(struct vision_t * v, struct surface_t * s);
 struct vision_t * vision_alloc_from_surface(struct surface_t * s);
-void vision_copyto_surface(struct vision_t * v, struct surface_t * s);
 
 #ifdef __cplusplus
 }

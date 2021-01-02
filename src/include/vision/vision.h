@@ -8,11 +8,9 @@ extern "C" {
 #include <graphic/surface.h>
 
 enum vision_type_t {
-	VISION_TYPE_GRAY_U8		= 0x0110,
-	VISION_TYPE_GRAY_F32	= 0x0141,
-	VISION_TYPE_RGB_U8		= 0x0312,
-	VISION_TYPE_RGB_F32		= 0x0343,
-	VISION_TYPE_HSV_F32		= 0x0344,
+	VISION_TYPE_GRAY	= 0x0110,	/* unsigned char (0 ~ 255) */
+	VISION_TYPE_RGB		= 0x0311,	/* unsigned char (0 ~ 255) */
+	VISION_TYPE_HSV		= 0x0342,	/* float (0.0f ~ 1.0f) */
 };
 
 struct vision_t
@@ -73,11 +71,11 @@ void vision_clear(struct vision_t * v);
 void vision_copy_from_surface(struct vision_t * v, struct surface_t * s);
 void vision_copy_to_surface(struct vision_t * v, struct surface_t * s);
 
-void vision_inrange_gray(struct vision_t * v, float l, float h);
-void vision_inrange_rgb(struct vision_t * v, float lr, float lg, float lb, float hr, float hg, float hb);
-void vision_inrange_hsv(struct vision_t * v, float lh, float ls, float lv, float hh, float hs, float hv);
+void vision_inrange_gray(struct vision_t * v, unsigned char l, unsigned char h);
+void vision_inrange_rgb(struct vision_t * v, unsigned char * lrgb, unsigned char * hrgb);
+void vision_inrange_hsv(struct vision_t * v, float * lhsv, float * hhsv);
 void vision_invert(struct vision_t * v);
-void vision_threshold(struct vision_t * v, float threshold, const char * type);
+void vision_threshold(struct vision_t * v, int threshold, const char * type);
 
 #ifdef __cplusplus
 }

@@ -35,27 +35,27 @@ void vision_invert(struct vision_t * v)
 	{
 		switch(v->type)
 		{
-		case VISION_TYPE_GRAY_F32:
+		case VISION_TYPE_GRAY:
 			{
-				float * pgray = &((float *)v->datas)[v->npixel * 0];
+				unsigned char * pgray = (unsigned char *)v->datas;
 				for(int i = 0; i < v->npixel; i++, pgray++)
-					*pgray = 1.0f - *pgray;
+					*pgray = 255 - *pgray;
 			}
 			break;
-		case VISION_TYPE_RGB_F32:
+		case VISION_TYPE_RGB:
 			{
-				float * pr = &((float *)v->datas)[v->npixel * 0];
-				float * pg = &((float *)v->datas)[v->npixel * 1];
-				float * pb = &((float *)v->datas)[v->npixel * 2];
+				unsigned char * pr = &((unsigned char *)v->datas)[v->npixel * 0];
+				unsigned char * pg = &((unsigned char *)v->datas)[v->npixel * 1];
+				unsigned char * pb = &((unsigned char *)v->datas)[v->npixel * 2];
 				for(int i = 0; i < v->npixel; i++, pr++, pg++, pb++)
 				{
-					*pr = 1.0f - *pr;
-					*pg = 1.0f - *pg;
-					*pb = 1.0f - *pb;
+					*pr = 255 - *pr;
+					*pg = 255 - *pg;
+					*pb = 255 - *pb;
 				}
 			}
 			break;
-		case VISION_TYPE_HSV_F32:
+		case VISION_TYPE_HSV:
 			{
 				float * ph = &((float *)v->datas)[v->npixel * 0];
 				float * ps = &((float *)v->datas)[v->npixel * 1];

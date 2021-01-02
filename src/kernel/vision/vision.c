@@ -77,155 +77,147 @@ void vision_convert(struct vision_t * v, enum vision_type_t type)
 	{
 		switch(type)
 		{
-		case VISION_TYPE_GRAY_F32:
+		case VISION_TYPE_GRAY:
 			switch(v->type)
 			{
-			case VISION_TYPE_GRAY_F32:
+			case VISION_TYPE_GRAY:
 				break;
-			case VISION_TYPE_RGB_F32:
+			case VISION_TYPE_RGB:
 				{
-					float * pr = &((float *)v->datas)[v->npixel * 0];
-					float * pg = &((float *)v->datas)[v->npixel * 1];
-					float * pb = &((float *)v->datas)[v->npixel * 2];
+					unsigned char * pr = &((unsigned char *)v->datas)[v->npixel * 0];
+					unsigned char * pg = &((unsigned char *)v->datas)[v->npixel * 1];
+					unsigned char * pb = &((unsigned char *)v->datas)[v->npixel * 2];
 					for(int i = 0; i < v->npixel; i++, pr++, pg++, pb++)
-						*pr = (*pr) * 0.299f + (*pg) * 0.587f + (*pb) * 0.114f;
-					v->type = VISION_TYPE_GRAY_F32;
+						*pr = ((*pr) * 19595L + (*pg) * 38469L + (*pb) * 7472L) >> 16;
+					v->type = VISION_TYPE_GRAY;
 				}
 				break;
-			case VISION_TYPE_HSV_F32:
+			case VISION_TYPE_HSV:
 				{
-					float * ph = &((float *)v->datas)[v->npixel * 0];
+					unsigned char * pgray = (unsigned char *)v->datas;
 					float * pv = &((float *)v->datas)[v->npixel * 2];
-					for(int i = 0; i < v->npixel; i++, ph++, pv++)
-						*ph = *pv;
-					v->type = VISION_TYPE_GRAY_F32;
+					for(int i = 0; i < v->npixel; i++, pgray++, pv++)
+						*pgray = clamp((int)((*pv) * 255), 0, 255);
+					v->type = VISION_TYPE_GRAY;
 				}
 				break;
 			default:
 				break;
 			}
 			break;
-		case VISION_TYPE_RGB_F32:
+		case VISION_TYPE_RGB:
 			switch(v->type)
 			{
-			case VISION_TYPE_GRAY_F32:
+			case VISION_TYPE_GRAY:
 				{
-					size_t ndata = 3 * v->npixel * sizeof(float);
-					if(v->ndata < ndata)
+					size_t ndata = v->npixel * vision_type_get_bytes(type) * vision_type_get_channels(type);
+					void * datas = malloc(ndata);
+					if(datas)
 					{
-						v->datas = realloc(v->datas, ndata);
+						unsigned char * pr = &((unsigned char *)datas)[v->npixel * 0];
+						unsigned char * pg = &((unsigned char *)datas)[v->npixel * 1];
+						unsigned char * pb = &((unsigned char *)datas)[v->npixel * 2];
+						unsigned char * pgray = (unsigned char *)v->datas;
+						for(int i = 0; i < v->npixel; i++, pr++, pg++, pb++, pgray++)
+							*pb = *pg = *pr = *pgray;
+						if(v->datas)
+							free(v->datas);
+						v->datas = datas;
 						v->ndata = ndata;
+						v->type = VISION_TYPE_RGB;
 					}
-					float * pr = &((float *)v->datas)[v->npixel * 0];
-					float * pg = &((float *)v->datas)[v->npixel * 1];
-					float * pb = &((float *)v->datas)[v->npixel * 2];
-					for(int i = 0; i < v->npixel; i++, pr++, pg++, pb++)
-						*pb = *pg = *pr;
-					v->type = VISION_TYPE_RGB_F32;
 				}
 				break;
-			case VISION_TYPE_RGB_F32:
+			case VISION_TYPE_RGB:
 				break;
-			case VISION_TYPE_HSV_F32:
+			case VISION_TYPE_HSV:
 				{
-					float * ph = &((float *)v->datas)[v->npixel * 0];
-					float * ps = &((float *)v->datas)[v->npixel * 1];
-					float * pv = &((float *)v->datas)[v->npixel * 2];
-					float hv, sv, vv;
-					float p, q, t, f;
-					for(int i = 0; i < v->npixel; i++, ph++, ps++, pv++)
+					size_t ndata = v->npixel * vision_type_get_bytes(type) * vision_type_get_channels(type);
+					void * datas = malloc(ndata);
+					if(datas)
 					{
-						sv = *ps;
-						vv = *pv;
-						if(sv <= 0.0f)
-							*ph = *ps = vv;
-						else
+						unsigned char * pr = &((unsigned char *)datas)[v->npixel * 0];
+						unsigned char * pg = &((unsigned char *)datas)[v->npixel * 1];
+						unsigned char * pb = &((unsigned char *)datas)[v->npixel * 2];
+						float * ph = &((float *)v->datas)[v->npixel * 0];
+						float * ps = &((float *)v->datas)[v->npixel * 1];
+						float * pv = &((float *)v->datas)[v->npixel * 2];
+						struct color_t c;
+						for(int i = 0; i < v->npixel; i++, pr++, pg++, pb++, ph++, ps++, pv++)
 						{
-							hv = *ph / (60.0f / 360.0f);
-							i = (int)hv;
-							f = hv - (float)i;
-							p = vv * (1.0f - sv);
-							q = vv * (1.0f - (sv * f));
-							t = vv * (1.0f - sv * (1.0f - f));
-							switch(i)
-							{
-							case 0: *ph = vv; *ps = t; *pv = p; break;
-							case 1: *ph = q; *ps = vv; *pv = p; break;
-							case 2: *ph = p; *ps = vv; *pv = t; break;
-							case 3: *ph = p; *ps = q; *pv = vv; break;
-							case 4: *ph = t; *ps = p; *pv = vv; break;
-							case 5: *ph = vv; *ps = p; *pv = q; break;
-							default: *ph = vv; *ps = t; *pv = p; break;
-							}
+							color_set_hsva(&c, *ph, *ps, *pv, 1.0f);
+							*pr = c.r;
+							*pg = c.g;
+							*pb = c.b;
 						}
+						if(v->datas)
+							free(v->datas);
+						v->datas = datas;
+						v->ndata = ndata;
+						v->type = VISION_TYPE_RGB;
 					}
-					v->type = VISION_TYPE_RGB_F32;
 				}
 				break;
 			default:
 				break;
 			}
 			break;
-		case VISION_TYPE_HSV_F32:
+		case VISION_TYPE_HSV:
 			switch(v->type)
 			{
-			case VISION_TYPE_GRAY_F32:
+			case VISION_TYPE_GRAY:
 				{
-					size_t ndata = 3 * v->npixel * sizeof(float);
-					if(v->ndata < ndata)
+					size_t ndata = v->npixel * vision_type_get_bytes(type) * vision_type_get_channels(type);
+					void * datas = malloc(ndata);
+					if(datas)
 					{
-						v->datas = realloc(v->datas, ndata);
+						float * ph = &((float *)datas)[v->npixel * 0];
+						float * ps = &((float *)datas)[v->npixel * 1];
+						float * pv = &((float *)datas)[v->npixel * 2];
+						unsigned char * pgray = (unsigned char *)v->datas;
+						for(int i = 0; i < v->npixel; i++, ph++, ps++, pv++, pgray++)
+						{
+							*ph = 0;
+							*ps = 0;
+							*pv = *pgray;
+						}
+						if(v->datas)
+							free(v->datas);
+						v->datas = datas;
 						v->ndata = ndata;
+						v->type = VISION_TYPE_HSV;
 					}
-					float * ph = &((float *)v->datas)[v->npixel * 0];
-					float * ps = &((float *)v->datas)[v->npixel * 1];
-					float * pv = &((float *)v->datas)[v->npixel * 2];
-					for(int i = 0; i < v->npixel; i++, ph++, ps++, pv++)
-					{
-						*ps = 0;
-						*pv = *ph;
-						*ph = 0;
-					}
-					v->type = VISION_TYPE_HSV_F32;
 				}
 				break;
-			case VISION_TYPE_RGB_F32:
+			case VISION_TYPE_RGB:
 				{
-					float * pr = &((float *)v->datas)[v->npixel * 0];
-					float * pg = &((float *)v->datas)[v->npixel * 1];
-					float * pb = &((float *)v->datas)[v->npixel * 2];
-					float r, g, b;
-					float k = 0.0f;
-					float chroma;
-					float t;
-					for(int i = 0; i < v->npixel; i++, pr++, pg++, pb++)
+					size_t ndata = v->npixel * vision_type_get_bytes(type) * vision_type_get_channels(type);
+					void * datas = malloc(ndata);
+					if(datas)
 					{
-						r = *pr;
-						g = *pg;
-						b = *pb;
-						if(g < b)
+						float * ph = &((float *)datas)[v->npixel * 0];
+						float * ps = &((float *)datas)[v->npixel * 1];
+						float * pv = &((float *)datas)[v->npixel * 2];
+						unsigned char * pr = &((unsigned char *)v->datas)[v->npixel * 0];
+						unsigned char * pg = &((unsigned char *)v->datas)[v->npixel * 1];
+						unsigned char * pb = &((unsigned char *)v->datas)[v->npixel * 2];
+						struct color_t c;
+						for(int i = 0; i < v->npixel; i++, ph++, ps++, pv++, pr++, pg++, pb++)
 						{
-							t = g;
-							g = b;
-							b = t;
-							k = -1.f;
+							c.r = *pr;
+							c.g = *pg;
+							c.b = *pb;
+							color_get_hsva(&c, ph, ps, pv, NULL);
 						}
-						if(r < g)
-						{
-							t = r;
-							r = g;
-							g = t;
-							k = -2.f / 6.0f - k;
-						}
-						chroma = r - ((g < b) ? g : b);
-						*pr = fabsf(k + (g - b) / (6.0f * chroma + 1e-20f));
-						*pg = chroma / (r + 1e-20f);
-						*pb = r;
+						if(v->datas)
+							free(v->datas);
+						v->datas = datas;
+						v->ndata = ndata;
+						v->type = VISION_TYPE_HSV;
 					}
-					v->type = VISION_TYPE_HSV_F32;
 				}
 				break;
-			case VISION_TYPE_HSV_F32:
+			case VISION_TYPE_HSV:
 				break;
 			default:
 				break;
@@ -240,7 +232,7 @@ void vision_convert(struct vision_t * v, enum vision_type_t type)
 void vision_clear(struct vision_t * v)
 {
 	if(v)
-		memset(v->datas, 0, v->ndata);
+		memset(v->datas, 0, v->npixel * vision_type_get_bytes(v->type) * vision_type_get_channels(v->type));
 }
 
 void vision_copy_from_surface(struct vision_t * v, struct surface_t * s)
@@ -249,48 +241,62 @@ void vision_copy_from_surface(struct vision_t * v, struct surface_t * s)
 	{
 		switch(v->type)
 		{
-		case VISION_TYPE_GRAY_F32:
+		case VISION_TYPE_GRAY:
 			{
+				unsigned char * pgray = (unsigned char *)v->datas;
 				unsigned char * p = surface_get_pixels(s);
-				float * pgray = &((float *)v->datas)[v->npixel * 0];
 				for(int i = 0; i < v->npixel; i++, p += 4, pgray++)
 				{
 					if(p[3] != 0)
-						*pgray = (float)p[2] / (float)p[3] * 0.299f + (float)p[1] / (float)p[3] * 0.587f + (float)p[0] / (float)p[3] * 0.114f;
+					{
+						if(p[3] == 255)
+							*pgray = (p[2] * 19595L + p[1] * 38469L + p[0] * 7472L) >> 16;
+						else
+							*pgray = ((p[2] * 19595L + p[1] * 38469L + p[0] * 7472L) >> 16) * 255 / p[3];
+					}
 					else
-						*pgray = 1.0f;
+						*pgray = 0;
 				}
 			}
 			break;
-		case VISION_TYPE_RGB_F32:
+		case VISION_TYPE_RGB:
 			{
+				unsigned char * pr = &((unsigned char *)v->datas)[v->npixel * 0];
+				unsigned char * pg = &((unsigned char *)v->datas)[v->npixel * 1];
+				unsigned char * pb = &((unsigned char *)v->datas)[v->npixel * 2];
 				unsigned char * p = surface_get_pixels(s);
-				float * pr = &((float *)v->datas)[v->npixel * 0];
-				float * pg = &((float *)v->datas)[v->npixel * 1];
-				float * pb = &((float *)v->datas)[v->npixel * 2];
 				for(int i = 0; i < v->npixel; i++, p += 4, pr++, pg++, pb++)
 				{
 					if(p[3] != 0)
 					{
-						*pr = (float)p[2] / (float)p[3];
-						*pg = (float)p[1] / (float)p[3];
-						*pb = (float)p[0] / (float)p[3];
+						if(p[3] == 255)
+						{
+							*pr = p[2];
+							*pg = p[1];
+							*pb = p[0];
+						}
+						else
+						{
+							*pr = p[2] * 255 / p[3];
+							*pg = p[1] * 255 / p[3];
+							*pb = p[0] * 255 / p[3];
+						}
 					}
 					else
 					{
-						*pr = 1.0f;
-						*pg = 1.0f;
-						*pb = 1.0f;
+						*pr = 0;
+						*pg = 0;
+						*pb = 0;
 					}
 				}
 			}
 			break;
-		case VISION_TYPE_HSV_F32:
+		case VISION_TYPE_HSV:
 			{
-				unsigned char * p = surface_get_pixels(s);
 				float * ph = &((float *)v->datas)[v->npixel * 0];
 				float * ps = &((float *)v->datas)[v->npixel * 1];
 				float * pv = &((float *)v->datas)[v->npixel * 2];
+				unsigned char * p = surface_get_pixels(s);
 				struct color_t c;
 				for(int i = 0; i < v->npixel; i++, p += 4, ph++, ps++, pv++)
 				{
@@ -305,7 +311,7 @@ void vision_copy_from_surface(struct vision_t * v, struct surface_t * s)
 					{
 						*ph = 0.0f;
 						*ps = 0.0f;
-						*pv = 1.0f;
+						*pv = 0.0f;
 					}
 				}
 			}
@@ -322,43 +328,43 @@ void vision_copy_to_surface(struct vision_t * v, struct surface_t * s)
 	{
 		switch(v->type)
 		{
-		case VISION_TYPE_GRAY_F32:
+		case VISION_TYPE_GRAY:
 			{
 				unsigned char * p = surface_get_pixels(s);
-				float * pgray = &((float *)v->datas)[v->npixel * 0];
+				unsigned char * pgray = (unsigned char *)v->datas;
 				for(int i = 0; i < v->npixel; i++, p += 4, pgray++)
 				{
 					p[3] = 255;
-					p[2] = p[1] = p[0] = (unsigned char)(*pgray * 255.0f);
+					p[2] = p[1] = p[0] = *pgray;
 				}
 			}
 			break;
-		case VISION_TYPE_RGB_F32:
+		case VISION_TYPE_RGB:
 			{
 				unsigned char * p = surface_get_pixels(s);
-				float * pr = &((float *)v->datas)[v->npixel * 0];
-				float * pg = &((float *)v->datas)[v->npixel * 1];
-				float * pb = &((float *)v->datas)[v->npixel * 2];
+				unsigned char * pr = &((unsigned char *)v->datas)[v->npixel * 0];
+				unsigned char * pg = &((unsigned char *)v->datas)[v->npixel * 1];
+				unsigned char * pb = &((unsigned char *)v->datas)[v->npixel * 2];
 				for(int i = 0; i < v->npixel; i++, p += 4, pr++, pg++, pb++)
 				{
 					p[3] = 255;
-					p[2] = (unsigned char)(*pr * 255.0f);
-					p[1] = (unsigned char)(*pg * 255.0f);
-					p[0] = (unsigned char)(*pb * 255.0f);
+					p[2] = *pr;
+					p[1] = *pg;
+					p[0] = *pb;
 				}
 			}
 			break;
-		case VISION_TYPE_HSV_F32:
+		case VISION_TYPE_HSV:
 			{
 				unsigned char * p = surface_get_pixels(s);
 				float * ph = &((float *)v->datas)[v->npixel * 0];
 				float * ps = &((float *)v->datas)[v->npixel * 1];
 				float * pv = &((float *)v->datas)[v->npixel * 2];
 				struct color_t c;
-				for(int i = 0; i < v->npixel; p += 4, ph++, ps++, pv++)
+				for(int i = 0; i < v->npixel; i++, p += 4, ph++, ps++, pv++)
 				{
 					color_set_hsva(&c, *ph, *ps, *pv, 1.0f);
-					p[3] = c.a;
+					p[3] = 255;
 					p[2] = c.r;
 					p[1] = c.g;
 					p[0] = c.b;

@@ -29,48 +29,48 @@
 #include <xboot.h>
 #include <vision/vision.h>
 
-void vision_inrange_gray(struct vision_t * v, float l, float h)
+void vision_inrange_gray(struct vision_t * v, unsigned char l, unsigned char h)
 {
-	if(v && (v->type == VISION_TYPE_GRAY_F32))
+	if(v && (v->type == VISION_TYPE_GRAY))
 	{
-		float * pgray = &((float *)v->datas)[v->npixel * 0];
+		unsigned char * pgray = (unsigned char *)v->datas;
 		for(int i = 0; i < v->npixel; i++, pgray++)
 		{
 			if((*pgray < l) || (*pgray > h))
-				*pgray = 0.0f;
+				*pgray = 0;
 		}
 	}
 }
 
-void vision_inrange_rgb(struct vision_t * v, float lr, float lg, float lb, float hr, float hg, float hb)
+void vision_inrange_rgb(struct vision_t * v, unsigned char * lrgb, unsigned char * hrgb)
 {
-	if(v && (v->type == VISION_TYPE_RGB_F32))
+	if(v && (v->type == VISION_TYPE_RGB))
 	{
-		float * pr = &((float *)v->datas)[v->npixel * 0];
-		float * pg = &((float *)v->datas)[v->npixel * 1];
-		float * pb = &((float *)v->datas)[v->npixel * 2];
+		unsigned char * pr = &((unsigned char *)v->datas)[v->npixel * 0];
+		unsigned char * pg = &((unsigned char *)v->datas)[v->npixel * 1];
+		unsigned char * pb = &((unsigned char *)v->datas)[v->npixel * 2];
 		for(int i = 0; i < v->npixel; i++, pr++, pg++, pb++)
 		{
-			if((*pr < lr) || (*pr > hr) || (*pg < lg) || (*pg > hg) || (*pb < lb) || (*pb > hb))
+			if((*pr < lrgb[0]) || (*pr > hrgb[0]) || (*pg < lrgb[1]) || (*pg > hrgb[1]) || (*pb < lrgb[2]) || (*pb > hrgb[2]))
 			{
-				*pr = 0.0f;
-				*pg = 0.0f;
-				*pb = 0.0f;
+				*pr = 0;
+				*pg = 0;
+				*pb = 0;
 			}
 		}
 	}
 }
 
-void vision_inrange_hsv(struct vision_t * v, float lh, float ls, float lv, float hh, float hs, float hv)
+void vision_inrange_hsv(struct vision_t * v, float * lhsv, float * hhsv)
 {
-	if(v && (v->type == VISION_TYPE_HSV_F32))
+	if(v && (v->type == VISION_TYPE_HSV))
 	{
 		float * ph = &((float *)v->datas)[v->npixel * 0];
 		float * ps = &((float *)v->datas)[v->npixel * 1];
 		float * pv = &((float *)v->datas)[v->npixel * 2];
 		for(int i = 0; i < v->npixel; i++, ph++, ps++, pv++)
 		{
-			if((*ph < lh) || (*ph > hh) || (*ps < ls) || (*ps > hs) || (*pv < lv) || (*pv > hv))
+			if((*ph < lhsv[0]) || (*ph > hhsv[0]) || (*ps < lhsv[1]) || (*ps > hhsv[1]) || (*pv < lhsv[2]) || (*pv > hhsv[2]))
 			{
 				*ph = 0.0f;
 				*ps = 0.0f;

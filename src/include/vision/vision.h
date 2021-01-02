@@ -69,6 +69,9 @@ void vision_copy_from_surface(struct vision_t * v, struct surface_t * s);
 void vision_copy_to_surface(struct vision_t * v, struct surface_t * s);
 struct vision_t * vision_alloc_from_surface(struct surface_t * s);
 
+void vision_invert(struct vision_t * v);
+void vision_threshold(struct vision_t * v, float threshold, const char * type);
+
 #ifdef __cplusplus
 }
 #endif

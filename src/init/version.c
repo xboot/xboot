@@ -1,7 +1,7 @@
 /*
  * init/version.c
  *
- * Copyright(c) 2007-2020 Jianjun Jiang <8192542@qq.com>
+ * Copyright(c) 2007-2021 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
  * Mobile phone: +86-18665388956
  * QQ: 8192542
@@ -56,7 +56,7 @@ const char * xboot_banner_string(void)
 /*
  *         _                   _
  *   _  _ | |___ _____ _____ _| |_
- *  \ \/ /|  _  |  _  |  _  |_   _|  (C) 2007-2020
+ *  \ \/ /|  _  |  _  |  _  |_   _|  (C) 2007-2021
  *   )  ( | |_| | |_| | |_| | | |____JIANJUN.JIANG__
  *  /_/\_\|_____|_____|_____| |_____________________|
  */
@@ -65,7 +65,7 @@ const char * xboot_character_logo_string(int i)
 	static const char clogo[5][50] = {
 		"       _                   _                     ",
 		" _  _ | |___ _____ _____ _| |_                   ",
-		"\\ \\/ /|  _  |  _  |  _  |_   _|  (C) 2007-2020   ",
+		"\\ \\/ /|  _  |  _  |  _  |_   _|  (C) 2007-2021   ",
 		" )  ( | |_| | |_| | |_| | | |____JIANJUN.JIANG__ ",
 		"/_/\\_\\|_____|_____|_____| |_____________________|",
 	};

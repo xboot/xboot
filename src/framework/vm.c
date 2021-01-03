@@ -55,6 +55,7 @@
 #include <core/l-stopwatch.h>
 #include <core/l-text.h>
 #include <core/l-timer.h>
+#include <core/l-vision.h>
 #include <core/l-window.h>
 #include <core/l-xfs.h>
 #include <codec/l-codec.h>
@@ -90,6 +91,7 @@ static void luaopen_glblibs(lua_State * L)
 		{ "DisplayText",			luaopen_display_text },
 		{ "DisplayIcon",			luaopen_display_icon },
 		{ "Timer",					luaopen_timer },
+		{ "Vision",					luaopen_vision },
 		{ "Stage",					luaopen_stage },
 		{ "Assets",					luaopen_assets },
 		{ "Application",			luaopen_application },

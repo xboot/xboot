@@ -53,7 +53,7 @@ static inline int vision_get_npixel(struct vision_t * v)
 	return v->npixel;
 }
 
-static inline float * vision_get_datas(struct vision_t * v)
+static inline void * vision_get_datas(struct vision_t * v)
 {
 	return v->datas;
 }

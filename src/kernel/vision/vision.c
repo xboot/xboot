@@ -100,21 +100,62 @@ struct vision_t * vision_clone(struct vision_t * v, int x, int y, int w, int h)
 					struct vision_t * o = vision_alloc(v->type, width, height);
 					if(o)
 					{
-						switch(v->type)
+						switch(o->type)
 						{
 						case VISION_TYPE_GRAY:
 							{
-								unsigned char * po = (unsigned char *)o->datas;
-								unsigned char * pv = &((unsigned char *)v->datas)[y1 * v->width + x1];
 								int ostride = o->width;
 								int vstride = v->width;
+								unsigned char * po = (unsigned char *)o->datas;
+								unsigned char * pv = &((unsigned char *)v->datas)[y1 * v->width + x1];
 								for(int i = 0; i < height; i++, po += ostride, pv += vstride)
 									memcpy(po, pv, ostride);
 							}
 							break;
 						case VISION_TYPE_RGB:
+							{
+								int ostride = o->width;
+								int vstride = v->width;
+								unsigned char * po, * pv;
+
+								po = &((unsigned char *)o->datas)[o->npixel * 0];
+								pv = &((unsigned char *)v->datas)[v->npixel * 0 + y1 * v->width + x1];
+								for(int i = 0; i < height; i++, po += ostride, pv += vstride)
+									memcpy(po, pv, ostride);
+
+								po = &((unsigned char *)o->datas)[o->npixel * 1];
+								pv = &((unsigned char *)v->datas)[v->npixel * 1 + y1 * v->width + x1];
+								for(int i = 0; i < height; i++, po += ostride, pv += vstride)
+									memcpy(po, pv, ostride);
+
+								po = &((unsigned char *)o->datas)[o->npixel * 2];
+								pv = &((unsigned char *)v->datas)[v->npixel * 2 + y1 * v->width + x1];
+								for(int i = 0; i < height; i++, po += ostride, pv += vstride)
+									memcpy(po, pv, ostride);
+							}
 							break;
 						case VISION_TYPE_HSV:
+							{
+								int ostride = o->width;
+								int vstride = v->width;
+								int len = ostride * vision_type_get_bytes(VISION_TYPE_HSV);
+								float * po, * pv;
+
+								po = &((float *)o->datas)[o->npixel * 0];
+								pv = &((float *)v->datas)[v->npixel * 0 + y1 * v->width + x1];
+								for(int i = 0; i < height; i++, po += ostride, pv += vstride)
+									memcpy(po, pv, len);
+
+								po = &((float *)o->datas)[o->npixel * 1];
+								pv = &((float *)v->datas)[v->npixel * 1 + y1 * v->width + x1];
+								for(int i = 0; i < height; i++, po += ostride, pv += vstride)
+									memcpy(po, pv, len);
+
+								po = &((float *)o->datas)[o->npixel * 2];
+								pv = &((float *)v->datas)[v->npixel * 2 + y1 * v->width + x1];
+								for(int i = 0; i < height; i++, po += ostride, pv += vstride)
+									memcpy(po, pv, len);
+							}
 							break;
 						default:
 							break;

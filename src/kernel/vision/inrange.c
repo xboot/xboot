@@ -27,7 +27,7 @@
  */
 
 #include <xboot.h>
-#include <vision/vision.h>
+#include <vision/inrange.h>
 
 struct vision_t * vision_inrange_gray(struct vision_t * v, unsigned char l, unsigned char h)
 {

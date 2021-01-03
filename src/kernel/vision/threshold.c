@@ -27,7 +27,7 @@
  */
 
 #include <xboot.h>
-#include <vision/vision.h>
+#include <vision/threshold.h>
 
 void vision_threshold(struct vision_t * v, int threshold, const char * type)
 {

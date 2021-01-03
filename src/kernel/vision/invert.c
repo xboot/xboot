@@ -27,7 +27,7 @@
  */
 
 #include <xboot.h>
-#include <vision/vision.h>
+#include <vision/invert.h>
 
 void vision_invert(struct vision_t * v)
 {

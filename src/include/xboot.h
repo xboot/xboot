@@ -77,6 +77,11 @@ extern "C" {
 #include <sound/sound.h>
 #include <audio/audio.h>
 #include <block/block.h>
+#include <camera/camera.h>
+#include <vision/vision.h>
+#include <vision/inrange.h>
+#include <vision/invert.h>
+#include <vision/threshold.h>
 #include <xui/xui.h>
 #include <xui/window.h>
 #include <xui/popup.h>

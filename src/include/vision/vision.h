@@ -71,9 +71,9 @@ void vision_clear(struct vision_t * v);
 void vision_copy_from_surface(struct vision_t * v, struct surface_t * s);
 void vision_copy_to_surface(struct vision_t * v, struct surface_t * s);
 
-void vision_inrange_gray(struct vision_t * v, unsigned char l, unsigned char h);
-void vision_inrange_rgb(struct vision_t * v, unsigned char * lrgb, unsigned char * hrgb);
-void vision_inrange_hsv(struct vision_t * v, float * lhsv, float * hhsv);
+struct vision_t * vision_inrange_gray(struct vision_t * v, unsigned char l, unsigned char h);
+struct vision_t * vision_inrange_rgb(struct vision_t * v, unsigned char * lrgb, unsigned char * hrgb);
+struct vision_t * vision_inrange_hsv(struct vision_t * v, float * lhsv, float * hhsv);
 void vision_invert(struct vision_t * v);
 void vision_threshold(struct vision_t * v, int threshold, const char * type);
 

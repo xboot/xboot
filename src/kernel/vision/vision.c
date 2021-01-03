@@ -71,6 +71,63 @@ void vision_free(struct vision_t * v)
 	}
 }
 
+struct vision_t * vision_clone(struct vision_t * v, int x, int y, int w, int h)
+{
+	if(v)
+	{
+		if((w <= 0) || (h <= 0))
+		{
+			struct vision_t * o = vision_alloc(v->type, v->width, v->height);
+			if(o)
+			{
+				memcpy(o->datas, v->datas, o->ndata);
+				return o;
+			}
+		}
+		else
+		{
+			int x1, y1, x2, y2;
+			x1 = max(0, x);
+			x2 = min(v->width, x + w);
+			if(x1 <= x2)
+			{
+				y1 = max(0, y);
+				y2 = min(v->height, y + h);
+				if(y1 <= y2)
+				{
+					int width = x2 - x1;
+					int height = y2 - y1;
+					struct vision_t * o = vision_alloc(v->type, width, height);
+					if(o)
+					{
+						switch(v->type)
+						{
+						case VISION_TYPE_GRAY:
+							{
+								unsigned char * po = (unsigned char *)o->datas;
+								unsigned char * pv = &((unsigned char *)v->datas)[y1 * v->width + x1];
+								int ostride = o->width;
+								int vstride = v->width;
+								for(int i = 0; i < height; i++, po += ostride, pv += vstride)
+									memcpy(po, pv, ostride);
+							}
+							break;
+						case VISION_TYPE_RGB:
+							break;
+						case VISION_TYPE_HSV:
+							break;
+						default:
+							break;
+						}
+						return o;
+					}
+				}
+			}
+		}
+	}
+	return NULL;
+}
+
 void vision_convert(struct vision_t * v, enum vision_type_t type)
 {
 	if(v)

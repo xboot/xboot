@@ -65,6 +65,7 @@ static inline size_t vision_get_ndata(struct vision_t * v)
 
 struct vision_t * vision_alloc(enum vision_type_t type, int width, int height);
 void vision_free(struct vision_t * v);
+struct vision_t * vision_clone(struct vision_t * v, int x, int y, int w, int h);
 void vision_convert(struct vision_t * v, enum vision_type_t type);
 void vision_clear(struct vision_t * v);
 

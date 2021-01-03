@@ -47,7 +47,7 @@ static int l_vision_new(lua_State * L)
 		{
 			int width = luaL_checkinteger(L, 1);
 			int height = luaL_checkinteger(L, 2);
-			enum vision_type_t type = VISION_TYPE_GRAY;
+			enum vision_type_t type = VISION_TYPE_RGB;
 			switch(shash(luaL_optstring(L, 3, NULL)))
 			{
 			case 0x7c977c78: /* "gray" */
@@ -156,6 +156,45 @@ static int m_vision_get_size(lua_State * L)
 	return 2;
 }
 
+static int m_vision_clone(lua_State * L)
+{
+	struct lvision_t * vison = luaL_checkudata(L, 1, MT_VISION);
+	int x = luaL_optinteger(L, 2, 0);
+	int y = luaL_optinteger(L, 3, 0);
+	int w = luaL_optinteger(L, 4, 0);
+	int h = luaL_optinteger(L, 5, 0);
+	struct vision_t * o = vision_clone(vison->v, x, y, w, h);
+	if(!o)
+		return 0;
+	struct lvision_t * subvision = lua_newuserdata(L, sizeof(struct lvision_t));
+	subvision->v = o;
+	luaL_setmetatable(L, MT_VISION);
+	return 1;
+}
+
+static int m_vision_convert(lua_State * L)
+{
+	struct lvision_t * vison = luaL_checkudata(L, 1, MT_VISION);
+	enum vision_type_t type = VISION_TYPE_RGB;
+	switch(shash(luaL_optstring(L, 2, NULL)))
+	{
+	case 0x7c977c78: /* "gray" */
+		type = VISION_TYPE_GRAY;
+		break;
+	case 0x0b88a580: /* "rgb" */
+		type = VISION_TYPE_RGB;
+		break;
+	case 0x0b887c96: /* "hsv" */
+		type = VISION_TYPE_HSV;
+		break;
+	default:
+		break;
+	}
+	vision_convert(vison->v, type);
+	lua_settop(L, 1);
+	return 1;
+}
+
 static const luaL_Reg m_vision[] = {
 	{"__gc",			m_vision_gc},
 	{"__tostring",		m_vision_tostring},
@@ -165,6 +204,9 @@ static const luaL_Reg m_vision[] = {
 	{"getWidth",		m_vision_get_width},
 	{"getHeight",		m_vision_get_height},
 	{"getSize",			m_vision_get_size},
+
+	{"clone",			m_vision_clone},
+	{"convert",			m_vision_convert},
 
 	{NULL, NULL}
 };

@@ -31,6 +31,7 @@
 #include <core/l-matrix.h>
 #include <core/l-text.h>
 #include <core/l-icon.h>
+#include <core/l-vision.h>
 #include <core/l-image.h>
 
 static int l_image_new(lua_State * L)
@@ -53,8 +54,18 @@ static int l_image_new(lua_State * L)
 	}
 	else
 	{
-		const char * filename = luaL_checkstring(L, 1);
-		s = surface_alloc_from_xfs(((struct vmctx_t *)luahelper_vmctx(L))->xfs, filename);
+		if(lua_isstring(L, 1))
+		{
+			const char * filename = luaL_checkstring(L, 1);
+			s = surface_alloc_from_xfs(((struct vmctx_t *)luahelper_vmctx(L))->xfs, filename);
+		}
+		else if(luaL_testudata(L, 1, MT_VISION))
+		{
+			struct lvision_t * vision = lua_touserdata(L, 1);
+			s = surface_alloc(vision_get_width(vision->v), vision_get_height(vision->v), NULL);
+			if(s)
+				surface_apply_vision(s, vision->v);
+		}
 	}
 	if(s)
 	{
@@ -162,6 +173,15 @@ static int m_image_extend(lua_State * L)
 	struct limage_t * subimg = lua_newuserdata(L, sizeof(struct limage_t));
 	subimg->s = c;
 	luaL_setmetatable(L, MT_IMAGE);
+	return 1;
+}
+
+static int m_image_apply(lua_State * L)
+{
+	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
+	struct lvision_t * vison = luaL_checkudata(L, 2, MT_VISION);
+	surface_apply_vision(img->s, vison->v);
+	lua_settop(L, 1);
 	return 1;
 }
 
@@ -576,6 +596,7 @@ static const luaL_Reg m_image[] = {
 
 	{"clone",			m_image_clone},
 	{"extend",			m_image_extend},
+	{"apply",			m_image_apply},
 	{"clear",			m_image_clear},
 
 	{"blit",			m_image_blit},

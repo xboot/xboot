@@ -60,7 +60,7 @@ void vision_invert(struct vision_t * v)
 				float * ph = &((float *)v->datas)[v->npixel * 0];
 				float * ps = &((float *)v->datas)[v->npixel * 1];
 				float * pv = &((float *)v->datas)[v->npixel * 2];
-				for(int i = 0; i < v->npixel; ph++, ps++, pv++)
+				for(int i = 0; i < v->npixel; i++, ph++, ps++, pv++)
 				{
 					*ph = 1.0f - *ph;
 					*ps = 1.0f - *ps;

@@ -41,7 +41,7 @@ struct sound_t * sound_alloc(int sample)
 	if(!snd)
 		return NULL;
 
-	source = memalign(4, sample << 2);
+	source = malloc(sample << 2);
 	if(!source)
 	{
 		free(snd);

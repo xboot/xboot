@@ -134,7 +134,7 @@ struct surface_t * surface_alloc(int width, int height, void * priv)
 
 	stride = width << 2;
 	pixlen = height * stride;
-	pixels = memalign(4, pixlen);
+	pixels = malloc(pixlen);
 	if(!pixels)
 	{
 		free(s);
@@ -205,7 +205,7 @@ struct surface_t * surface_clone(struct surface_t * s, int x, int y, int w, int 
 		o = malloc(sizeof(struct surface_t));
 		if(!o)
 			return NULL;
-		pixels = memalign(4, pixlen);
+		pixels = malloc(pixlen);
 		if(!pixels)
 		{
 			free(o);
@@ -231,7 +231,7 @@ struct surface_t * surface_clone(struct surface_t * s, int x, int y, int w, int 
 				o = malloc(sizeof(struct surface_t));
 				if(!o)
 					return NULL;
-				pixels = memalign(4, pixlen);
+				pixels = malloc(pixlen);
 				if(!pixels)
 				{
 					free(o);
@@ -378,7 +378,7 @@ struct surface_t * surface_extend(struct surface_t * s, int width, int height, c
 
 	stride = width << 2;
 	pixlen = height * stride;
-	pixels = memalign(4, pixlen);
+	pixels = malloc(pixlen);
 	if(!pixels)
 	{
 		free(s);

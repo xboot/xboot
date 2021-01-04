@@ -2586,7 +2586,7 @@ void render_default_filter_erode(struct surface_t * s, int times)
 	int x, y, u, v;
 	int i;
 
-	pixels = memalign(4, s->pixlen);
+	pixels = malloc(s->pixlen);
 	if(pixels)
 	{
 		while(times-- > 0)
@@ -2706,7 +2706,7 @@ void render_default_filter_dilate(struct surface_t * s, int times)
 	int x, y, u, v;
 	int i;
 
-	pixels = memalign(4, s->pixlen);
+	pixels = malloc(s->pixlen);
 	if(pixels)
 	{
 		while(times-- > 0)

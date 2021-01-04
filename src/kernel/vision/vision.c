@@ -451,100 +451,69 @@ void vision_apply_surface(struct vision_t * v, struct surface_t * s)
 
 void surface_apply_vision(struct surface_t * s, struct vision_t * v)
 {
-	if(v && s)
+	if(s && v)
 	{
 		int w = min(surface_get_width(s), vision_get_width(v));
 		int h = min(surface_get_height(s), vision_get_height(v));
 		switch(v->type)
 		{
 		case VISION_TYPE_GRAY:
-		case VISION_TYPE_RGB:
-		case VISION_TYPE_HSV:
-			break;
-		default:
-			break;
-		}
-	}
-}
-
-#if 0
-void vision_copy_from_surface(struct vision_t * v, struct surface_t * s)
-{
-	if(v && s && (v->width == s->width) && (v->height == s->height))
-	{
-		switch(v->type)
-		{
-		case VISION_TYPE_GRAY:
 			{
-				unsigned char * pgray = (unsigned char *)v->datas;
-				unsigned char * p = surface_get_pixels(s);
-				for(int i = 0; i < v->npixel; i++, p += 4, pgray++)
+				unsigned char * pgray, * qgray = &((unsigned char *)v->datas)[v->npixel * 0];
+				unsigned char * p, * q = surface_get_pixels(s);
+				int vstride = v->width * vision_type_get_bytes(VISION_TYPE_GRAY);
+				int sstride = s->stride;
+				int x, y;
+				for(y = 0; y < h; y++, qgray += vstride, q += sstride)
 				{
-					if(p[3] != 0)
+					for(x = 0, pgray = qgray, p = q; x < w; x++, pgray++, p += 4)
 					{
-						if(p[3] == 255)
-							*pgray = (p[2] * 19595L + p[1] * 38469L + p[0] * 7472L) >> 16;
-						else
-							*pgray = ((p[2] * 19595L + p[1] * 38469L + p[0] * 7472L) >> 16) * 255 / p[3];
+						p[3] = 255;
+						p[2] = p[1] = p[0] = *pgray;
 					}
-					else
-						*pgray = 0;
 				}
 			}
 			break;
 		case VISION_TYPE_RGB:
 			{
-				unsigned char * pr = &((unsigned char *)v->datas)[v->npixel * 0];
-				unsigned char * pg = &((unsigned char *)v->datas)[v->npixel * 1];
-				unsigned char * pb = &((unsigned char *)v->datas)[v->npixel * 2];
-				unsigned char * p = surface_get_pixels(s);
-				for(int i = 0; i < v->npixel; i++, p += 4, pr++, pg++, pb++)
+				unsigned char * pr, * qr = &((unsigned char *)v->datas)[v->npixel * 0];
+				unsigned char * pg, * qg = &((unsigned char *)v->datas)[v->npixel * 1];
+				unsigned char * pb, * qb = &((unsigned char *)v->datas)[v->npixel * 2];
+				unsigned char * p, * q = surface_get_pixels(s);
+				int vstride = v->width * vision_type_get_bytes(VISION_TYPE_RGB);
+				int sstride = s->stride;
+				int x, y;
+				for(y = 0; y < h; y++, qr += vstride, qg += vstride, qb += vstride, q += sstride)
 				{
-					if(p[3] != 0)
+					for(x = 0, pr = qr, pg = qg, pb = qb, p = q; x < w; x++, pr++, pg++, pb++, p += 4)
 					{
-						if(p[3] == 255)
-						{
-							*pr = p[2];
-							*pg = p[1];
-							*pb = p[0];
-						}
-						else
-						{
-							*pr = p[2] * 255 / p[3];
-							*pg = p[1] * 255 / p[3];
-							*pb = p[0] * 255 / p[3];
-						}
-					}
-					else
-					{
-						*pr = 0;
-						*pg = 0;
-						*pb = 0;
+						p[3] = 255;
+						p[2] = *pr;
+						p[1] = *pg;
+						p[0] = *pb;
 					}
 				}
 			}
 			break;
 		case VISION_TYPE_HSV:
 			{
-				float * ph = &((float *)v->datas)[v->npixel * 0];
-				float * ps = &((float *)v->datas)[v->npixel * 1];
-				float * pv = &((float *)v->datas)[v->npixel * 2];
-				unsigned char * p = surface_get_pixels(s);
+				float * ph, * qh = &((float *)v->datas)[v->npixel * 0];
+				float * ps, * qs = &((float *)v->datas)[v->npixel * 1];
+				float * pv, * qv = &((float *)v->datas)[v->npixel * 2];
+				unsigned char * p, * q = surface_get_pixels(s);
+				int vstride = v->width * vision_type_get_bytes(VISION_TYPE_HSV);
+				int sstride = s->stride;
+				int x, y;
 				struct color_t c;
-				for(int i = 0; i < v->npixel; i++, p += 4, ph++, ps++, pv++)
+				for(y = 0; y < h; y++, qh += vstride, qs += vstride, qv += vstride, q += sstride)
 				{
-					if(p[3] != 0)
+					for(x = 0, ph = qh, ps = qs, pv = qv, p = q; x < w; x++, ph++, ps++, pv++, p += 4)
 					{
-						c.r = (float)p[2] / (float)p[3];
-						c.g = (float)p[1] / (float)p[3];
-						c.b = (float)p[0] / (float)p[3];
-						color_get_hsva(&c, ph, ps, pv, NULL);
-					}
-					else
-					{
-						*ph = 0.0f;
-						*ps = 0.0f;
-						*pv = 0.0f;
+						color_set_hsva(&c, *ph, *ps, *pv, 1.0f);
+						p[3] = 255;
+						p[2] = c.r;
+						p[1] = c.g;
+						p[0] = c.b;
 					}
 				}
 			}
@@ -554,59 +523,3 @@ void vision_copy_from_surface(struct vision_t * v, struct surface_t * s)
 		}
 	}
 }
-
-void vision_copy_to_surface(struct vision_t * v, struct surface_t * s)
-{
-	if(v && s && (v->width == s->width) && (v->height == s->height))
-	{
-		switch(v->type)
-		{
-		case VISION_TYPE_GRAY:
-			{
-				unsigned char * p = surface_get_pixels(s);
-				unsigned char * pgray = (unsigned char *)v->datas;
-				for(int i = 0; i < v->npixel; i++, p += 4, pgray++)
-				{
-					p[3] = 255;
-					p[2] = p[1] = p[0] = *pgray;
-				}
-			}
-			break;
-		case VISION_TYPE_RGB:
-			{
-				unsigned char * p = surface_get_pixels(s);
-				unsigned char * pr = &((unsigned char *)v->datas)[v->npixel * 0];
-				unsigned char * pg = &((unsigned char *)v->datas)[v->npixel * 1];
-				unsigned char * pb = &((unsigned char *)v->datas)[v->npixel * 2];
-				for(int i = 0; i < v->npixel; i++, p += 4, pr++, pg++, pb++)
-				{
-					p[3] = 255;
-					p[2] = *pr;
-					p[1] = *pg;
-					p[0] = *pb;
-				}
-			}
-			break;
-		case VISION_TYPE_HSV:
-			{
-				unsigned char * p = surface_get_pixels(s);
-				float * ph = &((float *)v->datas)[v->npixel * 0];
-				float * ps = &((float *)v->datas)[v->npixel * 1];
-				float * pv = &((float *)v->datas)[v->npixel * 2];
-				struct color_t c;
-				for(int i = 0; i < v->npixel; i++, p += 4, ph++, ps++, pv++)
-				{
-					color_set_hsva(&c, *ph, *ps, *pv, 1.0f);
-					p[3] = 255;
-					p[2] = c.r;
-					p[1] = c.g;
-					p[0] = c.b;
-				}
-			}
-			break;
-		default:
-			break;
-		}
-	}
-}
-#endif

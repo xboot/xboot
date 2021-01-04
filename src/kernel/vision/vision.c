@@ -175,42 +175,16 @@ void vision_convert(struct vision_t * v, enum vision_type_t type)
 {
 	if(v)
 	{
-		switch(type)
+		switch(v->type)
 		{
 		case VISION_TYPE_GRAY:
-			switch(v->type)
+			switch(type)
 			{
 			case VISION_TYPE_GRAY:
 				break;
 			case VISION_TYPE_RGB:
 				{
-					unsigned char * pr = &((unsigned char *)v->datas)[v->npixel * 0];
-					unsigned char * pg = &((unsigned char *)v->datas)[v->npixel * 1];
-					unsigned char * pb = &((unsigned char *)v->datas)[v->npixel * 2];
-					for(int i = 0; i < v->npixel; i++, pr++, pg++, pb++)
-						*pr = ((*pr) * 19595L + (*pg) * 38469L + (*pb) * 7472L) >> 16;
-					v->type = VISION_TYPE_GRAY;
-				}
-				break;
-			case VISION_TYPE_HSV:
-				{
-					unsigned char * pgray = (unsigned char *)v->datas;
-					float * pv = &((float *)v->datas)[v->npixel * 2];
-					for(int i = 0; i < v->npixel; i++, pgray++, pv++)
-						*pgray = clamp((int)((*pv) * 255), 0, 255);
-					v->type = VISION_TYPE_GRAY;
-				}
-				break;
-			default:
-				break;
-			}
-			break;
-		case VISION_TYPE_RGB:
-			switch(v->type)
-			{
-			case VISION_TYPE_GRAY:
-				{
-					size_t ndata = v->npixel * vision_type_get_bytes(type) * vision_type_get_channels(type);
+					size_t ndata = v->npixel * vision_type_get_bytes(VISION_TYPE_RGB) * vision_type_get_channels(VISION_TYPE_RGB);
 					void * datas = malloc(ndata);
 					if(datas)
 					{
@@ -228,46 +202,9 @@ void vision_convert(struct vision_t * v, enum vision_type_t type)
 					}
 				}
 				break;
-			case VISION_TYPE_RGB:
-				break;
 			case VISION_TYPE_HSV:
 				{
-					size_t ndata = v->npixel * vision_type_get_bytes(type) * vision_type_get_channels(type);
-					void * datas = malloc(ndata);
-					if(datas)
-					{
-						unsigned char * pr = &((unsigned char *)datas)[v->npixel * 0];
-						unsigned char * pg = &((unsigned char *)datas)[v->npixel * 1];
-						unsigned char * pb = &((unsigned char *)datas)[v->npixel * 2];
-						float * ph = &((float *)v->datas)[v->npixel * 0];
-						float * ps = &((float *)v->datas)[v->npixel * 1];
-						float * pv = &((float *)v->datas)[v->npixel * 2];
-						struct color_t c;
-						for(int i = 0; i < v->npixel; i++, pr++, pg++, pb++, ph++, ps++, pv++)
-						{
-							color_set_hsva(&c, *ph, *ps, *pv, 1.0f);
-							*pr = c.r;
-							*pg = c.g;
-							*pb = c.b;
-						}
-						if(v->datas)
-							free(v->datas);
-						v->datas = datas;
-						v->ndata = ndata;
-						v->type = VISION_TYPE_RGB;
-					}
-				}
-				break;
-			default:
-				break;
-			}
-			break;
-		case VISION_TYPE_HSV:
-			switch(v->type)
-			{
-			case VISION_TYPE_GRAY:
-				{
-					size_t ndata = v->npixel * vision_type_get_bytes(type) * vision_type_get_channels(type);
+					size_t ndata = v->npixel * vision_type_get_bytes(VISION_TYPE_HSV) * vision_type_get_channels(VISION_TYPE_HSV);
 					void * datas = malloc(ndata);
 					if(datas)
 					{
@@ -275,11 +212,11 @@ void vision_convert(struct vision_t * v, enum vision_type_t type)
 						float * ps = &((float *)datas)[v->npixel * 1];
 						float * pv = &((float *)datas)[v->npixel * 2];
 						unsigned char * pgray = (unsigned char *)v->datas;
+						struct color_t c;
 						for(int i = 0; i < v->npixel; i++, ph++, ps++, pv++, pgray++)
 						{
-							*ph = 0;
-							*ps = 0;
-							*pv = *pgray;
+							c.r = c.g = c.b = *pgray;
+							color_get_hsva(&c, ph, ps, pv, NULL);
 						}
 						if(v->datas)
 							free(v->datas);
@@ -289,9 +226,28 @@ void vision_convert(struct vision_t * v, enum vision_type_t type)
 					}
 				}
 				break;
-			case VISION_TYPE_RGB:
+			default:
+				break;
+			}
+			break;
+		case VISION_TYPE_RGB:
+			switch(type)
+			{
+			case VISION_TYPE_GRAY:
 				{
-					size_t ndata = v->npixel * vision_type_get_bytes(type) * vision_type_get_channels(type);
+					unsigned char * pr = &((unsigned char *)v->datas)[v->npixel * 0];
+					unsigned char * pg = &((unsigned char *)v->datas)[v->npixel * 1];
+					unsigned char * pb = &((unsigned char *)v->datas)[v->npixel * 2];
+					for(int i = 0; i < v->npixel; i++, pr++, pg++, pb++)
+						*pr = ((*pr) * 19595L + (*pg) * 38469L + (*pb) * 7472L) >> 16;
+					v->type = VISION_TYPE_GRAY;
+				}
+				break;
+			case VISION_TYPE_RGB:
+				break;
+			case VISION_TYPE_HSV:
+				{
+					size_t ndata = v->npixel * vision_type_get_bytes(VISION_TYPE_HSV) * vision_type_get_channels(VISION_TYPE_HSV);
 					void * datas = malloc(ndata);
 					if(datas)
 					{
@@ -314,6 +270,56 @@ void vision_convert(struct vision_t * v, enum vision_type_t type)
 						v->datas = datas;
 						v->ndata = ndata;
 						v->type = VISION_TYPE_HSV;
+					}
+				}
+				break;
+			default:
+				break;
+			}
+			break;
+		case VISION_TYPE_HSV:
+			switch(type)
+			{
+			case VISION_TYPE_GRAY:
+				{
+					unsigned char * pgray = (unsigned char *)v->datas;
+					float * ph = &((float *)v->datas)[v->npixel * 0];
+					float * ps = &((float *)v->datas)[v->npixel * 1];
+					float * pv = &((float *)v->datas)[v->npixel * 2];
+					struct color_t c;
+					for(int i = 0; i < v->npixel; i++, pgray++, ph++, ps++, pv++)
+					{
+						color_set_hsva(&c, *ph, *ps, *pv, 1.0f);
+						*pgray = (c.r * 19595L + c.g * 38469L + c.b * 7472L) >> 16;
+					}
+					v->type = VISION_TYPE_GRAY;
+				}
+				break;
+			case VISION_TYPE_RGB:
+				{
+					size_t ndata = v->npixel * vision_type_get_bytes(VISION_TYPE_RGB) * vision_type_get_channels(VISION_TYPE_RGB);
+					void * datas = malloc(ndata);
+					if(datas)
+					{
+						unsigned char * pr = &((unsigned char *)datas)[v->npixel * 0];
+						unsigned char * pg = &((unsigned char *)datas)[v->npixel * 1];
+						unsigned char * pb = &((unsigned char *)datas)[v->npixel * 2];
+						float * ph = &((float *)v->datas)[v->npixel * 0];
+						float * ps = &((float *)v->datas)[v->npixel * 1];
+						float * pv = &((float *)v->datas)[v->npixel * 2];
+						struct color_t c;
+						for(int i = 0; i < v->npixel; i++, pr++, pg++, pb++, ph++, ps++, pv++)
+						{
+							color_set_hsva(&c, *ph, *ps, *pv, 1.0f);
+							*pr = c.r;
+							*pg = c.g;
+							*pb = c.b;
+						}
+						if(v->datas)
+							free(v->datas);
+						v->datas = datas;
+						v->ndata = ndata;
+						v->type = VISION_TYPE_RGB;
 					}
 				}
 				break;

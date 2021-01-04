@@ -57,9 +57,11 @@ end
 local sw, sh = stage:getSize()
 stage:addChild(DisplayImage.new(Image.new("assets/images/bg.png"):extend(sw, sh, "repeat")))
 
-local vision = Vision.new(Image.new("assets/images/lena.png"))
+local lena = Image.new("assets/images/lena.png")
+local v = Vision.new(lena)
+v:convert("hsv")
 
-local img = DisplayImage.new(Image.new(vision))
+local img = DisplayImage.new(Image.new(v))
 	:setPosition(math.random(0, sw - 64), math.random(0, sh - 64))
 	:setAnchor(0.5, 0.5)
 

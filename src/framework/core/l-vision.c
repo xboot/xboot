@@ -220,6 +220,24 @@ static int m_vision_apply(lua_State * L)
 	return 1;
 }
 
+static int m_vision_invert(lua_State * L)
+{
+	struct lvision_t * vison = luaL_checkudata(L, 1, MT_VISION);
+	vision_invert(vison->v);
+	lua_settop(L, 1);
+	return 1;
+}
+
+static int m_vision_threshold(lua_State * L)
+{
+	struct lvision_t * vison = luaL_checkudata(L, 1, MT_VISION);
+	int threshold = luaL_optinteger(L, 2, -1);
+	const char * type = luaL_optstring(L, 3, "binary");
+	vision_threshold(vison->v, threshold, type);
+	lua_settop(L, 1);
+	return 1;
+}
+
 static const luaL_Reg m_vision[] = {
 	{"__gc",			m_vision_gc},
 	{"__tostring",		m_vision_tostring},
@@ -233,6 +251,9 @@ static const luaL_Reg m_vision[] = {
 	{"clone",			m_vision_clone},
 	{"convert",			m_vision_convert},
 	{"apply",			m_vision_apply},
+
+	{"invert",			m_vision_invert},
+	{"threshold",		m_vision_threshold},
 
 	{NULL, NULL}
 };

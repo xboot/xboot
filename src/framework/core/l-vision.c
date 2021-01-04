@@ -95,7 +95,23 @@ static int m_vision_tostring(lua_State * L)
 	int width = vision_get_width(v);
 	int height = vision_get_height(v);
 	void * datas = vision_get_datas(v);
-	lua_pushfstring(L, "vision(0x%04x,%d,%d,%p)", type, width, height, datas);
+	const char * typestr;
+	switch(type)
+	{
+	case VISION_TYPE_GRAY:
+		typestr = "gray";
+		break;
+	case VISION_TYPE_RGB:
+		typestr = "rgb";
+		break;
+	case VISION_TYPE_HSV:
+		typestr = "hsv";
+		break;
+	default:
+		typestr = "rgb";
+		break;
+	}
+	lua_pushfstring(L, "vision(%s,%d,%d,%p)", typestr, width, height, datas);
 	return 1;
 }
 

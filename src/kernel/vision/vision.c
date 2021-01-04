@@ -333,6 +333,141 @@ void vision_clear(struct vision_t * v)
 		memset(v->datas, 0, v->npixel * vision_type_get_bytes(v->type) * vision_type_get_channels(v->type));
 }
 
+void vision_apply_surface(struct vision_t * v, struct surface_t * s)
+{
+	if(v && s)
+	{
+		int w = min(vision_get_width(v), surface_get_width(s));
+		int h = min(vision_get_height(v), surface_get_height(s));
+		switch(v->type)
+		{
+		case VISION_TYPE_GRAY:
+			{
+				unsigned char * pgray, * qgray = &((unsigned char *)v->datas)[v->npixel * 0];
+				unsigned char * p, * q = surface_get_pixels(s);
+				int vstride = v->width * vision_type_get_bytes(VISION_TYPE_GRAY);
+				int sstride = s->stride;
+				int x, y;
+				for(y = 0; y < h; y++, qgray += vstride, q += sstride)
+				{
+					for(x = 0, pgray = qgray, p = q; x < w; x++, pgray++, p += 4)
+					{
+						if(p[3] != 0)
+						{
+							if(p[3] == 255)
+								*pgray = (p[2] * 19595L + p[1] * 38469L + p[0] * 7472L) >> 16;
+							else
+								*pgray = ((p[2] * 19595L + p[1] * 38469L + p[0] * 7472L) >> 16) * 255 / p[3];
+						}
+						else
+							*pgray = 0;
+					}
+				}
+			}
+			break;
+		case VISION_TYPE_RGB:
+			{
+				unsigned char * pr, * qr = &((unsigned char *)v->datas)[v->npixel * 0];
+				unsigned char * pg, * qg = &((unsigned char *)v->datas)[v->npixel * 1];
+				unsigned char * pb, * qb = &((unsigned char *)v->datas)[v->npixel * 2];
+				unsigned char * p, * q = surface_get_pixels(s);
+				int vstride = v->width * vision_type_get_bytes(VISION_TYPE_RGB);
+				int sstride = s->stride;
+				int x, y;
+				for(y = 0; y < h; y++, qr += vstride, qg += vstride, qb += vstride, q += sstride)
+				{
+					for(x = 0, pr = qr, pg = qg, pb = qb, p = q; x < w; x++, pr++, pg++, pb++, p += 4)
+					{
+						if(p[3] != 0)
+						{
+							if(p[3] == 255)
+							{
+								*pr = p[2];
+								*pg = p[1];
+								*pb = p[0];
+							}
+							else
+							{
+								*pr = p[2] * 255 / p[3];
+								*pg = p[1] * 255 / p[3];
+								*pb = p[0] * 255 / p[3];
+							}
+						}
+						else
+						{
+							*pr = 0;
+							*pg = 0;
+							*pb = 0;
+						}
+					}
+				}
+			}
+			break;
+		case VISION_TYPE_HSV:
+			{
+				float * ph, * qh = &((float *)v->datas)[v->npixel * 0];
+				float * ps, * qs = &((float *)v->datas)[v->npixel * 1];
+				float * pv, * qv = &((float *)v->datas)[v->npixel * 2];
+				unsigned char * p, * q = surface_get_pixels(s);
+				int vstride = v->width * vision_type_get_bytes(VISION_TYPE_HSV);
+				int sstride = s->stride;
+				int x, y;
+				struct color_t c;
+				for(y = 0; y < h; y++, qh += vstride, qs += vstride, qv += vstride, q += sstride)
+				{
+					for(x = 0, ph = qh, ps = qs, pv = qv, p = q; x < w; x++, ph++, ps++, pv++, p += 4)
+					{
+						if(p[3] != 0)
+						{
+							if(p[3] == 255)
+							{
+								c.r = p[2];
+								c.g = p[1];
+								c.b = p[0];
+							}
+							else
+							{
+								c.r = p[2] * 255 / p[3];
+								c.g = p[1] * 255 / p[3];
+								c.b = p[0] * 255 / p[3];
+							}
+							color_get_hsva(&c, ph, ps, pv, NULL);
+						}
+						else
+						{
+							*ph = 0.0f;
+							*ps = 0.0f;
+							*pv = 0.0f;
+						}
+					}
+				}
+			}
+			break;
+		default:
+			break;
+		}
+	}
+}
+
+void surface_apply_vision(struct surface_t * s, struct vision_t * v)
+{
+	if(v && s)
+	{
+		int w = min(surface_get_width(s), vision_get_width(v));
+		int h = min(surface_get_height(s), vision_get_height(v));
+		switch(v->type)
+		{
+		case VISION_TYPE_GRAY:
+		case VISION_TYPE_RGB:
+		case VISION_TYPE_HSV:
+			break;
+		default:
+			break;
+		}
+	}
+}
+
+#if 0
 void vision_copy_from_surface(struct vision_t * v, struct surface_t * s)
 {
 	if(v && s && (v->width == s->width) && (v->height == s->height))
@@ -474,3 +609,4 @@ void vision_copy_to_surface(struct vision_t * v, struct surface_t * s)
 		}
 	}
 }
+#endif

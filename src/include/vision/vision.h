@@ -69,8 +69,8 @@ struct vision_t * vision_clone(struct vision_t * v, int x, int y, int w, int h);
 void vision_convert(struct vision_t * v, enum vision_type_t type);
 void vision_clear(struct vision_t * v);
 
-void vision_copy_from_surface(struct vision_t * v, struct surface_t * s);
-void vision_copy_to_surface(struct vision_t * v, struct surface_t * s);
+void vision_apply_surface(struct vision_t * v, struct surface_t * s);
+void surface_apply_vision(struct surface_t * s, struct vision_t * v);
 
 #ifdef __cplusplus
 }

@@ -39,7 +39,7 @@ static int l_vision_new(lua_State * L)
 		struct limage_t * img = lua_touserdata(L, 1);
 		v = vision_alloc(VISION_TYPE_RGB, surface_get_width(img->s), surface_get_height(img->s));
 		if(v)
-			vision_copy_from_surface(v, img->s);
+			vision_apply_surface(v, img->s);
 	}
 	else
 	{
@@ -195,6 +195,15 @@ static int m_vision_convert(lua_State * L)
 	return 1;
 }
 
+static int m_vision_apply(lua_State * L)
+{
+	struct lvision_t * vison = luaL_checkudata(L, 1, MT_VISION);
+	struct limage_t * img = luaL_checkudata(L, 2, MT_IMAGE);
+	vision_apply_surface(vison->v, img->s);
+	lua_settop(L, 1);
+	return 1;
+}
+
 static const luaL_Reg m_vision[] = {
 	{"__gc",			m_vision_gc},
 	{"__tostring",		m_vision_tostring},
@@ -207,6 +216,7 @@ static const luaL_Reg m_vision[] = {
 
 	{"clone",			m_vision_clone},
 	{"convert",			m_vision_convert},
+	{"apply",			m_vision_apply},
 
 	{NULL, NULL}
 };

@@ -79,6 +79,7 @@ extern "C" {
 #include <block/block.h>
 #include <camera/camera.h>
 #include <vision/vision.h>
+#include <vision/dither.h>
 #include <vision/inrange.h>
 #include <vision/invert.h>
 #include <vision/threshold.h>

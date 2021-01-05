@@ -220,6 +220,14 @@ static int m_vision_apply(lua_State * L)
 	return 1;
 }
 
+static int m_vision_dither(lua_State * L)
+{
+	struct lvision_t * vision = luaL_checkudata(L, 1, MT_VISION);
+	vision_dither(vision->v);
+	lua_settop(L, 1);
+	return 1;
+}
+
 static int m_vision_invert(lua_State * L)
 {
 	struct lvision_t * vison = luaL_checkudata(L, 1, MT_VISION);
@@ -252,6 +260,7 @@ static const luaL_Reg m_vision[] = {
 	{"convert",			m_vision_convert},
 	{"apply",			m_vision_apply},
 
+	{"dither",			m_vision_dither},
 	{"invert",			m_vision_invert},
 	{"threshold",		m_vision_threshold},
 

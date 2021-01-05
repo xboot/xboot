@@ -220,18 +220,18 @@ static int m_vision_apply(lua_State * L)
 	return 1;
 }
 
-static int m_vision_dither(lua_State * L)
-{
-	struct lvision_t * vision = luaL_checkudata(L, 1, MT_VISION);
-	vision_dither(vision->v);
-	lua_settop(L, 1);
-	return 1;
-}
-
 static int m_vision_invert(lua_State * L)
 {
 	struct lvision_t * vison = luaL_checkudata(L, 1, MT_VISION);
 	vision_invert(vison->v);
+	lua_settop(L, 1);
+	return 1;
+}
+
+static int m_vision_dither(lua_State * L)
+{
+	struct lvision_t * vision = luaL_checkudata(L, 1, MT_VISION);
+	vision_dither(vision->v);
 	lua_settop(L, 1);
 	return 1;
 }
@@ -242,6 +242,24 @@ static int m_vision_threshold(lua_State * L)
 	int threshold = luaL_optinteger(L, 2, -1);
 	const char * type = luaL_optstring(L, 3, "binary");
 	vision_threshold(vison->v, threshold, type);
+	lua_settop(L, 1);
+	return 1;
+}
+
+static int m_vision_erode(lua_State * L)
+{
+	struct lvision_t * vision = luaL_checkudata(L, 1, MT_VISION);
+	int times = luaL_optinteger(L, 2, 1);
+	vision_erode(vision->v, times);
+	lua_settop(L, 1);
+	return 1;
+}
+
+static int m_vision_dilate(lua_State * L)
+{
+	struct lvision_t * vision = luaL_checkudata(L, 1, MT_VISION);
+	int times = luaL_optinteger(L, 2, 1);
+	vision_dilate(vision->v, times);
 	lua_settop(L, 1);
 	return 1;
 }
@@ -260,9 +278,11 @@ static const luaL_Reg m_vision[] = {
 	{"convert",			m_vision_convert},
 	{"apply",			m_vision_apply},
 
-	{"dither",			m_vision_dither},
 	{"invert",			m_vision_invert},
+	{"dither",			m_vision_dither},
 	{"threshold",		m_vision_threshold},
+	{"erode",			m_vision_erode},
+	{"dilate",			m_vision_dilate},
 
 	{NULL, NULL}
 };

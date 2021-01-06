@@ -188,6 +188,33 @@ static int m_vision_clone(lua_State * L)
 	return 1;
 }
 
+static int m_vision_inrange(lua_State * L)
+{
+	struct lvision_t * vison = luaL_checkudata(L, 1, MT_VISION);
+	float l[3], h[3];
+	if(lua_gettop(L) == 3)
+	{
+		if(lua_istable(L, 2) && (lua_rawlen(L, 2) == 3) && lua_istable(L, 3) && (lua_rawlen(L, 3) == 3))
+		{
+			lua_rawgeti(L, 2, 1); l[0] = lua_tonumber(L, -1); lua_pop(L, 1);
+			lua_rawgeti(L, 2, 2); l[1] = lua_tonumber(L, -1); lua_pop(L, 1);
+			lua_rawgeti(L, 2, 3); l[2] = lua_tonumber(L, -1); lua_pop(L, 1);
+			lua_rawgeti(L, 3, 1); h[0] = lua_tonumber(L, -1); lua_pop(L, 1);
+			lua_rawgeti(L, 3, 2); h[1] = lua_tonumber(L, -1); lua_pop(L, 1);
+			lua_rawgeti(L, 3, 3); h[2] = lua_tonumber(L, -1); lua_pop(L, 1);
+			struct vision_t * o = vision_inrange(vison->v, l, h);
+			if(o)
+			{
+				struct lvision_t * mask = lua_newuserdata(L, sizeof(struct lvision_t));
+				mask->v = o;
+				luaL_setmetatable(L, MT_VISION);
+				return 1;
+			}
+		}
+	}
+	return 0;
+}
+
 static int m_vision_convert(lua_State * L)
 {
 	struct lvision_t * vison = luaL_checkudata(L, 1, MT_VISION);
@@ -275,6 +302,8 @@ static const luaL_Reg m_vision[] = {
 	{"getSize",			m_vision_get_size},
 
 	{"clone",			m_vision_clone},
+	{"inrange",			m_vision_inrange},
+
 	{"convert",			m_vision_convert},
 	{"apply",			m_vision_apply},
 

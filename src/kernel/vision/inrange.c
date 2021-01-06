@@ -29,53 +29,7 @@
 #include <xboot.h>
 #include <vision/inrange.h>
 
-struct vision_t * vision_inrange_gray(struct vision_t * v, unsigned char l, unsigned char h)
-{
-	if(v && (v->type == VISION_TYPE_GRAY))
-	{
-		struct vision_t * mask = vision_alloc(VISION_TYPE_GRAY, vision_get_width(v), vision_get_height(v));
-		if(mask)
-		{
-			unsigned char * pmask = (unsigned char *)mask->datas;
-			unsigned char * pgray = (unsigned char *)v->datas;
-			for(int i = 0; i < v->npixel; i++, pmask++, pgray++)
-			{
-				if((*pgray < l) || (*pgray > h))
-					*pmask = 0;
-				else
-					*pmask = 255;
-			}
-			return mask;
-		}
-	}
-	return NULL;
-}
-
-struct vision_t * vision_inrange_rgb(struct vision_t * v, unsigned char * lrgb, unsigned char * hrgb)
-{
-	if(v && (v->type == VISION_TYPE_RGB))
-	{
-		struct vision_t * mask = vision_alloc(VISION_TYPE_GRAY, vision_get_width(v), vision_get_height(v));
-		if(mask)
-		{
-			unsigned char * pmask = (unsigned char *)mask->datas;
-			unsigned char * pr = &((unsigned char *)v->datas)[v->npixel * 0];
-			unsigned char * pg = &((unsigned char *)v->datas)[v->npixel * 1];
-			unsigned char * pb = &((unsigned char *)v->datas)[v->npixel * 2];
-			for(int i = 0; i < v->npixel; i++, pmask++, pr++, pg++, pb++)
-			{
-				if((*pr < lrgb[0]) || (*pr > hrgb[0]) || (*pg < lrgb[1]) || (*pg > hrgb[1]) || (*pb < lrgb[2]) || (*pb > hrgb[2]))
-					*pmask = 0;
-				else
-					*pmask = 255;
-			}
-			return mask;
-		}
-	}
-	return NULL;
-}
-
-struct vision_t * vision_inrange_hsv(struct vision_t * v, float * lhsv, float * hhsv)
+struct vision_t * vision_inrange(struct vision_t * v, float * l, float * h)
 {
 	if(v && (v->type == VISION_TYPE_HSV))
 	{
@@ -88,7 +42,7 @@ struct vision_t * vision_inrange_hsv(struct vision_t * v, float * lhsv, float * 
 			float * pv = &((float *)v->datas)[v->npixel * 2];
 			for(int i = 0; i < v->npixel; i++, pmask++, ph++, ps++, pv++)
 			{
-				if((*ph < lhsv[0]) || (*ph > hhsv[0]) || (*ps < lhsv[1]) || (*ps > hhsv[1]) || (*pv < lhsv[2]) || (*pv > hhsv[2]))
+				if((*ph < l[0]) || (*ph > h[0]) || (*ps < l[1]) || (*ps > h[1]) || (*pv < l[2]) || (*pv > h[2]))
 					*pmask = 0;
 				else
 					*pmask = 255;

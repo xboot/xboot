@@ -582,6 +582,9 @@ enum STBVorbisError
    #if defined(__linux__) || defined(__linux) || defined(__EMSCRIPTEN__) || defined(__NEWLIB__)
       #include <alloca.h>
    #endif
+#ifndef alloca
+#define alloca __builtin_alloca
+#endif
 #else // STB_VORBIS_NO_CRT
    #define NULL 0
    #define malloc(s)   0

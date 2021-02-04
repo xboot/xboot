@@ -168,6 +168,9 @@ SRCDIRS		+=	arch/$(ARCH)/lib/cpu \
 #
 # Add necessary external library
 #
+INCDIRS		+=	external/littlefs-2.4.0
+SRCDIRS		+=	external/littlefs-2.4.0
+
 INCDIRS		+= 	external/libfdt-1.4.2
 SRCDIRS		+=	external/libfdt-1.4.2
 

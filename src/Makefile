@@ -115,6 +115,7 @@ SRCDIRS		+=	arch/$(ARCH)/lib/cpu \
 				kernel/vfs/cpio \
 				kernel/vfs/ext4 \
 				kernel/vfs/fat \
+				kernel/vfs/lfs \
 				kernel/vfs/ram \
 				kernel/vfs/sys \
 				kernel/vfs/tar \

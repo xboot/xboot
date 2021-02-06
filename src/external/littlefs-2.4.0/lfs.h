@@ -9,7 +9,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "lfs_util.h"
+#include "lfs_conf.h"
 
 #ifdef __cplusplus
 extern "C"

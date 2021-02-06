@@ -37,11 +37,6 @@ extern "C" {
 
 #define X(...)			("" #__VA_ARGS__ "")
 
-enum {
-	FALSE				= 0,
-	TRUE				= 1,
-};
-
 #ifdef __cplusplus
 }
 #endif

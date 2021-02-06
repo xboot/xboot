@@ -8,6 +8,7 @@ extern "C" {
 #include <types.h>
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
 #include <list.h>
 #include <string.h>
 #include <atomic.h>

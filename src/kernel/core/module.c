@@ -28,6 +28,7 @@
 
 #include <string.h>
 #include <stdio.h>
+#include <stdbool.h>
 #include <malloc.h>
 #include <xboot/initcall.h>
 #include <xboot/module.h>

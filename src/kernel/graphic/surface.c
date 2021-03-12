@@ -64,12 +64,9 @@ static struct render_t render_default = {
 	.shape_checkerboard	= render_default_shape_checkerboard,
 	.shape_raster		= render_default_shape_raster,
 
-	.filter_grayscale	= render_default_filter_grayscale,
+	.filter_gray		= render_default_filter_gray,
 	.filter_sepia		= render_default_filter_sepia,
 	.filter_invert		= render_default_filter_invert,
-	.filter_dither		= render_default_filter_dither,
-	.filter_threshold	= render_default_filter_threshold,
-	.filter_colormap	= render_default_filter_colormap,
 	.filter_coloring	= render_default_filter_coloring,
 	.filter_hue			= render_default_filter_hue,
 	.filter_saturate	= render_default_filter_saturate,
@@ -78,8 +75,6 @@ static struct render_t render_default = {
 	.filter_opacity		= render_default_filter_opacity,
 	.filter_haldclut	= render_default_filter_haldclut,
 	.filter_blur		= render_default_filter_blur,
-	.filter_erode		= render_default_filter_erode,
-	.filter_dilate		= render_default_filter_dilate,
 };
 
 inline __attribute__((always_inline)) struct render_t * search_render(void)

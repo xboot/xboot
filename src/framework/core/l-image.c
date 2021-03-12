@@ -445,10 +445,10 @@ static int m_image_checkerboard(lua_State * L)
 	return 1;
 }
 
-static int m_image_grayscale(lua_State * L)
+static int m_image_gray(lua_State * L)
 {
 	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
-	surface_filter_grayscale(img->s);
+	surface_filter_gray(img->s);
 	lua_settop(L, 1);
 	return 1;
 }
@@ -465,33 +465,6 @@ static int m_image_invert(lua_State * L)
 {
 	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
 	surface_filter_invert(img->s);
-	lua_settop(L, 1);
-	return 1;
-}
-
-static int m_image_dither(lua_State * L)
-{
-	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
-	surface_filter_dither(img->s);
-	lua_settop(L, 1);
-	return 1;
-}
-
-static int m_image_threshold(lua_State * L)
-{
-	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
-	int threshold = luaL_optinteger(L, 2, -1);
-	const char * type = luaL_optstring(L, 3, "binary");
-	surface_filter_threshold(img->s, threshold, type);
-	lua_settop(L, 1);
-	return 1;
-}
-
-static int m_image_colormap(lua_State * L)
-{
-	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
-	const char * type = luaL_optstring(L, 2, "parula");
-	surface_filter_colormap(img->s, type);
 	lua_settop(L, 1);
 	return 1;
 }
@@ -569,24 +542,6 @@ static int m_image_blur(lua_State * L)
 	return 1;
 }
 
-static int m_image_erode(lua_State * L)
-{
-	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
-	int times = luaL_optinteger(L, 2, 1);
-	surface_filter_erode(img->s, times);
-	lua_settop(L, 1);
-	return 1;
-}
-
-static int m_image_dilate(lua_State * L)
-{
-	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
-	int times = luaL_optinteger(L, 2, 1);
-	surface_filter_dilate(img->s, times);
-	lua_settop(L, 1);
-	return 1;
-}
-
 static const luaL_Reg m_image[] = {
 	{"__gc",			m_image_gc},
 	{"__tostring",		m_image_tostring},
@@ -616,12 +571,9 @@ static const luaL_Reg m_image[] = {
 	{"gradient",		m_image_gradient},
 	{"checkerboard",	m_image_checkerboard},
 
-	{"grayscale",		m_image_grayscale},
+	{"gray",			m_image_gray},
 	{"sepia",			m_image_sepia},
 	{"invert",			m_image_invert},
-	{"dither",			m_image_dither},
-	{"threshold",		m_image_threshold},
-	{"colormap",		m_image_colormap},
 	{"coloring",		m_image_coloring},
 	{"hue",				m_image_hue},
 	{"saturate",		m_image_saturate},
@@ -630,8 +582,6 @@ static const luaL_Reg m_image[] = {
 	{"opacity",			m_image_opacity},
 	{"haldclut",		m_image_haldclut},
 	{"blur",			m_image_blur},
-	{"erode",			m_image_erode},
-	{"dilate",			m_image_dilate},
 
 	{NULL, NULL}
 };

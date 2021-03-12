@@ -68,12 +68,9 @@ struct render_t
 	void (*shape_checkerboard)(struct surface_t * s, struct region_t * clip, int x, int y, int w, int h);
 	void (*shape_raster)(struct surface_t * s, struct svg_t * svg, float tx, float ty, float sx, float sy);
 
-	void (*filter_grayscale)(struct surface_t * s);
+	void (*filter_gray)(struct surface_t * s);
 	void (*filter_sepia)(struct surface_t * s);
 	void (*filter_invert)(struct surface_t * s);
-	void (*filter_dither)(struct surface_t * s);
-	void (*filter_threshold)(struct surface_t * s, int threshold, const char * type);
-	void (*filter_colormap)(struct surface_t * s, const char * type);
 	void (*filter_coloring)(struct surface_t * s, struct color_t * c);
 	void (*filter_hue)(struct surface_t * s, int angle);
 	void (*filter_saturate)(struct surface_t * s, int saturate);
@@ -82,8 +79,6 @@ struct render_t
 	void (*filter_opacity)(struct surface_t * s, int alpha);
 	void (*filter_haldclut)(struct surface_t * s, struct surface_t * clut, const char * type);
 	void (*filter_blur)(struct surface_t * s, int radius);
-	void (*filter_erode)(struct surface_t * s, int times);
-	void (*filter_dilate)(struct surface_t * s, int times);
 };
 
 static inline int surface_get_width(struct surface_t * s)
@@ -186,9 +181,9 @@ static inline void surface_shape_raster(struct surface_t * s, struct svg_t * svg
 	s->r->shape_raster(s, svg, tx, ty, sx, sy);
 }
 
-static inline void surface_filter_grayscale(struct surface_t * s)
+static inline void surface_filter_gray(struct surface_t * s)
 {
-	s->r->filter_grayscale(s);
+	s->r->filter_gray(s);
 }
 
 static inline void surface_filter_sepia(struct surface_t * s)
@@ -199,21 +194,6 @@ static inline void surface_filter_sepia(struct surface_t * s)
 static inline void surface_filter_invert(struct surface_t * s)
 {
 	s->r->filter_invert(s);
-}
-
-static inline void surface_filter_dither(struct surface_t * s)
-{
-	s->r->filter_dither(s);
-}
-
-static inline void surface_filter_threshold(struct surface_t * s, int threshold, const char * type)
-{
-	s->r->filter_threshold(s, threshold, type);
-}
-
-static inline void surface_filter_colormap(struct surface_t * s, const char * type)
-{
-	s->r->filter_colormap(s, type);
 }
 
 static inline void surface_filter_coloring(struct surface_t * s, struct color_t * c)
@@ -256,16 +236,6 @@ static inline void surface_filter_blur(struct surface_t * s, int radius)
 	s->r->filter_blur(s, radius);
 }
 
-static inline void surface_filter_erode(struct surface_t * s, int times)
-{
-	s->r->filter_erode(s, times);
-}
-
-static inline void surface_filter_dilate(struct surface_t * s, int times)
-{
-	s->r->filter_dilate(s, times);
-}
-
 void * render_default_create(struct surface_t * s);
 void render_default_destroy(void * rctx);
 void render_default_blit(struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct surface_t * src, enum render_type_t type);
@@ -284,12 +254,9 @@ void render_default_shape_arc(struct surface_t * s, struct region_t * clip, int 
 void render_default_shape_gradient(struct surface_t * s, struct region_t * clip, int x, int y, int w, int h, struct color_t * lt, struct color_t * rt, struct color_t * rb, struct color_t * lb);
 void render_default_shape_checkerboard(struct surface_t * s, struct region_t * clip, int x, int y, int w, int h);
 void render_default_shape_raster(struct surface_t * s, struct svg_t * svg, float tx, float ty, float sx, float sy);
-void render_default_filter_grayscale(struct surface_t * s);
+void render_default_filter_gray(struct surface_t * s);
 void render_default_filter_sepia(struct surface_t * s);
 void render_default_filter_invert(struct surface_t * s);
-void render_default_filter_dither(struct surface_t * s);
-void render_default_filter_threshold(struct surface_t * s, int threshold, const char * type);
-void render_default_filter_colormap(struct surface_t * s, const char * type);
 void render_default_filter_coloring(struct surface_t * s, struct color_t * c);
 void render_default_filter_hue(struct surface_t * s, int angle);
 void render_default_filter_saturate(struct surface_t * s, int saturate);
@@ -298,8 +265,6 @@ void render_default_filter_contrast(struct surface_t * s, int contrast);
 void render_default_filter_opacity(struct surface_t * s, int alpha);
 void render_default_filter_haldclut(struct surface_t * s, struct surface_t * clut, const char * type);
 void render_default_filter_blur(struct surface_t * s, int radius);
-void render_default_filter_erode(struct surface_t * s, int times);
-void render_default_filter_dilate(struct surface_t * s, int times);
 
 struct render_t * search_render(void);
 bool_t register_render(struct render_t * r);

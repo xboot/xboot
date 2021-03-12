@@ -79,9 +79,11 @@ extern "C" {
 #include <block/block.h>
 #include <camera/camera.h>
 #include <vision/vision.h>
+#include <vision/colormap.h>
 #include <vision/dilate.h>
 #include <vision/dither.h>
 #include <vision/erode.h>
+#include <vision/gray.h>
 #include <vision/inrange.h>
 #include <vision/invert.h>
 #include <vision/sepia.h>

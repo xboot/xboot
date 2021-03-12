@@ -247,6 +247,14 @@ static int m_vision_apply(lua_State * L)
 	return 1;
 }
 
+static int m_vision_gray(lua_State * L)
+{
+	struct lvision_t * vison = luaL_checkudata(L, 1, MT_VISION);
+	vision_gray(vison->v);
+	lua_settop(L, 1);
+	return 1;
+}
+
 static int m_vision_sepia(lua_State * L)
 {
 	struct lvision_t * vison = luaL_checkudata(L, 1, MT_VISION);
@@ -277,6 +285,15 @@ static int m_vision_threshold(lua_State * L)
 	int threshold = luaL_optinteger(L, 2, -1);
 	const char * type = luaL_optstring(L, 3, "binary");
 	vision_threshold(vison->v, threshold, type);
+	lua_settop(L, 1);
+	return 1;
+}
+
+static int m_vision_colormap(lua_State * L)
+{
+	struct lvision_t * vison = luaL_checkudata(L, 1, MT_VISION);
+	const char * type = luaL_optstring(L, 2, "parula");
+	vision_colormap(vison->v, type);
 	lua_settop(L, 1);
 	return 1;
 }
@@ -315,10 +332,12 @@ static const luaL_Reg m_vision[] = {
 	{"convert",			m_vision_convert},
 	{"apply",			m_vision_apply},
 
+	{"gray",			m_vision_gray},
 	{"sepia",			m_vision_sepia},
 	{"invert",			m_vision_invert},
 	{"dither",			m_vision_dither},
 	{"threshold",		m_vision_threshold},
+	{"colormap",		m_vision_colormap},
 	{"erode",			m_vision_erode},
 	{"dilate",			m_vision_dilate},
 

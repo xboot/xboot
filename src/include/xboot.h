@@ -84,6 +84,7 @@ extern "C" {
 #include <vision/erode.h>
 #include <vision/inrange.h>
 #include <vision/invert.h>
+#include <vision/sepia.h>
 #include <vision/threshold.h>
 #include <xui/xui.h>
 #include <xui/window.h>

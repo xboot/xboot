@@ -247,6 +247,14 @@ static int m_vision_apply(lua_State * L)
 	return 1;
 }
 
+static int m_vision_sepia(lua_State * L)
+{
+	struct lvision_t * vison = luaL_checkudata(L, 1, MT_VISION);
+	vision_sepia(vison->v);
+	lua_settop(L, 1);
+	return 1;
+}
+
 static int m_vision_invert(lua_State * L)
 {
 	struct lvision_t * vison = luaL_checkudata(L, 1, MT_VISION);
@@ -307,6 +315,7 @@ static const luaL_Reg m_vision[] = {
 	{"convert",			m_vision_convert},
 	{"apply",			m_vision_apply},
 
+	{"sepia",			m_vision_sepia},
 	{"invert",			m_vision_invert},
 	{"dither",			m_vision_dither},
 	{"threshold",		m_vision_threshold},

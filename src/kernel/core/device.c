@@ -183,6 +183,9 @@ static struct kobj_t * search_device_kobj(struct device_t * dev)
 	case DEVICE_TYPE_WATCHDOG:
 		name = "watchdog";
 		break;
+	case DEVICE_TYPE_WIFI:
+		name = "wifi";
+		break;
 	default:
 		return NULL;
 	}

@@ -7,15 +7,21 @@ extern "C" {
 
 #include <xboot.h>
 
+enum wifi_status_t {
+	WIFI_STATUS_DISCONNECTED	= 0,
+	WIFI_STATUS_CONNECTING		= 1,
+	WIFI_STATUS_CONNECTED		= 2,
+};
+
 struct wifi_t
 {
 	char * name;
 
 	bool_t (*join)(struct wifi_t * wifi, const char * ssid, const char * passwd);
-	bool_t (*quit)(struct wifi_t * wifi);
+	bool_t (*exit)(struct wifi_t * wifi);
 	bool_t (*connect)(struct wifi_t * wifi, const char * ip, int port);
 	bool_t (*disconnect)(struct wifi_t * wifi);
-	bool_t (*status)(struct wifi_t * wifi);
+	enum wifi_status_t (*status)(struct wifi_t * wifi);
 	int (*read)(struct wifi_t * wifi, void * buf, int count);
 	int (*write)(struct wifi_t * wifi, void * buf, int count);
 	int (*ioctl)(struct wifi_t * wifi, const char * cmd, void * arg);
@@ -29,10 +35,10 @@ struct device_t * register_wifi(struct wifi_t * wifi, struct driver_t * drv);
 void unregister_wifi(struct wifi_t * wifi);
 
 bool_t wifi_join(struct wifi_t * wifi, const char * ssid, const char * passwd);
-bool_t wifi_quit(struct wifi_t * wifi);
+bool_t wifi_exit(struct wifi_t * wifi);
 bool_t wifi_connect(struct wifi_t * wifi, const char * ip, int port);
 bool_t wifi_disconnect(struct wifi_t * wifi);
-bool_t wifi_status(struct wifi_t * wifi);
+enum wifi_status_t wifi_status(struct wifi_t * wifi);
 int wifi_read(struct wifi_t * wifi, void * buf, int count);
 int wifi_write(struct wifi_t * wifi, void * buf, int count);
 int wifi_ioctl(struct wifi_t * wifi, const char * cmd, void * arg);

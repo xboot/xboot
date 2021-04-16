@@ -32,7 +32,24 @@
 static ssize_t wifi_read_status(struct kobj_t * kobj, void * buf, size_t size)
 {
 	struct wifi_t * wifi = (struct wifi_t *)kobj->priv;
-	return sprintf(buf, "%d", wifi_status(wifi) ? 1 : 0);
+	char * status;
+
+	switch(wifi_status(wifi))
+	{
+	case WIFI_STATUS_DISCONNECTED:
+		status = "disconnected";
+		break;
+	case WIFI_STATUS_CONNECTING:
+		status = "connecting";
+		break;
+	case WIFI_STATUS_CONNECTED:
+		status = "connected";
+		break;
+	default:
+		status = "unkown";
+		break;
+	}
+	return sprintf(buf, "%s", status);
 }
 
 struct wifi_t * search_wifi(const char * name)
@@ -106,10 +123,10 @@ bool_t wifi_join(struct wifi_t * wifi, const char * ssid, const char * passwd)
 	return FALSE;
 }
 
-bool_t wifi_quit(struct wifi_t * wifi)
+bool_t wifi_exit(struct wifi_t * wifi)
 {
-	if(wifi && wifi->quit)
-		return wifi->quit(wifi);
+	if(wifi && wifi->exit)
+		return wifi->exit(wifi);
 	return FALSE;
 }
 
@@ -127,11 +144,11 @@ bool_t wifi_disconnect(struct wifi_t * wifi)
 	return FALSE;
 }
 
-bool_t wifi_status(struct wifi_t * wifi)
+enum wifi_status_t wifi_status(struct wifi_t * wifi)
 {
 	if(wifi && wifi->status)
 		return wifi->status(wifi);
-	return FALSE;
+	return WIFI_STATUS_DISCONNECTED;
 }
 
 int wifi_read(struct wifi_t * wifi, void * buf, int count)

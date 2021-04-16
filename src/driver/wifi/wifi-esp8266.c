@@ -42,6 +42,13 @@ enum recv_state_t {
 	RECV_STATE_N		= 8,
 };
 
+enum at_resp_state_t {
+	AT_RESP_STATE_O	= 0,
+	AT_RESP_STATE_K	= 1,
+	AT_RESP_STATE_R	= 2,
+	AT_RESP_STATE_N	= 3,
+};
+
 struct wifi_esp8266_pdata_t {
 	struct uart_t * uart;
 	int baud;
@@ -49,17 +56,12 @@ struct wifi_esp8266_pdata_t {
 	int parity;
 	int stop;
 
-	enum recv_state_t state;
+	ktime_t time;
+	enum wifi_status_t status;
+	enum recv_state_t rstate;
 	char cbuf[16];
 	int cidx;
 	int count;
-};
-
-enum at_resp_state_t {
-	AT_RESP_STATE_O	= 0,
-	AT_RESP_STATE_K	= 1,
-	AT_RESP_STATE_R	= 2,
-	AT_RESP_STATE_N	= 3,
 };
 
 static int wifi_at_request(struct wifi_esp8266_pdata_t * pdat, const char * cmd, char * resp, int sz, int timeout)
@@ -128,6 +130,7 @@ static bool_t wifi_esp8266_join(struct wifi_t * wifi, const char * ssid, const c
 	char cmd[256];
 	char resp[256];
 
+	pdat->status = WIFI_STATUS_CONNECTING;
 	if(!uart_set(pdat->uart, pdat->baud, pdat->data, pdat->parity, pdat->stop))
 		return FALSE;
 	if(wifi_at_request(pdat, "AT\r\n", resp, sizeof(resp), 100) == 0)
@@ -144,11 +147,12 @@ static bool_t wifi_esp8266_join(struct wifi_t * wifi, const char * ssid, const c
 	return TRUE;
 }
 
-static bool_t wifi_esp8266_quit(struct wifi_t * wifi)
+static bool_t wifi_esp8266_exit(struct wifi_t * wifi)
 {
 	struct wifi_esp8266_pdata_t * pdat = (struct wifi_esp8266_pdata_t *)wifi->priv;
 	char resp[256];
 
+	pdat->status = WIFI_STATUS_DISCONNECTED;
 	if(wifi_at_request(pdat, "AT+CWQAP\r\n", resp, sizeof(resp), 100) == 0)
 		return FALSE;
 	return TRUE;
@@ -160,12 +164,21 @@ static bool_t wifi_esp8266_connect(struct wifi_t * wifi, const char * ip, int po
 	char cmd[256];
 	char resp[256];
 
-	if(wifi_at_request(pdat, "AT+CIPMUX=0\r\n", resp, sizeof(resp), 100) == 0)
-		return FALSE;
-	snprintf(cmd, sizeof(cmd), "AT+CIPSTART=\"%s\",\"%s\",%d\r\n", "TCP", ip, port);
-	if(wifi_at_request(pdat, cmd, resp, sizeof(resp), 2000) == 0)
-		return FALSE;
-	return TRUE;
+	pdat->status = WIFI_STATUS_CONNECTING;
+	if(wifi_at_request(pdat, "AT+CIPMUX=0\r\n", resp, sizeof(resp), 100) > 0)
+	{
+		snprintf(cmd, sizeof(cmd), "AT+CIPSTART=\"%s\",\"%s\",%d\r\n", "TCP", ip, port);
+		if(wifi_at_request(pdat, cmd, resp, sizeof(resp), 5000) > 0)
+		{
+			if((wifi_at_request(pdat, "AT+CIPSTATUS\r\n", resp, sizeof(resp), 100) > 0) && strstr(resp, "STATUS:3\r\n"))
+			{
+				pdat->status = WIFI_STATUS_CONNECTED;
+				return TRUE;
+			}
+		}
+	}
+	pdat->status = WIFI_STATUS_DISCONNECTED;
+	return FALSE;
 }
 
 static bool_t wifi_esp8266_disconnect(struct wifi_t * wifi)
@@ -173,21 +186,28 @@ static bool_t wifi_esp8266_disconnect(struct wifi_t * wifi)
 	struct wifi_esp8266_pdata_t * pdat = (struct wifi_esp8266_pdata_t *)wifi->priv;
 	char resp[256];
 
+	pdat->status = WIFI_STATUS_DISCONNECTED;
 	if(wifi_at_request(pdat, "AT+CIPCLOSE\r\n", resp, sizeof(resp), 100) == 0)
 		return FALSE;
 	return TRUE;
 }
 
-static bool_t wifi_esp8266_status(struct wifi_t * wifi)
+static enum wifi_status_t wifi_esp8266_status(struct wifi_t * wifi)
 {
 	struct wifi_esp8266_pdata_t * pdat = (struct wifi_esp8266_pdata_t *)wifi->priv;
+	ktime_t now = ktime_get();
 	char resp[256];
 
-	if(wifi_at_request(pdat, "AT+CIPSTATUS\r\n", resp, sizeof(resp), 100) == 0)
-		return FALSE;
-	if(!strstr(resp, "STATUS:3\r\n"))
-		return FALSE;
-	return TRUE;
+	if(pdat->status == WIFI_STATUS_CONNECTED)
+	{
+		if(ktime_after(now, ktime_add_ms(pdat->time, 5000)))
+		{
+			if((wifi_at_request(pdat, "AT+CIPSTATUS\r\n", resp, sizeof(resp), 100) == 0) || !strstr(resp, "STATUS:3\r\n"))
+				pdat->status = WIFI_STATUS_DISCONNECTED;
+			pdat->time = now;
+		}
+	}
+	return pdat->status;
 }
 
 static int wifi_esp8266_read(struct wifi_t * wifi, void * buf, int count)
@@ -197,86 +217,89 @@ static int wifi_esp8266_read(struct wifi_t * wifi, void * buf, int count)
 	int len = 0;
 	u8_t c;
 
-	while(count > 0)
+	if(pdat->status == WIFI_STATUS_CONNECTED)
 	{
-		if(uart_read(pdat->uart, &c, 1) == 1)
+		while(count > 0)
 		{
-			switch(pdat->state)
+			if(uart_read(pdat->uart, &c, 1) == 1)
 			{
-			case RECV_STATE_PLUS:
-				if(c == '+')
-					pdat->state = RECV_STATE_I;
-				else
-					pdat->state = RECV_STATE_PLUS;
-				break;
-			case RECV_STATE_I:
-				if(c == 'I')
-					pdat->state = RECV_STATE_P;
-				else
-					pdat->state = RECV_STATE_PLUS;
-				break;
-			case RECV_STATE_P:
-				if(c == 'P')
-					pdat->state = RECV_STATE_D;
-				else
-					pdat->state = RECV_STATE_PLUS;
-				break;
-			case RECV_STATE_D:
-				if(c == 'D')
-					pdat->state = RECV_STATE_COMMA;
-				else
-					pdat->state = RECV_STATE_PLUS;
-				break;
-			case RECV_STATE_COMMA:
-				if(c == ',')
+				switch(pdat->rstate)
 				{
-					pdat->cidx = 0;
-					pdat->state = RECV_STATE_COUNT;
+				case RECV_STATE_PLUS:
+					if(c == '+')
+						pdat->rstate = RECV_STATE_I;
+					else
+						pdat->rstate = RECV_STATE_PLUS;
+					break;
+				case RECV_STATE_I:
+					if(c == 'I')
+						pdat->rstate = RECV_STATE_P;
+					else
+						pdat->rstate = RECV_STATE_PLUS;
+					break;
+				case RECV_STATE_P:
+					if(c == 'P')
+						pdat->rstate = RECV_STATE_D;
+					else
+						pdat->rstate = RECV_STATE_PLUS;
+					break;
+				case RECV_STATE_D:
+					if(c == 'D')
+						pdat->rstate = RECV_STATE_COMMA;
+					else
+						pdat->rstate = RECV_STATE_PLUS;
+					break;
+				case RECV_STATE_COMMA:
+					if(c == ',')
+					{
+						pdat->cidx = 0;
+						pdat->rstate = RECV_STATE_COUNT;
+					}
+					else
+						pdat->rstate = RECV_STATE_PLUS;
+					break;
+				case RECV_STATE_COUNT:
+					if(isdigit(c))
+					{
+						pdat->cbuf[pdat->cidx++] = c;
+					}
+					else if(c == ':')
+					{
+						pdat->cbuf[pdat->cidx++] = '\0';
+						pdat->count = strtoul(pdat->cbuf, NULL, 0);
+						pdat->rstate = RECV_STATE_BYTE;
+					}
+					else
+					{
+						pdat->cidx = 0;
+						pdat->rstate = RECV_STATE_PLUS;
+					}
+					break;
+				case RECV_STATE_BYTE:
+					*p++ = c;
+					len++;
+					count--;
+					pdat->count--;
+					if(pdat->count <= 0)
+						pdat->rstate = RECV_STATE_R;
+					break;
+				case RECV_STATE_R:
+					if(c == '\r')
+						pdat->rstate = RECV_STATE_N;
+					else
+						pdat->rstate = RECV_STATE_PLUS;
+					break;
+				case RECV_STATE_N:
+					pdat->rstate = RECV_STATE_PLUS;
+					break;
+				default:
+					pdat->rstate = RECV_STATE_PLUS;
+					break;
 				}
-				else
-					pdat->state = RECV_STATE_PLUS;
-				break;
-			case RECV_STATE_COUNT:
-				if(isdigit(c))
-				{
-					pdat->cbuf[pdat->cidx++] = c;
-				}
-				else if(c == ':')
-				{
-					pdat->cbuf[pdat->cidx++] = '\0';
-					pdat->count = strtoul(pdat->cbuf, NULL, 0);
-					pdat->state = RECV_STATE_BYTE;
-				}
-				else
-				{
-					pdat->cidx = 0;
-					pdat->state = RECV_STATE_PLUS;
-				}
-				break;
-			case RECV_STATE_BYTE:
-				*p++ = c;
-				len++;
-				count--;
-				pdat->count--;
-				if(pdat->count <= 0)
-					pdat->state = RECV_STATE_R;
-				break;
-			case RECV_STATE_R:
-				if(c == '\r')
-					pdat->state = RECV_STATE_N;
-				else
-					pdat->state = RECV_STATE_PLUS;
-				break;
-			case RECV_STATE_N:
-				pdat->state = RECV_STATE_PLUS;
-				break;
-			default:
-				pdat->state = RECV_STATE_PLUS;
-				break;
 			}
+			else
+				break;
 		}
-		else
-			break;
 	}
 	return len;
 }
@@ -290,23 +313,26 @@ int wifi_esp8266_write(struct wifi_t * wifi, void * buf, int count)
 	int len;
 	u8_t c;
 
-	if(buf && (count > 0))
+	if(pdat->status == WIFI_STATUS_CONNECTED)
 	{
-		len = snprintf(cmd, sizeof(cmd), "AT+CIPSEND=%d\r\n", count);
-		uart_write(pdat->uart, (const u8_t *)cmd, len);
-		time = ktime_add_ms(ktime_get(), 100);
-		do {
-			if((uart_read(pdat->uart, &c, 1) == 1) && (c == '>'))
-			{
-				len = uart_write(pdat->uart, (const u8_t *)buf, count);
-				if(len > 0)
+		if(buf && (count > 0))
+		{
+			len = snprintf(cmd, sizeof(cmd), "AT+CIPSEND=%d\r\n", count);
+			uart_write(pdat->uart, (const u8_t *)cmd, len);
+			time = ktime_add_ms(ktime_get(), 100);
+			do {
+				if((uart_read(pdat->uart, &c, 1) == 1) && (c == '>'))
 				{
-					if(wifi_at_request(pdat, NULL, resp, sizeof(resp), 1000) && strstr(resp, "SEND OK"))
-						return len;
+					len = uart_write(pdat->uart, (const u8_t *)buf, count);
+					if(len > 0)
+					{
+						if(wifi_at_request(pdat, NULL, resp, sizeof(resp), 1000) && strstr(resp, "SEND OK"))
+							return len;
+					}
 				}
-			}
-			task_yield();
-		} while(ktime_before(ktime_get(), time));
+				task_yield();
+			} while(ktime_before(ktime_get(), time));
+		}
 	}
 	return 0;
 }
@@ -343,13 +369,15 @@ static struct device_t * wifi_esp8266_probe(struct driver_t * drv, struct dtnode
 	pdat->data = dt_read_int(n, "data-bits", 8);
 	pdat->parity = dt_read_int(n, "parity-bits", 0);
 	pdat->stop = dt_read_int(n, "stop-bits", 1);
-	pdat->state = RECV_STATE_PLUS;
+	pdat->time = ktime_get();
+	pdat->status = WIFI_STATUS_DISCONNECTED;
+	pdat->rstate = RECV_STATE_PLUS;
 	pdat->cidx = 0;
 	pdat->count = 0;
 
 	wifi->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	wifi->join = wifi_esp8266_join;
-	wifi->quit = wifi_esp8266_quit;
+	wifi->exit = wifi_esp8266_exit;
 	wifi->connect = wifi_esp8266_connect;
 	wifi->disconnect = wifi_esp8266_disconnect;
 	wifi->status = wifi_esp8266_status;

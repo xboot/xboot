@@ -331,6 +331,7 @@ void sandbox_timer_exit(void);
 void sandbox_timer_next(uint64_t time, void (*cb)(void *), void * data);
 uint64_t sandbox_timer_count(void);
 uint64_t sandbox_timer_frequency(void);
+uint64_t sandbox_realtime(void);
 
 /*
  * Uart interface

@@ -997,7 +997,7 @@ void xui_control_draw_text(struct xui_context_t * ctx, const char * utf8, struct
 	th = txt.metrics.height;
 
 	xui_push_clip(ctx, r);
-	switch(opt & (0x7 << 5))
+	switch(opt & (0x7 << 4))
 	{
 	case XUI_OPT_TEXT_LEFT:
 		x = r->x + ctx->style.layout.padding;

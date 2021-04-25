@@ -663,7 +663,7 @@ void xui_draw_gradient(struct xui_context_t * ctx, int x, int y, int w, int h, s
 void xui_draw_checkerboard(struct xui_context_t * ctx, int x, int y, int w, int h);
 void xui_draw_surface(struct xui_context_t * ctx, struct surface_t * s, struct matrix_t * m, int refresh);
 void xui_draw_icon(struct xui_context_t * ctx, const char * family, uint32_t code, int x, int y, int w, int h, struct color_t * c);
-void xui_draw_text(struct xui_context_t * ctx, const char * family, int size, const char * utf8, int x, int y, int wrap, struct color_t * c);
+void xui_draw_text(struct xui_context_t * ctx, int x, int y, struct text_t * txt);
 void xui_draw_text_align(struct xui_context_t * ctx, const char * family, int size, const char * utf8, struct region_t * r, int wrap, struct color_t * c, int opt);
 
 struct xui_container_t * get_container(struct xui_context_t * ctx, unsigned int id, int opt);

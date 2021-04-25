@@ -770,37 +770,26 @@ void xui_draw_icon(struct xui_context_t * ctx, const char * family, uint32_t cod
 	}
 }
 
-void xui_draw_text(struct xui_context_t * ctx, const char * family, int size, const char * utf8, int x, int y, int wrap, struct color_t * c)
+void xui_draw_text(struct xui_context_t * ctx, int x, int y, struct text_t * txt)
 {
 	union xui_cmd_t * cmd;
 	struct region_t region;
-	struct text_t txt;
 	int clip;
 	int len;
 
-	text_init(&txt, utf8, c, wrap, ctx->f, family, size);
-	region_init(&region, x, y, txt.metrics.width, txt.metrics.height);
+	region_init(&region, x, y, txt->metrics.width, txt->metrics.height);
 	if((clip = xui_check_clip(ctx, &region)))
 	{
 		if(clip < 0)
 			xui_cmd_push_clip(ctx, xui_get_clip(ctx));
-		len = strlen(utf8) + 1;
+		len = strlen(txt->utf8) + 1;
 		cmd = xui_cmd_push(ctx, XUI_CMD_TYPE_TEXT, sizeof(struct xui_cmd_text_t) + ((len + 0x3) & ~0x3), &region);
 		cmd->text.x = x;
 		cmd->text.y = y;
-		memcpy(&cmd->text.c, c, sizeof(struct color_t));
-		memcpy(cmd->text.utf8, utf8, len);
+		memcpy(&cmd->text.c, txt->c, sizeof(struct color_t));
+		memcpy(cmd->text.utf8, txt->utf8, len);
 		cmd->text.utf8[len] = 0;
-		cmd->text.txt.utf8 = cmd->text.utf8;
-		cmd->text.txt.c = &cmd->text.c;
-		cmd->text.txt.wrap = wrap;
-		cmd->text.txt.fctx = ctx->f;
-		cmd->text.txt.family = family;
-		cmd->text.txt.size = size;
-		cmd->text.txt.metrics.ox = txt.metrics.ox;
-		cmd->text.txt.metrics.oy = txt.metrics.oy;
-		cmd->text.txt.metrics.width = txt.metrics.width;
-		cmd->text.txt.metrics.height = txt.metrics.height;
+		memcpy(&cmd->text.txt, txt, sizeof(struct text_t));
 		if(clip < 0)
 			xui_cmd_push_clip(ctx, &unlimited_region);
 	}

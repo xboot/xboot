@@ -92,7 +92,8 @@ void xui_badge_ex(struct xui_context_t * ctx, const char * label, int opt)
 		if(bg->a)
 		{
 			xui_draw_rectangle(ctx, x, y, w, h, radius, ctx->style.badge.outline_width, bg);
-			xui_draw_text(ctx, family, size, label, x + (w - txt.metrics.width) / 2, y + (h - txt.metrics.height) / 2, 0, bg);
+			text_set_color(&txt, bg);
+			xui_draw_text(ctx, x + (w - txt.metrics.width) / 2, y + (h - txt.metrics.height) / 2, &txt);
 		}
 	}
 	else
@@ -102,7 +103,10 @@ void xui_badge_ex(struct xui_context_t * ctx, const char * label, int opt)
 		if(bg->a)
 			xui_draw_rectangle(ctx, x, y, w, h, radius, 0, bg);
 		if(fg->a)
-			xui_draw_text(ctx, family, size, label, x + (w - txt.metrics.width) / 2, y + (h - txt.metrics.height) / 2, 0, fg);
+		{
+			text_set_color(&txt, fg);
+			xui_draw_text(ctx, x + (w - txt.metrics.width) / 2, y + (h - txt.metrics.height) / 2, &txt);
+		}
 	}
 	xui_pop_clip(ctx);
 }

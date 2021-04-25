@@ -112,7 +112,7 @@ int xui_textedit_ex(struct xui_context_t * ctx, char * buf, int size, int opt)
 			int textx = r->x + min(ofx, ctx->style.layout.padding);
 			int texty = r->y + (r->h - texth) / 2;
 			xui_push_clip(ctx, r);
-			xui_draw_text(ctx, family, size, buf, textx, texty, 0, fg);
+			xui_draw_text(ctx, textx, texty, &txt);
 			xui_draw_rectangle(ctx, textx + textw, r->y, 2, r->h, 0, 0, fg);
 			xui_pop_clip(ctx);
 		}

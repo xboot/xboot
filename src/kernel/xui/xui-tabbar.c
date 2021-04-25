@@ -112,7 +112,7 @@ int xui_tabbar_ex(struct xui_context_t * ctx, int icon, const char * label, int 
 			r.w -= r.h - ctx->style.layout.padding;
 		}
 		if(label)
-			xui_control_draw_text(ctx, label, &r, fg, opt);
+			xui_draw_text_align(ctx, ctx->style.font.font_family, ctx->style.font.size, label, &r, 0, fg, opt);
 	}
 	return click;
 }

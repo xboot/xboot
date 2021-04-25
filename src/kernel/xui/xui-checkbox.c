@@ -110,7 +110,7 @@ int xui_checkbox_ex(struct xui_context_t * ctx, const char * label, int * state,
 	if(label && fg->a)
 	{
 		region_init(&region, r->x + r->h, r->y, r->w - r->h, r->h);
-		xui_control_draw_text(ctx, label, &region, &ctx->style.font.color, opt);
+		xui_draw_text_align(ctx, ctx->style.font.font_family, ctx->style.font.size, label, &region, 0, &ctx->style.font.color, opt);
 	}
 	return click;
 }

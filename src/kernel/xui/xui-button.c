@@ -91,10 +91,10 @@ int xui_button_ex(struct xui_context_t * ctx, int icon, const char * label, int 
 				xui_draw_icon(ctx, ctx->style.font.icon_family, icon, r.x, r.y, r.h, r.h, fg);
 				r.x += r.h - ctx->style.layout.padding;
 				r.w -= r.h - ctx->style.layout.padding;
-				xui_control_draw_text(ctx, label, &r, fg, opt);
+				xui_draw_text_align(ctx, ctx->style.font.font_family, ctx->style.font.size, label, &r, 0, fg, opt);
 			}
 			else if(label)
-				xui_control_draw_text(ctx, label, &r, fg, opt);
+				xui_draw_text_align(ctx, ctx->style.font.font_family, ctx->style.font.size, label, &r, 0, fg, opt);
 			else
 				xui_draw_icon(ctx, ctx->style.font.icon_family, icon, r.x, r.y, r.w, r.h, fg);
 		}
@@ -117,10 +117,10 @@ int xui_button_ex(struct xui_context_t * ctx, int icon, const char * label, int 
 				xui_draw_icon(ctx, ctx->style.font.icon_family, icon, r.x, r.y, r.h, r.h, fg);
 				r.x += r.h - ctx->style.layout.padding;
 				r.w -= r.h - ctx->style.layout.padding;
-				xui_control_draw_text(ctx, label, &r, fg, opt);
+				xui_draw_text_align(ctx, ctx->style.font.font_family, ctx->style.font.size, label, &r, 0, fg, opt);
 			}
 			else if(label)
-				xui_control_draw_text(ctx, label, &r, fg, opt);
+				xui_draw_text_align(ctx, ctx->style.font.font_family, ctx->style.font.size, label, &r, 0, fg, opt);
 			else
 				xui_draw_icon(ctx, ctx->style.font.icon_family, icon, r.x, r.y, r.w, r.h, fg);
 		}
@@ -140,10 +140,10 @@ int xui_button_ex(struct xui_context_t * ctx, int icon, const char * label, int 
 					xui_draw_icon(ctx, ctx->style.font.icon_family, icon, r.x, r.y, r.h, r.h, bg);
 					r.x += r.h - ctx->style.layout.padding;
 					r.w -= r.h - ctx->style.layout.padding;
-					xui_control_draw_text(ctx, label, &r, bg, opt);
+					xui_draw_text_align(ctx, ctx->style.font.font_family, ctx->style.font.size, label, &r, 0, bg, opt);
 				}
 				else if(label)
-					xui_control_draw_text(ctx, label, &r, bg, opt);
+					xui_draw_text_align(ctx, ctx->style.font.font_family, ctx->style.font.size, label, &r, 0, bg, opt);
 				else
 					xui_draw_icon(ctx, ctx->style.font.icon_family, icon, r.x, r.y, r.w, r.h, bg);
 			}
@@ -161,10 +161,10 @@ int xui_button_ex(struct xui_context_t * ctx, int icon, const char * label, int 
 					xui_draw_icon(ctx, ctx->style.font.icon_family, icon, r.x, r.y, r.h, r.h, fg);
 					r.x += r.h - ctx->style.layout.padding;
 					r.w -= r.h - ctx->style.layout.padding;
-					xui_control_draw_text(ctx, label, &r, fg, opt);
+					xui_draw_text_align(ctx, ctx->style.font.font_family, ctx->style.font.size, label, &r, 0, fg, opt);
 				}
 				else if(label)
-					xui_control_draw_text(ctx, label, &r, fg, opt);
+					xui_draw_text_align(ctx, ctx->style.font.font_family, ctx->style.font.size, label, &r, 0, fg, opt);
 				else
 					xui_draw_icon(ctx, ctx->style.font.icon_family, icon, r.x, r.y, r.w, r.h, fg);
 			}

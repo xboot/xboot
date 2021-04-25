@@ -272,23 +272,23 @@ static void pcba_window(struct xui_context_t * ctx)
 						{
 						case 0:
 							xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, 8, 0, &(struct color_t){255, 0, 0, 255});
-							xui_control_draw_text(ctx, T("RED"), r, &(struct color_t){255, 255, 255, 255}, XUI_OPT_TEXT_CENTER);
+							xui_draw_text_align(ctx, NULL, 0, T("RED"), r, 0, &(struct color_t){255, 255, 255, 255}, XUI_OPT_TEXT_CENTER);
 							break;
 						case 1:
 							xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, 8, 0, &(struct color_t){0, 255, 0, 255});
-							xui_control_draw_text(ctx, T("GREEN"), r, &(struct color_t){255, 255, 255, 255}, XUI_OPT_TEXT_CENTER);
+							xui_draw_text_align(ctx, NULL, 0, T("GREEN"), r, 0, &(struct color_t){255, 255, 255, 255}, XUI_OPT_TEXT_CENTER);
 							break;
 						case 2:
 							xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, 8, 0, &(struct color_t){0, 0, 255, 255});
-							xui_control_draw_text(ctx, T("BLUE"), r, &(struct color_t){255, 255, 255, 255}, XUI_OPT_TEXT_CENTER);
+							xui_draw_text_align(ctx, NULL, 0, T("BLUE"), r, 0, &(struct color_t){255, 255, 255, 255}, XUI_OPT_TEXT_CENTER);
 							break;
 						case 3:
 							xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, 8, 0, &(struct color_t){255, 255, 255, 255});
-							xui_control_draw_text(ctx, T("WHITE"), r, &(struct color_t){0, 0, 0, 255}, XUI_OPT_TEXT_CENTER);
+							xui_draw_text_align(ctx, NULL, 0, T("WHITE"), r, 0, &(struct color_t){0, 0, 0, 255}, XUI_OPT_TEXT_CENTER);
 							break;
 						case 4:
 							xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, 8, 0, &(struct color_t){0, 0, 0, 255});
-							xui_control_draw_text(ctx, T("BLACK"), r, &(struct color_t){255, 255, 255, 255}, XUI_OPT_TEXT_CENTER);
+							xui_draw_text_align(ctx, NULL, 0, T("BLACK"), r, 0, &(struct color_t){255, 255, 255, 255}, XUI_OPT_TEXT_CENTER);
 							break;
 						default:
 							break;

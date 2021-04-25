@@ -66,7 +66,7 @@ int xui_begin_window_ex(struct xui_context_t * ctx, const char * title, struct r
 				region_init(&hdr, hr.x, hr.y, hr.w - hcr.w, hr.h);
 				id = xui_get_id(ctx, "!title", 6);
 				xui_draw_rectangle(ctx, hr.x, hr.y, hr.w, hr.h, (0xc << 16) | ctx->style.window.border_radius, 0, &ctx->style.window.title_color);
-				xui_control_draw_text(ctx, title, &hdr, &ctx->style.window.text_color, opt);
+				xui_draw_text_align(ctx, ctx->style.font.font_family, ctx->style.font.size, title, &hdr, 0, &ctx->style.window.text_color, opt);
 				xui_control_update(ctx, id, &hdr, opt);
 				if((ctx->active == id) && (ctx->mouse.state & XUI_MOUSE_LEFT))
 				{

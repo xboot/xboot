@@ -127,7 +127,7 @@ int xui_textedit_ex(struct xui_context_t * ctx, char * buf, int size, int opt)
 		if(bg->a)
 			xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, radius, 0, bg);
 		if(fg->a)
-			xui_control_draw_text(ctx, buf, r, fg, opt);
+			xui_draw_text_align(ctx, ctx->style.font.font_family, ctx->style.font.size, buf, r, 0, fg, opt);
 	}
 	else
 	{
@@ -139,7 +139,7 @@ int xui_textedit_ex(struct xui_context_t * ctx, char * buf, int size, int opt)
 			if(bg->a)
 			{
 				xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, radius, ctx->style.textedit.outline_width, bg);
-				xui_control_draw_text(ctx, buf, r, bg, opt);
+				xui_draw_text_align(ctx, ctx->style.font.font_family, ctx->style.font.size, buf, r, 0, bg, opt);
 			}
 		}
 		else
@@ -149,7 +149,7 @@ int xui_textedit_ex(struct xui_context_t * ctx, char * buf, int size, int opt)
 			if(bg->a)
 				xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, radius, 0, bg);
 			if(fg->a)
-				xui_control_draw_text(ctx, buf, r, fg, opt);
+				xui_draw_text_align(ctx, ctx->style.font.font_family, ctx->style.font.size, buf, r, 0, fg, opt);
 		}
 	}
 	return change;

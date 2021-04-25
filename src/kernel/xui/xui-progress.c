@@ -87,6 +87,6 @@ void xui_progress_ex(struct xui_context_t * ctx, int percent, int opt)
 		if(bg->a)
 			xui_draw_rectangle(ctx, region.x, region.y, region.w, region.h, (0x6 << 16) | radius, 0, bg);
 		if(fg->a && (region.h >= ctx->style.font.size))
-			xui_control_draw_text(ctx, xui_format(ctx, "%d%%", percent), &region, fg, XUI_OPT_TEXT_CENTER);
+			xui_draw_text_align(ctx, ctx->style.font.font_family, ctx->style.font.size, xui_format(ctx, "%d%%", percent), &region, 0, fg, XUI_OPT_TEXT_CENTER);
 	}
 }

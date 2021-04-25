@@ -83,6 +83,6 @@ void xui_radialbar_ex(struct xui_context_t * ctx, int percent, int opt)
 		if(bg->a)
 			xui_draw_arc(ctx, x, y, radius, 270, 360 * percent / 100 + 270, width, bg);
 		if(fg->a && (region.h >= ctx->style.font.size))
-			xui_control_draw_text(ctx, xui_format(ctx, "%d%%", percent), &region, fg, XUI_OPT_TEXT_CENTER);
+			xui_draw_text_align(ctx, ctx->style.font.font_family, ctx->style.font.size, xui_format(ctx, "%d%%", percent), &region, 0, fg, XUI_OPT_TEXT_CENTER);
 	}
 }

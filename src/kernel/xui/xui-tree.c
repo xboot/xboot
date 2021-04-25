@@ -103,7 +103,7 @@ int xui_begin_tree_ex(struct xui_context_t * ctx, const char * label, int opt)
 			r.x += r.h - ctx->style.layout.padding;
 			r.w -= r.h - ctx->style.layout.padding;
 			if(label)
-				xui_control_draw_text(ctx, label, &r, fg, opt);
+				xui_draw_text_align(ctx, ctx->style.font.font_family, ctx->style.font.size, label, &r, 0, fg, opt);
 		}
 	}
 	else if(ctx->hover == id)
@@ -121,7 +121,7 @@ int xui_begin_tree_ex(struct xui_context_t * ctx, const char * label, int opt)
 			r.x += r.h - ctx->style.layout.padding;
 			r.w -= r.h - ctx->style.layout.padding;
 			if(label)
-				xui_control_draw_text(ctx, label, &r, fg, opt);
+				xui_draw_text_align(ctx, ctx->style.font.font_family, ctx->style.font.size, label, &r, 0, fg, opt);
 		}
 	}
 	else
@@ -135,7 +135,7 @@ int xui_begin_tree_ex(struct xui_context_t * ctx, const char * label, int opt)
 			r.x += r.h - ctx->style.layout.padding;
 			r.w -= r.h - ctx->style.layout.padding;
 			if(label)
-				xui_control_draw_text(ctx, label, &r, bg, opt);
+				xui_draw_text_align(ctx, ctx->style.font.font_family, ctx->style.font.size, label, &r, 0, bg, opt);
 		}
 	}
 	if(expanded)

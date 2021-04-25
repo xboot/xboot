@@ -86,8 +86,8 @@ enum xui_cmd_type_t {
 	XUI_CMD_TYPE_GRADIENT			= 12,
 	XUI_CMD_TYPE_CHECKERBOARD		= 13,
 	XUI_CMD_TYPE_SURFACE			= 14,
-	XUI_CMD_TYPE_TEXT				= 15,
-	XUI_CMD_TYPE_ICON				= 16,
+	XUI_CMD_TYPE_ICON				= 15,
+	XUI_CMD_TYPE_TEXT				= 16,
 };
 
 struct xui_cmd_base_t {
@@ -240,6 +240,17 @@ struct xui_cmd_surface_t {
 	int refresh;
 };
 
+struct xui_cmd_icon_t {
+	enum xui_cmd_type_t type;
+	int len;
+	struct region_t r;
+
+	const char * family;
+	uint32_t code;
+	int x, y, w, h;
+	struct color_t c;
+};
+
 struct xui_cmd_text_t {
 	enum xui_cmd_type_t type;
 	int len;
@@ -251,17 +262,6 @@ struct xui_cmd_text_t {
 	int wrap;
 	struct color_t c;
 	char utf8[1];
-};
-
-struct xui_cmd_icon_t {
-	enum xui_cmd_type_t type;
-	int len;
-	struct region_t r;
-
-	const char * family;
-	uint32_t code;
-	int x, y, w, h;
-	struct color_t c;
 };
 
 union xui_cmd_t {
@@ -280,8 +280,8 @@ union xui_cmd_t {
 	struct xui_cmd_gradient_t gradient;
 	struct xui_cmd_checkerboard_t board;
 	struct xui_cmd_surface_t surface;
-	struct xui_cmd_text_t text;
 	struct xui_cmd_icon_t icon;
+	struct xui_cmd_text_t text;
 };
 
 struct xui_pool_item_t {
@@ -664,8 +664,8 @@ void xui_draw_arc(struct xui_context_t * ctx, int x, int y, int radius, int a1, 
 void xui_draw_gradient(struct xui_context_t * ctx, int x, int y, int w, int h, struct color_t * lt, struct color_t * rt, struct color_t * rb, struct color_t * lb);
 void xui_draw_checkerboard(struct xui_context_t * ctx, int x, int y, int w, int h);
 void xui_draw_surface(struct xui_context_t * ctx, struct surface_t * s, struct matrix_t * m, int refresh);
-void xui_draw_text(struct xui_context_t * ctx, const char * family, int size, const char * utf8, int x, int y, int wrap, struct color_t * c);
 void xui_draw_icon(struct xui_context_t * ctx, const char * family, uint32_t code, int x, int y, int w, int h, struct color_t * c);
+void xui_draw_text(struct xui_context_t * ctx, const char * family, int size, const char * utf8, int x, int y, int wrap, struct color_t * c);
 
 struct xui_container_t * get_container(struct xui_context_t * ctx, unsigned int id, int opt);
 void push_container_body(struct xui_context_t * ctx, struct xui_container_t * c, struct region_t * body, int opt);

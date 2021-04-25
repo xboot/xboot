@@ -746,6 +746,30 @@ void xui_draw_surface(struct xui_context_t * ctx, struct surface_t * s, struct m
 	}
 }
 
+void xui_draw_icon(struct xui_context_t * ctx, const char * family, uint32_t code, int x, int y, int w, int h, struct color_t * c)
+{
+	union xui_cmd_t * cmd;
+	struct region_t r;
+	int clip;
+
+	region_init(&r, x, y, w, h);
+	if((clip = xui_check_clip(ctx, &r)))
+	{
+		if(clip < 0)
+			xui_cmd_push_clip(ctx, xui_get_clip(ctx));
+		cmd = xui_cmd_push(ctx, XUI_CMD_TYPE_ICON, sizeof(struct xui_cmd_icon_t), &r);
+		cmd->icon.family = family;
+		cmd->icon.code = code;
+		cmd->icon.x = x;
+		cmd->icon.y = y;
+		cmd->icon.w = w;
+		cmd->icon.h = h;
+		memcpy(&cmd->icon.c, c, sizeof(struct color_t));
+		if(clip < 0)
+			xui_cmd_push_clip(ctx, &unlimited_region);
+	}
+}
+
 void xui_draw_text(struct xui_context_t * ctx, const char * family, int size, const char * utf8, int x, int y, int wrap, struct color_t * c)
 {
 	union xui_cmd_t * cmd;
@@ -770,30 +794,6 @@ void xui_draw_text(struct xui_context_t * ctx, const char * family, int size, co
 		memcpy(&cmd->text.c, c, sizeof(struct color_t));
 		memcpy(cmd->text.utf8, utf8, len);
 		cmd->text.utf8[len] = 0;
-		if(clip < 0)
-			xui_cmd_push_clip(ctx, &unlimited_region);
-	}
-}
-
-void xui_draw_icon(struct xui_context_t * ctx, const char * family, uint32_t code, int x, int y, int w, int h, struct color_t * c)
-{
-	union xui_cmd_t * cmd;
-	struct region_t r;
-	int clip;
-
-	region_init(&r, x, y, w, h);
-	if((clip = xui_check_clip(ctx, &r)))
-	{
-		if(clip < 0)
-			xui_cmd_push_clip(ctx, xui_get_clip(ctx));
-		cmd = xui_cmd_push(ctx, XUI_CMD_TYPE_ICON, sizeof(struct xui_cmd_icon_t), &r);
-		cmd->icon.family = family;
-		cmd->icon.code = code;
-		cmd->icon.x = x;
-		cmd->icon.y = y;
-		cmd->icon.w = w;
-		cmd->icon.h = h;
-		memcpy(&cmd->icon.c, c, sizeof(struct color_t));
 		if(clip < 0)
 			xui_cmd_push_clip(ctx, &unlimited_region);
 	}
@@ -1671,16 +1671,16 @@ static void xui_draw(struct window_t * w, void * o)
 				case XUI_CMD_TYPE_SURFACE:
 					surface_blit(s, clip, &cmd->surface.m, cmd->surface.s, RENDER_TYPE_GOOD);
 					break;
-				case XUI_CMD_TYPE_TEXT:
-					text_init(&txt, cmd->text.utf8, &cmd->text.c, cmd->text.wrap, ctx->f, cmd->text.family, cmd->text.size);
-					matrix_init_translate(&m, cmd->text.x, cmd->text.y);
-					surface_text(s, clip, &m, &txt);
-					break;
 				case XUI_CMD_TYPE_ICON:
 					size = min(cmd->icon.w, cmd->icon.h);
 					icon_init(&ico, cmd->icon.code, &cmd->icon.c, ctx->f, cmd->icon.family, size);
 					matrix_init_translate(&m, cmd->icon.x + (cmd->icon.w - size) / 2, cmd->icon.y + (cmd->icon.h - size) / 2);
 					surface_icon(s, clip, &m, &ico);
+					break;
+				case XUI_CMD_TYPE_TEXT:
+					text_init(&txt, cmd->text.utf8, &cmd->text.c, cmd->text.wrap, ctx->f, cmd->text.family, cmd->text.size);
+					matrix_init_translate(&m, cmd->text.x, cmd->text.y);
+					surface_text(s, clip, &m, &txt);
 					break;
 				default:
 					break;

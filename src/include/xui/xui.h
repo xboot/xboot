@@ -256,11 +256,9 @@ struct xui_cmd_text_t {
 	int len;
 	struct region_t r;
 
-	const char * family;
-	int size;
 	int x, y;
-	int wrap;
 	struct color_t c;
+	struct text_t txt;
 	char utf8[1];
 };
 

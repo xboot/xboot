@@ -773,27 +773,34 @@ void xui_draw_icon(struct xui_context_t * ctx, const char * family, uint32_t cod
 void xui_draw_text(struct xui_context_t * ctx, const char * family, int size, const char * utf8, int x, int y, int wrap, struct color_t * c)
 {
 	union xui_cmd_t * cmd;
+	struct region_t region;
 	struct text_t txt;
-	struct region_t r;
-	int len;
 	int clip;
+	int len;
 
 	text_init(&txt, utf8, c, wrap, ctx->f, family, size);
-	region_init(&r, x, y, txt.metrics.width, txt.metrics.height);
-	if((clip = xui_check_clip(ctx, &r)))
+	region_init(&region, x, y, txt.metrics.width, txt.metrics.height);
+	if((clip = xui_check_clip(ctx, &region)))
 	{
 		if(clip < 0)
 			xui_cmd_push_clip(ctx, xui_get_clip(ctx));
 		len = strlen(utf8) + 1;
-		cmd = xui_cmd_push(ctx, XUI_CMD_TYPE_TEXT, sizeof(struct xui_cmd_text_t) + ((len + 0x3) & ~0x3), &r);
-		cmd->text.family = family;
-		cmd->text.size = size;
+		cmd = xui_cmd_push(ctx, XUI_CMD_TYPE_TEXT, sizeof(struct xui_cmd_text_t) + ((len + 0x3) & ~0x3), &region);
 		cmd->text.x = x;
 		cmd->text.y = y;
-		cmd->text.wrap = wrap;
 		memcpy(&cmd->text.c, c, sizeof(struct color_t));
 		memcpy(cmd->text.utf8, utf8, len);
 		cmd->text.utf8[len] = 0;
+		cmd->text.txt.utf8 = cmd->text.utf8;
+		cmd->text.txt.c = &cmd->text.c;
+		cmd->text.txt.wrap = wrap;
+		cmd->text.txt.fctx = ctx->f;
+		cmd->text.txt.family = family;
+		cmd->text.txt.size = size;
+		cmd->text.txt.metrics.ox = txt.metrics.ox;
+		cmd->text.txt.metrics.oy = txt.metrics.oy;
+		cmd->text.txt.metrics.width = txt.metrics.width;
+		cmd->text.txt.metrics.height = txt.metrics.height;
 		if(clip < 0)
 			xui_cmd_push_clip(ctx, &unlimited_region);
 	}
@@ -801,9 +808,12 @@ void xui_draw_text(struct xui_context_t * ctx, const char * family, int size, co
 
 void xui_draw_text_align(struct xui_context_t * ctx, const char * family, int size, const char * utf8, struct region_t * r, int wrap, struct color_t * c, int opt)
 {
+	union xui_cmd_t * cmd;
+	struct region_t region;
 	struct text_t txt;
-	int tw, th;
-	int x, y;
+	int x, y, w, h;
+	int clip;
+	int len;
 
 	if(!family)
 		family = ctx->style.font.font_family;
@@ -812,37 +822,61 @@ void xui_draw_text_align(struct xui_context_t * ctx, const char * family, int si
 	if(!c)
 		c = &ctx->style.font.color;
 	text_init(&txt, utf8, c, wrap, ctx->f, family, size);
-	tw = txt.metrics.width;
-	th = txt.metrics.height;
-	xui_push_clip(ctx, r);
+	w = txt.metrics.width;
+	h = txt.metrics.height;
 	switch(opt & (0x7 << 4))
 	{
 	case XUI_OPT_TEXT_LEFT:
 		x = r->x + ctx->style.layout.padding;
-		y = r->y + (r->h - th) / 2;
+		y = r->y + (r->h - h) / 2;
 		break;
 	case XUI_OPT_TEXT_RIGHT:
-		x = r->x + r->w - tw - ctx->style.layout.padding;
-		y = r->y + (r->h - th) / 2;
+		x = r->x + r->w - w - ctx->style.layout.padding;
+		y = r->y + (r->h - h) / 2;
 		break;
 	case XUI_OPT_TEXT_TOP:
-		x = r->x + (r->w - tw) / 2;
+		x = r->x + (r->w - w) / 2;
 		y = r->y + ctx->style.layout.padding;
 		break;
 	case XUI_OPT_TEXT_BOTTOM:
-		x = r->x + (r->w - tw) / 2;
-		y = r->y + r->h - th - ctx->style.layout.padding;
+		x = r->x + (r->w - w) / 2;
+		y = r->y + r->h - h - ctx->style.layout.padding;
 		break;
 	case XUI_OPT_TEXT_CENTER:
-		x = r->x + (r->w - tw) / 2;
-		y = r->y + (r->h - th) / 2;
+		x = r->x + (r->w - w) / 2;
+		y = r->y + (r->h - h) / 2;
 		break;
 	default:
 		x = r->x + ctx->style.layout.padding;
-		y = r->y + (r->h - th) / 2;
+		y = r->y + (r->h - h) / 2;
 		break;
 	}
-	xui_draw_text(ctx, family, size, utf8, x, y, wrap, c);
+	region_init(&region, x, y, w, h);
+	xui_push_clip(ctx, r);
+	if((clip = xui_check_clip(ctx, &region)))
+	{
+		if(clip < 0)
+			xui_cmd_push_clip(ctx, xui_get_clip(ctx));
+		len = strlen(utf8) + 1;
+		cmd = xui_cmd_push(ctx, XUI_CMD_TYPE_TEXT, sizeof(struct xui_cmd_text_t) + ((len + 0x3) & ~0x3), &region);
+		cmd->text.x = x;
+		cmd->text.y = y;
+		memcpy(&cmd->text.c, c, sizeof(struct color_t));
+		memcpy(cmd->text.utf8, utf8, len);
+		cmd->text.utf8[len] = 0;
+		cmd->text.txt.utf8 = cmd->text.utf8;
+		cmd->text.txt.c = &cmd->text.c;
+		cmd->text.txt.wrap = wrap;
+		cmd->text.txt.fctx = ctx->f;
+		cmd->text.txt.family = family;
+		cmd->text.txt.size = size;
+		cmd->text.txt.metrics.ox = txt.metrics.ox;
+		cmd->text.txt.metrics.oy = txt.metrics.oy;
+		cmd->text.txt.metrics.width = txt.metrics.width;
+		cmd->text.txt.metrics.height = txt.metrics.height;
+		if(clip < 0)
+			xui_cmd_push_clip(ctx, &unlimited_region);
+	}
 	xui_pop_clip(ctx);
 }
 
@@ -1618,7 +1652,6 @@ static void xui_draw(struct window_t * w, void * o)
 	struct region_t * r, * clip = &ctx->clip;
 	union xui_cmd_t * cmd;
 	struct matrix_t m;
-	struct text_t txt;
 	struct icon_t ico;
 	int count, size;
 	int i;
@@ -1681,9 +1714,8 @@ static void xui_draw(struct window_t * w, void * o)
 					surface_icon(s, clip, &m, &ico);
 					break;
 				case XUI_CMD_TYPE_TEXT:
-					text_init(&txt, cmd->text.utf8, &cmd->text.c, cmd->text.wrap, ctx->f, cmd->text.family, cmd->text.size);
 					matrix_init_translate(&m, cmd->text.x, cmd->text.y);
-					surface_text(s, clip, &m, &txt);
+					surface_text(s, clip, &m, &cmd->text.txt);
 					break;
 				default:
 					break;

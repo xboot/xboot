@@ -7,7 +7,7 @@
 #include <clocksource/clocksource.h>
 #include <xboot/module.h>
 
-static inline uint32_t rtc_time_to_second(struct rtc_time_t * rt)
+static inline uint32_t rtc_time_to_secs(struct rtc_time_t * rt)
 {
 	int month = rt->month, year = rt->year;
 
@@ -22,7 +22,7 @@ static inline uint32_t rtc_time_to_second(struct rtc_time_t * rt)
 int gettimeofday(struct timeval * tv, void * tz)
 {
 	static ktime_t old = { -30000000000LL };
-	static int64_t offset = 0;
+	static int64_t adjust = 0;
 
 	if(!tv)
 		return -1;
@@ -32,10 +32,10 @@ int gettimeofday(struct timeval * tv, void * tz)
 		struct rtc_t * rtc = search_first_rtc();
 		struct rtc_time_t t;
 		if(rtc && rtc_gettime(rtc, &t))
-			offset = (int64_t)rtc_time_to_second(&t) * 1000000000ULL - ktime_to_ns(now);
+			adjust = (int64_t)rtc_time_to_secs(&t) * 1000000000ULL - ktime_to_ns(now);
 		old = now;
 	}
-	int64_t ns = ktime_to_ns(now) + offset;
+	int64_t ns = ktime_to_ns(now) + adjust;
 	tv->tv_sec = ns / 1000000000ULL;
 	tv->tv_usec = (ns % 1000000000ULL) / 1000;
 	return 0;

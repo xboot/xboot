@@ -135,11 +135,11 @@ static bool_t wifi_esp8266_join(struct wifi_t * wifi, const char * ssid, const c
 		return FALSE;
 	if(wifi_at_request(pdat, "AT\r\n", resp, sizeof(resp), 100) == 0)
 		return FALSE;
-	if(wifi_at_request(pdat, "AT+CWMODE_DEF=1\r\n", resp, sizeof(resp), 100) == 0)
+	if(wifi_at_request(pdat, "AT+CWMODE=1\r\n", resp, sizeof(resp), 100) == 0)
 		return FALSE;
 	if(wifi_at_request(pdat, "AT+CWAUTOCONN=1\r\n", resp, sizeof(resp), 100) == 0)
 		return FALSE;
-	snprintf(cmd, sizeof(cmd), "AT+CWJAP_DEF=\"%s\",\"%s\"\r\n", ssid, passwd);
+	snprintf(cmd, sizeof(cmd), "AT+CWJAP=\"%s\",\"%s\"\r\n", ssid, passwd);
 	if(wifi_at_request(pdat, cmd, resp, sizeof(resp), 10000) == 0)
 		return FALSE;
 	if(!strstr(resp, "WIFI GOT IP"))

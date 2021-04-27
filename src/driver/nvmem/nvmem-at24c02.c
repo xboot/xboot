@@ -101,6 +101,7 @@ static int nvmem_at24c02_write(struct nvmem_t * m, void * buf, int offset, int c
 	{
 		if(!at24c02_write_byte(pdat->dev, offset + i, &p[i]))
 			break;
+		mdelay(5);
 	}
 	return i;
 }

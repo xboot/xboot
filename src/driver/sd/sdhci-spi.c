@@ -1,5 +1,5 @@
 /*
- * driver/sdhci-spi.c
+ * driver/sd/sdhci-spi.c
  *
  * Copyright(c) 2007-2021 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org

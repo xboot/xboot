@@ -60,8 +60,7 @@ static ssize_t rtc_time_read(struct kobj_t * kobj, void * buf, size_t size)
 
 	if(rtc && rtc->gettime)
 		rtc->gettime(rtc, &time);
-
-	return sprintf(buf, "%04u-%02u-%02u %01u %02u:%02u:%02u", (u32_t)time.year, (u32_t)time.month, (u32_t)time.day, (u32_t)time.week, (u32_t)time.hour, (u32_t)time.minute, (u32_t)time.second);
+	return sprintf(buf, "%04u-%02u-%02u %02u:%02u:%02u %01u", (u32_t)time.year, (u32_t)time.month, (u32_t)time.day, (u32_t)time.hour, (u32_t)time.minute, (u32_t)time.second, (u32_t)time.week);
 }
 
 static ssize_t rtc_time_write(struct kobj_t * kobj, void * buf, size_t size)
@@ -69,12 +68,11 @@ static ssize_t rtc_time_write(struct kobj_t * kobj, void * buf, size_t size)
 	struct rtc_t * rtc = (struct rtc_t *)kobj->priv;
 	struct rtc_time_t time;
 
-	if(sscanf(buf, "%04u-%02u-%02u %01u %02u:%02u:%02u", &time.year, &time.month, &time.day, &time.week, &time.hour, &time.minute, &time.second) == 7)
+	if(sscanf(buf, "%04u-%02u-%02u %02u:%02u:%02u %01u", &time.year, &time.month, &time.day, &time.hour, &time.minute, &time.second, &time.week) == 7)
 	{
 		if(rtc && rtc->settime)
 			rtc->settime(rtc, &time);
 	}
-
 	return size;
 }
 

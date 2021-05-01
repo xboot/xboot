@@ -26,7 +26,7 @@ extern "C" {
 #define XUI_TREE_POOL_SIZE			(128)
 #define XUI_MAX_WIDTHS				(32)
 
-#define T(str)						xui_translate(ctx, (str))
+#define T(s)						xui_translate(ctx, (s))
 
 #define xui_push(stk, val)			do { assert((stk).idx < (int)(sizeof((stk).items) / sizeof(*(stk).items))); (stk).items[(stk).idx] = (val); (stk).idx++; } while(0)
 #define xui_pop(stk)				do { assert((stk).idx > 0); (stk).idx--; } while(0)
@@ -471,7 +471,7 @@ struct xui_context_t {
 	 */
 	struct window_t * w;
 	struct font_context_t * f;
-	struct hmap_t * m;
+	struct hmap_t * lang;
 	struct region_t screen;
 	unsigned int cpshift;
 	unsigned int cpsize;
@@ -632,8 +632,8 @@ static inline struct xui_container_t * xui_get_container(struct xui_context_t * 
 static inline const char * xui_translate(struct xui_context_t * ctx, const char * s)
 {
 	const char * v = NULL;
-	if(ctx->m)
-		v = hmap_search(ctx->m, s);
+	if(ctx->lang)
+		v = hmap_search(ctx->lang, s);
 	return v ? v : s;
 }
 

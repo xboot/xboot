@@ -67,8 +67,43 @@ static ssize_t rtc_time_write(struct kobj_t * kobj, void * buf, size_t size)
 {
 	struct rtc_t * rtc = (struct rtc_t *)kobj->priv;
 	struct rtc_time_t time;
+	char * p = buf, * r, * v;
+	int index = 0;
 
-	if(sscanf(buf, "%04u-%02u-%02u %02u:%02u:%02u %01u", &time.year, &time.month, &time.day, &time.hour, &time.minute, &time.second, &time.week) == 7)
+	while((r = strsep(&p, "-: ")) != NULL)
+	{
+		v = strim(r);
+		if((strcmp(v, "") != 0))
+		{
+			switch(index++)
+			{
+			case 0:
+				time.year = strtoul(v, NULL, 0);
+				break;
+			case 1:
+				time.month = strtoul(v, NULL, 0);
+				break;
+			case 2:
+				time.day = strtoul(v, NULL, 0);
+				break;
+			case 3:
+				time.hour = strtoul(v, NULL, 0);
+				break;
+			case 4:
+				time.minute = strtoul(v, NULL, 0);
+				break;
+			case 5:
+				time.second = strtoul(v, NULL, 0);
+				break;
+			case 6:
+				time.week = strtoul(v, NULL, 0);
+				break;
+			default:
+				break;
+			}
+		}
+	}
+	if(index >= 7)
 	{
 		if(rtc && rtc->settime)
 			rtc->settime(rtc, &time);

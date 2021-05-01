@@ -287,8 +287,16 @@ void xui_end(struct xui_context_t * ctx)
 	assert(ctx->layout_stack.idx == 0);
 	if(ctx->scroll_target)
 	{
-		ctx->scroll_target->scroll_x += ctx->mouse.zx;
-		ctx->scroll_target->scroll_y += ctx->mouse.zy;
+		if(ctx->key_down & XUI_KEY_CTRL)
+		{
+			ctx->scroll_target->scroll_x -= ctx->mouse.zy;
+			ctx->scroll_target->scroll_y -= ctx->mouse.zx;
+		}
+		else
+		{
+			ctx->scroll_target->scroll_x -= ctx->mouse.zx;
+			ctx->scroll_target->scroll_y -= ctx->mouse.zy;
+		}
 	}
 	if(ctx->mouse.down && ctx->next_hover_root && (ctx->next_hover_root->zindex < ctx->last_zindex) && (ctx->next_hover_root->zindex >= 0))
 		xui_set_front(ctx, ctx->next_hover_root);
@@ -296,6 +304,8 @@ void xui_end(struct xui_context_t * ctx)
 	ctx->mouse.up = 0;
 	ctx->mouse.zx = 0;
 	ctx->mouse.zy = 0;
+	ctx->mouse.vx = 0;
+	ctx->mouse.vy = 0;
 	ctx->key_pressed = 0;
 	ctx->input_text[0] = '\0';
 	n = ctx->root_list.idx;
@@ -1070,13 +1080,13 @@ void xui_layout_row(struct xui_context_t * ctx, int items, const int * widths, i
 	if(widths)
 	{
 		assert(items <= XUI_MAX_WIDTHS);
-		memcpy(layout->widths, widths, items * sizeof(widths[0]));
+		memcpy(layout->widths, widths, items * sizeof(int));
 	}
 	layout->items = items;
+	layout->item_index = 0;
 	layout->position_x = layout->indent;
 	layout->position_y = layout->next_row;
 	layout->size_height = height;
-	layout->item_index = 0;
 }
 
 void xui_layout_begin_column(struct xui_context_t * ctx)
@@ -1168,7 +1178,7 @@ struct xui_context_t * xui_context_alloc(const char * fb, const char * input, vo
 	ctx->cpsize = 1 << ctx->cpshift;
 	ctx->cwidth = (ctx->screen.w >> ctx->cpshift) + 1;
 	ctx->cheight = (ctx->screen.h >> ctx->cpshift) + 1;
-	len = ctx->cwidth * ctx->cheight * sizeof(int);
+	len = ctx->cwidth * ctx->cheight * sizeof(unsigned int);
 	ctx->cells[0] = malloc(len);
 	ctx->cells[1] = malloc(len);
 	if(!ctx->cells[0] || !ctx->cells[1])
@@ -1717,6 +1727,7 @@ static void xui_draw(struct window_t * w, void * o)
 void xui_loop(struct xui_context_t * ctx, void (*func)(struct xui_context_t *))
 {
 	struct event_t e;
+	int64_t delta;
 	char utf8[16];
 	int l, sz;
 
@@ -1871,6 +1882,9 @@ void xui_loop(struct xui_context_t * ctx, void (*func)(struct xui_context_t *))
 				ctx->mouse.y = e.e.mouse_down.y;
 				ctx->mouse.state |= e.e.mouse_down.button;
 				ctx->mouse.down |= e.e.mouse_down.button;
+				ctx->mouse.tx = e.e.mouse_down.x;
+				ctx->mouse.ty = e.e.mouse_down.y;
+				ctx->mouse.t = e.timestamp;
 				break;
 			case EVENT_TYPE_MOUSE_MOVE:
 				ctx->mouse.x = e.e.mouse_move.x;
@@ -1881,10 +1895,16 @@ void xui_loop(struct xui_context_t * ctx, void (*func)(struct xui_context_t *))
 				ctx->mouse.y = e.e.mouse_up.y;
 				ctx->mouse.state &= ~e.e.mouse_up.button;
 				ctx->mouse.up |= e.e.mouse_up.button;
+				delta = ktime_to_ns(ktime_sub(e.timestamp, ctx->mouse.t));
+				if(delta > 0)
+				{
+					ctx->mouse.vx = (e.e.mouse_up.x - ctx->mouse.tx) * 1000000000LL / delta;
+					ctx->mouse.vy = (e.e.mouse_up.y - ctx->mouse.ty) * 1000000000LL / delta;
+				}
 				break;
 			case EVENT_TYPE_MOUSE_WHEEL:
-				ctx->mouse.zx -= e.e.mouse_wheel.dx * 30;
-				ctx->mouse.zy -= e.e.mouse_wheel.dy * 30;
+				ctx->mouse.zx += e.e.mouse_wheel.dx * 30;
+				ctx->mouse.zy += e.e.mouse_wheel.dy * 30;
 				break;
 			case EVENT_TYPE_TOUCH_BEGIN:
 				if(e.e.touch_begin.id == 0)
@@ -1893,6 +1913,9 @@ void xui_loop(struct xui_context_t * ctx, void (*func)(struct xui_context_t *))
 					ctx->mouse.oy = ctx->mouse.y = e.e.touch_begin.y;
 					ctx->mouse.state |= MOUSE_BUTTON_LEFT;
 					ctx->mouse.down |= MOUSE_BUTTON_LEFT;
+					ctx->mouse.tx = e.e.touch_begin.x;
+					ctx->mouse.ty = e.e.touch_begin.y;
+					ctx->mouse.t = e.timestamp;
 				}
 				break;
 			case EVENT_TYPE_TOUCH_MOVE:
@@ -1909,6 +1932,12 @@ void xui_loop(struct xui_context_t * ctx, void (*func)(struct xui_context_t *))
 					ctx->mouse.y = e.e.touch_end.y;
 					ctx->mouse.state &= ~MOUSE_BUTTON_LEFT;
 					ctx->mouse.up |= MOUSE_BUTTON_LEFT;
+					delta = ktime_to_ns(ktime_sub(e.timestamp, ctx->mouse.t));
+					if(delta > 0)
+					{
+						ctx->mouse.vx = (e.e.touch_end.x - ctx->mouse.tx) * 1000000000LL / delta;
+						ctx->mouse.vy = (e.e.touch_end.y - ctx->mouse.ty) * 1000000000LL / delta;
+					}
 				}
 				break;
 			case EVENT_TYPE_SYSTEM_EXIT:

@@ -551,8 +551,9 @@ struct xui_context_t {
 	struct {
 		int x, y, zx, zy;
 		int state, down, up;
-		int dx, dy;
-		int ox, oy;
+		int ox, oy, dx, dy;
+		int tx, ty, vx, vy;
+		ktime_t t;
 	} mouse;
 	int key_down;
 	int key_pressed;

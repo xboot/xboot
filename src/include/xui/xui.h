@@ -480,8 +480,8 @@ struct xui_context_t {
 	unsigned int * cells[2];
 	unsigned int cindex;
 	unsigned int running;
-	uint64_t stamp;
-	double delta;
+	ktime_t stamp;
+	ktime_t delta;
 	int frame;
 	int fps;
 

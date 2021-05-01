@@ -88,7 +88,7 @@ int xui_toggle_ex(struct xui_context_t * ctx, int * state, int opt)
 	if(idx >= 0)
 	{
 		xui_pool_update(ctx, ctx->spring_pool, idx);
-		if(spring_step(&ctx->springs[idx], ctx->delta))
+		if(spring_step(&ctx->springs[idx], ktime_to_ns(ctx->delta) / 1000000000.0f))
 			alpha = spring_position(&ctx->springs[idx]);
 		else
 			memset(&ctx->spring_pool[idx], 0, sizeof(struct xui_pool_item_t));

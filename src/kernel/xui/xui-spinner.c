@@ -74,7 +74,7 @@ void xui_spinner_ex(struct xui_context_t * ctx, int opt)
 	y = r->y + r->h / 2;
 	if(bg->a && radius > 0)
 	{
-		angle = (ctx->stamp * 360 / 750000000) % 360;
+		angle = (ktime_to_ns(ctx->stamp) * 360 / 750000000) % 360;
 		xui_draw_arc(ctx, x, y, radius, angle, angle + 270, width, bg);
 	}
 }

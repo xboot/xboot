@@ -228,7 +228,7 @@ static struct region_t unlimited_region = {
 
 void xui_begin(struct xui_context_t * ctx)
 {
-	uint64_t stamp = ktime_to_ns(ktime_get());
+	ktime_t now = ktime_get();
 
 	ctx->cmd_list.idx = 0;
 	ctx->root_list.idx = 0;
@@ -243,11 +243,11 @@ void xui_begin(struct xui_context_t * ctx)
 	ctx->mouse.dy = ctx->mouse.y - ctx->mouse.oy;
 	ctx->mouse.ox = ctx->mouse.x;
 	ctx->mouse.oy = ctx->mouse.y;
-	ctx->delta = (stamp - ctx->stamp) / 1000000000.0;
-	ctx->stamp = stamp;
+	ctx->delta = ktime_sub(now, ctx->stamp);
+	ctx->stamp = now;
 	ctx->frame++;
-	if(ctx->delta > 0)
-		ctx->fps = ctx->fps * 0.618 + 0.382 / ctx->delta;
+	if(ktime_to_ns(ctx->delta) > 0)
+		ctx->fps = ((ctx->fps * 633) >> 10) + 382000000LL / ktime_to_ns(ctx->delta);
 }
 
 static int compare_zindex(const void * a, const void * b)
@@ -1185,7 +1185,7 @@ struct xui_context_t * xui_context_alloc(const char * fb, const char * input, vo
 	ctx->running = 1;
 	region_clone(&ctx->clip, &ctx->screen);
 	xui_load_style(ctx, style_default, sizeof(style_default));
-	ctx->stamp = ktime_to_ns(ktime_get());
+	ctx->stamp = ktime_get();
 	ctx->priv = data;
 
 	return ctx;

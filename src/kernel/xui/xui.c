@@ -160,10 +160,10 @@ static const char style_default[] = X({
 	"panel-background-color": "#ffffffff",
 	"panel-border-color": "#00000000",
 
-	"scroll-scroll-size": 12,
-	"scroll-scroll-radius": 6,
-	"scroll-thumb-size": 8,
-	"scroll-thumb-radius": 6,
+	"scroll-scroll-size": 8,
+	"scroll-scroll-radius": 4,
+	"scroll-thumb-size": 16,
+	"scroll-thumb-radius": 4,
 	"scroll-scroll-color": "#d1d6dbff",
 	"scroll-thumb-color": "#b1b6baff",
 
@@ -951,9 +951,10 @@ static int xui_mouse_over(struct xui_context_t * ctx, struct region_t * r)
 	return region_hit(r, ctx->mouse.x, ctx->mouse.y) && region_hit(xui_get_clip(ctx), ctx->mouse.x, ctx->mouse.y) && in_hover_root(ctx);
 }
 
-static void scrollbars(struct xui_context_t * ctx, struct xui_container_t * c, struct region_t * body)
+static inline void scrollbars(struct xui_context_t * ctx, struct xui_container_t * c, struct region_t * body)
 {
 	struct region_t base, thumb;
+	struct color_t * color;
 	int sz = ctx->style.scroll.scroll_size;
 	int width = c->content_width;
 	int height = c->content_height;
@@ -979,11 +980,15 @@ static void scrollbars(struct xui_context_t * ctx, struct xui_container_t * c, s
 		if((ctx->active == id) && (ctx->mouse.state & XUI_MOUSE_LEFT))
 			c->scroll_y += ctx->mouse.dy * height / base.h;
 		c->scroll_y = clamp(c->scroll_y, 0, maxscroll);
-		xui_draw_rectangle(ctx, base.x, base.y, base.w, base.h, ctx->style.scroll.scroll_radius, 0, &ctx->style.scroll.scroll_color);
+		color = &ctx->style.scroll.scroll_color;
+		if(color->a)
+			xui_draw_rectangle(ctx, base.x, base.y, base.w, base.h, ctx->style.scroll.scroll_radius, 0, color);
 		region_clone(&thumb, &base);
 		thumb.h = max(ctx->style.scroll.thumb_size, base.h * body->h / height);
 		thumb.y += c->scroll_y * (base.h - thumb.h) / maxscroll;
-		xui_draw_rectangle(ctx, thumb.x, thumb.y, thumb.w, thumb.h, ctx->style.scroll.thumb_radius, 0, &ctx->style.scroll.thumb_color);
+		color = &ctx->style.scroll.thumb_color;
+		if(color->a)
+			xui_draw_rectangle(ctx, thumb.x, thumb.y, thumb.w, thumb.h, ctx->style.scroll.thumb_radius, 0, color);
 		if(xui_mouse_over(ctx, body))
 			ctx->scroll_target = c;
 		else
@@ -1009,11 +1014,15 @@ static void scrollbars(struct xui_context_t * ctx, struct xui_container_t * c, s
 		if((ctx->active == id) && (ctx->mouse.state & XUI_MOUSE_LEFT))
 			c->scroll_x += ctx->mouse.dx * width / base.w;
 		c->scroll_x = clamp(c->scroll_x, 0, maxscroll);
-		xui_draw_rectangle(ctx, base.x, base.y, base.w, base.h, ctx->style.scroll.scroll_radius, 0, &ctx->style.scroll.scroll_color);
+		color = &ctx->style.scroll.scroll_color;
+		if(color->a)
+			xui_draw_rectangle(ctx, base.x, base.y, base.w, base.h, ctx->style.scroll.scroll_radius, 0, color);
 		region_clone(&thumb, &base);
 		thumb.w = max(ctx->style.scroll.thumb_size, base.w * body->w / width);
 		thumb.x += c->scroll_x * (base.w - thumb.w) / maxscroll;
-		xui_draw_rectangle(ctx, thumb.x, thumb.y, thumb.w, thumb.h, ctx->style.scroll.thumb_radius, 0, &ctx->style.scroll.thumb_color);
+		color = &ctx->style.scroll.thumb_color;
+		if(color->a)
+			xui_draw_rectangle(ctx, thumb.x, thumb.y, thumb.w, thumb.h, ctx->style.scroll.thumb_radius, 0, color);
 		if(xui_mouse_over(ctx, body))
 			ctx->scroll_target = c;
 		else

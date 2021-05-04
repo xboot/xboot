@@ -160,12 +160,9 @@ static const char style_default[] = X({
 	"panel-background-color": "#ffffffff",
 	"panel-border-color": "#00000000",
 
-	"scroll-scroll-size": 8,
-	"scroll-scroll-radius": 4,
-	"scroll-thumb-size": 16,
-	"scroll-thumb-radius": 4,
-	"scroll-scroll-color": "#d1d6dbff",
-	"scroll-thumb-color": "#b1b6baff",
+	"scroll-width": 4,
+	"scroll-radius": 2,
+	"scroll-color": "#b1b6ba7f",
 
 	"collapse-border-radius": 2,
 	"collapse-border-width": 0,
@@ -285,7 +282,7 @@ void xui_end(struct xui_context_t * ctx)
 	assert(ctx->clip_stack.idx == 0);
 	assert(ctx->id_stack.idx == 0);
 	assert(ctx->layout_stack.idx == 0);
-	if(ctx->scroll_target)
+	if(ctx->scroll_target && !ctx->scroll_target->noscroll)
 	{
 		if(ctx->key_down & XUI_KEY_CTRL)
 		{
@@ -425,29 +422,6 @@ int xui_pool_get(struct xui_context_t * ctx, struct xui_pool_item_t * items, int
 void xui_pool_update(struct xui_context_t * ctx, struct xui_pool_item_t * items, int idx)
 {
 	items[idx].last_update = ctx->frame;
-}
-
-static union xui_cmd_t * xui_cmd_push(struct xui_context_t * ctx, enum xui_cmd_type_t type, int len, struct region_t * r)
-{
-	union xui_cmd_t * cmd = (union xui_cmd_t *)(ctx->cmd_list.items + ctx->cmd_list.idx);
-	assert(ctx->cmd_list.idx + len < XUI_COMMAND_LIST_SIZE);
-	cmd->base.type = type;
-	cmd->base.len = len;
-	region_clone(&cmd->base.r, r);
-	ctx->cmd_list.idx += len;
-	return cmd;
-}
-
-static inline union xui_cmd_t * xui_cmd_push_jump(struct xui_context_t * ctx, union xui_cmd_t * addr)
-{
-	union xui_cmd_t * cmd = xui_cmd_push(ctx, XUI_CMD_TYPE_JUMP, sizeof(struct xui_cmd_jump_t), &unlimited_region);
-	cmd->jump.addr = addr;
-	return cmd;
-}
-
-static inline union xui_cmd_t * xui_cmd_push_clip(struct xui_context_t * ctx, struct region_t * r)
-{
-	return xui_cmd_push(ctx, XUI_CMD_TYPE_CLIP, sizeof(struct xui_cmd_clip_t), r);
 }
 
 static void xui_get_bound(struct region_t * r, int x, int y)
@@ -933,6 +907,25 @@ struct xui_container_t * get_container(struct xui_context_t * ctx, unsigned int 
 	return c;
 }
 
+void push_container_body(struct xui_context_t * ctx, struct xui_container_t * c, struct region_t * body)
+{
+	struct region_t r;
+	region_expand(&r, body, -ctx->style.layout.padding);
+	push_layout(ctx, &r, c->scroll_x, c->scroll_y);
+	region_clone(&c->body, body);
+}
+
+void pop_container(struct xui_context_t * ctx)
+{
+	struct xui_container_t * c = xui_get_container(ctx);
+	struct xui_layout_t * layout = xui_get_layout(ctx);
+	c->content_width = layout->max_width - layout->body.x;
+	c->content_height = layout->max_height - layout->body.y;
+	xui_pop(ctx->container_stack);
+	xui_pop(ctx->layout_stack);
+	xui_pop_id(ctx);
+}
+
 static int in_hover_root(struct xui_context_t * ctx)
 {
 	int i = ctx->container_stack.idx;
@@ -951,132 +944,86 @@ static int xui_mouse_over(struct xui_context_t * ctx, struct region_t * r)
 	return region_hit(r, ctx->mouse.x, ctx->mouse.y) && region_hit(xui_get_clip(ctx), ctx->mouse.x, ctx->mouse.y) && in_hover_root(ctx);
 }
 
-static inline void scrollbars(struct xui_context_t * ctx, struct xui_container_t * c, struct region_t * body)
+void scroll_begin(struct xui_context_t * ctx, struct xui_container_t * c, int opt)
 {
-	struct region_t base, thumb;
-	struct color_t * color;
-	int sz = ctx->style.scroll.scroll_size;
-	int width = c->content_width;
-	int height = c->content_height;
-	int maxscroll;
-	unsigned int id;
+	int maxw, maxh;
 
-	width += ctx->style.layout.padding * 2;
-	height += ctx->style.layout.padding * 2;
-	xui_push_clip(ctx, body);
-	if(height > c->body.h)
-		body->w -= sz;
-	if(width > c->body.w)
-		body->h -= sz;
-
-	maxscroll = height - body->h;
-	if(maxscroll > 0 && body->h > 0)
-	{
-		id = xui_get_id(ctx, "!scrollbary", 11);
-		region_clone(&base, body);
-		base.x = body->x + body->w;
-		base.w = ctx->style.scroll.scroll_size;
-		xui_control_update(ctx, id, &base, 0);
-		if((ctx->active == id) && (ctx->mouse.state & XUI_MOUSE_LEFT))
-			c->scroll_y += ctx->mouse.dy * height / base.h;
-		c->scroll_y = clamp(c->scroll_y, 0, maxscroll);
-		color = &ctx->style.scroll.scroll_color;
-		if(color->a)
-			xui_draw_rectangle(ctx, base.x, base.y, base.w, base.h, ctx->style.scroll.scroll_radius, 0, color);
-		region_clone(&thumb, &base);
-		thumb.h = max(ctx->style.scroll.thumb_size, base.h * body->h / height);
-		thumb.y += c->scroll_y * (base.h - thumb.h) / maxscroll;
-		color = &ctx->style.scroll.thumb_color;
-		if(color->a)
-			xui_draw_rectangle(ctx, thumb.x, thumb.y, thumb.w, thumb.h, ctx->style.scroll.thumb_radius, 0, color);
-		if(xui_mouse_over(ctx, body))
-			ctx->scroll_target = c;
-		else
-		{
-			c->scroll_vx = 0;
-			c->scroll_vy = 0;
-		}
-	}
+	if(opt & XUI_OPT_NOSCROLL)
+		c->noscroll = 1;
 	else
 	{
-		c->scroll_y = 0;
-		c->scroll_vy = 0;
-	}
-
-	maxscroll = width - body->w;
-	if(maxscroll > 0 && body->w > 0)
-	{
-		id = xui_get_id(ctx, "!scrollbarx", 11);
-		region_clone(&base, body);
-		base.y = body->y + body->h;
-		base.h = ctx->style.scroll.scroll_size;
-		xui_control_update(ctx, id, &base, 0);
-		if((ctx->active == id) && (ctx->mouse.state & XUI_MOUSE_LEFT))
-			c->scroll_x += ctx->mouse.dx * width / base.w;
-		c->scroll_x = clamp(c->scroll_x, 0, maxscroll);
-		color = &ctx->style.scroll.scroll_color;
-		if(color->a)
-			xui_draw_rectangle(ctx, base.x, base.y, base.w, base.h, ctx->style.scroll.scroll_radius, 0, color);
-		region_clone(&thumb, &base);
-		thumb.w = max(ctx->style.scroll.thumb_size, base.w * body->w / width);
-		thumb.x += c->scroll_x * (base.w - thumb.w) / maxscroll;
-		color = &ctx->style.scroll.thumb_color;
-		if(color->a)
-			xui_draw_rectangle(ctx, thumb.x, thumb.y, thumb.w, thumb.h, ctx->style.scroll.thumb_radius, 0, color);
-		if(xui_mouse_over(ctx, body))
-			ctx->scroll_target = c;
+		maxw = c->content_width + ctx->style.layout.padding * 2 - c->body.w;
+		if((maxw > 0) && (c->body.w > 0))
+		{
+			c->scroll_x = clamp(c->scroll_x, 0, maxw);
+			if(xui_mouse_over(ctx, &c->body))
+				ctx->scroll_target = c;
+			else
+			{
+				c->scroll_vx = 0;
+				c->scroll_vy = 0;
+			}
+		}
 		else
 		{
+			c->scroll_x = 0;
 			c->scroll_vx = 0;
+		}
+		maxh = c->content_height + ctx->style.layout.padding * 2 - c->body.h;
+		if((maxh > 0) && (c->body.h > 0))
+		{
+			c->scroll_y = clamp(c->scroll_y, 0, maxh);
+			if(xui_mouse_over(ctx, &c->body))
+				ctx->scroll_target = c;
+			else
+			{
+				c->scroll_vx = 0;
+				c->scroll_vy = 0;
+			}
+		}
+		else
+		{
+			c->scroll_y = 0;
 			c->scroll_vy = 0;
 		}
+		c->noscroll = 0;
 	}
-	else
-	{
-		c->scroll_x = 0;
-		c->scroll_vx = 0;
-	}
-	xui_pop_clip(ctx);
 }
 
-void push_container_body(struct xui_context_t * ctx, struct xui_container_t * c, struct region_t * body, int opt)
+void scroll_end(struct xui_context_t * ctx, struct xui_container_t * c)
 {
 	struct region_t r;
-	if(~opt & XUI_OPT_NOSCROLL)
-		scrollbars(ctx, c, body);
-	region_expand(&r, body, -ctx->style.layout.padding);
-	push_layout(ctx, &r, c->scroll_x, c->scroll_y);
-	region_clone(&c->body, body);
-}
+	struct color_t * color;
+	int width, height;
+	int maxw, maxh;
 
-void pop_container(struct xui_context_t * ctx)
-{
-	struct xui_container_t * c = xui_get_container(ctx);
-	struct xui_layout_t * layout = xui_get_layout(ctx);
-	c->content_width = layout->max_width - layout->body.x;
-	c->content_height = layout->max_height - layout->body.y;
-	xui_pop(ctx->container_stack);
-	xui_pop(ctx->layout_stack);
-	xui_pop_id(ctx);
-}
-
-void root_container_begin(struct xui_context_t * ctx, struct xui_container_t * c)
-{
-	xui_push(ctx->container_stack, c);
-	xui_push(ctx->root_list, c);
-	c->head = xui_cmd_push_jump(ctx, NULL);
-	if(region_hit(&c->region, ctx->mouse.x, ctx->mouse.y) && (!ctx->next_hover_root || (c->zindex > ctx->next_hover_root->zindex)))
-		ctx->next_hover_root = c;
-	xui_push(ctx->clip_stack, unlimited_region);
-}
-
-void root_container_end(struct xui_context_t * ctx)
-{
-	struct xui_container_t * c = xui_get_container(ctx);
-	c->tail = xui_cmd_push_jump(ctx, NULL);
-	c->head->jump.addr = ctx->cmd_list.items + ctx->cmd_list.idx;
-	xui_pop_clip(ctx);
-	pop_container(ctx);
+	if(!c->noscroll)
+	{
+		width = c->content_width + ctx->style.layout.padding * 2;
+		maxw = width - c->body.w;
+		if((maxw > 0) && (c->body.w > 0))
+		{
+			r.w = max(24, c->body.w * c->body.w / width);
+			r.h = ctx->style.scroll.width;
+			r.x = c->body.x + c->scroll_x * (c->body.w - r.w) / maxw;
+			r.y = c->body.y + c->body.h - ctx->style.scroll.width;
+			color = &ctx->style.scroll.color;
+			if(color->a)
+				xui_draw_rectangle(ctx, r.x, r.y, r.w, r.h, ctx->style.scroll.radius, 0, color);
+		}
+		height = c->content_height + ctx->style.layout.padding * 2;
+		maxh = height - c->body.h;
+		if((maxh > 0) && (c->body.h > 0))
+		{
+			r.w = ctx->style.scroll.width;
+			r.h = max(24, c->body.h * c->body.h / height);
+			r.x = c->body.x + c->body.w - ctx->style.scroll.width;
+			r.y = c->body.y + c->scroll_y * (c->body.h - r.h) / maxh;
+			color = &ctx->style.scroll.color;
+			if(color->a)
+				xui_draw_rectangle(ctx, r.x, r.y, r.w, r.h, ctx->style.scroll.radius, 0, color);
+		}
+	}
 }
 
 void xui_control_update(struct xui_context_t * ctx, unsigned int id, struct region_t * r, int opt)
@@ -1453,29 +1400,17 @@ void xui_load_style(struct xui_context_t * ctx, const char * json, int len)
 						color_init_string(&ctx->style.panel.border_color, o->u.string.ptr);
 					break;
 
-				case 0xb0155f18: /* "scroll-scroll-size" */
+				case 0xce6db481: /* "scroll-width" */
 					if(o && (o->type == JSON_INTEGER))
-						ctx->style.scroll.scroll_size = o->u.integer;
+						ctx->style.scroll.width = o->u.integer;
 					break;
-				case 0x07f7a8a5: /* "scroll-scroll-radius" */
+				case 0x8fe988c9: /* "scroll-radius" */
 					if(o && (o->type == JSON_INTEGER))
-						ctx->style.scroll.scroll_radius = o->u.integer;
+						ctx->style.scroll.radius = o->u.integer;
 					break;
-				case 0xf2633ba9: /* "scroll-thumb-size" */
-					if(o && (o->type == JSON_INTEGER))
-						ctx->style.scroll.thumb_size = o->u.integer;
-					break;
-				case 0x152eed76: /* "scroll-thumb-radius" */
-					if(o && (o->type == JSON_INTEGER))
-						ctx->style.scroll.thumb_radius = o->u.integer;
-					break;
-				case 0xb1a2ca7c: /* "scroll-scroll-color" */
+				case 0xcd073620: /* "scroll-color" */
 					if(o && (o->type == JSON_STRING))
-						color_init_string(&ctx->style.scroll.scroll_color, o->u.string.ptr);
-					break;
-				case 0x3dac392d: /* "scroll-thumb-color" */
-					if(o && (o->type == JSON_STRING))
-						color_init_string(&ctx->style.scroll.thumb_color, o->u.string.ptr);
+						color_init_string(&ctx->style.scroll.color, o->u.string.ptr);
 					break;
 
 				case 0xa6c2fb38: /* "collapse-border-radius" */

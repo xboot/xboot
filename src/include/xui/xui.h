@@ -309,6 +309,7 @@ struct xui_container_t {
 	int content_height;
 	int scroll_x, scroll_y;
 	int scroll_vx, scroll_vy;
+	int noscroll;
 	int zindex;
 	int open;
 };
@@ -375,12 +376,9 @@ struct xui_style_t {
 	} panel;
 
 	struct {
-		int scroll_size;
-		int scroll_radius;
-		int thumb_size;
-		int thumb_radius;
-		struct color_t scroll_color;
-		struct color_t thumb_color;
+		int width;
+		int radius;
+		struct color_t color;
 	} scroll;
 
 	struct {
@@ -630,6 +628,28 @@ static inline struct xui_container_t * xui_get_container(struct xui_context_t * 
 	return ctx->container_stack.items[ctx->container_stack.idx - 1];
 }
 
+static inline union xui_cmd_t * xui_cmd_push(struct xui_context_t * ctx, enum xui_cmd_type_t type, int len, struct region_t * r)
+{
+	union xui_cmd_t * cmd = (union xui_cmd_t *)(ctx->cmd_list.items + ctx->cmd_list.idx);
+	cmd->base.type = type;
+	cmd->base.len = len;
+	region_clone(&cmd->base.r, r);
+	ctx->cmd_list.idx += len;
+	return cmd;
+}
+
+static inline union xui_cmd_t * xui_cmd_push_jump(struct xui_context_t * ctx, union xui_cmd_t * addr)
+{
+	union xui_cmd_t * cmd = xui_cmd_push(ctx, XUI_CMD_TYPE_JUMP, sizeof(struct xui_cmd_jump_t), &(struct region_t){0, 0, INT_MAX, INT_MAX});
+	cmd->jump.addr = addr;
+	return cmd;
+}
+
+static inline union xui_cmd_t * xui_cmd_push_clip(struct xui_context_t * ctx, struct region_t * r)
+{
+	return xui_cmd_push(ctx, XUI_CMD_TYPE_CLIP, sizeof(struct xui_cmd_clip_t), r);
+}
+
 static inline const char * xui_translate(struct xui_context_t * ctx, const char * s)
 {
 	const char * v = NULL;
@@ -668,10 +688,10 @@ void xui_draw_text(struct xui_context_t * ctx, int x, int y, struct text_t * txt
 void xui_draw_text_align(struct xui_context_t * ctx, const char * family, int size, const char * utf8, struct region_t * r, int wrap, struct color_t * c, int opt);
 
 struct xui_container_t * get_container(struct xui_context_t * ctx, unsigned int id, int opt);
-void push_container_body(struct xui_context_t * ctx, struct xui_container_t * c, struct region_t * body, int opt);
+void push_container_body(struct xui_context_t * ctx, struct xui_container_t * c, struct region_t * body);
 void pop_container(struct xui_context_t * ctx);
-void root_container_begin(struct xui_context_t * ctx, struct xui_container_t * c);
-void root_container_end(struct xui_context_t * ctx);
+void scroll_begin(struct xui_context_t * ctx, struct xui_container_t * c, int opt);
+void scroll_end(struct xui_context_t * ctx, struct xui_container_t * c);
 
 void xui_control_update(struct xui_context_t * ctx, unsigned int id, struct region_t * r, int opt);
 

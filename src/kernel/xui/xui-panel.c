@@ -37,10 +37,9 @@ void xui_begin_panel_ex(struct xui_context_t * ctx, const char * name, int opt)
 	int radius, width;
 
 	xui_push_id(ctx, name, strlen(name));
-	c = get_container(ctx, ctx->last_id, opt);
+	c = get_container(ctx, ctx->last_id, opt & ~XUI_OPT_CLOSED);
 	r = xui_layout_next(ctx);
 	region_clone(&c->region, r);
-	xui_push(ctx->container_stack, c);
 	if(~opt & XUI_PANEL_TRANSPARENT)
 	{
 		radius = ctx->style.panel.border_radius;
@@ -52,12 +51,16 @@ void xui_begin_panel_ex(struct xui_context_t * ctx, const char * name, int opt)
 		if(bg->a)
 			xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, radius, 0, bg);
 	}
-	push_container_body(ctx, c, &c->region, opt);
+	scroll_begin(ctx, c, opt);
+	xui_push(ctx->container_stack, c);
+	push_container_body(ctx, c, &c->region);
 	xui_push_clip(ctx, &c->body);
 }
 
 void xui_end_panel(struct xui_context_t * ctx)
 {
+	struct xui_container_t * c = xui_get_container(ctx);
+	scroll_end(ctx, c);
 	xui_pop_clip(ctx);
 	pop_container(ctx);
 }

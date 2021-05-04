@@ -289,13 +289,36 @@ void xui_end(struct xui_context_t * ctx)
 	{
 		if(ctx->key_down & XUI_KEY_CTRL)
 		{
-			ctx->scroll_target->scroll_x -= ctx->mouse.zy;
-			ctx->scroll_target->scroll_y -= ctx->mouse.zx;
+			ctx->scroll_target->scroll_x -= ctx->mouse.zy * ctx->style.layout.height;
+			ctx->scroll_target->scroll_y -= ctx->mouse.zx * ctx->style.layout.height;
 		}
 		else
 		{
-			ctx->scroll_target->scroll_x -= ctx->mouse.zx;
-			ctx->scroll_target->scroll_y -= ctx->mouse.zy;
+			ctx->scroll_target->scroll_x -= ctx->mouse.zx * ctx->style.layout.height;
+			ctx->scroll_target->scroll_y -= ctx->mouse.zy * ctx->style.layout.height;
+		}
+		if(ctx->mouse.state & XUI_MOUSE_LEFT)
+		{
+			ctx->scroll_target->scroll_x -= ctx->mouse.dx;
+			ctx->scroll_target->scroll_y -= ctx->mouse.dy;
+			ctx->scroll_target->scroll_vx = 0;
+			ctx->scroll_target->scroll_vy = 0;
+		}
+		if(abs(ctx->mouse.vx) > 50)
+			ctx->scroll_target->scroll_vx = ctx->mouse.vx;
+		if(abs(ctx->mouse.vy) > 50)
+			ctx->scroll_target->scroll_vy = ctx->mouse.vy;
+		if(abs(ctx->scroll_target->scroll_vx) > 2)
+		{
+			float friction = ktime_to_ns(ctx->delta) * (4.0 / 1000000000.0);
+			ctx->scroll_target->scroll_vx -= ctx->scroll_target->scroll_vx * friction;
+			ctx->scroll_target->scroll_x -= ctx->scroll_target->scroll_vx * friction;
+		}
+		if(abs(ctx->scroll_target->scroll_vy) > 2)
+		{
+			float friction = ktime_to_ns(ctx->delta) * (4.0 / 1000000000.0);
+			ctx->scroll_target->scroll_vy -= ctx->scroll_target->scroll_vy * friction;
+			ctx->scroll_target->scroll_y -= ctx->scroll_target->scroll_vy * friction;
 		}
 	}
 	if(ctx->mouse.down && ctx->next_hover_root && (ctx->next_hover_root->zindex < ctx->last_zindex) && (ctx->next_hover_root->zindex >= 0))
@@ -963,10 +986,16 @@ static void scrollbars(struct xui_context_t * ctx, struct xui_container_t * c, s
 		xui_draw_rectangle(ctx, thumb.x, thumb.y, thumb.w, thumb.h, ctx->style.scroll.thumb_radius, 0, &ctx->style.scroll.thumb_color);
 		if(xui_mouse_over(ctx, body))
 			ctx->scroll_target = c;
+		else
+		{
+			c->scroll_vx = 0;
+			c->scroll_vy = 0;
+		}
 	}
 	else
 	{
 		c->scroll_y = 0;
+		c->scroll_vy = 0;
 	}
 
 	maxscroll = width - body->w;
@@ -987,10 +1016,16 @@ static void scrollbars(struct xui_context_t * ctx, struct xui_container_t * c, s
 		xui_draw_rectangle(ctx, thumb.x, thumb.y, thumb.w, thumb.h, ctx->style.scroll.thumb_radius, 0, &ctx->style.scroll.thumb_color);
 		if(xui_mouse_over(ctx, body))
 			ctx->scroll_target = c;
+		else
+		{
+			c->scroll_vx = 0;
+			c->scroll_vy = 0;
+		}
 	}
 	else
 	{
 		c->scroll_x = 0;
+		c->scroll_vx = 0;
 	}
 	xui_pop_clip(ctx);
 }
@@ -1903,8 +1938,8 @@ void xui_loop(struct xui_context_t * ctx, void (*func)(struct xui_context_t *))
 				}
 				break;
 			case EVENT_TYPE_MOUSE_WHEEL:
-				ctx->mouse.zx += e.e.mouse_wheel.dx * 30;
-				ctx->mouse.zy += e.e.mouse_wheel.dy * 30;
+				ctx->mouse.zx += e.e.mouse_wheel.dx;
+				ctx->mouse.zy += e.e.mouse_wheel.dy;
 				break;
 			case EVENT_TYPE_TOUCH_BEGIN:
 				if(e.e.touch_begin.id == 0)

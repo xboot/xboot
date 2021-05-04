@@ -307,8 +307,8 @@ struct xui_container_t {
 	struct region_t body;
 	int content_width;
 	int content_height;
-	int scroll_x;
-	int scroll_y;
+	int scroll_x, scroll_y;
+	int scroll_vx, scroll_vy;
 	int zindex;
 	int open;
 };

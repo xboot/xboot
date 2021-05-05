@@ -111,6 +111,79 @@ static FT_Error ft_new_xfs_face(struct xfs_context_t * xfs, FT_Library library, 
 	return FT_Open_Face(library, &args, index, face);
 }
 
+static unsigned long ft_vfs_stream_io(FT_Stream stream, unsigned long offset, unsigned char * buffer, unsigned long count)
+{
+	int fd = ((int)stream->descriptor.value);
+
+	if(!count && offset > stream->size)
+		return 1;
+	if(stream->pos != offset)
+		vfs_lseek(fd, offset, VFS_SEEK_SET);
+	return (unsigned long)vfs_read(fd, buffer, count);
+}
+
+static void ft_vfs_stream_close(FT_Stream stream)
+{
+	int fd = ((int)stream->descriptor.value);
+
+	vfs_close(fd);
+	stream->descriptor.value = -1;
+	stream->size = 0;
+	stream->base = 0;
+	free(stream);
+}
+
+static FT_Stream ft_new_vfs_stream(const char * pathname)
+{
+	FT_Stream stream = NULL;
+	struct vfs_stat_t st;
+	int fd;
+
+	stream = malloc(sizeof(*stream));
+	if(!stream)
+		return NULL;
+
+	fd = vfs_open(pathname, O_RDONLY, 0);
+	if(fd < 0)
+	{
+		free(stream);
+		return NULL;
+	}
+	if(vfs_fstat(fd, &st) < 0)
+	{
+		vfs_close(fd);
+		free(stream);
+		return NULL;
+	}
+	stream->size = st.st_size;
+	if(stream->size <= 0)
+	{
+		vfs_close(fd);
+		free(stream);
+		return NULL;
+	}
+	vfs_lseek(fd, 0, VFS_SEEK_SET);
+
+	stream->descriptor.value = fd;
+	stream->pathname.pointer = (char *)pathname;
+	stream->read = ft_vfs_stream_io;
+	stream->close = ft_vfs_stream_close;
+
+    return stream;
+}
+
+static FT_Error ft_new_vfs_face(FT_Library library, const char * pathname, FT_Long index, FT_Face * face)
+{
+	FT_Open_Args args;
+
+	if(!pathname)
+		return -1;
+	args.flags = FT_OPEN_STREAM;
+	args.pathname = (char *)pathname;
+	args.stream = ft_new_vfs_stream(pathname);
+	return FT_Open_Face(library, &args, index, face);
+}
+
 static inline int family_hash(const char ** s, uint32_t * v)
 {
 	char c;
@@ -161,7 +234,7 @@ static FT_Error ftcface_requester(FTC_FaceID id, FT_Library lib, FT_Pointer data
 			}
 			else
 			{
-				if(FT_New_Face((FT_Library)ctx->library, pos->path, 0, face) == 0)
+				if(ft_new_vfs_face((FT_Library)ctx->library, pos->path, 0, face) == 0)
 				{
 					FT_Select_Charmap(*face, FT_ENCODING_UNICODE);
 					return 0;

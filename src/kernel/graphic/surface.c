@@ -523,17 +523,6 @@ void surface_get_pixel(struct surface_t * s, int x, int y, struct color_t * c)
 	}
 }
 
-static void png_xfs_read_data(png_structp png, png_bytep data, size_t length)
-{
-	size_t check;
-
-	if(png == NULL)
-		return;
-	check = xfs_read((struct xfs_file_t *)png->io_ptr, data, length);
-	if(check != length)
-		png_error(png, "Read Error");
-}
-
 static inline int multiply_alpha(int alpha, int color)
 {
 	int temp = (alpha * color) + 0x80;
@@ -587,6 +576,17 @@ static void convert_bytes_to_data(png_structp png, png_row_infop row_info, png_b
 		pixel = (0xff << 24) | (red << 16) | (green << 8) | (blue << 0);
 		memcpy(base, &pixel, sizeof(uint32_t));
 	}
+}
+
+static void png_xfs_read_data(png_structp png, png_bytep data, size_t length)
+{
+	size_t check;
+
+	if(png == NULL)
+		return;
+	check = xfs_read((struct xfs_file_t *)png->io_ptr, data, length);
+	if(check != length)
+		png_error(png, "Read Error");
 }
 
 static inline struct surface_t * surface_alloc_from_xfs_png(struct xfs_context_t * ctx, const char * filename)
@@ -695,6 +695,124 @@ static inline struct surface_t * surface_alloc_from_xfs_png(struct xfs_context_t
 	return s;
 }
 
+struct png_source_t {
+	unsigned char * data;
+	int size;
+	int offset;
+};
+
+static void png_source_read_data(png_structp png, png_bytep data, png_size_t length)
+{
+	struct png_source_t * src = (struct png_source_t *)png_get_io_ptr(png);
+
+	if(src->offset + length <= src->size)
+	{
+		memcpy(data, src->data + src->offset, length);
+		src->offset += length;
+	}
+	else
+		png_error(png, "read error");
+}
+
+static inline struct surface_t * surface_alloc_from_buf_png(const void * buf, int len)
+{
+	struct surface_t * s;
+	png_struct * png;
+	png_info * info;
+	png_byte * data = NULL;
+	png_byte ** row_pointers = NULL;
+	png_uint_32 png_width, png_height;
+	int depth, color_type, interlace, stride;
+	unsigned int i;
+
+	png = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+	if(!png)
+		return NULL;
+
+	info = png_create_info_struct(png);
+	if(!info)
+	{
+		png_destroy_read_struct(&png, NULL, NULL);
+		return NULL;
+	}
+
+	struct png_source_t src;
+	src.data = (unsigned char *)buf;
+	src.size = len;
+	src.offset = 0;
+	png_set_read_fn(png, &src, png_source_read_data);
+
+#ifdef PNG_SETJMP_SUPPORTED
+	if(setjmp(png_jmpbuf(png)))
+	{
+		png_destroy_read_struct(&png, &info, NULL);
+		return NULL;
+	}
+#endif
+
+	png_read_info(png, info);
+	png_get_IHDR(png, info, &png_width, &png_height, &depth, &color_type, &interlace, NULL, NULL);
+
+	if(color_type == PNG_COLOR_TYPE_PALETTE)
+		png_set_palette_to_rgb(png);
+	if(color_type == PNG_COLOR_TYPE_GRAY)
+	{
+#if PNG_LIBPNG_VER >= 10209
+		png_set_expand_gray_1_2_4_to_8(png);
+#else
+		png_set_gray_1_2_4_to_8(png);
+#endif
+	}
+	if(png_get_valid(png, info, PNG_INFO_tRNS))
+		png_set_tRNS_to_alpha(png);
+	if(depth == 16)
+		png_set_strip_16(png);
+	if(depth < 8)
+		png_set_packing(png);
+	if(color_type == PNG_COLOR_TYPE_GRAY || color_type == PNG_COLOR_TYPE_GRAY_ALPHA)
+		png_set_gray_to_rgb(png);
+	if(interlace != PNG_INTERLACE_NONE)
+		png_set_interlace_handling(png);
+
+	png_set_filler(png, 0xff, PNG_FILLER_AFTER);
+	png_read_update_info(png, info);
+	png_get_IHDR(png, info, &png_width, &png_height, &depth, &color_type, &interlace, NULL, NULL);
+
+	if(depth != 8 || !(color_type == PNG_COLOR_TYPE_RGB || color_type == PNG_COLOR_TYPE_RGB_ALPHA))
+	{
+		png_destroy_read_struct(&png, &info, NULL);
+		return NULL;
+	}
+
+	switch(color_type)
+	{
+	case PNG_COLOR_TYPE_RGB_ALPHA:
+		png_set_read_user_transform_fn(png, premultiply_data);
+		break;
+	case PNG_COLOR_TYPE_RGB:
+		png_set_read_user_transform_fn(png, convert_bytes_to_data);
+		break;
+	default:
+		break;
+	}
+
+	s = surface_alloc(png_width, png_height, NULL);
+	data = surface_get_pixels(s);
+
+	row_pointers = (png_byte **)malloc(png_height * sizeof(char *));
+	stride = png_width * 4;
+
+	for(i = 0; i < png_height; i++)
+		row_pointers[i] = &data[i * stride];
+
+	png_read_image(png, row_pointers);
+	png_read_end(png, info);
+	free(row_pointers);
+	png_destroy_read_struct(&png, &info, NULL);
+
+	return s;
+}
+
 struct x_error_mgr
 {
 	struct jpeg_error_mgr pub;
@@ -792,13 +910,13 @@ static void jpeg_xfs_src(j_decompress_ptr dinfo, struct xfs_file_t * file)
 	src->pub.next_input_byte = NULL;
 }
 
-static inline struct surface_t * surface_alloc_from_xfs_jpeg(struct xfs_context_t * ctx, const char * filename)
+static inline struct surface_t * surface_alloc_from_xfs_jpg(struct xfs_context_t * ctx, const char * filename)
 {
 	struct jpeg_decompress_struct dinfo;
 	struct x_error_mgr jerr;
 	struct surface_t * s;
 	struct xfs_file_t * file;
-	JSAMPARRAY buf;
+	JSAMPARRAY tmp;
 	unsigned char * p;
 	int scanline, offset, i;
 
@@ -817,25 +935,68 @@ static inline struct surface_t * surface_alloc_from_xfs_jpeg(struct xfs_context_
 	jpeg_xfs_src(&dinfo, file);
 	jpeg_read_header(&dinfo, 1);
 	jpeg_start_decompress(&dinfo);
-	buf = (*dinfo.mem->alloc_sarray)((j_common_ptr)&dinfo, JPOOL_IMAGE, dinfo.output_width * dinfo.output_components, 1);
+	tmp = (*dinfo.mem->alloc_sarray)((j_common_ptr)&dinfo, JPOOL_IMAGE, dinfo.output_width * dinfo.output_components, 1);
 	s = surface_alloc(dinfo.image_width, dinfo.image_height, NULL);
 	p = surface_get_pixels(s);
 	while(dinfo.output_scanline < dinfo.output_height)
 	{
 		scanline = dinfo.output_scanline * surface_get_stride(s);
-		jpeg_read_scanlines(&dinfo, buf, 1);
+		jpeg_read_scanlines(&dinfo, tmp, 1);
 		for(i = 0; i < dinfo.output_width; i++)
 		{
 			offset = scanline + (i * 4);
 			p[offset + 3] = 0xff;
-			p[offset + 2] = buf[0][(i * 3) + 0];
-			p[offset + 1] = buf[0][(i * 3) + 1];
-			p[offset + 0] = buf[0][(i * 3) + 2];
+			p[offset + 2] = tmp[0][(i * 3) + 0];
+			p[offset + 1] = tmp[0][(i * 3) + 1];
+			p[offset + 0] = tmp[0][(i * 3) + 2];
 		}
 	}
 	jpeg_finish_decompress(&dinfo);
 	jpeg_destroy_decompress(&dinfo);
 	xfs_close(file);
+
+	return s;
+}
+
+static inline struct surface_t * surface_alloc_from_buf_jpg(const void * buf, int len)
+{
+	struct jpeg_decompress_struct dinfo;
+	struct x_error_mgr jerr;
+	struct surface_t * s;
+	JSAMPARRAY tmp;
+	unsigned char * p;
+	int scanline, offset, i;
+
+	dinfo.err = jpeg_std_error(&jerr.pub);
+	jerr.pub.error_exit = x_error_exit;
+	jerr.pub.emit_message = x_emit_message;
+	if(setjmp(jerr.setjmp_buffer))
+	{
+		jpeg_destroy_decompress(&dinfo);
+		return NULL;
+	}
+	jpeg_create_decompress(&dinfo);
+	jpeg_mem_src(&dinfo, buf, len);
+	jpeg_read_header(&dinfo, 1);
+	jpeg_start_decompress(&dinfo);
+	tmp = (*dinfo.mem->alloc_sarray)((j_common_ptr)&dinfo, JPOOL_IMAGE, dinfo.output_width * dinfo.output_components, 1);
+	s = surface_alloc(dinfo.image_width, dinfo.image_height, NULL);
+	p = surface_get_pixels(s);
+	while(dinfo.output_scanline < dinfo.output_height)
+	{
+		scanline = dinfo.output_scanline * surface_get_stride(s);
+		jpeg_read_scanlines(&dinfo, tmp, 1);
+		for(i = 0; i < dinfo.output_width; i++)
+		{
+			offset = scanline + (i * 4);
+			p[offset + 3] = 0xff;
+			p[offset + 2] = tmp[0][(i * 3) + 0];
+			p[offset + 1] = tmp[0][(i * 3) + 1];
+			p[offset + 0] = tmp[0][(i * 3) + 2];
+		}
+	}
+	jpeg_finish_decompress(&dinfo);
+	jpeg_destroy_decompress(&dinfo);
 
 	return s;
 }
@@ -846,8 +1007,21 @@ struct surface_t * surface_alloc_from_xfs(struct xfs_context_t * ctx, const char
 	if(strcasecmp(ext, "png") == 0)
 		return surface_alloc_from_xfs_png(ctx, filename);
 	else if((strcasecmp(ext, "jpg") == 0) || (strcasecmp(ext, "jpeg") == 0))
-		return surface_alloc_from_xfs_jpeg(ctx, filename);
+		return surface_alloc_from_xfs_jpg(ctx, filename);
 	return NULL;
+}
+
+struct surface_t * surface_alloc_from_buf(const void * buf, int len)
+{
+	struct surface_t * s = NULL;
+
+	if(buf && (len > 0))
+	{
+		s = surface_alloc_from_buf_png(buf, len);
+		if(!s)
+			s = surface_alloc_from_buf_jpg(buf, len);
+	}
+	return s;
 }
 
 struct surface_t * surface_alloc_qrcode(const char * txt, int pixsz)

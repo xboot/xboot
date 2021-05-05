@@ -271,6 +271,7 @@ bool_t register_render(struct render_t * r);
 bool_t unregister_render(struct render_t * r);
 struct surface_t * surface_alloc(int width, int height, void * priv);
 struct surface_t * surface_alloc_from_xfs(struct xfs_context_t * ctx, const char * filename);
+struct surface_t * surface_alloc_from_buf(const void * buf, int len);
 struct surface_t * surface_alloc_qrcode(const char * txt, int pixsz);
 void surface_free(struct surface_t * s);
 struct surface_t * surface_clone(struct surface_t * s, int x, int y, int w, int h, int r);

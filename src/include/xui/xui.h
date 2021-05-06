@@ -551,7 +551,7 @@ struct xui_context_t {
 		int state, down, up;
 		int ox, oy, dx, dy;
 		int tx, ty, vx, vy;
-		ktime_t t;
+		ktime_t tdown, tmove;
 	} mouse;
 	int key_down;
 	int key_pressed;

@@ -286,13 +286,13 @@ void xui_end(struct xui_context_t * ctx)
 	{
 		if(ctx->key_down & XUI_KEY_CTRL)
 		{
-			ctx->scroll_target->scroll_x -= ctx->mouse.zy * ctx->style.layout.height;
-			ctx->scroll_target->scroll_y -= ctx->mouse.zx * ctx->style.layout.height;
+			ctx->scroll_target->scroll_x -= ctx->mouse.zy * 30;
+			ctx->scroll_target->scroll_y -= ctx->mouse.zx * 30;
 		}
 		else
 		{
-			ctx->scroll_target->scroll_x -= ctx->mouse.zx * ctx->style.layout.height;
-			ctx->scroll_target->scroll_y -= ctx->mouse.zy * ctx->style.layout.height;
+			ctx->scroll_target->scroll_x -= ctx->mouse.zx * 30;
+			ctx->scroll_target->scroll_y -= ctx->mouse.zy * 30;
 		}
 		if(ctx->mouse.state & XUI_MOUSE_LEFT)
 		{
@@ -307,13 +307,13 @@ void xui_end(struct xui_context_t * ctx)
 			ctx->scroll_target->scroll_vy = ctx->mouse.vy;
 		if(abs(ctx->scroll_target->scroll_vx) > 2)
 		{
-			float friction = ktime_to_ns(ctx->delta) * (4.0 / 1000000000.0);
+			float friction = ktime_to_ns(ctx->delta) * (3.0 / 1000000000.0);
 			ctx->scroll_target->scroll_vx -= ctx->scroll_target->scroll_vx * friction;
 			ctx->scroll_target->scroll_x -= ctx->scroll_target->scroll_vx * friction;
 		}
 		if(abs(ctx->scroll_target->scroll_vy) > 2)
 		{
-			float friction = ktime_to_ns(ctx->delta) * (4.0 / 1000000000.0);
+			float friction = ktime_to_ns(ctx->delta) * (3.0 / 1000000000.0);
 			ctx->scroll_target->scroll_vy -= ctx->scroll_target->scroll_vy * friction;
 			ctx->scroll_target->scroll_y -= ctx->scroll_target->scroll_vy * friction;
 		}
@@ -1863,22 +1863,26 @@ void xui_loop(struct xui_context_t * ctx, void (*func)(struct xui_context_t *))
 				ctx->mouse.down |= e.e.mouse_down.button;
 				ctx->mouse.tx = e.e.mouse_down.x;
 				ctx->mouse.ty = e.e.mouse_down.y;
-				ctx->mouse.t = e.timestamp;
+				ctx->mouse.tdown = e.timestamp;
 				break;
 			case EVENT_TYPE_MOUSE_MOVE:
 				ctx->mouse.x = e.e.mouse_move.x;
 				ctx->mouse.y = e.e.mouse_move.y;
+				ctx->mouse.tmove = e.timestamp;
 				break;
 			case EVENT_TYPE_MOUSE_UP:
 				ctx->mouse.x = e.e.mouse_up.x;
 				ctx->mouse.y = e.e.mouse_up.y;
 				ctx->mouse.state &= ~e.e.mouse_up.button;
 				ctx->mouse.up |= e.e.mouse_up.button;
-				delta = ktime_to_ns(ktime_sub(e.timestamp, ctx->mouse.t));
-				if(delta > 0)
+				if(ktime_to_ns(ktime_sub(e.timestamp, ctx->mouse.tmove)) < 50000000LL)
 				{
-					ctx->mouse.vx = (e.e.mouse_up.x - ctx->mouse.tx) * 1000000000LL / delta;
-					ctx->mouse.vy = (e.e.mouse_up.y - ctx->mouse.ty) * 1000000000LL / delta;
+					delta = ktime_to_ns(ktime_sub(e.timestamp, ctx->mouse.tdown));
+					if(delta > 0)
+					{
+						ctx->mouse.vx = (e.e.mouse_up.x - ctx->mouse.tx) * 1000000000LL / delta;
+						ctx->mouse.vy = (e.e.mouse_up.y - ctx->mouse.ty) * 1000000000LL / delta;
+					}
 				}
 				break;
 			case EVENT_TYPE_MOUSE_WHEEL:
@@ -1894,7 +1898,7 @@ void xui_loop(struct xui_context_t * ctx, void (*func)(struct xui_context_t *))
 					ctx->mouse.down |= MOUSE_BUTTON_LEFT;
 					ctx->mouse.tx = e.e.touch_begin.x;
 					ctx->mouse.ty = e.e.touch_begin.y;
-					ctx->mouse.t = e.timestamp;
+					ctx->mouse.tdown = e.timestamp;
 				}
 				break;
 			case EVENT_TYPE_TOUCH_MOVE:
@@ -1902,6 +1906,7 @@ void xui_loop(struct xui_context_t * ctx, void (*func)(struct xui_context_t *))
 				{
 					ctx->mouse.x = e.e.touch_move.x;
 					ctx->mouse.y = e.e.touch_move.y;
+					ctx->mouse.tmove = e.timestamp;
 				}
 				break;
 			case EVENT_TYPE_TOUCH_END:
@@ -1911,11 +1916,14 @@ void xui_loop(struct xui_context_t * ctx, void (*func)(struct xui_context_t *))
 					ctx->mouse.y = e.e.touch_end.y;
 					ctx->mouse.state &= ~MOUSE_BUTTON_LEFT;
 					ctx->mouse.up |= MOUSE_BUTTON_LEFT;
-					delta = ktime_to_ns(ktime_sub(e.timestamp, ctx->mouse.t));
-					if(delta > 0)
+					if(ktime_to_ns(ktime_sub(e.timestamp, ctx->mouse.tmove)) < 50000000LL)
 					{
-						ctx->mouse.vx = (e.e.touch_end.x - ctx->mouse.tx) * 1000000000LL / delta;
-						ctx->mouse.vy = (e.e.touch_end.y - ctx->mouse.ty) * 1000000000LL / delta;
+						delta = ktime_to_ns(ktime_sub(e.timestamp, ctx->mouse.tdown));
+						if(delta > 0)
+						{
+							ctx->mouse.vx = (e.e.touch_end.x - ctx->mouse.tx) * 1000000000LL / delta;
+							ctx->mouse.vy = (e.e.touch_end.y - ctx->mouse.ty) * 1000000000LL / delta;
+						}
 					}
 				}
 				break;

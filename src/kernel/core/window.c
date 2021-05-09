@@ -177,12 +177,13 @@ static struct window_manager_t * window_manager_alloc(const char * fb)
 	wm->fb = dev;
 	wm->wcount = 0;
 	wm->refresh = 0;
-	wm->watermark = NULL;
+	wm->watermark.s = NULL;
+	region_init(&wm->watermark.r, 0, 0, 0, 0);
 	wm->cursor.s = s;
-	region_init(&wm->cursor.ro, 0, 0, surface_get_width(wm->cursor.s), surface_get_height(wm->cursor.s));
-	region_init(&wm->cursor.rn, 0, 0, surface_get_width(wm->cursor.s), surface_get_height(wm->cursor.s));
 	wm->cursor.dirty = 0;
 	wm->cursor.show = 0;
+	region_init(&wm->cursor.ro, 0, 0, surface_get_width(wm->cursor.s), surface_get_height(wm->cursor.s));
+	region_init(&wm->cursor.rn, 0, 0, surface_get_width(wm->cursor.s), surface_get_height(wm->cursor.s));
 	spin_lock_init(&wm->lock);
 	init_list_head(&wm->list);
 	init_list_head(&wm->window);
@@ -208,7 +209,7 @@ static void window_manager_free(struct window_manager_t * wm)
 			spin_lock_irqsave(&__window_manager_lock, flags);
 			list_del(&pos->list);
 			spin_unlock_irqrestore(&__window_manager_lock, flags);
-			surface_free(pos->watermark);
+			surface_free(pos->watermark.s);
 			surface_free(pos->cursor.s);
 			free(pos);
 		}
@@ -338,29 +339,34 @@ void window_region_list_clear(struct window_t * w)
 
 void window_present(struct window_t * w, void * o, void (*draw)(struct window_t *, void *))
 {
+	struct window_manager_t * wm = w->wm;
 	struct surface_t * s = w->s;
-	struct region_t * r, region;
+	struct region_t * r;
 	struct matrix_t m;
 	uint32_t * p, * q;
 	int x1, y1, x2, y2;
 	int l, x, y;
 	int n, i;
 
-	if(w->wm->refresh)
+	if(wm->refresh)
 	{
-		region_init(&region, 0, 0, framebuffer_get_width(w->wm->fb), framebuffer_get_height(w->wm->fb));
 		region_list_clear(w->rl);
-		region_list_add(w->rl, &region);
-		w->wm->refresh = 0;
-		w->wm->cursor.dirty = 0;
+		region_list_add(w->rl, &(struct region_t){ 0, 0, framebuffer_get_width(wm->fb), framebuffer_get_height(wm->fb) });
+		wm->refresh = 0;
+		wm->cursor.dirty = 0;
 	}
-	else if(w->wm->cursor.show && w->wm->cursor.dirty)
+	else
 	{
-		r = &w->wm->cursor.ro;
-		window_region_list_add(w, &(struct region_t){ r->x - 2, r->y - 2, r->w, r->h });
-		r = &w->wm->cursor.rn;
-		window_region_list_add(w, &(struct region_t){ r->x - 2, r->y - 2, r->w, r->h });
-		w->wm->cursor.dirty = 0;
+		if(wm->watermark.s)
+			window_region_list_add(w, &wm->watermark.r);
+		if(wm->cursor.show && wm->cursor.dirty)
+		{
+			r = &wm->cursor.ro;
+			window_region_list_add(w, &(struct region_t){ r->x - 2, r->y - 2, r->w, r->h });
+			r = &wm->cursor.rn;
+			window_region_list_add(w, &(struct region_t){ r->x - 2, r->y - 2, r->w, r->h });
+			wm->cursor.dirty = 0;
+		}
 	}
 	if((n = w->rl->count) > 0)
 	{
@@ -386,19 +392,20 @@ void window_present(struct window_t * w, void * o, void (*draw)(struct window_t 
 		}
 		if(draw)
 			draw(w, o);
-		if(w->wm->watermark)
+		if(wm->watermark.s)
 		{
-			matrix_init_translate(&m, (surface_get_width(s) - surface_get_width(w->wm->watermark)) / 2, (surface_get_height(s) - surface_get_height(w->wm->watermark)) / 2);
-			surface_blit(s, NULL, &m, w->wm->watermark, RENDER_TYPE_GOOD);
+			r = &wm->watermark.r;
+			matrix_init_translate(&m, r->x, r->y);
+			surface_blit(s, NULL, &m, wm->watermark.s, RENDER_TYPE_GOOD);
 		}
-		if(w->wm->cursor.show)
+		if(wm->cursor.show)
 		{
-			r = &w->wm->cursor.rn;
+			r = &wm->cursor.rn;
 			matrix_init_translate(&m, r->x - 2, r->y - 2);
-			surface_blit(s, NULL, &m, w->wm->cursor.s, RENDER_TYPE_GOOD);
+			surface_blit(s, NULL, &m, wm->cursor.s, RENDER_TYPE_GOOD);
 		}
 	}
-	framebuffer_present_surface(w->wm->fb, w->s, w->rl);
+	framebuffer_present_surface(wm->fb, w->s, w->rl);
 }
 
 void window_exit(struct window_t * w)

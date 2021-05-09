@@ -21,7 +21,10 @@ struct window_manager_t {
 	struct framebuffer_t * fb;
 	int wcount;
 	int refresh;
-	struct surface_t * watermark;
+	struct {
+		struct surface_t * s;
+		struct region_t r;
+	} watermark;
 	struct {
 		struct surface_t * s;
 		struct region_t ro;
@@ -48,9 +51,14 @@ static inline void window_manager_set_watermark(struct window_manager_t * wm, co
 {
 	if(wm)
 	{
-		if(wm->watermark)
-			surface_free(wm->watermark);
-		wm->watermark = surface_alloc_from_buf(buf, len);
+		if(wm->watermark.s)
+			surface_free(wm->watermark.s);
+		struct surface_t * s = surface_alloc_from_buf(buf, len);
+		wm->watermark.s = s;
+		if(s)
+			region_init(&wm->watermark.r, (framebuffer_get_width(wm->fb) - surface_get_width(s)) / 2, (framebuffer_get_height(wm->fb) - surface_get_height(s)) / 2, surface_get_width(s), surface_get_height(s));
+		else
+			region_init(&wm->watermark.r, 0, 0, 0, 0);
 	}
 }
 
@@ -64,6 +72,9 @@ static inline void window_manager_set_cursor(struct window_manager_t * wm, const
 			if(wm->cursor.s)
 				surface_free(wm->cursor.s);
 			wm->cursor.s = s;
+			wm->cursor.dirty = 1;
+			region_init(&wm->cursor.ro, 0, 0, surface_get_width(s), surface_get_height(s));
+			region_init(&wm->cursor.rn, 0, 0, surface_get_width(s), surface_get_height(s));
 		}
 	}
 }

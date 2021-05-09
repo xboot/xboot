@@ -177,6 +177,7 @@ static struct window_manager_t * window_manager_alloc(const char * fb)
 	wm->fb = dev;
 	wm->wcount = 0;
 	wm->refresh = 0;
+	wm->watermark = NULL;
 	wm->cursor.s = s;
 	region_init(&wm->cursor.ro, 0, 0, surface_get_width(wm->cursor.s), surface_get_height(wm->cursor.s));
 	region_init(&wm->cursor.rn, 0, 0, surface_get_width(wm->cursor.s), surface_get_height(wm->cursor.s));
@@ -207,6 +208,7 @@ static void window_manager_free(struct window_manager_t * wm)
 			spin_lock_irqsave(&__window_manager_lock, flags);
 			list_del(&pos->list);
 			spin_unlock_irqrestore(&__window_manager_lock, flags);
+			surface_free(pos->watermark);
 			surface_free(pos->cursor.s);
 			free(pos);
 		}
@@ -384,11 +386,16 @@ void window_present(struct window_t * w, void * o, void (*draw)(struct window_t 
 		}
 		if(draw)
 			draw(w, o);
+		if(w->wm->watermark)
+		{
+			matrix_init_translate(&m, (surface_get_width(s) - surface_get_width(w->wm->watermark)) / 2, (surface_get_height(s) - surface_get_height(w->wm->watermark)) / 2);
+			surface_blit(s, NULL, &m, w->wm->watermark, RENDER_TYPE_GOOD);
+		}
 		if(w->wm->cursor.show)
 		{
 			r = &w->wm->cursor.rn;
 			matrix_init_translate(&m, r->x - 2, r->y - 2);
-			surface_blit(s, NULL, &m, w->wm->cursor.s, RENDER_TYPE_FAST);
+			surface_blit(s, NULL, &m, w->wm->cursor.s, RENDER_TYPE_GOOD);
 		}
 	}
 	framebuffer_present_surface(w->wm->fb, w->s, w->rl);

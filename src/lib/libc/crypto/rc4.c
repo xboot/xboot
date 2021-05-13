@@ -4,7 +4,7 @@
 
 #include <rc4.h>
 
-void rc4(uint8_t * key, int kl, uint8_t * dat, int dl)
+void rc4_crypt(uint8_t * key, int kl, uint8_t * dat, int dl)
 {
 	uint8_t s[256], k[256];
 	uint8_t t;

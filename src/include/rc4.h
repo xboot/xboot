@@ -7,7 +7,7 @@ extern "C" {
 
 #include <stdint.h>
 
-void rc4(uint8_t * key, int kl, uint8_t * dat, int dl);
+void rc4_crypt(uint8_t * key, int kl, uint8_t * dat, int dl);
 
 #ifdef __cplusplus
 }

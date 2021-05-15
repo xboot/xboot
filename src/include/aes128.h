@@ -7,10 +7,11 @@ extern "C" {
 
 #include <stdint.h>
 
+#define AES128_KEY_SIZE		(16)
 #define AES128_BLOCK_SIZE	(16)
 
 struct aes128_ctx_t {
-	uint8_t xkey[176];
+	uint8_t xkey[4 * 4 * (10 + 1)];
 };
 
 void aes128_set_key(struct aes128_ctx_t * ctx, uint8_t * key);

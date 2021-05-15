@@ -20,8 +20,8 @@ static void aes128_run(struct wboxtest_t * wbt, void * data)
 	uint8_t in[AES128_BLOCK_SIZE * 10];
 	uint8_t out1[AES128_BLOCK_SIZE * 10];
 	uint8_t out2[AES128_BLOCK_SIZE * 10];
-	uint8_t iv[16];
-	uint8_t key[16];
+	uint8_t iv[AES128_BLOCK_SIZE];
+	uint8_t key[AES128_KEY_SIZE];
 	uint64_t offset;
 	int bytes;
 

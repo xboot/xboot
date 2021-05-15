@@ -39,7 +39,7 @@ static const uint8_t sbox[256] = {
 	0xe1, 0xf8, 0x98, 0x11, 0x69, 0xd9, 0x8e, 0x94,
 	0x9b, 0x1e, 0x87, 0xe9, 0xce, 0x55, 0x28, 0xdf,
 	0x8c, 0xa1, 0x89, 0x0d, 0xbf, 0xe6, 0x42, 0x68,
-	0x41, 0x99, 0x2d, 0x0f, 0xb0, 0x54, 0xbb, 0x16
+	0x41, 0x99, 0x2d, 0x0f, 0xb0, 0x54, 0xbb, 0x16,
 };
 
 static const uint8_t inv_sbox[256] = {
@@ -74,7 +74,7 @@ static const uint8_t inv_sbox[256] = {
 	0xa0, 0xe0, 0x3b, 0x4d, 0xae, 0x2a, 0xf5, 0xb0,
 	0xc8, 0xeb, 0xbb, 0x3c, 0x83, 0x53, 0x99, 0x61,
 	0x17, 0x2b, 0x04, 0x7e, 0xba, 0x77, 0xd6, 0x26,
-	0xe1, 0x69, 0x14, 0x63, 0x55, 0x21, 0x0c, 0x7d
+	0xe1, 0x69, 0x14, 0x63, 0x55, 0x21, 0x0c, 0x7d,
 };
 
 static const uint8_t x2_sbox[256] = {
@@ -109,7 +109,7 @@ static const uint8_t x2_sbox[256] = {
 	0xd9, 0xeb, 0x2b, 0x22, 0xd2, 0xa9, 0x07, 0x33,
 	0x2d, 0x3c, 0x15, 0xc9, 0x87, 0xaa, 0x50, 0xa5,
 	0x03, 0x59, 0x09, 0x1a, 0x65, 0xd7, 0x84, 0xd0,
-	0x82, 0x29, 0x5a, 0x1e, 0x7b, 0xa8, 0x6d, 0x2c
+	0x82, 0x29, 0x5a, 0x1e, 0x7b, 0xa8, 0x6d, 0x2c,
 };
 
 static const uint8_t x3_sbox[256] = {
@@ -144,7 +144,7 @@ static const uint8_t x3_sbox[256] = {
 	0x38, 0x13, 0xb3, 0x33, 0xbb, 0x70, 0x89, 0xa7,
 	0xb6, 0x22, 0x92, 0x20, 0x49, 0xff, 0x78, 0x7a,
 	0x8f, 0xf8, 0x80, 0x17, 0xda, 0x31, 0xc6, 0xb8,
-	0xc3, 0xb0, 0x77, 0x11, 0xcb, 0xfc, 0xd6, 0x3a
+	0xc3, 0xb0, 0x77, 0x11, 0xcb, 0xfc, 0xd6, 0x3a,
 };
 
 static const uint8_t x_time_9[256] = {
@@ -179,7 +179,7 @@ static const uint8_t x_time_9[256] = {
 	0xa1, 0xa8, 0xb3, 0xba, 0x85, 0x8c, 0x97, 0x9e,
 	0xe9, 0xe0, 0xfb, 0xf2, 0xcd, 0xc4, 0xdf, 0xd6,
 	0x31, 0x38, 0x23, 0x2a, 0x15, 0x1c, 0x07, 0x0e,
-	0x79, 0x70, 0x6b, 0x62, 0x5d, 0x54, 0x4f, 0x46
+	0x79, 0x70, 0x6b, 0x62, 0x5d, 0x54, 0x4f, 0x46,
 };
 
 static const uint8_t x_time_b[256] = {
@@ -214,7 +214,7 @@ static const uint8_t x_time_b[256] = {
 	0x7a, 0x71, 0x6c, 0x67, 0x56, 0x5d, 0x40, 0x4b,
 	0x22, 0x29, 0x34, 0x3f, 0x0e, 0x05, 0x18, 0x13,
 	0xca, 0xc1, 0xdc, 0xd7, 0xe6, 0xed, 0xf0, 0xfb,
-	0x92, 0x99, 0x84, 0x8f, 0xbe, 0xb5, 0xa8, 0xa3
+	0x92, 0x99, 0x84, 0x8f, 0xbe, 0xb5, 0xa8, 0xa3,
 };
 
 static const uint8_t x_time_d[256] = {
@@ -249,7 +249,7 @@ static const uint8_t x_time_d[256] = {
 	0x0c, 0x01, 0x16, 0x1b, 0x38, 0x35, 0x22, 0x2f,
 	0x64, 0x69, 0x7e, 0x73, 0x50, 0x5d, 0x4a, 0x47,
 	0xdc, 0xd1, 0xc6, 0xcb, 0xe8, 0xe5, 0xf2, 0xff,
-	0xb4, 0xb9, 0xae, 0xa3, 0x80, 0x8d, 0x9a, 0x97
+	0xb4, 0xb9, 0xae, 0xa3, 0x80, 0x8d, 0x9a, 0x97,
 };
 
 static const uint8_t x_time_e[256] = {
@@ -284,7 +284,7 @@ static const uint8_t x_time_e[256] = {
 	0x37, 0x39, 0x2b, 0x25, 0x0f, 0x01, 0x13, 0x1d,
 	0x47, 0x49, 0x5b, 0x55, 0x7f, 0x71, 0x63, 0x6d,
 	0xd7, 0xd9, 0xcb, 0xc5, 0xef, 0xe1, 0xf3, 0xfd,
-	0xa7, 0xa9, 0xbb, 0xb5, 0x9f, 0x91, 0x83, 0x8d
+	0xa7, 0xa9, 0xbb, 0xb5, 0x9f, 0x91, 0x83, 0x8d,
 };
 
 static void shift_rows(uint8_t * state)
@@ -454,13 +454,13 @@ static void aes128_encrypt(struct aes128_ctx_t * ctx, uint8_t * in, uint8_t * ou
 
 	memcpy(state, in, 16);
 	add_round_key(state, ctx->xkey);
-	for(i = 1; i < 11; i++)
+	for(i = 1; i < (10 + 1); i++)
 	{
 		if(i < 10)
 			mix_sub_columns(state);
 		else
 			shift_rows(state);
-		add_round_key(state, ctx->xkey + i * 16);
+		add_round_key(state, ctx->xkey + (i << 4));
 	}
 	memcpy(out, state, sizeof(state));
 }
@@ -471,11 +471,11 @@ static void aes128_decrypt(struct aes128_ctx_t * ctx, uint8_t * in, uint8_t * ou
 	int i;
 
 	memcpy(state, in, sizeof(state));
-	add_round_key(state, ctx->xkey + 10 * 16);
+	add_round_key(state, ctx->xkey + (10 << 4));
 	inv_shift_rows(state);
 	for(i = 10; i--; )
 	{
-		add_round_key(state, ctx->xkey + i * 16);
+		add_round_key(state, ctx->xkey + (i << 4));
 		if(i)
 			inv_mix_sub_columns(state);
 	}
@@ -490,13 +490,13 @@ void aes128_set_key(struct aes128_ctx_t * ctx, uint8_t * key)
 	uint8_t t0, t1, t2, t3, t4;
 	int i;
 
-	memcpy(xkey, key, 16);
-	for(i = 4; i < 4 * 11; i++)
+	memcpy(xkey, key, AES128_KEY_SIZE);
+	for(i = 4; i < ((10 + 1) << 2); i++)
 	{
-		t0 = xkey[4 * i - 4];
-		t1 = xkey[4 * i - 3];
-		t2 = xkey[4 * i - 2];
-		t3 = xkey[4 * i - 1];
+		t0 = xkey[(i << 2) - 4];
+		t1 = xkey[(i << 2) - 3];
+		t2 = xkey[(i << 2) - 2];
+		t3 = xkey[(i << 2) - 1];
 		if(!(i & 0x3))
 		{
 			t4 = t3;
@@ -505,11 +505,10 @@ void aes128_set_key(struct aes128_ctx_t * ctx, uint8_t * key)
 			t1 = sbox[t2];
 			t2 = sbox[t4];
 		}
-
-		xkey[4 * i + 0] = xkey[4 * i - 16 + 0] ^ t0;
-		xkey[4 * i + 1] = xkey[4 * i - 16 + 1] ^ t1;
-		xkey[4 * i + 2] = xkey[4 * i - 16 + 2] ^ t2;
-		xkey[4 * i + 3] = xkey[4 * i - 16 + 3] ^ t3;
+		xkey[(i << 2) + 0] = xkey[(i << 2) - 16 + 0] ^ t0;
+		xkey[(i << 2) + 1] = xkey[(i << 2) - 16 + 1] ^ t1;
+		xkey[(i << 2) + 2] = xkey[(i << 2) - 16 + 2] ^ t2;
+		xkey[(i << 2) + 3] = xkey[(i << 2) - 16 + 3] ^ t3;
 	}
 }
 
@@ -520,7 +519,7 @@ void aes128_ecb_encrypt(struct aes128_ctx_t * ctx, uint8_t * in, uint8_t * out, 
 	for(i = 0; i < blks; i++)
 	{
 		aes128_encrypt(ctx, in, out);
-		in  += 16;
+		in += 16;
 		out += 16;
 	}
 }
@@ -532,7 +531,7 @@ void aes128_ecb_decrypt(struct aes128_ctx_t * ctx, uint8_t * in, uint8_t * out, 
 	for(i = 0; i < blks; i++)
 	{
 		aes128_decrypt(ctx, in, out);
-		in  += 16;
+		in += 16;
 		out += 16;
 	}
 }
@@ -549,7 +548,7 @@ void aes128_cbc_encrypt(struct aes128_ctx_t * ctx, uint8_t * iv, uint8_t * in, u
 		xor_block(tmp, chain, in, 16);
 		aes128_encrypt(ctx, tmp, out);
 		memcpy(chain, out, 16);
-		in  += 16;
+		in += 16;
 		out += 16;
 	}
 }
@@ -568,7 +567,7 @@ void aes128_cbc_decrypt(struct aes128_ctx_t * ctx, uint8_t * iv, uint8_t * in, u
 		aes128_decrypt(ctx, in, tmp);
 		xor_block(out, chain, tmp, 16);
 		memcpy(chain, block, 16);
-		in  += 16;
+		in += 16;
 		out += 16;
 	}
 }
@@ -580,7 +579,7 @@ static inline void add_counter(uint8_t * counter)
 	for(i = 15; i >= 8; i--)
 	{
 		counter[i]++;
-		if( (counter[i] != 0) || (i == 8) )
+		if((counter[i] != 0) || (i == 8))
 			break;
 	}
 }
@@ -589,7 +588,7 @@ void aes128_ctr_encrypt(struct aes128_ctx_t * ctx, uint64_t offset, uint8_t * in
 {
 	uint8_t counter[16];
 	uint8_t tmp[16];
-	uint64_t o = offset / 16;
+	uint64_t o = offset >> 4;
 	int pos, len;
 	int i;
 
@@ -608,7 +607,7 @@ void aes128_ctr_encrypt(struct aes128_ctx_t * ctx, uint64_t offset, uint8_t * in
 		bytes -= len;
 		aes128_encrypt(ctx, counter, tmp);
 		xor_block(out, in, &tmp[pos], len);
-		in  += len;
+		in += len;
 		out += len;
 		add_counter(counter);
 	}
@@ -619,7 +618,7 @@ void aes128_ctr_encrypt(struct aes128_ctx_t * ctx, uint64_t offset, uint8_t * in
 		bytes -= len;
 		aes128_encrypt(ctx, counter, tmp);
 		xor_block(out, in, tmp, len);
-		in  += len;
+		in += len;
 		out += len;
 		add_counter(counter);
 	}

@@ -24,7 +24,7 @@ MKZ			:= arch/$(ARCH)/$(MACH)/tools/windows/mkz
 endif
 
 BINDID		:= ""
-ENCRYPT_KEY	:= ""
+ENCRYPT_KEY	:= "679408dc82ae80d411d5d9720b65a43fc4f1534fa563fb28c6cd8928e46aaae9"
 PUBLIC_KEY	:= "03cfd18e4a4b40d6529448aa2df8bbb677128258b8fbfc5b9e492fbbba4e84832f"
 PRIVATE_KEY	:= "dc57b8a9e0e2b7f8b4c929bd8db2844e53f01f171bbcdf6e628908dbf2b2e6a9"
 MESSAGE		:= "https://github.com/xboot/xboot"
@@ -32,4 +32,4 @@ MESSAGE		:= "https://github.com/xboot/xboot"
 xend:
 	@echo Make header information for brom booting
 	@$(MKSUNXI) $(X_NAME).bin
-	@$(MKZ) -majoy 3 -minior 0 -patch 0 -r 16384 -c -b $(BINDID) -e $(ENCRYPT_KEY) -p $(PUBLIC_KEY) -k $(PRIVATE_KEY) -m $(MESSAGE) $(X_NAME).bin $(X_NAME).bin.z
+	@$(MKZ) -majoy 3 -minior 0 -patch 0 -r 16384 -i $(BINDID) -k $(ENCRYPT_KEY) -pb $(PUBLIC_KEY) -pv $(PRIVATE_KEY) -m $(MESSAGE) $(X_NAME).bin $(X_NAME).bin.z

@@ -30,6 +30,7 @@ SECTIONS
 		.obj/arch/arm32/mach-f1c200s/sys-dram.o (.text*)
 		.obj/arch/arm32/mach-f1c200s/sys-mmu.o (.text*)
 		.obj/arch/arm32/mach-f1c200s/sys-decompress.o (.text*)
+		.obj/arch/arm32/mach-f1c200s/sys-crypt.o (.text*)
 		.obj/arch/arm32/mach-f1c200s/sys-spinor.o (.text*)
 		.obj/arch/arm32/mach-f1c200s/sys-copyself.o (.text*)
 		PROVIDE(__spl_end = .);

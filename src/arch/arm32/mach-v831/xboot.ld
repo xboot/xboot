@@ -31,6 +31,7 @@ SECTIONS
 		.obj/arch/arm32/mach-v831/sys-dram.o (.text*)
 		.obj/arch/arm32/mach-v831/sys-mmu.o (.text*)
 		.obj/arch/arm32/mach-v831/sys-decompress.o (.text*)
+		.obj/arch/arm32/mach-v831/sys-crypt.o (.text*)
 		.obj/arch/arm32/mach-v831/sys-spinor.o (.text*)
 		.obj/arch/arm32/mach-v831/sys-copyself.o (.text*)
 		PROVIDE(__dram_param_start = .);

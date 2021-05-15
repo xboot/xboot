@@ -30,6 +30,7 @@ SECTIONS
 		.obj/arch/arm32/mach-s3/sys-dram.o (.text*)
 		.obj/arch/arm32/mach-s3/sys-mmu.o (.text*)
 		.obj/arch/arm32/mach-s3/sys-decompress.o (.text*)
+		.obj/arch/arm32/mach-s3/sys-crypt.o (.text*)
 		.obj/arch/arm32/mach-s3/sys-spinor.o (.text*)
 		.obj/arch/arm32/mach-s3/sys-copyself.o (.text*)
 		PROVIDE(__spl_end = .);

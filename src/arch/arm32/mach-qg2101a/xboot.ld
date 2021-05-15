@@ -31,6 +31,7 @@ SECTIONS
 		.obj/arch/arm32/mach-qg2101a/sys-dram.o (.text*)
 		.obj/arch/arm32/mach-qg2101a/sys-mmu.o (.text*)
 		.obj/arch/arm32/mach-qg2101a/sys-decompress.o (.text*)
+		.obj/arch/arm32/mach-qg2101a/sys-crypt.o (.text*)
 		.obj/arch/arm32/mach-qg2101a/sys-spinor.o (.text*)
 		.obj/arch/arm32/mach-qg2101a/sys-copyself.o (.text*)
 		PROVIDE(__dram_param_start = .);

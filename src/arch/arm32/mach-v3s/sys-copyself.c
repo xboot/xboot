@@ -35,27 +35,31 @@ extern void return_to_fel(void);
 extern void sys_mmu_init(void);
 extern void sys_uart_putc(char c);
 extern void sys_decompress(char * src, int slen, char * dst, int dlen);
+extern void sys_crypt(char * key, char * buf, int len);
 extern void sys_spinor_init(void);
 extern void sys_spinor_exit(void);
 extern void sys_spinor_read(int addr, void * buf, int count);
 
 enum {
 	ZFLAG_LZ4_COMPRESS			= (1 << 0),
-	ZFLAG_SHA256_BINDID			= (1 << 1),
-	ZFLAG_ECDSA256_SIGNATURE	= (1 << 2),
+	ZFLAG_AES256_ENCRYPT		= (1 << 1),
+	ZFLAG_SHA256_BINDID			= (1 << 2),
+	ZFLAG_ECDSA256_SIGNATURE	= (1 << 3),
 };
 
-struct zdesc_t {
+struct zdesc_t {			/* Total 256 bytes */
 	uint8_t magic[4];		/* ZBL! */
 	uint8_t sha256[32];		/* Sha256 hash */
-	uint8_t signature[64];	/* Ecdsa256 signature */
+	uint8_t signature[64];	/* Ecdsa256 signature of sha256 */
 	uint8_t csize[4];		/* Compress size */
 	uint8_t dsize[4];		/* Uncompress size */
+	uint8_t key[32];		/* Aes256 encrypt key */
 	uint8_t public[33];		/* Ecdsa256 public key */
 	uint8_t majoy;			/* Majoy version */
 	uint8_t minior;			/* Minior version */
 	uint8_t patch;			/* Patch version */
 	uint8_t flag;			/* Zflag */
+	uint8_t message[79];	/* Message additionally */
 };
 
 enum {
@@ -141,6 +145,8 @@ void sys_copyself(void)
 			sys_spinor_init();
 			sys_spinor_read(32768 + sizeof(struct zdesc_t), tmp, csize);
 			sys_spinor_exit();
+			if(z.flag & ZFLAG_AES256_ENCRYPT)
+				sys_crypt((char *)z.key, tmp, csize);
 			if(z.flag & ZFLAG_LZ4_COMPRESS)
 				sys_decompress(tmp, csize, mem, dsize);
 			else

@@ -1,25 +1,17 @@
 #include <main.h>
 
-enum {
-	ZFLAG_LZ4_COMPRESS			= (1 << 0),
-	ZFLAG_AES256_ENCRYPT		= (1 << 1),
-	ZFLAG_SHA256_BINDID			= (1 << 2),
-	ZFLAG_ECDSA256_SIGNATURE	= (1 << 3),
-};
-
 struct zdesc_t {			/* Total 256 bytes */
-	uint8_t magic[4];		/* ZBL! */
+	uint8_t magic[4];		/* ZB??, I for bind id, E for encrypt image */
+	uint8_t key[32];		/* Aes256 encrypt key (hardcode or efuse suggested) */
 	uint8_t sha256[32];		/* Sha256 hash */
 	uint8_t signature[64];	/* Ecdsa256 signature of sha256 */
-	uint8_t csize[4];		/* Compress size */
-	uint8_t dsize[4];		/* Uncompress size */
-	uint8_t key[32];		/* Aes256 encrypt key */
-	uint8_t public[33];		/* Ecdsa256 public key */
+	uint8_t csize[4];		/* Compress size of image */
+	uint8_t dsize[4];		/* Decompress size of image */
+	uint8_t public[33];		/* Ecdsa256 public key (hardcode suggested) */
 	uint8_t majoy;			/* Majoy version */
 	uint8_t minior;			/* Minior version */
 	uint8_t patch;			/* Patch version */
-	uint8_t flag;			/* Zflag */
-	uint8_t message[79];	/* Message additionally */
+	uint8_t message[80];	/* Message additionally */
 };
 
 static inline unsigned char hex_to_bin(char c)
@@ -41,17 +33,17 @@ static inline unsigned char hex_string(const char * s, int o)
 static void usage(void)
 {
 	printf("usage:\r\n");
-	printf("    mkz [-majoy number] [-minior number] [-patch number] [-r reserve-image-size] [-c] [-b bind-id] [-e aes256-encrypt-key] [-p ecdsa256-public-key] [-k ecdsa256-private-key] [-m message] <bootloader> <zbootloader>\r\n");
+	printf("    mkz [-majoy number] [-minior number] [-patch number] [-r reserve-image-size] [-i bind-id] [-k aes256-encrypt-key] [-pb ecdsa256-public-key] [-pv ecdsa256-private-key] [-m message] [-e] <bootloader> <zbootloader>\r\n");
 	printf("    -majoy  The majoy version\r\n");
 	printf("    -minior The minior version\r\n");
 	printf("    -patch  The patch version\r\n");
-	printf("    -r      The reserve size for image\r\n");
-	printf("    -c      The lz4 compress flag\r\n");
-	printf("    -b      The sha256 hash with id\r\n");
-	printf("    -e      The aes256 encrypt key\r\n");
-	printf("    -p      The ecdsa256 public key\r\n");
-	printf("    -k      The ecdsa256 private key\r\n");
+	printf("    -r      The reserve size\r\n");
+	printf("    -i      The bind id for sha256 hash\r\n");
+	printf("    -k      The aes256 encrypt key\r\n");
+	printf("    -pb     The ecdsa256 public key\r\n");
+	printf("    -pv     The ecdsa256 private key\r\n");
 	printf("    -m      The additional message\r\n");
+	printf("    -e      Enable encrypt image\r\n");
 }
 
 int main(int argc, char * argv[])
@@ -62,25 +54,33 @@ int main(int argc, char * argv[])
 	FILE * blfp, * zblfp;
 	char * blbuf, * zblbuf;
 	char * blpath = NULL, * zblpath = NULL;
-	char * id = NULL;
-	char * msg = NULL;
-	char * p = NULL;
-	uint8_t key[32] = { 0 };
-	uint8_t public[33] = { 0 };
-	uint8_t private[32] = { 0 };
-	uint8_t majoy = 0;
-	uint8_t minior = 0;
-	uint8_t patch = 0;
-	uint8_t flag = 0;
-	int rsize = 0;
+	char * id = NULL, * msg = NULL;
+	char * p;
+	uint8_t key[] = {
+		0x67, 0x94, 0x08, 0xdc, 0x82, 0xae, 0x80, 0xd4,
+		0x11, 0xd5, 0xd9, 0x72, 0x0b, 0x65, 0xa4, 0x3f,
+		0xc4, 0xf1, 0x53, 0x4f, 0xa5, 0x63, 0xfb, 0x28,
+		0xc6, 0xcd, 0x89, 0x28, 0xe4, 0x6a, 0xaa, 0xe9,
+	};
+	uint8_t public[33] = {
+		0x03, 0xcf, 0xd1, 0x8e, 0x4a, 0x4b, 0x40, 0xd6,
+		0x52, 0x94, 0x48, 0xaa, 0x2d, 0xf8, 0xbb, 0xb6,
+		0x77, 0x12, 0x82, 0x58, 0xb8, 0xfb, 0xfc, 0x5b,
+		0x9e, 0x49, 0x2f, 0xbb, 0xba, 0x4e, 0x84, 0x83,
+		0x2f,
+	};
+	uint8_t private[32] = {
+		0xdc, 0x57, 0xb8, 0xa9, 0xe0, 0xe2, 0xb7, 0xf8,
+		0xb4, 0xc9, 0x29, 0xbd, 0x8d, 0xb2, 0x84, 0x4e,
+		0x53, 0xf0, 0x1f, 0x17, 0x1b, 0xbc, 0xdf, 0x6e,
+		0x62, 0x89, 0x08, 0xdb, 0xf2, 0xb2, 0xe6, 0xa9,
+	};
+	uint8_t majoy = 0, minior = 0, patch = 0;
+	int rsize = 0, encrypt = 0;
+	int index = 0;
 	int bllen, zbllen;
 	int clen, len;
-	int i, index = 0;
-	int o;
-
-	memset(&key[0], 0, 32);
-	memset(&public[0], 0, 33);
-	memset(&private[0], 0, 32);
+	int i, o;
 
 	if(argc < 2)
 	{
@@ -110,32 +110,24 @@ int main(int argc, char * argv[])
 			rsize = (int)strtoul(argv[i + 1], NULL, 0);
 			i++;
 		}
-		else if(!strcmp(argv[i], "-c"))
-		{
-			flag |= ZFLAG_LZ4_COMPRESS;
-		}
-		else if(!strcmp(argv[i], "-b") && (argc > i + 1))
+		else if(!strcmp(argv[i], "-i") && (argc > i + 1))
 		{
 			p = argv[i + 1];
 			if(p && (strcmp(p, "") != 0) && (strlen(p) > 0))
-			{
 				id = p;
-				flag |= ZFLAG_SHA256_BINDID;
-			}
 			i++;
 		}
-		else if(!strcmp(argv[i], "-e") && (argc > i + 1))
+		else if(!strcmp(argv[i], "-k") && (argc > i + 1))
 		{
 			p = argv[i + 1];
 			if(p && (strcmp(p, "") != 0) && (strlen(p) == 32 * 2))
 			{
 				for(o = 0; o < 32; o++)
 					key[o] = hex_string(p, o * 2);
-				flag |= ZFLAG_AES256_ENCRYPT;
 			}
 			i++;
 		}
-		else if(!strcmp(argv[i], "-p") && (argc > i + 1))
+		else if(!strcmp(argv[i], "-pb") && (argc > i + 1))
 		{
 			p = argv[i + 1];
 			if(p && (strcmp(p, "") != 0) && (strlen(p) == 33 * 2))
@@ -145,14 +137,13 @@ int main(int argc, char * argv[])
 			}
 			i++;
 		}
-		else if(!strcmp(argv[i], "-k") && (argc > i + 1))
+		else if(!strcmp(argv[i], "-pv") && (argc > i + 1))
 		{
 			p = argv[i + 1];
 			if(p && (strcmp(p, "") != 0) && (strlen(p) == 32 * 2))
 			{
 				for(o = 0; o < 32; o++)
 					private[o] = hex_string(p, o * 2);
-				flag |= ZFLAG_ECDSA256_SIGNATURE;
 			}
 			i++;
 		}
@@ -162,6 +153,10 @@ int main(int argc, char * argv[])
 			if(p && (strcmp(p, "") != 0) && (strlen(p) > 0))
 				msg = p;
 			i++;
+		}
+		else if(!strcmp(argv[i], "-e"))
+		{
+			encrypt = 1;
 		}
 		else if(*argv[i] == '-')
 		{
@@ -215,34 +210,15 @@ int main(int argc, char * argv[])
 	}
 	fclose(blfp);
 
-	if(flag & ZFLAG_LZ4_COMPRESS)
+	len = LZ4_compressBound(bllen);
+	zbllen = rsize + sizeof(struct zdesc_t) + len;
+	zblbuf = malloc(zbllen);
+	memset(zblbuf, 0, zbllen);
+	memcpy(&zblbuf[0], &blbuf[0], rsize);
+	clen = LZ4_compress_HC(&blbuf[0], &zblbuf[rsize + sizeof(struct zdesc_t)], bllen, len, 12);
+	zbllen = rsize + sizeof(struct zdesc_t) + clen;
+	if(encrypt)
 	{
-		len = LZ4_compressBound(bllen);
-		zbllen = rsize + sizeof(struct zdesc_t) + len;
-		zblbuf = malloc(zbllen);
-		memset(zblbuf, 0, zbllen);
-		memcpy(&zblbuf[0], &blbuf[0], rsize);
-		clen = LZ4_compress_HC(&blbuf[0], &zblbuf[rsize + sizeof(struct zdesc_t)], bllen, len, 12);
-		zbllen = rsize + sizeof(struct zdesc_t) + clen;
-	}
-	else
-	{
-		zbllen = rsize + sizeof(struct zdesc_t) + bllen;
-		zblbuf = malloc(zbllen);
-		memset(zblbuf, 0, zbllen);
-		memcpy(&zblbuf[0], &blbuf[0], rsize);
-		memcpy(&zblbuf[rsize + sizeof(struct zdesc_t)], &blbuf[0], bllen);
-		clen = bllen;
-		zbllen = rsize + sizeof(struct zdesc_t) + clen;
-	}
-
-	if(flag & ZFLAG_AES256_ENCRYPT)
-	{
-		printf("Aes256 encrypt key:\r\n\t");
-		for(o = 0; o < 32; o++)
-			printf("%02x", key[o]);
-		printf("\r\n");
-
 		aes256_set_key(&aesctx, key);
 		aes256_ctr_encrypt(&aesctx, 0, (uint8_t *)&zblbuf[rsize + sizeof(struct zdesc_t)], (uint8_t *)&zblbuf[rsize + sizeof(struct zdesc_t)], clen);
 	}
@@ -250,8 +226,9 @@ int main(int argc, char * argv[])
 	z = (struct zdesc_t *)&zblbuf[rsize];
 	z->magic[0] = 'Z';
 	z->magic[1] = 'B';
-	z->magic[2] = 'L';
-	z->magic[3] = '!';
+	z->magic[2] = id ? 'I' : 0;
+	z->magic[3] = encrypt ? 'E' : 0;
+	memcpy(&z->key[0], &key[0], 32);
 	z->csize[0] = (clen >> 24) & 0xff;
 	z->csize[1] = (clen >> 16) & 0xff;
 	z->csize[2] = (clen >>  8) & 0xff;
@@ -260,48 +237,48 @@ int main(int argc, char * argv[])
 	z->dsize[1] = (bllen >> 16) & 0xff;
 	z->dsize[2] = (bllen >>  8) & 0xff;
 	z->dsize[3] = (bllen >>  0) & 0xff;
-	memcpy(&z->key[0], &key[0], 32);
 	memcpy(&z->public[0], &public[0], 33);
 	z->majoy = majoy;
 	z->minior = minior;
 	z->patch = patch;
-	z->flag = flag;
 	if(msg)
-		strncpy((char *)&z->message[0], msg, 79 - 1);
+		strncpy((char *)&z->message[0], msg, 80 - 1);
 
 	sha256_init(&shactx);
-	if(z->flag & ZFLAG_SHA256_BINDID)
+	if(id)
 		sha256_update(&shactx, (void *)(id), strlen(id));
 	sha256_update(&shactx, (void *)(&z->csize[0]), 4);
 	sha256_update(&shactx, (void *)(&z->dsize[0]), 4);
-	sha256_update(&shactx, (void *)(&z->key[0]), 32);
 	sha256_update(&shactx, (void *)(&z->public[0]), 33);
 	sha256_update(&shactx, (void *)(&z->majoy), 1);
 	sha256_update(&shactx, (void *)(&z->minior), 1);
 	sha256_update(&shactx, (void *)(&z->patch), 1);
-	sha256_update(&shactx, (void *)(&z->flag), 1);
-	sha256_update(&shactx, (void *)(&z->message), 79);
+	sha256_update(&shactx, (void *)(&z->message[0]), 80);
 	sha256_update(&shactx, (void *)(&zblbuf[rsize + sizeof(struct zdesc_t)]), clen);
 	memcpy(&z->sha256[0], sha256_final(&shactx), SHA256_DIGEST_SIZE);
-	if(z->flag & ZFLAG_ECDSA256_SIGNATURE)
-	{
-		printf("Ecdsa256 public key:\r\n\t");
-		for(o = 0; o < 33; o++)
-			printf("%02x", z->public[o]);
-		printf("\r\n");
-		printf("Ecdsa256 private key:\r\n\t");
-		for(o = 0; o < 32; o++)
-			printf("%02x", private[o]);
-		printf("\r\n");
 
-		ecdsa256_sign(private, &z->sha256[0], &z->signature[0]);
-		if(!ecdsa256_verify(&z->public[0], &z->sha256[0], &z->signature[0]))
-		{
-			printf("Ecdsa256 signature verify failed, please check the ecdsa256 public and private key!\r\n");
-			free(zblbuf);
-			return -1;
-		}
+	printf("Aes256 encrypt key:\r\n\t");
+	for(o = 0; o < 32; o++)
+		printf("%02x", key[o]);
+	printf("\r\n");
+	printf("Ecdsa256 public key:\r\n\t");
+	for(o = 0; o < 33; o++)
+		printf("%02x", z->public[o]);
+	printf("\r\n");
+	printf("Ecdsa256 private key:\r\n\t");
+	for(o = 0; o < 32; o++)
+		printf("%02x", private[o]);
+	printf("\r\n");
+
+	ecdsa256_sign(private, &z->sha256[0], &z->signature[0]);
+	if(!ecdsa256_verify(&z->public[0], &z->sha256[0], &z->signature[0]))
+	{
+		printf("Ecdsa256 signature verify failed, please check the ecdsa256 public and private key!\r\n");
+		free(zblbuf);
+		return -1;
 	}
+	aes256_set_key(&aesctx, key);
+	aes256_ctr_encrypt(&aesctx, 0, (uint8_t *)&zblbuf[rsize + 36], (uint8_t *)&zblbuf[rsize + 36], sizeof(struct zdesc_t) - 36);
 
 	zblfp = fopen(zblpath, "w+b");
 	if(zblfp == NULL)
@@ -323,6 +300,6 @@ int main(int argc, char * argv[])
 	free(zblbuf);
 	fclose(zblfp);
 
-	printf("Compressed %d bytes into %d bytes ==> %f%% %s%s%s%s\r\n", bllen, clen, clen * 100.0 / bllen, (flag & ZFLAG_LZ4_COMPRESS) ? "[C]" : "", (flag & ZFLAG_AES256_ENCRYPT) ? "[E]" : "", (flag & ZFLAG_SHA256_BINDID) ? "[B]" : "", (flag & ZFLAG_ECDSA256_SIGNATURE) ? "[S]" : "");
+	printf("Compressed %d bytes into %d bytes ==> %f%% %s%s\r\n", bllen, clen, clen * 100.0 / bllen, id ? "[I]" : "", encrypt ? "[E]" : "");
 	return 0;
 }

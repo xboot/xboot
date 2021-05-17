@@ -74,13 +74,42 @@ static int get_boot_device(void)
 	return BOOT_DEVICE_FEL;
 }
 
+static void hexstr(char * str, unsigned char * buf, int len)
+{
+	char c;
+	int i;
+
+	for(i = 0; i < len; i++)
+	{
+		c = (buf[i] >> 4) & 0xf;
+		if(c >= 10)
+			*str++ = c - 10 + 'a';
+		else
+			*str++ = c + '0';
+		c = (buf[i] >> 0) & 0xf;
+		if(c >= 10)
+			*str++ = c - 10 + 'a';
+		else
+			*str++ = c + '0';
+	}
+	*str = '\0';
+}
+
 void sys_copyself(void)
 {
-	struct zdesc_t * z;
-	uint32_t csize, dsize;
+	int d = get_boot_device();
 	void * mem, * tmp;
 	uint32_t size;
-	int d = get_boot_device();
+	struct zdesc_t * z;
+	uint32_t csize, dsize;
+	char uniqueid[33];
+	uint32_t sid[4];
+
+	sid[0] = cpu_to_be32(read32(0x03006200 + 0x0));
+	sid[1] = cpu_to_be32(read32(0x03006200 + 0x4));
+	sid[2] = cpu_to_be32(read32(0x03006200 + 0x8));
+	sid[3] = cpu_to_be32(read32(0x03006200 + 0xc));
+	hexstr(uniqueid, (unsigned char *)sid, 16);
 
 	if(d == BOOT_DEVICE_FEL)
 	{
@@ -124,6 +153,7 @@ void sys_copyself(void)
 				sys_spinor_init();
 				sys_spinor_read(32768 + sizeof(struct zdesc_t), tmp, csize);
 				sys_spinor_exit();
+				if(sys_hash((z->magic[2] == 'I') ? uniqueid : NULL, (char *)z->csize, sizeof(struct zdesc_t) - 132 + csize, (char *)z->sha256))
 				{
 					if(z->magic[3] == 'E')
 						sys_crypt((char *)z->key, tmp, csize);

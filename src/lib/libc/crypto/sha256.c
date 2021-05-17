@@ -92,15 +92,15 @@ static void sha256_transform(struct sha256_ctx_t * ctx)
 
 void sha256_init(struct sha256_ctx_t * ctx)
 {
-    ctx->state[0] = 0x6a09e667;
-    ctx->state[1] = 0xbb67ae85;
-    ctx->state[2] = 0x3c6ef372;
-    ctx->state[3] = 0xa54ff53a;
-    ctx->state[4] = 0x510e527f;
-    ctx->state[5] = 0x9b05688c;
-    ctx->state[6] = 0x1f83d9ab;
-    ctx->state[7] = 0x5be0cd19;
-    ctx->count = 0;
+	ctx->state[0] = 0x6a09e667;
+	ctx->state[1] = 0xbb67ae85;
+	ctx->state[2] = 0x3c6ef372;
+	ctx->state[3] = 0xa54ff53a;
+	ctx->state[4] = 0x510e527f;
+	ctx->state[5] = 0x9b05688c;
+	ctx->state[6] = 0x1f83d9ab;
+	ctx->state[7] = 0x5be0cd19;
+	ctx->count = 0;
 }
 
 void sha256_update(struct sha256_ctx_t * ctx, const void * data, int len)
@@ -127,7 +127,7 @@ const uint8_t * sha256_final(struct sha256_ctx_t * ctx)
 	int i;
 
 	sha256_update(ctx, (uint8_t *)"\x80", 1);
-	while ((ctx->count & 63) != 56)
+	while((ctx->count & 63) != 56)
 	{
 		sha256_update(ctx, (uint8_t *)"\0", 1);
 	}

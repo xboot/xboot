@@ -36,6 +36,7 @@ extern void sys_mmu_init(void);
 extern void sys_uart_putc(char c);
 extern void sys_decompress(char * src, int slen, char * dst, int dlen);
 extern void sys_crypt(char * key, char * buf, int len);
+extern int sys_hash(char * id, char * buf, int len, char * digest);
 extern void sys_spinor_init(void);
 extern void sys_spinor_exit(void);
 extern void sys_spinor_read(int addr, void * buf, int count);
@@ -80,11 +81,11 @@ static int get_boot_device(void)
 
 void sys_copyself(void)
 {
-	struct zdesc_t z;
+	struct zdesc_t * z;
 	uint32_t csize, dsize;
-	int d = get_boot_device();
 	void * mem, * tmp;
-	u32_t size;
+	uint32_t size;
+	int d = get_boot_device();
 
 	if(d == BOOT_DEVICE_FEL)
 	{
@@ -122,25 +123,30 @@ void sys_copyself(void)
 	}
 	else if(d == BOOT_DEVICE_SPI)
 	{
+		z = (struct zdesc_t *)__heap_start;
 		mem = (void *)__image_start;
-		tmp = (void *)__heap_start;
+		tmp = (void *)z + sizeof(struct zdesc_t);
 		size = __image_end - __image_start;
 		sys_mmu_init();
 
 		sys_spinor_init();
-		sys_spinor_read(32768, &z, sizeof(struct zdesc_t));
+		sys_spinor_read(32768, z, sizeof(struct zdesc_t));
 		sys_spinor_exit();
-		if((z.magic[0] == 'Z') && (z.magic[1] == 'B'))
+		if((z->magic[0] == 'Z') && (z->magic[1] == 'B'))
 		{
-			sys_crypt((char *)z.key, (char *)z.sha256, sizeof(struct zdesc_t) - 36);
-			csize = (z.csize[0] << 24) | (z.csize[1] << 16) | (z.csize[2] << 8) | (z.csize[3] << 0);
-			dsize = (z.dsize[0] << 24) | (z.dsize[1] << 16) | (z.dsize[2] << 8) | (z.dsize[3] << 0);
-			sys_spinor_init();
-			sys_spinor_read(32768 + sizeof(struct zdesc_t), tmp, csize);
-			sys_spinor_exit();
-			if(z.magic[3] == 'E')
-				sys_crypt((char *)z.key, tmp, csize);
-			sys_decompress(tmp, csize, mem, dsize);
+			sys_crypt((char *)z->key, (char *)z->sha256, sizeof(struct zdesc_t) - 36);
+			{
+				csize = (z->csize[0] << 24) | (z->csize[1] << 16) | (z->csize[2] << 8) | (z->csize[3] << 0);
+				dsize = (z->dsize[0] << 24) | (z->dsize[1] << 16) | (z->dsize[2] << 8) | (z->dsize[3] << 0);
+				sys_spinor_init();
+				sys_spinor_read(32768 + sizeof(struct zdesc_t), tmp, csize);
+				sys_spinor_exit();
+				{
+					if(z->magic[3] == 'E')
+						sys_crypt((char *)z->key, tmp, csize);
+					sys_decompress(tmp, csize, mem, dsize);
+				}
+			}
 		}
 		else
 		{

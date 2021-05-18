@@ -311,7 +311,7 @@ static int do_mkz(int argc, char ** argv)
 	free(zblbuf);
 	vfs_close(fd);
 
-	printf("Compressed %d bytes into %d bytes ==> %f%% %s%s\r\n", bllen, clen, clen * 100.0 / bllen, uniqueid ? "[I]" : "", encrypt ? "[E]" : "");
+	printf("Compressed %d bytes into %d bytes ==> %f%% %s%s%s\r\n", bllen, clen, clen * 100.0 / bllen, keygen ? "[G]" : "", uniqueid ? "[I]" : "", encrypt ? "[E]" : "");
 	return 0;
 }
 

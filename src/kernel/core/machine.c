@@ -285,12 +285,15 @@ const char * machine_uniqueid(void)
 int machine_keygen(const char * msg, void * key)
 {
 	struct machine_t * mach = get_machine();
-	int len;
 
-	if(mach && mach->keygen && ((len = mach->keygen(mach, msg, key)) > 0))
-		return len;
-	sha256_hash(msg, strlen(msg), key);
-	return 32;
+	if(msg && key)
+	{
+		if(mach && mach->keygen && (mach->keygen(mach, msg, key) > 0))
+			return 1;
+		sha256_hash(msg, strlen(msg), key);
+		return 1;
+	}
+	return 0;
 }
 
 static virtual_addr_t __phys_to_virt(physical_addr_t phys)

@@ -319,9 +319,11 @@ static int l_xboot_uniqueid(lua_State * L)
 static int l_xboot_keygen(lua_State * L)
 {
 	const char * msg = luaL_optstring(L, 1, "");
-	char key[SZ_4K];
-	int len = machine_keygen(msg, key);
-	lua_pushlstring(L, key, len);
+	char key[32];
+	if(machine_keygen(msg, key))
+		lua_pushlstring(L, key, 32);
+	else
+		lua_pushnil(L);
 	return 1;
 }
 

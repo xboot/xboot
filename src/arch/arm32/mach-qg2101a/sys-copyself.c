@@ -36,6 +36,7 @@ extern void sys_mmu_init(void);
 extern void sys_uart_putc(char c);
 extern void sys_decompress(char * src, int slen, char * dst, int dlen);
 extern void sys_crypt(char * key, char * buf, int len);
+extern int sys_hash_keygen(char * msg, void * key);
 extern int sys_hash(char * id, char * buf, int len, char * digest);
 extern void sys_spinor_init(void);
 extern void sys_spinor_exit(void);
@@ -104,6 +105,7 @@ void sys_copyself(void)
 	uint32_t csize, dsize;
 	char uniqueid[33];
 	uint32_t sid[4];
+	int sum, i;
 
 	sid[0] = cpu_to_be32(read32(0x03006200 + 0x0));
 	sid[1] = cpu_to_be32(read32(0x03006200 + 0x4));
@@ -146,6 +148,10 @@ void sys_copyself(void)
 		sys_spinor_exit();
 		if((z->magic[0] == 'Z') && (z->magic[1] == 'B') && ((z->magic[2] == 'I') || (z->magic[2] == 0)) && ((z->magic[3] == 'E') || (z->magic[3] == 0)))
 		{
+			for(sum = 0, i = 0; i < 32; i++)
+				sum += z->key[i];
+			if(sum == 0)
+				sys_hash_keygen(uniqueid, z->key);
 			sys_crypt((char *)z->key, (char *)z->sha256, sizeof(struct zdesc_t) - 36);
 			{
 				csize = (z->csize[0] << 24) | (z->csize[1] << 16) | (z->csize[2] << 8) | (z->csize[3] << 0);

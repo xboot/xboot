@@ -181,6 +181,23 @@ static void sha256_final(struct sha256_ctx_t * ctx)
 	}
 }
 
+int sys_hash_keygen(char * msg, void * key)
+{
+	struct sha256_ctx_t ctx;
+	char * p;
+
+	if(msg && key)
+	{
+		sha256_init(&ctx);
+		for(p = msg; *p != '\0'; ++p);
+		sha256_update(&ctx, msg, p - msg);
+		sha256_final(&ctx);
+		memcpy(key, ctx.buf, 32);
+		return 1;
+	}
+	return 0;
+}
+
 int sys_hash(char * id, char * buf, int len, char * digest)
 {
 	struct sha256_ctx_t ctx;

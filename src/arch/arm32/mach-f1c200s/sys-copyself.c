@@ -36,6 +36,7 @@ extern void sys_mmu_init(void);
 extern void sys_uart_putc(char c);
 extern void sys_decompress(char * src, int slen, char * dst, int dlen);
 extern void sys_crypt(char * key, char * buf, int len);
+extern int sys_hash_keygen(char * msg, void * key);
 extern int sys_hash(char * id, char * buf, int len, char * digest);
 extern void sys_spinor_init(void);
 extern void sys_spinor_exit(void);

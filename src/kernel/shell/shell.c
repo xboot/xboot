@@ -42,9 +42,9 @@ int shell_realpath(const char * path, char * fpath)
 	char left[VFS_MAX_PATH];
 	char next_token[VFS_MAX_PATH];
 
-    if(path[0] == '/')
-    {
-    	fpath[0] = '/';
+	if(path[0] == '/')
+	{
+		fpath[0] = '/';
 		fpath[1] = '\0';
 		if(path[1] == '\0')
 			return 0;
@@ -52,9 +52,9 @@ int shell_realpath(const char * path, char * fpath)
 		full_len = 1;
 		left_len = strlcpy(left, (const char *)(path + 1), sizeof(left));
 	}
-    else
-    {
-    	spin_lock(&shell_cwd_lock);
+	else
+	{
+		spin_lock(&shell_cwd_lock);
 		strlcpy(fpath, shell_cwd, VFS_MAX_PATH);
 		spin_unlock(&shell_cwd_lock);
 		full_len = strlen(fpath);

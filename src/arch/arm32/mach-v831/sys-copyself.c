@@ -144,7 +144,7 @@ void sys_copyself(void)
 		sys_spinor_init();
 		sys_spinor_read(32768, z, sizeof(struct zdesc_t));
 		sys_spinor_exit();
-		if((z->magic[0] == 'Z') && (z->magic[1] == 'B'))
+		if((z->magic[0] == 'Z') && (z->magic[1] == 'B') && ((z->magic[2] == 'I') || (z->magic[2] == 0)) && ((z->magic[3] == 'E') || (z->magic[3] == 0)))
 		{
 			sys_crypt((char *)z->key, (char *)z->sha256, sizeof(struct zdesc_t) - 36);
 			{

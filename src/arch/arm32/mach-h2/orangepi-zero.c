@@ -134,15 +134,15 @@ static void mach_logger(struct machine_t * mach, const char * buf, int count)
 
 static const char * mach_uniqueid(struct machine_t * mach)
 {
-	static char uniqueid[32 + 3 + 1] = { 0 };
+	static char uniqueid[32 + 1] = { 0 };
 	virtual_addr_t virt = phys_to_virt(0x01c14000);
-	u32_t sid0, sid1, sid2, sid3;
+	uint32_t sid[4];
 
-	sid0 = sid_read_key(virt, 0 * 4);
-	sid1 = sid_read_key(virt, 1 * 4);
-	sid2 = sid_read_key(virt, 2 * 4);
-	sid3 = sid_read_key(virt, 3 * 4);
-	snprintf(uniqueid, sizeof(uniqueid), "%08x:%08x:%08x:%08x",sid0, sid1, sid2, sid3);
+	sid[0] = sid_read_key(virt, 0 * 4);
+	sid[1] = sid_read_key(virt, 1 * 4);
+	sid[2] = sid_read_key(virt, 2 * 4);
+	sid[3] = sid_read_key(virt, 3 * 4);
+	snprintf(uniqueid, sizeof(uniqueid), "%08x%08x%08x%08x",sid[0], sid[1], sid[2], sid[3]);
 	return uniqueid;
 }
 

@@ -198,7 +198,7 @@ int sys_hash_keygen(char * msg, void * key)
 	return 0;
 }
 
-int sys_hash(char * id, char * buf, int len, char * digest)
+int sys_hash(char * id, char * buf, int len, char * sha256)
 {
 	struct sha256_ctx_t ctx;
 	char * p;
@@ -214,7 +214,7 @@ int sys_hash(char * id, char * buf, int len, char * digest)
 	sha256_final(&ctx);
 	for(i = 0; i < 32; i++)
 	{
-		if(ctx.buf[i] != digest[i])
+		if(ctx.buf[i] != sha256[i])
 			return 0;
 	}
 	return 1;

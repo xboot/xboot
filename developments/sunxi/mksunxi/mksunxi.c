@@ -67,7 +67,7 @@ int main (int argc, char *argv[])
 		return -1;
 	}
 
-	buflen = ALIGN(filelen, 512);
+	buflen = ALIGN(filelen, 8192);
 	buffer = malloc(buflen);
 	memset(buffer, 0, buflen);
 	if(fread(buffer, 1, filelen, fp) != filelen)
@@ -81,7 +81,7 @@ int main (int argc, char *argv[])
 	h = (struct boot_head_t *)buffer;
 	p = (uint32_t *)h;
 	l = le32_to_cpu(h->length);
-	l = ALIGN(l, 512);
+	l = ALIGN(l, 8192);
 	h->length = cpu_to_le32(l);
 	h->checksum = cpu_to_le32(0x5F0A6C39);
 	loop = l >> 2;

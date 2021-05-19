@@ -32,4 +32,4 @@ MESSAGE		:= "https://github.com/xboot/xboot"
 xend:
 	@echo Make header information for brom booting
 	@$(MKSUNXI) $(X_NAME).bin
-	@$(MKZ) -majoy 3 -minior 0 -patch 0 -r 32768 -i $(BINDID) -k $(ENCRYPT_KEY) -pb $(PUBLIC_KEY) -pv $(PRIVATE_KEY) -m $(MESSAGE) $(X_NAME).bin $(X_NAME).bin.z
+	@$(MKZ) -majoy 3 -minior 0 -patch 0 -r 24576 -i $(BINDID) -k $(ENCRYPT_KEY) -pb $(PUBLIC_KEY) -pv $(PRIVATE_KEY) -m $(MESSAGE) $(X_NAME).bin $(X_NAME).bin.z

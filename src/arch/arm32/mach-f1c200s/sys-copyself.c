@@ -110,7 +110,7 @@ void sys_copyself(void)
 		sys_mmu_init();
 
 		sys_spinor_init();
-		sys_spinor_read(32768, z, sizeof(struct zdesc_t));
+		sys_spinor_read(24576, z, sizeof(struct zdesc_t));
 		sys_spinor_exit();
 		if((z->magic[0] == 'Z') && (z->magic[1] == 'B') && ((z->magic[2] == 'I') || (z->magic[2] == 0)) && ((z->magic[3] == 'E') || (z->magic[3] == 0)))
 		{
@@ -119,7 +119,7 @@ void sys_copyself(void)
 				csize = (z->csize[0] << 24) | (z->csize[1] << 16) | (z->csize[2] << 8) | (z->csize[3] << 0);
 				dsize = (z->dsize[0] << 24) | (z->dsize[1] << 16) | (z->dsize[2] << 8) | (z->dsize[3] << 0);
 				sys_spinor_init();
-				sys_spinor_read(32768 + sizeof(struct zdesc_t), tmp, csize);
+				sys_spinor_read(24576 + sizeof(struct zdesc_t), tmp, csize);
 				sys_spinor_exit();
 				{
 					if(z->magic[3] == 'E')

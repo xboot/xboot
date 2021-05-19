@@ -38,6 +38,7 @@ extern void sys_decompress(char * src, int slen, char * dst, int dlen);
 extern void sys_crypt(char * key, char * buf, int len);
 extern int sys_hash_keygen(char * msg, void * key);
 extern int sys_hash(char * id, char * buf, int len, char * sha256);
+extern int sys_verify(char * public, char * sha256, char * signature);
 extern void sys_spinor_init(void);
 extern void sys_spinor_exit(void);
 extern void sys_spinor_read(int addr, void * buf, int count);
@@ -144,7 +145,7 @@ void sys_copyself(void)
 		sys_mmu_init();
 
 		sys_spinor_init();
-		sys_spinor_read(32768, z, sizeof(struct zdesc_t));
+		sys_spinor_read(65536, z, sizeof(struct zdesc_t));
 		sys_spinor_exit();
 		if((z->magic[0] == 'Z') && (z->magic[1] == 'B') && ((z->magic[2] == 'I') || (z->magic[2] == 0)) && ((z->magic[3] == 'E') || (z->magic[3] == 0)))
 		{
@@ -153,11 +154,12 @@ void sys_copyself(void)
 			if(sum == 0)
 				sys_hash_keygen(uniqueid, z->key);
 			sys_crypt((char *)z->key, (char *)z->sha256, sizeof(struct zdesc_t) - 36);
+			if(sys_verify((char *)z->public, (char *)z->sha256, (char *)z->signature))
 			{
 				csize = (z->csize[0] << 24) | (z->csize[1] << 16) | (z->csize[2] << 8) | (z->csize[3] << 0);
 				dsize = (z->dsize[0] << 24) | (z->dsize[1] << 16) | (z->dsize[2] << 8) | (z->dsize[3] << 0);
 				sys_spinor_init();
-				sys_spinor_read(32768 + sizeof(struct zdesc_t), tmp, csize);
+				sys_spinor_read(65536 + sizeof(struct zdesc_t), tmp, csize);
 				sys_spinor_exit();
 				if(sys_hash((z->magic[2] == 'I') ? uniqueid : NULL, (char *)z->csize, sizeof(struct zdesc_t) - 132 + csize, (char *)z->sha256))
 				{

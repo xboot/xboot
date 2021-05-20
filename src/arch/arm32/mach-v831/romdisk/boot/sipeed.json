@@ -720,7 +720,8 @@
 
 	"audio-v831@0x05096000": {
 		"clock-name": "codec1x",
-		"reset": 656
+		"reset": 656,
+		"status": "disabled"
 	},
 
 	"key-adc@0": {

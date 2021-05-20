@@ -182,8 +182,8 @@ reset:
 	bl sys_uart_init
 	bl sys_clock_init
 
-	/* Avoid using dram binary space, copy self to 0x00038000 */
-	ldr r0, =0x00038000
+	/* Avoid using dram binary space, copy self to 0x00040000 */
+	ldr r0, =0x00040000
 	adr r1, _start
 	cmp r0, r1
 	beq _avoid
@@ -192,7 +192,7 @@ reset:
 	ldr r0, =_avoid
 	ldr r1, =_start
 	sub r0, r0, r1
-	ldr r1, =0x00038000
+	ldr r1, =0x00040000
 	add r0, r0, r1
 	mov pc, r0
 _avoid:

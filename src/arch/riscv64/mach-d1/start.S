@@ -44,13 +44,6 @@ reset:
 	csrw mie, zero
 	csrw mip, zero
 
-	call sys_uart_init
-	la a0, 'O'
-	call sys_uart_putc
-	call sys_uart_putc
-	call sys_uart_putc
-	call sys_uart_putc
-
 	/* Setup exception vectors */
 	la t1, _image_start
 	LREG t1, (t1)

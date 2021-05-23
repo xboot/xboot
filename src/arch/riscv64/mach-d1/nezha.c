@@ -71,7 +71,16 @@ static void mach_logger(struct machine_t * mach, const char * buf, int count)
 
 static const char * mach_uniqueid(struct machine_t * mach)
 {
-	return NULL;
+	static char uniqueid[32 + 1] = { 0 };
+	virtual_addr_t virt = phys_to_virt(0x03006200);
+	uint32_t sid[4];
+
+	sid[0] = read32(virt + 0 * 4);
+	sid[1] = read32(virt + 1 * 4);
+	sid[2] = read32(virt + 2 * 4);
+	sid[3] = read32(virt + 3 * 4);
+	snprintf(uniqueid, sizeof(uniqueid), "%08x%08x%08x%08x",sid[0], sid[1], sid[2], sid[3]);
+	return uniqueid;
 }
 
 static int mach_keygen(struct machine_t * mach, const char * msg, void * key)

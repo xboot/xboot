@@ -54,6 +54,13 @@
 	"reset-d1@0x02001c7c": { "reset-base": 1152, "reset-count": 32 },
 	"reset-d1@0x02001d0c": { "reset-base": 1184, "reset-count": 32 },
 
+	"gpio-d1@0x02000030": { "gpio-base":  32, "gpio-count": 13, "interrupt-offset": -1 },
+	"gpio-d1@0x02000060": { "gpio-base":  64, "gpio-count":  8, "interrupt-offset": -1 },
+	"gpio-d1@0x02000090": { "gpio-base":  96, "gpio-count": 23, "interrupt-offset": -1 },
+	"gpio-d1@0x020000c0": { "gpio-base": 128, "gpio-count": 18, "interrupt-offset": -1 },
+	"gpio-d1@0x020000f0": { "gpio-base": 160, "gpio-count":  7, "interrupt-offset": -1 },
+	"gpio-d1@0x02000120": { "gpio-base": 192, "gpio-count": 19, "interrupt-offset": -1 },
+
 	"uart-16550@0x02500000": {
 		"clock-name": "uart0",
 		"reset": 432,

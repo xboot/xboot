@@ -15,9 +15,48 @@
 
 	"clk-link": { "parent": "osc24m-750", "name": "wdg" },
 
+	"reset-d1@0x0200160c": { "reset-base":    0, "reset-count": 32 },
+	"reset-d1@0x0200162c": { "reset-base":   32, "reset-count": 32 },
+	"reset-d1@0x0200163c": { "reset-base":   64, "reset-count": 32 },
+	"reset-d1@0x0200168c": { "reset-base":   96, "reset-count": 32 },
+	"reset-d1@0x0200169c": { "reset-base":  128, "reset-count": 32 },
+	"reset-d1@0x0200170c": { "reset-base":  160, "reset-count": 32 },
+	"reset-d1@0x0200171c": { "reset-base":  192, "reset-count": 32 },
+	"reset-d1@0x0200172c": { "reset-base":  224, "reset-count": 32 },
+	"reset-d1@0x0200173c": { "reset-base":  256, "reset-count": 32 },
+	"reset-d1@0x0200178c": { "reset-base":  288, "reset-count": 32 },
+	"reset-d1@0x020017ac": { "reset-base":  320, "reset-count": 32 },
+	"reset-d1@0x0200180c": { "reset-base":  352, "reset-count": 32 },
+	"reset-d1@0x0200184c": { "reset-base":  384, "reset-count": 32 },
+	"reset-d1@0x0200190c": { "reset-base":  416, "reset-count": 32 },
+	"reset-d1@0x0200191c": { "reset-base":  448, "reset-count": 32 },
+	"reset-d1@0x0200196c": { "reset-base":  480, "reset-count": 32 },
+	"reset-d1@0x0200197c": { "reset-base":  512, "reset-count": 32 },
+	"reset-d1@0x020019cc": { "reset-base":  544, "reset-count": 32 },
+	"reset-d1@0x020019ec": { "reset-base":  576, "reset-count": 32 },
+	"reset-d1@0x020019fc": { "reset-base":  608, "reset-count": 32 },
+	"reset-d1@0x02001a20": { "reset-base":  640, "reset-count": 32 },
+	"reset-d1@0x02001a2c": { "reset-base":  672, "reset-count": 32 },
+	"reset-d1@0x02001a4c": { "reset-base":  704, "reset-count": 32 },
+	"reset-d1@0x02001a5c": { "reset-base":  736, "reset-count": 32 },
+	"reset-d1@0x02001a8c": { "reset-base":  768, "reset-count": 32 },
+	"reset-d1@0x02001a9c": { "reset-base":  800, "reset-count": 32 },
+	"reset-d1@0x02001abc": { "reset-base":  832, "reset-count": 32 },
+	"reset-d1@0x02001b4c": { "reset-base":  864, "reset-count": 32 },
+	"reset-d1@0x02001b7c": { "reset-base":  896, "reset-count": 32 },
+	"reset-d1@0x02001b9c": { "reset-base":  928, "reset-count": 32 },
+	"reset-d1@0x02001bac": { "reset-base":  960, "reset-count": 32 },
+	"reset-d1@0x02001bbc": { "reset-base":  992, "reset-count": 32 },
+	"reset-d1@0x02001bdc": { "reset-base": 1024, "reset-count": 32 },
+	"reset-d1@0x02001bfc": { "reset-base": 1056, "reset-count": 32 },
+	"reset-d1@0x02001c1c": { "reset-base": 1088, "reset-count": 32 },
+	"reset-d1@0x02001c5c": { "reset-base": 1120, "reset-count": 32 },
+	"reset-d1@0x02001c7c": { "reset-base": 1152, "reset-count": 32 },
+	"reset-d1@0x02001d0c": { "reset-base": 1184, "reset-count": 32 },
+
 	"uart-16550@0x02500000": {
 		"clock-name": "uart0",
-		"reset": -1,
+		"reset": 432,
 		"txd-gpio": -1,
 		"txd-gpio-config": -1,
 		"rxd-gpio": -1,
@@ -30,7 +69,7 @@
 
 	"uart-16550@0x02500400": {
 		"clock-name": "uart1",
-		"reset": -1,
+		"reset": 433,
 		"txd-gpio": -1,
 		"txd-gpio-config": -1,
 		"rxd-gpio": -1,
@@ -43,7 +82,7 @@
 
 	"uart-16550@0x02500800": {
 		"clock-name": "uart2",
-		"reset": -1,
+		"reset": 434,
 		"txd-gpio": -1,
 		"txd-gpio-config": -1,
 		"rxd-gpio": -1,
@@ -56,7 +95,7 @@
 
 	"uart-16550@0x02500c00": {
 		"clock-name": "uart3",
-		"reset": -1,
+		"reset": 435,
 		"txd-gpio": -1,
 		"txd-gpio-config": -1,
 		"rxd-gpio": -1,
@@ -69,7 +108,7 @@
 
 	"uart-16550@0x02501000": {
 		"clock-name": "uart4",
-		"reset": -1,
+		"reset": 436,
 		"txd-gpio": -1,
 		"txd-gpio-config": -1,
 		"rxd-gpio": -1,
@@ -82,7 +121,7 @@
 
 	"uart-16550@0x02501400": {
 		"clock-name": "uart5",
-		"reset": -1,
+		"reset": 437,
 		"txd-gpio": -1,
 		"txd-gpio-config": -1,
 		"rxd-gpio": -1,

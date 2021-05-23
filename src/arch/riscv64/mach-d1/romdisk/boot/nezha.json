@@ -1,14 +1,19 @@
 {
-	"clk-fixed@0": { "name": "xin24m", "rate": 24000000 },
-	"clk-fixed@1": { "name": "xin10m", "rate": 10000000 },
-	"clk-fixed@2": { "name": "xin32k", "rate": 32768 },
+	"clk-fixed@0": { "name": "losc", "rate": 32768 },
+	"clk-fixed@1": { "name": "iosc", "rate": 16000000 },
+	"clk-fixed@2": { "name": "osc24m", "rate": 24000000 },
 
-	"clk-link": { "parent": "xin24m", "name": "uart0" },
-	"clk-link": { "parent": "xin24m", "name": "uart1" },
-	"clk-link": { "parent": "xin24m", "name": "uart2" },
-	"clk-link": { "parent": "xin24m", "name": "uart3" },
-	"clk-link": { "parent": "xin24m", "name": "uart4" },
-	"clk-link": { "parent": "xin24m", "name": "uart5" },
+	"clk-fixed-factor@7": { "parent": "osc24m", "name": "osc24m-2", "mult": 1, "div": 2 },
+	"clk-fixed-factor@8": { "parent": "osc24m", "name": "osc24m-750", "mult": 1, "div": 750 },
+	
+	"clk-link": { "parent": "osc24m", "name": "uart0" },
+	"clk-link": { "parent": "osc24m", "name": "uart1" },
+	"clk-link": { "parent": "osc24m", "name": "uart2" },
+	"clk-link": { "parent": "osc24m", "name": "uart3" },
+	"clk-link": { "parent": "osc24m", "name": "uart4" },
+	"clk-link": { "parent": "osc24m", "name": "uart5" },
+
+	"clk-link": { "parent": "osc24m-750", "name": "wdg" },
 
 	"uart-16550@0x02500000": {
 		"clock-name": "uart0",
@@ -86,6 +91,10 @@
 		"data-bits": 8,
 		"parity-bits": 0,
 		"stop-bits": 1
+	},
+
+	"wdg-d1@0x020500a0": {
+		"clock-name": "wdg"
 	},
 
 	"console-uart@0": {

@@ -179,6 +179,11 @@ reset:
 	mul t0, t0, t3
 	sub sp, t2, t0
 
+	/* Initial system jtag, uart and clock */
+	call sys_jtag_init
+	call sys_uart_init
+	call sys_clock_init
+
 	/* Copyself to link address */
 	la t0, _start
 	la t1, _image_start

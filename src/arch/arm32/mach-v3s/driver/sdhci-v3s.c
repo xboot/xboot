@@ -361,7 +361,7 @@ static bool_t write_bytes(struct sdhci_v3s_pdata_t * pdat, u32_t * buf, u32_t bl
 
 	if(err & SDXC_INTERRUPT_ERROR_BIT)
 		return FALSE;
-	write32(pdat->virt + SD_GCTL, read32(pdat->virt + SD_RISR) | SDXC_FIFO_RESET);
+	write32(pdat->virt + SD_GCTL, read32(pdat->virt + SD_GCTL) | SDXC_FIFO_RESET);
 	write32(pdat->virt + SD_RISR, 0xffffffff);
 
 	if(count)

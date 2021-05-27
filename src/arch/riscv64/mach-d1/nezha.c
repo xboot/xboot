@@ -47,6 +47,8 @@ static void mach_shutdown(struct machine_t * mach)
 
 static void mach_reboot(struct machine_t * mach)
 {
+	virtual_addr_t virt = phys_to_virt(0x020500a0);
+	write32(virt + 0x08, (0x16aa << 16) | (0x1 << 0));
 }
 
 static void mach_sleep(struct machine_t * mach)

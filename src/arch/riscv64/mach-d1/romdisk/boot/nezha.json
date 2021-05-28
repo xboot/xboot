@@ -232,6 +232,12 @@
 	"gpio-d1@0x020000f0": { "gpio-base": 160, "gpio-count":  7, "interrupt-offset": -1 },
 	"gpio-d1@0x02000120": { "gpio-base": 192, "gpio-count": 19, "interrupt-offset": -1 },
 
+	"adc-d1@0x02009000": {
+		"clock-name": "bus-gpadc",
+		"reset": 592,
+		"reference-voltage": 1800000
+	},
+
 	"ce-d1-timer@0x02050000": {
 		"clock-name": "timer0",
 		"interrupt": 75

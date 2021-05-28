@@ -325,6 +325,46 @@
 		"stop-bits": 1
 	},
 
+	"i2c-d1@0x02502000": {
+		"clock-name": "bus-i2c0",
+		"clock-frequency": 400000,
+		"reset": 464,
+		"sda-gpio": -1,
+		"sda-gpio-config": -1,
+		"scl-gpio": -1,
+		"scl-gpio-config": -1
+	},
+
+	"i2c-d1@0x02502400": {
+		"clock-name": "bus-i2c1",
+		"clock-frequency": 400000,
+		"reset": 465,
+		"sda-gpio": -1,
+		"sda-gpio-config": -1,
+		"scl-gpio": -1,
+		"scl-gpio-config": -1
+	},
+
+	"i2c-d1@0x02502800": {
+		"clock-name": "bus-i2c2",
+		"clock-frequency": 400000,
+		"reset": 466,
+		"sda-gpio": 33,
+		"sda-gpio-config": 4,
+		"scl-gpio": 32,
+		"scl-gpio-config": 4
+	},
+
+	"i2c-d1@0x02502c00": {
+		"clock-name": "bus-i2c3",
+		"clock-frequency": 400000,
+		"reset": 467,
+		"sda-gpio": -1,
+		"sda-gpio-config": -1,
+		"scl-gpio": -1,
+		"scl-gpio-config": -1
+	},
+
 	"wdg-d1@0x020500a0": {
 		"clock-name": "wdg"
 	},

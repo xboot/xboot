@@ -98,12 +98,44 @@
 	"clk-divider@0x02001d00": { "parent": "mux-riscv", "name": "riscv", "shift": 0, "width": 5, "divider-one-based": true },
 	"clk-divider@0x02001d00": { "parent": "riscv", "name": "riscv-axi", "shift": 8, "width": 2, "divider-one-based": true },
 
+	"clk-mux@0x02050010": {
+		"parent": [
+			{ "name": "osc32k", "value": 0 },
+			{ "name": "dcxo24m", "value": 1 }
+		],
+		"name": "mux-timer0", "shift": 2, "width": 2
+	},
+	"clk-ratio@0x01c20c10": { "parent": "mux-timer0", "name": "timer0", "shift": 4, "width": 3 },
+
+	"clk-mux@0x02050020": {
+		"parent": [
+			{ "name": "osc32k", "value": 0 },
+			{ "name": "dcxo24m", "value": 1 }
+		],
+		"name": "mux-timer1", "shift": 2, "width": 2
+	},
+	"clk-ratio@0x02050020": { "parent": "mux-timer1", "name": "timer1", "shift": 4, "width": 3 },
+
 	"clk-gate@0x0200190c": {"parent": "apb1", "name": "bus-uart0", "shift": 0, "invert": false },
 	"clk-gate@0x0200190c": {"parent": "apb1", "name": "bus-uart1", "shift": 1, "invert": false },
 	"clk-gate@0x0200190c": {"parent": "apb1", "name": "bus-uart2", "shift": 2, "invert": false },
 	"clk-gate@0x0200190c": {"parent": "apb1", "name": "bus-uart3", "shift": 3, "invert": false },
 	"clk-gate@0x0200190c": {"parent": "apb1", "name": "bus-uart4", "shift": 4, "invert": false },
 	"clk-gate@0x0200190c": {"parent": "apb1", "name": "bus-uart5", "shift": 5, "invert": false },
+
+	"clk-gate@0x0200191c": {"parent": "apb1", "name": "bus-i2c0", "shift": 0, "invert": false },
+	"clk-gate@0x0200191c": {"parent": "apb1", "name": "bus-i2c1", "shift": 1, "invert": false },
+	"clk-gate@0x0200191c": {"parent": "apb1", "name": "bus-i2c2", "shift": 2, "invert": false },
+	"clk-gate@0x0200191c": {"parent": "apb1", "name": "bus-i2c3", "shift": 3, "invert": false },
+
+	"clk-gate@0x0200192c": {"parent": "apb1", "name": "bus-can0", "shift": 0, "invert": false },
+	"clk-gate@0x0200192c": {"parent": "apb1", "name": "bus-can1", "shift": 1, "invert": false },
+
+	"clk-gate@0x02001a20": {"parent": "apb1", "name": "bus-i2s0", "shift": 0, "invert": false },
+	"clk-gate@0x02001a20": {"parent": "apb1", "name": "bus-i2s1", "shift": 1, "invert": false },
+	"clk-gate@0x02001a20": {"parent": "apb1", "name": "bus-i2s2", "shift": 2, "invert": false },
+
+	"clk-gate@0x0200173c": {"parent": "psi-ahb", "name": "bus-hstimer", "shift": 0, "invert": false },
 
 	"clk-link": { "parent": "dcxo24m-div32k", "name": "wdg" },
 
@@ -152,6 +184,10 @@
 	"gpio-d1@0x020000c0": { "gpio-base": 128, "gpio-count": 18, "interrupt-offset": -1 },
 	"gpio-d1@0x020000f0": { "gpio-base": 160, "gpio-count":  7, "interrupt-offset": -1 },
 	"gpio-d1@0x02000120": { "gpio-base": 192, "gpio-count": 19, "interrupt-offset": -1 },
+
+	"cs-d1-timer@0x02050000": {
+		"clock-name": "timer1"
+	},
 
 	"uart-16550@0x02500000": {
 		"clock-name": "bus-uart0",

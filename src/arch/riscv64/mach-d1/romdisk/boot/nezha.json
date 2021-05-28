@@ -1,19 +1,61 @@
 {
-	"clk-fixed@0": { "name": "losc", "rate": 32768 },
-	"clk-fixed@1": { "name": "iosc", "rate": 16000000 },
-	"clk-fixed@2": { "name": "osc24m", "rate": 24000000 },
+	"clk-fixed@0": { "name": "ext-32k", "rate": 32768 },
+	"clk-fixed@1": { "name": "rc-16m", "rate": 16000000 },
+	"clk-fixed@2": { "name": "dcxo24m", "rate": 24000000 },
 
-	"clk-fixed-factor@7": { "parent": "osc24m", "name": "osc24m-2", "mult": 1, "div": 2 },
-	"clk-fixed-factor@8": { "parent": "osc24m", "name": "osc24m-750", "mult": 1, "div": 750 },
-	
-	"clk-link": { "parent": "osc24m", "name": "uart0" },
-	"clk-link": { "parent": "osc24m", "name": "uart1" },
-	"clk-link": { "parent": "osc24m", "name": "uart2" },
-	"clk-link": { "parent": "osc24m", "name": "uart3" },
-	"clk-link": { "parent": "osc24m", "name": "uart4" },
-	"clk-link": { "parent": "osc24m", "name": "uart5" },
+	"clk-gate@0x07090000": {"parent": "ext-32k", "name": "ext32k-gate", "shift": 4, "invert": false },
+	"clk-gate@0x07090160": {"parent": "rc-16m", "name": "iosc", "shift": 0, "invert": false },
+	"clk-fixed-factor": { "parent": "iosc", "name": "iosc-div32k", "mult": 1, "div": 500 },
+	"clk-mux@0x07090000": {
+		"parent": [
+			{ "name": "iosc-div32k", "value": 0 },
+			{ "name": "ext32k-gate", "value": 1 }
+		],
+		"name": "osc32k", "shift": 0, "width": 1
+	},
+	"clk-gate@0x07090060": {"parent": "dcxo24m", "name": "dcxo24m-div32k-gate", "shift": 16, "invert": false },
+	"clk-fixed-factor": { "parent": "dcxo24m-div32k-gate", "name": "dcxo24m-div32k", "mult": 1, "div": 750 },
+	"clk-mux@0x07090000": {
+		"parent": [
+			{ "name": "osc32k", "value": 0 },
+			{ "name": "dcxo24m-div32k", "value": 1 }
+		],
+		"name": "rtc32k", "shift": 1, "width": 1
+	},
+	"clk-fixed-factor@2": { "parent": "rtc32k", "name": "rtc-1k", "mult": 1, "div": 32 },
 
-	"clk-link": { "parent": "osc24m-750", "name": "wdg" },
+	"clk-d1-pll@0": { "parent": "dcxo24m", "name": "pll-cpux", "channel": 0 },
+	"clk-d1-pll@1": { "parent": "dcxo24m", "name": "pll-ddr0", "channel": 1 },
+	"clk-d1-pll@2": { "parent": "dcxo24m", "name": "pll-periph0-parent", "channel": 2 },
+	"clk-d1-pll@3": { "parent": "dcxo24m", "name": "pll-video0", "channel": 3 },
+	"clk-d1-pll@4": { "parent": "dcxo24m", "name": "pll-video1", "channel": 4 },
+	"clk-d1-pll@5": { "parent": "dcxo24m", "name": "pll-ve", "channel": 5 },
+	"clk-d1-pll@6": { "parent": "dcxo24m", "name": "pll-audio0-4x", "channel": 6 },
+	"clk-d1-pll@7": { "parent": "dcxo24m", "name": "pll-audio1", "channel": 7 },
+
+	"clk-ratio@0x02001500": { "parent": "pll-cpux", "name": "pll-cpux-div", "shift": 16, "width": 2 },
+	"clk-divider@0x02001020": { "parent": "pll-periph0-parent", "name": "pll-periph0-2x", "shift": 16, "width": 3, "divider-one-based": true },
+	"clk-divider@0x02001020": { "parent": "pll-periph0-parent", "name": "pll-periph0-800m", "shift": 20, "width": 3, "divider-one-based": true },
+	"clk-fixed-factor": { "parent": "pll-periph0-2x", "name": "pll-periph0", "mult": 1, "div": 2 },
+	"clk-fixed-factor": { "parent": "pll-periph0", "name": "pll-periph0-div3", "mult": 1, "div": 3 },
+	"clk-fixed-factor": { "parent": "pll-video0", "name": "pll-video0-4x", "mult": 4, "div": 1 },
+	"clk-fixed-factor": { "parent": "pll-video0", "name": "pll-video0-2x", "mult": 2, "div": 1 },
+	"clk-fixed-factor": { "parent": "pll-video1", "name": "pll-video1-4x", "mult": 4, "div": 1 },
+	"clk-fixed-factor": { "parent": "pll-video1", "name": "pll-video1-2x", "mult": 2, "div": 1 },
+	"clk-fixed-factor": { "parent": "pll-audio0-4x", "name": "pll-audio0-2x", "mult": 1, "div": 2 },
+	"clk-fixed-factor": { "parent": "pll-audio0-4x", "name": "pll-audio0", "mult": 1, "div": 4 },
+	"clk-divider@0x02001080": { "parent": "pll-audio1", "name": "pll-audio1-div5", "shift": 20, "width": 3, "divider-one-based": true },
+	"clk-divider@0x02001080": { "parent": "pll-audio1", "name": "pll-audio1-div2", "shift": 16, "width": 3, "divider-one-based": true },
+
+	"clk-link": { "parent": "dcxo24m", "name": "uart0" },
+	"clk-link": { "parent": "dcxo24m", "name": "uart1" },
+	"clk-link": { "parent": "dcxo24m", "name": "uart2" },
+	"clk-link": { "parent": "dcxo24m", "name": "uart3" },
+	"clk-link": { "parent": "dcxo24m", "name": "uart4" },
+	"clk-link": { "parent": "dcxo24m", "name": "uart5" },
+
+	"clk-fixed-factor@8": { "parent": "dcxo24m", "name": "dcxo24m-750", "mult": 1, "div": 750 },
+	"clk-link": { "parent": "dcxo24m-750", "name": "wdg" },
 
 	"reset-d1@0x0200160c": { "reset-base":    0, "reset-count": 32 },
 	"reset-d1@0x0200162c": { "reset-base":   32, "reset-count": 32 },

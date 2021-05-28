@@ -373,6 +373,14 @@
 		"scl-gpio-config": -1
 	},
 
+	"gpio-pcf8574@0": {
+		"i2c-bus": "i2c-d1.2",
+		"slave-address": 56,
+		"gpio-base": 224,
+		"gpio-count": 8,
+		"interrupt-offset": -1
+	},
+
 	"wdg-d1@0x020500a0": {
 		"clock-name": "wdg"
 	},

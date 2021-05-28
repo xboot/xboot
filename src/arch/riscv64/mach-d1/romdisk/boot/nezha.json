@@ -105,7 +105,7 @@
 		],
 		"name": "mux-timer0", "shift": 2, "width": 2
 	},
-	"clk-ratio@0x01c20c10": { "parent": "mux-timer0", "name": "timer0", "shift": 4, "width": 3 },
+	"clk-ratio@0x02050010": { "parent": "mux-timer0", "name": "timer0", "shift": 4, "width": 3, "default": { "rate": 24000000 } },
 
 	"clk-mux@0x02050020": {
 		"parent": [
@@ -114,7 +114,7 @@
 		],
 		"name": "mux-timer1", "shift": 2, "width": 2
 	},
-	"clk-ratio@0x02050020": { "parent": "mux-timer1", "name": "timer1", "shift": 4, "width": 3 },
+	"clk-ratio@0x02050020": { "parent": "mux-timer1", "name": "timer1", "shift": 4, "width": 3, "default": { "rate": 24000000 } },
 
 	"clk-gate@0x020017ac": {"parent": "apb0", "name": "bus-pwm", "shift": 0, "invert": false },
 	"clk-gate@0x020017bc": {"parent": "apb0", "name": "bus-iommu", "shift": 0, "invert": false },
@@ -223,12 +223,19 @@
 	"reset-d1@0x02001c7c": { "reset-base": 1152, "reset-count": 32 },
 	"reset-d1@0x02001d0c": { "reset-base": 1184, "reset-count": 32 },
 
+	"irq-d1@0x10000000": { "interrupt-base": 0, "interrupt-count": 256 },
+
 	"gpio-d1@0x02000030": { "gpio-base":  32, "gpio-count": 13, "interrupt-offset": -1 },
 	"gpio-d1@0x02000060": { "gpio-base":  64, "gpio-count":  8, "interrupt-offset": -1 },
 	"gpio-d1@0x02000090": { "gpio-base":  96, "gpio-count": 23, "interrupt-offset": -1 },
 	"gpio-d1@0x020000c0": { "gpio-base": 128, "gpio-count": 18, "interrupt-offset": -1 },
 	"gpio-d1@0x020000f0": { "gpio-base": 160, "gpio-count":  7, "interrupt-offset": -1 },
 	"gpio-d1@0x02000120": { "gpio-base": 192, "gpio-count": 19, "interrupt-offset": -1 },
+
+	"ce-d1-timer@0x02050000": {
+		"clock-name": "timer0",
+		"interrupt": 75
+	},
 
 	"cs-d1-timer@0x02050000": {
 		"clock-name": "timer1"
@@ -314,6 +321,18 @@
 
 	"wdg-d1@0x020500a0": {
 		"clock-name": "wdg"
+	},
+
+	"led-gpio@0": {
+		"gpio": 36,
+		"gpio-config": 1,
+		"active-low": true,
+		"default-brightness": 0
+	},
+
+	"ledtrigger-heartbeat@0": {
+		"led-name": "led-gpio.0",
+		"period-ms": 1260
 	},
 
 	"console-uart@0": {

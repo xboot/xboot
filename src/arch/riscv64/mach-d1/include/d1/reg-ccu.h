@@ -57,6 +57,7 @@
 #define CCU_APB0_CLK_REG				(0x520)
 #define CCU_APB1_CLK_REG				(0x524)
 #define CCU_MBUS_CLK_REG				(0x540)
+#define CCU_DMA_BGR_REG					(0x70c)
 #define CCU_DRAM_CLK_REG				(0x800)
 #define CCU_MBUS_MAT_CLK_GATING_REG		(0x804)
 #define CCU_DRAM_BGR_REG				(0x80c)

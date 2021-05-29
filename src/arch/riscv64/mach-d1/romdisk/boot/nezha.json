@@ -224,13 +224,19 @@
 	"reset-d1@0x02001d0c": { "reset-base": 1184, "reset-count": 32 },
 
 	"irq-d1@0x10000000": { "interrupt-base": 0, "interrupt-count": 256 },
+	"irq-d1-gpio@0x02000220": { "interrupt-base": 256, "interrupt-count": 13, "interrupt-parent":  85 },
+	"irq-d1-gpio@0x02000240": { "interrupt-base": 288, "interrupt-count":  8, "interrupt-parent":  87 },
+	"irq-d1-gpio@0x02000260": { "interrupt-base": 320, "interrupt-count": 23, "interrupt-parent":  89 },
+	"irq-d1-gpio@0x02000280": { "interrupt-base": 352, "interrupt-count": 18, "interrupt-parent":  91 },
+	"irq-d1-gpio@0x020002a0": { "interrupt-base": 384, "interrupt-count":  7, "interrupt-parent":  93 },
+	"irq-d1-gpio@0x020002c0": { "interrupt-base": 416, "interrupt-count": 19, "interrupt-parent":  95 },
 
-	"gpio-d1@0x02000030": { "gpio-base":  32, "gpio-count": 13, "interrupt-offset": -1 },
-	"gpio-d1@0x02000060": { "gpio-base":  64, "gpio-count":  8, "interrupt-offset": -1 },
-	"gpio-d1@0x02000090": { "gpio-base":  96, "gpio-count": 23, "interrupt-offset": -1 },
-	"gpio-d1@0x020000c0": { "gpio-base": 128, "gpio-count": 18, "interrupt-offset": -1 },
-	"gpio-d1@0x020000f0": { "gpio-base": 160, "gpio-count":  7, "interrupt-offset": -1 },
-	"gpio-d1@0x02000120": { "gpio-base": 192, "gpio-count": 19, "interrupt-offset": -1 },
+	"gpio-d1@0x02000030": { "gpio-base":  32, "gpio-count": 13, "interrupt-offset": 256 },
+	"gpio-d1@0x02000060": { "gpio-base":  64, "gpio-count":  8, "interrupt-offset": 288 },
+	"gpio-d1@0x02000090": { "gpio-base":  96, "gpio-count": 23, "interrupt-offset": 320 },
+	"gpio-d1@0x020000c0": { "gpio-base": 128, "gpio-count": 18, "interrupt-offset": 352 },
+	"gpio-d1@0x020000f0": { "gpio-base": 160, "gpio-count":  7, "interrupt-offset": 384 },
+	"gpio-d1@0x02000120": { "gpio-base": 192, "gpio-count": 19, "interrupt-offset": 416 },
 
 	"dma-d1@0x03002000": {
 		"clock-name": "bus-dma",

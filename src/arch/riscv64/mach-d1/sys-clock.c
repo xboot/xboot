@@ -159,7 +159,7 @@ static void set_dma(void)
 	write32(D1_CCU_BASE + CCU_DMA_BGR_REG, read32(D1_CCU_BASE + CCU_DMA_BGR_REG) | (1 << 16));
 	sdelay(20);
 	/* Enable gating clock for dma */
-	write32(D1_CCU_BASE + CCU_DMA_BGR_REG, read32(D1_CCU_BASE + CCU_DMA_BGR_REG) | (1 << 0) );
+	write32(D1_CCU_BASE + CCU_DMA_BGR_REG, read32(D1_CCU_BASE + CCU_DMA_BGR_REG) | (1 << 0));
 }
 
 static void set_mbus(void)
@@ -173,6 +173,31 @@ static void set_mbus(void)
 	sdelay(1);
 }
 
+static void set_module(virtual_addr_t addr)
+{
+	uint32_t val;
+
+	if(!(read32(addr) & (1 << 31)))
+	{
+		val = read32(addr);
+		write32(addr, val | (1 << 31) | (1 << 30));
+
+		/* Lock enable */
+		val = read32(addr);
+		val |= (1 << 29);
+		write32(addr, val);
+
+		/* Wait pll stable */
+		while(!(read32(addr) & (0x1 << 28)));
+		sdelay(20);
+
+		/* Lock disable */
+		val = read32(addr);
+		val &= ~(1 << 29);
+		write32(addr, val);
+	}
+}
+
 void sys_clock_init(void)
 {
 	set_pll_cpux_axi();
@@ -181,4 +206,10 @@ void sys_clock_init(void)
 	set_apb();
 	set_dma();
 	set_mbus();
+	set_module(D1_CCU_BASE + CCU_PLL_PERI0_CTRL_REG);
+	set_module(D1_CCU_BASE + CCU_PLL_VIDEO0_CTRL_REG);
+	set_module(D1_CCU_BASE + CCU_PLL_VIDEO1_CTRL_REG);
+	set_module(D1_CCU_BASE + CCU_PLL_VE_CTRL);
+	set_module(D1_CCU_BASE + CCU_PLL_AUDIO0_CTRL_REG);
+	set_module(D1_CCU_BASE + CCU_PLL_AUDIO1_CTRL_REG);
 }

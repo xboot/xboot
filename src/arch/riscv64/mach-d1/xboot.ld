@@ -23,6 +23,7 @@ SECTIONS
 		.obj/arch/riscv64/mach-d1/sys-jtag.o (.text*)
 		.obj/arch/riscv64/mach-d1/sys-uart.o (.text*)
 		.obj/arch/riscv64/mach-d1/sys-clock.o (.text*)
+		.obj/arch/riscv64/mach-d1/sys-spinor.o (.text*)
 		*(.text*)
 		*(.init.text)
 		*(.exit.text)

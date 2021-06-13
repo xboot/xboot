@@ -116,6 +116,38 @@
 	},
 	"clk-ratio@0x02050020": { "parent": "mux-timer1", "name": "timer1", "shift": 4, "width": 3, "default": { "rate": 24000000 } },
 
+	"clk-mux@0x02001940": {
+		"parent": [
+			{ "name": "dcxo24m", "value": 0 },
+			{ "name": "pll-periph0", "value": 1 },
+			{ "name": "pll-periph0-2x", "value": 2 },
+			{ "name": "pll-audio1-div2", "value": 3 },
+			{ "name": "pll-audio1-div5", "value": 4 }
+		],
+		"name": "mux-spi0", "shift": 24, "width": 3,
+		"default": { "parent": "pll-periph0" }
+	},
+	"clk-divider@0x02001940": { "parent": "mux-spi0", "name": "div-spi0", "shift": 0, "width": 4, "divider-one-based": true, "default": { "rate": 100000000 } },
+	"clk-ratio@0x02001940": { "parent": "div-spi0", "name": "radio-spi0", "shift": 8, "width": 2 },
+	"clk-gate@0x0200196c": {"parent": "radio-spi0", "name": "gate-spi0", "shift": 0, "invert": false },
+	"clk-gate@0x02001940": {"parent": "gate-spi0", "name": "spi0", "shift": 31, "invert": false },
+
+	"clk-mux@0x02001944": {
+		"parent": [
+			{ "name": "dcxo24m", "value": 0 },
+			{ "name": "pll-periph0", "value": 1 },
+			{ "name": "pll-periph0-2x", "value": 2 },
+			{ "name": "pll-audio1-div2", "value": 3 },
+			{ "name": "pll-audio1-div5", "value": 4 }
+		],
+		"name": "mux-spi1", "shift": 24, "width": 3,
+		"default": { "parent": "pll-periph0" }
+	},
+	"clk-divider@0x02001944": { "parent": "mux-spi1", "name": "div-spi1", "shift": 0, "width": 4, "divider-one-based": true, "default": { "rate": 100000000 } },
+	"clk-ratio@0x02001944": { "parent": "div-spi1", "name": "radio-spi1", "shift": 8, "width": 2 },
+	"clk-gate@0x0200196c": {"parent": "radio-spi1", "name": "gate-spi1", "shift": 1, "invert": false },
+	"clk-gate@0x02001944": {"parent": "gate-spi1", "name": "spi1", "shift": 31, "invert": false },
+
 	"clk-gate@0x020017ac": { "parent": "apb0", "name": "bus-pwm", "shift": 0, "invert": false },
 	"clk-gate@0x020017bc": { "parent": "apb0", "name": "bus-iommu", "shift": 0, "invert": false },
 	"clk-gate@0x020019cc": { "parent": "apb0", "name": "bus-ir-tx", "shift": 0, "invert": false },
@@ -159,8 +191,8 @@
 	"clk-gate@0x0200184c": { "parent": "psi-ahb", "name": "bus-mmc0", "shift": 0, "invert": false },
 	"clk-gate@0x0200184c": { "parent": "psi-ahb", "name": "bus-mmc1", "shift": 1, "invert": false },
 	"clk-gate@0x0200184c": { "parent": "psi-ahb", "name": "bus-mmc2", "shift": 2, "invert": false },
-	"clk-gate@0x0200196c": { "parent": "psi-ahb", "name": "bus-spi0", "shift": 0, "invert": false },
-	"clk-gate@0x0200196c": { "parent": "psi-ahb", "name": "bus-spi1", "shift": 0, "invert": false },
+	"clk-gate@0x0200196c": { "parent": "psi-ahb", "name": "bus-spi0", "shift": 0, "invert": false, "default": { "enable": true } },
+	"clk-gate@0x0200196c": { "parent": "psi-ahb", "name": "bus-spi1", "shift": 0, "invert": false, "default": { "enable": true } },
 	"clk-gate@0x0200197c": { "parent": "psi-ahb", "name": "bus-emac0", "shift": 0, "invert": false },
 	"clk-gate@0x02001a8c": { "parent": "psi-ahb", "name": "bus-ohci0", "shift": 0, "invert": false },
 	"clk-gate@0x02001a8c": { "parent": "psi-ahb", "name": "bus-ohci1", "shift": 1, "invert": false },

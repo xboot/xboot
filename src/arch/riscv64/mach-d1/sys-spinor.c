@@ -49,18 +49,8 @@ void sys_spinor_init(void)
 	virtual_addr_t addr;
 	u32_t val;
 
-	/* Config PC2, PC3, PC4 and PC5 */
+	/* Config GPIOC2, GPIOC3, GPIOC4 and GPIOC5 */
 	addr = 0x02000060 + 0x00;
-	val = read32(addr);
-	val &= ~(0xf << ((0 & 0x7) << 2));
-	val |= ((0x2 & 0xf) << ((0 & 0x7) << 2));
-	write32(addr, val);
-
-	val = read32(addr);
-	val &= ~(0xf << ((1 & 0x7) << 2));
-	val |= ((0x2 & 0xf) << ((1 & 0x7) << 2));
-	write32(addr, val);
-
 	val = read32(addr);
 	val &= ~(0xf << ((2 & 0x7) << 2));
 	val |= ((0x2 & 0xf) << ((2 & 0x7) << 2));
@@ -69,6 +59,16 @@ void sys_spinor_init(void)
 	val = read32(addr);
 	val &= ~(0xf << ((3 & 0x7) << 2));
 	val |= ((0x2 & 0xf) << ((3 & 0x7) << 2));
+	write32(addr, val);
+
+	val = read32(addr);
+	val &= ~(0xf << ((4 & 0x7) << 2));
+	val |= ((0x2 & 0xf) << ((4 & 0x7) << 2));
+	write32(addr, val);
+
+	val = read32(addr);
+	val &= ~(0xf << ((5 & 0x7) << 2));
+	val |= ((0x2 & 0xf) << ((5 & 0x7) << 2));
 	write32(addr, val);
 
 	/* Deassert spi0 reset */

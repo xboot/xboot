@@ -10,25 +10,25 @@ make CROSS_COMPILE=/path/to/arm-none-linux-gnueabihf- PLATFORM=arm32-v831
 
 ## 烧写到RAM中并运行
 ```shell
-sunxi-fel spl xboot.bin; sunxi-fel -p write 0x40000000 xboot.bin; sunxi-fel exec 0x40000000;
+sudo xfel ddr; sudo xfel write 0x40000000 xboot.bin; sudo xfel exec 0x40000000;
 ```
 
 ## 烧写普通镜像到SPI Flash
 ```shell
-sunxi-fel -p spiflash-write 0 xboot.bin
+sudo xfel spinor write 0 xboot.bin
 ```
 
 ## 烧写压缩镜像到SPI Flash
 ```shell
-sunxi-fel -p spiflash-write 0 xboot.bin.z
+sudo xfel spinor write 0 xboot.bin.z
 ```
 
-## 下载sunxi-fel源码
+## 下载xfel工具源码
 ```shell
-git clone https://github.com/linux-sunxi/sunxi-tools.git
+git clone https://github.com/xboot/xfel.git
 ```
 
-## 编译安装sunxi-fel
+## 编译安装xfel工具
 ```shell
 make
 sudo make install

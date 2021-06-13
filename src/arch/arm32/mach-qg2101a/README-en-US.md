@@ -10,25 +10,25 @@ make CROSS_COMPILE=/path/to/arm-none-linux-gnueabihf- PLATFORM=arm32-qg2101a
 
 ## Brun to RAM and execute
 ```shell
-sunxi-fel spl xboot.bin; sunxi-fel -p write 0x40000000 xboot.bin; sunxi-fel exec 0x40000000;
+sudo xfel ddr; sudo xfel write 0x40000000 xboot.bin; sudo xfel exec 0x40000000;
 ```
 
 ## Brun normal image to SPI Flash
 ```shell
-sunxi-fel -p spiflash-write 0 xboot.bin
+sudo xfel spinor write 0 xboot.bin
 ```
 
 ## Brun compress image to SPI Flash
 ```shell
-sunxi-fel -p spiflash-write 0 xboot.bin.z
+sudo xfel spinor write 0 xboot.bin.z
 ```
 
-## Download sunxi-fel source code
+## Download xfel tool's source code
 ```shell
-git clone https://github.com/linux-sunxi/sunxi-tools.git
+git clone https://github.com/xboot/xfel.git
 ```
 
-## Make and install sunxi-fel
+## Make and install xfel tool
 ```shell
 make
 sudo make install

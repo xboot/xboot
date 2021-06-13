@@ -71,7 +71,7 @@ static void clk_ratio_set_rate(struct clk_t * clk, u64_t prate, u64_t rate)
 
 	val = read32(pdat->virt);
 	val &= ~(mask << pdat->shift);
-	val |= fls(div) << pdat->shift;
+	val |= ilog2(div) << pdat->shift;
 	write32(pdat->virt, val);
 }
 

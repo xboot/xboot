@@ -191,8 +191,6 @@
 	"clk-gate@0x0200184c": { "parent": "psi-ahb", "name": "bus-mmc0", "shift": 0, "invert": false },
 	"clk-gate@0x0200184c": { "parent": "psi-ahb", "name": "bus-mmc1", "shift": 1, "invert": false },
 	"clk-gate@0x0200184c": { "parent": "psi-ahb", "name": "bus-mmc2", "shift": 2, "invert": false },
-	"clk-gate@0x0200196c": { "parent": "psi-ahb", "name": "bus-spi0", "shift": 0, "invert": false, "default": { "enable": true } },
-	"clk-gate@0x0200196c": { "parent": "psi-ahb", "name": "bus-spi1", "shift": 0, "invert": false, "default": { "enable": true } },
 	"clk-gate@0x0200197c": { "parent": "psi-ahb", "name": "bus-emac0", "shift": 0, "invert": false },
 	"clk-gate@0x02001a8c": { "parent": "psi-ahb", "name": "bus-ohci0", "shift": 0, "invert": false },
 	"clk-gate@0x02001a8c": { "parent": "psi-ahb", "name": "bus-ohci1", "shift": 1, "invert": false },

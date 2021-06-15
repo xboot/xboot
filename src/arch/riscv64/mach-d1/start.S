@@ -101,6 +101,14 @@ reset:
 	li t0, MSTATUS_FS | MSTATUS_XS
 	csrs mstatus, t0
 
+	/* Enable theadisaee */
+	li t1, 0x1 << 22
+	.word 0x7c032073	/* csrs mxstatus, t1 */
+
+	/* Invaild icache/dcache/btb/bht */
+	li t1, 0x30013
+	.word 0x7c232073	/* csrs mcor, t1 */
+
 #if __riscv_flen == 32
 	fssr x0
 	fmv.s.x f0, x0

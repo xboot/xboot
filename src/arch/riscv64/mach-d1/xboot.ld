@@ -17,6 +17,7 @@ SECTIONS
 	{
 		PROVIDE(__image_start = .);
 		PROVIDE(__text_start = .);
+		PROVIDE(__spl_start = .);
 		.obj/arch/riscv64/mach-d1/start.o (.text*)
 		.obj/arch/riscv64/lib/memcpy.o (.text*)
 		.obj/arch/riscv64/lib/memset.o (.text*)
@@ -24,6 +25,7 @@ SECTIONS
 		.obj/arch/riscv64/mach-d1/sys-uart.o (.text*)
 		.obj/arch/riscv64/mach-d1/sys-clock.o (.text*)
 		.obj/arch/riscv64/mach-d1/sys-spinor.o (.text*)
+		PROVIDE(__spl_end = .);
 		*(.text*)
 		*(.init.text)
 		*(.exit.text)
@@ -31,6 +33,7 @@ SECTIONS
 		*(.note.gnu.build-id)
 		PROVIDE(__text_end = .);
 	} > ram
+	PROVIDE(__spl_size = __spl_end - __spl_start);
 
 	.initcall ALIGN(8) :
 	{

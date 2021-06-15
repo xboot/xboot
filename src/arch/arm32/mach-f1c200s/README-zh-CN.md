@@ -10,30 +10,25 @@ make CROSS_COMPILE=/path/to/arm-none-eabi- PLATFORM=arm32-f1c200s
 
 ## 烧写到RAM中并运行
 ```shell
-sunxi-fel spl xboot.bin; sunxi-fel -p write 0x80000000 xboot.bin; sunxi-fel exec 0x80000000;
+sudo xfel ddr; sudo xfel write 0x80000000 xboot.bin; sudo xfel exec 0x80000000;
 ```
 
 ## 烧写普通镜像到SPI Flash
 ```shell
-sunxi-fel -p spiflash-write 0 xboot.bin
+sudo xfel spinor write 0 xboot.bin
 ```
 
 ## 烧写压缩镜像到SPI Flash
 ```shell
-sunxi-fel -p spiflash-write 0 xboot.bin.z
+sudo xfel spinor write 0 xboot.bin.z
 ```
 
-## 关于sunxi-fel工具
-
-sunxi-fel工具默认并没有支持F1C200S，这里需要自行下载源码并编译
-
-## 下载sunxi-fel源码
+## 下载xfel工具源码
 ```shell
-git clone https://github.com/Icenowy/sunxi-tools.git
-git checkout -b f1c100s-spiflash origin/f1c100s-spiflash
+git clone https://github.com/xboot/xfel.git
 ```
 
-## 编译安装sunxi-fel
+## 编译安装xfel工具
 ```shell
 make
 sudo make install

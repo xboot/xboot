@@ -10,30 +10,25 @@ make CROSS_COMPILE=/path/to/arm-none-eabi- PLATFORM=arm32-f1c100s
 
 ## Brun to RAM and execute
 ```shell
-sunxi-fel spl xboot.bin; sunxi-fel -p write 0x80000000 xboot.bin; sunxi-fel exec 0x80000000;
+sudo xfel ddr; sudo xfel write 0x80000000 xboot.bin; sudo xfel exec 0x80000000;
 ```
 
 ## Brun normal image to SPI Flash
 ```shell
-sunxi-fel -p spiflash-write 0 xboot.bin
+sudo xfel spinor write 0 xboot.bin
 ```
 
 ## Brun compress image to SPI Flash
 ```shell
-sunxi-fel -p spiflash-write 0 xboot.bin.z
+sudo xfel spinor write 0 xboot.bin.z
 ```
 
-## About sunxi-fel tool
-
-The default sunxi-fel tool don't support F1C100S, and you need to download the source code and compile it
-
-## Download sunxi-fel source code
+## Download xfel tool's source code
 ```shell
-git clone https://github.com/Icenowy/sunxi-tools.git
-git checkout -b f1c100s-spiflash origin/f1c100s-spiflash
+git clone https://github.com/xboot/xfel.git
 ```
 
-## Make and install sunxi-fel
+## Make and install xfel tool
 ```shell
 make
 sudo make install

@@ -13,12 +13,12 @@ make CROSS_COMPILE=/path/to/riscv-none-embed- PLATFORM=riscv64-d1
 sudo xfel ddr ddr3; sudo xfel write 0x40000000 xboot.bin; sudo xfel exec 0x40000000;
 ```
 
-## Brun normal image to SPI Flash
+## Brun normal image to SPI Nor Flash
 ```shell
 sudo xfel spinor write 0 xboot.bin
 ```
 
-## Brun compress image to SPI Flash
+## Brun compress image to SPI Nor Flash
 ```shell
 sudo xfel spinor write 0 xboot.bin.z
 ```

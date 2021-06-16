@@ -24,7 +24,13 @@ SECTIONS
 		.obj/arch/riscv64/mach-d1/sys-jtag.o (.text*)
 		.obj/arch/riscv64/mach-d1/sys-uart.o (.text*)
 		.obj/arch/riscv64/mach-d1/sys-clock.o (.text*)
+		.obj/arch/riscv64/mach-d1/sys-dram.o (.text*)
 		.obj/arch/riscv64/mach-d1/sys-spinor.o (.text*)
+		.obj/arch/riscv64/mach-d1/sys-copyself.o (.text*)
+		. = ALIGN(8);
+		PROVIDE(__ddr_bin_start = .);
+		KEEP(*(.ddr.bin))
+		PROVIDE(__ddr_bin_end = .);
 		PROVIDE(__spl_end = .);
 		*(.text*)
 		*(.init.text)

@@ -64,39 +64,6 @@ reset:
 	add a0, a0, t0
 	csrw mtvec, a0
 
-	/* Initial registers */
-	li x1, 0
-	li x2, 0
-	li x3, 0
-	li x4, 0
-	li x5, 0
-	li x6, 0
-	li x7, 0
-	li x8, 0
-	li x9, 0
-	li x10, 0
-	li x11, 0
-	li x12, 0
-	li x13, 0
-	li x14, 0
-	li x15, 0
-	li x16, 0
-	li x17, 0
-	li x18, 0
-	li x19, 0
-	li x20, 0
-	li x21, 0
-	li x22, 0
-	li x23, 0
-	li x24, 0
-	li x25, 0
-	li x26, 0
-	li x27, 0
-	li x28, 0
-	li x29, 0
-	li x30, 0
-	li x31, 0
-
 	/* Enable FPU and accelerator if present */
 	li t0, MSTATUS_FS | MSTATUS_XS
 	csrs mstatus, t0
@@ -109,75 +76,37 @@ reset:
 	li t1, 0x30013
 	.word 0x7c232073	/* csrs mcor, t1 */
 
-#if __riscv_flen == 32
-	fssr x0
-	fmv.s.x f0, x0
-	fmv.s.x f1, x0
-	fmv.s.x f2, x0
-	fmv.s.x f3, x0
-	fmv.s.x f4, x0
-	fmv.s.x f5, x0
-	fmv.s.x f6, x0
-	fmv.s.x f7, x0
-	fmv.s.x f8, x0
-	fmv.s.x f9, x0
-	fmv.s.x f10, x0
-	fmv.s.x f11, x0
-	fmv.s.x f12, x0
-	fmv.s.x f13, x0
-	fmv.s.x f14, x0
-	fmv.s.x f15, x0
-	fmv.s.x f16, x0
-	fmv.s.x f17, x0
-	fmv.s.x f18, x0
-	fmv.s.x f19, x0
-	fmv.s.x f20, x0
-	fmv.s.x f21, x0
-	fmv.s.x f22, x0
-	fmv.s.x f23, x0
-	fmv.s.x f24, x0
-	fmv.s.x f25, x0
-	fmv.s.x f26, x0
-	fmv.s.x f27, x0
-	fmv.s.x f28, x0
-	fmv.s.x f29, x0
-	fmv.s.x f30, x0
-	fmv.s.x f31, x0
-#elif __riscv_flen == 64
-	fssr x0
-	fmv.d.x f0, x0
-	fmv.d.x f1, x0
-	fmv.d.x f2, x0
-	fmv.d.x f3, x0
-	fmv.d.x f4, x0
-	fmv.d.x f5, x0
-	fmv.d.x f6, x0
-	fmv.d.x f7, x0
-	fmv.d.x f8, x0
-	fmv.d.x f9, x0
-	fmv.d.x f10, x0
-	fmv.d.x f11, x0
-	fmv.d.x f12, x0
-	fmv.d.x f13, x0
-	fmv.d.x f14, x0
-	fmv.d.x f15, x0
-	fmv.d.x f16, x0
-	fmv.d.x f17, x0
-	fmv.d.x f18, x0
-	fmv.d.x f19, x0
-	fmv.d.x f20, x0
-	fmv.d.x f21, x0
-	fmv.d.x f22, x0
-	fmv.d.x f23, x0
-	fmv.d.x f24, x0
-	fmv.d.x f25, x0
-	fmv.d.x f26, x0
-	fmv.d.x f27, x0
-	fmv.d.x f28, x0
-	fmv.d.x f29, x0
-	fmv.d.x f30, x0
-	fmv.d.x f31, x0
-#endif
+	/* Check initialized or not */
+	la t0, _start
+	la t1, _image_start
+	LREG t1, (t1)
+	beq t0, t1, _avoid
+
+	/* Initial system jtag, uart and clock */
+	call sys_jtag_init
+	call sys_uart_init
+	call sys_clock_init
+
+	/* Copy ddr bin to 0x00030000 */
+	la t1, _ddr_bin_start
+	LREG t1, (t1)
+	la t2, _ddr_bin_end
+	LREG t2, (t2)
+	sub a2, t2, t1
+	la t1, _image_start
+	LREG t1, (t1)
+	la t2, _ddr_bin_start
+	LREG t2, (t2)
+	sub t0, t2, t1
+	la a1, _start
+	add a1, a1, t0
+	li a0, 0x00030000
+	call memcpy
+
+	/* Initial ddr controller */
+	call sys_dram_init
+_avoid:
+	nop
 
 	/* Initialize global pointer */
 .option push
@@ -198,23 +127,12 @@ reset:
 	mul t0, t0, t3
 	sub sp, t2, t0
 
-	/* Initial system jtag, uart and clock */
-	call sys_jtag_init
-	call sys_uart_init
-	call sys_clock_init
-
 	/* Copyself to link address */
 	la t0, _start
 	la t1, _image_start
 	LREG t1, (t1)
 	beq t0, t1, 1f
-	la a0, _image_start
-	LREG a0, (a0)
-	la a2, _image_end
-	LREG a2, (a2)
-	sub a2, a2, a0
-	la a1, _start
-	call memcpy
+	call sys_copyself
 1:	nop
 
 	/* Clear bss section */
@@ -346,3 +264,7 @@ _stack_start:
 	RVPTR __stack_start
 _stack_end:
 	RVPTR __stack_end
+_ddr_bin_start:
+	RVPTR __ddr_bin_start
+_ddr_bin_end:
+	RVPTR __ddr_bin_end

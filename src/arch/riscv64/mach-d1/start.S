@@ -76,7 +76,9 @@ reset:
 	li t1, 0x30013
 	.word 0x7c232073	/* csrs mcor, t1 */
 
-	/* Check initialized or not */
+	/* Check processor id and initialized */
+	csrr t0, mhartid
+	bnez t0, _avoid
 	la t0, _start
 	la t1, _image_start
 	LREG t1, (t1)
@@ -126,6 +128,13 @@ _avoid:
 	div t0, t0, t4
 	mul t0, t0, t3
 	sub sp, t2, t0
+
+	/* Check processor id, and startup slave cores */
+	csrr a0, mhartid
+	beqz a0, 2f
+1:	call sys_smp_secondary_startup
+	j 1b
+2:	nop
 
 	/* Copyself to link address */
 	la t0, _start

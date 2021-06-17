@@ -21,6 +21,7 @@ SECTIONS
 		.obj/arch/riscv64/mach-d1/start.o (.text*)
 		.obj/arch/riscv64/lib/memcpy.o (.text*)
 		.obj/arch/riscv64/lib/memset.o (.text*)
+		.obj/arch/riscv64/mach-d1/sys-smp.o (.text*)
 		.obj/arch/riscv64/mach-d1/sys-jtag.o (.text*)
 		.obj/arch/riscv64/mach-d1/sys-uart.o (.text*)
 		.obj/arch/riscv64/mach-d1/sys-clock.o (.text*)

@@ -53,7 +53,7 @@ void sys_copyself(void)
 
 	if(d == BOOT_DEVICE_SPINOR)
 	{
-		mem = (void *)__image_start;
+		mem = (void *)0x40000000;
 		size = __image_end - __image_start;
 
 		sys_spinor_init();

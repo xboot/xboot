@@ -32,7 +32,15 @@
 static ssize_t nvmem_read_summary(struct kobj_t * kobj, void * buf, size_t size)
 {
 	struct nvmem_t * m = (struct nvmem_t *)kobj->priv;
-	return kvdb_summary(m->db, buf);
+	struct hmap_entry_t * e;
+	int len = 0;
+
+	hmap_sort(m->kvdb.map);
+	hmap_for_each_entry(e, m->kvdb.map)
+	{
+		len += sprintf((char *)(buf + len), "%s = %s\r\n", e->key, e->value);
+	}
+	return len;
 }
 
 static ssize_t nvmem_read_capacity(struct kobj_t * kobj, void * buf, size_t size)
@@ -61,57 +69,112 @@ struct nvmem_t * search_first_nvmem(void)
 	return (struct nvmem_t *)dev->priv;
 }
 
-static bool_t nvmem_init_kvdb(struct nvmem_t * m)
+static void hmap_entry_callback(struct hmap_entry_t * e)
 {
+	if(e)
+		free(e->value);
+}
+
+static int kvdb_timer_function(struct timer_t * timer, void * data)
+{
+	struct nvmem_t * m = (struct nvmem_t *)data;
+	struct hmap_entry_t * e;
+	irq_flags_t flags;
+	uint32_t c = 0;
+	char h[8], * s;
+	int size, l = 0;
+
+	if(m->kvdb.dirty)
+	{
+		spin_lock_irqsave(&m->kvdb.lock, flags);
+		hmap_sort(m->kvdb.map);
+
+		size = nvmem_capacity(m);
+		if(size > 0)
+		{
+			s = malloc(size);
+			if(s)
+			{
+				memset(s, 0, size);
+				hmap_for_each_entry(e, m->kvdb.map)
+				{
+					if(l + strlen(e->key) + strlen(e->value) + 3 > size)
+						break;
+					l += sprintf((char *)(s + l), "%s=%s;", e->key, e->value);
+				}
+				l += 1;
+				h[4] = (l >>  0) & 0xff;
+				h[5] = (l >>  8) & 0xff;
+				h[6] = (l >> 16) & 0xff;
+				h[7] = (l >> 24) & 0xff;
+				c = crc32_sum(c, (const uint8_t *)(&h[4]), 4);
+				c = crc32_sum(c, (const uint8_t *)s, l);
+				h[0] = (c >>  0) & 0xff;
+				h[1] = (c >>  8) & 0xff;
+				h[2] = (c >> 16) & 0xff;
+				h[3] = (c >> 24) & 0xff;
+				nvmem_write(m, h, 0, 8);
+				nvmem_write(m, s, 8, l);
+				free(s);
+			}
+		}
+		m->kvdb.dirty = 0;
+		spin_unlock_irqrestore(&m->kvdb.lock, flags);
+	}
+	return 0;
+}
+
+static void nvmem_init_kvdb(struct nvmem_t * m)
+{
+	irq_flags_t flags;
 	uint32_t c, crc = 0;
 	char h[8];
-	char * s;
+	char * p, * s;
+	char * r, * k, * v;
 	int l, size;
 
-	if(!m)
-		return FALSE;
-	m->db = NULL;
-
-	size = nvmem_capacity(m);
-	if(size < (8 + 1))
-		return FALSE;
-
-	if(nvmem_read(m, h, 0, 8) != 8)
-		return FALSE;
-	c = (h[3] << 24) | (h[2] << 16) | (h[1] << 8) | (h[0] << 0);
-	l = (h[7] << 24) | (h[6] << 16) | (h[5] << 8) | (h[4] << 0);
-
-	m->db = kvdb_alloc(size);
-	if(m->db)
+	if(m)
 	{
-		if((l > 0) && (l + 8 < size))
+		timer_init(&m->kvdb.timer, kvdb_timer_function, m);
+		m->kvdb.map = hmap_alloc(0);
+		spin_lock_init(&m->kvdb.lock);
+		m->kvdb.dirty = 0;
+
+		spin_lock_irqsave(&m->kvdb.lock, flags);
+		size = nvmem_capacity(m);
+		if((size > 8) && (nvmem_read(m, h, 0, 8) == 8))
 		{
-			s = malloc(l);
-			if(!s)
+			c = (h[3] << 24) | (h[2] << 16) | (h[1] << 8) | (h[0] << 0);
+			l = (h[7] << 24) | (h[6] << 16) | (h[5] << 8) | (h[4] << 0);
+			if((l > 0) && (l + 8 < size))
 			{
-				kvdb_free(m->db);
-				return FALSE;
-			}
-			if(nvmem_read(m, s, 8, l) != l)
-			{
-				kvdb_free(m->db);
+				s = malloc(l);
+				if(nvmem_read(m, s, 8, l) == l)
+				{
+					crc = crc32_sum(crc, (const uint8_t *)(&h[4]), 4);
+					crc = crc32_sum(crc, (const uint8_t *)s, l);
+					if(crc == c)
+					{
+						p = s;
+						while((r = strsep(&p, ";\r\n")) != NULL)
+						{
+							if(strchr(r, '='))
+							{
+								k = strim(strsep(&r, "="));
+								v = strim(r);
+								k = (k && (*k != '\0')) ? k : NULL;
+								v = (v && (*v != '\0')) ? v : NULL;
+								if(k && v)
+									hmap_add(m->kvdb.map, k, strdup(v));
+							}
+						}
+					}
+				}
 				free(s);
-				return FALSE;
 			}
-			crc = crc32_sum(crc, (const uint8_t *)(&h[4]), 4);
-			crc = crc32_sum(crc, (const uint8_t *)s, l);
-			if(crc == c)
-				kvdb_from_string(m->db, s);
-			else
-				nvmem_sync(m);
-			free(s);
 		}
-		else
-		{
-			nvmem_sync(m);
-		}
+		spin_unlock_irqrestore(&m->kvdb.lock, flags);
 	}
-	return TRUE;
 }
 
 struct device_t * register_nvmem(struct nvmem_t * m, struct driver_t * drv)
@@ -139,8 +202,8 @@ struct device_t * register_nvmem(struct nvmem_t * m, struct driver_t * drv)
 
 	if(!register_device(dev))
 	{
-		if(m->db)
-			kvdb_free(m->db);
+		timer_cancel(&m->kvdb.timer);
+		hmap_free(m->kvdb.map, hmap_entry_callback);
 		kobj_remove_self(dev->kobj);
 		free(dev->name);
 		free(dev);
@@ -158,8 +221,8 @@ void unregister_nvmem(struct nvmem_t * m)
 		dev = search_device(m->name, DEVICE_TYPE_NVMEM);
 		if(dev && unregister_device(dev))
 		{
-			if(m->db)
-				kvdb_free(m->db);
+			timer_cancel(&m->kvdb.timer);
+			hmap_free(m->kvdb.map, hmap_entry_callback);
 			kobj_remove_self(dev->kobj);
 			free(dev->name);
 			free(dev);
@@ -216,49 +279,47 @@ int nvmem_write(struct nvmem_t * m, void * buf, int offset, int count)
 
 void nvmem_set(struct nvmem_t * m, const char * key, const char * value)
 {
-	if(m && m->db)
-		kvdb_set(m->db, key, value);
+	irq_flags_t flags;
+	char * v;
+
+	spin_lock_irqsave(&m->kvdb.lock, flags);
+	v = hmap_search(m->kvdb.map, key);
+	if(v)
+	{
+		m->kvdb.dirty = 1;
+		hmap_remove(m->kvdb.map, key);
+		free(v);
+	}
+	if(value)
+	{
+		m->kvdb.dirty = 1;
+		hmap_add(m->kvdb.map, key, strdup(value));
+	}
+	if(m->kvdb.dirty)
+		timer_start_now(&m->kvdb.timer, ms_to_ktime(10000));
+	spin_unlock_irqrestore(&m->kvdb.lock, flags);
 }
 
-char * nvmem_get(struct nvmem_t * m, const char * key, const char * def)
+const char * nvmem_get(struct nvmem_t * m, const char * key, const char * def)
 {
-	if(m && m->db)
-		return kvdb_get(m->db, key, def);
-	return (char *)def;
+	irq_flags_t flags;
+	const char * v;
+
+	spin_lock_irqsave(&m->kvdb.lock, flags);
+	v = hmap_search(m->kvdb.map, key);
+	spin_unlock_irqrestore(&m->kvdb.lock, flags);
+	if(!v)
+		v = def;
+	return v;
 }
 
 void nvmem_clear(struct nvmem_t * m)
 {
-	if(m && m->db)
-		return kvdb_clear(m->db);
-}
+	irq_flags_t flags;
 
-void nvmem_sync(struct nvmem_t * m)
-{
-	uint32_t c = 0;
-	char h[8];
-	char * s;
-	int l;
-
-	if(m && m->db)
-	{
-		s = kvdb_to_string(m->db);
-		if(s)
-		{
-			l = strlen(s) + 1;
-			h[4] = (l >>  0) & 0xff;
-			h[5] = (l >>  8) & 0xff;
-			h[6] = (l >> 16) & 0xff;
-			h[7] = (l >> 24) & 0xff;
-			c = crc32_sum(c, (const uint8_t *)(&h[4]), 4);
-			c = crc32_sum(c, (const uint8_t *)s, l);
-			h[0] = (c >>  0) & 0xff;
-			h[1] = (c >>  8) & 0xff;
-			h[2] = (c >> 16) & 0xff;
-			h[3] = (c >> 24) & 0xff;
-			nvmem_write(m, h, 0, 8);
-			nvmem_write(m, s, 8, l);
-			free(s);
-		}
-	}
+	spin_lock_irqsave(&m->kvdb.lock, flags);
+	hmap_clear(m->kvdb.map, hmap_entry_callback);
+	m->kvdb.dirty = 1;
+	timer_start_now(&m->kvdb.timer, ms_to_ktime(4000));
+	spin_unlock_irqrestore(&m->kvdb.lock, flags);
 }

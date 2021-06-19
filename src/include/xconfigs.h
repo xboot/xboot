@@ -27,10 +27,6 @@ extern "C" {
 #define CONFIG_DEVICE_HASH_SIZE				(521)
 #endif
 
-#if !defined(CONFIG_KVDB_HASH_SIZE)
-#define CONFIG_KVDB_HASH_SIZE				(4099)
-#endif
-
 #if !defined(CONFIG_EVENT_FIFO_SIZE)
 #define CONFIG_EVENT_FIFO_SIZE				(64)
 #endif

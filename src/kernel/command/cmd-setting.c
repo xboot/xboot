@@ -32,10 +32,10 @@
 static void usage(void)
 {
 	printf("usage:\r\n");
-	printf("    setting                     - Print all setting\r\n");
-	printf("    setting set <key> [<value>] - Set or clear key\r\n");
-	printf("    setting get <key>           - Get value of key\r\n");
-	printf("    setting clear               - Clear all setting key\r\n");
+	printf("    setting                     - Print setting all key-value\r\n");
+	printf("    setting set <key> [<value>] - Set or clear setting key-value\r\n");
+	printf("    setting get <key> [...]     - Get setting key-value\r\n");
+	printf("    setting clear               - Clear setting all key-value\r\n");
 }
 
 static int do_setting(int argc, char ** argv)
@@ -47,48 +47,49 @@ static int do_setting(int argc, char ** argv)
 		setting_summary();
 		return 0;
 	}
-
-	if(!strcmp(argv[1], "set"))
-	{
-		if(argc > 3)
-			setting_set(argv[2], argv[3]);
-		else if(argc == 3)
-			setting_set(argv[2], NULL);
-		else
-		{
-			usage();
-			return -1;
-		}
-	}
-	else if(!strcmp(argv[1], "get"))
-	{
-		if(argc > 2)
-		{
-			for(i = 2; i < argc; i++)
-				printf("%s = %s\r\n", argv[i], setting_get(argv[i], NULL));
-		}
-		else
-		{
-			usage();
-			return -1;
-		}
-	}
-	else if(!strcmp(argv[1], "clear"))
-	{
-		setting_clear();
-	}
 	else
 	{
-		usage();
-		return -1;
+		if(!strcmp(argv[1], "set"))
+		{
+			if(argc > 3)
+				setting_set(argv[2], argv[3]);
+			else if(argc == 3)
+				setting_set(argv[2], NULL);
+			else
+			{
+				usage();
+				return -1;
+			}
+		}
+		else if(!strcmp(argv[1], "get"))
+		{
+			if(argc > 2)
+			{
+				for(i = 2; i < argc; i++)
+					printf("%s = %s\r\n", argv[i], setting_get(argv[i], NULL));
+			}
+			else
+			{
+				usage();
+				return -1;
+			}
+		}
+		else if(!strcmp(argv[1], "clear"))
+		{
+			setting_clear();
+		}
+		else
+		{
+			usage();
+			return -1;
+		}
 	}
-
 	return 0;
 }
 
 static struct command_t cmd_setting = {
 	.name	= "setting",
-	.desc	= "display the global setting",
+	.desc	= "the global setting tool",
 	.usage	= usage,
 	.exec	= do_setting,
 };

@@ -113,8 +113,8 @@ static void subsys_init_private(void)
 			{
 				dev = strim(strsep(&r, ":"));
 				type = strim(r);
-				dev = (dev && strcmp(dev, "") != 0) ? dev : NULL;
-				type = (type && strcmp(type, "") != 0) ? type : NULL;
+				dev = (dev && (*dev != '\0')) ? dev : NULL;
+				type = (type && (*type != '\0')) ? type : NULL;
 				if(dev && type)
 				{
 					if(vfs_mount(dev, "/private", type, MOUNT_RW) >= 0)

@@ -73,7 +73,7 @@ static ssize_t rtc_time_write(struct kobj_t * kobj, void * buf, size_t size)
 	while((r = strsep(&p, "-: ")) != NULL)
 	{
 		v = strim(r);
-		if((strcmp(v, "") != 0))
+		if((*v != '\0'))
 		{
 			switch(index++)
 			{

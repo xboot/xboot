@@ -50,6 +50,7 @@ static void usage(void)
 static int do_nvmem(int argc, char ** argv)
 {
 	struct nvmem_t * m;
+	struct hmap_entry_t * e;
 	int i;
 
 	if(argc < 2)
@@ -62,39 +63,50 @@ static int do_nvmem(int argc, char ** argv)
 		m = search_nvmem(argv[1]);
 		if(m)
 		{
-			if(!strcmp(argv[2], "set"))
+			if(argc > 2)
 			{
-				if(argc > 4)
-					nvmem_set(m, argv[3], argv[4]);
-				else if(argc == 4)
-					nvmem_set(m, argv[3], NULL);
+				if(!strcmp(argv[2], "set"))
+				{
+					if(argc > 4)
+						nvmem_set(m, argv[3], argv[4]);
+					else if(argc == 4)
+						nvmem_set(m, argv[3], NULL);
+					else
+					{
+						usage();
+						return -1;
+					}
+				}
+				else if(!strcmp(argv[2], "get"))
+				{
+					if(argc > 3)
+					{
+						for(i = 3; i < argc; i++)
+							printf("%s = %s\r\n", argv[i], nvmem_get(m, argv[i], NULL));
+					}
+					else
+					{
+						usage();
+						return -1;
+					}
+				}
+				else if(!strcmp(argv[2], "clear"))
+				{
+					nvmem_clear(m);
+				}
 				else
 				{
 					usage();
 					return -1;
 				}
-			}
-			else if(!strcmp(argv[2], "get"))
-			{
-				if(argc > 3)
-				{
-					for(i = 3; i < argc; i++)
-						printf("%s = %s\r\n", argv[i], nvmem_get(m, argv[i], NULL));
-				}
-				else
-				{
-					usage();
-					return -1;
-				}
-			}
-			else if(!strcmp(argv[2], "clear"))
-			{
-				nvmem_clear(m);
 			}
 			else
 			{
-				usage();
-				return -1;
+				hmap_sort(m->kvdb.map);
+				hmap_for_each_entry(e, m->kvdb.map)
+				{
+					printf("%s = %s\r\n", e->key, e->value);
+				}
 			}
 		}
 		else

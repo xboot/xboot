@@ -320,6 +320,6 @@ void nvmem_clear(struct nvmem_t * m)
 	spin_lock_irqsave(&m->kvdb.lock, flags);
 	hmap_clear(m->kvdb.map, hmap_entry_callback);
 	m->kvdb.dirty = 1;
-	timer_start_now(&m->kvdb.timer, ms_to_ktime(4000));
+	timer_start_now(&m->kvdb.timer, ms_to_ktime(10000));
 	spin_unlock_irqrestore(&m->kvdb.lock, flags);
 }

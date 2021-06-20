@@ -380,6 +380,11 @@
 		"cd-gpio-config": -1
 	},
 
+	"nvmem-at24c02@0": {
+		"i2c-bus": "i2c-gpio.0",
+		"slave-address": 80
+	},
+
 	"blk-spinor@0": {
 		"spi-bus": "spi-f1c500s.0",
 		"chip-select": 0,

@@ -282,44 +282,51 @@ void nvmem_set(struct nvmem_t * m, const char * key, const char * value)
 	irq_flags_t flags;
 	char * v;
 
-	spin_lock_irqsave(&m->kvdb.lock, flags);
-	v = hmap_search(m->kvdb.map, key);
-	if(v)
+	if(m)
 	{
-		m->kvdb.dirty = 1;
-		hmap_remove(m->kvdb.map, key);
-		free(v);
+		spin_lock_irqsave(&m->kvdb.lock, flags);
+		v = hmap_search(m->kvdb.map, key);
+		if(v)
+		{
+			m->kvdb.dirty = 1;
+			hmap_remove(m->kvdb.map, key);
+			free(v);
+		}
+		if(value)
+		{
+			m->kvdb.dirty = 1;
+			hmap_add(m->kvdb.map, key, strdup(value));
+		}
+		if(m->kvdb.dirty)
+			timer_start_now(&m->kvdb.timer, ms_to_ktime(10000));
+		spin_unlock_irqrestore(&m->kvdb.lock, flags);
 	}
-	if(value)
-	{
-		m->kvdb.dirty = 1;
-		hmap_add(m->kvdb.map, key, strdup(value));
-	}
-	if(m->kvdb.dirty)
-		timer_start_now(&m->kvdb.timer, ms_to_ktime(10000));
-	spin_unlock_irqrestore(&m->kvdb.lock, flags);
 }
 
 const char * nvmem_get(struct nvmem_t * m, const char * key, const char * def)
 {
 	irq_flags_t flags;
-	const char * v;
+	const char * v = NULL;
 
-	spin_lock_irqsave(&m->kvdb.lock, flags);
-	v = hmap_search(m->kvdb.map, key);
-	spin_unlock_irqrestore(&m->kvdb.lock, flags);
-	if(!v)
-		v = def;
-	return v;
+	if(m)
+	{
+		spin_lock_irqsave(&m->kvdb.lock, flags);
+		v = hmap_search(m->kvdb.map, key);
+		spin_unlock_irqrestore(&m->kvdb.lock, flags);
+	}
+	return v ? v : def;
 }
 
 void nvmem_clear(struct nvmem_t * m)
 {
 	irq_flags_t flags;
 
-	spin_lock_irqsave(&m->kvdb.lock, flags);
-	hmap_clear(m->kvdb.map, hmap_entry_callback);
-	m->kvdb.dirty = 1;
-	timer_start_now(&m->kvdb.timer, ms_to_ktime(10000));
-	spin_unlock_irqrestore(&m->kvdb.lock, flags);
+	if(m)
+	{
+		spin_lock_irqsave(&m->kvdb.lock, flags);
+		hmap_clear(m->kvdb.map, hmap_entry_callback);
+		m->kvdb.dirty = 1;
+		timer_start_now(&m->kvdb.timer, ms_to_ktime(10000));
+		spin_unlock_irqrestore(&m->kvdb.lock, flags);
+	}
 }

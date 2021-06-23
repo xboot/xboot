@@ -116,31 +116,59 @@ void unregister_wifi(struct wifi_t * wifi)
 	}
 }
 
-bool_t wifi_join(struct wifi_t * wifi, const char * ssid, const char * passwd)
+bool_t wifi_connect(struct wifi_t * wifi, const char * ssid, const char * passwd)
 {
-	if(wifi && wifi->join)
-		return wifi->join(wifi, ssid, passwd);
-	return FALSE;
-}
+	enum wifi_status_t status = wifi_status(wifi);
 
-bool_t wifi_exit(struct wifi_t * wifi)
-{
-	if(wifi && wifi->exit)
-		return wifi->exit(wifi);
-	return FALSE;
-}
-
-bool_t wifi_connect(struct wifi_t * wifi, const char * ip, int port)
-{
-	if(wifi && wifi->connect)
-		return wifi->connect(wifi, ip, port);
+	if((status != WIFI_STATUS_DISCONNECTED) && (status != WIFI_STATUS_CONNECTING))
+		return TRUE;
+	else
+	{
+		if(wifi && wifi->connect)
+			return wifi->connect(wifi, ssid, passwd);
+	}
 	return FALSE;
 }
 
 bool_t wifi_disconnect(struct wifi_t * wifi)
 {
-	if(wifi && wifi->disconnect)
-		return wifi->disconnect(wifi);
+	enum wifi_status_t status = wifi_status(wifi);
+
+	if(status == WIFI_STATUS_DISCONNECTED)
+		return TRUE;
+	else
+	{
+		if(wifi && wifi->disconnect)
+			return wifi->disconnect(wifi);
+	}
+	return FALSE;
+}
+
+bool_t wifi_client_open(struct wifi_t * wifi, const char * ip, int port)
+{
+	enum wifi_status_t status = wifi_status(wifi);
+
+	if(status == WIFI_STATUS_CLIENT_OPENED)
+		return TRUE;
+	else if(status == WIFI_STATUS_CONNECTED)
+	{
+		if(wifi && wifi->client_open)
+			return wifi->client_open(wifi, ip, port);
+	}
+	return FALSE;
+}
+
+bool_t wifi_client_close(struct wifi_t * wifi)
+{
+	enum wifi_status_t status = wifi_status(wifi);
+
+	if(status == WIFI_STATUS_CONNECTED)
+		return TRUE;
+	else if(status == WIFI_STATUS_CLIENT_OPENED)
+	{
+		if(wifi && wifi->client_close)
+			return wifi->client_close(wifi);
+	}
 	return FALSE;
 }
 

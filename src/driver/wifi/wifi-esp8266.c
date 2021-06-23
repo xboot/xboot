@@ -56,12 +56,13 @@ struct wifi_esp8266_pdata_t {
 	int parity;
 	int stop;
 
-	ktime_t time;
+	struct mutex_t mutex;
 	enum wifi_status_t status;
 	enum recv_state_t rstate;
 	char cbuf[16];
 	int cidx;
 	int count;
+	ktime_t time;
 };
 
 static int wifi_at_request(struct wifi_esp8266_pdata_t * pdat, const char * cmd, char * resp, int sz, int timeout)
@@ -76,6 +77,7 @@ static int wifi_at_request(struct wifi_esp8266_pdata_t * pdat, const char * cmd,
 
 	if(pdat)
 	{
+		mutex_lock(&pdat->mutex);
 		if(cmd && ((l = strlen(cmd)) > 0))
 			uart_write(pdat->uart, (const u8_t *)cmd, l);
 		time = ktime_add_ms(ktime_get(), timeout);
@@ -118,13 +120,14 @@ static int wifi_at_request(struct wifi_esp8266_pdata_t * pdat, const char * cmd,
 			}
 			task_yield();
 		} while(!ok && ktime_before(ktime_get(), time));
+		if(resp && (len < sz - 1))
+			resp[len] = '\0';
+		mutex_unlock(&pdat->mutex);
 	}
-	if(resp && (len < sz - 1))
-		resp[len] = '\0';
 	return ok ? len : 0;
 }
 
-static bool_t wifi_esp8266_join(struct wifi_t * wifi, const char * ssid, const char * passwd)
+static bool_t wifi_esp8266_connect(struct wifi_t * wifi, const char * ssid, const char * passwd)
 {
 	struct wifi_esp8266_pdata_t * pdat = (struct wifi_esp8266_pdata_t *)wifi->priv;
 	char cmd[256];
@@ -132,53 +135,33 @@ static bool_t wifi_esp8266_join(struct wifi_t * wifi, const char * ssid, const c
 
 	pdat->status = WIFI_STATUS_CONNECTING;
 	if(!uart_set(pdat->uart, pdat->baud, pdat->data, pdat->parity, pdat->stop))
+	{
+		pdat->status = WIFI_STATUS_DISCONNECTED;
 		return FALSE;
+	}
 	if(wifi_at_request(pdat, "AT\r\n", resp, sizeof(resp), 100) == 0)
+	{
+		pdat->status = WIFI_STATUS_DISCONNECTED;
 		return FALSE;
+	}
 	if(wifi_at_request(pdat, "AT+CWMODE=1\r\n", resp, sizeof(resp), 100) == 0)
+	{
+		pdat->status = WIFI_STATUS_DISCONNECTED;
 		return FALSE;
-	if(wifi_at_request(pdat, "AT+CWAUTOCONN=1\r\n", resp, sizeof(resp), 100) == 0)
-		return FALSE;
+	}
 	snprintf(cmd, sizeof(cmd), "AT+CWJAP=\"%s\",\"%s\"\r\n", ssid, passwd);
 	if(wifi_at_request(pdat, cmd, resp, sizeof(resp), 10000) == 0)
-		return FALSE;
-	if(!strstr(resp, "WIFI GOT IP"))
-		return FALSE;
-	return TRUE;
-}
-
-static bool_t wifi_esp8266_exit(struct wifi_t * wifi)
-{
-	struct wifi_esp8266_pdata_t * pdat = (struct wifi_esp8266_pdata_t *)wifi->priv;
-	char resp[256];
-
-	pdat->status = WIFI_STATUS_DISCONNECTED;
-	if(wifi_at_request(pdat, "AT+CWQAP\r\n", resp, sizeof(resp), 100) == 0)
-		return FALSE;
-	return TRUE;
-}
-
-static bool_t wifi_esp8266_connect(struct wifi_t * wifi, const char * ip, int port)
-{
-	struct wifi_esp8266_pdata_t * pdat = (struct wifi_esp8266_pdata_t *)wifi->priv;
-	char cmd[256];
-	char resp[256];
-
-	pdat->status = WIFI_STATUS_CONNECTING;
-	if(wifi_at_request(pdat, "AT+CIPMUX=0\r\n", resp, sizeof(resp), 100) > 0)
 	{
-		snprintf(cmd, sizeof(cmd), "AT+CIPSTART=\"%s\",\"%s\",%d\r\n", "TCP", ip, port);
-		if(wifi_at_request(pdat, cmd, resp, sizeof(resp), 5000) > 0)
-		{
-			if((wifi_at_request(pdat, "AT+CIPSTATUS\r\n", resp, sizeof(resp), 100) > 0) && strstr(resp, "STATUS:3\r\n"))
-			{
-				pdat->status = WIFI_STATUS_CONNECTED;
-				return TRUE;
-			}
-		}
+		pdat->status = WIFI_STATUS_DISCONNECTED;
+		return FALSE;
 	}
-	pdat->status = WIFI_STATUS_DISCONNECTED;
-	return FALSE;
+	if(!strstr(resp, "WIFI GOT IP"))
+	{
+		pdat->status = WIFI_STATUS_DISCONNECTED;
+		return FALSE;
+	}
+	pdat->status = WIFI_STATUS_CONNECTED;
+	return TRUE;
 }
 
 static bool_t wifi_esp8266_disconnect(struct wifi_t * wifi)
@@ -186,10 +169,65 @@ static bool_t wifi_esp8266_disconnect(struct wifi_t * wifi)
 	struct wifi_esp8266_pdata_t * pdat = (struct wifi_esp8266_pdata_t *)wifi->priv;
 	char resp[256];
 
-	pdat->status = WIFI_STATUS_DISCONNECTED;
-	if(wifi_at_request(pdat, "AT+CIPCLOSE\r\n", resp, sizeof(resp), 100) == 0)
+	if(wifi_at_request(pdat, "AT+CWQAP\r\n", resp, sizeof(resp), 100) == 0)
 		return FALSE;
+	pdat->status = WIFI_STATUS_DISCONNECTED;
 	return TRUE;
+}
+
+static bool_t wifi_esp8266_client_open(struct wifi_t * wifi, const char * ip, int port)
+{
+	struct wifi_esp8266_pdata_t * pdat = (struct wifi_esp8266_pdata_t *)wifi->priv;
+	char cmd[256];
+	char resp[256];
+
+	if(pdat->status == WIFI_STATUS_CONNECTED)
+	{
+		pdat->status = WIFI_STATUS_CLIENT_OPENING;
+		if(wifi_at_request(pdat, "AT+CIPMUX=0\r\n", resp, sizeof(resp), 100) > 0)
+		{
+			snprintf(cmd, sizeof(cmd), "AT+CIPSTART=\"%s\",\"%s\",%d\r\n", "TCP", ip, port);
+			if(wifi_at_request(pdat, cmd, resp, sizeof(resp), 5000) > 0)
+			{
+				if((wifi_at_request(pdat, "AT+CIPSTATUS\r\n", resp, sizeof(resp), 100) > 0) && strstr(resp, "STATUS:3\r\n"))
+				{
+					pdat->status = WIFI_STATUS_CLIENT_OPENED;
+					return TRUE;
+				}
+				else
+				{
+					pdat->status = WIFI_STATUS_CONNECTED;
+					return FALSE;
+				}
+			}
+			else
+			{
+				pdat->status = WIFI_STATUS_CONNECTED;
+				return FALSE;
+			}
+		}
+		else
+		{
+			pdat->status = WIFI_STATUS_CONNECTED;
+			return FALSE;
+		}
+	}
+	return FALSE;
+}
+
+static bool_t wifi_esp8266_client_close(struct wifi_t * wifi)
+{
+	struct wifi_esp8266_pdata_t * pdat = (struct wifi_esp8266_pdata_t *)wifi->priv;
+	char resp[256];
+
+	if(pdat->status == WIFI_STATUS_CLIENT_OPENED)
+	{
+		if(wifi_at_request(pdat, "AT+CIPCLOSE\r\n", resp, sizeof(resp), 100) == 0)
+			return FALSE;
+		pdat->status = WIFI_STATUS_CONNECTED;
+		return TRUE;
+	}
+	return FALSE;
 }
 
 static enum wifi_status_t wifi_esp8266_status(struct wifi_t * wifi)
@@ -198,12 +236,20 @@ static enum wifi_status_t wifi_esp8266_status(struct wifi_t * wifi)
 	ktime_t now = ktime_get();
 	char resp[256];
 
-	if(pdat->status == WIFI_STATUS_CONNECTED)
+	if((pdat->status == WIFI_STATUS_CONNECTED) || (pdat->status == WIFI_STATUS_CLIENT_OPENED))
 	{
-		if(ktime_after(now, ktime_add_ms(pdat->time, 5000)))
+		if(ktime_after(now, ktime_add_ms(pdat->time, 2000)))
 		{
-			if((wifi_at_request(pdat, "AT+CIPSTATUS\r\n", resp, sizeof(resp), 100) == 0) || !strstr(resp, "STATUS:3\r\n"))
-				pdat->status = WIFI_STATUS_DISCONNECTED;
+			if(pdat->status == WIFI_STATUS_CLIENT_OPENED)
+			{
+				if((wifi_at_request(pdat, "AT+CIPSTATUS\r\n", resp, sizeof(resp), 100) > 0) && !strstr(resp, "STATUS:3\r\n"))
+					pdat->status = WIFI_STATUS_CONNECTED;
+			}
+			if(pdat->status == WIFI_STATUS_CONNECTED)
+			{
+				if((wifi_at_request(pdat, "AT+CIFSR\r\n", resp, sizeof(resp), 100) > 0) && strstr(resp, "STAIP,\"0.0.0.0\""))
+					pdat->status = WIFI_STATUS_DISCONNECTED;
+			}
 			pdat->time = now;
 		}
 	}
@@ -317,21 +363,21 @@ int wifi_esp8266_write(struct wifi_t * wifi, void * buf, int count)
 	{
 		if(buf && (count > 0))
 		{
+			mutex_lock(&pdat->mutex);
 			len = snprintf(cmd, sizeof(cmd), "AT+CIPSEND=%d\r\n", count);
 			uart_write(pdat->uart, (const u8_t *)cmd, len);
 			time = ktime_add_ms(ktime_get(), 100);
 			do {
 				if((uart_read(pdat->uart, &c, 1) == 1) && (c == '>'))
 				{
-					len = uart_write(pdat->uart, (const u8_t *)buf, count);
-					if(len > 0)
-					{
-						if(wifi_at_request(pdat, NULL, resp, sizeof(resp), 1000) && strstr(resp, "SEND OK"))
-							return len;
-					}
+					uart_write(pdat->uart, (const u8_t *)buf, count);
+					break;
 				}
 				task_yield();
 			} while(ktime_before(ktime_get(), time));
+			mutex_unlock(&pdat->mutex);
+			if(wifi_at_request(pdat, NULL, resp, sizeof(resp), 1000) && strstr(resp, "SEND OK"))
+				return count;
 		}
 	}
 	return 0;
@@ -339,6 +385,51 @@ int wifi_esp8266_write(struct wifi_t * wifi, void * buf, int count)
 
 static int wifi_esp8266_ioctl(struct wifi_t * wifi, const char * cmd, void * arg)
 {
+	struct wifi_esp8266_pdata_t * pdat = (struct wifi_esp8266_pdata_t *)wifi->priv;
+	char resp[256];
+	char * p, * q;
+
+	switch(shash(cmd))
+	{
+	case 0x62110147: /* "wifi-get-ip" */
+		if((pdat->status == WIFI_STATUS_DISCONNECTED) || (pdat->status == WIFI_STATUS_CONNECTING))
+		{
+			strcpy(arg, "0.0.0.0");
+			return 0;
+		}
+		else
+		{
+			if(wifi_at_request(pdat, "AT+CIFSR\r\n", resp, sizeof(resp), 100) > 0)
+			{
+				p = strchr(resp, '\"');
+				q = strchr(p + 1, '\"');
+				if(p && q)
+				{
+					*q = '\0';
+					strcpy(arg, p + 1);
+					return 0;
+				}
+			}
+		}
+		break;
+	case 0xa431399f: /* "wifi-get-mac" */
+		if(wifi_at_request(pdat, "AT+CIFSR\r\n", resp, sizeof(resp), 100) > 0)
+		{
+			p = strchr(resp, '\"');
+			p = strchr(p + 1, '\"');
+			p = strchr(p + 1, '\"');
+			q = strchr(p + 1, '\"');
+			if(p && q)
+			{
+				*q = '\0';
+				strcpy(arg, p + 1);
+				return 0;
+			}
+		}
+		break;
+	default:
+		break;
+	}
 	return -1;
 }
 
@@ -369,17 +460,18 @@ static struct device_t * wifi_esp8266_probe(struct driver_t * drv, struct dtnode
 	pdat->data = dt_read_int(n, "data-bits", 8);
 	pdat->parity = dt_read_int(n, "parity-bits", 0);
 	pdat->stop = dt_read_int(n, "stop-bits", 1);
-	pdat->time = ktime_get();
+	mutex_init(&pdat->mutex);
 	pdat->status = WIFI_STATUS_DISCONNECTED;
 	pdat->rstate = RECV_STATE_PLUS;
 	pdat->cidx = 0;
 	pdat->count = 0;
+	pdat->time = ktime_get();
 
 	wifi->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
-	wifi->join = wifi_esp8266_join;
-	wifi->exit = wifi_esp8266_exit;
 	wifi->connect = wifi_esp8266_connect;
 	wifi->disconnect = wifi_esp8266_disconnect;
+	wifi->client_open = wifi_esp8266_client_open;
+	wifi->client_close = wifi_esp8266_client_close;
 	wifi->status = wifi_esp8266_status;
 	wifi->read = wifi_esp8266_read;
 	wifi->write = wifi_esp8266_write;

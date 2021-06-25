@@ -33,9 +33,9 @@ static void usage(void)
 	printf("    -pb     The ecdsa256 public key\r\n");
 	printf("    -pv     The ecdsa256 private key\r\n");
 	printf("    -m      The additional message\r\n");
-	printf("    -g      Auto generate aes256 encrypt key\r\n");
-	printf("    -i      Enable bind id\r\n");
-	printf("    -e      Enable encrypt image\r\n");
+	printf("    -g      Generate aes256 encrypt key by uniqueid\r\n");
+	printf("    -i      Enable sha256 hash with uniqueid\r\n");
+	printf("    -e      Enable aes256 encrypt image\r\n");
 }
 
 static inline unsigned char hex_to_bin(char c)

@@ -14,6 +14,23 @@ struct zdesc_t {			/* Total 256 bytes */
 	uint8_t message[80];	/* Message additionally */
 };
 
+static void usage(void)
+{
+	printf("usage:\r\n");
+	printf("    mkz [-majoy number] [-minior number] [-patch number] [-r reserve-image-size] [-k aes256-encrypt-key] [-pb ecdsa256-public-key] [-pv ecdsa256-private-key] [-m message] [-g uniqueid] [-i uniqueid] [-e] <image> <zimage>\r\n");
+	printf("    -majoy  The majoy version\r\n");
+	printf("    -minior The minior version\r\n");
+	printf("    -patch  The patch version\r\n");
+	printf("    -r      The reserve size\r\n");
+	printf("    -k      The aes256 encrypt key\r\n");
+	printf("    -pb     The ecdsa256 public key\r\n");
+	printf("    -pv     The ecdsa256 private key\r\n");
+	printf("    -m      The additional message\r\n");
+	printf("    -g      Generate aes256 encrypt key by uniqueid\r\n");
+	printf("    -i      Enable sha256 hash with uniqueid\r\n");
+	printf("    -e      Enable aes256 encrypt image\r\n");
+}
+
 static inline unsigned char hex_to_bin(char c)
 {
 	if((c >= 'a') && (c <= 'f'))
@@ -30,32 +47,17 @@ static inline unsigned char hex_string(const char * s, int o)
 	return (hex_to_bin(s[o]) << 4) | hex_to_bin(s[o + 1]);
 }
 
-static void usage(void)
-{
-	printf("usage:\r\n");
-	printf("    mkz [-majoy number] [-minior number] [-patch number] [-r reserve-image-size] [-i bind-id] [-k aes256-encrypt-key] [-pb ecdsa256-public-key] [-pv ecdsa256-private-key] [-m message] [-e] <bootloader> <zbootloader>\r\n");
-	printf("    -majoy  The majoy version\r\n");
-	printf("    -minior The minior version\r\n");
-	printf("    -patch  The patch version\r\n");
-	printf("    -r      The reserve size\r\n");
-	printf("    -i      The bind id for sha256 hash\r\n");
-	printf("    -k      The aes256 encrypt key\r\n");
-	printf("    -pb     The ecdsa256 public key\r\n");
-	printf("    -pv     The ecdsa256 private key\r\n");
-	printf("    -m      The additional message\r\n");
-	printf("    -e      Enable encrypt image\r\n");
-}
-
 int main(int argc, char * argv[])
 {
-	struct zdesc_t * z;
 	struct aes256_ctx_t aesctx;
 	struct sha256_ctx_t shactx;
+	struct zdesc_t * z;
 	FILE * blfp, * zblfp;
-	char * blbuf, * zblbuf;
-	char * blpath = NULL, * zblpath = NULL;
-	char * id = NULL, * msg = NULL;
-	char * p;
+	char * blpath = NULL;
+	char * zblpath = NULL;
+	char * blbuf = NULL;
+	char * zblbuf = NULL;
+	char * msg = NULL;
 	uint8_t key[] = {
 		0x67, 0x94, 0x08, 0xdc, 0x82, 0xae, 0x80, 0xd4,
 		0x11, 0xd5, 0xd9, 0x72, 0x0b, 0x65, 0xa4, 0x3f,
@@ -76,6 +78,8 @@ int main(int argc, char * argv[])
 		0x62, 0x89, 0x08, 0xdb, 0xf2, 0xb2, 0xe6, 0xa9,
 	};
 	uint8_t majoy = 0, minior = 0, patch = 0;
+	char * keygen = NULL;
+	char * uniqueid = NULL;
 	int rsize = 0, encrypt = 0;
 	int index = 0;
 	int bllen, zbllen;
@@ -87,7 +91,6 @@ int main(int argc, char * argv[])
 		usage();
 		return -1;
 	}
-
 	for(i = 1; i < argc; i++)
 	{
 		if(!strcmp(argv[i], "-majoy") && (argc > i + 1))
@@ -110,16 +113,9 @@ int main(int argc, char * argv[])
 			rsize = (int)strtoul(argv[i + 1], NULL, 0);
 			i++;
 		}
-		else if(!strcmp(argv[i], "-i") && (argc > i + 1))
-		{
-			p = argv[i + 1];
-			if(p && (strcmp(p, "") != 0) && (strlen(p) > 0))
-				id = p;
-			i++;
-		}
 		else if(!strcmp(argv[i], "-k") && (argc > i + 1))
 		{
-			p = argv[i + 1];
+			char * p = argv[i + 1];
 			if(p && (strcmp(p, "") != 0) && (strlen(p) == 32 * 2))
 			{
 				for(o = 0; o < 32; o++)
@@ -129,7 +125,7 @@ int main(int argc, char * argv[])
 		}
 		else if(!strcmp(argv[i], "-pb") && (argc > i + 1))
 		{
-			p = argv[i + 1];
+			char * p = argv[i + 1];
 			if(p && (strcmp(p, "") != 0) && (strlen(p) == 33 * 2))
 			{
 				for(o = 0; o < 33; o++)
@@ -139,7 +135,7 @@ int main(int argc, char * argv[])
 		}
 		else if(!strcmp(argv[i], "-pv") && (argc > i + 1))
 		{
-			p = argv[i + 1];
+			char * p = argv[i + 1];
 			if(p && (strcmp(p, "") != 0) && (strlen(p) == 32 * 2))
 			{
 				for(o = 0; o < 32; o++)
@@ -149,9 +145,23 @@ int main(int argc, char * argv[])
 		}
 		else if(!strcmp(argv[i], "-m") && (argc > i + 1))
 		{
-			p = argv[i + 1];
+			char * p = argv[i + 1];
 			if(p && (strcmp(p, "") != 0) && (strlen(p) > 0))
 				msg = p;
+			i++;
+		}
+		else if(!strcmp(argv[i], "-g") && (argc > i + 1))
+		{
+			char * p = argv[i + 1];
+			if(p && (strcmp(p, "") != 0) && (strlen(p) > 0))
+				keygen = p;
+			i++;
+		}
+		else if(!strcmp(argv[i], "-i") && (argc > i + 1))
+		{
+			char * p = argv[i + 1];
+			if(p && (strcmp(p, "") != 0) && (strlen(p) > 0))
+				uniqueid = p;
 			i++;
 		}
 		else if(!strcmp(argv[i], "-e"))
@@ -177,17 +187,17 @@ int main(int argc, char * argv[])
 			index++;
 		}
 	}
-
 	if(!blpath || !zblpath)
 	{
 		usage();
 		return -1;
 	}
-
+	if(keygen)
+		sha256_hash(keygen, strlen(keygen), key);
 	blfp = fopen(blpath, "r+b");
 	if(blfp == NULL)
 	{
-		printf("Open bootloader error.\r\n");
+		printf("Open image error\r\n");
 		return -1;
 	}
 	fseek(blfp, 0L, SEEK_END);
@@ -195,7 +205,7 @@ int main(int argc, char * argv[])
 	fseek(blfp, 0L, SEEK_SET);
 	if(rsize > bllen)
 	{
-		printf("The reserve size is too large.\r\n");
+		printf("The reserve size is too large\r\n");
 		fclose(blfp);
 		return -1;
 	}
@@ -203,7 +213,7 @@ int main(int argc, char * argv[])
 	memset(blbuf, 0, bllen);
 	if(fread(blbuf, 1, bllen, blfp) != bllen)
 	{
-		printf("Can't read bootloader.\r\n");
+		printf("Can't read image\r\n");
 		free(blbuf);
 		fclose(blfp);
 		return -1;
@@ -226,9 +236,12 @@ int main(int argc, char * argv[])
 	z = (struct zdesc_t *)&zblbuf[rsize];
 	z->magic[0] = 'Z';
 	z->magic[1] = 'B';
-	z->magic[2] = id ? 'I' : 0;
+	z->magic[2] = uniqueid ? 'I' : 0;
 	z->magic[3] = encrypt ? 'E' : 0;
-	memcpy(&z->key[0], &key[0], 32);
+	if(keygen)
+		memset(&z->key[0], 0, 32);
+	else
+		memcpy(&z->key[0], &key[0], 32);
 	z->csize[0] = (clen >> 24) & 0xff;
 	z->csize[1] = (clen >> 16) & 0xff;
 	z->csize[2] = (clen >>  8) & 0xff;
@@ -245,8 +258,8 @@ int main(int argc, char * argv[])
 		strncpy((char *)&z->message[0], msg, 80 - 1);
 
 	sha256_init(&shactx);
-	if(id)
-		sha256_update(&shactx, (void *)(id), strlen(id));
+	if(uniqueid)
+		sha256_update(&shactx, (void *)(uniqueid), strlen(uniqueid));
 	sha256_update(&shactx, (void *)(&z->csize[0]), 4);
 	sha256_update(&shactx, (void *)(&z->dsize[0]), 4);
 	sha256_update(&shactx, (void *)(&z->public[0]), 33);
@@ -283,23 +296,22 @@ int main(int argc, char * argv[])
 	zblfp = fopen(zblpath, "w+b");
 	if(zblfp == NULL)
 	{
-		printf("Open zbootloader error.\r\n");
+		printf("Open zimage error\r\n");
 		free(zblbuf);
 		return -1;
 	}
 	if(fwrite(zblbuf, 1, zbllen, zblfp) != zbllen)
 	{
-		printf("Write bootloader error.\r\n");
+		printf("Write zimage error\r\n");
 		free(blbuf);
 		free(zblbuf);
 		fclose(zblfp);
 		return -1;
 	}
-
 	free(blbuf);
 	free(zblbuf);
 	fclose(zblfp);
 
-	printf("Compressed %d bytes into %d bytes ==> %f%% %s%s\r\n", bllen, clen, clen * 100.0 / bllen, id ? "[I]" : "", encrypt ? "[E]" : "");
+	printf("Compressed %d bytes into %d bytes ==> %f%% %s%s%s\r\n", bllen, clen, clen * 100.0 / bllen, keygen ? "[G]" : "", uniqueid ? "[I]" : "", encrypt ? "[E]" : "");
 	return 0;
 }

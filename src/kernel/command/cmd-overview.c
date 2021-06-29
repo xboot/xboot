@@ -757,6 +757,26 @@ static void overview_window(struct xui_context_t * ctx)
 			xui_end_tree(ctx);
 		}
 
+		if(xui_begin_tree(ctx, "Glass"))
+		{
+			static int radius = 10;
+			xui_layout_row(ctx, 1, (int[]){ -1 }, 0);
+			xui_slider_int(ctx, &radius, 1, 100, 1);
+			xui_layout_row(ctx, 1, (int[]){ -1 }, 160);
+			xui_begin_panel_ex(ctx, "widget", XUI_OPT_NOSCROLL);
+			{
+				xui_layout_row(ctx, 8, (int[]){ 24, 24, 24, 24, 24, 24, 24, 24 }, -1);
+				for(int i = 0; i < 8; i++)
+				{
+					xui_progress_ex(ctx, (ctx->frame + i * 10) % 100, (i << 8) | XUI_PROGRESS_VERTICAL);
+				}
+				xui_layout_set_next(ctx, &xui_get_container(ctx)->body, 0);
+				xui_glass(ctx, radius);
+			}
+			xui_end_panel(ctx);
+			xui_end_tree(ctx);
+		}
+
 		if(xui_begin_tree(ctx, "Split"))
 		{
 			xui_layout_row(ctx, 1, (int[]){ -1 }, 0);

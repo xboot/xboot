@@ -1629,6 +1629,108 @@ void render_default_shape_checkerboard(struct surface_t * s, struct region_t * c
 	}
 }
 
+static inline void blurinner(unsigned char * p, int * zr, int * zg, int * zb, int * za, int alpha)
+{
+	int r, g, b;
+	unsigned char a;
+
+	b = p[0];
+	g = p[1];
+	r = p[2];
+	a = p[3];
+
+	*zb += (alpha * ((b << 7) - *zb)) >> 16;
+	*zg += (alpha * ((g << 7) - *zg)) >> 16;
+	*zr += (alpha * ((r << 7) - *zr)) >> 16;
+	*za += (alpha * ((a << 7) - *za)) >> 16;
+
+	p[0] = *zb >> 7;
+	p[1] = *zg >> 7;
+	p[2] = *zr >> 7;
+	p[3] = *za >> 7;
+}
+
+static inline void blurrow(unsigned char * pixel, int width, int height, int line, int alpha)
+{
+	unsigned char * p = &(pixel[line * (width << 2)]);
+	int zr, zg, zb, za;
+	int i;
+
+	zb = p[0] << 7;
+	zg = p[1] << 7;
+	zr = p[2] << 7;
+	za = p[3] << 7;
+
+	for(i = 0; i < width; i++)
+		blurinner(&p[i << 2], &zr, &zg, &zb, &za, alpha);
+	for(i = width - 2; i >= 0; i--)
+		blurinner(&p[i << 2], &zr, &zg, &zb, &za, alpha);
+}
+
+static inline void blurcol(unsigned char * pixel, int width, int height, int x, int alpha)
+{
+	unsigned char * p = pixel;
+	int zr, zg, zb, za;
+	int i;
+
+	p += (x << 2);
+	zb = p[0] << 7;
+	zg = p[1] << 7;
+	zr = p[2] << 7;
+	za = p[3] << 7;
+
+	for(i = width; i < (height - 1) * width; i += width)
+		blurinner(&p[i << 2], &zr, &zg, &zb, &za, alpha);
+	for(i = (height - 2) * width; i >= 0; i -= width)
+		blurinner(&p[i << 2], &zr, &zg, &zb, &za, alpha);
+}
+
+static void expblur(unsigned char * pixel, int width, int height, int radius)
+{
+	int alpha = (int)((1 << 16) * (1.0 - expf(-2.3 / (radius + 1.0))));
+	int row, col;
+
+	for(row = 0; row < height; row++)
+		blurrow(pixel, width, height, row, alpha);
+	for(col = 0; col < width; col++)
+		blurcol(pixel, width, height, col, alpha);
+}
+
+void render_default_shape_glass(struct surface_t * s, struct region_t * clip, int x, int y, int w, int h, int radius)
+{
+	struct region_t region, r;
+	uint32_t * ps, * pt;
+	void * tpixels;
+	int i, j;
+
+	region_init(&r, 0, 0, surface_get_width(s), surface_get_height(s));
+	if(clip)
+	{
+		if(!region_intersect(&r, &r, clip))
+			return;
+	}
+	region_init(&region, x, y, w, h);
+	if(!region_intersect(&r, &r, &region))
+		return;
+
+	tpixels = malloc(r.h * r.w << 2);
+	if(tpixels)
+	{
+		for(j = 0, pt = (uint32_t *)tpixels; j < r.h; j++)
+		{
+			for(i = 0, ps = (uint32_t *)s->pixels + (j + r.y) * s->width + r.x; i < r.w; i++)
+				*pt++ = *ps++;
+		}
+		if(radius > 0)
+			expblur(tpixels, r.w, r.h, radius);
+		ps = (uint32_t *)s->pixels + r.y * s->width + r.x;
+		pt = (uint32_t *)tpixels;
+		for(j = 0; j < r.h; j++, ps += s->width, pt += r.w)
+			memcpy(ps, pt, r.w << 2);
+		free(tpixels);
+	}
+}
+
 void render_default_filter_gray(struct surface_t * s)
 {
 	int i, len = surface_get_width(s) * surface_get_height(s);
@@ -2159,73 +2261,6 @@ void render_default_filter_haldclut(struct surface_t * s, struct surface_t * clu
 	}
 }
 
-static inline void blurinner(unsigned char * p, int * zr, int * zg, int * zb, int * za, int alpha)
-{
-	int r, g, b;
-	unsigned char a;
-
-	b = p[0];
-	g = p[1];
-	r = p[2];
-	a = p[3];
-
-	*zb += (alpha * ((b << 7) - *zb)) >> 16;
-	*zg += (alpha * ((g << 7) - *zg)) >> 16;
-	*zr += (alpha * ((r << 7) - *zr)) >> 16;
-	*za += (alpha * ((a << 7) - *za)) >> 16;
-
-	p[0] = *zb >> 7;
-	p[1] = *zg >> 7;
-	p[2] = *zr >> 7;
-	p[3] = *za >> 7;
-}
-
-static inline void blurrow(unsigned char * pixel, int width, int height, int channel, int line, int alpha)
-{
-	unsigned char * p = &(pixel[line * width * channel]);
-	int zr, zg, zb, za;
-	int i;
-
-	zb = p[0] << 7;
-	zg = p[1] << 7;
-	zr = p[2] << 7;
-	za = p[3] << 7;
-
-	for(i = 0; i < width; i++)
-		blurinner(&p[i * channel], &zr, &zg, &zb, &za, alpha);
-	for(i = width - 2; i >= 0; i--)
-		blurinner(&p[i * channel], &zr, &zg, &zb, &za, alpha);
-}
-
-static inline void blurcol(unsigned char * pixel, int width, int height, int channel, int x, int alpha)
-{
-	unsigned char * p = pixel;
-	int zr, zg, zb, za;
-	int i;
-
-	p += x * channel;
-	zb = p[0] << 7;
-	zg = p[1] << 7;
-	zr = p[2] << 7;
-	za = p[3] << 7;
-
-	for(i = width; i < (height - 1) * width; i += width)
-		blurinner(&p[i * channel], &zr, &zg, &zb, &za, alpha);
-	for(i = (height - 2) * width; i >= 0; i -= width)
-		blurinner(&p[i * channel], &zr, &zg, &zb, &za, alpha);
-}
-
-static inline void expblur(unsigned char * pixel, int width, int height, int channel, int radius)
-{
-	int alpha = (int)((1 << 16) * (1.0 - expf(-2.3 / (radius + 1.0))));
-	int row, col;
-
-	for(row = 0; row < height; row++)
-		blurrow(pixel, width, height, channel, row, alpha);
-	for(col = 0; col < width; col++)
-		blurcol(pixel, width, height, channel, col, alpha);
-}
-
 void render_default_filter_blur(struct surface_t * s, int radius)
 {
 	int width = surface_get_width(s);
@@ -2233,5 +2268,5 @@ void render_default_filter_blur(struct surface_t * s, int radius)
 	unsigned char * pixels = surface_get_pixels(s);
 
 	if(radius > 0)
-		expblur(pixels, width, height, 4, radius);
+		expblur(pixels, width, height, radius);
 }

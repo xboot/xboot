@@ -66,6 +66,7 @@ struct render_t
 	void (*shape_arc)(struct surface_t * s, struct region_t * clip, int x, int y, int radius, int a1, int a2, int thickness, struct color_t * c);
 	void (*shape_gradient)(struct surface_t * s, struct region_t * clip, int x, int y, int w, int h, struct color_t * lt, struct color_t * rt, struct color_t * rb, struct color_t * lb);
 	void (*shape_checkerboard)(struct surface_t * s, struct region_t * clip, int x, int y, int w, int h);
+	void (*shape_glass)(struct surface_t * s, struct region_t * clip, int x, int y, int w, int h, int radius);
 	void (*shape_raster)(struct surface_t * s, struct svg_t * svg, float tx, float ty, float sx, float sy);
 
 	void (*filter_gray)(struct surface_t * s);
@@ -176,6 +177,11 @@ static inline void surface_shape_checkerboard(struct surface_t * s, struct regio
 	s->r->shape_checkerboard(s, clip, x, y, w, h);
 }
 
+static inline void surface_shape_glass(struct surface_t * s, struct region_t * clip, int x, int y, int w, int h, int radius)
+{
+	s->r->shape_glass(s, clip, x, y, w, h, radius);
+}
+
 static inline void surface_shape_raster(struct surface_t * s, struct svg_t * svg, float tx, float ty, float sx, float sy)
 {
 	s->r->shape_raster(s, svg, tx, ty, sx, sy);
@@ -253,6 +259,7 @@ void render_default_shape_ellipse(struct surface_t * s, struct region_t * clip, 
 void render_default_shape_arc(struct surface_t * s, struct region_t * clip, int x, int y, int radius, int a1, int a2, int thickness, struct color_t * c);
 void render_default_shape_gradient(struct surface_t * s, struct region_t * clip, int x, int y, int w, int h, struct color_t * lt, struct color_t * rt, struct color_t * rb, struct color_t * lb);
 void render_default_shape_checkerboard(struct surface_t * s, struct region_t * clip, int x, int y, int w, int h);
+void render_default_shape_glass(struct surface_t * s, struct region_t * clip, int x, int y, int w, int h, int radius);
 void render_default_shape_raster(struct surface_t * s, struct svg_t * svg, float tx, float ty, float sx, float sy);
 void render_default_filter_gray(struct surface_t * s);
 void render_default_filter_sepia(struct surface_t * s);

@@ -276,7 +276,7 @@ union xui_cmd_t {
 	struct xui_cmd_ellipse_t ellipse;
 	struct xui_cmd_arc_t arc;
 	struct xui_cmd_gradient_t gradient;
-	struct xui_cmd_checkerboard_t board;
+	struct xui_cmd_checkerboard_t checkerboard;
 	struct xui_cmd_surface_t surface;
 	struct xui_cmd_icon_t icon;
 	struct xui_cmd_text_t text;

@@ -719,10 +719,10 @@ void xui_draw_checkerboard(struct xui_context_t * ctx, int x, int y, int w, int 
 		if(clip < 0)
 			xui_cmd_push_clip(ctx, xui_get_clip(ctx));
 		cmd = xui_cmd_push(ctx, XUI_CMD_TYPE_CHECKERBOARD, sizeof(struct xui_cmd_checkerboard_t), &r);
-		cmd->board.x = x;
-		cmd->board.y = y;
-		cmd->board.w = w;
-		cmd->board.h = h;
+		cmd->checkerboard.x = x;
+		cmd->checkerboard.y = y;
+		cmd->checkerboard.w = w;
+		cmd->checkerboard.h = h;
 		if(clip < 0)
 			xui_cmd_push_clip(ctx, &unlimited_region);
 	}
@@ -1677,7 +1677,7 @@ static void xui_draw(struct window_t * w, void * o)
 					surface_shape_arc(s, clip, cmd->arc.x, cmd->arc.y, cmd->arc.radius, cmd->arc.a1, cmd->arc.a2, cmd->arc.thickness, &cmd->arc.c);
 					break;
 				case XUI_CMD_TYPE_CHECKERBOARD:
-					surface_shape_checkerboard(s, clip, cmd->board.x, cmd->board.y, cmd->board.w, cmd->board.h);
+					surface_shape_checkerboard(s, clip, cmd->checkerboard.x, cmd->checkerboard.y, cmd->checkerboard.w, cmd->checkerboard.h);
 					break;
 				case XUI_CMD_TYPE_GRADIENT:
 					surface_shape_gradient(s, clip, cmd->gradient.x, cmd->gradient.y, cmd->gradient.w, cmd->gradient.h, &cmd->gradient.lt, &cmd->gradient.rt, &cmd->gradient.rb, &cmd->gradient.lb);

@@ -728,7 +728,7 @@ void xui_draw_checkerboard(struct xui_context_t * ctx, int x, int y, int w, int 
 	}
 }
 
-void xui_draw_glass(struct xui_context_t * ctx, int x, int y, int w, int h, int radius, int refresh)
+void xui_draw_glass(struct xui_context_t * ctx, int x, int y, int w, int h, int radius)
 {
 	union xui_cmd_t * cmd;
 	struct region_t r;
@@ -745,7 +745,6 @@ void xui_draw_glass(struct xui_context_t * ctx, int x, int y, int w, int h, int 
 		cmd->glass.w = w;
 		cmd->glass.h = h;
 		cmd->glass.radius = radius;
-		cmd->glass.refresh ^= refresh ? 1 : 0;
 		if(clip < 0)
 			xui_cmd_push_clip(ctx, &unlimited_region);
 	}

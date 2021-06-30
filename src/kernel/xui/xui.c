@@ -682,75 +682,6 @@ void xui_draw_arc(struct xui_context_t * ctx, int x, int y, int radius, int a1, 
 	}
 }
 
-void xui_draw_gradient(struct xui_context_t * ctx, int x, int y, int w, int h, struct color_t * lt, struct color_t * rt, struct color_t * rb, struct color_t * lb)
-{
-	union xui_cmd_t * cmd;
-	struct region_t r;
-	int clip;
-
-	region_init(&r, x, y, w, h);
-	if((clip = xui_check_clip(ctx, &r)))
-	{
-		if(clip < 0)
-			xui_cmd_push_clip(ctx, xui_get_clip(ctx));
-		cmd = xui_cmd_push(ctx, XUI_CMD_TYPE_GRADIENT, sizeof(struct xui_cmd_gradient_t), &r);
-		cmd->gradient.x = x;
-		cmd->gradient.y = y;
-		cmd->gradient.w = w;
-		cmd->gradient.h = h;
-		memcpy(&cmd->gradient.lt, lt, sizeof(struct color_t));
-		memcpy(&cmd->gradient.rt, rt, sizeof(struct color_t));
-		memcpy(&cmd->gradient.rb, rb, sizeof(struct color_t));
-		memcpy(&cmd->gradient.lb, lb, sizeof(struct color_t));
-		if(clip < 0)
-			xui_cmd_push_clip(ctx, &unlimited_region);
-	}
-}
-
-void xui_draw_checkerboard(struct xui_context_t * ctx, int x, int y, int w, int h)
-{
-	union xui_cmd_t * cmd;
-	struct region_t r;
-	int clip;
-
-	region_init(&r, x, y, w, h);
-	if((clip = xui_check_clip(ctx, &r)))
-	{
-		if(clip < 0)
-			xui_cmd_push_clip(ctx, xui_get_clip(ctx));
-		cmd = xui_cmd_push(ctx, XUI_CMD_TYPE_CHECKERBOARD, sizeof(struct xui_cmd_checkerboard_t), &r);
-		cmd->checkerboard.x = x;
-		cmd->checkerboard.y = y;
-		cmd->checkerboard.w = w;
-		cmd->checkerboard.h = h;
-		if(clip < 0)
-			xui_cmd_push_clip(ctx, &unlimited_region);
-	}
-}
-
-void xui_draw_glass(struct xui_context_t * ctx, int x, int y, int w, int h, int radius, int refresh)
-{
-	union xui_cmd_t * cmd;
-	struct region_t r;
-	int clip;
-
-	region_init(&r, x, y, w, h);
-	if((clip = xui_check_clip(ctx, &r)))
-	{
-		if(clip < 0)
-			xui_cmd_push_clip(ctx, xui_get_clip(ctx));
-		cmd = xui_cmd_push(ctx, XUI_CMD_TYPE_GLASS, sizeof(struct xui_cmd_glass_t), &r);
-		cmd->glass.x = x;
-		cmd->glass.y = y;
-		cmd->glass.w = w;
-		cmd->glass.h = h;
-		cmd->glass.radius = radius;
-		cmd->glass.refresh ^= refresh ? 1 : 0;
-		if(clip < 0)
-			xui_cmd_push_clip(ctx, &unlimited_region);
-	}
-}
-
 void xui_draw_surface(struct xui_context_t * ctx, struct surface_t * s, struct matrix_t * m, int refresh)
 {
 	union xui_cmd_t * cmd;
@@ -897,6 +828,75 @@ void xui_draw_text_align(struct xui_context_t * ctx, const char * family, int si
 			xui_cmd_push_clip(ctx, &unlimited_region);
 	}
 	xui_pop_clip(ctx);
+}
+
+void xui_draw_glass(struct xui_context_t * ctx, int x, int y, int w, int h, int radius, int refresh)
+{
+	union xui_cmd_t * cmd;
+	struct region_t r;
+	int clip;
+
+	region_init(&r, x, y, w, h);
+	if((clip = xui_check_clip(ctx, &r)))
+	{
+		if(clip < 0)
+			xui_cmd_push_clip(ctx, xui_get_clip(ctx));
+		cmd = xui_cmd_push(ctx, XUI_CMD_TYPE_GLASS, sizeof(struct xui_cmd_glass_t), &r);
+		cmd->glass.x = x;
+		cmd->glass.y = y;
+		cmd->glass.w = w;
+		cmd->glass.h = h;
+		cmd->glass.radius = radius;
+		cmd->glass.refresh ^= refresh ? 1 : 0;
+		if(clip < 0)
+			xui_cmd_push_clip(ctx, &unlimited_region);
+	}
+}
+
+void xui_draw_gradient(struct xui_context_t * ctx, int x, int y, int w, int h, struct color_t * lt, struct color_t * rt, struct color_t * rb, struct color_t * lb)
+{
+	union xui_cmd_t * cmd;
+	struct region_t r;
+	int clip;
+
+	region_init(&r, x, y, w, h);
+	if((clip = xui_check_clip(ctx, &r)))
+	{
+		if(clip < 0)
+			xui_cmd_push_clip(ctx, xui_get_clip(ctx));
+		cmd = xui_cmd_push(ctx, XUI_CMD_TYPE_GRADIENT, sizeof(struct xui_cmd_gradient_t), &r);
+		cmd->gradient.x = x;
+		cmd->gradient.y = y;
+		cmd->gradient.w = w;
+		cmd->gradient.h = h;
+		memcpy(&cmd->gradient.lt, lt, sizeof(struct color_t));
+		memcpy(&cmd->gradient.rt, rt, sizeof(struct color_t));
+		memcpy(&cmd->gradient.rb, rb, sizeof(struct color_t));
+		memcpy(&cmd->gradient.lb, lb, sizeof(struct color_t));
+		if(clip < 0)
+			xui_cmd_push_clip(ctx, &unlimited_region);
+	}
+}
+
+void xui_draw_checkerboard(struct xui_context_t * ctx, int x, int y, int w, int h)
+{
+	union xui_cmd_t * cmd;
+	struct region_t r;
+	int clip;
+
+	region_init(&r, x, y, w, h);
+	if((clip = xui_check_clip(ctx, &r)))
+	{
+		if(clip < 0)
+			xui_cmd_push_clip(ctx, xui_get_clip(ctx));
+		cmd = xui_cmd_push(ctx, XUI_CMD_TYPE_CHECKERBOARD, sizeof(struct xui_cmd_checkerboard_t), &r);
+		cmd->checkerboard.x = x;
+		cmd->checkerboard.y = y;
+		cmd->checkerboard.w = w;
+		cmd->checkerboard.h = h;
+		if(clip < 0)
+			xui_cmd_push_clip(ctx, &unlimited_region);
+	}
 }
 
 static void push_layout(struct xui_context_t * ctx, struct region_t * body, int scrollx, int scrolly)
@@ -1699,15 +1699,6 @@ static void xui_draw(struct window_t * w, void * o)
 				case XUI_CMD_TYPE_ARC:
 					surface_shape_arc(s, clip, cmd->arc.x, cmd->arc.y, cmd->arc.radius, cmd->arc.a1, cmd->arc.a2, cmd->arc.thickness, &cmd->arc.c);
 					break;
-				case XUI_CMD_TYPE_GRADIENT:
-					surface_shape_gradient(s, clip, cmd->gradient.x, cmd->gradient.y, cmd->gradient.w, cmd->gradient.h, &cmd->gradient.lt, &cmd->gradient.rt, &cmd->gradient.rb, &cmd->gradient.lb);
-					break;
-				case XUI_CMD_TYPE_CHECKERBOARD:
-					surface_shape_checkerboard(s, clip, cmd->checkerboard.x, cmd->checkerboard.y, cmd->checkerboard.w, cmd->checkerboard.h);
-					break;
-				case XUI_CMD_TYPE_GLASS:
-					surface_shape_glass(s, clip, cmd->glass.x, cmd->glass.y, cmd->glass.w, cmd->glass.h, cmd->glass.radius);
-					break;
 				case XUI_CMD_TYPE_SURFACE:
 					surface_blit(s, clip, &cmd->surface.m, cmd->surface.s, RENDER_TYPE_GOOD);
 					break;
@@ -1720,6 +1711,15 @@ static void xui_draw(struct window_t * w, void * o)
 				case XUI_CMD_TYPE_TEXT:
 					matrix_init_translate(&m, cmd->text.x, cmd->text.y);
 					surface_text(s, clip, &m, &cmd->text.txt);
+					break;
+				case XUI_CMD_TYPE_GLASS:
+					surface_effect_glass(s, clip, cmd->glass.x, cmd->glass.y, cmd->glass.w, cmd->glass.h, cmd->glass.radius);
+					break;
+				case XUI_CMD_TYPE_GRADIENT:
+					surface_effect_gradient(s, clip, cmd->gradient.x, cmd->gradient.y, cmd->gradient.w, cmd->gradient.h, &cmd->gradient.lt, &cmd->gradient.rt, &cmd->gradient.rb, &cmd->gradient.lb);
+					break;
+				case XUI_CMD_TYPE_CHECKERBOARD:
+					surface_effect_checkerboard(s, clip, cmd->checkerboard.x, cmd->checkerboard.y, cmd->checkerboard.w, cmd->checkerboard.h);
 					break;
 				default:
 					break;

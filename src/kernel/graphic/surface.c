@@ -60,7 +60,6 @@ static struct render_t render_default = {
 	.shape_circle			= render_default_shape_circle,
 	.shape_ellipse			= render_default_shape_ellipse,
 	.shape_arc				= render_default_shape_arc,
-	.shape_raster			= render_default_shape_raster,
 
 	.effect_glass			= render_default_effect_glass,
 	.effect_gradient		= render_default_effect_gradient,

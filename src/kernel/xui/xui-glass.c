@@ -29,8 +29,8 @@
 #include <xboot.h>
 #include <xui/glass.h>
 
-void xui_glass(struct xui_context_t * ctx, int radius)
+void xui_glass_ex(struct xui_context_t * ctx, int radius, int opt)
 {
 	struct region_t * r = xui_layout_next(ctx);
-	xui_draw_glass(ctx, r->x, r->y, r->w, r->h, radius);
+	xui_draw_glass(ctx, r->x, r->y, r->w, r->h, radius, opt & XUI_GLASS_REFRESH);
 }

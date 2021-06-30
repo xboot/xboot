@@ -7,7 +7,16 @@ extern "C" {
 
 #include <xui/xui.h>
 
-void xui_glass(struct xui_context_t * ctx, int radius);
+enum {
+	XUI_GLASS_REFRESH	= (0x1 << 12),
+};
+
+void xui_glass_ex(struct xui_context_t * ctx, int radius, int opt);
+
+static inline void xui_glass(struct xui_context_t * ctx, int radius)
+{
+	xui_glass_ex(ctx, radius, 0);
+}
 
 #ifdef __cplusplus
 }

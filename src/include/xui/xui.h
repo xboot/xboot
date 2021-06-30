@@ -238,6 +238,7 @@ struct xui_cmd_glass_t {
 
 	int x, y, w, h;
 	int radius;
+	int refresh;
 };
 
 struct xui_cmd_surface_t {
@@ -693,7 +694,7 @@ void xui_draw_ellipse(struct xui_context_t * ctx, int x, int y, int w, int h, in
 void xui_draw_arc(struct xui_context_t * ctx, int x, int y, int radius, int a1, int a2, int thickness, struct color_t * c);
 void xui_draw_gradient(struct xui_context_t * ctx, int x, int y, int w, int h, struct color_t * lt, struct color_t * rt, struct color_t * rb, struct color_t * lb);
 void xui_draw_checkerboard(struct xui_context_t * ctx, int x, int y, int w, int h);
-void xui_draw_glass(struct xui_context_t * ctx, int x, int y, int w, int h, int radius);
+void xui_draw_glass(struct xui_context_t * ctx, int x, int y, int w, int h, int radius, int refresh);
 void xui_draw_surface(struct xui_context_t * ctx, struct surface_t * s, struct matrix_t * m, int refresh);
 void xui_draw_icon(struct xui_context_t * ctx, const char * family, uint32_t code, int x, int y, int w, int h, struct color_t * c);
 void xui_draw_text(struct xui_context_t * ctx, int x, int y, struct text_t * txt);

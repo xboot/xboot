@@ -444,20 +444,6 @@
 		"poll-interval-ms": 100
 	},
 
-	/*
-	"led-gpio@0": {
-		"gpio": 133,
-		"gpio-config": 1,
-		"active-low": false,
-		"default-brightness": 0
-	},
-
-	"ledtrigger-heartbeat@0": {
-		"led-name": "led-gpio.0",
-		"period-ms": 1260
-	},
-	*/
-
 	"led-pwm-bl@0": {
 		"pwm-name": "pwm-f1c200s.1",
 		"pwm-period-ns": 1000000,

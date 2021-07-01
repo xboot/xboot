@@ -81,7 +81,7 @@ static int mach_keygen(struct machine_t * mach, const char * msg, void * key)
 
 static struct machine_t trimui = {
 	.name 		= "trimui",
-	.desc 		= "Trimui Handheld Game Console Based On Allwinner F1C200S",
+	.desc 		= "Trimui Model S Handheld Game Console Based On Allwinner F1C200S",
 	.detect 	= mach_detect,
 	.smpinit	= mach_smpinit,
 	.smpboot	= mach_smpboot,

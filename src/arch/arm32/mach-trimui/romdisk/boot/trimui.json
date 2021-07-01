@@ -269,9 +269,9 @@
 		"clock-name": "link-i2c2",
 		"clock-frequency": 400000,
 		"reset": 82,
-		"sda-gpio": 129,
+		"sda-gpio": 112,
 		"sda-gpio-config": 4,
-		"scl-gpio": 128,
+		"scl-gpio": 111,
 		"scl-gpio-config": 4
 	},
 
@@ -311,7 +311,8 @@
 		"baud-rates": 115200,
 		"data-bits": 8,
 		"parity-bits": 0,
-		"stop-bits": 1
+		"stop-bits": 1,
+		"status": "disabled"
 	},
 
 	"spi-f1c200s@0x01c05000": {
@@ -337,7 +338,8 @@
 		"miso-gpio": 138,
 		"miso-gpio-config": 4,
 		"cs-gpio": 135,
-		"cs-gpio-config": 4
+		"cs-gpio-config": 4,
+		"status": "disabled"
 	},
 
 	"sdhci-f1c200s@0x01c0f000": {
@@ -364,8 +366,8 @@
 		"dat6-gpio-config": -1,
 		"dat7-gpio": -1,
 		"dat7-gpio-config": -1,
-		"cd-gpio": -1,
-		"cd-gpio-config": -1
+		"cd-gpio": 131,
+		"cd-gpio-config": 0
 	},
 
 	"blk-spinor@0": {
@@ -392,9 +394,9 @@
 		"mean-filter-length": 10,
 		"designed-capacity": 3000,
 		"designed-voltage": 3700,
-		"charging-detect-gpio": 138,
-		"charging-detect-gpio-config": 0,
-		"charging-detect-active-low": true,
+		"charging-detect-gpio": -1,
+		"charging-detect-gpio-config": -1,
+		"charging-detect-active-low": false,
 		"charging-curve": [
 			{ "voltage": 3400, "level": 0},
 			{ "voltage": 3572, "level": 10},
@@ -423,6 +425,26 @@
 		]
 	},
 
+	"key-gpio-polled@0": {
+		"keys": [
+			{ "gpio":   0, "gpio-config": 0, "active-low": true, "key-code":  2 },
+			{ "gpio": 130, "gpio-config": 0, "active-low": true, "key-code":  3 },
+			{ "gpio": 132, "gpio-config": 0, "active-low": true, "key-code":  4 },
+			{ "gpio": 136, "gpio-config": 0, "active-low": true, "key-code":  5 },
+			{ "gpio": 113, "gpio-config": 0, "active-low": true, "key-code": 65 },
+			{ "gpio": 108, "gpio-config": 0, "active-low": true, "key-code": 66 },
+			{ "gpio":  98, "gpio-config": 0, "active-low": true, "key-code": 88 },
+			{ "gpio": 115, "gpio-config": 0, "active-low": true, "key-code": 89 },
+			{ "gpio":  96, "gpio-config": 0, "active-low": true, "key-code": 76 },
+			{ "gpio":  97, "gpio-config": 0, "active-low": true, "key-code": 82 },
+			{ "gpio": 110, "gpio-config": 0, "active-low": true, "key-code": 11 },
+			{ "gpio": 139, "gpio-config": 0, "active-low": true, "key-code": 12 },
+			{ "gpio": 109, "gpio-config": 0, "active-low": true, "key-code": 13 }
+		],
+		"poll-interval-ms": 100
+	},
+
+	/*
 	"led-gpio@0": {
 		"gpio": 133,
 		"gpio-config": 1,
@@ -434,6 +456,7 @@
 		"led-name": "led-gpio.0",
 		"period-ms": 1260
 	},
+	*/
 
 	"led-pwm-bl@0": {
 		"pwm-name": "pwm-f1c200s.1",
@@ -455,13 +478,13 @@
 		"height": 240,
 		"physical-width": 41,
 		"physical-height": 31,
-		"clock-frequency": 18000000,
-		"hfront-porch": 32,
-		"hback-porch": 20,
-		"hsync-len": 10,
-		"vfront-porch": 1,
-		"vback-porch": 1,
-		"vsync-len": 10,
+		"clock-frequency": 19000000,
+		"hfront-porch": 749,
+		"hback-porch": 38,
+		"hsync-len": 18,
+		"vfront-porch": 36,
+		"vback-porch": 6,
+		"vsync-len": 4,
 		"hsync-active": false,
 		"vsync-active": false,
 		"den-active": true,

@@ -320,9 +320,10 @@ static inline void fb_f1c200s_init(struct fb_f1c200s_pdata_t * pdat)
 	fb_f1c200s_cfg_gpios(F1C200S_GPIOD9, 3, 1, GPIO_PULL_NONE, GPIO_DRV_STRONG);
 	write32(pdat->virtgpio + F1C200S_GPIOD_DATA, 0xffffffff);
 	gc9308_init(pdat);
-	fb_f1c200s_cfg_gpios(F1C200S_GPIOD1, 7, 2, GPIO_PULL_NONE, GPIO_DRV_STRONG);
-	fb_f1c200s_cfg_gpios(F1C200S_GPIOD10, 12, 2, GPIO_PULL_NONE, GPIO_DRV_STRONG);
 
+	fb_f1c200s_cfg_gpios(F1C200S_GPIOD3, 6, 2, GPIO_PULL_NONE, GPIO_DRV_STRONG);
+	fb_f1c200s_cfg_gpios(F1C200S_GPIOD18, 1, 2, GPIO_PULL_NONE, GPIO_DRV_STRONG);
+	fb_f1c200s_cfg_gpios(F1C200S_GPIOD20, 2, 2, GPIO_PULL_NONE, GPIO_DRV_STRONG);
 	f1c200s_tcon_disable(pdat);
 	f1c200s_debe_set_mode(pdat);
 	f1c200s_tcon_set_mode(pdat);

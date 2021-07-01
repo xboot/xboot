@@ -293,7 +293,7 @@ static struct device_t * fb_f1c100s_probe(struct driver_t * drv, struct dtnode_t
 	pdat->rstdebe = dt_read_int(n, "reset-debe", -1);
 	pdat->rsttcon = dt_read_int(n, "reset-tcon", -1);
 	pdat->width = dt_read_int(n, "width", 800);
-	pdat->height = dt_read_int(n, "height", 400);
+	pdat->height = dt_read_int(n, "height", 480);
 	pdat->pwidth = dt_read_int(n, "physical-width", 216);
 	pdat->pheight = dt_read_int(n, "physical-height", 135);
 	pdat->bits_per_pixel = 18;

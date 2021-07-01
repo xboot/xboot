@@ -38,16 +38,11 @@
 #include <f1c200s/reg-defe.h>
 #include <f1c200s/reg-debe.h>
 
-#define F1C200S_GPIO_BASE		(0x01c20800)
-#define F1C200S_GPIOD_CFG0		((3 * 0x24) + 0x00)
-#define F1C200S_GPIOD_DATA		((3 * 0x24) + 0x10)
-
 struct fb_f1c200s_pdata_t
 {
 	virtual_addr_t virtdefe;
 	virtual_addr_t virtdebe;
 	virtual_addr_t virttcon;
-	virtual_addr_t virtgpio;
 
 	char * clkdefe;
 	char * clkdebe;
@@ -84,131 +79,142 @@ struct fb_f1c200s_pdata_t
 	int brightness;
 };
 
-static inline void spi_9bits_write(struct fb_f1c200s_pdata_t * pdat, uint32_t val)
+static void gc9308_write(struct fb_f1c200s_pdata_t * pdat, int iscmd, uint32_t val)
 {
-	uint8_t cnt = 0;
-	uint32_t tmp = read32(pdat->virtgpio + F1C200S_GPIOD_DATA);
+	int i;
 
-	tmp &= ~(1 << 11);
-	write32(pdat->virtgpio + F1C200S_GPIOD_DATA, tmp);
-	for(cnt = 0; cnt < 9; cnt++)
+	gpio_set_value(F1C200S_GPIOD11, 0);
+	if(iscmd)
+		gpio_set_value(F1C200S_GPIOD10, 0);
+	else
+		gpio_set_value(F1C200S_GPIOD10, 1);
+	gpio_set_value(F1C200S_GPIOD9, 0);
+	gpio_set_value(F1C200S_GPIOD9, 1);
+	for(i = 0; i < 8; i++)
 	{
-		tmp &= ~(1 << 10);
-		if(val & 0x100)
-		{
-			tmp |= (1 << 10);
-		}
-		val <<= 1;
-		tmp &= ~(1 << 9);
-		write32(pdat->virtgpio + F1C200S_GPIOD_DATA, tmp);
-		tmp |= (1 << 9);
-		write32(pdat->virtgpio + F1C200S_GPIOD_DATA, tmp);
+		if(val & (0x80 >> i))
+			gpio_set_value(F1C200S_GPIOD10, 1);
+		else
+			gpio_set_value(F1C200S_GPIOD10, 0);
+		gpio_set_value(F1C200S_GPIOD9, 0);
+		gpio_set_value(F1C200S_GPIOD9, 1);
 	}
-	tmp |= (1 << 11);
-	write32(pdat->virtgpio + F1C200S_GPIOD_DATA, tmp);
+	gpio_set_value(F1C200S_GPIOD11, 1);
 }
 
 static inline void gc9308_init(struct fb_f1c200s_pdata_t * pdat)
 {
-	spi_9bits_write(pdat, 0x00fe);
-	spi_9bits_write(pdat, 0x00ef);
-	spi_9bits_write(pdat, 0x0036);
-	spi_9bits_write(pdat, 0x0140);
-	spi_9bits_write(pdat, 0x003a);
-	spi_9bits_write(pdat, 0x0155);
-	spi_9bits_write(pdat, 0x0084);
-	spi_9bits_write(pdat, 0x0104);
-	spi_9bits_write(pdat, 0x0086);
-	spi_9bits_write(pdat, 0x01fb);
-	spi_9bits_write(pdat, 0x0087);
-	spi_9bits_write(pdat, 0x0179);
-	spi_9bits_write(pdat, 0x0089);
-	spi_9bits_write(pdat, 0x010b);
-	spi_9bits_write(pdat, 0x008a);
-	spi_9bits_write(pdat, 0x0120);
-	spi_9bits_write(pdat, 0x008b);
-	spi_9bits_write(pdat, 0x0180);
-	spi_9bits_write(pdat, 0x008d);
-	spi_9bits_write(pdat, 0x013b);
-	spi_9bits_write(pdat, 0x008e);
-	spi_9bits_write(pdat, 0x01cf);
-	spi_9bits_write(pdat, 0x00ec);
-	spi_9bits_write(pdat, 0x0133);
-	spi_9bits_write(pdat, 0x0102);
-	spi_9bits_write(pdat, 0x014c);
-	spi_9bits_write(pdat, 0x0098);
-	spi_9bits_write(pdat, 0x013e);
-	spi_9bits_write(pdat, 0x009c);
-	spi_9bits_write(pdat, 0x014b);
-	spi_9bits_write(pdat, 0x0099);
-	spi_9bits_write(pdat, 0x013e);
-	spi_9bits_write(pdat, 0x009d);
-	spi_9bits_write(pdat, 0x014b);
-	spi_9bits_write(pdat, 0x009b);
-	spi_9bits_write(pdat, 0x0155);
-	spi_9bits_write(pdat, 0x00e8);
-	spi_9bits_write(pdat, 0x0111);
-	spi_9bits_write(pdat, 0x0100);
-	spi_9bits_write(pdat, 0x00ff);
-	spi_9bits_write(pdat, 0x0162);
-	spi_9bits_write(pdat, 0x00c3);
-	spi_9bits_write(pdat, 0x0120);
-	spi_9bits_write(pdat, 0x00c4);
-	spi_9bits_write(pdat, 0x0103);
-	spi_9bits_write(pdat, 0x00c9);
-	spi_9bits_write(pdat, 0x010a);
-	spi_9bits_write(pdat, 0x003a);
-	spi_9bits_write(pdat, 0x0155);
-	spi_9bits_write(pdat, 0x0084);
-	spi_9bits_write(pdat, 0x0161);
-	spi_9bits_write(pdat, 0x008a);
-	spi_9bits_write(pdat, 0x0140);
-	spi_9bits_write(pdat, 0x00f6);
-	spi_9bits_write(pdat, 0x01c7);
-	spi_9bits_write(pdat, 0x00b0);
-	spi_9bits_write(pdat, 0x0163);
-	spi_9bits_write(pdat, 0x00b5);
-	spi_9bits_write(pdat, 0x0102);
-	spi_9bits_write(pdat, 0x0102);
-	spi_9bits_write(pdat, 0x0114);
-	spi_9bits_write(pdat, 0x00f0);
-	spi_9bits_write(pdat, 0x014a);
-	spi_9bits_write(pdat, 0x0110);
-	spi_9bits_write(pdat, 0x010a);
-	spi_9bits_write(pdat, 0x010a);
-	spi_9bits_write(pdat, 0x0126);
-	spi_9bits_write(pdat, 0x0139);
-	spi_9bits_write(pdat, 0x00f2);
-	spi_9bits_write(pdat, 0x014a);
-	spi_9bits_write(pdat, 0x0110);
-	spi_9bits_write(pdat, 0x010a);
-	spi_9bits_write(pdat, 0x010a);
-	spi_9bits_write(pdat, 0x0126);
-	spi_9bits_write(pdat, 0x0139);
-	spi_9bits_write(pdat, 0x00f1);
-	spi_9bits_write(pdat, 0x0150);
-	spi_9bits_write(pdat, 0x018f);
-	spi_9bits_write(pdat, 0x01af);
-	spi_9bits_write(pdat, 0x013b);
-	spi_9bits_write(pdat, 0x013f);
-	spi_9bits_write(pdat, 0x017f);
-	spi_9bits_write(pdat, 0x00f3);
-	spi_9bits_write(pdat, 0x0150);
-	spi_9bits_write(pdat, 0x018f);
-	spi_9bits_write(pdat, 0x01af);
-	spi_9bits_write(pdat, 0x013b);
-	spi_9bits_write(pdat, 0x013f);
-	spi_9bits_write(pdat, 0x017f);
-	spi_9bits_write(pdat, 0x00ba);
-	spi_9bits_write(pdat, 0x010a);
-	spi_9bits_write(pdat, 0x0035);
-	spi_9bits_write(pdat, 0x0100);
-	spi_9bits_write(pdat, 0x0021);
-	spi_9bits_write(pdat, 0x00fe);
-	spi_9bits_write(pdat, 0x00ee);
-	spi_9bits_write(pdat, 0x0011);
-	spi_9bits_write(pdat, 0x0029);
-	spi_9bits_write(pdat, 0x002c);
+	gpio_set_cfg(F1C200S_GPIOD9, 1);
+	gpio_set_pull(F1C200S_GPIOD9, GPIO_PULL_UP);
+	gpio_direction_output(F1C200S_GPIOD9, 1);
+
+	gpio_set_cfg(F1C200S_GPIOD10, 1);
+	gpio_set_pull(F1C200S_GPIOD10, GPIO_PULL_UP);
+	gpio_direction_output(F1C200S_GPIOD10, 1);
+
+	gpio_set_cfg(F1C200S_GPIOD11, 1);
+	gpio_set_pull(F1C200S_GPIOD11, GPIO_PULL_UP);
+	gpio_direction_output(F1C200S_GPIOD11, 1);
+
+	gc9308_write(pdat, 1, 0xfe);
+	gc9308_write(pdat, 1, 0xef);
+	gc9308_write(pdat, 1, 0x36);
+	gc9308_write(pdat, 0, 0x40);
+	gc9308_write(pdat, 1, 0x3a);
+	gc9308_write(pdat, 0, 0x55);
+	gc9308_write(pdat, 1, 0x84);
+	gc9308_write(pdat, 0, 0x04);
+	gc9308_write(pdat, 1, 0x86);
+	gc9308_write(pdat, 0, 0xfb);
+	gc9308_write(pdat, 1, 0x87);
+	gc9308_write(pdat, 0, 0x79);
+	gc9308_write(pdat, 1, 0x89);
+	gc9308_write(pdat, 0, 0x0b);
+	gc9308_write(pdat, 1, 0x8a);
+	gc9308_write(pdat, 0, 0x20);
+	gc9308_write(pdat, 1, 0x8b);
+	gc9308_write(pdat, 0, 0x80);
+	gc9308_write(pdat, 1, 0x8d);
+	gc9308_write(pdat, 0, 0x3b);
+	gc9308_write(pdat, 1, 0x8e);
+	gc9308_write(pdat, 0, 0xcf);
+	gc9308_write(pdat, 1, 0xec);
+	gc9308_write(pdat, 0, 0x33);
+	gc9308_write(pdat, 0, 0x02);
+	gc9308_write(pdat, 0, 0x4c);
+	gc9308_write(pdat, 1, 0x98);
+	gc9308_write(pdat, 0, 0x3e);
+	gc9308_write(pdat, 1, 0x9c);
+	gc9308_write(pdat, 0, 0x4b);
+	gc9308_write(pdat, 1, 0x99);
+	gc9308_write(pdat, 0, 0x3e);
+	gc9308_write(pdat, 1, 0x9d);
+	gc9308_write(pdat, 0, 0x4b);
+	gc9308_write(pdat, 1, 0x9b);
+	gc9308_write(pdat, 0, 0x55);
+	gc9308_write(pdat, 1, 0xe8);
+	gc9308_write(pdat, 0, 0x11);
+	gc9308_write(pdat, 0, 0x00);
+	gc9308_write(pdat, 1, 0xff);
+	gc9308_write(pdat, 0, 0x62);
+	gc9308_write(pdat, 1, 0xc3);
+	gc9308_write(pdat, 0, 0x20);
+	gc9308_write(pdat, 1, 0xc4);
+	gc9308_write(pdat, 0, 0x03);
+	gc9308_write(pdat, 1, 0xc9);
+	gc9308_write(pdat, 0, 0x0a);
+	gc9308_write(pdat, 1, 0x3a);
+	gc9308_write(pdat, 0, 0x55);
+	gc9308_write(pdat, 1, 0x84);
+	gc9308_write(pdat, 0, 0x61);
+	gc9308_write(pdat, 1, 0x8a);
+	gc9308_write(pdat, 0, 0x40);
+	gc9308_write(pdat, 1, 0xf6);
+	gc9308_write(pdat, 0, 0xc7);
+	gc9308_write(pdat, 1, 0xb0);
+	gc9308_write(pdat, 0, 0x63);
+	gc9308_write(pdat, 1, 0xb5);
+	gc9308_write(pdat, 0, 0x02);
+	gc9308_write(pdat, 0, 0x02);
+	gc9308_write(pdat, 0, 0x14);
+	gc9308_write(pdat, 1, 0xf0);
+	gc9308_write(pdat, 0, 0x4a);
+	gc9308_write(pdat, 0, 0x10);
+	gc9308_write(pdat, 0, 0x0a);
+	gc9308_write(pdat, 0, 0x0a);
+	gc9308_write(pdat, 0, 0x26);
+	gc9308_write(pdat, 0, 0x39);
+	gc9308_write(pdat, 1, 0xf2);
+	gc9308_write(pdat, 0, 0x4a);
+	gc9308_write(pdat, 0, 0x10);
+	gc9308_write(pdat, 0, 0x0a);
+	gc9308_write(pdat, 0, 0x0a);
+	gc9308_write(pdat, 0, 0x26);
+	gc9308_write(pdat, 0, 0x39);
+	gc9308_write(pdat, 1, 0xf1);
+	gc9308_write(pdat, 0, 0x50);
+	gc9308_write(pdat, 0, 0x8f);
+	gc9308_write(pdat, 0, 0xaf);
+	gc9308_write(pdat, 0, 0x3b);
+	gc9308_write(pdat, 0, 0x3f);
+	gc9308_write(pdat, 0, 0x7f);
+	gc9308_write(pdat, 1, 0xf3);
+	gc9308_write(pdat, 0, 0x50);
+	gc9308_write(pdat, 0, 0x8f);
+	gc9308_write(pdat, 0, 0xaf);
+	gc9308_write(pdat, 0, 0x3b);
+	gc9308_write(pdat, 0, 0x3f);
+	gc9308_write(pdat, 0, 0x7f);
+	gc9308_write(pdat, 1, 0xba);
+	gc9308_write(pdat, 0, 0x0a);
+	gc9308_write(pdat, 1, 0x35);
+	gc9308_write(pdat, 0, 0x00);
+	gc9308_write(pdat, 1, 0x21);
+	gc9308_write(pdat, 1, 0xfe);
+	gc9308_write(pdat, 1, 0xee);
+	gc9308_write(pdat, 1, 0x11);
+	gc9308_write(pdat, 1, 0x29);
+	gc9308_write(pdat, 1, 0x2c);
 }
 
 static inline void f1c200s_debe_set_mode(struct fb_f1c200s_pdata_t * pdat)
@@ -291,7 +297,7 @@ static inline void f1c200s_tcon_set_mode(struct fb_f1c200s_pdata_t * pdat)
 	write32((virtual_addr_t)&tcon->tcon0_timing_active, ((pdat->width - 1) << 16) | ((pdat->height - 1) << 0));
 
 	bp = pdat->timing.h_sync_len + pdat->timing.h_back_porch;
-	total = pdat->width * 3 + pdat->timing.h_front_porch + bp;
+	total = pdat->width + pdat->timing.h_front_porch + bp;
 	write32((virtual_addr_t)&tcon->tcon0_timing_h, ((total - 1) << 16) | ((bp - 1) << 0));
 	bp = pdat->timing.v_sync_len + pdat->timing.v_back_porch;
 	total = pdat->height + pdat->timing.v_front_porch + bp;
@@ -301,7 +307,31 @@ static inline void f1c200s_tcon_set_mode(struct fb_f1c200s_pdata_t * pdat)
 	write32((virtual_addr_t)&tcon->tcon0_hv_intf, (1 << 31));
 	write32((virtual_addr_t)&tcon->tcon0_cpu_intf, 0);
 
-	write32((virtual_addr_t)&tcon->tcon0_io_polarity, (1 << 28));
+	if(pdat->bits_per_pixel == 18 || pdat->bits_per_pixel == 16)
+	{
+		write32((virtual_addr_t)&tcon->tcon0_frm_seed[0], 0x11111111);
+		write32((virtual_addr_t)&tcon->tcon0_frm_seed[1], 0x11111111);
+		write32((virtual_addr_t)&tcon->tcon0_frm_seed[2], 0x11111111);
+		write32((virtual_addr_t)&tcon->tcon0_frm_seed[3], 0x11111111);
+		write32((virtual_addr_t)&tcon->tcon0_frm_seed[4], 0x11111111);
+		write32((virtual_addr_t)&tcon->tcon0_frm_seed[5], 0x11111111);
+		write32((virtual_addr_t)&tcon->tcon0_frm_table[0], 0x01010000);
+		write32((virtual_addr_t)&tcon->tcon0_frm_table[1], 0x15151111);
+		write32((virtual_addr_t)&tcon->tcon0_frm_table[2], 0x57575555);
+		write32((virtual_addr_t)&tcon->tcon0_frm_table[3], 0x7f7f7777);
+		write32((virtual_addr_t)&tcon->tcon0_frm_ctrl, (pdat->bits_per_pixel == 18) ? ((1 << 31) | (0 << 4)) : ((1 << 31) | (5 << 4)));
+	}
+
+	val = (1 << 28);
+	if(!pdat->timing.h_sync_active)
+		val |= (1 << 25);
+	if(!pdat->timing.v_sync_active)
+		val |= (1 << 24);
+	if(!pdat->timing.den_active)
+		val |= (1 << 27);
+	if(!pdat->timing.clk_active)
+		val |= (1 << 26);
+	write32((virtual_addr_t)&tcon->tcon0_io_polarity, val);
 	write32((virtual_addr_t)&tcon->tcon0_io_tristate, 0);
 }
 
@@ -317,8 +347,6 @@ static inline void fb_f1c200s_cfg_gpios(int base, int n, int cfg, enum gpio_pull
 
 static inline void fb_f1c200s_init(struct fb_f1c200s_pdata_t * pdat)
 {
-	fb_f1c200s_cfg_gpios(F1C200S_GPIOD9, 3, 1, GPIO_PULL_NONE, GPIO_DRV_STRONG);
-	write32(pdat->virtgpio + F1C200S_GPIOD_DATA, 0xffffffff);
 	gc9308_init(pdat);
 
 	fb_f1c200s_cfg_gpios(F1C200S_GPIOD3, 6, 2, GPIO_PULL_NONE, GPIO_DRV_STRONG);
@@ -399,7 +427,6 @@ static struct device_t * fb_f1c200s_probe(struct driver_t * drv, struct dtnode_t
 	pdat->virtdefe = phys_to_virt(F1C200S_DEFE_BASE);
 	pdat->virtdebe = phys_to_virt(F1C200S_DEBE_BASE);
 	pdat->virttcon = phys_to_virt(F1C200S_TCON_BASE);
-	pdat->virtgpio = phys_to_virt(F1C200S_GPIO_BASE);
 	pdat->clkdefe = strdup(clkdefe);
 	pdat->clkdebe = strdup(clkdebe);
 	pdat->clktcon = strdup(clktcon);

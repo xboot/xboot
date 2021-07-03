@@ -10,7 +10,7 @@ make CROSS_COMPILE=/path/to/arm-none-linux-gnueabihf- PLATFORM=arm32-z11s
 
 ## Brun to RAM and execute
 ```shell
-sudo xfel ddr; sudo xfel write 0x40000000 xboot.bin; sudo xfel exec 0x40000000;
+sudo xfel ddr v3s; sudo xfel write 0x40000000 xboot.bin; sudo xfel exec 0x40000000;
 ```
 
 ## Brun normal image to SPI Flash

@@ -215,6 +215,7 @@ static inline void fb_f1c100s_init(struct fb_f1c100s_pdata_t * pdat)
 	f1c100s_debe_set_mode(pdat);
 	f1c100s_tcon_set_mode(pdat);
 	f1c100s_tcon_enable(pdat);
+	f1c100s_debe_set_address(pdat, pdat->vram[pdat->index]);
 }
 
 static void fb_setbl(struct framebuffer_t * fb, int brightness)

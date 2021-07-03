@@ -105,7 +105,7 @@ void sys_clock_init(void)
 	write32(F1C100S_CCU_BASE + CCU_CPU_CFG, val);
 	sdelay(100);
 
-	write32(F1C100S_CCU_BASE + CCU_PLL_VIDEO_CTRL, 0x81004107);
+	write32(F1C100S_CCU_BASE + CCU_PLL_VIDEO_CTRL, 0x81004103);
 	sdelay(100);
 	write32(F1C100S_CCU_BASE + CCU_PLL_PERIPH_CTRL, 0x80041800);
 	sdelay(100);

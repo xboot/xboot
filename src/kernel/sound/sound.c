@@ -173,7 +173,7 @@ static inline struct sound_t * sound_alloc_from_xfs_wav(struct xfs_context_t * c
 			int16_t * p = (int16_t *)inbuf;
 			int8_t * q = (int8_t *)tmp;
 			int16_t v;
-			s64_t n, i;
+			int64_t n, i;
 			while((n = xfs_read(file, tmp, sizeof(tmp))) > 0)
 			{
 				for(i = 0; i < n; i++)
@@ -189,7 +189,7 @@ static inline struct sound_t * sound_alloc_from_xfs_wav(struct xfs_context_t * c
 			int16_t * p = (int16_t *)inbuf;
 			int16_t * q = (int16_t *)tmp;
 			int16_t v;
-			s64_t n, i;
+			int64_t n, i;
 			while((n = xfs_read(file, tmp, sizeof(tmp))) > 0)
 			{
 				for(i = 0; i < (n >> 1); i++)
@@ -207,7 +207,7 @@ static inline struct sound_t * sound_alloc_from_xfs_wav(struct xfs_context_t * c
 		{
 			int16_t * p = (int16_t *)inbuf;
 			int8_t * q = (int8_t *)tmp;
-			s64_t n, i;
+			int64_t n, i;
 			while((n = xfs_read(file, tmp, sizeof(tmp))) > 0)
 			{
 				for(i = 0; i < n; i += 2)
@@ -238,7 +238,7 @@ static inline struct sound_t * sound_alloc_from_xfs_ogg(struct xfs_context_t * c
 	uint32_t * inbuf;
 	int isample, osample;
 	uint8_t * mem;
-	s64_t mlen;
+	int64_t mlen;
 	int channel;
 	int rate;
 	short * ogg;

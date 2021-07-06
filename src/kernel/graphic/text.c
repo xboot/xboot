@@ -35,8 +35,8 @@
 #include <graphic/font.h>
 #include <graphic/text.h>
 #include <ft2build.h>
-#include FT_FREETYPE_H
-#include FT_CACHE_MANAGER_H
+#include <freetype/freetype.h>
+#include <freetype/ftcache.h>
 
 static void text_metrics(struct text_t * txt)
 {

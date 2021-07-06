@@ -34,8 +34,8 @@
 #include <graphic/font.h>
 #include <vfs/vfs.h>
 #include <ft2build.h>
-#include FT_FREETYPE_H
-#include FT_CACHE_MANAGER_H
+#include <freetype/freetype.h>
+#include <freetype/ftcache.h>
 
 struct font_t {
 	struct list_head list;

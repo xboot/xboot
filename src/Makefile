@@ -190,43 +190,43 @@ SRCDIRS		+=	external/stb_vorbis-1.20
 INCDIRS		+=	external/quirc-1.1.0
 SRCDIRS		+=	external/quirc-1.1.0
 
-INCDIRS		+= 	external/freetype-2.10.1/include \
-				external/freetype-2.10.1/src/autofit \
-				external/freetype-2.10.1/src/base \
-				external/freetype-2.10.1/src/cache \
-				external/freetype-2.10.1/src/cff \
-				external/freetype-2.10.1/src/cid \
-				external/freetype-2.10.1/src/gxvalid \
-				external/freetype-2.10.1/src/otvalid \
-				external/freetype-2.10.1/src/pfr \
-				external/freetype-2.10.1/src/psaux \
-				external/freetype-2.10.1/src/pshinter \
-				external/freetype-2.10.1/src/psnames \
-				external/freetype-2.10.1/src/raster \
-				external/freetype-2.10.1/src/sfnt \
-				external/freetype-2.10.1/src/smooth \
-				external/freetype-2.10.1/src/truetype \
-				external/freetype-2.10.1/src/type1 \
-				external/freetype-2.10.1/src/type42 \
-				external/freetype-2.10.1/src/winfonts
-SRCDIRS		+=	external/freetype-2.10.1/src/autofit \
-				external/freetype-2.10.1/src/base \
-				external/freetype-2.10.1/src/cache \
-				external/freetype-2.10.1/src/cff \
-				external/freetype-2.10.1/src/cid \
-				external/freetype-2.10.1/src/gxvalid \
-				external/freetype-2.10.1/src/otvalid \
-				external/freetype-2.10.1/src/pfr \
-				external/freetype-2.10.1/src/psaux \
-				external/freetype-2.10.1/src/pshinter \
-				external/freetype-2.10.1/src/psnames \
-				external/freetype-2.10.1/src/raster \
-				external/freetype-2.10.1/src/sfnt \
-				external/freetype-2.10.1/src/smooth \
-				external/freetype-2.10.1/src/truetype \
-				external/freetype-2.10.1/src/type1 \
-				external/freetype-2.10.1/src/type42 \
-				external/freetype-2.10.1/src/winfonts
+INCDIRS		+= 	external/freetype-2.10.4/include \
+				external/freetype-2.10.4/src/autofit \
+				external/freetype-2.10.4/src/base \
+				external/freetype-2.10.4/src/cache \
+				external/freetype-2.10.4/src/cff \
+				external/freetype-2.10.4/src/cid \
+				external/freetype-2.10.4/src/gxvalid \
+				external/freetype-2.10.4/src/otvalid \
+				external/freetype-2.10.4/src/pfr \
+				external/freetype-2.10.4/src/psaux \
+				external/freetype-2.10.4/src/pshinter \
+				external/freetype-2.10.4/src/psnames \
+				external/freetype-2.10.4/src/raster \
+				external/freetype-2.10.4/src/sfnt \
+				external/freetype-2.10.4/src/smooth \
+				external/freetype-2.10.4/src/truetype \
+				external/freetype-2.10.4/src/type1 \
+				external/freetype-2.10.4/src/type42 \
+				external/freetype-2.10.4/src/winfonts
+SRCDIRS		+=	external/freetype-2.10.4/src/autofit \
+				external/freetype-2.10.4/src/base \
+				external/freetype-2.10.4/src/cache \
+				external/freetype-2.10.4/src/cff \
+				external/freetype-2.10.4/src/cid \
+				external/freetype-2.10.4/src/gxvalid \
+				external/freetype-2.10.4/src/otvalid \
+				external/freetype-2.10.4/src/pfr \
+				external/freetype-2.10.4/src/psaux \
+				external/freetype-2.10.4/src/pshinter \
+				external/freetype-2.10.4/src/psnames \
+				external/freetype-2.10.4/src/raster \
+				external/freetype-2.10.4/src/sfnt \
+				external/freetype-2.10.4/src/smooth \
+				external/freetype-2.10.4/src/truetype \
+				external/freetype-2.10.4/src/type1 \
+				external/freetype-2.10.4/src/type42 \
+				external/freetype-2.10.4/src/winfonts
 
 #
 # Advanced custom components

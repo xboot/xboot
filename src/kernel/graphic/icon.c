@@ -41,22 +41,39 @@
 static void icon_metrics(struct icon_t * ico)
 {
 	FTC_SBit sbit;
+	FT_BitmapGlyph bitmap;
+	FT_Glyph glyph, gly;
+	int x = 0, y = 0, w = 0, h = 0;
 
-	sbit = (FTC_SBit)font_lookup_bitmap(ico->fctx, ico->family, (ico->size * 633) >> 10, ico->code);
-	if(sbit)
+	if(ico->size <= 96)
 	{
-		ico->metrics.ox = sbit->left;
-		ico->metrics.oy = sbit->top;
-		ico->metrics.width = sbit->xadvance;
-		ico->metrics.height = sbit->yadvance + sbit->height;
+		sbit = (FTC_SBit)font_lookup_bitmap(ico->fctx, ico->family, (ico->size * 633) >> 10, ico->code);
+		if(sbit)
+		{
+			x = sbit->left;
+			y = sbit->top;
+			w = sbit->xadvance;
+			h = sbit->yadvance + sbit->height;
+		}
 	}
 	else
 	{
-		ico->metrics.ox = 0;
-		ico->metrics.oy = 0;
-		ico->metrics.width = 0;
-		ico->metrics.height = 0;
+		glyph = (FT_Glyph)font_lookup_glyph(ico->fctx, ico->family, (ico->size * 633) >> 10, ico->code);
+		if(glyph && (FT_Glyph_Copy(glyph, &gly) == 0))
+		{
+			FT_Glyph_To_Bitmap(&gly, FT_RENDER_MODE_NORMAL, NULL, 1);
+			bitmap = (FT_BitmapGlyph)gly;
+			x = bitmap->left;
+			y = bitmap->top;
+			w = glyph->advance.x >> 16;
+			h = (glyph->advance.y >> 16) + bitmap->bitmap.rows;
+			FT_Done_Glyph(gly);
+		}
 	}
+	ico->metrics.ox = x;
+	ico->metrics.oy = y;
+	ico->metrics.width = w;
+	ico->metrics.height = h;
 }
 
 void icon_init(struct icon_t * ico, uint32_t code, struct color_t * c, struct font_context_t * fctx, const char * family, int size)
@@ -262,7 +279,7 @@ void render_default_icon(struct surface_t * s, struct region_t * clip, struct ma
 	FT_Vector pen;
 	int tx, ty;
 
-	if((m->a == 1.0) && (m->b == 0.0) && (m->c == 0.0) && (m->d == 1.0))
+	if((ico->size <= 96) && (m->a == 1.0) && (m->b == 0.0) && (m->c == 0.0) && (m->d == 1.0))
 	{
 		sbit = (FTC_SBit)font_lookup_bitmap(ico->fctx, ico->family, (ico->size * 633) >> 10, ico->code);
 		if(sbit)
@@ -275,26 +292,23 @@ void render_default_icon(struct surface_t * s, struct region_t * clip, struct ma
 	else
 	{
 		glyph = (FT_Glyph)font_lookup_glyph(ico->fctx, ico->family, (ico->size * 633) >> 10, ico->code);
-		if(glyph)
+		if(glyph && (FT_Glyph_Copy(glyph, &gly) == 0))
 		{
-			if(FT_Glyph_Copy(glyph, &gly) == 0)
-			{
-				matrix.xx = (FT_Fixed)(m->a * 65536);
-				matrix.xy = -((FT_Fixed)(m->c * 65536));
-				matrix.yx = -((FT_Fixed)(m->b * 65536));
-				matrix.yy = (FT_Fixed)(m->d * 65536);
-				tx = ico->metrics.ox + ((ico->size - ico->metrics.width) >> 1);
-				ty = ico->metrics.oy + ((ico->size - ico->metrics.height) >> 1);
-				pen.x = (FT_Pos)((m->tx + m->a * tx + m->c * ty) * 64);
-				pen.y = (FT_Pos)((s->height - (m->ty + m->b * tx + m->d * ty)) * 64);
-				FT_Glyph_Transform(gly, &matrix, &pen);
-				FT_Glyph_To_Bitmap(&gly, FT_RENDER_MODE_NORMAL, NULL, 1);
-				bitmap = (FT_BitmapGlyph)gly;
-				draw_font_glyph(s, clip, ico->c, bitmap->left, s->height - bitmap->top, &bitmap->bitmap);
-				pen.x += bitmap->root.advance.x >> 10;
-				pen.y += bitmap->root.advance.y >> 10;
-				FT_Done_Glyph(gly);
-			}
+			matrix.xx = (FT_Fixed)(m->a * 65536);
+			matrix.xy = -((FT_Fixed)(m->c * 65536));
+			matrix.yx = -((FT_Fixed)(m->b * 65536));
+			matrix.yy = (FT_Fixed)(m->d * 65536);
+			tx = ico->metrics.ox + ((ico->size - ico->metrics.width) >> 1);
+			ty = ico->metrics.oy + ((ico->size - ico->metrics.height) >> 1);
+			pen.x = (FT_Pos)((m->tx + m->a * tx + m->c * ty) * 64);
+			pen.y = (FT_Pos)((s->height - (m->ty + m->b * tx + m->d * ty)) * 64);
+			FT_Glyph_Transform(gly, &matrix, &pen);
+			FT_Glyph_To_Bitmap(&gly, FT_RENDER_MODE_NORMAL, NULL, 1);
+			bitmap = (FT_BitmapGlyph)gly;
+			draw_font_glyph(s, clip, ico->c, bitmap->left, s->height - bitmap->top, &bitmap->bitmap);
+			pen.x += bitmap->root.advance.x >> 10;
+			pen.y += bitmap->root.advance.y >> 10;
+			FT_Done_Glyph(gly);
 		}
 	}
 }

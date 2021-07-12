@@ -25,6 +25,7 @@ SECTIONS
 		.obj/arch/arm32/mach-v3s/start.o (.text*)
 		.obj/arch/arm32/lib/memcpy.o (.text*)
 		.obj/arch/arm32/lib/memset.o (.text*)
+		.obj/arch/arm32/mach-v3s/sys-jtag.o (.text*)
 		.obj/arch/arm32/mach-v3s/sys-uart.o (.text*)
 		.obj/arch/arm32/mach-v3s/sys-clock.o (.text*)
 		.obj/arch/arm32/mach-v3s/sys-dram.o (.text*)

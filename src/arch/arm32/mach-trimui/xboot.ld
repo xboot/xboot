@@ -25,6 +25,7 @@ SECTIONS
 		.obj/arch/arm32/mach-trimui/start.o (.text*)
 		.obj/arch/arm32/lib/memcpy.o (.text*)
 		.obj/arch/arm32/lib/memset.o (.text*)
+		.obj/arch/arm32/mach-trimui/sys-jtag.o (.text*)
 		.obj/arch/arm32/mach-trimui/sys-uart.o (.text*)
 		.obj/arch/arm32/mach-trimui/sys-clock.o (.text*)
 		.obj/arch/arm32/mach-trimui/sys-dram.o (.text*)

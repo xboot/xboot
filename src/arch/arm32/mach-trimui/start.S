@@ -167,7 +167,8 @@ reset:
 	ldmia r0!, {r2-r8, r10}
 	stmia r1!, {r2-r8, r10}
 
-	/* Initial system clock, ddr add uart */
+	/* Initial system jtag, clock, ddr add uart */
+	bl sys_jtag_init
 	bl sys_clock_init
 	bl sys_dram_init
 	bl sys_uart_init

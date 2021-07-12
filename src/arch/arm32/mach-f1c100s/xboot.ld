@@ -25,6 +25,7 @@ SECTIONS
 		.obj/arch/arm32/mach-f1c100s/start.o (.text*)
 		.obj/arch/arm32/lib/memcpy.o (.text*)
 		.obj/arch/arm32/lib/memset.o (.text*)
+		.obj/arch/arm32/mach-f1c100s/sys-jtag.o (.text*)
 		.obj/arch/arm32/mach-f1c100s/sys-uart.o (.text*)
 		.obj/arch/arm32/mach-f1c100s/sys-clock.o (.text*)
 		.obj/arch/arm32/mach-f1c100s/sys-dram.o (.text*)

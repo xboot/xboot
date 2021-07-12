@@ -171,7 +171,8 @@ reset:
 	mov r0, #0x40000000
 	vmsr fpexc, r0
 
-	/* Initial system uart, clock and ddr */
+	/* Initial system jtag, uart, clock and ddr */
+	bl sys_jtag_init
 	bl sys_uart_init
 	bl sys_clock_init
 	bl sys_dram_init

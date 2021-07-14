@@ -276,7 +276,7 @@ static struct device_t * audio_pwm_probe(struct driver_t * drv, struct dtnode_t 
 	timer_init(&pdat->timer, audio_pwm_timer_function, audio);
 	pdat->fifo = fifo_alloc(1024);
 	pdat->pwm = pwm;
-	pdat->polarity = dt_read_bool(n, "pwm-polarity", 0);
+	pdat->polarity = dt_read_bool(n, "pwm-polarity", 1);
 	pdat->running = 0;
 
 	audio->name = alloc_device_name(dt_read_name(n), -1);

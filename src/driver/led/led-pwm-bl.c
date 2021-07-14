@@ -101,7 +101,7 @@ static struct device_t * led_pwm_bl_probe(struct driver_t * drv, struct dtnode_t
 	pdat->pwm = pwm;
 	pdat->regulator = strdup(dt_read_string(n, "regulator-name", NULL));
 	pdat->period = dt_read_int(n, "pwm-period-ns", 1000 * 1000);
-	pdat->polarity = dt_read_bool(n, "pwm-polarity", 0);
+	pdat->polarity = dt_read_bool(n, "pwm-polarity", 1);
 	pdat->from = dt_read_int(n, "pwm-percent-from", 0) * pdat->period / 100;
 	pdat->to = dt_read_int(n, "pwm-percent-to", 100) * pdat->period / 100;
 	pdat->brightness = -1;

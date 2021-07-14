@@ -146,7 +146,7 @@ static struct device_t * vibrator_pwm_probe(struct driver_t * drv, struct dtnode
 	pdat->queue = queue_alloc();
 	pdat->pwm = pwm;
 	pdat->period = dt_read_int(n, "pwm-period-ns", 2272727);
-	pdat->polarity = dt_read_bool(n, "pwm-polarity", 0);
+	pdat->polarity = dt_read_bool(n, "pwm-polarity", 1);
 	pdat->state = -1;
 
 	vib->name = alloc_device_name(dt_read_name(n), dt_read_id(n));

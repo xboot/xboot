@@ -100,7 +100,7 @@ static struct device_t * servo_pwm_probe(struct driver_t * drv, struct dtnode_t 
 
 	pdat->pwm = pwm;
 	pdat->period = dt_read_int(n, "pwm-period-ns", 20000 * 1000);
-	pdat->polarity = dt_read_bool(n, "pwm-polarity", 0);
+	pdat->polarity = dt_read_bool(n, "pwm-polarity", 1);
 	pdat->from = dt_read_int(n, "pwm-duty-ns-from", 500 * 1000);
 	pdat->to = dt_read_int(n, "pwm-duty-ns-to", 2500 * 1000);
 	pdat->range = dt_read_int(n, "rotation-angle-range", 180);

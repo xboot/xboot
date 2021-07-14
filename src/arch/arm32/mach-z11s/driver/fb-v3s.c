@@ -261,6 +261,8 @@ static inline void fb_v3s_init(struct fb_v3s_pdata_t * pdat)
 	v3s_de_enable(pdat);
 	v3s_tcon_set_mode(pdat);
 	v3s_tcon_enable(pdat);
+	v3s_de_set_address(pdat, pdat->vram[pdat->index]);
+	v3s_de_enable(pdat);
 }
 
 static void fb_setbl(struct framebuffer_t * fb, int brightness)
@@ -336,7 +338,7 @@ static struct device_t * fb_v3s_probe(struct driver_t * drv, struct dtnode_t * n
 	pdat->rstde = dt_read_int(n, "reset-de", -1);
 	pdat->rsttcon = dt_read_int(n, "reset-tcon", -1);
 	pdat->width = dt_read_int(n, "width", 800);
-	pdat->height = dt_read_int(n, "height", 400);
+	pdat->height = dt_read_int(n, "height", 480);
 	pdat->pwidth = dt_read_int(n, "physical-width", 216);
 	pdat->pheight = dt_read_int(n, "physical-height", 135);
 	pdat->bits_per_pixel = 18;
@@ -347,6 +349,8 @@ static struct device_t * fb_v3s_probe(struct driver_t * drv, struct dtnode_t * n
 	pdat->vram[1] = dma_alloc_noncoherent(pdat->pixlen);
 	pdat->nrl = region_list_alloc(0);
 	pdat->orl = region_list_alloc(0);
+	memset(pdat->vram[0], 0, pdat->pixlen);
+	memset(pdat->vram[1], 0, pdat->pixlen);
 
 	pdat->timing.pixel_clock_hz = dt_read_long(n, "clock-frequency", 33000000);
 	pdat->timing.h_front_porch = dt_read_int(n, "hfront-porch", 40);

@@ -390,7 +390,12 @@
 		]
 	},
 
-	"led-pwm-bl@0": {
+	"audio-pwm@0": {
+		"pwm-name": "pwm-f1c200s.1",
+		"pwm-polarity": 0
+	},
+
+/*	"led-pwm-bl@0": {
 		"pwm-name": "pwm-f1c200s.1",
 		"pwm-period-ns": 1000000,
 		"pwm-polarity": true,
@@ -423,7 +428,7 @@
 		"clk-active": true,
 		"backlight": "led-pwm-bl.0"
 	},
-
+*/
 	"console-uart@0": {
 		"uart-bus": "uart-16550.1"
 	}

@@ -305,6 +305,8 @@ static struct device_t * fb_f1c100s_probe(struct driver_t * drv, struct dtnode_t
 	pdat->vram[1] = dma_alloc_noncoherent(pdat->pixlen);
 	pdat->nrl = region_list_alloc(0);
 	pdat->orl = region_list_alloc(0);
+	memset(pdat->vram[0], 0, pdat->pixlen);
+	memset(pdat->vram[1], 0, pdat->pixlen);
 
 	pdat->timing.pixel_clock_hz = dt_read_long(n, "clock-frequency", 33000000);
 	pdat->timing.h_front_porch = dt_read_int(n, "hfront-porch", 40);

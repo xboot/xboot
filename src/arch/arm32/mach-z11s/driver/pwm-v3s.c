@@ -166,6 +166,8 @@ static void pwm_v3s_disable(struct pwm_t * pwm)
 	if(pdat->enable != 0)
 	{
 		pdat->enable = 0;
+		if((pdat->pwm >= 0) && (pdat->pwmcfg >= 0))
+			gpio_direction_output(pdat->pwm, pdat->polarity ? 0 : 1);
 		ctrl = read32(pdat->virt + PWM_CTRL);
 		ctrl &= ~PWM_BIT(pdat->channel, 4);
 		ctrl &= ~PWM_BIT(pdat->channel, 6);
@@ -206,9 +208,9 @@ static struct device_t * pwm_v3s_probe(struct driver_t * drv, struct dtnode_t * 
 	pdat->pwm = dt_read_int(n, "pwm-gpio", -1);
 	pdat->pwmcfg = dt_read_int(n, "pwm-gpio-config", -1);
 	pdat->enable = -1;
-	pdat->duty = 500 * 1000;
-	pdat->period = 1000 * 1000;
-	pdat->polarity = 0;
+	pdat->duty = -1;
+	pdat->period = -1;
+	pdat->polarity = -1;
 
 	pwm->name = alloc_device_name(dt_read_name(n), -1);
 	pwm->config = pwm_v3s_config;

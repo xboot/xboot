@@ -81,19 +81,18 @@ static int pwm_timer_function(struct timer_t * timer, void * data)
 		pdat->flag = !pdat->flag;
 		if(pdat->flag)
 		{
-			gpio_set_value(pdat->gpio, pdat->polarity ? 0 : 1);
+			gpio_set_value(pdat->gpio, pdat->polarity ? 1 : 0);
 			timer_forward_now(&pdat->timer, ns_to_ktime(pdat->duty));
 		}
 		else
 		{
-			gpio_set_value(pdat->gpio, pdat->polarity ? 1 : 0);
+			gpio_set_value(pdat->gpio, pdat->polarity ? 0 : 1);
 			timer_forward_now(&pdat->timer, ns_to_ktime(pdat->period - pdat->duty));
 		}
 		return 1;
 	}
-
 	pdat->flag = 0;
-	gpio_set_value(pdat->gpio, pdat->polarity ? 1 : 0);
+	gpio_set_value(pdat->gpio, pdat->polarity ? 0 : 1);
 	return 0;
 }
 
@@ -123,9 +122,9 @@ static struct device_t * pwm_gpio_probe(struct driver_t * drv, struct dtnode_t *
 	pdat->gpiocfg = dt_read_int(n, "gpio-config", -1);
 	pdat->flag = 0;
 	pdat->enable = -1;
-	pdat->duty = 5 * 1000 * 1000;
-	pdat->period = 10 * 1000 * 1000;
-	pdat->polarity = 0;
+	pdat->duty = -1;
+	pdat->period = -1;
+	pdat->polarity = -1;
 
 	pwm->name = alloc_device_name(dt_read_name(n), -1);
 	pwm->config = pwm_gpio_config;
@@ -137,7 +136,7 @@ static struct device_t * pwm_gpio_probe(struct driver_t * drv, struct dtnode_t *
 		gpio_set_cfg(pdat->gpio, pdat->gpiocfg);
 	gpio_set_pull(pdat->gpio, GPIO_PULL_UP);
 	gpio_set_direction(pdat->gpio, GPIO_DIRECTION_OUTPUT);
-	gpio_set_value(pdat->gpio, pdat->polarity ? 1 : 0);
+	gpio_set_value(pdat->gpio, pdat->polarity ? 0 : 1);
 
 	if(!(dev = register_pwm(pwm, drv)))
 	{

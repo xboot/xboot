@@ -54,21 +54,21 @@ static bool_t ns2009_read(struct i2c_device_t * dev, u8_t cmd, int * val)
 	struct i2c_msg_t msgs[2];
 	u8_t buf[2];
 
-    msgs[0].addr = dev->addr;
-    msgs[0].flags = 0;
-    msgs[0].len = 1;
-    msgs[0].buf = &cmd;
+	msgs[0].addr = dev->addr;
+	msgs[0].flags = 0;
+	msgs[0].len = 1;
+	msgs[0].buf = &cmd;
 
-    msgs[1].addr = dev->addr;
-    msgs[1].flags = I2C_M_RD;
-    msgs[1].len = 2;
-    msgs[1].buf = buf;
+	msgs[1].addr = dev->addr;
+	msgs[1].flags = I2C_M_RD;
+	msgs[1].len = 2;
+	msgs[1].buf = buf;
 
-    if(i2c_transfer(dev->i2c, msgs, 2) != 2)
-    	return FALSE;
-    if(val)
-    	*val = (buf[0] << 4) | (buf[1] >> 4);
-    return TRUE;
+	if(i2c_transfer(dev->i2c, msgs, 2) != 2)
+		return FALSE;
+	if(val)
+		*val = (buf[0] << 4) | (buf[1] >> 4);
+	return TRUE;
 }
 
 static int ns2009_timer_function(struct timer_t * timer, void * data)

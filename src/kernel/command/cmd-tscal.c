@@ -29,21 +29,21 @@
 #include <xboot.h>
 #include <shell/ctrlc.h>
 #include <input/input.h>
-#include <input/keyboard.h>
+#include <xboot/window.h>
 #include <command/command.h>
 
-#if 0
 static void usage(void)
 {
 	printf("usage:\r\n");
-	printf("    tscal <input> [framebuffer]\r\n");
+	printf("    tscal <framebuffer> <input>\r\n");
 }
 
 struct tscal_t {
 	int x[5], xfb[5];
 	int y[5], yfb[5];
 	int a[7];
-} ;
+	int index;
+};
 
 static int perform_calibration(struct tscal_t * cal)
 {
@@ -81,7 +81,6 @@ static int perform_calibration(struct tscal_t * cal)
 		zx += (float)(cal->xfb[j] * cal->x[j]);
 		zy += (float)(cal->xfb[j] * cal->y[j]);
 	}
-
 	cal->a[0] = (int)((b * z + e * zx + f * zy) * (scaling));
 	cal->a[1] = (int)((c * z + f * zx + i * zy) * (scaling));
 	cal->a[2] = (int)((a * z + b * zx + c * zy) * (scaling));
@@ -93,151 +92,118 @@ static int perform_calibration(struct tscal_t * cal)
 		zx += (float)(cal->yfb[j] * cal->x[j]);
 		zy += (float)(cal->yfb[j] * cal->y[j]);
 	}
-
 	cal->a[3] = (int)((b * z + e * zx + f * zy) * (scaling));
 	cal->a[4] = (int)((c * z + f * zx + i * zy) * (scaling));
 	cal->a[5] = (int)((a * z + b * zx + c * zy) * (scaling));
-
 	cal->a[6] = (int)scaling;
+
 	return 1;
 }
 
-static void cairo_draw_point(cairo_t * cr, int x, int y)
+static void tscal_draw(struct window_t * w, void * o)
 {
-	cairo_save(cr);
-	cairo_set_source_rgb(cr, 1, 1, 1);
-	cairo_paint(cr);
-	cairo_restore(cr);
+	struct tscal_t * cal = (struct tscal_t *)o;
+	struct color_t c = { 0xff, 0xff, 0x00, 0xff };
+	int x = cal->xfb[cal->index];
+	int y = cal->yfb[cal->index];
 
-	cairo_save(cr);
-	cairo_set_source_rgb(cr, 1, 0.5, 0);
-	cairo_set_line_width(cr, 2);
-	cairo_move_to(cr, x - 15, y);
-	cairo_line_to(cr, x + 15, y);
-	cairo_move_to(cr, x, y - 15);
-	cairo_line_to(cr, x, y + 15);
-	cairo_stroke(cr);
-	cairo_restore(cr);
-}
-
-static void cairo_draw_string(cairo_t * cr, int x, int y, const char * title)
-{
-	cairo_save(cr);
-	cairo_set_source_rgb(cr, 1, 1, 1);
-	cairo_paint(cr);
-	cairo_restore(cr);
-
-	cairo_save(cr);
-	cairo_set_font_size(cr, 24);
-	cairo_set_source_rgb(cr, 1, 0.5, 0);
-	cairo_move_to(cr, x, y);
-	cairo_show_text(cr, title);
-	cairo_restore(cr);
+	surface_shape_line(w->s, NULL, &(struct point_t){x - 15, y}, &(struct point_t){x + 15, y}, 2, &c);
+	surface_shape_line(w->s, NULL, &(struct point_t){x, y - 15}, &(struct point_t){x, y + 15}, 2, &c);
+	surface_shape_circle(w->s, NULL, x, y, 15, 4, &c);
 }
 
 static int do_tscal(int argc, char ** argv)
 {
-	struct input_t * input;
-	struct framebuffer_t * fb;
-	struct event_context_t * ectx;
-	struct tscal_t cal;
+	struct window_t * w;
+	struct input_t * dev;
 	struct event_t e;
-	cairo_surface_t * cs;
-	cairo_t * cr;
-	char buffer[256];
+	struct tscal_t cal;
+	int buf[7];
 	int c[7] = {1, 0, 0, 0, 1, 0, 1};
-	int width, height;
-	int index;
+	int running = 1;
 
-	if(argc < 2)
+	if(argc != 3)
 	{
 		usage();
 		return -1;
 	}
-
-	input = search_input(argv[1]);
-	if(!input)
+	if(!search_framebuffer(argv[1]))
 	{
-		printf("The input device '%s' is not exist\r\n", argv[1]);
+		printf("The framebuffer device '%s' is not exist\r\n", argv[1]);
 		usage();
 		return -1;
 	}
-
-	fb = (argc > 2) ? search_framebuffer(argv[2]) : search_first_framebuffer();
-	if(!fb)
+	if(!(dev = search_input(argv[2])))
 	{
-		printf("No framebuffer device\r\n");
+		printf("The input device '%s' is not exist\r\n", argv[2]);
 		usage();
 		return -1;
 	}
-
-	if(input_ioctl(input, INPUT_IOCTL_TOUCHSCEEN_SET_CALIBRATION, c) < 0)
+	if(input_ioctl(dev, "touchscreen-get-calibration", buf) < 0)
 	{
-		printf("The input device '%s' can't support set calibration\r\n", argv[1]);
+		printf("The input device '%s' is not a touchscreen\r\n", argv[2]);
+		usage();
 		return -1;
 	}
-
-	cs = cairo_xboot_surface_create(fb);
-	cr = cairo_create(cs);
-	width = cairo_image_surface_get_width(cs);
-	height = cairo_image_surface_get_height(cs);
-	cal.xfb[0] = 50;
-	cal.yfb[0] = 50;
-	cal.xfb[1] = width - 50;
-	cal.yfb[1] = 50;
-	cal.xfb[2] = width - 50;
-	cal.yfb[2] = height - 50;
-	cal.xfb[3] = 50;
-	cal.yfb[3] = height - 50;
-	cal.xfb[4] = width / 2;
-	cal.yfb[4] = height / 2;
-	index = 0;
-
-	cairo_draw_point(cr, cal.xfb[index], cal.yfb[index]);
-	cairo_xboot_surface_present(cs, NULL);
-	ectx = event_context_alloc(NULL);
-
-	while(1)
+	if((w = window_alloc(argv[1], argv[2])))
 	{
-		if(ctrlc())
-			break;
+		cal.xfb[0] = 50;
+		cal.yfb[0] = 50;
+		cal.xfb[1] = window_get_width(w) - 50;
+		cal.yfb[1] = 50;
+		cal.xfb[2] = window_get_width(w) - 50;
+		cal.yfb[2] = window_get_height(w) - 50;
+		cal.xfb[3] = 50;
+		cal.yfb[3] = window_get_height(w) - 50;
+		cal.xfb[4] = window_get_width(w) / 2;
+		cal.yfb[4] = window_get_height(w) / 2;
+		cal.index = 0;
+		input_ioctl(dev, "touchscreen-set-calibration", c);
 
-		if(pump_event(ectx, &e))
+		while(running)
 		{
-			if(e.type == EVENT_TYPE_KEY_UP)
+			if(window_pump_event(w, &e))
 			{
-				if(e.e.key_up.key == KEY_BACK)
-					break;
-			}
-			else if(e.type == EVENT_TYPE_TOUCH_END)
-			{
-				cal.x[index] = e.e.touch_end.x;
-				cal.y[index] = e.e.touch_end.y;
-				if(++index >= 5)
+				if(e.device == dev)
 				{
-					if(perform_calibration(&cal))
+					switch(e.type)
 					{
-						input_ioctl(input, INPUT_IOCTL_TOUCHSCEEN_SET_CALIBRATION, &cal.a[0]);
-						sprintf(buffer, "[%d, %d, %d, %d, %d, %d, %d]", cal.a[0], cal.a[1], cal.a[2], cal.a[3], cal.a[4], cal.a[5], cal.a[6]);
+					case EVENT_TYPE_TOUCH_BEGIN:
+						break;
+					case EVENT_TYPE_TOUCH_MOVE:
+						break;
+					case EVENT_TYPE_TOUCH_END:
+						cal.x[cal.index] = e.e.touch_end.x;
+						cal.y[cal.index] = e.e.touch_end.y;
+						if(++cal.index >= 5)
+						{
+							if(perform_calibration(&cal))
+							{
+								input_ioctl(dev, "touchscreen-set-calibration", &cal.a[0]);
+								printf("[%d, %d, %d, %d, %d, %d, %d]\r\n", cal.a[0], cal.a[1], cal.a[2], cal.a[3], cal.a[4], cal.a[5], cal.a[6]);
+								running = 0;
+							}
+							else
+							{
+								cal.index = 0;
+							}
+						}
+						break;
+					case EVENT_TYPE_SYSTEM_EXIT:
+						running = 0;
+						break;
+					default:
+						break;
 					}
-					else
-					{
-						sprintf(buffer, "%s", "calibration failed");
-					}
-					cairo_draw_string(cr, 50, height / 2, buffer);
-					cairo_xboot_surface_present(cs, NULL);
-					printf("%s\r\n", buffer);
-					break;
 				}
-				cairo_draw_point(cr, cal.xfb[index], cal.yfb[index]);
-				cairo_xboot_surface_present(cs, NULL);
 			}
+			if(window_is_active(w))
+				window_present(w, &cal, tscal_draw);
+			if(ctrlc())
+				running = 0;
 		}
+		window_free(w);
 	}
-	cairo_destroy(cr);
-	cairo_surface_destroy(cs);
-	event_context_free(ectx);
-
 	return 0;
 }
 
@@ -260,4 +226,3 @@ static __exit void tscal_cmd_exit(void)
 
 command_initcall(tscal_cmd_init);
 command_exitcall(tscal_cmd_exit);
-#endif

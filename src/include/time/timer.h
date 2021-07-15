@@ -35,9 +35,7 @@ struct timer_t {
 };
 
 void timer_init(struct timer_t * timer, int (*function)(struct timer_t *, void *), void * data);
-void timer_start(struct timer_t * timer, ktime_t now, ktime_t interval);
 void timer_start_now(struct timer_t * timer, ktime_t interval);
-void timer_forward(struct timer_t * timer, ktime_t now, ktime_t interval);
 void timer_forward_now(struct timer_t * timer, ktime_t interval);
 void timer_cancel(struct timer_t * timer);
 

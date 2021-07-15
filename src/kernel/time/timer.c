@@ -48,45 +48,43 @@ static inline int add_timer(struct timer_base_t * base, struct timer_t * timer)
 	struct rb_node * parent = NULL;
 	struct timer_t * ptr;
 
-	if(timer->state != TIMER_STATE_INACTIVE)
-		return 0;
-
-	while(*p)
+	if(timer->state == TIMER_STATE_INACTIVE)
 	{
-		parent = *p;
-		ptr = rb_entry(parent, struct timer_t, node);
-		if(timer->expires.tv64 < ptr->expires.tv64)
-			p = &(*p)->rb_left;
-		else
-			p = &(*p)->rb_right;
+		while(*p)
+		{
+			parent = *p;
+			ptr = rb_entry(parent, struct timer_t, node);
+			if(timer->expires.tv64 < ptr->expires.tv64)
+				p = &(*p)->rb_left;
+			else
+				p = &(*p)->rb_right;
+		}
+		rb_link_node(&timer->node, parent, p);
+		rb_insert_color(&timer->node, &base->head);
+		if(!base->next || (timer->expires.tv64 < base->next->expires.tv64))
+			base->next = timer;
+		timer->state = TIMER_STATE_ENQUEUED;
+		return (timer == base->next);
 	}
-	rb_link_node(&timer->node, parent, p);
-	rb_insert_color(&timer->node, &base->head);
-
-	if(!base->next || timer->expires.tv64 < base->next->expires.tv64)
-		base->next = timer;
-
-	timer->state = TIMER_STATE_ENQUEUED;
-	return (timer == base->next);
+	return 0;
 }
 
 static inline int del_timer(struct timer_base_t * base, struct timer_t * timer)
 {
 	int ret = 0;
 
-	if(timer->state != TIMER_STATE_ENQUEUED)
-		return 0;
-
-	if(base->next == timer)
+	if(timer->state == TIMER_STATE_ENQUEUED)
 	{
-		struct rb_node * rbn = rb_next(&timer->node);
-		base->next = rbn ? rb_entry(rbn, struct timer_t, node) : NULL;
-		ret = 1;
+		if(base->next == timer)
+		{
+			struct rb_node * rbn = rb_next(&timer->node);
+			base->next = rbn ? rb_entry(rbn, struct timer_t, node) : NULL;
+			ret = 1;
+		}
+		rb_erase(&timer->node, &base->head);
+		RB_CLEAR_NODE(&timer->node);
+		timer->state = TIMER_STATE_INACTIVE;
 	}
-	rb_erase(&timer->node, &base->head);
-	RB_CLEAR_NODE(&timer->node);
-
-	timer->state = TIMER_STATE_INACTIVE;
 	return ret;
 }
 
@@ -103,65 +101,52 @@ void timer_init(struct timer_t * timer, int (*function)(struct timer_t *, void *
 	}
 }
 
-void timer_start(struct timer_t * timer, ktime_t now, ktime_t interval)
-{
-	struct timer_base_t * base = timer->base;
-	irq_flags_t flags;
-
-	if(!timer)
-		return;
-
-	spin_lock_irqsave(&base->lock, flags);
-	if(del_timer(base, timer))
-	{
-		struct timer_t * next = next_timer(base);
-		if(next)
-			clockevent_set_event_next(base->ce, ktime_get(), next->expires);
-	}
-	ktime_t expires = ktime_add_safe(now, interval);
-	memcpy(&timer->expires, &expires, sizeof(ktime_t));
-	if(add_timer(base, timer))
-		clockevent_set_event_next(base->ce, ktime_get(), timer->expires);
-	spin_unlock_irqrestore(&base->lock, flags);
-}
-
 void timer_start_now(struct timer_t * timer, ktime_t interval)
 {
-	if(timer)
-		timer_start(timer, ktime_get(), interval);
-}
+	struct timer_base_t * base;
+	irq_flags_t flags;
 
-void timer_forward(struct timer_t * timer, ktime_t now, ktime_t interval)
-{
 	if(timer)
 	{
-		ktime_t expires = ktime_add_safe(now, interval);
-		memcpy(&timer->expires, &expires, sizeof(ktime_t));
+		ktime_t now = ktime_get();
+		base = timer->base;
+		spin_lock_irqsave(&base->lock, flags);
+		if(del_timer(base, timer))
+		{
+			struct timer_t * next = next_timer(base);
+			if(next)
+				clockevent_set_event_next(base->ce, now, next->expires);
+		}
+		timer->expires = ktime_add_safe(now, interval);
+		if(add_timer(base, timer))
+			clockevent_set_event_next(base->ce, now, timer->expires);
+		spin_unlock_irqrestore(&base->lock, flags);
 	}
 }
 
 void timer_forward_now(struct timer_t * timer, ktime_t interval)
 {
 	if(timer)
-		timer_forward(timer, ktime_get(), interval);
+		timer->expires = ktime_add_safe(ktime_get(), interval);
 }
 
 void timer_cancel(struct timer_t * timer)
 {
-	struct timer_base_t * base = timer->base;
+	struct timer_base_t * base;
 	irq_flags_t flags;
 
-	if(!timer)
-		return;
-
-	spin_lock_irqsave(&base->lock, flags);
-	if(del_timer(base, timer))
+	if(timer)
 	{
-		struct timer_t * next = next_timer(base);
-		if(next)
-			clockevent_set_event_next(base->ce, ktime_get(), next->expires);
+		base = timer->base;
+		spin_lock_irqsave(&base->lock, flags);
+		if(del_timer(base, timer))
+		{
+			struct timer_t * next = next_timer(base);
+			if(next)
+				clockevent_set_event_next(base->ce, ktime_get(), next->expires);
+		}
+		spin_unlock_irqrestore(&base->lock, flags);
 	}
-	spin_unlock_irqrestore(&base->lock, flags);
 }
 
 static void timer_event_handler(struct clockevent_t * ce, void * data)
@@ -177,7 +162,6 @@ static void timer_event_handler(struct clockevent_t * ce, void * data)
 	{
 		if(now.tv64 < timer->expires.tv64)
 			break;
-
 		del_timer(base, timer);
 		timer->state = TIMER_STATE_CALLBACK;
 		restart = timer->function(timer, timer->data);

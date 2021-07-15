@@ -245,9 +245,9 @@
 		"clock-name": "link-i2c0",
 		"clock-frequency": 400000,
 		"reset": 80,
-		"sda-gpio": 140,
+		"sda-gpio": 96,
 		"sda-gpio-config": 3,
-		"scl-gpio": 139,
+		"scl-gpio": 108,
 		"scl-gpio-config": 3
 	},
 

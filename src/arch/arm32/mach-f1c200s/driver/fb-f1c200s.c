@@ -209,7 +209,10 @@ static inline void fb_f1c200s_cfg_gpios(int base, int n, int cfg, enum gpio_pull
 
 static inline void fb_f1c200s_init(struct fb_f1c200s_pdata_t * pdat)
 {
-	fb_f1c200s_cfg_gpios(F1C200S_GPIOD0, 22, 0x2, GPIO_PULL_NONE, GPIO_DRV_STRONG);
+	fb_f1c200s_cfg_gpios(F1C200S_GPIOD1, 5, 0x2, GPIO_PULL_NONE, GPIO_DRV_STRONG);
+	fb_f1c200s_cfg_gpios(F1C200S_GPIOD6, 6, 0x2, GPIO_PULL_NONE, GPIO_DRV_STRONG);
+	fb_f1c200s_cfg_gpios(F1C200S_GPIOD13, 5, 0x2, GPIO_PULL_NONE, GPIO_DRV_STRONG);
+	fb_f1c200s_cfg_gpios(F1C200S_GPIOD18, 4, 0x2, GPIO_PULL_NONE, GPIO_DRV_STRONG);
 
 	f1c200s_tcon_disable(pdat);
 	f1c200s_debe_set_mode(pdat);

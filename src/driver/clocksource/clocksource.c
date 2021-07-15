@@ -108,7 +108,7 @@ static int clocksource_keeper_timer_function(struct timer_t * timer, void * data
 	cs->keeper.last = now;
 	write_sequnlock_irqrestore(&cs->keeper.lock, flags);
 
-	timer_forward_now(timer, ns_to_ktime(cs->keeper.interval));
+	timer_forward(timer, ns_to_ktime(cs->keeper.interval));
 	return 1;
 }
 
@@ -175,7 +175,7 @@ struct device_t * register_clocksource(struct clocksource_t * cs, struct driver_
 		__clocksource = cs;
 		spin_unlock_irqrestore(&__clocksource_lock, flags);
 	}
-	timer_start_now(&cs->keeper.timer, ns_to_ktime(cs->keeper.interval));
+	timer_start(&cs->keeper.timer, ns_to_ktime(cs->keeper.interval));
 	return dev;
 }
 

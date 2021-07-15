@@ -91,7 +91,7 @@ static int key_adc_timer_function(struct timer_t * timer, void * data)
 		}
 	}
 
-	timer_forward_now(timer, ms_to_ktime(pdat->interval));
+	timer_forward(timer, ms_to_ktime(pdat->interval));
 	return 1;
 }
 
@@ -155,7 +155,7 @@ static struct device_t * key_adc_probe(struct driver_t * drv, struct dtnode_t * 
 	input->ioctl = key_adc_ioctl;
 	input->priv = pdat;
 
-	timer_start_now(&pdat->timer, ms_to_ktime(pdat->interval));
+	timer_start(&pdat->timer, ms_to_ktime(pdat->interval));
 
 	if(!(dev = register_input(input, drv)))
 	{
@@ -198,7 +198,7 @@ static void key_adc_resume(struct device_t * dev)
 	struct input_t * input = (struct input_t *)dev->priv;
 	struct key_adc_pdata_t * pdat = (struct key_adc_pdata_t *)input->priv;
 
-	timer_start_now(&pdat->timer, ms_to_ktime(pdat->interval));
+	timer_start(&pdat->timer, ms_to_ktime(pdat->interval));
 }
 
 static struct driver_t key_adc = {

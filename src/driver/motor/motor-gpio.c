@@ -75,7 +75,7 @@ static void motor_gpio_set(struct motor_t * m, int speed)
 		pdat->duty = (s64_t)pdat->period * abs(speed) / pdat->maxspeed;
 		pdat->speed = speed;
 		if(restart != 0)
-			timer_start_now(&pdat->timer, ns_to_ktime(pdat->duty));
+			timer_start(&pdat->timer, ns_to_ktime(pdat->duty));
 	}
 }
 
@@ -91,13 +91,13 @@ static int motor_gpio_timer_function(struct timer_t * timer, void * data)
 		{
 			gpio_set_value(pdat->a, 0);
 			gpio_set_value(pdat->b, 1);
-			timer_forward_now(&pdat->timer, ns_to_ktime(pdat->duty));
+			timer_forward(&pdat->timer, ns_to_ktime(pdat->duty));
 		}
 		else
 		{
 			gpio_set_value(pdat->a, 0);
 			gpio_set_value(pdat->b, 0);
-			timer_forward_now(&pdat->timer, ns_to_ktime(pdat->period - pdat->duty));
+			timer_forward(&pdat->timer, ns_to_ktime(pdat->period - pdat->duty));
 		}
 		return 1;
 	}
@@ -108,13 +108,13 @@ static int motor_gpio_timer_function(struct timer_t * timer, void * data)
 		{
 			gpio_set_value(pdat->b, 0);
 			gpio_set_value(pdat->a, 1);
-			timer_forward_now(&pdat->timer, ns_to_ktime(pdat->duty));
+			timer_forward(&pdat->timer, ns_to_ktime(pdat->duty));
 		}
 		else
 		{
 			gpio_set_value(pdat->b, 0);
 			gpio_set_value(pdat->a, 0);
-			timer_forward_now(&pdat->timer, ns_to_ktime(pdat->period - pdat->duty));
+			timer_forward(&pdat->timer, ns_to_ktime(pdat->period - pdat->duty));
 		}
 		return 1;
 	}

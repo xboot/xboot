@@ -96,7 +96,7 @@ static void buzzer_gpio_beep(struct buzzer_t * buzzer, int frequency, int millis
 
 	queue_push(pdat->queue, param);
 	if(queue_avail(pdat->queue) == 1)
-		timer_start_now(&pdat->timer, ms_to_ktime(1));
+		timer_start(&pdat->timer, ms_to_ktime(1));
 }
 
 static int buzzer_gpio_timer_function(struct timer_t * timer, void * data)
@@ -111,7 +111,7 @@ static int buzzer_gpio_timer_function(struct timer_t * timer, void * data)
 		return 0;
 	}
 	buzzer_gpio_set(buzzer, param->frequency);
-	timer_forward_now(&pdat->timer, ms_to_ktime(param->millisecond));
+	timer_forward(&pdat->timer, ms_to_ktime(param->millisecond));
 	free(param);
 	return 1;
 }

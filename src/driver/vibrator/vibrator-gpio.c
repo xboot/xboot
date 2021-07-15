@@ -96,7 +96,7 @@ static void vibrator_gpio_vibrate(struct vibrator_t * vib, int state, int millis
 
 	queue_push(pdat->queue, param);
 	if(queue_avail(pdat->queue) == 1)
-		timer_start_now(&pdat->timer, ms_to_ktime(1));
+		timer_start(&pdat->timer, ms_to_ktime(1));
 }
 
 static int vibrator_gpio_timer_function(struct timer_t * timer, void * data)
@@ -111,7 +111,7 @@ static int vibrator_gpio_timer_function(struct timer_t * timer, void * data)
 		return 0;
 	}
 	vibrator_gpio_set(vib, param->state);
-	timer_forward_now(&pdat->timer, ms_to_ktime(param->millisecond));
+	timer_forward(&pdat->timer, ms_to_ktime(param->millisecond));
 	free(param);
 	return 1;
 }

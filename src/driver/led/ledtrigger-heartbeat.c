@@ -74,7 +74,7 @@ static int ledtrigger_heartbeat_timer_function(struct timer_t * timer, void * da
 	}
 
 	led_set_brightness(pdat->led, brightness);
-	timer_forward_now(timer, ms_to_ktime(delay));
+	timer_forward(timer, ms_to_ktime(delay));
 	return 1;
 }
 
@@ -113,7 +113,7 @@ static struct device_t * ledtrigger_heartbeat_probe(struct driver_t * drv, struc
 	trigger->activity = ledtrigger_heartbeat_activity;
 	trigger->priv = pdat;
 
-	timer_start_now(&pdat->timer, ms_to_ktime(50));
+	timer_start(&pdat->timer, ms_to_ktime(50));
 
 	if(!(dev = register_ledtrigger(trigger, drv)))
 	{
@@ -154,7 +154,7 @@ static void ledtrigger_heartbeat_resume(struct device_t * dev)
 	struct ledtrigger_t * trigger = (struct ledtrigger_t *)dev->priv;
 	struct ledtrigger_heartbeat_pdata_t * pdat = (struct ledtrigger_heartbeat_pdata_t *)trigger->priv;
 
-	timer_start_now(&pdat->timer, ms_to_ktime(50));
+	timer_start(&pdat->timer, ms_to_ktime(50));
 }
 
 static struct driver_t ledtrigger_heartbeat = {

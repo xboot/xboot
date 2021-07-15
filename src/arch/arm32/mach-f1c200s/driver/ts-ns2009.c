@@ -109,7 +109,7 @@ static int ns2009_timer_function(struct timer_t * timer, void * data)
 		}
 	}
 
-	timer_forward_now(timer, ms_to_ktime(pdat->interval));
+	timer_forward(timer, ms_to_ktime(pdat->interval));
 	return 1;
 }
 
@@ -190,7 +190,7 @@ static struct device_t * ts_ns2009_probe(struct driver_t * drv, struct dtnode_t 
 	input->name = alloc_device_name(dt_read_name(n), -1);
 	input->ioctl = ts_ns2009_ioctl;
 	input->priv = pdat;
-	timer_start_now(&pdat->timer, ms_to_ktime(pdat->interval));
+	timer_start(&pdat->timer, ms_to_ktime(pdat->interval));
 
 	if(!(dev = register_input(input, drv)))
 	{

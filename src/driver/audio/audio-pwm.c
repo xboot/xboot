@@ -214,7 +214,7 @@ static int audio_pwm_timer_function(struct timer_t * timer, void * data)
 		{
 			pwm_config(pdat->pwm, ((((int)v + 32768) * 16000) >> 16), 16000, pdat->polarity);
 			pwm_enable(pdat->pwm);
-			timer_forward_now(&pdat->timer, us_to_ktime(125));
+			timer_forward(&pdat->timer, us_to_ktime(125));
 			return 1;
 		}
 	}
@@ -235,7 +235,7 @@ static void audio_pwm_playback_start(struct audio_t * audio, enum audio_rate_t r
 		pdat->ch = ch;
 		pdat->cb = cb;
 		pdat->data = data;
-		timer_start_now(&pdat->timer, ms_to_ktime(1));
+		timer_start(&pdat->timer, ms_to_ktime(1));
 		pdat->running = 1;
 	}
 }

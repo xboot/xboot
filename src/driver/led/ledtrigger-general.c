@@ -45,7 +45,7 @@ static int ledtrigger_general_timer_function(struct timer_t * timer, void * data
 	{
 		pdat->last_activity = pdat->activity;
 		led_set_brightness(pdat->led, 1000);
-		timer_forward_now(timer, ms_to_ktime(20));
+		timer_forward(timer, ms_to_ktime(20));
 		return 1;
 	}
 	else
@@ -60,7 +60,7 @@ static void ledtrigger_general_activity(struct ledtrigger_t * trigger)
 	struct ledtrigger_general_pdata_t * pdat = (struct ledtrigger_general_pdata_t *)trigger->priv;
 
 	pdat->activity++;
-	timer_start_now(&pdat->timer, ms_to_ktime(20));
+	timer_start(&pdat->timer, ms_to_ktime(20));
 }
 
 static struct device_t * ledtrigger_general_probe(struct driver_t * drv, struct dtnode_t * n)

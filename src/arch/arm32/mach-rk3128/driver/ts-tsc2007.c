@@ -133,7 +133,7 @@ static int tsc2007_timer_function(struct timer_t * timer, void * data)
 	rt = tsc2007_calculate_pressure(pdat, x, y, z1, z2);
 	if(rt > pdat->max_rt)
 	{
-		timer_forward_now(timer, ms_to_ktime(pdat->interval));
+		timer_forward(timer, ms_to_ktime(pdat->interval));
 		return 1;
 	}
 	else if(rt > 0)
@@ -151,7 +151,7 @@ static int tsc2007_timer_function(struct timer_t * timer, void * data)
 		}
 		pdat->x = x;
 		pdat->y = y;
-		timer_forward_now(timer, ms_to_ktime(pdat->interval));
+		timer_forward(timer, ms_to_ktime(pdat->interval));
 		return 1;
 	}
 	else
@@ -172,7 +172,7 @@ static void tsc2007_interrupt(void * data)
 	struct ts_tsc2007_pdata_t * pdat = (struct ts_tsc2007_pdata_t *)input->priv;
 
 	disable_irq(pdat->irq);
-	timer_start_now(&pdat->timer, ms_to_ktime(1));
+	timer_start(&pdat->timer, ms_to_ktime(1));
 }
 
 static int ts_tsc2007_ioctl(struct input_t * input, const char * cmd, void * arg)

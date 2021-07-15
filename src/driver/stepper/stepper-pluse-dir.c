@@ -80,7 +80,7 @@ static void stepper_pluse_dir_move(struct stepper_t * m, int step, int speed)
 		pdat->step = abs(step);
 		pdat->speed = (speed > 0) ? speed : pdat->dspeed;
 		pdat->busying = 1;
-		timer_start_now(&pdat->timer, ns_to_ktime(500000000ULL / pdat->speed));
+		timer_start(&pdat->timer, ns_to_ktime(500000000ULL / pdat->speed));
 	}
 }
 
@@ -111,7 +111,7 @@ static int stepper_pluse_dir_timer_function(struct timer_t * timer, void * data)
 		if(pdat->step > 0)
 		{
 			pdat->busying = 1;
-			timer_forward_now(&pdat->timer, ns_to_ktime(500000000ULL / pdat->speed));
+			timer_forward(&pdat->timer, ns_to_ktime(500000000ULL / pdat->speed));
 			return 1;
 		}
 	}

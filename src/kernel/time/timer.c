@@ -101,7 +101,7 @@ void timer_init(struct timer_t * timer, int (*function)(struct timer_t *, void *
 	}
 }
 
-void timer_start_now(struct timer_t * timer, ktime_t interval)
+void timer_start(struct timer_t * timer, ktime_t interval)
 {
 	struct timer_base_t * base;
 	irq_flags_t flags;
@@ -124,7 +124,7 @@ void timer_start_now(struct timer_t * timer, ktime_t interval)
 	}
 }
 
-void timer_forward_now(struct timer_t * timer, ktime_t interval)
+void timer_forward(struct timer_t * timer, ktime_t interval)
 {
 	if(timer)
 		timer->expires = ktime_add_safe(ktime_get(), interval);

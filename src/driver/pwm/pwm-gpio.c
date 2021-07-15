@@ -60,7 +60,7 @@ static void pwm_gpio_enable(struct pwm_t * pwm)
 	if(pdat->enable != 1)
 	{
 		pdat->enable = 1;
-		timer_start_now(&pdat->timer, ms_to_ktime(1));
+		timer_start(&pdat->timer, ms_to_ktime(1));
 	}
 }
 
@@ -82,12 +82,12 @@ static int pwm_timer_function(struct timer_t * timer, void * data)
 		if(pdat->flag)
 		{
 			gpio_set_value(pdat->gpio, pdat->polarity ? 1 : 0);
-			timer_forward_now(&pdat->timer, ns_to_ktime(pdat->duty));
+			timer_forward(&pdat->timer, ns_to_ktime(pdat->duty));
 		}
 		else
 		{
 			gpio_set_value(pdat->gpio, pdat->polarity ? 0 : 1);
-			timer_forward_now(&pdat->timer, ns_to_ktime(pdat->period - pdat->duty));
+			timer_forward(&pdat->timer, ns_to_ktime(pdat->period - pdat->duty));
 		}
 		return 1;
 	}

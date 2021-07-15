@@ -59,7 +59,7 @@ static int ledtrigger_breathing_timer_function(struct timer_t * timer, void * da
 	}
 
 	led_set_brightness(pdat->led, brightness);
-	timer_forward_now(timer, ms_to_ktime(pdat->interval));
+	timer_forward(timer, ms_to_ktime(pdat->interval));
 	return 1;
 }
 
@@ -99,7 +99,7 @@ static struct device_t * ledtrigger_breathing_probe(struct driver_t * drv, struc
 	trigger->activity = ledtrigger_breathing_activity;
 	trigger->priv = pdat;
 
-	timer_start_now(&pdat->timer, ms_to_ktime(pdat->interval));
+	timer_start(&pdat->timer, ms_to_ktime(pdat->interval));
 
 	if(!(dev = register_ledtrigger(trigger, drv)))
 	{
@@ -140,7 +140,7 @@ static void ledtrigger_breathing_resume(struct device_t * dev)
 	struct ledtrigger_t * trigger = (struct ledtrigger_t *)dev->priv;
 	struct ledtrigger_breathing_pdata_t * pdat = (struct ledtrigger_breathing_pdata_t *)trigger->priv;
 
-	timer_start_now(&pdat->timer, ms_to_ktime(pdat->interval));
+	timer_start(&pdat->timer, ms_to_ktime(pdat->interval));
 }
 
 static struct driver_t ledtrigger_breathing = {

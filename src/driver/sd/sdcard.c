@@ -763,7 +763,7 @@ static int sdcard_timer_function(struct timer_t * timer, void * data)
 {
 	struct sdcard_pdata_t * pdat = (struct sdcard_pdata_t *)(data);
 	sdcard_scan(pdat);
-	timer_forward_now(timer, ms_to_ktime(2000));
+	timer_forward(timer, ms_to_ktime(2000));
 	return 1;
 }
 
@@ -782,7 +782,7 @@ void * sdcard_probe(struct sdhci_t * hci)
 	if(pdat->hci->removable)
 	{
 		timer_init(&pdat->timer, sdcard_timer_function, pdat);
-		timer_start_now(&pdat->timer, ms_to_ktime(2000));
+		timer_start(&pdat->timer, ms_to_ktime(2000));
 	}
 	return pdat;
 }

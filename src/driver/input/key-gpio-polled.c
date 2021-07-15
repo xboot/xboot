@@ -70,7 +70,7 @@ static int key_gpio_polled_timer_function(struct timer_t * timer, void * data)
 		}
 	}
 
-	timer_forward_now(timer, ms_to_ktime(pdat->interval));
+	timer_forward(timer, ms_to_ktime(pdat->interval));
 	return 1;
 }
 
@@ -134,7 +134,7 @@ static struct device_t * key_gpio_polled_probe(struct driver_t * drv, struct dtn
 	input->ioctl = key_gpio_polled_ioctl;
 	input->priv = pdat;
 
-	timer_start_now(&pdat->timer, ms_to_ktime(pdat->interval));
+	timer_start(&pdat->timer, ms_to_ktime(pdat->interval));
 
 	if(!(dev = register_input(input, drv)))
 	{
@@ -177,7 +177,7 @@ static void key_gpio_polled_resume(struct device_t * dev)
 	struct input_t * input = (struct input_t *)dev->priv;
 	struct key_gpio_polled_pdata_t * pdat = (struct key_gpio_polled_pdata_t *)input->priv;
 
-	timer_start_now(&pdat->timer, ms_to_ktime(pdat->interval));
+	timer_start(&pdat->timer, ms_to_ktime(pdat->interval));
 }
 
 static struct driver_t key_gpio_polled = {

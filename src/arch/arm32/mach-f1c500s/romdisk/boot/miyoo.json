@@ -122,6 +122,19 @@
 	"clk-gate@0x01c20064": {"parent": "gate-tcon", "name": "gate-bus-tcon", "shift": 4, "invert": false },
 	"clk-link": { "parent": "gate-bus-tcon", "name": "link-tcon" },
 
+	"clk-mux@0x01c20124": {
+		"parent": [
+			{ "name": "pll-video", "value": 0 },
+			{ "name": "osc24m", "value": 1 }
+		],
+		"name": "mux-tvd", "shift": 24, "width": 3,
+		"default": { "parent": "pll-video" }
+	},
+	"clk-divider@0x01c20124": { "parent": "mux-tvd", "name": "div-tvd", "shift": 0, "width": 4, "divider-one-based": true, "default": { "rate": 27000000 } },
+	"clk-gate@0x01c20124": {"parent": "div-tvd", "name": "gate-tvd", "shift": 31, "invert": false },
+	"clk-gate@0x01c20064": {"parent": "gate-tvd", "name": "gate-bus-tvd", "shift": 9, "invert": false },
+	"clk-link": { "parent": "gate-bus-tvd", "name": "link-tvd" },
+
 	"clk-mux@0x01c20088": {
 		"parent": [
 			{ "name": "osc24m", "value": 0 },

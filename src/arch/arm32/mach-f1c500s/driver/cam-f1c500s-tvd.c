@@ -142,6 +142,18 @@ static inline int f1c500s_tvd_get_source(struct cam_f1c500s_tvd_pdata_t * pdat)
 	return TVD_SOURCE_NTSC;
 }
 
+static inline void f1c500s_tvd_select_channel(struct cam_f1c200s_tvd_pdata_t * pdat)
+{
+	u32_t val;
+
+	val = read32(pdat->virt + 0x0e04);
+	if(pdat->channel == 0)
+		val &= ~(1 << 0);
+	else
+		val |= (1 << 0);
+	write32(pdat->virt + 0x0e04, val);
+}
+
 static inline void f1c500s_tvd_set_hstart(struct cam_f1c500s_tvd_pdata_t * pdat, int hstart)
 {
 	u32_t val;
@@ -166,30 +178,30 @@ static inline void f1c500s_tvd_set_width(struct cam_f1c500s_tvd_pdata_t * pdat, 
 {
 	u32_t val;
 
-	val = read32(pdat->virt + 0x008c + 0x100 * pdat->channel);
+	val = read32(pdat->virt + 0x008c);
 	val &= ~(0xfff << 0);
 	val |= ((width > 720) ? 720 : width) << 0;
-	write32(pdat->virt + 0x008c + 0x100 * pdat->channel, val);
+	write32(pdat->virt + 0x008c, val);
 }
 
 static inline void f1c500s_tvd_set_width_jump(struct cam_f1c500s_tvd_pdata_t * pdat, int jump)
 {
-	write32(pdat->virt + 0x0138 + 0x100 * pdat->channel, jump);
+	write32(pdat->virt + 0x0090, jump);
 }
 
 static inline void f1c500s_tvd_set_height(struct cam_f1c500s_tvd_pdata_t * pdat, int height)
 {
 	u32_t val;
 
-	val = read32(pdat->virt + 0x008c + 0x100 * pdat->channel);
+	val = read32(pdat->virt + 0x008c);
 	val &= ~(0x7ff << 16);
 	val |= height << 16;
-	write32(pdat->virt + 0x008c + 0x100 * pdat->channel, val);
+	write32(pdat->virt + 0x008c, val);
 }
 
 static inline void f1c500s_tvd_set_fmt(struct cam_f1c500s_tvd_pdata_t *pdat, enum tvd_foramt_t fmt)
 {
-	u32_t val= read32(pdat->virt + 0x0088 + 0x100 * pdat->channel);
+	u32_t val = read32(pdat->virt + 0x0088);
 
 	switch(fmt)
 	{
@@ -208,7 +220,7 @@ static inline void f1c500s_tvd_set_fmt(struct cam_f1c500s_tvd_pdata_t *pdat, enu
 	default:
 		break;
 	}
-	write32(pdat->virt + 0x0088 + 0x100 * pdat->channel, val);
+	write32(pdat->virt + 0x0088, val);
 }
 
 static inline void f1c500s_tvd_set_blue(struct cam_f1c500s_tvd_pdata_t * pdat, int flag)
@@ -216,7 +228,7 @@ static inline void f1c500s_tvd_set_blue(struct cam_f1c500s_tvd_pdata_t * pdat, i
 	u32_t val;
 
 	val = read32(pdat->virt + TVD_MODE);
-	val &= ~((0x3 << 4) | (0x1 << 8));
+	val &= ~(0x3 << 4);
 	val |= ((flag & 0x3) << 4);
 	write32(pdat->virt + TVD_MODE, val);
 }
@@ -259,18 +271,18 @@ static inline void f1c500s_tvd_capture_on(struct cam_f1c500s_tvd_pdata_t * pdat)
 {
 	u32_t val;
 
-	val = read32(pdat->virt + 0x0088 + 0x100 * pdat->channel);
+	val = read32(pdat->virt + 0x0088);
 	val |= 1 << 0;
-	write32(pdat->virt + 0x0088 + 0x100 * pdat->channel, val);
+	write32(pdat->virt + 0x0088, val);
 }
 
 static inline void f1c500s_tvd_capture_off(struct cam_f1c500s_tvd_pdata_t * pdat)
 {
 	u32_t val;
 
-	val = read32(pdat->virt + 0x0088 + 0x100 * pdat->channel);
+	val = read32(pdat->virt + 0x0088);
 	val &= ~(1 << 0);
-	write32(pdat->virt + 0x0088 + 0x100 * pdat->channel, val);
+	write32(pdat->virt + 0x0088, val);
 }
 
 static inline void f1c500s_tvd_config(struct cam_f1c500s_tvd_pdata_t * pdat, enum tvd_source_t s, enum tvd_foramt_t fmt)
@@ -284,10 +296,10 @@ static inline void f1c500s_tvd_config(struct cam_f1c500s_tvd_pdata_t * pdat, enu
 		write32(pdat->virt + 0x001c, 0x00820022);
 		write32(pdat->virt + 0x0f08, 0x00590100);
 		write32(pdat->virt + 0x0f0c, 0x00000010);
-		write32(pdat->virt + 0x0f10, 0x008A32DD);
+		write32(pdat->virt + 0x0f10, 0x008a32dd);
 		write32(pdat->virt + TVD_MODE, 0x800000a0);
-		write32(pdat->virt + TVD_CHROM, 0x008A0000);
-		write32(pdat->virt + 0x0f2c, 0x0000CB74);
+		write32(pdat->virt + TVD_CHROM, 0x008a0000);
+		write32(pdat->virt + 0x0f2c, 0x0000cb74);
 		write32(pdat->virt + 0x0f44, 0x00004632);
 		write32(pdat->virt + 0x0f74, 0x000003c3);
 		write32(pdat->virt + 0x0f80, 0x00500000);
@@ -346,10 +358,7 @@ static inline void f1c500s_tvd_init(struct cam_f1c500s_tvd_pdata_t * pdat)
 
 	write32(pdat->virt + 0x0088, 0x04000000);
 	write32(pdat->virt + 0x0070, 0x00000100);
-	if(pdat->channel == 0)
-		write32(pdat->virt + 0x0e04, 0x8002aaa8);
-	else
-		write32(pdat->virt + 0x0e04, 0x8002aaa9);
+	write32(pdat->virt + 0x0e04, 0x8002aaa8);
 	write32(pdat->virt + 0x0e2c, 0x00110000);
 	write32(pdat->virt + 0x0040, 0x04000310);
 	write32(pdat->virt + 0x0000, 0x00000000);
@@ -364,6 +373,7 @@ static inline void f1c500s_tvd_init(struct cam_f1c500s_tvd_pdata_t * pdat)
 	write32(pdat->virt + 0x0f58, 0x00000082);
 	write32(pdat->virt + 0x0f6c, 0x00fffad0);
 	write32(pdat->virt + 0x0f70, 0x0000a010);
+	f1c500s_tvd_select_channel(pdat);
 	mdelay(50);
 
 	s = f1c500s_tvd_get_source(pdat);

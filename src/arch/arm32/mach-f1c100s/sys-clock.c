@@ -113,7 +113,7 @@ void sys_clock_init(void)
 	sdelay(100);
 
 	val = read32(F1C100S_CCU_BASE + CCU_DRAM_CLK_GATE);
-	val |= (0x1 << 26) | (0x1 << 24);
+	val |= (0x1 << 26) | (0x1 << 24) | (0x1 << 3) | (0x1 << 2) | (0x1 << 1) | (0x1 << 0);
 	write32(F1C100S_CCU_BASE + CCU_DRAM_CLK_GATE, val);
 	sdelay(100);
 

@@ -393,6 +393,13 @@
 		"cd-gpio-config": -1
 	},
 
+	"cam-f1c500s-tvd@0x01c0b000": {
+		"clock-name": "link-tvd",
+		"interrupt": 27,
+		"reset": 41,
+		"channel": 0
+	},
+
 	"nvmem-at24c02@0": {
 		"i2c-bus": "i2c-gpio.0",
 		"slave-address": 80

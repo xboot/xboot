@@ -377,6 +377,13 @@
 		"cd-gpio-config": -1
 	},
 
+	"cam-f1c100s-tvd@0x01c0b000": {
+		"clock-name": "link-tvd",
+		"interrupt": 27,
+		"reset": 41,
+		"channel": 0
+	},
+
 	"blk-spinor@0": {
 		"spi-bus": "spi-f1c100s.0",
 		"chip-select": 0,

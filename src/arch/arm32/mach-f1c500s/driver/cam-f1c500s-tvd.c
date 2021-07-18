@@ -142,7 +142,7 @@ static inline int f1c500s_tvd_get_source(struct cam_f1c500s_tvd_pdata_t * pdat)
 	return TVD_SOURCE_NTSC;
 }
 
-static inline void f1c500s_tvd_select_channel(struct cam_f1c200s_tvd_pdata_t * pdat)
+static inline void f1c500s_tvd_select_channel(struct cam_f1c500s_tvd_pdata_t * pdat)
 {
 	u32_t val;
 

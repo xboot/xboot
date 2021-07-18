@@ -31,6 +31,9 @@
 	"clk-ratio@0x01c20054": { "parent": "mux-ahb1", "name": "ahb1", "shift": 4, "width": 2 },
 	"clk-ratio@0x01c20054": { "parent": "ahb1", "name": "apb1", "shift": 8, "width": 2 },
 
+	"clk-gate@0x01c20060": {"parent": "ahb1", "name": "gate-bus-dma", "shift": 6, "invert": false },
+	"clk-link": { "parent": "gate-bus-dma", "name": "link-dma" },
+
 	"clk-gate@0x01c20068": {"parent": "apb1", "name": "gate-bus-uart0", "shift": 20, "invert": false },
 	"clk-gate@0x01c20068": {"parent": "apb1", "name": "gate-bus-uart1", "shift": 21, "invert": false },
 	"clk-gate@0x01c20068": {"parent": "apb1", "name": "gate-bus-uart2", "shift": 22, "invert": false },
@@ -229,6 +232,14 @@
 		"gpio-base": 160,
 		"gpio-count": 6,
 		"interrupt-offset": 128
+	},
+
+	"dma-f1c100s@0x01c02000": {
+		"clock-name": "link-dma",
+		"reset": 6,
+		"interrupt": 18,
+		"dma-base": 0,
+		"dma-count": 8
 	},
 
 	"pwm-f1c100s@0x01c21000": {

@@ -245,10 +245,24 @@ static void audio_pwm_playback_stop(struct audio_t * audio)
 	struct audio_pwm_pdata_t * pdat = (struct audio_pwm_pdata_t *)audio->priv;
 	pdat->cb = NULL;
 	pdat->data = NULL;
+	pdat->running = 0;
 }
 
 static int audio_pwm_ioctl(struct audio_t * audio, const char * cmd, void * arg)
 {
+	switch(shash(cmd))
+	{
+	case 0x892b3889: /* "audio-set-playback-volume" */
+		break;
+	case 0x3eee6d7d: /* "audio-get-playback-volume" */
+		break;
+	case 0x6dab0056: /* "audio-set-capture-volume" */
+		break;
+	case 0x44a166ca: /* "audio-get-capture-volume" */
+		break;
+	default:
+		break;
+	}
 	return -1;
 }
 

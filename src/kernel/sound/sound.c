@@ -76,18 +76,23 @@ static void sound_resample(int16_t * out, int osr, int osample, int16_t * in, in
 {
 	if(out && in)
 	{
-		float fixed = (1.0 / (1LL << 32));
-		uint64_t frac = (1LL << 32);
-		uint64_t step = ((uint64_t)((float)isr / (float)osr * frac + 0.5));
-		uint64_t offset = 0;
-		for(int i = 0; i < osample; i += 1)
+		if(osr != isr)
 		{
-			for(int c = 0; c < channel; c++)
-				*out++ = (int16_t)(in[c] + (in[c + channel] - in[c]) * ((float)(offset >> 32) + ((offset & (frac - 1)) * fixed)));
-			offset += step;
-			in += (offset >> 32) * channel;
-			offset &= (frac - 1);
+			float fixed = (1.0 / (1LL << 32));
+			uint64_t frac = (1LL << 32);
+			uint64_t step = ((uint64_t)((float)isr / (float)osr * frac + 0.5));
+			uint64_t offset = 0;
+			for(int i = 0; i < osample; i += 1)
+			{
+				for(int c = 0; c < channel; c++)
+					*out++ = (int16_t)(in[c] + (in[c + channel] - in[c]) * ((float)(offset >> 32) + ((offset & (frac - 1)) * fixed)));
+				offset += step;
+				in += (offset >> 32) * channel;
+				offset &= (frac - 1);
+			}
 		}
+		else
+			memcpy(out, in, osample * channel * sizeof(int16_t));
 	}
 }
 

@@ -1,6 +1,7 @@
 {
 	"clk-fixed@0": { "name": "hosc", "rate": 24000000 },
-	"clk-fixed@2": { "name": "losc", "rate": 32000 },
+	"clk-fixed@1": { "name": "losc", "rate": 32000 },
+	"clk-fixed@2": { "name": "osc32k", "rate": 32768 },
 
 	"clk-f1c100s-pll@0": { "parent": "hosc", "name": "pll-cpu", "channel": 0 },
 	"clk-f1c100s-pll@1": { "parent": "hosc", "name": "pll-audio", "channel": 1 },
@@ -30,6 +31,20 @@
 	},
 	"clk-ratio@0x01c20054": { "parent": "mux-ahb1", "name": "ahb1", "shift": 4, "width": 2 },
 	"clk-ratio@0x01c20054": { "parent": "ahb1", "name": "apb1", "shift": 8, "width": 2 },
+
+	"clk-mux@0x01c000f0": {
+		"parent": [
+			{ "name": "losc", "value": 0 },
+			{ "name": "osc32k", "value": 1 },
+			{ "name": "hosc", "value": 2 }
+		],
+		"name": "mux-clkout", "shift": 24, "width": 2,
+		"default": { "parent": "hosc" }
+	},
+	"clk-ratio@0x01c000f0": { "parent": "mux-clkout", "name": "ratio-clkout", "shift": 20, "width": 2, "default": { "rate": 24000000 } },
+	"clk-divider@0x01c000f0": { "parent": "ratio-clkout", "name": "div-clkout", "shift": 8, "width": 5, "divider-one-based": true, "default": { "rate": 24000000 } },
+	"clk-gate@0x01c000f0": {"parent": "div-clkout", "name": "gate-clkout", "shift": 31, "invert": false, "default": { "enable": false } },
+	"clk-link": { "parent": "gate-clkout", "name": "link-clkout" },
 
 	"clk-gate@0x01c20060": {"parent": "ahb1", "name": "gate-bus-dma", "shift": 6, "invert": false },
 	"clk-link": { "parent": "gate-bus-dma", "name": "link-dma" },
@@ -95,7 +110,7 @@
 		"name": "mux-defe", "shift": 24, "width": 3,
 		"default": { "parent": "pll-video" }
 	},
-	"clk-divider@0x01c2010c": { "parent": "mux-defe", "name": "div-defe", "shift": 0, "width": 4, "default": { "rate": 198000000 } },
+	"clk-divider@0x01c2010c": { "parent": "mux-defe", "name": "div-defe", "shift": 0, "width": 4, "divider-one-based": true, "default": { "rate": 198000000 } },
 	"clk-gate@0x01c2010c": {"parent": "div-defe", "name": "gate-defe", "shift": 31, "invert": false },
 	"clk-gate@0x01c20064": {"parent": "gate-defe", "name": "gate-bus-defe", "shift": 14, "invert": false },
 	"clk-link": { "parent": "gate-bus-defe", "name": "link-defe" },

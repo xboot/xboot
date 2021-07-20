@@ -29,6 +29,32 @@
 #include <xboot.h>
 #include <audio/audio.h>
 
+static ssize_t audio_read_playback_volume(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct audio_t * audio = (struct audio_t *)kobj->priv;
+	return sprintf(buf, "%d", audio_get_playback_volume(audio));
+}
+
+static ssize_t audio_write_playback_volume(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct audio_t * audio = (struct audio_t *)kobj->priv;
+	audio_set_playback_volume(audio, strtol(buf, NULL, 0));
+	return size;
+}
+
+static ssize_t audio_read_capture_volume(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct audio_t * audio = (struct audio_t *)kobj->priv;
+	return sprintf(buf, "%d", audio_get_capture_volume(audio));
+}
+
+static ssize_t audio_write_capture_volume(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct audio_t * audio = (struct audio_t *)kobj->priv;
+	audio_set_capture_volume(audio, strtol(buf, NULL, 0));
+	return size;
+}
+
 struct audio_t * search_audio(const char * name)
 {
 	struct device_t * dev;
@@ -68,6 +94,8 @@ struct device_t * register_audio(struct audio_t * audio, struct driver_t * drv)
 	dev->driver = drv;
 	dev->priv = audio;
 	dev->kobj = kobj_alloc_directory(dev->name);
+	kobj_add_regular(dev->kobj, "playback", audio_read_playback_volume, audio_write_playback_volume, audio);
+	kobj_add_regular(dev->kobj, "capture", audio_read_capture_volume, audio_write_capture_volume, audio);
 
 	if(!register_device(dev))
 	{

@@ -69,24 +69,6 @@ enum {
 	AUDIO_ADC_DAP_ORT			= 0x9c,
 };
 
-#define DAC_DRQ_CLR_CNT			21
-#define FIFO_FLUSH				0
-#define FIR_VER			28
-#define ADC_FIFO_FLUSH		0
-#define PH_COM_PROTEC		21
-#define PH_COM_FC		22
-#define HP_VOL			0
-#define EN_DAC			31
-#define HP_POWER_EN		15
-#define L_MIXER_MUTE_R_DAC	9
-#define L_MIXER_MUTE_L_DAC	8
-#define R_MIXER_MUTE_R_DAC	17
-#define R_MIXER_MUTE_L_DAC	16
-#define PH_L_MUTE		26
-#define PH_R_MUTE		27
-#define DAC_AG_R_EN		31
-#define DAC_AG_L_EN		30
-
 struct audio_f1c200s_pdata_t {
 	virtual_addr_t virt;
 	char * clk;
@@ -99,7 +81,7 @@ struct audio_f1c200s_pdata_t {
 		int16_t buffer[4096];
 		audio_callback_t cb;
 		void * data;
-		int dmaflag;
+		int flag;
 		int running;
 	} playback;
 };
@@ -182,34 +164,45 @@ static inline int f1c200s_audio_get_fs(enum audio_rate_t rate)
 	return fs;
 }
 
+static inline void f1c200s_audio_set_playback_volume(struct audio_f1c200s_pdata_t * pdat, int vol)
+{
+	snd_update_bits(pdat->virt + AUDIO_DAC_MIXER_CTRL, 0, 0x3f, vol * 0x3f / 1000);
+}
+
+static inline int f1c200s_audio_get_playback_volume(struct audio_f1c200s_pdata_t * pdat)
+{
+	return ((read32(pdat->virt + AUDIO_DAC_MIXER_CTRL) >> 0) & 0x3f) * 1000 / 0x3f;
+}
+
 static inline void f1c200s_audio_init(struct audio_f1c200s_pdata_t * pdat)
 {
 	gpio_direction_output(1, 1);
 
-	snd_update_bits(pdat->virt + AUDIO_DAC_FIFOC, DAC_DRQ_CLR_CNT, 0x3, 0x3);
-	snd_update_bits(pdat->virt + AUDIO_DAC_FIFOC, FIR_VER, 0x1, 0x0);
-	snd_update_bits(pdat->virt + AUDIO_ADC_FIFOC, ADC_FIFO_FLUSH, 0x1, 0x1);
+	snd_update_bits(pdat->virt + AUDIO_DAC_FIFOC, 21, 0x3, 0x3);
+	snd_update_bits(pdat->virt + AUDIO_DAC_FIFOC, 28, 0x1, 0x0);
+	snd_update_bits(pdat->virt + AUDIO_ADC_FIFOC, 0, 0x1, 0x1);
 	snd_update_bits(pdat->virt + AUDIO_DAC_FIFOC, 4, 0x1, 0x0);
 	snd_update_bits(pdat->virt + AUDIO_DAC_DPC, 31, 0x1, 0x0);
 
-	snd_update_bits(pdat->virt + AUDIO_DAC_MIXER_CTRL, PH_COM_PROTEC, 0x1, 0x1);
-	snd_update_bits(pdat->virt + AUDIO_DAC_MIXER_CTRL, PH_COM_FC, 0x3, 0x3);
-	snd_update_bits(pdat->virt + AUDIO_DAC_MIXER_CTRL, HP_VOL, 0x3f, 0x38);
+	snd_update_bits(pdat->virt + AUDIO_DAC_MIXER_CTRL, 21, 0x1, 0x1);
+	snd_update_bits(pdat->virt + AUDIO_DAC_MIXER_CTRL, 22, 0x3, 0x3);
 
-	snd_update_bits(pdat->virt + AUDIO_DAC_MIXER_CTRL, HP_POWER_EN, 0x1, 0x1);
-	snd_update_bits(pdat->virt + AUDIO_DAC_MIXER_CTRL, L_MIXER_MUTE_R_DAC, 0x1, 0x1);
-	snd_update_bits(pdat->virt + AUDIO_DAC_MIXER_CTRL, L_MIXER_MUTE_L_DAC, 0x1, 0x1);
-	snd_update_bits(pdat->virt + AUDIO_DAC_MIXER_CTRL, R_MIXER_MUTE_R_DAC, 0x1, 0x1);
-	snd_update_bits(pdat->virt + AUDIO_DAC_MIXER_CTRL, R_MIXER_MUTE_L_DAC, 0x1, 0x1);
+	snd_update_bits(pdat->virt + AUDIO_DAC_MIXER_CTRL, 15, 0x1, 0x1);
+	snd_update_bits(pdat->virt + AUDIO_DAC_MIXER_CTRL, 9, 0x1, 0x1);
+	snd_update_bits(pdat->virt + AUDIO_DAC_MIXER_CTRL, 8, 0x1, 0x1);
+	snd_update_bits(pdat->virt + AUDIO_DAC_MIXER_CTRL, 17, 0x1, 0x1);
+	snd_update_bits(pdat->virt + AUDIO_DAC_MIXER_CTRL, 16, 0x1, 0x1);
 
-	snd_update_bits(pdat->virt + AUDIO_DAC_MIXER_CTRL, PH_L_MUTE, 0x1, 0x1);
-	snd_update_bits(pdat->virt + AUDIO_DAC_MIXER_CTRL, PH_R_MUTE, 0x1, 0x1);
+	snd_update_bits(pdat->virt + AUDIO_DAC_MIXER_CTRL, 26, 0x1, 0x1);
+	snd_update_bits(pdat->virt + AUDIO_DAC_MIXER_CTRL, 27, 0x1, 0x1);
 
-	snd_update_bits(pdat->virt + AUDIO_DAC_MIXER_CTRL, DAC_AG_L_EN, 0x1, 0x1);
-	snd_update_bits(pdat->virt + AUDIO_DAC_MIXER_CTRL, DAC_AG_R_EN, 0x1, 0x1);
+	snd_update_bits(pdat->virt + AUDIO_DAC_MIXER_CTRL, 30, 0x1, 0x1);
+	snd_update_bits(pdat->virt + AUDIO_DAC_MIXER_CTRL, 31, 0x1, 0x1);
+
+	f1c200s_audio_set_playback_volume(pdat, 1000);
 }
 
-static void audio_f1c200s_playback_complete(void * data)
+static void audio_f1c200s_playback_finish(void * data)
 {
 	struct audio_t * audio = (struct audio_t *)data;
 	struct audio_f1c200s_pdata_t * pdat = (struct audio_f1c200s_pdata_t *)audio->priv;
@@ -219,7 +212,7 @@ static void audio_f1c200s_playback_complete(void * data)
 	{
 		len = pdat->playback.cb(pdat->playback.data, pdat->playback.buffer, sizeof(pdat->playback.buffer));
 		if(len > 0)
-			dma_start(pdat->dma_playback, (void *)pdat->playback.buffer, (void *)pdat->virt + AUDIO_DAC_TXDATA, len, pdat->playback.dmaflag, audio_f1c200s_playback_complete, audio);
+			dma_start(pdat->dma_playback, (void *)pdat->playback.buffer, (void *)pdat->virt + AUDIO_DAC_TXDATA, len, pdat->playback.flag, NULL, audio_f1c200s_playback_finish, audio);
 		else
 		{
 			pdat->playback.running = 0;
@@ -273,16 +266,16 @@ static void audio_f1c200s_playback_start(struct audio_t * audio, enum audio_rate
 		snd_update_bits(pdat->virt + AUDIO_DAC_FIFOC, 4, 0x1, 0x1);
 		snd_update_bits(pdat->virt + AUDIO_DAC_DPC, 31, 0x1, 0x1);
 
-		pdat->playback.dmaflag = DMA_S_TYPE(DMA_TYPE_MEMTODEV);
-		pdat->playback.dmaflag |= DMA_S_SRC_INC(DMA_INCREASE) | DMA_S_DST_INC(DMA_CONSTANT);
-		pdat->playback.dmaflag |= DMA_S_SRC_WIDTH(DMA_WIDTH_16BIT) | DMA_S_DST_WIDTH(DMA_WIDTH_16BIT);
-		pdat->playback.dmaflag |= DMA_S_SRC_BURST(DMA_BURST_SIZE_1) | DMA_S_DST_BURST(DMA_BURST_SIZE_1);
-		pdat->playback.dmaflag |= DMA_S_SRC_PORT(F1C200S_NDMA_PORT_SDRAM) | DMA_S_DST_PORT(F1C200S_NDMA_PORT_AUDIO);
+		pdat->playback.flag = DMA_S_TYPE(DMA_TYPE_MEMTODEV);
+		pdat->playback.flag |= DMA_S_SRC_INC(DMA_INCREASE) | DMA_S_DST_INC(DMA_CONSTANT);
+		pdat->playback.flag |= DMA_S_SRC_WIDTH(DMA_WIDTH_16BIT) | DMA_S_DST_WIDTH(DMA_WIDTH_16BIT);
+		pdat->playback.flag |= DMA_S_SRC_BURST(DMA_BURST_SIZE_1) | DMA_S_DST_BURST(DMA_BURST_SIZE_1);
+		pdat->playback.flag |= DMA_S_SRC_PORT(F1C200S_NDMA_PORT_SDRAM) | DMA_S_DST_PORT(F1C200S_NDMA_PORT_AUDIO);
 		pdat->playback.cb = cb;
 		pdat->playback.data = data;
 		pdat->playback.running = 1;
 		len = pdat->playback.cb(pdat->playback.data, pdat->playback.buffer, ch * fmt / 8);
-		dma_start(pdat->dma_playback, (void *)pdat->playback.buffer, (void *)pdat->virt + AUDIO_DAC_TXDATA, len, pdat->playback.dmaflag, audio_f1c200s_playback_complete, audio);
+		dma_start(pdat->dma_playback, (void *)pdat->playback.buffer, (void *)pdat->virt + AUDIO_DAC_TXDATA, len, pdat->playback.flag, NULL, audio_f1c200s_playback_finish, audio);
 	}
 }
 
@@ -304,11 +297,24 @@ static void audio_f1c200s_capture_stop(struct audio_t * audio)
 
 static int audio_f1c200s_ioctl(struct audio_t * audio, const char * cmd, void * arg)
 {
+	struct audio_f1c200s_pdata_t * pdat = (struct audio_f1c200s_pdata_t *)audio->priv;
+	int * p = arg;
+
 	switch(shash(cmd))
 	{
 	case 0x892b3889: /* "audio-set-playback-volume" */
+		if(p)
+		{
+			f1c200s_audio_set_playback_volume(pdat, clamp(p[0], 0, 1000));
+			return 0;
+		}
 		break;
 	case 0x3eee6d7d: /* "audio-get-playback-volume" */
+		if(p)
+		{
+			p[0] = f1c200s_audio_get_playback_volume(pdat);
+			return 0;
+		}
 		break;
 	case 0x6dab0056: /* "audio-set-capture-volume" */
 		break;

@@ -280,8 +280,8 @@ static void dma_pl08x_start(struct dmachip_t * chip, int offset)
 	while(read32(pdat->virt + PL08X_EN_CHAN) & (1 << offset));
 	while(read32(pdat->virt + PL08X_CH_CFG(offset)) & (PL08X_CCFG_ACTIVE | PL08X_CCFG_EN));
 	smp_mb();
-	write32(pdat->virt + PL08X_CH_SRC(offset), (u32_t)(ch->src + ch->len));
-	write32(pdat->virt + PL08X_CH_DST(offset), (u32_t)(ch->dst + ch->len));
+	write32(pdat->virt + PL08X_CH_SRC(offset), (u32_t)(ch->src + ((DMA_G_SRC_INC(ch->flag) == DMA_INCREASE) ? ch->len : 0)));
+	write32(pdat->virt + PL08X_CH_DST(offset), (u32_t)(ch->dst + ((DMA_G_DST_INC(ch->flag) == DMA_INCREASE) ? ch->len : 0)));
 	write32(pdat->virt + PL08X_CH_LLI(offset), 0);
 	write32(pdat->virt + PL08X_CH_CTL(offset), get_pl08x_ctl(ch, pdat->tsize));
 	write32(pdat->virt + PL08X_CH_CFG(offset), get_pl08x_cfg(ch));
@@ -356,8 +356,8 @@ static void dma_pl08x_interrupt(void * data)
 					while(read32(pdat->virt + PL08X_EN_CHAN) & (1 << i));
 					while(read32(pdat->virt + PL08X_CH_CFG(i)) & (PL08X_CCFG_ACTIVE | PL08X_CCFG_EN));
 					smp_mb();
-					write32(pdat->virt + PL08X_CH_SRC(i), (u32_t)(ch->src + ch->len));
-					write32(pdat->virt + PL08X_CH_DST(i), (u32_t)(ch->dst + ch->len));
+					write32(pdat->virt + PL08X_CH_SRC(i), (u32_t)(ch->src + ((DMA_G_SRC_INC(ch->flag) == DMA_INCREASE) ? ch->len : 0)));
+					write32(pdat->virt + PL08X_CH_DST(i), (u32_t)(ch->dst + ((DMA_G_DST_INC(ch->flag) == DMA_INCREASE) ? ch->len : 0)));
 					write32(pdat->virt + PL08X_CH_LLI(i), 0);
 					write32(pdat->virt + PL08X_CH_CTL(i), get_pl08x_ctl(ch, pdat->tsize));
 					write32(pdat->virt + PL08X_CH_CFG(i), get_pl08x_cfg(ch));

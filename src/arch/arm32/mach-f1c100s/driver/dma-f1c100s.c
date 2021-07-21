@@ -351,8 +351,8 @@ static void dma_f1c100s_start(struct dmachip_t * chip, int offset)
 		ch = &chip->channel[offset];
 		while(read32(pdat->virt + NDMA_CH_CFG(offset)) & (1 << 30));
 		smp_mb();
-		write32(pdat->virt + NDMA_CH_SRC(offset), (u32_t)(ch->src + ch->len));
-		write32(pdat->virt + NDMA_CH_DST(offset), (u32_t)(ch->dst + ch->len));
+		write32(pdat->virt + NDMA_CH_SRC(offset), (u32_t)(ch->src + ((DMA_G_SRC_INC(ch->flag) == DMA_INCREASE) ? ch->len : 0)));
+		write32(pdat->virt + NDMA_CH_DST(offset), (u32_t)(ch->dst + ((DMA_G_DST_INC(ch->flag) == DMA_INCREASE) ? ch->len : 0)));
 		pdat->tsize[offset] = min(0x20000, ch->size - ch->len);
 		write32(pdat->virt + NDMA_CH_CNT(offset), pdat->tsize[offset]);
 		write32(pdat->virt + NDMA_CH_CFG(offset), get_ndma_cfg(ch));
@@ -365,8 +365,8 @@ static void dma_f1c100s_start(struct dmachip_t * chip, int offset)
 		ch = &chip->channel[offset];
 		while(read32(pdat->virt + DDMA_CH_CFG(offset)) & (1 << 30));
 		smp_mb();
-		write32(pdat->virt + DDMA_CH_SRC(offset), (u32_t)(ch->src + ch->len));
-		write32(pdat->virt + DDMA_CH_DST(offset), (u32_t)(ch->dst + ch->len));
+		write32(pdat->virt + DDMA_CH_SRC(offset), (u32_t)(ch->src + ((DMA_G_SRC_INC(ch->flag) == DMA_INCREASE) ? ch->len : 0)));
+		write32(pdat->virt + DDMA_CH_DST(offset), (u32_t)(ch->dst + ((DMA_G_DST_INC(ch->flag) == DMA_INCREASE) ? ch->len : 0)));
 		pdat->tsize[offset] = min(0x1000000, ch->size - ch->len);
 		write32(pdat->virt + DDMA_CH_CNT(offset), pdat->tsize[offset]);
 		write32(pdat->virt + DDMA_CH_CFG(offset), get_ddma_cfg(ch));
@@ -448,8 +448,8 @@ static void dma_f1c100s_interrupt(void * data)
 					if(ch->len < ch->size)
 					{
 						smp_mb();
-						write32(pdat->virt + NDMA_CH_SRC(i), (u32_t)(ch->src + ch->len));
-						write32(pdat->virt + NDMA_CH_DST(i), (u32_t)(ch->dst + ch->len));
+						write32(pdat->virt + NDMA_CH_SRC(i), (u32_t)(ch->src + ((DMA_G_SRC_INC(ch->flag) == DMA_INCREASE) ? ch->len : 0)));
+						write32(pdat->virt + NDMA_CH_DST(i), (u32_t)(ch->dst + ((DMA_G_DST_INC(ch->flag) == DMA_INCREASE) ? ch->len : 0)));
 						pdat->tsize[i] = min(0x20000, ch->size - ch->len);
 						write32(pdat->virt + NDMA_CH_CNT(i), pdat->tsize[i]);
 						write32(pdat->virt + NDMA_CH_CFG(i), get_ndma_cfg(ch));
@@ -474,8 +474,8 @@ static void dma_f1c100s_interrupt(void * data)
 					if(ch->len < ch->size)
 					{
 						smp_mb();
-						write32(pdat->virt + DDMA_CH_SRC(i), (u32_t)(ch->src + ch->len));
-						write32(pdat->virt + DDMA_CH_DST(i), (u32_t)(ch->dst + ch->len));
+						write32(pdat->virt + DDMA_CH_SRC(i), (u32_t)(ch->src + ((DMA_G_SRC_INC(ch->flag) == DMA_INCREASE) ? ch->len : 0)));
+						write32(pdat->virt + DDMA_CH_DST(i), (u32_t)(ch->dst + ((DMA_G_DST_INC(ch->flag) == DMA_INCREASE) ? ch->len : 0)));
 						pdat->tsize[i] = min(0x1000000, ch->size - ch->len);
 						write32(pdat->virt + DDMA_CH_CNT(i), pdat->tsize[i]);
 						write32(pdat->virt + DDMA_CH_CFG(i), get_ddma_cfg(ch));

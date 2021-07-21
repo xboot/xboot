@@ -83,7 +83,8 @@ struct device_t * register_dmachip(struct dmachip_t * chip, struct driver_t * dr
 		chip->channel[i].flag = 0;
 		chip->channel[i].len = 0;
 		chip->channel[i].data = NULL;
-		chip->channel[i].complete = NULL;
+		chip->channel[i].half = NULL;
+		chip->channel[i].finish = NULL;
 		spin_unlock_irqrestore(&chip->channel[i].lock, flags);
 	}
 	dev->name = strdup(chip->name);
@@ -126,7 +127,8 @@ void unregister_dmachip(struct dmachip_t * chip)
 				chip->channel[i].flag = 0;
 				chip->channel[i].len = 0;
 				chip->channel[i].data = NULL;
-				chip->channel[i].complete = NULL;
+				chip->channel[i].half = NULL;
+				chip->channel[i].finish = NULL;
 				spin_unlock_irqrestore(&chip->channel[i].lock, flags);
 			}
 			kobj_remove_self(dev->kobj);
@@ -141,7 +143,7 @@ bool_t dma_is_valid(int dma)
 	return search_dmachip(dma) ? TRUE : FALSE;
 }
 
-void dma_start(int dma, void * src, void * dst, int size, int flag, void (*complete)(void *), void * data)
+void dma_start(int dma, void * src, void * dst, int size, int flag, void (*half)(void *), void (*finish)(void *), void * data)
 {
 	struct dmachip_t * chip = search_dmachip(dma);
 	irq_flags_t flags;
@@ -150,8 +152,6 @@ void dma_start(int dma, void * src, void * dst, int size, int flag, void (*compl
 	if(chip && src && dst && (src != dst) && (size > 0))
 	{
 		offset = dma - chip->base;
-		if(chip->busying)
-			while(chip->busying(chip, offset));
 		spin_lock_irqsave(&chip->channel[offset].lock, flags);
 		chip->channel[offset].src = src;
 		chip->channel[offset].dst = dst;
@@ -159,7 +159,8 @@ void dma_start(int dma, void * src, void * dst, int size, int flag, void (*compl
 		chip->channel[offset].flag = flag;
 		chip->channel[offset].len = 0;
 		chip->channel[offset].data = data;
-		chip->channel[offset].complete = complete;
+		chip->channel[offset].half = half;
+		chip->channel[offset].finish = finish;
 		if(chip->start)
 			chip->start(chip, offset);
 		spin_unlock_irqrestore(&chip->channel[offset].lock, flags);
@@ -184,7 +185,8 @@ void dma_stop(int dma)
 		chip->channel[offset].flag = 0;
 		chip->channel[offset].len = 0;
 		chip->channel[offset].data = NULL;
-		chip->channel[offset].complete = NULL;
+		chip->channel[offset].half = NULL;
+		chip->channel[offset].finish = NULL;
 		spin_unlock_irqrestore(&chip->channel[offset].lock, flags);
 	}
 }

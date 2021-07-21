@@ -75,7 +75,8 @@ struct dma_channel_t
 	int flag;
 	int len;
 	void * data;
-	void (*complete)(void * data);
+	void (*half)(void * data);
+	void (*finish)(void * data);
 };
 
 struct dmachip_t
@@ -95,7 +96,7 @@ struct dmachip_t * search_dmachip(int dma);
 struct device_t * register_dmachip(struct dmachip_t * chip, struct driver_t * drv);
 void unregister_dmachip(struct dmachip_t * chip);
 bool_t dma_is_valid(int dma);
-void dma_start(int dma, void * src, void * dst, int size, int flag, void (*complete)(void *), void * data);
+void dma_start(int dma, void * src, void * dst, int size, int flag, void (*half)(void *), void (*finish)(void *), void * data);
 void dma_stop(int dma);
 void dma_wait(int dma);
 

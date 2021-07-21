@@ -79,7 +79,7 @@ static void benchmark_run(struct wboxtest_t * wbt, void * data)
 		pdat->t2 = pdat->t1 = ktime_get();
 		do {
 			pdat->calls++;
-			dma_start(pdat->dma, pdat->src, pdat->dst, pdat->size, flag, NULL, NULL);
+			dma_start(pdat->dma, pdat->src, pdat->dst, pdat->size, flag, NULL, NULL, NULL);
 			dma_wait(pdat->dma);
 			pdat->t2 = ktime_get();
 		} while(ktime_before(pdat->t2, ktime_add_ms(pdat->t1, 2000)));

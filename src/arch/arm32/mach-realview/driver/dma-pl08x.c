@@ -372,8 +372,8 @@ static void dma_pl08x_interrupt(void * data)
 					smp_mb();
 					write32(pdat->virt + PL08X_CH_CFG(i), read32(pdat->virt + PL08X_CH_CFG(i)) & ~PL08X_CCFG_EN);
 					smp_mb();
-					if(ch->complete)
-						ch->complete(ch->data);
+					if(ch->finish)
+						ch->finish(ch->data);
 				}
 			}
 		}

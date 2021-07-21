@@ -356,7 +356,7 @@ static void dma_f1c500s_start(struct dmachip_t * chip, int offset)
 		pdat->tsize[offset] = min(0x20000, ch->size - ch->len);
 		write32(pdat->virt + NDMA_CH_CNT(offset), pdat->tsize[offset]);
 		write32(pdat->virt + NDMA_CH_CFG(offset), get_ndma_cfg(ch));
-		write32(pdat->virt + DMA_INT_CTL, (read32(pdat->virt + DMA_INT_CTL) & ~(0x3 << (offset << 1))) | (0x2 << (offset << 1)));
+		write32(pdat->virt + DMA_INT_CTL, read32(pdat->virt + DMA_INT_CTL) | (0x3 << (offset << 1)));
 		write32(pdat->virt + NDMA_CH_CFG(offset), read32(pdat->virt + NDMA_CH_CFG(offset)) | (1 << 31));
 		smp_mb();
 	}
@@ -370,7 +370,7 @@ static void dma_f1c500s_start(struct dmachip_t * chip, int offset)
 		pdat->tsize[offset] = min(0x1000000, ch->size - ch->len);
 		write32(pdat->virt + DDMA_CH_CNT(offset), pdat->tsize[offset]);
 		write32(pdat->virt + DDMA_CH_CFG(offset), get_ddma_cfg(ch));
-		write32(pdat->virt + DMA_INT_CTL, (read32(pdat->virt + DMA_INT_CTL) & ~(0x30000 << ((offset - 4) << 1))) | (0x20000 << ((offset - 4) << 1)));
+		write32(pdat->virt + DMA_INT_CTL, read32(pdat->virt + DMA_INT_CTL) | (0x30000 << ((offset - 4) << 1)));
 		write32(pdat->virt + DDMA_CH_CFG(offset), read32(pdat->virt + DDMA_CH_CFG(offset)) | (1 << 31));
 		smp_mb();
 	}
@@ -441,53 +441,69 @@ static void dma_f1c500s_interrupt(void * data)
 		{
 			if(i < 4)
 			{
-				if(pending & (0x2 << (i << 1)))
+				if(pending & (0x3 << (i << 1)))
 				{
 					ch = &chip->channel[i];
-					ch->len += pdat->tsize[i];
-					if(ch->len < ch->size)
+					if(pending & (0x1 << (i << 1)))
 					{
-						smp_mb();
-						write32(pdat->virt + NDMA_CH_SRC(i), (u32_t)(ch->src + ((DMA_G_SRC_INC(ch->flag) == DMA_INCREASE) ? ch->len : 0)));
-						write32(pdat->virt + NDMA_CH_DST(i), (u32_t)(ch->dst + ((DMA_G_DST_INC(ch->flag) == DMA_INCREASE) ? ch->len : 0)));
-						pdat->tsize[i] = min(0x20000, ch->size - ch->len);
-						write32(pdat->virt + NDMA_CH_CNT(i), pdat->tsize[i]);
-						write32(pdat->virt + NDMA_CH_CFG(i), get_ndma_cfg(ch));
-						write32(pdat->virt + DMA_INT_CTL, (read32(pdat->virt + DMA_INT_CTL) & ~(0x3 << (i << 1))) | (0x2 << (i << 1)));
-						write32(pdat->virt + NDMA_CH_CFG(i), read32(pdat->virt + NDMA_CH_CFG(i)) | (1 << 31));
-						smp_mb();
+						if(ch->half)
+							ch->half(ch->data);
 					}
-					else
+					if(pending & (0x2 << (i << 1)))
 					{
-						dma_f1c500s_stop(chip, i);
-						if(ch->complete)
-							ch->complete(ch->data);
+						ch->len += pdat->tsize[i];
+						if(ch->len < ch->size)
+						{
+							smp_mb();
+							write32(pdat->virt + NDMA_CH_SRC(i), (u32_t)(ch->src + ((DMA_G_SRC_INC(ch->flag) == DMA_INCREASE) ? ch->len : 0)));
+							write32(pdat->virt + NDMA_CH_DST(i), (u32_t)(ch->dst + ((DMA_G_DST_INC(ch->flag) == DMA_INCREASE) ? ch->len : 0)));
+							pdat->tsize[i] = min(0x20000, ch->size - ch->len);
+							write32(pdat->virt + NDMA_CH_CNT(i), pdat->tsize[i]);
+							write32(pdat->virt + NDMA_CH_CFG(i), get_ndma_cfg(ch));
+							write32(pdat->virt + DMA_INT_CTL, (read32(pdat->virt + DMA_INT_CTL) & ~(0x3 << (i << 1))) | (0x2 << (i << 1)));
+							write32(pdat->virt + NDMA_CH_CFG(i), read32(pdat->virt + NDMA_CH_CFG(i)) | (1 << 31));
+							smp_mb();
+						}
+						else
+						{
+							dma_f1c500s_stop(chip, i);
+							if(ch->finish)
+								ch->finish(ch->data);
+						}
 					}
 				}
 			}
 			else
 			{
-				if(pending & (0x20000 << ((i - 4) << 1)))
+				if(pending & (0x30000 << ((i - 4) << 1)))
 				{
 					ch = &chip->channel[i];
-					ch->len += pdat->tsize[i];
-					if(ch->len < ch->size)
+					if(pending & (0x10000 << ((i - 4) << 1)))
 					{
-						smp_mb();
-						write32(pdat->virt + DDMA_CH_SRC(i), (u32_t)(ch->src + ((DMA_G_SRC_INC(ch->flag) == DMA_INCREASE) ? ch->len : 0)));
-						write32(pdat->virt + DDMA_CH_DST(i), (u32_t)(ch->dst + ((DMA_G_DST_INC(ch->flag) == DMA_INCREASE) ? ch->len : 0)));
-						pdat->tsize[i] = min(0x1000000, ch->size - ch->len);
-						write32(pdat->virt + DDMA_CH_CNT(i), pdat->tsize[i]);
-						write32(pdat->virt + DDMA_CH_CFG(i), get_ddma_cfg(ch));
-						write32(pdat->virt + DMA_INT_CTL, (read32(pdat->virt + DMA_INT_CTL) & ~(0x30000 << ((i - 4) << 1))) | (0x20000 << ((i - 4) << 1)));
-						write32(pdat->virt + DDMA_CH_CFG(i), read32(pdat->virt + DDMA_CH_CFG(i)) | (1 << 31));
-						smp_mb();
+						if(ch->half)
+							ch->half(ch->data);
 					}
-					else
+					if(pending & (0x20000 << ((i - 4) << 1)))
 					{
-						dma_f1c500s_stop(chip, i);
-						if(ch->complete)
-							ch->complete(ch->data);
+						ch->len += pdat->tsize[i];
+						if(ch->len < ch->size)
+						{
+							smp_mb();
+							write32(pdat->virt + DDMA_CH_SRC(i), (u32_t)(ch->src + ((DMA_G_SRC_INC(ch->flag) == DMA_INCREASE) ? ch->len : 0)));
+							write32(pdat->virt + DDMA_CH_DST(i), (u32_t)(ch->dst + ((DMA_G_DST_INC(ch->flag) == DMA_INCREASE) ? ch->len : 0)));
+							pdat->tsize[i] = min(0x1000000, ch->size - ch->len);
+							write32(pdat->virt + DDMA_CH_CNT(i), pdat->tsize[i]);
+							write32(pdat->virt + DDMA_CH_CFG(i), get_ddma_cfg(ch));
+							write32(pdat->virt + DMA_INT_CTL, (read32(pdat->virt + DMA_INT_CTL) & ~(0x30000 << ((i - 4) << 1))) | (0x20000 << ((i - 4) << 1)));
+							write32(pdat->virt + DDMA_CH_CFG(i), read32(pdat->virt + DDMA_CH_CFG(i)) | (1 << 31));
+							smp_mb();
+						}
+						else
+						{
+							dma_f1c500s_stop(chip, i);
+							if(ch->finish)
+								ch->finish(ch->data);
+						}
 					}
 				}
 			}

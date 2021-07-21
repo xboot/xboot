@@ -11,7 +11,8 @@ struct wbt_dmacpy_pdata_t
 	char * dst;
 	size_t size;
 
-	int complete;
+	int half;
+	int finish;
 	int dma;
 };
 
@@ -43,7 +44,8 @@ static void * dmacpy_setup(struct wboxtest_t * wbt)
 		pdat->src[i] = i & 0xff;
 		pdat->dst[i] = 0;
 	}
-	pdat->complete = 0;
+	pdat->half = 0;
+	pdat->finish = 0;
 	pdat->dma = dma;
 	dma_stop(pdat->dma);
 
@@ -62,10 +64,16 @@ static void dmacpy_clean(struct wboxtest_t * wbt, void * data)
 	}
 }
 
-static void dmacpy_complete(void * data)
+static void dmacpy_half(void * data)
 {
 	struct wbt_dmacpy_pdata_t * pdat = (struct wbt_dmacpy_pdata_t *)data;
-	pdat->complete = 1;
+	pdat->half++;
+}
+
+static void dmacpy_finish(void * data)
+{
+	struct wbt_dmacpy_pdata_t * pdat = (struct wbt_dmacpy_pdata_t *)data;
+	pdat->finish++;
 }
 
 static void dmacpy_run(struct wboxtest_t * wbt, void * data)
@@ -80,15 +88,16 @@ static void dmacpy_run(struct wboxtest_t * wbt, void * data)
 			pdat->src[i] = i & 0xff;
 			pdat->dst[i] = 0;
 		}
-		pdat->complete = 0;
+		pdat->finish = 0;
 		flag = DMA_S_TYPE(DMA_TYPE_MEMTOMEM);
 		flag |= DMA_S_SRC_INC(DMA_INCREASE) | DMA_S_DST_INC(DMA_INCREASE);
 		flag |= DMA_S_SRC_WIDTH(DMA_WIDTH_8BIT) | DMA_S_DST_WIDTH(DMA_WIDTH_8BIT);
 		flag |= DMA_S_SRC_BURST(DMA_BURST_SIZE_1) | DMA_S_DST_BURST(DMA_BURST_SIZE_1);
 		flag |= DMA_S_SRC_PORT(0) | DMA_S_DST_PORT(0);
-		dma_start(pdat->dma, pdat->src, pdat->dst, pdat->size, flag, dmacpy_complete, pdat);
+		dma_start(pdat->dma, pdat->src, pdat->dst, pdat->size, flag, dmacpy_half, dmacpy_finish, pdat);
 		dma_wait(pdat->dma);
-		assert_true(pdat->complete);
+		assert_true(pdat->half > 0);
+		assert_true(pdat->finish > 0);
 		assert_memory_equal(pdat->src, pdat->dst, pdat->size);
 	}
 }

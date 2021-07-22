@@ -45,6 +45,12 @@ static ssize_t wifi_read_status(struct kobj_t * kobj, void * buf, size_t size)
 	case WIFI_STATUS_CONNECTED:
 		status = "connected";
 		break;
+	case WIFI_STATUS_CLIENT_OPENING:
+		status = "client opening";
+		break;
+	case WIFI_STATUS_CLIENT_OPENED:
+		status = "client opened";
+		break;
 	default:
 		status = "unkown";
 		break;

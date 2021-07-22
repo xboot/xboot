@@ -10,6 +10,11 @@
 	"clk-f1c200s-pll@4": { "parent": "hosc", "name": "pll-ddr", "channel": 4 },
 	"clk-f1c200s-pll@5": { "parent": "hosc", "name": "pll-periph", "channel": 5 },
 
+	"clk-fixed-factor@0": { "parent": "pll-audio", "name": "pll-audio-8x", "mult": 1, "div": 1 },
+	"clk-fixed-factor@1": { "parent": "pll-audio", "name": "pll-audio-4x", "mult": 1, "div": 2 },
+	"clk-fixed-factor@2": { "parent": "pll-audio", "name": "pll-audio-2x", "mult": 1, "div": 4 },
+	"clk-fixed-factor@3": { "parent": "pll-audio", "name": "pll-audio-1x", "mult": 1, "div": 8 },
+
 	"clk-mux@0x01c20050": {
 		"parent": [
 			{ "name": "losc", "value": 0 },
@@ -180,6 +185,10 @@
 	"clk-gate@0x01c2008c": {"parent": "div-sdmmc1", "name": "gate-sdmmc1", "shift": 31, "invert": false },
 	"clk-gate@0x01c20060": {"parent": "gate-sdmmc1", "name": "gate-bus-sdmmc1", "shift": 9, "invert": false },
 	"clk-link": { "parent": "gate-bus-sdmmc1", "name": "link-sdmmc1" },
+
+	"clk-gate@0x01c20068": { "parent": "pll-audio-1x", "name": "gate-bus-audio", "shift": 0, "invert": false },
+	"clk-gate@0x01c20140": { "parent": "gate-bus-audio", "name": "gate-audio", "shift": 31, "invert": false },
+	"clk-link": { "parent": "gate-audio", "name": "link-audio" },
 
 	"reset-f1c200s@0x01c202c0": {
 		"reset-base": 0,
@@ -401,6 +410,14 @@
 		"dat7-gpio-config": -1,
 		"cd-gpio": -1,
 		"cd-gpio-config": -1
+	},
+
+	"audio-f1c200s@0x01c23c00": {
+		"clock-name": "link-audio",
+		"interrupt": 21,
+		"reset": 64,
+		"dma-channel-playback": 0,
+		"dma-channel-capture": 1
 	},
 
 	"cam-f1c200s-tvd@0x01c0b000": {

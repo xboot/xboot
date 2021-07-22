@@ -150,6 +150,54 @@ static bool_t clk_f1c100s_pll_get_enable(struct clk_t * clk)
 
 static void clk_f1c100s_pll_set_rate(struct clk_t * clk, u64_t prate, u64_t rate)
 {
+	struct clk_f1c100s_pll_pdata_t * pdat = (struct clk_f1c100s_pll_pdata_t *)clk->priv;
+	u32_t r;
+
+	switch(pdat->channel)
+	{
+	case 0:
+		break;
+
+	case 1:
+		if(rate == 22579200 * 8)
+		{
+			r = read32(pdat->virt + CCU_PLL_AUDIO_CTRL);
+			r &= ~(0x1 << 24);
+			r &= ~(0x7f << 8);
+			r &= ~(0x1f << 0);
+			r |= 0x4e << 8;
+			r |= 0x14 << 0;
+			write32(F1C100S_CCU_BASE + CCU_PLL_AUDIO_CTRL, r);
+			while((read32(pdat->virt + CCU_PLL_AUDIO_CTRL) & (1 << 28)) == 0);
+		}
+		else if(rate == 24576000 * 8)
+		{
+			r = read32(pdat->virt + CCU_PLL_AUDIO_CTRL);
+			r &= ~(0x1 << 24);
+			r &= ~(0x7f << 8);
+			r &= ~(0x1f << 0);
+			r |= 0x55 << 8;
+			r |= 0x14 << 0;
+			write32(F1C100S_CCU_BASE + CCU_PLL_AUDIO_CTRL, r);
+			while((read32(pdat->virt + CCU_PLL_AUDIO_CTRL) & (1 << 28)) == 0);
+		}
+		break;
+
+	case 2:
+		break;
+
+	case 3:
+		break;
+
+	case 4:
+		break;
+
+	case 5:
+		break;
+
+	default:
+		break;
+	}
 }
 
 static u64_t clk_f1c100s_pll_get_rate(struct clk_t * clk, u64_t prate)

@@ -296,8 +296,8 @@ static void dma_d1_interrupt(void * data)
 			if(pending & ((1 << 1) << (i << 2)))
 			{
 				ch = &chip->channel[i];
-				if(ch->complete)
-					ch->complete(ch->data);
+				if(ch->finish)
+					ch->finish(ch->data);
 			}
 		}
 	}

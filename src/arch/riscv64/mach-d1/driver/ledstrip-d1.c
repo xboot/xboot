@@ -146,11 +146,14 @@ static inline void ledc_set_wait_time0_ns(struct ledstrip_d1_pdata_t * pdat, u32
 
 static inline void ledc_set_wait_time1_ns(struct ledstrip_d1_pdata_t * pdat, u32_t ns)
 {
+	u64_t tmp;
 	u32_t n, val;
 
 	if((ns < 84) || (ns > 85000000000))
 		return;
-	n = ns / 42 - 1;
+	tmp = ns;
+	n = do_udiv64(tmp, 42, NULL);
+	n -= 1;
 	val = ((1 << 31) | (n << 0));
 	write32(pdat->virt + LEDC_WAIT_TIME1_CTRL, val);
 }
@@ -228,9 +231,6 @@ static inline void ledc_enable(struct ledstrip_d1_pdata_t * pdat)
 
 static void ledc_init(struct ledstrip_d1_pdata_t * pdat)
 {
-	u32_t val;
-	int i;
-
 	ledc_reset_en(pdat);
 	ledc_set_reset_ns(pdat, pdat->reset_ns);
 	ledc_set_t1h_ns(pdat, pdat->t1h_ns);
@@ -240,17 +240,6 @@ static void ledc_init(struct ledstrip_d1_pdata_t * pdat)
 	ledc_set_wait_time0_ns(pdat, pdat->wait_time0_ns);
 	ledc_set_wait_time1_ns(pdat, pdat->wait_time1_ns);
 	ledc_set_wait_data_time_ns(pdat, pdat->wait_data_time_ns);
-	ledc_set_output_mode(pdat, pdat->mode);
-	ledc_set_dma_mode(pdat, 0);
-	ledc_set_length(pdat, pdat->count);
-	write32(pdat->virt + LEDC_INTS, 0x1f);
-	write32(pdat->virt + LEDC_INTC, 0);
-	for(i = 0; i < pdat->count; i++)
-	{
-		val = (pdat->color[i].g << 16) | (pdat->color[i].r << 0) | (pdat->color[i].b << 0);
-		write32(pdat->virt + LEDC_DATA, val);
-	}
-	ledc_enable(pdat);
 }
 
 static void ledstrip_d1_set_count(struct ledstrip_t * strip, int n)
@@ -288,7 +277,19 @@ static void ledstrip_d1_get_color(struct ledstrip_t * strip, int i, struct color
 static void ledstrip_d1_refresh(struct ledstrip_t * strip)
 {
 	struct ledstrip_d1_pdata_t * pdat = (struct ledstrip_d1_pdata_t *)strip->priv;
-	ledc_init(pdat);
+	int i;
+
+	ledc_set_output_mode(pdat, pdat->mode);
+	ledc_set_dma_mode(pdat, 0);
+	ledc_set_length(pdat, pdat->count);
+	write32(pdat->virt + LEDC_INTC, (0 << 5) | (1 << 4) | (1 << 3) | (1 << 1) | (1 << 0));
+	write32(pdat->virt + LEDC_INTS, 0x1b);
+	ledc_enable(pdat);
+	for(i = 0; i < pdat->count; i++)
+	{
+		while(read32(pdat->virt + LEDC_INTS) & (1 << 16));
+		write32(pdat->virt + LEDC_DATA, (u32_t)((pdat->color[i].g << 16) | (pdat->color[i].r << 0) | (pdat->color[i].b << 0)));
+	}
 }
 
 static struct device_t * ledstrip_d1_probe(struct driver_t * drv, struct dtnode_t * n)
@@ -352,6 +353,7 @@ static struct device_t * ledstrip_d1_probe(struct driver_t * drv, struct dtnode_
 			gpio_set_cfg(pdat->gpio, pdat->gpiocfg);
 		gpio_set_pull(pdat->gpio, GPIO_PULL_UP);
 	}
+	ledc_init(pdat);
 	ledstrip_d1_set_count(strip, dt_read_int(n, "count", 1));
 	ledstrip_d1_refresh(strip);
 

@@ -478,6 +478,23 @@
 		]
 	},
 
+	"ledstrip-d1@0x02008000": {
+		"clock-name": "ledc",
+		"reset": 1072,
+		"gpio": 64,
+		"gpio-config": 4,
+		"output-mode": 0,
+		"reset-ns": 84,
+		"t1h-ns": 800,
+		"t1l-ns": 320,
+		"t0h-ns": 300,
+		"t0l-ns": 800,
+		"wait-time0-ns": 84,
+		"wait-time1-ns": 84,
+		"wait-data-time-ns": 600000,
+		"count": 1
+	},
+
 	"console-uart@0": {
 		"uart-bus": "uart-16550.0"
 	}

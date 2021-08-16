@@ -148,6 +148,18 @@
 	"clk-gate@0x0200196c": {"parent": "radio-spi1", "name": "gate-spi1", "shift": 1, "invert": false },
 	"clk-gate@0x02001944": {"parent": "gate-spi1", "name": "spi1", "shift": 31, "invert": false },
 
+	"clk-mux@0x02001bf0": {
+		"parent": [
+			{ "name": "dcxo24m", "value": 0 },
+			{ "name": "pll-periph0", "value": 1 }
+		],
+		"name": "mux-ledc", "shift": 24, "width": 1,
+		"default": { "parent": "dcxo24m" }
+	},
+	"clk-divider@0x02001bf0": { "parent": "mux-ledc", "name": "div-ledc", "shift": 0, "width": 4, "divider-one-based": true },
+	"clk-ratio@0x02001bf0": { "parent": "div-ledc", "name": "radio-ledc", "shift": 8, "width": 2 },
+	"clk-gate@0x02001bf0": {"parent": "radio-ledc", "name": "ledc", "shift": 31, "invert": false },
+
 	"clk-gate@0x020017ac": { "parent": "apb0", "name": "bus-pwm", "shift": 0, "invert": false },
 	"clk-gate@0x020017bc": { "parent": "apb0", "name": "bus-iommu", "shift": 0, "invert": false },
 	"clk-gate@0x020019cc": { "parent": "apb0", "name": "bus-ir-tx", "shift": 0, "invert": false },
@@ -207,7 +219,7 @@
 	"clk-gate@0x02001bbc": { "parent": "psi-ahb", "name": "bus-tve", "shift": 1, "invert": false },
 	"clk-gate@0x02001bdc": { "parent": "psi-ahb", "name": "bus-tvd-top", "shift": 0, "invert": false },
 	"clk-gate@0x02001bdc": { "parent": "psi-ahb", "name": "bus-tvd", "shift": 1, "invert": false },
-	"clk-gate@0x02001bfc": { "parent": "psi-ahb", "name": "bus-ledc", "shift": 0, "invert": false },
+	"clk-gate@0x02001bfc": { "parent": "psi-ahb", "name": "bus-ledc", "shift": 0, "invert": false, "default": { "enable": true } },
 	"clk-gate@0x02001c1c": { "parent": "psi-ahb", "name": "bus-csi", "shift": 0, "invert": false },
 	"clk-gate@0x02001c7c": { "parent": "psi-ahb", "name": "bus-dsp-cfg", "shift": 0, "invert": false },
 	"clk-gate@0x02001d0c": { "parent": "psi-ahb", "name": "bus-riscv-cfg", "shift": 0, "invert": false },

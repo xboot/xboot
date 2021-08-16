@@ -5,7 +5,7 @@
 ## 编译源码，生成的目标文件在output目录下
 ```shell
 make clean
-make CROSS_COMPILE=/path/to/riscv-none-embed- PLATFORM=riscv64-d1
+make CROSS_COMPILE=/path/to/riscv64-unknown-elf- PLATFORM=riscv64-d1
 ```
 
 ## 烧写到RAM中并运行
@@ -21,6 +21,16 @@ sudo xfel spinor write 0 xboot.bin
 ## 烧写压缩镜像到SPI Nor Flash
 ```shell
 sudo xfel spinor write 0 xboot.bin.z
+```
+
+## 下载riscv工具链
+```shell
+http://pan.baidu.com/s/1dDtssIt
+
+```
+```
+https://occ.t-head.cn/
+riscv64-linux-x86_64-20210512.tar.gz
 ```
 
 ## 下载xfel工具源码

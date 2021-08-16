@@ -5,7 +5,7 @@
 ## Compile source code and generate the target files at the  output directory
 ```shell
 make clean
-make CROSS_COMPILE=/path/to/riscv-none-embed- PLATFORM=riscv64-d1
+make CROSS_COMPILE=/path/to/riscv64-unknown-elf- PLATFORM=riscv64-d1
 ```
 
 ## Brun to RAM and execute
@@ -21,6 +21,16 @@ sudo xfel spinor write 0 xboot.bin
 ## Brun compress image to SPI Nor Flash
 ```shell
 sudo xfel spinor write 0 xboot.bin.z
+```
+
+## Download riscv toolchain
+```shell
+http://pan.baidu.com/s/1dDtssIt
+
+```
+```
+https://occ.t-head.cn/
+riscv64-linux-x86_64-20210512.tar.gz
 ```
 
 ## Download xfel tool's source code

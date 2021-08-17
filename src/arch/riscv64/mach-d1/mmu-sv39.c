@@ -1,5 +1,5 @@
 /*
- * dmapool.c
+ * mmu-sv39.c
  *
  * Copyright(c) 2007-2021 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -28,52 +28,10 @@
 
 #include <cache.h>
 
-extern unsigned char __dma_start[];
-extern unsigned char __dma_end[];
-
-static void * __dma_pool = NULL;
-static spinlock_t __dma_lock = SPIN_LOCK_INIT();
-
-void * dma_alloc_coherent(unsigned long size)
+void mmu_setup(void)
 {
-	irq_flags_t flags;
-	void * m;
-
-	if(!__dma_pool)
-		__dma_pool = mm_create((void *)__dma_start, (size_t)(__dma_end - __dma_start));
-	if(__dma_pool)
-	{
-		spin_lock_irqsave(&__dma_lock, flags);
-		m = mm_memalign(__dma_pool, SZ_4K, size);
-		spin_unlock_irqrestore(&__dma_lock, flags);
-		return m;
-	}
-	return NULL;
 }
 
-void dma_free_coherent(void * addr)
+void mmu_enable(void)
 {
-	irq_flags_t flags;
-
-	if(__dma_pool)
-	{
-		spin_lock_irqsave(&__dma_lock, flags);
-		mm_free(__dma_pool, addr);
-		spin_unlock_irqrestore(&__dma_lock, flags);
-	}
-}
-
-void dma_cache_sync(void * addr, unsigned long size, int dir)
-{
-	unsigned long start = (unsigned long)addr;
-	unsigned long stop = start + size;
-
-	if(dir == DMA_FROM_DEVICE)
-	{
-		cache_inv_range(start, stop);
-	}
-	else
-	{
-		cache_flush_range(start, stop);
-	}
 }

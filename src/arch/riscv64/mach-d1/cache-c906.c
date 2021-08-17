@@ -1,5 +1,5 @@
 /*
- * dmapool.c
+ * cache-c906.c
  *
  * Copyright(c) 2007-2021 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -28,52 +28,28 @@
 
 #include <cache.h>
 
-extern unsigned char __dma_start[];
-extern unsigned char __dma_end[];
+#define L1_CACHE_BYTES	(64)
 
-static void * __dma_pool = NULL;
-static spinlock_t __dma_lock = SPIN_LOCK_INIT();
-
-void * dma_alloc_coherent(unsigned long size)
+/*
+ * Flush range(clean & invalidate), affects the range [start, stop - 1]
+ */
+void cache_flush_range(unsigned long start, unsigned long stop)
 {
-	irq_flags_t flags;
-	void * m;
+	register unsigned long i asm("a0") = start & ~(L1_CACHE_BYTES - 1);
 
-	if(!__dma_pool)
-		__dma_pool = mm_create((void *)__dma_start, (size_t)(__dma_end - __dma_start));
-	if(__dma_pool)
-	{
-		spin_lock_irqsave(&__dma_lock, flags);
-		m = mm_memalign(__dma_pool, SZ_4K, size);
-		spin_unlock_irqrestore(&__dma_lock, flags);
-		return m;
-	}
-	return NULL;
+	for(; i < stop; i += L1_CACHE_BYTES)
+		__asm__ __volatile__(".long 0x0295000b");	/* dcache.cpa a0 */
+	__asm__ __volatile__(".long 0x01b0000b");		/* sync.is */
 }
 
-void dma_free_coherent(void * addr)
+/*
+ * Invalidate range, affects the range [start, stop - 1]
+ */
+void cache_inv_range(unsigned long start, unsigned long stop)
 {
-	irq_flags_t flags;
+	register unsigned long i asm("a0") = start & ~(L1_CACHE_BYTES - 1);
 
-	if(__dma_pool)
-	{
-		spin_lock_irqsave(&__dma_lock, flags);
-		mm_free(__dma_pool, addr);
-		spin_unlock_irqrestore(&__dma_lock, flags);
-	}
-}
-
-void dma_cache_sync(void * addr, unsigned long size, int dir)
-{
-	unsigned long start = (unsigned long)addr;
-	unsigned long stop = start + size;
-
-	if(dir == DMA_FROM_DEVICE)
-	{
-		cache_inv_range(start, stop);
-	}
-	else
-	{
-		cache_flush_range(start, stop);
-	}
+	for(; i < stop; i += L1_CACHE_BYTES)
+		__asm__ __volatile__("dcache.ipa a0");		/* dcache.ipa a0 */
+	__asm__ __volatile__(".long 0x01b0000b");		/* sync.is */
 }

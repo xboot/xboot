@@ -162,6 +162,8 @@ _avoid:
 	add a0, a0, t0
 	jr a0
 _main:
+	call mmu_setup
+	call mmu_enable
 	call xboot_main
 	j _main
 

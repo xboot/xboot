@@ -466,6 +466,10 @@
 		]
 	},
 
+	"rtc-d1@0x07090000": {
+		"clock-name": "rtc32k"
+	},
+
 	"wdg-d1@0x020500a0": {
 		"clock-name": "wdg"
 	},

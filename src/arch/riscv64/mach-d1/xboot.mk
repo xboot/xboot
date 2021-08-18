@@ -7,7 +7,7 @@ DEFINES		+=
 ASFLAGS		:= -g -ggdb -Wall -O3
 CFLAGS		:= -g -ggdb -Wall -O3
 LDFLAGS		:= -T arch/$(ARCH)/$(MACH)/xboot.ld -nostdlib
-MCFLAGS		:= -march=rv64gcvxthead -mabi=lp64d -mcmodel=medlow -fno-stack-protector
+MCFLAGS		:= -march=rv64gcvxthead -mabi=lp64d -mtune=c906 -mcmodel=medlow -fno-stack-protector
 
 LIBDIRS		:=
 LIBS 		:=

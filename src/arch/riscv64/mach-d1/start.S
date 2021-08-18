@@ -64,8 +64,8 @@ reset:
 	add a0, a0, t0
 	csrw mtvec, a0
 
-	/* Enable FPU and accelerator if present */
-	li t0, MSTATUS_FS | MSTATUS_XS
+	/* Enable fpu and accelerator and vector if present */
+	li t0, MSTATUS_FS | MSTATUS_XS | (3 << 23)
 	csrs mstatus, t0
 
 	/* Enable theadisaee */

@@ -50,6 +50,6 @@ void cache_inv_range(unsigned long start, unsigned long stop)
 	register unsigned long i asm("a0") = start & ~(L1_CACHE_BYTES - 1);
 
 	for(; i < stop; i += L1_CACHE_BYTES)
-		__asm__ __volatile__("dcache.ipa a0");		/* dcache.ipa a0 */
+		__asm__ __volatile__(".long 0x02a5000b");	/* dcache.ipa a0 */
 	__asm__ __volatile__(".long 0x01b0000b");		/* sync.is */
 }

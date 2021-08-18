@@ -50,7 +50,7 @@ _start:
  */
 reset:
 	/* Enable theadisaee and invaild cache */
-	li t1, 0x1 << 22
+	li t1, (1 << 22) | (1 << 21) | (1 << 15)
 	csrs mxstatus, t1
 	li t1, 0x30013
 	csrs mcor, t1

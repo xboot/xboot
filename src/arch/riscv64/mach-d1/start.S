@@ -49,6 +49,31 @@ _start:
  * The actual reset code
  */
 reset:
+	/* Enable theadisaee and invaild cache */
+	li t1, 0x1 << 22
+	csrs mxstatus, t1
+	li t1, 0x30013
+	csrs mcor, t1
+
+	/* Check flag and enter to fel mode */
+	addi sp, sp, -32
+	sd s0, 8(sp)
+	sd s1, 16(sp)
+	sd ra, 24(sp)
+	mv s0, a0
+	li t0, 0x07090108
+	lw t1, (t0)
+	li t2, 0x5aa5a55a
+	sw zero, (t0)
+	bne t1, t2, _fel
+	ld ra, 24(sp)
+	ld s0, 8(sp)
+	ld s1, 16(sp)
+	addi sp, sp, 32
+	ret
+_fel:
+	nop
+
 	/* Mask all interrupts */
 	csrw mideleg, zero
 	csrw medeleg, zero
@@ -67,14 +92,6 @@ reset:
 	/* Enable fpu and accelerator and vector if present */
 	li t0, MSTATUS_FS | MSTATUS_XS | (3 << 23)
 	csrs mstatus, t0
-
-	/* Enable theadisaee */
-	li t1, 0x1 << 22
-	.word 0x7c032073	/* csrs mxstatus, t1 */
-
-	/* Invaild icache/dcache/btb/bht */
-	li t1, 0x30013
-	.word 0x7c232073	/* csrs mcor, t1 */
 
 	/* Check processor id and initialized */
 	csrr t0, mhartid

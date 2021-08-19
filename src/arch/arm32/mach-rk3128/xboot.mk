@@ -16,12 +16,15 @@ SRCDIRS		:=
 
 ifeq ($(strip $(HOSTOS)), linux)
 MKROCK		:= arch/$(ARCH)/$(MACH)/tools/linux/mkrock
+MKIDB		:= arch/$(ARCH)/$(MACH)/tools/linux/mkidb
 endif
 ifeq ($(strip $(HOSTOS)), windows)
 MKROCK		:= arch/$(ARCH)/$(MACH)/tools/windows/mkrock
+MKIDB		:= arch/$(ARCH)/$(MACH)/tools/windows/mkidb
 endif
 INIFILE		:= arch/$(ARCH)/$(MACH)/tools/images/rk3128.ini
 
 xend:
 	@echo Packing rockchip binrary for irom booting
 	@$(MKROCK) $(INIFILE)
+	@$(MKIDB) arch/$(ARCH)/$(MACH)/tools/images/rk3128_ddr_300MHz_v2.12.bin $(X_NAME).bin $(X_NAME)idb.bin

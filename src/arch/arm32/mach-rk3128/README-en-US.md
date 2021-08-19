@@ -11,16 +11,8 @@ make CROSS_COMPILE=/path/to/arm-none-linux-gnueabihf- PLATFORM=arm32-rk3128
 ## Enter maskrom mode and using xrock for burning image
 ```shell
 sudo xrock maskrom rk3128_ddr_300MHz_v2.12.bin rk3128_usbplug_v2.63.bin
-sudo xrock flash write 64 xbootidb.bin;
+sudo xrock flash write 64 xbootpak.bin;
 sudo xrock reset;
-```
-
-## Enter maskrom mode and using rkdeveloptool for burning image
-```shell
-sudo rkdeveloptool db xbootpak.bin;
-sleep 3;
-sudo rkdeveloptool ul xbootpak.bin;
-sudo rkdeveloptool rd;
 ```
 
 ## Download xrock source code
@@ -30,19 +22,6 @@ git clone https://github.com/xboot/xrock.git
 
 ## Make and install xrock
 ```shell
-make
-sudo make install
-```
-
-## Download rkdeveloptool source code
-```shell
-git clone https://github.com/rockchip-linux/rkdeveloptool.git
-```
-
-## Make and install rkdeveloptool
-```shell
-autoreconf -i
-./configure
 make
 sudo make install
 ```

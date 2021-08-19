@@ -107,13 +107,13 @@ int main(int argc, char *argv[])
 	FILE * fp;
 	char * buf;
 	int buflen = 256 * 1024 * 1024;
-	int dlen, llen;
-	int dblk, lblk;
+	int dlen, blen;
+	int dblk, bblk;
 	int n, l;
 
 	if(argc != 4)
 	{
-		printf("Usage: mkidb <ddr> <loader> <idbloader>\n");
+		printf("Usage: mkidb <ddr> <boot> <bootpak>\n");
 		return -1;
 	}
 
@@ -139,7 +139,7 @@ int main(int argc, char *argv[])
 	n = fread(&buf[4 * BLKSIZE], 1, dlen, fp);
 	if(n != dlen)
 	{
-		printf("Read file loader error\n");
+		printf("Read file boot error\n");
 		free(buf);
 		fclose(fp);
 		return -1;
@@ -148,28 +148,28 @@ int main(int argc, char *argv[])
 	dblk = (dlen + BLKSIZE - 1) / BLKSIZE;
 	dblk = (dblk + 3) & ~3;
 
-	/* loader */
+	/* boot */
 	fp = fopen(argv[2], "r+b");
 	if(fp == NULL)
 	{
-		printf("Open loader file error\n");
+		printf("Open boot file error\n");
 		free(buf);
 		return -1;
 	}
 	fseek(fp, 0L, SEEK_END);
-	llen = ftell(fp);
+	blen = ftell(fp);
 	fseek(fp, 0L, SEEK_SET);
-	n = fread(&buf[(4 + dblk) * BLKSIZE], 1, llen, fp);
-	if(n != llen)
+	n = fread(&buf[(4 + dblk) * BLKSIZE], 1, blen, fp);
+	if(n != blen)
 	{
-		printf("Read loader file error\n");
+		printf("Read boot file error\n");
 		free(buf);
 		fclose(fp);
 		return -1;
 	}
 	fclose(fp);
-	lblk = (llen + BLKSIZE - 1) / BLKSIZE;
-	lblk = (lblk + 3) & ~3;
+	bblk = (blen + BLKSIZE - 1) / BLKSIZE;
+	bblk = (bblk + 3) & ~3;
 
 	/* idb0 */
 	idb0 = (struct idblock0_t *)&buf[0 * BLKSIZE];
@@ -178,7 +178,7 @@ int main(int argc, char *argv[])
 	idb0->bootcode1_offset = 4;
 	idb0->bootcode2_offset = 4;
 	idb0->flash_data_size = dblk;
-	idb0->flash_boot_size = dblk + lblk;
+	idb0->flash_boot_size = dblk + bblk;
 	rc4((unsigned char *)idb0, sizeof(struct idblock0_t));
 
 	/* idb1 */
@@ -197,15 +197,15 @@ int main(int argc, char *argv[])
 	fp = fopen(argv[3], "w+b");
 	if(fp == NULL)
 	{
-		printf("Open idbloader file error\n");
+		printf("Open bootpak file error\n");
 		free(buf);
 		return -1;
 	}
-	l = (4 + dblk + lblk) * BLKSIZE;
+	l = (4 + dblk + bblk) * BLKSIZE;
 	n = fwrite(buf, 1, l, fp);
 	if(n != l)
 	{
-		printf("Write idbloader file error\n");
+		printf("Write bootpak file error\n");
 		free(buf);
 		fclose(fp);
 		return -1;
@@ -213,6 +213,6 @@ int main(int argc, char *argv[])
 	fclose(fp);
 	free(buf);
 
-	printf("idbloader file -> %s\n", argv[3]);
+	printf("Binary pack file -> %s\n", argv[3]);
 	return 0;
 }

@@ -28,10 +28,19 @@
 
 #include <cache.h>
 
+static void dcache_enable(void)
+{
+	csr_write(0x7c2, 0x70013);		/* csr_write(mcor, 0x70013); */
+	csr_write(0x7c1, 0x11ff);		/* csr_write(mhcr, 0x11ff); */
+	csr_set(0x7c0, 0x638000);		/* csr_set(mxstatus, 0x638000); */
+	csr_write(0x7c5, 0x16e30c);		/* csr_write(mhint, 0x16e30c); */
+}
+
 void mmu_setup(void)
 {
 }
 
 void mmu_enable(void)
 {
+	dcache_enable();
 }

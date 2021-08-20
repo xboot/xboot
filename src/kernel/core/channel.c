@@ -37,6 +37,8 @@ struct channel_t * channel_alloc(unsigned int size)
 	if(!c)
 		return NULL;
 
+	if(size < 16)
+		size = 16;
 	if(size & (size - 1))
 		size = roundup_pow_of_two(size);
 

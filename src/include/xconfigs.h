@@ -36,7 +36,7 @@ extern "C" {
 #endif
 
 #if !defined(CONFIG_SHELL_TASK)
-#define CONFIG_SHELL_TASK					(1)
+#define CONFIG_SHELL_TASK					"shell"
 #endif
 
 #if !defined(CONFIG_AUTO_BOOT_DELAY)

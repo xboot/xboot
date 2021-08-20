@@ -411,7 +411,13 @@ int shell_system(const char * cmdline)
 	return 1;
 }
 
-void shell_task(struct task_t * task, void * data)
+static void usage(void)
+{
+	printf("usage:\r\n");
+	printf("    shell [args ...]\r\n");
+}
+
+static void shell_task(struct task_t * task, void * data)
 {
 	char prompt[VFS_MAX_PATH];
 	char * p;
@@ -424,3 +430,30 @@ void shell_task(struct task_t * task, void * data)
 		free(p);
 	}
 }
+
+static int do_shell(int argc, char ** argv)
+{
+	struct task_t * task = task_create(scheduler_self(), "shell", shell_task, NULL, 0, 0);
+	task_resume(task);
+	return 0;
+}
+
+static struct command_t cmd_shell = {
+	.name	= "shell",
+	.desc	= "shell command interpreter",
+	.usage	= usage,
+	.exec	= do_shell,
+};
+
+static __init void shell_cmd_init(void)
+{
+	register_command(&cmd_shell);
+}
+
+static __exit void shell_cmd_exit(void)
+{
+	unregister_command(&cmd_shell);
+}
+
+command_initcall(shell_cmd_init);
+command_exitcall(shell_cmd_exit);

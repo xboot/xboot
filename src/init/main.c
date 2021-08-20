@@ -55,13 +55,11 @@ void xboot_main(void)
 	/* Do auto mount */
 	do_auto_mount();
 
+	/* Do shell task */
+	do_shell_task();
+
 	/* Do auto boot */
 	do_auto_boot();
-
-#if defined(CONFIG_SHELL_TASK) && (CONFIG_SHELL_TASK > 0)
-	/* Create and resume shell task */
-	task_resume(task_create(scheduler_self(), "shell", shell_task, NULL, 0, 0));
-#endif
 
 	/* Scheduler loop */
 	scheduler_loop();

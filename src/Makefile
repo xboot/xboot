@@ -262,7 +262,8 @@ SRCDIRS		+=	wboxtest \
 				wboxtest/dma \
 				wboxtest/graphic \
 				wboxtest/path \
-				wboxtest/stdio
+				wboxtest/stdio \
+				wboxtest/task
 endif
 
 #

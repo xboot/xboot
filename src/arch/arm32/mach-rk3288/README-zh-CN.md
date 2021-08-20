@@ -8,27 +8,21 @@ make clean
 make CROSS_COMPILE=/path/to/arm-none-linux-gnueabihf- PLATFORM=arm32-rk3288
 ```
 
-## 进入maskrom模式，烧写镜像到emmc
+## 进入maskrom模式，利用xrock烧写镜像
 ```shell
-sudo rkdeveloptool db xbootpak.bin;
+sudo xrock maskrom rk3288_ddr_400MHz_v1.09.bin rk3288_usbplug_v2.58.bin;
 sleep 3;
-sudo rkdeveloptool ul xbootpak.bin;
-sudo rkdeveloptool rd;
+sudo xrock flash write 64 xbootpak.bin;
+sudo xrock reset;
 ```
 
-## 关于rkdeveloptool工具
-
-rkdeveloptool工具是瑞芯微提供的开源版maskrom烧录工具，支持全系列芯片
-
-## 下载rkdeveloptool源码
+## 下载xrock工具源码
 ```shell
-git clone https://github.com/rockchip-linux/rkdeveloptool.git
+git clone https://github.com/xboot/xrock.git
 ```
 
-## 编译安装rkdeveloptool
+## 编译安装xrock工具
 ```shell
-autoreconf -i
-./configure
 make
 sudo make install
 ```

@@ -8,27 +8,21 @@ make clean
 make CROSS_COMPILE=/path/to/arm-none-linux-gnueabihf- PLATFORM=arm32-rk3288
 ```
 
-## Enter maskrom mode and burn image to emmc
+## Enter maskrom mode and using xrock for burning image
 ```shell
-sudo rkdeveloptool db xbootpak.bin;
+sudo xrock maskrom rk3288_ddr_400MHz_v1.09.bin rk3288_usbplug_v2.58.bin;
 sleep 3;
-sudo rkdeveloptool ul xbootpak.bin;
-sudo rkdeveloptool rd;
+sudo xrock flash write 64 xbootpak.bin;
+sudo xrock reset;
 ```
 
-## About rkdeveloptool tool
-
-The default rkdeveloptool which is open sourced and used for burning images in the maskrom mode, and support all chips by rockchip
-
-## Download rkdeveloptool source code
+## Download xrock source code
 ```shell
-git clone https://github.com/rockchip-linux/rkdeveloptool.git
+git clone https://github.com/xboot/xrock.git
 ```
 
-## Make and install rkdeveloptool
+## Make and install xrock
 ```shell
-autoreconf -i
-./configure
 make
 sudo make install
 ```

@@ -59,7 +59,7 @@ static bool_t __notifier_unregister(struct notifier_t ** nl, struct notifier_t *
 	return FALSE;
 }
 
-static bool_t __notifier_call(struct notifier_t ** nl, int cmd, void * arg)
+static bool_t __notifier_call(struct notifier_t ** nl, const char * cmd, void * arg)
 {
 	struct notifier_t * n, * nn;
 	int ret = 0;
@@ -107,7 +107,7 @@ bool_t notifier_chain_unregister(struct notifier_chain_t * nc, struct notifier_t
 	return ret;
 }
 
-bool_t notifier_chain_call(struct notifier_chain_t * nc, int cmd, void * arg)
+bool_t notifier_chain_call(struct notifier_chain_t * nc, const char * cmd, void * arg)
 {
 	irq_flags_t flags;
 	bool_t ret;

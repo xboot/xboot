@@ -291,7 +291,7 @@ bool_t register_device(struct device_t * dev)
 	init_hlist_node(&dev->node);
 	hlist_add_head(&dev->node, device_hash(dev->name));
 	spin_unlock_irqrestore(&__device_lock, flags);
-	notifier_chain_call(&__device_nc, NOTIFIER_DEVICE_ADD, dev);
+	notifier_chain_call(&__device_nc, "notifier-device-add", dev);
 
 	return TRUE;
 }
@@ -309,7 +309,7 @@ bool_t unregister_device(struct device_t * dev)
 	if(hlist_unhashed(&dev->node))
 		return FALSE;
 
-	notifier_chain_call(&__device_nc, NOTIFIER_DEVICE_REMOVE, dev);
+	notifier_chain_call(&__device_nc, "notifier-device-remove", dev);
 	spin_lock_irqsave(&__device_lock, flags);
 	list_del(&dev->list);
 	list_del(&dev->head);
@@ -334,7 +334,7 @@ void suspend_device(struct device_t * dev)
 {
 	if(dev)
 	{
-		notifier_chain_call(&__device_nc, NOTIFIER_DEVICE_SUSPEND, dev);
+		notifier_chain_call(&__device_nc, "notifier-device-suspend", dev);
 		if(dev->driver && dev->driver->suspend)
 			dev->driver->suspend(dev);
 	}
@@ -346,7 +346,7 @@ void resume_device(struct device_t * dev)
 	{
 		if(dev->driver && dev->driver->resume)
 			dev->driver->resume(dev);
-		notifier_chain_call(&__device_nc, NOTIFIER_DEVICE_RESUME, dev);
+		notifier_chain_call(&__device_nc, "notifier-device-resume", dev);
 	}
 }
 

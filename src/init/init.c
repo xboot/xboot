@@ -113,7 +113,7 @@ void do_play_audio(void)
 	}
 }
 
-static int nm_call(struct notifier_t * n, int cmd, void * arg)
+static int nm_call(struct notifier_t * n, const char * cmd, void * arg)
 {
 	struct device_t * dev = (struct device_t *)arg;
 	struct filesystem_t * fpos, * fn;
@@ -124,9 +124,9 @@ static int nm_call(struct notifier_t * n, int cmd, void * arg)
 
 	if(dev && (dev->type == DEVICE_TYPE_BLOCK))
 	{
-		switch(cmd)
+		switch(shash(cmd))
 		{
-		case NOTIFIER_DEVICE_ADD:
+		case 0xd3e22398: /* "notifier-device-add" */
 			cnt = vfs_mount_count();
 			for(i = 0; i < cnt; i++)
 			{
@@ -144,7 +144,7 @@ static int nm_call(struct notifier_t * n, int cmd, void * arg)
 			}
 			vfs_rmdir(fpath);
 			break;
-		case NOTIFIER_DEVICE_REMOVE:
+		case 0x1be73efd: /* "notifier-device-remove" */
 			cnt = vfs_mount_count();
 			for(i = 0; i < cnt; i++)
 			{
@@ -159,9 +159,9 @@ static int nm_call(struct notifier_t * n, int cmd, void * arg)
 			if(vfs_stat(fpath, &st) == 0 && S_ISDIR(st.st_mode))
 				vfs_rmdir(fpath);
 			break;
-		case NOTIFIER_DEVICE_SUSPEND:
+		case 0x0b88be11: /* "notifier-device-suspend" */
 			break;
-		case NOTIFIER_DEVICE_RESUME:
+		case 0x1beaa1a0: /* "notifier-device-resume" */
 			break;
 		default:
 			break;

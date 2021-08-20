@@ -60,15 +60,7 @@ enum device_type_t {
 	DEVICE_TYPE_MAX_COUNT		= 44,
 };
 
-enum {
-	NOTIFIER_DEVICE_ADD,
-	NOTIFIER_DEVICE_REMOVE,
-	NOTIFIER_DEVICE_SUSPEND,
-	NOTIFIER_DEVICE_RESUME,
-};
-
 struct driver_t;
-
 struct device_t
 {
 	struct kobj_t * kobj;

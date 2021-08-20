@@ -12,7 +12,7 @@ extern "C" {
 struct notifier_t {
 	struct notifier_t * next;
 	int priority;
-	int (*call)(struct notifier_t * n, int cmd, void * arg);
+	int (*call)(struct notifier_t * n, const char * cmd, void * arg);
 };
 
 struct notifier_chain_t {
@@ -26,7 +26,7 @@ struct notifier_chain_t {
 void notifier_chain_init(struct notifier_chain_t * nc);
 bool_t notifier_chain_register(struct notifier_chain_t * nc, struct notifier_t * n);
 bool_t notifier_chain_unregister(struct notifier_chain_t * nc, struct notifier_t * n);
-bool_t notifier_chain_call(struct notifier_chain_t * nc, int cmd, void * arg);
+bool_t notifier_chain_call(struct notifier_chain_t * nc, const char * cmd, void * arg);
 
 #ifdef __cplusplus
 }

@@ -249,11 +249,6 @@ struct task_t * task_create(struct scheduler_t * sched, const char * name, task_
 	init_list_head(&task->slist);
 	init_list_head(&task->rlist);
 	init_list_head(&task->mlist);
-	spin_lock(&sched->lock);
-	list_add_tail(&task->list, &sched->suspend);
-	sched->weight += nice_to_weight[nice + 20];
-	spin_unlock(&sched->lock);
-
 	task->name = strdup(name);
 	task->status = TASK_STATUS_SUSPEND;
 	task->start = ktime_to_ns(ktime_get());
@@ -269,6 +264,11 @@ struct task_t * task_create(struct scheduler_t * sched, const char * name, task_
 	task->func = func;
 	task->data = data;
 	task->__errno = 0;
+
+	spin_lock(&sched->lock);
+	list_add_tail(&task->list, &sched->suspend);
+	sched->weight += nice_to_weight[nice + 20];
+	spin_unlock(&sched->lock);
 
 	return task;
 }

@@ -69,7 +69,4 @@ void xboot_main(void)
 
 	/* Scheduler loop */
 	scheduler_loop();
-
-	/* Do exit calls */
-	do_exitcalls();
 }

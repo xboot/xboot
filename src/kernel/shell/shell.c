@@ -433,7 +433,7 @@ static void shell_task(struct task_t * task, void * data)
 
 static int do_shell(int argc, char ** argv)
 {
-	struct task_t * task = task_create(scheduler_self(), "shell", shell_task, NULL, 0, 0);
+	struct task_t * task = task_create(NULL, "shell", shell_task, NULL, 0, 0);
 	task_resume(task);
 	return 0;
 }

@@ -425,7 +425,7 @@ static void smpboot_entry_func(void)
 	machine_smpinit();
 
 	struct scheduler_t * sched = scheduler_self();
-	struct task_t * task = task_create(sched, "idle", idle_task, (void *)(unsigned long)(smp_processor_id()), SZ_8K, 0);
+	struct task_t * task = task_create(sched, "idle", idle_task, (int[]){smp_processor_id()}, SZ_8K, 19);
 	spin_lock(&sched->lock);
 	sched->weight -= task->weight;
 	task->nice = 26;
@@ -451,7 +451,7 @@ void scheduler_loop(void)
 	machine_smpboot(smpboot_entry_func);
 
 	struct scheduler_t * sched = scheduler_self();
-	struct task_t * task = task_create(sched, "idle", idle_task, (void *)(unsigned long)smp_processor_id(), SZ_8K, 0);
+	struct task_t * task = task_create(sched, "idle", idle_task, (int[]){smp_processor_id()}, SZ_8K, 19);
 	spin_lock(&sched->lock);
 	sched->weight -= task->weight;
 	task->nice = 26;

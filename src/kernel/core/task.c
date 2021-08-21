@@ -435,15 +435,14 @@ static void smpboot_entry(void)
 	spin_unlock(&sched->lock);
 	task_resume(task);
 
+	spin_lock(&sched->lock);
 	struct task_t * next = scheduler_next_ready_task(sched);
-	if(next)
-	{
-		sched->running = next;
-		scheduler_dequeue_task(sched, next);
-		next->status = TASK_STATUS_RUNNING;
-		next->start = ktime_to_ns(ktime_get());
-		scheduler_switch_task(sched, next);
-	}
+	sched->running = next;
+	scheduler_dequeue_task(sched, next);
+	next->status = TASK_STATUS_RUNNING;
+	next->start = ktime_to_ns(ktime_get());
+	spin_unlock(&sched->lock);
+	scheduler_switch_task(sched, next);
 }
 
 static void idle_task(struct task_t * task, void * data)
@@ -471,13 +470,9 @@ void do_idle_task(void)
 
 void do_init_sched(void)
 {
-	struct scheduler_t * sched;
-	int i;
-
-	for(i = 0; i < CONFIG_MAX_SMP_CPUS; i++)
+	for(int i = 0; i < CONFIG_MAX_SMP_CPUS; i++)
 	{
-		sched = &__sched[i];
-
+		struct scheduler_t * sched = &__sched[i];
 		spin_lock_init(&sched->lock);
 		spin_lock(&sched->lock);
 		sched->ready = RB_ROOT_CACHED;
@@ -492,13 +487,12 @@ void do_init_sched(void)
 void scheduler_loop(void)
 {
 	struct scheduler_t * sched = scheduler_self();
+	spin_lock(&sched->lock);
 	struct task_t * next = scheduler_next_ready_task(sched);
-	if(next)
-	{
-		sched->running = next;
-		scheduler_dequeue_task(sched, next);
-		next->status = TASK_STATUS_RUNNING;
-		next->start = ktime_to_ns(ktime_get());
-		scheduler_switch_task(sched, next);
-	}
+	sched->running = next;
+	scheduler_dequeue_task(sched, next);
+	next->status = TASK_STATUS_RUNNING;
+	next->start = ktime_to_ns(ktime_get());
+	spin_unlock(&sched->lock);
+	scheduler_switch_task(sched, next);
 }

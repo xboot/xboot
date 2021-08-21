@@ -194,7 +194,7 @@ static inline struct scheduler_t * scheduler_load_balance_choice(void)
 	return sched;
 }
 
-static void fcontext_entry_func(struct transfer_t from)
+static void fcontext_entry(struct transfer_t from)
 {
 	struct task_t * t = (struct task_t *)from.priv;
 	struct scheduler_t * sched = t->sched;
@@ -260,7 +260,7 @@ struct task_t * task_create(struct scheduler_t * sched, const char * name, task_
 	task->nice = nice;
 	task->weight = nice_to_weight[nice + 20];
 	task->inv_weight = nice_to_wmult[nice + 20];
-	task->fctx = make_fcontext(task->stack + stksz, task->stksz, fcontext_entry_func);
+	task->fctx = make_fcontext(task->stack + stksz, task->stksz, fcontext_entry);
 	task->func = func;
 	task->data = data;
 	task->__errno = 0;

@@ -29,14 +29,8 @@
 #include <xboot.h>
 #include <init.h>
 
-void xboot_main(void)
+static void init_task(struct task_t * task, void * data)
 {
-	/* Do initial memory */
-	do_init_mem();
-
-	/* Do initial scheduler */
-	do_init_sched();
-
 	/* Do initial vfs */
 	do_init_vfs();
 
@@ -60,6 +54,18 @@ void xboot_main(void)
 
 	/* Do auto boot */
 	do_auto_boot();
+}
+
+void xboot_main(void)
+{
+	/* Do initial memory */
+	do_init_mem();
+
+	/* Do initial scheduler */
+	do_init_sched();
+
+	/* Create and resume init task */
+	task_resume(task_create(scheduler_self(), "init", init_task, NULL, 0, 0));
 
 	/* Scheduler loop */
 	scheduler_loop();

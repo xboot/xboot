@@ -198,19 +198,25 @@ static void fcontext_entry(struct transfer_t from)
 {
 	struct task_t * t = (struct task_t *)from.priv;
 	struct scheduler_t * sched = t->sched;
-	struct task_t * next, * task = sched->running;
+	struct task_t * task = sched->running;
 
 	t->fctx = from.fctx;
 	task->func(task, task->data);
 	task_destroy(task);
 
-	next = scheduler_next_ready_task(sched);
+	spin_lock(&sched->lock);
+	struct task_t * next = scheduler_next_ready_task(sched);
 	if(likely(next))
 	{
 		scheduler_dequeue_task(sched, next);
 		next->status = TASK_STATUS_RUNNING;
 		next->start = ktime_to_ns(ktime_get());
+		spin_unlock(&sched->lock);
 		scheduler_switch_task(sched, next);
+	}
+	else
+	{
+		spin_unlock(&sched->lock);
 	}
 }
 
@@ -278,11 +284,15 @@ void task_destroy(struct task_t * task)
 	{
 		spin_lock(&task->sched->lock);
 		task->sched->weight -= nice_to_weight[task->nice + 20];
+		list_del_init(&task->list);
+		list_del_init(&task->slist);
+		list_del_init(&task->rlist);
+		list_del_init(&task->mlist);
 		spin_unlock(&task->sched->lock);
-
 		if(task->name)
 			free(task->name);
-		free(task->stack);
+		if(task->stack)
+			free(task->stack);
 		free(task);
 	}
 }
@@ -293,53 +303,49 @@ void task_renice(struct task_t * task, int nice)
 		nice = -20;
 	else if(nice > 19)
 		nice = 19;
-
 	if(task->nice != nice)
 	{
 		spin_lock(&task->sched->lock);
 		task->sched->weight -= nice_to_weight[task->nice + 20];
 		task->sched->weight += nice_to_weight[nice + 20];
-		spin_unlock(&task->sched->lock);
-
 		task->nice = nice;
 		task->weight = nice_to_weight[nice + 20];
 		task->inv_weight = nice_to_wmult[nice + 20];
+		spin_unlock(&task->sched->lock);
 	}
 }
 
 void task_suspend(struct task_t * task)
 {
-	struct task_t * next;
-	uint64_t now, detla;
-
 	if(task)
 	{
 		if(task->status == TASK_STATUS_READY)
 		{
-			task->status = TASK_STATUS_SUSPEND;
 			spin_lock(&task->sched->lock);
+			task->status = TASK_STATUS_SUSPEND;
 			list_add_tail(&task->list, &task->sched->suspend);
-			spin_unlock(&task->sched->lock);
 			scheduler_dequeue_task(task->sched, task);
+			spin_unlock(&task->sched->lock);
 		}
 		else if(task->status == TASK_STATUS_RUNNING)
 		{
-			now = ktime_to_ns(ktime_get());
-			detla = now - task->start;
-
-			task->vtime += calc_delta_fair(task, detla);
-			task->status = TASK_STATUS_SUSPEND;
+			uint64_t now = ktime_to_ns(ktime_get());
 			spin_lock(&task->sched->lock);
+			task->vtime += calc_delta_fair(task, now - task->start);
+			task->status = TASK_STATUS_SUSPEND;
 			list_add_tail(&task->list, &task->sched->suspend);
-			spin_unlock(&task->sched->lock);
-
-			next = scheduler_next_ready_task(task->sched);
-			if(next)
+			struct task_t * next = scheduler_next_ready_task(task->sched);
+			if(likely(next))
 			{
 				scheduler_dequeue_task(task->sched, next);
 				next->status = TASK_STATUS_RUNNING;
 				next->start = now;
+				spin_unlock(&task->sched->lock);
 				scheduler_switch_task(task->sched, next);
+			}
+			else
+			{
+				spin_unlock(&task->sched->lock);
 			}
 		}
 	}
@@ -349,12 +355,12 @@ void task_resume(struct task_t * task)
 {
 	if(task && (task->status == TASK_STATUS_SUSPEND))
 	{
+		spin_lock(&task->sched->lock);
 		task->vtime = task->sched->min_vtime;
 		task->status = TASK_STATUS_READY;
-		spin_lock(&task->sched->lock);
 		list_del_init(&task->list);
-		spin_unlock(&task->sched->lock);
 		scheduler_enqueue_task(task->sched, task);
+		spin_unlock(&task->sched->lock);
 	}
 }
 
@@ -363,24 +369,31 @@ void task_yield(void)
 	struct scheduler_t * sched = scheduler_self();
 	struct task_t * self = task_self();
 	uint64_t now = ktime_to_ns(ktime_get());
-	uint64_t detla = now - self->start;
 
-	self->vtime += calc_delta_fair(self, detla);
-
+	self->vtime += calc_delta_fair(self, now - self->start);
 	if((int64_t)(self->vtime - sched->min_vtime) < 0)
 	{
 		self->start = now;
 	}
 	else
 	{
+		spin_lock(&sched->lock);
 		self->status = TASK_STATUS_READY;
 		scheduler_enqueue_task(sched, self);
 		struct task_t * next = scheduler_next_ready_task(sched);
-		scheduler_dequeue_task(sched, next);
-		next->status = TASK_STATUS_RUNNING;
-		next->start = now;
-		if(likely(next != self))
-			scheduler_switch_task(sched, next);
+		if(likely(next))
+		{
+			scheduler_dequeue_task(sched, next);
+			next->status = TASK_STATUS_RUNNING;
+			next->start = now;
+			spin_unlock(&sched->lock);
+			if(likely(next != self))
+				scheduler_switch_task(sched, next);
+		}
+		else
+		{
+			spin_unlock(&sched->lock);
+		}
 	}
 }
 
@@ -434,12 +447,19 @@ static void smpboot_entry(void)
 
 	spin_lock(&sched->lock);
 	struct task_t * next = scheduler_next_ready_task(sched);
-	sched->running = next;
-	scheduler_dequeue_task(sched, next);
-	next->status = TASK_STATUS_RUNNING;
-	next->start = ktime_to_ns(ktime_get());
-	spin_unlock(&sched->lock);
-	scheduler_switch_task(sched, next);
+	if(likely(next))
+	{
+		sched->running = next;
+		scheduler_dequeue_task(sched, next);
+		next->status = TASK_STATUS_RUNNING;
+		next->start = ktime_to_ns(ktime_get());
+		spin_unlock(&sched->lock);
+		scheduler_switch_task(sched, next);
+	}
+	else
+	{
+		spin_unlock(&sched->lock);
+	}
 }
 
 static void idle_task(struct task_t * task, void * data)
@@ -486,10 +506,17 @@ void scheduler_loop(void)
 	struct scheduler_t * sched = scheduler_self();
 	spin_lock(&sched->lock);
 	struct task_t * next = scheduler_next_ready_task(sched);
-	sched->running = next;
-	scheduler_dequeue_task(sched, next);
-	next->status = TASK_STATUS_RUNNING;
-	next->start = ktime_to_ns(ktime_get());
-	spin_unlock(&sched->lock);
-	scheduler_switch_task(sched, next);
+	if(likely(next))
+	{
+		sched->running = next;
+		scheduler_dequeue_task(sched, next);
+		next->status = TASK_STATUS_RUNNING;
+		next->start = ktime_to_ns(ktime_get());
+		spin_unlock(&sched->lock);
+		scheduler_switch_task(sched, next);
+	}
+	else
+	{
+		spin_unlock(&sched->lock);
+	}
 }

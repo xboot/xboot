@@ -82,7 +82,7 @@ static int do_ps(int argc, char ** argv)
 		slist_for_each_entry(e, sl)
 		{
 			pos = (struct task_t *)e->priv;
-			printf(" %p %-8s %3d %20lld %s\r\n", pos->func, task_status_tostring(pos), pos->nice, pos->time, e->key);
+			printf(" %p %-8s %3d %s\r\n", pos->func, task_status_tostring(pos), pos->nice, e->key);
 		}
 		slist_free(sl);
 	}

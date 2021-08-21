@@ -39,7 +39,6 @@ struct task_t {
 	struct scheduler_t * sched;
 	enum task_status_t status;
 	uint64_t start;
-	uint64_t time;
 	uint64_t vtime;
 	char * name;
 	void * fctx;

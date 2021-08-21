@@ -252,7 +252,6 @@ struct task_t * task_create(struct scheduler_t * sched, const char * name, task_
 	task->name = strdup(name);
 	task->status = TASK_STATUS_SUSPEND;
 	task->start = ktime_to_ns(ktime_get());
-	task->time = 0;
 	task->vtime = 0;
 	task->sched = sched;
 	task->stack = stack;
@@ -328,7 +327,6 @@ void task_suspend(struct task_t * task)
 			now = ktime_to_ns(ktime_get());
 			detla = now - task->start;
 
-			task->time += detla;
 			task->vtime += calc_delta_fair(task, detla);
 			task->status = TASK_STATUS_SUSPEND;
 			spin_lock(&task->sched->lock);
@@ -363,11 +361,10 @@ void task_resume(struct task_t * task)
 void task_yield(void)
 {
 	struct scheduler_t * sched = scheduler_self();
-	struct task_t * next, * self = task_self();
+	struct task_t * self = task_self();
 	uint64_t now = ktime_to_ns(ktime_get());
 	uint64_t detla = now - self->start;
 
-	self->time += detla;
 	self->vtime += calc_delta_fair(self, detla);
 
 	if((int64_t)(self->vtime - sched->min_vtime) < 0)
@@ -378,7 +375,7 @@ void task_yield(void)
 	{
 		self->status = TASK_STATUS_READY;
 		scheduler_enqueue_task(sched, self);
-		next = scheduler_next_ready_task(sched);
+		struct task_t * next = scheduler_next_ready_task(sched);
 		scheduler_dequeue_task(sched, next);
 		next->status = TASK_STATUS_RUNNING;
 		next->start = now;

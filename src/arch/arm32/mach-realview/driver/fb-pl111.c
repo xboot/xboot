@@ -153,6 +153,8 @@ static struct device_t * fb_pl111_probe(struct driver_t * drv, struct dtnode_t *
 	pdat->nrl = region_list_alloc(0);
 	pdat->orl = region_list_alloc(0);
 	pdat->backlight = search_led(dt_read_string(n, "backlight", NULL));
+	memset(pdat->vram[0], 0, pdat->pixlen);
+	memset(pdat->vram[1], 0, pdat->pixlen);
 
 	fb->name = alloc_device_name(dt_read_name(n), -1);
 	fb->width = pdat->width;
@@ -173,6 +175,8 @@ static struct device_t * fb_pl111_probe(struct driver_t * drv, struct dtnode_t *
 	write32(pdat->virt + CLCD_IMSC, 0x0);
 	write32(pdat->virt + CLCD_CNTL, (5 << 1) | (1 << 5) | (1 << 8));
 	write32(pdat->virt + CLCD_CNTL, (read32(pdat->virt + CLCD_CNTL) | (1 << 0) | (1 << 11)));
+	write32(pdat->virt + CLCD_UBAS, ((u32_t)pdat->vram[pdat->index]));
+	write32(pdat->virt + CLCD_LBAS, ((u32_t)pdat->vram[pdat->index] + pdat->pixlen));
 
 	if(!(dev = register_framebuffer(fb, drv)))
 	{

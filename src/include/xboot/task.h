@@ -84,8 +84,9 @@ void task_yield(void);
 struct task_data_t * task_data_alloc(const char * fb, const char * input, void * data);
 void task_data_free(struct task_data_t * td);
 
-void scheduler_loop(void);
+void do_idle_task(void);
 void do_init_sched(void);
+void scheduler_loop(void);
 
 #ifdef __cplusplus
 }

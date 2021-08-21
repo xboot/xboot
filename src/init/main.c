@@ -49,6 +49,9 @@ static void init_task(struct task_t * task, void * data)
 	/* Do auto mount */
 	do_auto_mount();
 
+	/* Do idle task */
+	do_idle_task();
+
 	/* Do shell task */
 	do_shell_task();
 

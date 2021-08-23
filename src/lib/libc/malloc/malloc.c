@@ -575,8 +575,7 @@ static inline void * tlsf_add_pool(void * tlsf, void * mem, size_t bytes)
 {
 	block_header_t * block;
 	block_header_t * next;
-	const size_t pool_overhead = 2 * block_header_overhead;
-	const size_t pool_bytes = align_down(bytes - pool_overhead, ALIGN_SIZE);
+	const size_t pool_bytes = align_down(bytes - block_header_overhead - ALIGN_SIZE, ALIGN_SIZE);
 
 	if(((ptrdiff_t)mem % ALIGN_SIZE) != 0)
 		return 0;

@@ -297,7 +297,7 @@ void task_destroy(struct task_t * task)
 	}
 }
 
-void task_renice(struct task_t * task, int nice)
+void task_nice(struct task_t * task, int nice)
 {
 	if(nice < -20)
 		nice = -20;

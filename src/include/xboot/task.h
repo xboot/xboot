@@ -75,7 +75,7 @@ static inline struct task_t * task_self(void)
 
 struct task_t * task_create(struct scheduler_t * sched, const char * name, task_func_t func, void * data, size_t stksz, int nice);
 void task_destroy(struct task_t * task);
-void task_renice(struct task_t * task, int nice);
+void task_nice(struct task_t * task, int nice);
 void task_suspend(struct task_t * task);
 void task_resume(struct task_t * task);
 void task_yield(void);

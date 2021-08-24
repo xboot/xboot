@@ -65,11 +65,20 @@ void channel_free(struct channel_t * c)
 	}
 }
 
-static inline unsigned int channel_put(struct channel_t * c, unsigned char * buf, unsigned int len)
+static inline int channel_isempty(struct channel_t * c)
+{
+	return (c->in - c->out <= 0) ? 1 : 0;
+}
+
+static inline int channel_isfull(struct channel_t * c)
+{
+	return (c->in - c->out >= c->size) ? 1 : 0;
+}
+
+static inline unsigned int __channel_put(struct channel_t * c, unsigned char * buf, unsigned int len)
 {
 	unsigned int l;
 
-	spin_lock(&c->lock);
 	len = min(len, c->size - c->in + c->out);
 	smp_mb();
 	l = min(len, c->size - (c->in & (c->size - 1)));
@@ -77,16 +86,14 @@ static inline unsigned int channel_put(struct channel_t * c, unsigned char * buf
 	memcpy(c->buffer, buf + l, len - l);
 	smp_wmb();
 	c->in += len;
-	spin_unlock(&c->lock);
 
 	return len;
 }
 
-static inline unsigned int channel_get(struct channel_t * c, unsigned char * buf, unsigned int len)
+static inline unsigned int __channel_get(struct channel_t * c, unsigned char * buf, unsigned int len)
 {
 	unsigned int l;
 
-	spin_lock(&c->lock);
 	len = min(len, c->in - c->out);
 	smp_rmb();
 	l = min(len, c->size - (c->out & (c->size - 1)));
@@ -94,9 +101,50 @@ static inline unsigned int channel_get(struct channel_t * c, unsigned char * buf
 	memcpy(buf + l, c->buffer, len - l);
 	smp_mb();
 	c->out += len;
-	spin_unlock(&c->lock);
 
 	return len;
+}
+
+static inline unsigned int channel_put(struct channel_t * c, unsigned char * buf, unsigned int len)
+{
+	struct task_t * self = task_self();
+	unsigned int l;
+
+	spin_lock(&c->lock);
+	if(channel_isfull(c))
+	{
+		l = 0;
+		task_dynice_increase(self);
+	}
+	else
+	{
+		l = __channel_put(c, buf, len);
+		task_dynice_restore(self);
+	}
+	spin_unlock(&c->lock);
+
+	return l;
+}
+
+static inline unsigned int channel_get(struct channel_t * c, unsigned char * buf, unsigned int len)
+{
+	struct task_t * self = task_self();
+	unsigned int l;
+
+	spin_lock(&c->lock);
+	if(channel_isempty(c))
+	{
+		l = 0;
+		task_dynice_increase(self);
+	}
+	else
+	{
+		l = __channel_get(c, buf, len);
+		task_dynice_restore(self);
+	}
+	spin_unlock(&c->lock);
+
+	return l;
 }
 
 void channel_send(struct channel_t * c, unsigned char * buf, unsigned int len)

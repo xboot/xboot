@@ -63,13 +63,13 @@ static inline struct task_t * task_self(void)
 static inline void task_dynice_increase(struct task_t * task)
 {
 	if(task->dynice < 39)
-		task->dynice += 1;
+		task->dynice++;
 }
 
 static inline void task_dynice_decrease(struct task_t * task)
 {
 	if(task->dynice > 0)
-		task->dynice -= 1;
+		task->dynice--;
 }
 
 static inline void task_dynice_restore(struct task_t * task)

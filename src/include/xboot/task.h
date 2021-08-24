@@ -34,6 +34,7 @@ struct task_t {
 	void * stack;
 	size_t stksz;
 	int nice;
+	int dynice;
 	task_func_t func;
 	void * data;
 	int __errno;

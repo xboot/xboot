@@ -265,13 +265,10 @@ struct task_t * task_create(struct scheduler_t * sched, const char * name, task_
 	task->__errno = 0;
 
 	spin_lock(&sched->lock);
+	task->vtime = sched->min_vtime;
 	sched->weight += nice_to_weight[nice + 20];
+	scheduler_enqueue_task(sched, task);
 	spin_unlock(&sched->lock);
-
-	spin_lock(&task->sched->lock);
-	task->vtime = task->sched->min_vtime;
-	scheduler_enqueue_task(task->sched, task);
-	spin_unlock(&task->sched->lock);
 
 	return task;
 }

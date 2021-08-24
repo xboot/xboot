@@ -60,7 +60,7 @@ static int do_ps(int argc, char ** argv)
 		slist_for_each_entry(e, sl)
 		{
 			pos = (struct task_t *)e->priv;
-			printf(" %p %3d %s\r\n", pos->func, pos->nice - 20, e->key);
+			printf(" %p %3d %3d %s\r\n", pos->func, pos->nice - 20, pos->dynice - 20, e->key);
 		}
 		slist_free(sl);
 	}

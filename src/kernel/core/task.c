@@ -95,7 +95,7 @@ static inline uint64_t calc_delta(struct task_t * task, uint64_t delta)
 			shift--;
 		}
 	}
-	fact = (uint64_t)(uint32_t)fact * task->inv_weight;
+	fact = (uint64_t)(uint32_t)fact * nice_to_wmult[task->nice];
 
 	while(fact >> 32)
 	{
@@ -107,7 +107,7 @@ static inline uint64_t calc_delta(struct task_t * task, uint64_t delta)
 
 static inline uint64_t calc_delta_fair(struct task_t * task, uint64_t delta)
 {
-	if(unlikely(task->weight != 1024))
+	if(unlikely(task->nice != 20))
 		delta = calc_delta(task, delta);
 	return delta;
 }
@@ -259,8 +259,6 @@ struct task_t * task_create(struct scheduler_t * sched, const char * name, task_
 	task->stack = stack;
 	task->stksz = stksz;
 	task->nice = nice;
-	task->weight = nice_to_weight[nice];
-	task->inv_weight = nice_to_wmult[nice];
 	task->fctx = make_fcontext(task->stack + stksz, task->stksz, fcontext_entry);
 	task->func = func;
 	task->data = data;
@@ -305,8 +303,6 @@ void task_nice(struct task_t * task, int nice)
 		task->sched->weight -= nice_to_weight[task->nice];
 		task->sched->weight += nice_to_weight[nice];
 		task->nice = nice;
-		task->weight = nice_to_weight[nice];
-		task->inv_weight = nice_to_wmult[nice];
 		spin_unlock(&task->sched->lock);
 	}
 }

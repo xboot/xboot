@@ -34,8 +34,6 @@ struct task_t {
 	void * stack;
 	size_t stksz;
 	int nice;
-	int weight;
-	uint32_t inv_weight;
 	task_func_t func;
 	void * data;
 	int __errno;

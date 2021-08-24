@@ -14,8 +14,6 @@ struct channel_t {
 	unsigned int size;
 	unsigned int in;
 	unsigned int out;
-	struct list_head swait;
-	struct list_head rwait;
 	spinlock_t lock;
 };
 

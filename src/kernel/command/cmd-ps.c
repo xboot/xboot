@@ -35,22 +35,6 @@ static void usage(void)
 	printf("    ps\r\n");
 }
 
-static const char * task_status_tostring(struct task_t * task)
-{
-	switch(task->status)
-	{
-	case TASK_STATUS_RUNNING:
-		return "Running";
-	case TASK_STATUS_READY:
-		return "Ready";
-	case TASK_STATUS_SUSPEND:
-		return "Suspend";
-	default:
-		break;
-	}
-	return "";
-}
-
 static int do_ps(int argc, char ** argv)
 {
 	struct scheduler_t * sched;
@@ -65,14 +49,8 @@ static int do_ps(int argc, char ** argv)
 
 		pos = sched->running;
 		if(pos)
-		{
 			slist_add(sl, pos, "%s", pos->name ? pos->name : "");
-		}
 		rbtree_postorder_for_each_entry_safe(pos, n, &sched->ready.rb_root, node)
-		{
-			slist_add(sl, pos, "%s", pos->name ? pos->name : "");
-		}
-		list_for_each_entry_safe(pos, n, &sched->suspend, list)
 		{
 			slist_add(sl, pos, "%s", pos->name ? pos->name : "");
 		}
@@ -82,7 +60,7 @@ static int do_ps(int argc, char ** argv)
 		slist_for_each_entry(e, sl)
 		{
 			pos = (struct task_t *)e->priv;
-			printf(" %p %-8s %3d %s\r\n", pos->func, task_status_tostring(pos), pos->nice, e->key);
+			printf(" %p %3d %s\r\n", pos->func, pos->nice, e->key);
 		}
 		slist_free(sl);
 	}

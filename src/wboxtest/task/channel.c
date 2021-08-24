@@ -80,8 +80,8 @@ static void channel_run(struct wboxtest_t * wbt, void * data)
 
 	if(pdat)
 	{
-		task_resume(task_create(scheduler_self(), "channel-recv", channel_recv_task, pdat, 0, 0));
-		task_resume(task_create(scheduler_self(), "channel-send", channel_send_task, pdat, 0, 0));
+		task_create(scheduler_self(), "channel-recv", channel_recv_task, pdat, 0, 0);
+		task_create(scheduler_self(), "channel-send", channel_send_task, pdat, 0, 0);
 		channel_recv(pdat->sync, buf, 2);
 	}
 }

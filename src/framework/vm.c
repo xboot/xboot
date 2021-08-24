@@ -459,6 +459,6 @@ int vmexec(const char * path, const char * fb, const char * input)
 {
 	if(!is_absolute_path(path))
 		return -1;
-	task_resume(task_create(NULL, path, vm_task, task_data_alloc(fb, input, NULL), 0, 0));
+	task_create(NULL, path, vm_task, task_data_alloc(fb, input, NULL), 0, 0);
 	return 0;
 }

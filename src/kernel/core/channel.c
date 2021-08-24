@@ -51,8 +51,6 @@ struct channel_t * channel_alloc(unsigned int size)
 	c->size = size;
 	c->in = 0;
 	c->out = 0;
-	init_list_head(&c->swait);
-	init_list_head(&c->rwait);
 	spin_lock_init(&c->lock);
 
 	return c;
@@ -67,29 +65,7 @@ void channel_free(struct channel_t * c)
 	}
 }
 
-static inline int channel_isempty(struct channel_t * c)
-{
-	int ret;
-
-	spin_lock(&c->lock);
-	ret = (c->in - c->out <= 0) ? 1 : 0;
-	spin_unlock(&c->lock);
-
-	return ret;
-}
-
-static inline int channel_isfull(struct channel_t * c)
-{
-	int ret;
-
-	spin_lock(&c->lock);
-	ret = (c->in - c->out >= c->size) ? 1 : 0;
-	spin_unlock(&c->lock);
-
-	return ret;
-}
-
-static inline unsigned int __channel_put(struct channel_t * c, unsigned char * buf, unsigned int len)
+static inline unsigned int channel_put(struct channel_t * c, unsigned char * buf, unsigned int len)
 {
 	unsigned int l;
 
@@ -106,7 +82,7 @@ static inline unsigned int __channel_put(struct channel_t * c, unsigned char * b
 	return len;
 }
 
-static inline unsigned int __channel_get(struct channel_t * c, unsigned char * buf, unsigned int len)
+static inline unsigned int channel_get(struct channel_t * c, unsigned char * buf, unsigned int len)
 {
 	unsigned int l;
 
@@ -123,158 +99,34 @@ static inline unsigned int __channel_get(struct channel_t * c, unsigned char * b
 	return len;
 }
 
-static inline unsigned int channel_put(struct channel_t * c, unsigned char * buf, unsigned int len)
-{
-	struct task_t * self;
-	struct task_t * pos, * n;
-	unsigned int l;
-
-	if(channel_isfull(c))
-	{
-		self = task_self();
-		spin_lock(&c->lock);
-		if(!list_empty(&c->rwait))
-		{
-			list_for_each_entry_safe(pos, n, &c->rwait, rlist)
-			{
-				list_del_init(&pos->rlist);
-				task_resume(pos);
-			}
-		}
-		if(list_empty_careful(&self->slist))
-		{
-			list_add_tail(&self->slist, &c->swait);
-		}
-		spin_unlock(&c->lock);
-		task_suspend(self);
-		l = __channel_put(c, buf, len);
-	}
-	else if(channel_isempty(c))
-	{
-		l = __channel_put(c, buf, len);
-		spin_lock(&c->lock);
-		if(!list_empty(&c->rwait))
-		{
-			list_for_each_entry_safe(pos, n, &c->rwait, rlist)
-			{
-				list_del_init(&pos->rlist);
-				task_resume(pos);
-			}
-		}
-		if(!list_empty(&c->swait))
-		{
-			list_for_each_entry_safe(pos, n, &c->swait, slist)
-			{
-				list_del_init(&pos->slist);
-				task_resume(pos);
-			}
-		}
-		spin_unlock(&c->lock);
-	}
-	else
-	{
-		l = __channel_put(c, buf, len);
-		spin_lock(&c->lock);
-		if(!list_empty(&c->rwait))
-		{
-			list_for_each_entry_safe(pos, n, &c->rwait, rlist)
-			{
-				list_del_init(&pos->rlist);
-				task_resume(pos);
-			}
-		}
-		spin_unlock(&c->lock);
-	}
-	return l;
-}
-
-static inline unsigned int channel_get(struct channel_t * c, unsigned char * buf, unsigned int len)
-{
-	struct task_t * self;
-	struct task_t * pos, * n;
-	unsigned int l;
-
-	if(channel_isempty(c))
-	{
-		self = task_self();
-		spin_lock(&c->lock);
-		if(!list_empty(&c->swait))
-		{
-			list_for_each_entry_safe(pos, n, &c->swait, slist)
-			{
-				list_del_init(&pos->slist);
-				task_resume(pos);
-			}
-		}
-		if(list_empty_careful(&self->rlist))
-		{
-			list_add_tail(&self->rlist, &c->rwait);
-		}
-		spin_unlock(&c->lock);
-		task_suspend(self);
-		l = __channel_get(c, buf, len);
-	}
-	else if(channel_isfull(c))
-	{
-		l = __channel_get(c, buf, len);
-		spin_lock(&c->lock);
-		if(!list_empty(&c->rwait))
-		{
-			list_for_each_entry_safe(pos, n, &c->rwait, rlist)
-			{
-				list_del_init(&pos->rlist);
-				task_resume(pos);
-			}
-		}
-		if(!list_empty(&c->swait))
-		{
-			list_for_each_entry_safe(pos, n, &c->swait, slist)
-			{
-				list_del_init(&pos->slist);
-				task_resume(pos);
-			}
-		}
-		spin_unlock(&c->lock);
-	}
-	else
-	{
-		l = __channel_get(c, buf, len);
-		spin_lock(&c->lock);
-		if(!list_empty(&c->swait))
-		{
-			list_for_each_entry_safe(pos, n, &c->swait, slist)
-			{
-				list_del_init(&pos->slist);
-				task_resume(pos);
-			}
-		}
-		spin_unlock(&c->lock);
-	}
-	return l;
-}
-
 void channel_send(struct channel_t * c, unsigned char * buf, unsigned int len)
 {
-	unsigned int l = 0;
+	unsigned int l;
 
 	if(c && buf)
 	{
-		do {
-			l += channel_put(c, buf + l, len - l);
+		while(len > 0)
+		{
+			l = channel_put(c, buf, len);
+			buf += l;
+			len -= l;
 			task_yield();
-		} while(l < len);
+		}
 	}
 }
 
 void channel_recv(struct channel_t * c, unsigned char * buf, unsigned int len)
 {
-	unsigned int l = 0;
+	unsigned int l;
 
 	if(c && buf)
 	{
-		do {
-			l += channel_get(c, buf + l, len - l);
+		while(len > 0)
+		{
+			l = channel_get(c, buf, len);
+			buf += l;
+			len -= l;
 			task_yield();
-		} while(l < len);
+		}
 	}
 }

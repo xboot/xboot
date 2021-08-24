@@ -207,7 +207,7 @@ static int do_launcher(int argc, char ** argv)
 {
 	const char * fb = (argc >= 2) ? argv[1] : NULL;
 	const char * input = (argc >= 3) ? argv[2] : NULL;
-	task_resume(task_create(NULL, "launcher", launcher_task, task_data_alloc(fb, input, NULL), 0, 0));
+	task_create(NULL, "launcher", launcher_task, task_data_alloc(fb, input, NULL), 0, 0);
 	return 0;
 }
 

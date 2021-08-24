@@ -18,12 +18,6 @@ struct task_t;
 struct scheduler_t;
 typedef void (*task_func_t)(struct task_t * task, void * data);
 
-enum task_status_t {
-	TASK_STATUS_RUNNING	= 0,
-	TASK_STATUS_READY	= 1,
-	TASK_STATUS_SUSPEND	= 2,
-};
-
 struct task_data_t {
 	const char * fb;
 	const char * input;
@@ -32,12 +26,7 @@ struct task_data_t {
 
 struct task_t {
 	struct rb_node node;
-	struct list_head list;
-	struct list_head slist;
-	struct list_head rlist;
-	struct list_head mlist;
 	struct scheduler_t * sched;
-	enum task_status_t status;
 	uint64_t start;
 	uint64_t vtime;
 	char * name;
@@ -54,7 +43,6 @@ struct task_t {
 
 struct scheduler_t {
 	struct rb_root_cached ready;
-	struct list_head suspend;
 	struct task_t * running;
 	uint64_t min_vtime;
 	uint64_t weight;
@@ -76,8 +64,6 @@ static inline struct task_t * task_self(void)
 struct task_t * task_create(struct scheduler_t * sched, const char * name, task_func_t func, void * data, size_t stksz, int nice);
 void task_destroy(struct task_t * task);
 void task_nice(struct task_t * task, int nice);
-void task_suspend(struct task_t * task);
-void task_resume(struct task_t * task);
 void task_yield(void);
 
 struct task_data_t * task_data_alloc(const char * fb, const char * input, void * data);

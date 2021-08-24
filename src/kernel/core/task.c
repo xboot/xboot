@@ -234,9 +234,11 @@ struct task_t * task_create(struct scheduler_t * sched, const char * name, task_
 		stksz = CONFIG_TASK_STACK_SIZE;
 
 	if(nice < -20)
-		nice = -20;
+		nice = 0;
 	else if(nice > 19)
-		nice = 19;
+		nice = 39;
+	else
+		nice += 20;
 
 	task = malloc(sizeof(struct task_t));
 	if(!task)
@@ -257,8 +259,8 @@ struct task_t * task_create(struct scheduler_t * sched, const char * name, task_
 	task->stack = stack;
 	task->stksz = stksz;
 	task->nice = nice;
-	task->weight = nice_to_weight[nice + 20];
-	task->inv_weight = nice_to_wmult[nice + 20];
+	task->weight = nice_to_weight[nice];
+	task->inv_weight = nice_to_wmult[nice];
 	task->fctx = make_fcontext(task->stack + stksz, task->stksz, fcontext_entry);
 	task->func = func;
 	task->data = data;
@@ -266,7 +268,7 @@ struct task_t * task_create(struct scheduler_t * sched, const char * name, task_
 
 	spin_lock(&sched->lock);
 	task->vtime = sched->min_vtime;
-	sched->weight += nice_to_weight[nice + 20];
+	sched->weight += nice_to_weight[nice];
 	scheduler_enqueue_task(sched, task);
 	spin_unlock(&sched->lock);
 
@@ -278,7 +280,7 @@ void task_destroy(struct task_t * task)
 	if(task)
 	{
 		spin_lock(&task->sched->lock);
-		task->sched->weight -= nice_to_weight[task->nice + 20];
+		task->sched->weight -= nice_to_weight[task->nice];
 		spin_unlock(&task->sched->lock);
 		if(task->name)
 			free(task->name);
@@ -291,17 +293,20 @@ void task_destroy(struct task_t * task)
 void task_nice(struct task_t * task, int nice)
 {
 	if(nice < -20)
-		nice = -20;
+		nice = 0;
 	else if(nice > 19)
-		nice = 19;
+		nice = 39;
+	else
+		nice += 20;
+
 	if(task->nice != nice)
 	{
 		spin_lock(&task->sched->lock);
-		task->sched->weight -= nice_to_weight[task->nice + 20];
-		task->sched->weight += nice_to_weight[nice + 20];
+		task->sched->weight -= nice_to_weight[task->nice];
+		task->sched->weight += nice_to_weight[nice];
 		task->nice = nice;
-		task->weight = nice_to_weight[nice + 20];
-		task->inv_weight = nice_to_wmult[nice + 20];
+		task->weight = nice_to_weight[nice];
+		task->inv_weight = nice_to_wmult[nice];
 		spin_unlock(&task->sched->lock);
 	}
 }

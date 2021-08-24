@@ -60,6 +60,24 @@ static inline struct task_t * task_self(void)
 	return __sched[smp_processor_id()].running;
 }
 
+static inline void task_dynice_increase(struct task_t * task)
+{
+	if(task->dynice < 39)
+		task->dynice += 1;
+}
+
+static inline void task_dynice_decrease(struct task_t * task)
+{
+	if(task->dynice > 0)
+		task->dynice -= 1;
+}
+
+static inline void task_dynice_restore(struct task_t * task)
+{
+	if(task->dynice != task->nice)
+		task->dynice = task->nice;
+}
+
 struct task_t * task_create(struct scheduler_t * sched, const char * name, task_func_t func, void * data, size_t stksz, int nice);
 void task_destroy(struct task_t * task);
 void task_nice(struct task_t * task, int nice);

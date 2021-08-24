@@ -32,14 +32,21 @@
 void mutex_init(struct mutex_t * m)
 {
 	atomic_set(&m->atomic, 1);
+	spin_lock_init(&m->lock);
 }
 
 void mutex_lock(struct mutex_t * m)
 {
+	struct task_t * self = task_self();
+
 	while(atomic_cmpxchg(&m->atomic, 1, 0) != 1)
 	{
+		spin_lock(&m->lock);
+		task_dynice_increase(self);
+		spin_unlock(&m->lock);
 		task_yield();
 	}
+	task_dynice_restore(self);
 }
 
 void mutex_unlock(struct mutex_t * m)

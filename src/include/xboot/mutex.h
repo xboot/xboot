@@ -8,9 +8,11 @@ extern "C" {
 #include <types.h>
 #include <list.h>
 #include <atomic.h>
+#include <spinlock.h>
 
 struct mutex_t {
 	atomic_t atomic;
+	spinlock_t lock;
 };
 
 void mutex_init(struct mutex_t * m);

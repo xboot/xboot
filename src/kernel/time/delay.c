@@ -29,6 +29,7 @@
 #include <clocksource/clocksource.h>
 #include <time/delay.h>
 #include <xboot/ktime.h>
+#include <xboot/task.h>
 #include <xboot/module.h>
 
 void ndelay(u32_t ns)
@@ -51,3 +52,42 @@ void mdelay(u32_t ms)
 	while(ktime_before(ktime_get(), timeout));
 }
 EXPORT_SYMBOL(mdelay);
+
+void nsleep(u32_t ns)
+{
+	struct task_t * self = task_self();
+	ktime_t timeout = ktime_add_ns(ktime_get(), ns);
+	while(ktime_before(ktime_get(), timeout))
+	{
+		task_dynice_increase(self);
+		task_yield();
+	}
+	task_dynice_restore(self);
+}
+EXPORT_SYMBOL(nsleep);
+
+void usleep(u32_t us)
+{
+	struct task_t * self = task_self();
+	ktime_t timeout = ktime_add_us(ktime_get(), us);
+	while(ktime_before(ktime_get(), timeout))
+	{
+		task_dynice_increase(self);
+		task_yield();
+	}
+	task_dynice_restore(self);
+}
+EXPORT_SYMBOL(usleep);
+
+void msleep(u32_t ms)
+{
+	struct task_t * self = task_self();
+	ktime_t timeout = ktime_add_ms(ktime_get(), ms);
+	while(ktime_before(ktime_get(), timeout))
+	{
+		task_dynice_increase(self);
+		task_yield();
+	}
+	task_dynice_restore(self);
+}
+EXPORT_SYMBOL(msleep);

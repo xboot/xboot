@@ -10,6 +10,9 @@ extern "C" {
 void ndelay(u32_t ns);
 void udelay(u32_t us);
 void mdelay(u32_t ms);
+void nsleep(u32_t ns);
+void usleep(u32_t us);
+void msleep(u32_t ms);
 
 #ifdef __cplusplus
 }

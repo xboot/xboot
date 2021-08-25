@@ -79,7 +79,6 @@ static inline void task_dynice_restore(struct task_t * task)
 }
 
 struct task_t * task_create(struct scheduler_t * sched, const char * name, task_func_t func, void * data, size_t stksz, int nice);
-void task_destroy(struct task_t * task);
 void task_nice(struct task_t * task, int nice);
 void task_yield(void);
 

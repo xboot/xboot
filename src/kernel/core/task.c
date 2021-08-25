@@ -202,9 +202,15 @@ static void fcontext_entry(struct transfer_t from)
 
 	t->fctx = from.fctx;
 	task->func(task, task->data);
-	task_destroy(task);
+	uint32_t weight = nice_to_weight[task->nice];
+	if(task->name)
+		free(task->name);
+	if(task->stack)
+		free(task->stack);
+	free(task);
 
 	spin_lock(&sched->lock);
+	sched->weight -= weight;
 	struct task_t * next = scheduler_next_ready_task(sched);
 	if(likely(next))
 	{
@@ -272,21 +278,6 @@ struct task_t * task_create(struct scheduler_t * sched, const char * name, task_
 	spin_unlock(&sched->lock);
 
 	return task;
-}
-
-void task_destroy(struct task_t * task)
-{
-	if(task)
-	{
-		spin_lock(&task->sched->lock);
-		task->sched->weight -= nice_to_weight[task->nice];
-		spin_unlock(&task->sched->lock);
-		if(task->name)
-			free(task->name);
-		if(task->stack)
-			free(task->stack);
-		free(task);
-	}
 }
 
 void task_nice(struct task_t * task, int nice)

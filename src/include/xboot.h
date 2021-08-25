@@ -61,6 +61,7 @@ extern "C" {
 #include <xboot/driver.h>
 #include <xboot/task.h>
 #include <xboot/mutex.h>
+#include <xboot/waiter.h>
 #include <xboot/channel.h>
 #include <xboot/window.h>
 #include <xboot/module.h>

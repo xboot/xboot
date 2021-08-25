@@ -7,7 +7,7 @@
 struct wbt_channel_pdata_t
 {
 	struct channel_t * ch;
-	struct channel_t * sync;
+	struct waiter_t * w;
 };
 
 static void * channel_setup(struct wboxtest_t * wbt)
@@ -19,17 +19,18 @@ static void * channel_setup(struct wboxtest_t * wbt)
 		return NULL;
 
 	pdat->ch = channel_alloc(0);
-	pdat->sync = channel_alloc(0);
-	if(!pdat->ch || !pdat->sync)
+	if(!pdat->ch)
 	{
-		if(pdat->ch)
-			channel_free(pdat->ch);
-		if(pdat->sync)
-			channel_free(pdat->sync);
 		free(pdat);
 		return NULL;
 	}
-
+	pdat->w = waiter_alloc();
+	if(!pdat->w)
+	{
+		channel_free(pdat->ch);
+		free(pdat);
+		return NULL;
+	}
 	return pdat;
 }
 
@@ -39,10 +40,8 @@ static void channel_clean(struct wboxtest_t * wbt, void * data)
 
 	if(pdat)
 	{
-		if(pdat->ch)
-			channel_free(pdat->ch);
-		if(pdat->sync)
-			channel_free(pdat->sync);
+		channel_free(pdat->ch);
+		waiter_free(pdat->w);
 		free(pdat);
 	}
 }
@@ -58,7 +57,7 @@ static void channel_recv_task(struct task_t * task, void * data)
 		channel_recv(pdat->ch, (unsigned char *)&c, sizeof(c));
 		assert_equal(c, cnt);
 	}
-	channel_send(pdat->sync, (unsigned char[]){ 0 }, 1);
+	waiter_sub(pdat->w, 1);
 }
 
 static void channel_send_task(struct task_t * task, void * data)
@@ -70,19 +69,19 @@ static void channel_send_task(struct task_t * task, void * data)
 	{
 		channel_send(pdat->ch, (unsigned char *)&cnt, sizeof(cnt));
 	}
-	channel_send(pdat->sync, (unsigned char[]){ 0 }, 1);
+	waiter_sub(pdat->w, 1);
 }
 
 static void channel_run(struct wboxtest_t * wbt, void * data)
 {
 	struct wbt_channel_pdata_t * pdat = (struct wbt_channel_pdata_t *)data;
-	unsigned char buf[2];
 
 	if(pdat)
 	{
+		waiter_add(pdat->w, 2);
 		task_create(scheduler_self(), "channel-recv", NULL, NULL, channel_recv_task, pdat, 0, 0);
 		task_create(scheduler_self(), "channel-send", NULL, NULL, channel_send_task, pdat, 0, 0);
-		channel_recv(pdat->sync, buf, 2);
+		waiter_wait(pdat->w);
 	}
 }
 

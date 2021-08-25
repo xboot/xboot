@@ -41,7 +41,7 @@ extern struct transfer_t jump_fcontext(void * fctx, void * priv);
 struct scheduler_t __sched[CONFIG_MAX_SMP_CPUS];
 EXPORT_SYMBOL(__sched);
 
-static const int nice_to_weight[40] = {
+static const uint32_t nice_to_weight[40] = {
  /* -20 */     88761,     71755,     56483,     46273,     36291,
  /* -15 */     29154,     23254,     18705,     14949,     11916,
  /* -10 */      9548,      7620,      6100,      4904,      3906,

@@ -13,7 +13,6 @@ static void usage(void)
 
 static int do_test(int argc, char ** argv)
 {
-	system("wboxtest task channel -c 100");
 	return 0;
 }
 

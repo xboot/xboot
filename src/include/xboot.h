@@ -48,7 +48,6 @@ extern "C" {
 #include <malloc.h>
 #include <charset.h>
 #include <version.h>
-#include <xboot/kref.h>
 #include <xboot/kobj.h>
 #include <xboot/ktime.h>
 #include <xboot/seqlock.h>

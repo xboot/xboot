@@ -205,6 +205,10 @@ static void fcontext_entry(struct transfer_t from)
 	uint32_t weight = nice_to_weight[task->nice];
 	if(task->name)
 		free(task->name);
+	if(task->fb)
+		free(task->fb);
+	if(task->input)
+		free(task->input);
 	if(task->stack)
 		free(task->stack);
 	free(task);
@@ -225,7 +229,7 @@ static void fcontext_entry(struct transfer_t from)
 	}
 }
 
-struct task_t * task_create(struct scheduler_t * sched, const char * name, task_func_t func, void * data, size_t stksz, int nice)
+struct task_t * task_create(struct scheduler_t * sched, const char * name, const char * fb, const char * input, task_func_t func, void * data, size_t stksz, int nice)
 {
 	struct task_t * task;
 	void * stack;
@@ -259,6 +263,8 @@ struct task_t * task_create(struct scheduler_t * sched, const char * name, task_
 
 	RB_CLEAR_NODE(&task->node);
 	task->name = strdup(name);
+	task->fb = strdup(fb);
+	task->input = strdup(input);
 	task->start = ktime_to_ns(ktime_get());
 	task->vtime = 0;
 	task->sched = sched;
@@ -331,31 +337,6 @@ void task_yield(void)
 	}
 }
 
-struct task_data_t * task_data_alloc(const char * fb, const char * input, void * data)
-{
-	struct task_data_t * td;
-
-	td = malloc(sizeof(struct task_data_t));
-	if(!td)
-		return NULL;
-	td->fb = strdup(fb);
-	td->input = strdup(input);
-	td->data = data;
-	return td;
-}
-
-void task_data_free(struct task_data_t * td)
-{
-	if(td)
-	{
-		if(td->fb)
-			free((void *)td->fb);
-		if(td->input)
-			free((void *)td->input);
-		free(td);
-	}
-}
-
 static void secondary_idle_task(struct task_t * task, void * data)
 {
 	while(1)
@@ -369,7 +350,7 @@ static void smpboot_entry(void)
 	machine_smpinit();
 
 	struct scheduler_t * sched = scheduler_self();
-	task_create(sched, "idle", secondary_idle_task, (int[]){smp_processor_id()}, SZ_8K, 19);
+	task_create(sched, "idle", NULL, NULL, secondary_idle_task, (int[]){smp_processor_id()}, SZ_8K, 19);
 
 	spin_lock(&sched->lock);
 	struct task_t * next = scheduler_next_ready_task(sched);
@@ -399,7 +380,7 @@ static void primary_idle_task(struct task_t * task, void * data)
 void do_idle_task(void)
 {
 	struct scheduler_t * sched = scheduler_self();
-	task_create(sched, "idle", primary_idle_task, (int[]){smp_processor_id()}, SZ_8K, 19);
+	task_create(sched, "idle", NULL, NULL, primary_idle_task, (int[]){smp_processor_id()}, SZ_8K, 19);
 }
 
 void do_init_sched(void)

@@ -428,30 +428,25 @@ static void vmctx_free(struct vmctx_t * ctx)
 
 static void vm_task(struct task_t * task, void * data)
 {
-	struct task_data_t * td = (struct task_data_t *)data;
 	struct vmctx_t * ctx;
 	lua_State * L;
 
-	if(td)
+	ctx = vmctx_alloc(task->name, task->fb, task->input, data);
+	if(ctx)
 	{
-		ctx = vmctx_alloc(task->name, td->fb, td->input, td);
-		if(ctx)
+		L = l_newstate(ctx);
+		if(L)
 		{
-			L = l_newstate(ctx);
-			if(L)
+			lua_pushcfunction(L, &pmain);
+			if(luahelper_pcall(L, 0, 0) != LUA_OK)
 			{
-				lua_pushcfunction(L, &pmain);
-				if(luahelper_pcall(L, 0, 0) != LUA_OK)
-				{
-					lua_writestringerror("%s: ", task->name);
-					lua_writestringerror("%s\r\n", lua_tostring(L, -1));
-					lua_pop(L, 1);
-				}
-				lua_close(L);
+				lua_writestringerror("%s: ", task->name);
+				lua_writestringerror("%s\r\n", lua_tostring(L, -1));
+				lua_pop(L, 1);
 			}
-			vmctx_free(ctx);
+			lua_close(L);
 		}
-		task_data_free(td);
+		vmctx_free(ctx);
 	}
 }
 
@@ -459,6 +454,6 @@ int vmexec(const char * path, const char * fb, const char * input)
 {
 	if(!is_absolute_path(path))
 		return -1;
-	task_create(NULL, path, vm_task, task_data_alloc(fb, input, NULL), 0, 0);
+	task_create(NULL, path, fb, input, vm_task, NULL, 0, 0);
 	return 0;
 }

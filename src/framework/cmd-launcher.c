@@ -87,7 +87,7 @@ static inline void tabbar_main(struct xui_context_t * ctx)
 						}
 					}
 					if(!flag)
-						vmexec(package_get_path(pkg), ((struct task_data_t *)(ctx->priv))->fb, ((struct task_data_t *)(ctx->priv))->input);
+						vmexec(package_get_path(pkg), ctx->w->task->fb, ctx->w->task->input);
 				}
 				xui_layout_row(ctx, 1, (int[]){ -1 }, -1);
 				xui_label_ex(ctx,package_get_name(pkg), XUI_OPT_TEXT_TOP);
@@ -179,27 +179,22 @@ static void launcher(struct xui_context_t * ctx)
 
 static void launcher_task(struct task_t * task, void * data)
 {
-	struct task_data_t * td = (struct task_data_t *)data;
 	struct xui_context_t * ctx;
 
-	if(td)
+	ctx = xui_context_alloc(task->fb, task->input, data);
+	if(ctx)
 	{
-		ctx = xui_context_alloc(td->fb, td->input, td);
-		if(ctx)
+		switch(shash(setting_get("language", NULL)))
 		{
-			switch(shash(setting_get("language", NULL)))
-			{
-			case 0x10d87d65: /* "zh-CN" */
-				xui_load_lang(ctx, zh_CN, sizeof(zh_CN));
-				break;
-			default:
-				break;
-			}
-			ctx->w->launcher = 1;
-			xui_loop(ctx, launcher);
-			xui_context_free(ctx);
+		case 0x10d87d65: /* "zh-CN" */
+			xui_load_lang(ctx, zh_CN, sizeof(zh_CN));
+			break;
+		default:
+			break;
 		}
-		task_data_free(td);
+		ctx->w->launcher = 1;
+		xui_loop(ctx, launcher);
+		xui_context_free(ctx);
 	}
 }
 
@@ -207,7 +202,7 @@ static int do_launcher(int argc, char ** argv)
 {
 	const char * fb = (argc >= 2) ? argv[1] : NULL;
 	const char * input = (argc >= 3) ? argv[2] : NULL;
-	task_create(NULL, "launcher", launcher_task, task_data_alloc(fb, input, NULL), 0, 0);
+	task_create(NULL, "launcher", fb, input, launcher_task, NULL, 0, 0);
 	return 0;
 }
 

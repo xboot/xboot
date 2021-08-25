@@ -52,7 +52,7 @@ static void spinlock_run(struct wboxtest_t * wbt, void * data)
 		for(int i = 0; i < 100; i++)
 		{
 			sprintf(name, "spinlock-task-%02d", i);
-			task_create(NULL, name, spinlock_task, pdat, 0, 0);
+			task_create(NULL, name, NULL, NULL, spinlock_task, pdat, 0, 0);
 		}
 	}
 }

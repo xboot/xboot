@@ -762,29 +762,24 @@ static void pcba(struct xui_context_t * ctx)
 
 static void pcba_task(struct task_t * task, void * data)
 {
-	struct task_data_t * td = (struct task_data_t *)data;
 	struct xui_context_t * ctx;
 
-	if(td)
+	ctx = xui_context_alloc(task->fb, task->input, data);
+	if(ctx)
 	{
-		ctx = xui_context_alloc(td->fb, td->input, td);
-		if(ctx)
+		//setting_set("language", "zh-CN");
+		switch(shash(setting_get("language", NULL)))
 		{
-			//setting_set("language", "zh-CN");
-			switch(shash(setting_get("language", NULL)))
-			{
-			case 0x10d87d65: /* "zh-CN" */
-				xui_load_lang(ctx, zh_CN, sizeof(zh_CN));
-				break;
-			default:
-				break;
-			}
-			qrc = surface_alloc_qrcode(machine_uniqueid(), 16);
-			xui_loop(ctx, pcba);
-			surface_free(qrc);
-			xui_context_free(ctx);
+		case 0x10d87d65: /* "zh-CN" */
+			xui_load_lang(ctx, zh_CN, sizeof(zh_CN));
+			break;
+		default:
+			break;
 		}
-		task_data_free(td);
+		qrc = surface_alloc_qrcode(machine_uniqueid(), 16);
+		xui_loop(ctx, pcba);
+		surface_free(qrc);
+		xui_context_free(ctx);
 	}
 }
 
@@ -792,7 +787,7 @@ static int do_pcba(int argc, char ** argv)
 {
 	const char * fb = (argc >= 2) ? argv[1] : NULL;
 	const char * input = (argc >= 3) ? argv[2] : NULL;
-	task_create(NULL, "pcba", pcba_task, task_data_alloc(fb, input, NULL), 0, 0);
+	task_create(NULL, "pcba", fb, input, pcba_task, NULL, 0, 0);
 	return 0;
 }
 

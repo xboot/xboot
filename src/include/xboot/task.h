@@ -18,18 +18,14 @@ struct task_t;
 struct scheduler_t;
 typedef void (*task_func_t)(struct task_t * task, void * data);
 
-struct task_data_t {
-	const char * fb;
-	const char * input;
-	void * data;
-};
-
 struct task_t {
 	struct rb_node node;
 	struct scheduler_t * sched;
 	uint64_t start;
 	uint64_t vtime;
 	char * name;
+	char * fb;
+	char * input;
 	void * fctx;
 	void * stack;
 	size_t stksz;
@@ -78,12 +74,9 @@ static inline void task_dynice_restore(struct task_t * task)
 		task->dynice = task->nice;
 }
 
-struct task_t * task_create(struct scheduler_t * sched, const char * name, task_func_t func, void * data, size_t stksz, int nice);
+struct task_t * task_create(struct scheduler_t * sched, const char * name, const char * fb, const char * input, task_func_t func, void * data, size_t stksz, int nice);
 void task_nice(struct task_t * task, int nice);
 void task_yield(void);
-
-struct task_data_t * task_data_alloc(const char * fb, const char * input, void * data);
-void task_data_free(struct task_data_t * td);
 
 void do_idle_task(void);
 void do_init_sched(void);

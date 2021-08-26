@@ -14,8 +14,7 @@ struct waiter_t {
 	spinlock_t lock;
 };
 
-struct waiter_t * waiter_alloc(void);
-void waiter_free(struct waiter_t * w);
+void waiter_init(struct waiter_t * w);
 void waiter_add(struct waiter_t * w, int v);
 void waiter_sub(struct waiter_t * w, int v);
 void waiter_wait(struct waiter_t * w);

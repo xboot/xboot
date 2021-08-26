@@ -6,7 +6,7 @@
 
 struct wbt_sleep_pdata_t
 {
-	struct waiter_t * w;
+	struct waiter_t w;
 };
 
 static void * sleep_setup(struct wboxtest_t * wbt)
@@ -16,13 +16,8 @@ static void * sleep_setup(struct wboxtest_t * wbt)
 	pdat = malloc(sizeof(struct wbt_sleep_pdata_t));
 	if(!pdat)
 		return NULL;
+	waiter_init(&pdat->w);
 
-	pdat->w = waiter_alloc();
-	if(!pdat->w)
-	{
-		free(pdat);
-		return NULL;
-	}
 	return pdat;
 }
 
@@ -31,10 +26,7 @@ static void sleep_clean(struct wboxtest_t * wbt, void * data)
 	struct wbt_sleep_pdata_t * pdat = (struct wbt_sleep_pdata_t *)data;
 
 	if(pdat)
-	{
-		waiter_free(pdat->w);
 		free(pdat);
-	}
 }
 
 static void sleep_task(struct task_t * task, void * data)
@@ -47,7 +39,7 @@ static void sleep_task(struct task_t * task, void * data)
 		wboxtest_print("sleep task count = %d\r\n", cnt);
 		msleep(500);
 	}
-	waiter_sub(pdat->w, 1);
+	waiter_sub(&pdat->w, 1);
 }
 
 static void sleep_run(struct wboxtest_t * wbt, void * data)
@@ -56,9 +48,9 @@ static void sleep_run(struct wboxtest_t * wbt, void * data)
 
 	if(pdat)
 	{
-		waiter_add(pdat->w, 1);
+		waiter_add(&pdat->w, 1);
 		task_create(NULL, "sleep-task", NULL, NULL, sleep_task, pdat, 0, 0);
-		waiter_wait(pdat->w);
+		waiter_wait(&pdat->w);
 	}
 }
 

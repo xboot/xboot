@@ -29,23 +29,13 @@
 #include <xboot.h>
 #include <xboot/waiter.h>
 
-struct waiter_t * waiter_alloc(void)
-{
-	struct waiter_t * w;
-
-	w = malloc(sizeof(struct waiter_t));
-	if(!w)
-		return NULL;
-
-	w->count = 0;
-	spin_lock_init(&w->lock);
-	return w;
-}
-
-void waiter_free(struct waiter_t * w)
+void waiter_init(struct waiter_t * w)
 {
 	if(w)
-		free(w);
+	{
+		w->count = 0;
+		spin_lock_init(&w->lock);
+	}
 }
 
 void waiter_add(struct waiter_t * w, int v)

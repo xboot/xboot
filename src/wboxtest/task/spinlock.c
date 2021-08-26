@@ -6,7 +6,7 @@
 
 struct wbt_spinlock_pdata_t
 {
-	struct waiter_t * w;
+	struct waiter_t w;
 	spinlock_t lock;
 };
 
@@ -17,14 +17,9 @@ static void * spinlock_setup(struct wboxtest_t * wbt)
 	pdat = malloc(sizeof(struct wbt_spinlock_pdata_t));
 	if(!pdat)
 		return NULL;
-
-	pdat->w = waiter_alloc();
-	if(!pdat->w)
-	{
-		free(pdat);
-		return NULL;
-	}
+	waiter_init(&pdat->w);
 	spin_lock_init(&pdat->lock);
+
 	return pdat;
 }
 
@@ -33,10 +28,7 @@ static void spinlock_clean(struct wboxtest_t * wbt, void * data)
 	struct wbt_spinlock_pdata_t * pdat = (struct wbt_spinlock_pdata_t *)data;
 
 	if(pdat)
-	{
-		waiter_free(pdat->w);
 		free(pdat);
-	}
 }
 
 static void spinlock_task(struct task_t * task, void * data)
@@ -51,7 +43,7 @@ static void spinlock_task(struct task_t * task, void * data)
 		spin_unlock(&pdat->lock);
 		task_yield();
 	}
-	waiter_sub(pdat->w, 1);
+	waiter_sub(&pdat->w, 1);
 }
 
 static void spinlock_run(struct wboxtest_t * wbt, void * data)
@@ -63,11 +55,11 @@ static void spinlock_run(struct wboxtest_t * wbt, void * data)
 	{
 		for(int i = 0; i < 100; i++)
 		{
-			waiter_add(pdat->w, 1);
+			waiter_add(&pdat->w, 1);
 			sprintf(name, "spinlock-task-%02d", i);
 			task_create(NULL, name, NULL, NULL, spinlock_task, pdat, 0, 0);
 		}
-		waiter_wait(pdat->w);
+		waiter_wait(&pdat->w);
 	}
 }
 

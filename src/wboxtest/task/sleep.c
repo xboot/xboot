@@ -49,7 +49,7 @@ static void sleep_run(struct wboxtest_t * wbt, void * data)
 	if(pdat)
 	{
 		waiter_add(&pdat->w, 1);
-		task_create(NULL, "sleep-task", NULL, NULL, sleep_task, pdat, 0, 0);
+		task_create(scheduler_self(), "sleep-task", NULL, NULL, sleep_task, pdat, 0, 0);
 		waiter_wait(&pdat->w);
 	}
 }

@@ -57,7 +57,7 @@ static void spinlock_run(struct wboxtest_t * wbt, void * data)
 		{
 			waiter_add(&pdat->w, 1);
 			sprintf(name, "spinlock-task-%02d", i);
-			task_create(NULL, name, NULL, NULL, spinlock_task, pdat, 0, 0);
+			task_create(scheduler_self(), name, NULL, NULL, spinlock_task, pdat, 0, 0);
 		}
 		waiter_wait(&pdat->w);
 	}

@@ -103,52 +103,43 @@ static inline int atomic_cmp_exchange(atomic_t * a, int o, int n)
 #else
 static inline void atomic_add(atomic_t * a, int v)
 {
-	irq_flags_t flags;
-
-	local_irq_save(flags);
+	mb();
 	a->counter += v;
-	local_irq_restore(flags);
+	mb();
 }
 
 static inline int atomic_add_return(atomic_t * a, int v)
 {
-	irq_flags_t flags;
-
-	local_irq_save(flags);
+	mb();
 	a->counter += v;
-	local_irq_restore(flags);
+	mb();
 	return a->counter;
 }
 
 static inline void atomic_sub(atomic_t * a, int v)
 {
-	irq_flags_t flags;
-
-	local_irq_save(flags);
+	mb();
 	a->counter -= v;
-	local_irq_restore(flags);
+	mb();
 }
 
 static inline int atomic_sub_return(atomic_t * a, int v)
 {
-	irq_flags_t flags;
-
-	local_irq_save(flags);
+	mb();
 	a->counter -= v;
-	local_irq_restore(flags);
+	mb();
 	return a->counter;
 }
 
 static inline int atomic_cmp_exchange(atomic_t * a, int o, int n)
 {
-	irq_flags_t flags;
 	volatile int v;
 
-	local_irq_save(flags);
+	mb();
 	v = a->counter;
 	if(v == o)
 		a->counter = n;
-	local_irq_restore(flags);
+	mb();
 	return v;
 }
 #endif

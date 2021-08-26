@@ -6,20 +6,23 @@ extern "C" {
 #endif
 
 #include <types.h>
+#include <smp.h>
 #include <barrier.h>
 #include <irqflags.h>
 
-#if defined(CONFIG_MAX_SMP_CPUS) && (CONFIG_MAX_SMP_CPUS > 1) && (__ARM32_ARCH__ >= 6) && !defined(__SANDBOX__)
+#if defined(CONFIG_MAX_SMP_CPUS) && (CONFIG_MAX_SMP_CPUS > 1) && (__ARM32_ARCH__ >= 6)
 static inline int arch_spin_trylock(spinlock_t * lock)
 {
+	unsigned int cpu = smp_processor_id();
 	unsigned int tmp;
 
 	__asm__ __volatile__(
 "	ldrex %0, [%1]\n"
-"	teq %0, #0\n"
+"	teq %0, %3\n"
+"	movne %0, #1\n"
 "	strexeq %0, %2, [%1]"
 	: "=&r" (tmp)
-	: "r" (&lock->lock), "r" (1)
+	: "r" (&lock->lock), "r" (cpu), "r" (0xffffffff)
 	: "cc");
 
 	if(tmp == 0)
@@ -35,16 +38,17 @@ static inline int arch_spin_trylock(spinlock_t * lock)
 
 static inline void arch_spin_lock(spinlock_t * lock)
 {
+	unsigned int cpu = smp_processor_id();
 	unsigned int tmp;
 
 	__asm__ __volatile__(
 "1:	ldrex %0, [%1]\n"
-"	teq %0, #0\n"
+"	teq %0, %3\n"
 "	strexeq %0, %2, [%1]\n"
 "	teqeq %0, #0\n"
 "	bne 1b"
 	: "=&r" (tmp)
-	: "r" (&lock->lock), "r" (1)
+	: "r" (&lock->lock), "r" (cpu), "r" (0xffffffff)
 	: "cc");
 	smp_mb();
 }
@@ -52,32 +56,41 @@ static inline void arch_spin_lock(spinlock_t * lock)
 static inline void arch_spin_unlock(spinlock_t * lock)
 {
 	smp_mb();
-	__asm__ __volatile__(
-"	str %1, [%0]\n"
-	:
-	: "r" (&lock->lock), "r" (0)
-	: "cc");
+	lock->lock = 0xffffffff;
+	dsb();
 }
 #else
 static inline int arch_spin_trylock(spinlock_t * lock)
 {
-	lock->lock = 1;
-	return 1;
+	int flag = 0;
+
+	mb();
+	if(lock->lock == 0xffffffff)
+	{
+		lock->lock = 0;
+		flag = 1;
+	}
+	mb();
+	return flag;
 }
 
 static inline void arch_spin_lock(spinlock_t * lock)
 {
-	lock->lock = 1;
+	mb();
+	while(lock->lock != 0xffffffff);
+	mb();
 }
 
 static inline void arch_spin_unlock(spinlock_t * lock)
 {
-	lock->lock = 0;
+	mb();
+	lock->lock = 0xffffffff;
+	mb();
 }
 #endif
 
-#define SPIN_LOCK_INIT()					{ .lock = 0 }
-#define spin_lock_init(plock)				do { (plock)->lock = 0; } while(0)
+#define SPIN_LOCK_INIT()					{ .lock = 0xffffffff }
+#define spin_lock_init(plock)				do { (plock)->lock = 0xffffffff; } while(0)
 #define spin_trylock(lock)					({ int __ret; __ret = arch_spin_trylock(lock); __ret; })
 #define spin_lock(lock)						do { arch_spin_lock(lock); } while(0)
 #define spin_unlock(lock)					do { arch_spin_unlock(lock); } while(0)

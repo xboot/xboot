@@ -9,37 +9,61 @@ extern "C" {
 #include <barrier.h>
 #include <irqflags.h>
 
-#if defined(CONFIG_MAX_SMP_CPUS) && (CONFIG_MAX_SMP_CPUS > 1) && !defined(__SANDBOX__)
+#if defined(CONFIG_MAX_SMP_CPUS) && (CONFIG_MAX_SMP_CPUS > 1)
 static inline int arch_spin_trylock(spinlock_t * lock)
 {
-	lock->lock = 1;
-	return 1;
+	int flag = 0;
+
+	mb();
+	if(lock->lock == 0)
+	{
+		lock->lock = 1;
+		flag = 1;
+	}
+	mb();
+	return flag;
 }
 
 static inline void arch_spin_lock(spinlock_t * lock)
 {
-	lock->lock = 1;
+	mb();
+	while(lock->lock != 0);
+	mb();
 }
 
 static inline void arch_spin_unlock(spinlock_t * lock)
 {
+	mb();
 	lock->lock = 0;
+	mb();
 }
 #else
 static inline int arch_spin_trylock(spinlock_t * lock)
 {
-	lock->lock = 1;
-	return 1;
+	int flag = 0;
+
+	mb();
+	if(lock->lock == 0)
+	{
+		lock->lock = 1;
+		flag = 1;
+	}
+	mb();
+	return flag;
 }
 
 static inline void arch_spin_lock(spinlock_t * lock)
 {
-	lock->lock = 1;
+	mb();
+	while(lock->lock != 0);
+	mb();
 }
 
 static inline void arch_spin_unlock(spinlock_t * lock)
 {
+	mb();
 	lock->lock = 0;
+	mb();
 }
 #endif
 

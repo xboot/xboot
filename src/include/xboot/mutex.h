@@ -12,7 +12,6 @@ extern "C" {
 
 struct mutex_t {
 	atomic_t atomic;
-	spinlock_t lock;
 };
 
 void mutex_init(struct mutex_t * m);

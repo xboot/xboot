@@ -458,9 +458,8 @@ join (struct stroker *stroker,
 		break;
 	    }
 	}
-	/* fall through ... */
     }
-
+    /* fall through ... */
     case CAIRO_LINE_JOIN_BEVEL: {
 	cairo_point_t t[] = { { in->point.x, in->point.y }, { inpt->x, inpt->y }, { outpt->x, outpt->y } };
 	cairo_point_t e[] = { { in->cw.x, in->cw.y }, { in->ccw.x, in->ccw.y },

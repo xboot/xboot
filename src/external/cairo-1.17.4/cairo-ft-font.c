@@ -370,6 +370,8 @@ _cairo_ft_unscaled_font_map_destroy (void)
 static cairo_ft_unscaled_font_map_t *
 _cairo_ft_unscaled_font_map_lock (void)
 {
+    CAIRO_MUTEX_INITIALIZE ();
+
     CAIRO_MUTEX_LOCK (_cairo_ft_unscaled_font_map_mutex);
 
     if (unlikely (cairo_ft_unscaled_font_map == NULL)) {
@@ -459,6 +461,11 @@ _cairo_ft_unscaled_font_init (cairo_ft_unscaled_font_t *unscaled,
 		unscaled->variations = calloc (ft_mm_var->num_axis, sizeof (FT_Fixed));
 		if (unscaled->variations)
 		    FT_Get_Var_Design_Coordinates (face, ft_mm_var->num_axis, unscaled->variations);
+#if HAVE_FT_DONE_MM_VAR
+		FT_Done_MM_Var (face->glyph->library, ft_mm_var);
+#else
+		free (ft_mm_var);
+#endif
 	    }
 	}
 #endif
@@ -976,7 +983,7 @@ _compute_xrender_bitmap_size(FT_Bitmap      *target,
 	pitch = width * 4;
 	break;
 
-#ifdef FT_PIXEL_MODE_BGRA
+#ifdef FT_LOAD_COLOR
     case FT_PIXEL_MODE_BGRA:
 	/* each pixel is replicated into a 32-bit ARGB value */
 	pitch = width * 4;
@@ -1179,7 +1186,7 @@ _fill_xrender_bitmap(FT_Bitmap      *target,
 	}
 	break;
 
-#ifdef FT_PIXEL_MODE_BGRA
+#ifdef FT_LOAD_COLOR
     case FT_PIXEL_MODE_BGRA:
 	for (h = height; h > 0; h--, srcLine += src_pitch, dstLine += pitch)
 	    memcpy (dstLine, srcLine, width * 4);
@@ -1293,7 +1300,7 @@ _get_bitmap_surface (FT_Bitmap		     *bitmap,
 	    component_alpha = TRUE;
 	}
 	break;
-#ifdef FT_PIXEL_MODE_BGRA
+#ifdef FT_LOAD_COLOR
     case FT_PIXEL_MODE_BGRA:
 	stride = width * 4;
 	if (own_buffer) {
@@ -1362,6 +1369,7 @@ _get_bitmap_surface (FT_Bitmap		     *bitmap,
 	    memcpy (data, bitmap->buffer, stride * height);
 	    break;
 	}
+	/* fall through */
 	/* These could be triggered by very rare types of TrueType fonts */
     default:
 	if (own_buffer)
@@ -2454,6 +2462,15 @@ _cairo_ft_scaled_glyph_load_glyph (cairo_ft_scaled_font_t *scaled_font,
 
     if (vertical_layout)
 	_cairo_ft_scaled_glyph_vertical_layout_bearing_fix (scaled_font, face->glyph);
+
+    if (face->glyph->format == FT_GLYPH_FORMAT_OUTLINE) {
+        FT_Pos xshift, yshift;
+
+        xshift = _cairo_scaled_glyph_xphase (scaled_glyph) << 4;
+        yshift = _cairo_scaled_glyph_yphase (scaled_glyph) << 4;
+
+        FT_Outline_Translate (&face->glyph->outline, xshift, -yshift);
+    }
 
     return CAIRO_STATUS_SUCCESS;
 }

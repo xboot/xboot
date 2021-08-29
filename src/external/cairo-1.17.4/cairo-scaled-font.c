@@ -1320,14 +1320,14 @@ cairo_scaled_font_destroy (cairo_scaled_font_t *scaled_font)
 
     assert (CAIRO_REFERENCE_COUNT_HAS_REFERENCE (&scaled_font->ref_count));
 
+    font_map = _cairo_scaled_font_map_lock ();
+    assert (font_map != NULL);
+
     if (! _cairo_reference_count_dec_and_test (&scaled_font->ref_count))
-	return;
+	goto unlock;
 
     assert (! scaled_font->cache_frozen);
     assert (! scaled_font->global_cache_frozen);
-
-    font_map = _cairo_scaled_font_map_lock ();
-    assert (font_map != NULL);
 
     /* Another thread may have resurrected the font whilst we waited */
     if (! CAIRO_REFERENCE_COUNT_HAS_REFERENCE (&scaled_font->ref_count)) {

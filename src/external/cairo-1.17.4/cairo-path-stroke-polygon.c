@@ -408,7 +408,7 @@ outer_close (struct stroker *stroker,
 		     clockwise, outer);
 	    break;
 	}
-
+	/* else fall through */
     case CAIRO_LINE_JOIN_MITER:
     default: {
 	/* dot product of incoming slope vector with outgoing slope vector */

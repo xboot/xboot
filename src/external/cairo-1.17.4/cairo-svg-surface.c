@@ -1276,6 +1276,7 @@ base64_write_func (void *closure,
 	switch (info->trailing) {
 	    case 2:
 		dst[2] = '=';
+		/* fall through */
 	    case 1:
 		dst[3] = '=';
 	    default:

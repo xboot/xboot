@@ -38,10 +38,13 @@
  *      Adrian Johnson <ajohnson@redneon.com>
  */
 
+#define _GNU_SOURCE 1	/* strtod_l() */
+
 #include "cairoint.h"
 #include "cairo-error-private.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <errno.h>
 #include <locale.h>
 #ifdef HAVE_XLOCALE_H

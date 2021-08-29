@@ -248,8 +248,8 @@ INCDIRS		+= 	external/pixman-0.40.0 \
 				external/pixman-0.40.0/$(ARCH)
 SRCDIRS		+=	external/pixman-0.40.0 \
 				external/pixman-0.40.0/$(ARCH)
-INCDIRS		+= 	external/cairo-1.17.2
-SRCDIRS		+=	external/cairo-1.17.2
+INCDIRS		+= 	external/cairo-1.17.4
+SRCDIRS		+=	external/cairo-1.17.4
 endif
 
 ifeq ($(strip $(CFG_WBOXTEST)), y)

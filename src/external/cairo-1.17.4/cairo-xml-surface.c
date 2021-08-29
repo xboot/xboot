@@ -1007,7 +1007,7 @@ _cairo_xml_emit_scaled_font (cairo_xml_t *xml,
     }
 
     _cairo_xml_indent (xml, -2);
-    _cairo_xml_printf (xml, "<scaled-font>");
+    _cairo_xml_printf (xml, "</scaled-font>");
 
     return status;
 }

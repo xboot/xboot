@@ -1839,7 +1839,7 @@ _emit_path_boxes (cairo_script_surface_t *surface,
 {
     cairo_script_context_t *ctx = to_context (surface);
     cairo_path_fixed_iter_t iter;
-    cairo_status_t status;
+    cairo_status_t status = CAIRO_STATUS_SUCCESS;
     struct _cairo_boxes_chunk *chunk;
     cairo_boxes_t boxes;
     cairo_box_t box;

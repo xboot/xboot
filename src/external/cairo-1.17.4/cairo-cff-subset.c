@@ -56,30 +56,36 @@
 
 /* CFF Dict Operators. If the high byte is 0 the command is encoded
  * with a single byte. */
-#define BASEFONTNAME_OP  0x0c16
-#define CIDCOUNT_OP      0x0c22
-#define CHARSET_OP       0x000f
-#define CHARSTRINGS_OP   0x0011
-#define COPYRIGHT_OP     0x0c00
-#define DEFAULTWIDTH_OP  0x0014
-#define ENCODING_OP      0x0010
-#define FAMILYNAME_OP    0x0003
-#define FDARRAY_OP       0x0c24
-#define FDSELECT_OP      0x0c25
-#define FONTBBOX_OP      0x0005
-#define FONTMATRIX_OP    0x0c07
-#define FONTNAME_OP      0x0c26
-#define FULLNAME_OP      0x0002
-#define LOCAL_SUB_OP     0x0013
-#define NOMINALWIDTH_OP  0x0015
-#define NOTICE_OP        0x0001
-#define POSTSCRIPT_OP    0x0c15
-#define PRIVATE_OP       0x0012
-#define ROS_OP           0x0c1e
-#define UNIQUEID_OP      0x000d
-#define VERSION_OP       0x0000
-#define WEIGHT_OP        0x0004
-#define XUID_OP          0x000e
+#define BASEFONTNAME_OP     0x0c16
+#define CIDCOUNT_OP         0x0c22
+#define CHARSET_OP          0x000f
+#define CHARSTRINGS_OP      0x0011
+#define COPYRIGHT_OP        0x0c00
+#define DEFAULTWIDTH_OP     0x0014
+#define ENCODING_OP         0x0010
+#define FAMILYNAME_OP       0x0003
+#define FDARRAY_OP          0x0c24
+#define FDSELECT_OP         0x0c25
+#define FONTBBOX_OP         0x0005
+#define FONTMATRIX_OP       0x0c07
+#define FONTNAME_OP         0x0c26
+#define FULLNAME_OP         0x0002
+#define LOCAL_SUB_OP        0x0013
+#define NOMINALWIDTH_OP     0x0015
+#define NOTICE_OP           0x0001
+#define POSTSCRIPT_OP       0x0c15
+#define PRIVATE_OP          0x0012
+#define ROS_OP              0x0c1e
+#define UNIQUEID_OP         0x000d
+#define VERSION_OP          0x0000
+#define WEIGHT_OP           0x0004
+#define XUID_OP             0x000e
+#define BLUEVALUES_OP       0x0006
+#define OTHERBLUES_OP       0x0007
+#define FAMILYBLUES_OP      0x0008
+#define FAMILYOTHERBLUES_OP 0x0009
+#define STEMSNAPH_OP        0x0c0c
+#define STEMSNAPV_OP        0x0c0d
 
 #define NUM_STD_STRINGS 391
 
@@ -615,13 +621,27 @@ cff_dict_create_operator (int            operator,
 	return _cairo_error (CAIRO_STATUS_NO_MEMORY);
 
     _cairo_dict_init_key (op, operator);
-    op->operand = _cairo_malloc (size);
-    if (unlikely (op->operand == NULL)) {
-        free (op);
-	return _cairo_error (CAIRO_STATUS_NO_MEMORY);
+    if (size != 0) {
+	op->operand = _cairo_malloc (size);
+	if (unlikely (op->operand == NULL)) {
+	    free (op);
+	    return _cairo_error (CAIRO_STATUS_NO_MEMORY);
+	}
+	memcpy (op->operand, operand, size);
+    } else {
+	op->operand = NULL;
+	/* Delta-encoded arrays can be empty. */
+	if (operator != BLUEVALUES_OP &&
+	    operator != OTHERBLUES_OP &&
+	    operator != FAMILYBLUES_OP &&
+	    operator != FAMILYOTHERBLUES_OP &&
+	    operator != STEMSNAPH_OP &&
+	    operator != STEMSNAPV_OP) {
+	    free (op);
+	    return _cairo_error (CAIRO_STATUS_NO_MEMORY);
+	}
     }
 
-    memcpy (op->operand, operand, size);
     op->operand_length = size;
     op->operand_offset = -1;
 

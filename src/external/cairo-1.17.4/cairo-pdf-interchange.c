@@ -1666,7 +1666,8 @@ iso8601_to_pdf_date_string (const char *iso)
     if (strlen (p) < 3)
 	goto finish;
 
-    strncat (buf, p + 1, 3);
+    strncat (buf, p + 1, 2);
+    strcat (buf, "'");
 
   finish:
     strcat (buf, ")");

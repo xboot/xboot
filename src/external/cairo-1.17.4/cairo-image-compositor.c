@@ -841,11 +841,14 @@ _cairo_image_scaled_glyph_fini (cairo_scaled_font_t *scaled_font,
     if (global_glyph_cache) {
 	pixman_glyph_cache_remove (
 	    global_glyph_cache, scaled_font,
-	    (void *)_cairo_scaled_glyph_index (scaled_glyph));
+	    (void *)scaled_glyph->hash_entry.hash);
     }
 
     CAIRO_MUTEX_UNLOCK (_cairo_glyph_cache_mutex);
 }
+
+#define PHASE(x) ((int)(floor (4 * (x + 0.125)) - 4 * floor (x + 0.125)))
+#define POSITION(x) ((int) floor (x + 0.125))
 
 static cairo_int_status_t
 composite_glyphs (void				*_dst,
@@ -888,6 +891,12 @@ composite_glyphs (void				*_dst,
     for (i = 0; i < info->num_glyphs; i++) {
 	unsigned long index = info->glyphs[i].index;
 	const void *glyph;
+        int xphase, yphase;
+
+        xphase = PHASE(info->glyphs[i].x);
+        yphase = PHASE(info->glyphs[i].y);
+
+	index = index | (xphase << 24) | (yphase << 26);
 
 	glyph = pixman_glyph_cache_lookup (glyph_cache, info->font, (void *)index);
 	if (!glyph) {
@@ -917,8 +926,8 @@ composite_glyphs (void				*_dst,
 	    }
 	}
 
-	pg->x = _cairo_lround (info->glyphs[i].x);
-	pg->y = _cairo_lround (info->glyphs[i].y);
+	pg->x = POSITION (info->glyphs[i].x);
+	pg->y = POSITION (info->glyphs[i].y);
 	pg->glyph = glyph;
 	pg++;
     }

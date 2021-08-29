@@ -334,7 +334,7 @@ cairo_type1_font_subset_get_matrix (cairo_type1_font_subset_t *font,
     j = 0;
     while (i < end - start && j < s_max - decimal_point_len) {
 	if (start[i] == '.') {
-	    strncpy(s + j, decimal_point, decimal_point_len);
+	    strncpy(s + j, decimal_point, decimal_point_len + 1);
 	    i++;
 	    j += decimal_point_len;
 	} else {

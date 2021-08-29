@@ -5,8 +5,8 @@
 #
 # You can pass CROSS_COMPILE and PLATFORM variable.
 #
-CROSS_COMPILE	?=
-PLATFORM		?=
+CROSS_COMPILE	?= arm-none-linux-gnueabihf-
+PLATFORM		?= arm32-realview
 
 #
 # Configurable advanced custom components
@@ -227,6 +227,9 @@ SRCDIRS		+=	external/freetype-2.10.4/src/autofit \
 				external/freetype-2.10.4/src/type1 \
 				external/freetype-2.10.4/src/type42 \
 				external/freetype-2.10.4/src/winfonts
+
+INCDIRS		+= 	external/nettest
+SRCDIRS		+=	external/nettest
 
 #
 # Advanced custom components

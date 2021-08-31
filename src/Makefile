@@ -239,6 +239,17 @@ SRCDIRS		+=	external/freetype-2.10.4/src/autofit \
 				external/freetype-2.10.4/src/type42 \
 				external/freetype-2.10.4/src/winfonts
 
+INCDIRS		+= 	external/lwip-2.1.2/include \
+				external/lwip-2.1.2/port/include
+SRCDIRS		+=	external/lwip-2.1.2/api \
+				external/lwip-2.1.2/core \
+				external/lwip-2.1.2/core/ipv4 \
+				external/lwip-2.1.2/core/ipv6 \
+				external/lwip-2.1.2/netif \
+				external/lwip-2.1.2/netif/ppp \
+				external/lwip-2.1.2/netif/ppp/polarssl \
+				external/lwip-2.1.2/port
+
 #
 # Advanced custom components
 #

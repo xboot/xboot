@@ -388,7 +388,7 @@ static u32_t dram_get_dram_size(struct dram_para_t * para)
 	{
 		para->size = 32;
 	}
-	dram_set_autofresh_cycle(para->clk);
+	dram_set_autofresh_cycle(para->clk * 1000000);
 	para->access_mode = 0;
 	dram_para_setup(para);
 
@@ -468,7 +468,7 @@ static int dram_init(struct dram_para_t * para)
 	(para->sdr_ddr == DRAM_TYPE_DDR) ? (val |= (0x1 << 16)) : (val &= ~(0x1 << 16));
 	write32(0x01c20800 + 0x2c4, val);
 
-	dram_set_autofresh_cycle(para->clk);
+	dram_set_autofresh_cycle(para->clk * 1000000);
 	dram_scan_readpipe(para);
 	dram_get_dram_size(para);
 

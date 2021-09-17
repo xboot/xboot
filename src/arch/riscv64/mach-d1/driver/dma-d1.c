@@ -34,8 +34,10 @@
 #include <d1-dma.h>
 
 enum {
-	DMA_IRQ_EN				= 0x00,
-	DMA_IRQ_PEND			= 0x10,
+	DMA_IRQ_EN0				= 0x00,
+	DMA_IRQ_EN1				= 0x04,
+	DMA_IRQ_PEND0			= 0x10,
+	DMA_IRQ_PEND1			= 0x14,
 	DMA_AUTO_GATE			= 0x28,
 	DMA_STATUS				= 0x30,
 };
@@ -198,23 +200,23 @@ static u32_t get_d1_config(struct dma_channel_t * ch)
 	case DMA_TYPE_MEMTOMEM:
 		if(((u64_t)ch->src >= 0x00020000) && ((u64_t)ch->src < 0x00059000))
 			cfg = (cfg & ~(0x3f << 0)) | (D1_DMA_PORT_SRAM << 0);
-		else if(((u64_t)ch->src >= 0x40000000) && ((u64_t)ch->src < 0x44000000))
+		else if(((u64_t)ch->src >= 0x40000000) && ((u64_t)ch->src < 0xc0000000))
 			cfg = (cfg & ~(0x3f << 0)) | (D1_DMA_PORT_DRAM << 0);
 		if(((u64_t)ch->dst >= 0x00020000) && ((u64_t)ch->dst < 0x00059000))
 			cfg = (cfg & ~(0x3f << 16)) | (D1_DMA_PORT_SRAM << 16);
-		else if(((u64_t)ch->dst >= 0x40000000) && ((u64_t)ch->dst < 0x44000000))
+		else if(((u64_t)ch->dst >= 0x40000000) && ((u64_t)ch->dst < 0xc0000000))
 			cfg = (cfg & ~(0x3f << 16)) | (D1_DMA_PORT_DRAM << 16);
 		break;
 	case DMA_TYPE_MEMTODEV:
 		if(((u64_t)ch->src >= 0x00020000) && ((u64_t)ch->src < 0x00059000))
 			cfg = (cfg & ~(0x3f << 0)) | (D1_DMA_PORT_SRAM << 0);
-		else if(((u64_t)ch->src >= 0x40000000) && ((u64_t)ch->src < 0x44000000))
+		else if(((u64_t)ch->src >= 0x40000000) && ((u64_t)ch->src < 0xc0000000))
 			cfg = (cfg & ~(0x3f << 0)) | (D1_DMA_PORT_DRAM << 0);
 		break;
 	case DMA_TYPE_DEVTOMEM:
 		if(((u64_t)ch->dst >= 0x00020000) && ((u64_t)ch->dst < 0x00059000))
 			cfg = (cfg & ~(0x3f << 16)) | (D1_DMA_PORT_SRAM << 16);
-		else if(((u64_t)ch->dst >= 0x40000000) && ((u64_t)ch->dst < 0x44000000))
+		else if(((u64_t)ch->dst >= 0x40000000) && ((u64_t)ch->dst < 0xc0000000))
 			cfg = (cfg & ~(0x3f << 16)) | (D1_DMA_PORT_DRAM << 16);
 		break;
 	case DMA_TYPE_DEVTODEV:
@@ -273,7 +275,8 @@ static int dma_d1_busying(struct dmachip_t * chip, int offset)
 
 	if(offset < chip->ndma)
 	{
-		if(read32(pdat->virt + DMA_STATUS) & (1 << offset))
+		u32_t val = read32(pdat->virt + DMA_STATUS);
+		if(val & (1 << offset))
 			return 1;
 	}
 	return 0;
@@ -287,17 +290,48 @@ static void dma_d1_interrupt(void * data)
 	u32_t pending;
 	int i;
 
-	pending = read32(pdat->virt + DMA_IRQ_PEND);
+	pending = read32(pdat->virt + DMA_IRQ_PEND0);
 	if(pending)
 	{
-		write32(pdat->virt + DMA_IRQ_PEND, pending);
-		for(i = 0; i < pdat->ndma; i++)
+		write32(pdat->virt + DMA_IRQ_PEND0, pending);
+		for(i = 0; i < min(8, pdat->ndma); i++)
 		{
-			if(pending & ((1 << 1) << (i << 2)))
+			if(pending & (0x3 << (i << 2)))
 			{
 				ch = &chip->channel[i];
-				if(ch->finish)
-					ch->finish(ch->data);
+				if(pending & (0x1 << (i << 2)))
+				{
+					if(ch->half)
+						ch->half(ch->data);
+				}
+				if(pending & (0x2 << (i << 2)))
+				{
+					if(ch->finish)
+						ch->finish(ch->data);
+				}
+			}
+		}
+	}
+
+	pending = read32(pdat->virt + DMA_IRQ_PEND1);
+	if(pending)
+	{
+		write32(pdat->virt + DMA_IRQ_PEND1, pending);
+		for(i = 8; i < min(16, pdat->ndma); i++)
+		{
+			if(pending & (0x3 << ((i - 8) << 2)))
+			{
+				ch = &chip->channel[i];
+				if(pending & (0x1 << ((i - 8) << 2)))
+				{
+					if(ch->half)
+						ch->half(ch->data);
+				}
+				if(pending & (0x2 << ((i - 8) << 2)))
+				{
+					if(ch->finish)
+						ch->finish(ch->data);
+				}
 			}
 		}
 	}
@@ -361,9 +395,11 @@ static struct device_t * dma_d1_probe(struct driver_t * drv, struct dtnode_t * n
 		udelay(1);
 	}
 	request_irq(pdat->irq, dma_d1_interrupt, IRQ_TYPE_NONE, chip);
-	write32(pdat->virt + DMA_IRQ_EN, 0x22222222);
-	write32(pdat->virt + DMA_IRQ_PEND, 0x77777777);
-	write32(pdat->virt + DMA_AUTO_GATE, 0x0);
+	write32(pdat->virt + DMA_IRQ_EN0, 0x33333333);
+	write32(pdat->virt + DMA_IRQ_EN1, 0x33333333);
+	write32(pdat->virt + DMA_IRQ_PEND0, 0x77777777);
+	write32(pdat->virt + DMA_IRQ_PEND1, 0x77777777);
+	write32(pdat->virt + DMA_AUTO_GATE, 0);
 	for(i = 0; i < pdat->ndma; i++)
 	{
 		write32(pdat->virt + DMA_CH_EN(i), 0x0);

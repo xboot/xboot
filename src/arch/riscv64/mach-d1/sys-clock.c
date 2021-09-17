@@ -171,6 +171,8 @@ static void set_mbus(void)
 	val |= (0x1 << 30);
 	write32(D1_CCU_BASE + CCU_MBUS_CLK_REG, val);
 	sdelay(1);
+	/* Enable mbus master clock gating */
+	write32(D1_CCU_BASE + CCU_MBUS_MAT_CLK_GATING_REG, 0x00000d87);
 }
 
 static void set_module(virtual_addr_t addr)

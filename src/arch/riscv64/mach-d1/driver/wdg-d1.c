@@ -64,15 +64,15 @@ static void wdg_d1_set(struct watchdog_t * watchdog, int timeout)
 		if(wdt_timeout_map[timeout] == 0)
 			timeout++;
 
-		val = read32(pdat->virt + WDG_MODE);
+		val = read32(pdat->virt + WDG_MODE) & 0xffff;
 		val &= ~(0xf << 4);
 		val |= (wdt_timeout_map[timeout] << 4) | (0x1 << 0);
-		write32(pdat->virt + WDG_MODE, val);
+		write32(pdat->virt + WDG_MODE, (0x16aa << 16) | val);
 		write32(pdat->virt + WDG_CTRL, (0xa57 << 1) | (1 << 0));
 	}
 	else
 	{
-		write32(pdat->virt + WDG_MODE, 0x0);
+		write32(pdat->virt + WDG_MODE, (0x16aa << 16) | (0 << 0));
 		write32(pdat->virt + WDG_CTRL, (0xa57 << 1) | (1 << 0));
 	}
 }
@@ -115,13 +115,13 @@ static struct device_t * wdg_d1_probe(struct driver_t * drv, struct dtnode_t * n
 	clk_enable(pdat->clk);
 	write32(pdat->virt + WDG_IRQ_EN, 0x0);
 	write32(pdat->virt + WDG_IRQ_STA, 0x1);
-	write32(pdat->virt + WDG_CFG, 0x1);
-	write32(pdat->virt + WDG_MODE, 0x0);
+	write32(pdat->virt + WDG_CFG, (0x16aa << 16) | (0x1 << 0));
+	write32(pdat->virt + WDG_MODE, (0x16aa << 16) | (0 << 0));
 	write32(pdat->virt + WDG_CTRL, (0xa57 << 1) | (1 << 0));
 
 	if(!(dev = register_watchdog(wdg, drv)))
 	{
-		write32(pdat->virt + WDG_MODE, 0x0);
+		write32(pdat->virt + WDG_MODE, (0x16aa << 16) | (0 << 0));
 		write32(pdat->virt + WDG_CTRL, (0xa57 << 1) | (1 << 0));
 		clk_disable(pdat->clk);
 		free(pdat->clk);

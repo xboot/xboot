@@ -474,6 +474,9 @@
 		"clock-name": "wdg"
 	},
 
+	"regulator-d1-ldo@0x03000150": { "name": "ldoa", "channel": 0 },
+	"regulator-d1-ldo@0x03000150": { "name": "ldob", "channel": 1 },
+
 	"key-d1-lradc@0x02009800": {
 		"interrupt": 77,
 		"reference-voltage": 1800000,

@@ -36,7 +36,7 @@ static inline int rtc_month_days(unsigned int year, unsigned int month)
 	};
 	if(month > 12)
 		month = 0;
-	return rtc_days_in_month[month] + (((!(year % 4) && (year % 100)) || !(year % 400)) && (month == 2)) ? 1 : 0;
+	return rtc_days_in_month[month] + ((((!(year % 4) && (year % 100)) || !(year % 400)) && (month == 2)) ? 1 : 0);
 }
 
 static int rtc_time_is_valid(struct rtc_time_t * time)

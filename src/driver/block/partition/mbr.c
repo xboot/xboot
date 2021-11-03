@@ -85,8 +85,8 @@ static bool_t mbr_map(struct block_t * pblk)
 		if((mbr.entry[i].type != 0) && (!is_extended(mbr.entry[i].type)))
 		{
 			snprintf(nbuf, sizeof(nbuf), "p%d", i);
-			offset = block_size(pblk) * ((mbr.entry[i].start[3] << 24) | (mbr.entry[i].start[2] << 16) | (mbr.entry[i].start[1] << 8) | (mbr.entry[i].start[0] << 0));
-			length = block_size(pblk) * ((mbr.entry[i].length[3] << 24) | (mbr.entry[i].length[2] << 16) | (mbr.entry[i].length[1] << 8) | (mbr.entry[i].length[0] << 0));
+			offset = 512 * ((mbr.entry[i].start[3] << 24) | (mbr.entry[i].start[2] << 16) | (mbr.entry[i].start[1] << 8) | (mbr.entry[i].start[0] << 0));
+			length = 512 * ((mbr.entry[i].length[3] << 24) | (mbr.entry[i].length[2] << 16) | (mbr.entry[i].length[1] << 8) | (mbr.entry[i].length[0] << 0));
 			dev = register_sub_block(pblk, offset, length, nbuf);
 			if(dev)
 			{

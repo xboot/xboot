@@ -35,22 +35,24 @@ struct blk_ramdisk_pdata_t
 	virtual_size_t size;
 };
 
-static u64_t blk_ramdisk_read(struct block_t * blk, u8_t * buf, u64_t blkno, u64_t blkcnt)
+static u64_t blk_ramdisk_capacity(struct block_t * blk)
 {
 	struct blk_ramdisk_pdata_t * pdat = (struct blk_ramdisk_pdata_t *)(blk->priv);
-	virtual_addr_t offset = pdat->addr + block_offset(blk, blkno);
-	u64_t length = block_size(blk) * blkcnt;
-	memcpy((void *)buf, (const void *)(offset), length);
-	return blkcnt;
+	return pdat->size;
 }
 
-static u64_t blk_ramdisk_write(struct block_t * blk, u8_t * buf, u64_t blkno, u64_t blkcnt)
+static u64_t blk_ramdisk_read(struct block_t * blk, u8_t * buf, u64_t offset, u64_t count)
 {
 	struct blk_ramdisk_pdata_t * pdat = (struct blk_ramdisk_pdata_t *)(blk->priv);
-	virtual_addr_t offset = pdat->addr + block_offset(blk, blkno);
-	u64_t length = block_size(blk) * blkcnt;
-	memcpy((void *)(offset), (const void *)buf, length);
-	return blkcnt;
+	memcpy((void *)buf, (const void *)(pdat->addr + offset), count);
+	return count;
+}
+
+static u64_t blk_ramdisk_write(struct block_t * blk, u8_t * buf, u64_t offset, u64_t count)
+{
+	struct blk_ramdisk_pdata_t * pdat = (struct blk_ramdisk_pdata_t *)(blk->priv);
+	memcpy((void *)(pdat->addr + offset), (const void *)buf, count);
+	return count;
 }
 
 static void blk_ramdisk_sync(struct block_t * blk)
@@ -62,13 +64,11 @@ static struct device_t * blk_ramdisk_probe(struct driver_t * drv, struct dtnode_
 	struct blk_ramdisk_pdata_t * pdat;
 	struct block_t * blk;
 	struct device_t * dev;
-	u64_t blkcnt, blksz = SZ_512;
 	virtual_addr_t addr = dt_read_long(n, "address", 0);
 	virtual_size_t size = dt_read_long(n, "size", 0);
 
-	if(size < blksz)
+	if(size <= 0)
 		return NULL;
-	blkcnt = size / blksz;
 
 	pdat = malloc(sizeof(struct blk_ramdisk_pdata_t));
 	if(!pdat)
@@ -82,11 +82,10 @@ static struct device_t * blk_ramdisk_probe(struct driver_t * drv, struct dtnode_
 	}
 
 	pdat->addr = addr;
-	pdat->size = blkcnt * blksz;
+	pdat->size = size;
 
 	blk->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
-	blk->blksz	= blksz;
-	blk->blkcnt	= blkcnt;
+	blk->capacity = blk_ramdisk_capacity;
 	blk->read = blk_ramdisk_read;
 	blk->write = blk_ramdisk_write;
 	blk->sync = blk_ramdisk_sync;

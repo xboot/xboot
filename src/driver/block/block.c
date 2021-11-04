@@ -85,7 +85,7 @@ struct device_t * register_block(struct block_t * blk, struct driver_t * drv)
 	if(!blk || !blk->name)
 		return NULL;
 
-	if(!blk->read || !blk->write || !blk->sync)
+	if(!blk->capacity || !blk->read || !blk->write || !blk->sync)
 		return NULL;
 
 	dev = malloc(sizeof(struct device_t));
@@ -202,27 +202,39 @@ void unregister_sub_block(struct block_t * pblk)
 
 u64_t block_capacity(struct block_t * blk)
 {
-	if(blk && blk->capacity)
+	if(blk)
 		return blk->capacity(blk);
 	return 0;
 }
 
 u64_t block_read(struct block_t * blk, u8_t * buf, u64_t offset, u64_t count)
 {
-	if(blk && blk->read)
-		return blk->read(blk, buf, offset, count);
+	u64_t l;
+
+	if(blk && buf)
+	{
+		l = block_available(blk, offset, count);
+		if(l > 0)
+			return blk->read(blk, buf, offset, l);
+	}
 	return 0;
 }
 
 u64_t block_write(struct block_t * blk, u8_t * buf, u64_t offset, u64_t count)
 {
-	if(blk && blk->write)
-		return blk->write(blk, buf, offset, count);
+	u64_t l;
+
+	if(blk && buf)
+	{
+		l = block_available(blk, offset, count);
+		if(l > 0)
+			return blk->write(blk, buf, offset, l);
+	}
 	return 0;
 }
 
 void block_sync(struct block_t * blk)
 {
-	if(blk && blk->sync)
+	if(blk)
 		blk->sync(blk);
 }

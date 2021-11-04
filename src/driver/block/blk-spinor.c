@@ -95,6 +95,7 @@ struct spinor_info_t {
 struct blk_spinor_pdata_t {
 	struct spi_device_t * dev;
 	struct spinor_info_t info;
+	u8_t * buf;
 };
 
 static bool_t blk_spinor_read_sfdp(struct spi_device_t * dev, struct sfdp_t * sfdp)
@@ -596,11 +597,11 @@ static void blk_spinor_init(struct blk_spinor_pdata_t * pdat)
 	}
 }
 
-static u64_t blk_spinor_read(struct block_t * blk, u8_t * buf, u64_t blkno, u64_t blkcnt)
+static u64_t __blk_spinor_read(struct block_t * blk, u8_t * buf, u64_t blkno, u64_t blkcnt)
 {
 	struct blk_spinor_pdata_t * pdat = (struct blk_spinor_pdata_t *)blk->priv;
-	u64_t addr = blkno * blk->blksz;
-	s64_t cnt = blkcnt * blk->blksz;
+	u64_t addr = blkno * pdat->info.blksz;
+	s64_t cnt = blkcnt * pdat->info.blksz;
 	u8_t * pbuf = buf;
 	u32_t len;
 
@@ -620,11 +621,11 @@ static u64_t blk_spinor_read(struct block_t * blk, u8_t * buf, u64_t blkno, u64_
 	return blkcnt;
 }
 
-static u64_t blk_spinor_write(struct block_t * blk, u8_t * buf, u64_t blkno, u64_t blkcnt)
+static u64_t __blk_spinor_write(struct block_t * blk, u8_t * buf, u64_t blkno, u64_t blkcnt)
 {
 	struct blk_spinor_pdata_t * pdat = (struct blk_spinor_pdata_t *)blk->priv;
-	u64_t addr, baddr = blkno * blk->blksz;
-	s64_t cnt, count = blkcnt * blk->blksz;
+	u64_t addr, baddr = blkno * pdat->info.blksz;
+	s64_t cnt, count = blkcnt * pdat->info.blksz;
 	u32_t len;
 	u8_t * pbuf;
 
@@ -690,6 +691,104 @@ static u64_t blk_spinor_write(struct block_t * blk, u8_t * buf, u64_t blkno, u64
 	return blkcnt;
 }
 
+static u64_t blk_spinor_capacity(struct block_t * blk)
+{
+	struct blk_spinor_pdata_t * pdat = (struct blk_spinor_pdata_t *)blk->priv;
+	return pdat->info.capacity;
+}
+
+static u64_t blk_spinor_read(struct block_t * blk, u8_t * buf, u64_t offset, u64_t count)
+{
+	struct blk_spinor_pdata_t * pdat = (struct blk_spinor_pdata_t *)blk->priv;
+	u64_t blksz = pdat->info.blksz;
+	u64_t blkno, len, tmp;
+	u64_t ret = 0;
+
+	blkno = offset / blksz;
+	tmp = offset % blksz;
+	if(tmp > 0)
+	{
+		len = blksz - tmp;
+		if(count < len)
+			len = count;
+		if(__blk_spinor_read(blk, &pdat->buf[0], blkno, 1) != 1)
+			return ret;
+		memcpy((void *)buf, (const void *)(&pdat->buf[tmp]), len);
+		buf += len;
+		count -= len;
+		ret += len;
+		blkno += 1;
+	}
+	tmp = count / blksz;
+	if(tmp > 0)
+	{
+		len = tmp * blksz;
+		if(__blk_spinor_read(blk, buf, blkno, tmp) != tmp)
+			return ret;
+		buf += len;
+		count -= len;
+		ret += len;
+		blkno += tmp;
+	}
+	if(count > 0)
+	{
+		len = count;
+		if(__blk_spinor_read(blk, &pdat->buf[0], blkno, 1) != 1)
+			return ret;
+		memcpy((void *)buf, (const void *)(&pdat->buf[0]), len);
+		ret += len;
+	}
+	return ret;
+}
+
+static u64_t blk_spinor_write(struct block_t * blk, u8_t * buf, u64_t offset, u64_t count)
+{
+	struct blk_spinor_pdata_t * pdat = (struct blk_spinor_pdata_t *)blk->priv;
+	u64_t blksz = pdat->info.blksz;
+	u64_t blkno, len, tmp;
+	u64_t ret = 0;
+
+	blkno = offset / blksz;
+	tmp = offset % blksz;
+	if(tmp > 0)
+	{
+		len = blksz - tmp;
+		if(count < len)
+			len = count;
+		if(__blk_spinor_read(blk, &pdat->buf[0], blkno, 1) != 1)
+			return ret;
+		memcpy((void *)(&pdat->buf[tmp]), (const void *)buf, len);
+		if(__blk_spinor_write(blk, &pdat->buf[0], blkno, 1) != 1)
+			return ret;
+		buf += len;
+		count -= len;
+		ret += len;
+		blkno += 1;
+	}
+	tmp = count / blksz;
+	if(tmp > 0)
+	{
+		len = tmp * blksz;
+		if(__blk_spinor_write(blk, buf, blkno, tmp) != tmp)
+			return ret;
+		buf += len;
+		count -= len;
+		ret += len;
+		blkno += tmp;
+	}
+	if(count > 0)
+	{
+		len = count;
+		if(__blk_spinor_read(blk, &pdat->buf[0], blkno, 1) != 1)
+			return ret;
+		memcpy((void *)(&pdat->buf[0]), (const void *)buf, len);
+		if(__blk_spinor_write(blk, &pdat->buf[0], blkno, 1) != 1)
+			return ret;
+		ret += len;
+	}
+	return ret;
+}
+
 static void blk_spinor_sync(struct block_t * blk)
 {
 }
@@ -730,11 +829,11 @@ static struct device_t * blk_spinor_probe(struct driver_t * drv, struct dtnode_t
 	}
 
 	pdat->dev = spidev;
+	pdat->buf = malloc(info.blksz);
 	memcpy(&pdat->info, &info, sizeof(struct spinor_info_t));
 
 	blk->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
-	blk->blksz = pdat->info.blksz;
-	blk->blkcnt = pdat->info.capacity / pdat->info.blksz;
+	blk->capacity = blk_spinor_capacity;
 	blk->read = blk_spinor_read;
 	blk->write = blk_spinor_write;
 	blk->sync = blk_spinor_sync;
@@ -743,6 +842,7 @@ static struct device_t * blk_spinor_probe(struct driver_t * drv, struct dtnode_t
 
 	if(!(dev = register_block(blk, drv)))
 	{
+		free(pdat->buf);
 		spi_device_free(pdat->dev);
 		free_device_name(blk->name);
 		free(blk->priv);
@@ -795,6 +895,7 @@ static void blk_spinor_remove(struct device_t * dev)
 	{
 		unregister_sub_block(blk);
 		unregister_block(blk);
+		free(pdat->buf);
 		spi_device_free(pdat->dev);
 		free_device_name(blk->name);
 		free(blk->priv);

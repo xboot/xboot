@@ -54,6 +54,7 @@ struct sdcard_pdata_t
 	struct sdcard_t card;
 	struct timer_t timer;
 	struct sdhci_t * hci;
+	u8_t buf[512];
 	bool_t online;
 };
 
@@ -673,7 +674,7 @@ static bool_t sdcard_detect(struct sdhci_t * hci, struct sdcard_t * card)
 	return TRUE;
 }
 
-static u64_t sdcard_blk_read(struct block_t * blk, u8_t * buf, u64_t blkno, u64_t blkcnt)
+static u64_t __sdcard_blk_read(struct block_t * blk, u8_t * buf, u64_t blkno, u64_t blkcnt)
 {
 	struct sdcard_pdata_t * pdat = (struct sdcard_pdata_t *)(blk->priv);
 	struct sdhci_t * hci = pdat->hci;
@@ -692,7 +693,7 @@ static u64_t sdcard_blk_read(struct block_t * blk, u8_t * buf, u64_t blkno, u64_
 	return blkcnt;
 }
 
-static u64_t sdcard_blk_write(struct block_t * blk, u8_t * buf, u64_t blkno, u64_t blkcnt)
+static u64_t __sdcard_blk_write(struct block_t * blk, u8_t * buf, u64_t blkno, u64_t blkcnt)
 {
 	struct sdcard_pdata_t * pdat = (struct sdcard_pdata_t *)(blk->priv);
 	struct sdhci_t * hci = pdat->hci;
@@ -711,6 +712,104 @@ static u64_t sdcard_blk_write(struct block_t * blk, u8_t * buf, u64_t blkno, u64
 	return blkcnt;
 }
 
+static u64_t sdcard_blk_capacity(struct block_t * blk)
+{
+	struct sdcard_pdata_t * pdat = (struct sdcard_pdata_t *)(blk->priv);
+	return pdat->card.capacity;
+}
+
+static u64_t sdcard_blk_read(struct block_t * blk, u8_t * buf, u64_t offset, u64_t count)
+{
+	struct sdcard_pdata_t * pdat = (struct sdcard_pdata_t *)(blk->priv);
+	u64_t blksz = pdat->card.read_bl_len;
+	u64_t blkno, len, tmp;
+	u64_t ret = 0;
+
+	blkno = offset / blksz;
+	tmp = offset % blksz;
+	if(tmp > 0)
+	{
+		len = blksz - tmp;
+		if(count < len)
+			len = count;
+		if(__sdcard_blk_read(blk, &pdat->buf[0], blkno, 1) != 1)
+			return ret;
+		memcpy((void *)buf, (const void *)(&pdat->buf[tmp]), len);
+		buf += len;
+		count -= len;
+		ret += len;
+		blkno += 1;
+	}
+	tmp = count / blksz;
+	if(tmp > 0)
+	{
+		len = tmp * blksz;
+		if(__sdcard_blk_read(blk, buf, blkno, tmp) != tmp)
+			return ret;
+		buf += len;
+		count -= len;
+		ret += len;
+		blkno += tmp;
+	}
+	if(count > 0)
+	{
+		len = count;
+		if(__sdcard_blk_read(blk, &pdat->buf[0], blkno, 1) != 1)
+			return ret;
+		memcpy((void *)buf, (const void *)(&pdat->buf[0]), len);
+		ret += len;
+	}
+	return ret;
+}
+
+static u64_t sdcard_blk_write(struct block_t * blk, u8_t * buf, u64_t offset, u64_t count)
+{
+	struct sdcard_pdata_t * pdat = (struct sdcard_pdata_t *)(blk->priv);
+	u64_t blksz = pdat->card.write_bl_len;
+	u64_t blkno, len, tmp;
+	u64_t ret = 0;
+
+	blkno = offset / blksz;
+	tmp = offset % blksz;
+	if(tmp > 0)
+	{
+		len = blksz - tmp;
+		if(count < len)
+			len = count;
+		if(__sdcard_blk_read(blk, &pdat->buf[0], blkno, 1) != 1)
+			return ret;
+		memcpy((void *)(&pdat->buf[tmp]), (const void *)buf, len);
+		if(__sdcard_blk_write(blk, &pdat->buf[0], blkno, 1) != 1)
+			return ret;
+		buf += len;
+		count -= len;
+		ret += len;
+		blkno += 1;
+	}
+	tmp = count / blksz;
+	if(tmp > 0)
+	{
+		len = tmp * blksz;
+		if(__sdcard_blk_write(blk, buf, blkno, tmp) != tmp)
+			return ret;
+		buf += len;
+		count -= len;
+		ret += len;
+		blkno += tmp;
+	}
+	if(count > 0)
+	{
+		len = count;
+		if(__sdcard_blk_read(blk, &pdat->buf[0], blkno, 1) != 1)
+			return ret;
+		memcpy((void *)(&pdat->buf[0]), (const void *)buf, len);
+		if(__sdcard_blk_write(blk, &pdat->buf[0], blkno, 1) != 1)
+			return ret;
+		ret += len;
+	}
+	return ret;
+}
+
 static void sdcard_blk_sync(struct block_t * blk)
 {
 }
@@ -727,8 +826,7 @@ static void sdcard_scan(struct sdcard_pdata_t * pdat)
 			{
 				snprintf(buf, sizeof(buf), "%s.sdcard", pdat->hci->name);
 				pdat->blk.name = strdup(buf);
-				pdat->blk.blksz = pdat->card.read_bl_len;
-				pdat->blk.blkcnt = pdat->card.capacity / pdat->card.read_bl_len;
+				pdat->blk.capacity = sdcard_blk_capacity;
 				pdat->blk.read = sdcard_blk_read;
 				pdat->blk.write = sdcard_blk_write;
 				pdat->blk.sync = sdcard_blk_sync;

@@ -1287,10 +1287,13 @@ _pixman_image_for_surface (cairo_image_surface_t *dst,
 	cairo_image_surface_t *source = (cairo_image_surface_t *) pattern->surface;
 	cairo_surface_type_t type;
 
+	//xxx FIX BUG, STROKE PATH WITH IMAGE PATTERN, BY Jianjun Jiang, PLEASE CHECK!!!! IMPORTANT!!!
+	/*
 	if (_cairo_surface_is_snapshot (&source->base)) {
 	    defer_free = _cairo_surface_snapshot_get_target (&source->base);
 	    source = (cairo_image_surface_t *) defer_free;
 	}
+	*/
 
 	type = source->base.backend->type;
 	if (type == CAIRO_SURFACE_TYPE_IMAGE) {

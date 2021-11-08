@@ -78,25 +78,25 @@ static ssize_t rtc_time_write(struct kobj_t * kobj, void * buf, size_t size)
 			switch(index++)
 			{
 			case 0:
-				time.year = strtoul(v, NULL, 0);
+				time.year = strtoul(v, NULL, 10);
 				break;
 			case 1:
-				time.month = strtoul(v, NULL, 0);
+				time.month = strtoul(v, NULL, 10);
 				break;
 			case 2:
-				time.day = strtoul(v, NULL, 0);
+				time.day = strtoul(v, NULL, 10);
 				break;
 			case 3:
-				time.hour = strtoul(v, NULL, 0);
+				time.hour = strtoul(v, NULL, 10);
 				break;
 			case 4:
-				time.minute = strtoul(v, NULL, 0);
+				time.minute = strtoul(v, NULL, 10);
 				break;
 			case 5:
-				time.second = strtoul(v, NULL, 0);
+				time.second = strtoul(v, NULL, 10);
 				break;
 			case 6:
-				time.week = strtoul(v, NULL, 0);
+				time.week = strtoul(v, NULL, 10);
 				break;
 			default:
 				break;

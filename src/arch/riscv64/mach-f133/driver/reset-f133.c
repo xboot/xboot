@@ -1,5 +1,5 @@
 /*
- * driver/reset-d1.c
+ * driver/reset-f133.c
  *
  * Copyright(c) 2007-2021 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -29,16 +29,16 @@
 #include <xboot.h>
 #include <reset/reset.h>
 
-struct reset_d1_pdata_t
+struct reset_f133_pdata_t
 {
 	virtual_addr_t virt;
 	int base;
 	int nreset;
 };
 
-static void reset_d1_assert(struct resetchip_t * chip, int offset)
+static void reset_f133_assert(struct resetchip_t * chip, int offset)
 {
-	struct reset_d1_pdata_t * pdat = (struct reset_d1_pdata_t *)chip->priv;
+	struct reset_f133_pdata_t * pdat = (struct reset_f133_pdata_t *)chip->priv;
 	u32_t val;
 
 	if(offset >= chip->nreset)
@@ -49,9 +49,9 @@ static void reset_d1_assert(struct resetchip_t * chip, int offset)
 	write32(pdat->virt, val);
 }
 
-static void reset_d1_deassert(struct resetchip_t * chip, int offset)
+static void reset_f133_deassert(struct resetchip_t * chip, int offset)
 {
-	struct reset_d1_pdata_t * pdat = (struct reset_d1_pdata_t *)chip->priv;
+	struct reset_f133_pdata_t * pdat = (struct reset_f133_pdata_t *)chip->priv;
 	u32_t val;
 
 	if(offset >= chip->nreset)
@@ -62,9 +62,9 @@ static void reset_d1_deassert(struct resetchip_t * chip, int offset)
 	write32(pdat->virt, val);
 }
 
-static struct device_t * reset_d1_probe(struct driver_t * drv, struct dtnode_t * n)
+static struct device_t * reset_f133_probe(struct driver_t * drv, struct dtnode_t * n)
 {
-	struct reset_d1_pdata_t * pdat;
+	struct reset_f133_pdata_t * pdat;
 	struct resetchip_t * chip;
 	struct device_t * dev;
 	virtual_addr_t virt = phys_to_virt(dt_read_address(n));
@@ -74,7 +74,7 @@ static struct device_t * reset_d1_probe(struct driver_t * drv, struct dtnode_t *
 	if((base < 0) || (nreset <= 0))
 		return NULL;
 
-	pdat = malloc(sizeof(struct reset_d1_pdata_t));
+	pdat = malloc(sizeof(struct reset_f133_pdata_t));
 	if(!pdat)
 		return NULL;
 
@@ -92,8 +92,8 @@ static struct device_t * reset_d1_probe(struct driver_t * drv, struct dtnode_t *
 	chip->name = alloc_device_name(dt_read_name(n), -1);
 	chip->base = pdat->base;
 	chip->nreset = pdat->nreset;
-	chip->assert = reset_d1_assert;
-	chip->deassert = reset_d1_deassert;
+	chip->assert = reset_f133_assert;
+	chip->deassert = reset_f133_deassert;
 	chip->priv = pdat;
 
 	if(!(dev = register_resetchip(chip, drv)))
@@ -106,7 +106,7 @@ static struct device_t * reset_d1_probe(struct driver_t * drv, struct dtnode_t *
 	return dev;
 }
 
-static void reset_d1_remove(struct device_t * dev)
+static void reset_f133_remove(struct device_t * dev)
 {
 	struct resetchip_t * chip = (struct resetchip_t *)dev->priv;
 
@@ -119,31 +119,31 @@ static void reset_d1_remove(struct device_t * dev)
 	}
 }
 
-static void reset_d1_suspend(struct device_t * dev)
+static void reset_f133_suspend(struct device_t * dev)
 {
 }
 
-static void reset_d1_resume(struct device_t * dev)
+static void reset_f133_resume(struct device_t * dev)
 {
 }
 
-static struct driver_t reset_d1 = {
-	.name		= "reset-d1",
-	.probe		= reset_d1_probe,
-	.remove		= reset_d1_remove,
-	.suspend	= reset_d1_suspend,
-	.resume		= reset_d1_resume,
+static struct driver_t reset_f133 = {
+	.name		= "reset-f133",
+	.probe		= reset_f133_probe,
+	.remove		= reset_f133_remove,
+	.suspend	= reset_f133_suspend,
+	.resume		= reset_f133_resume,
 };
 
-static __init void reset_d1_driver_init(void)
+static __init void reset_f133_driver_init(void)
 {
-	register_driver(&reset_d1);
+	register_driver(&reset_f133);
 }
 
-static __exit void reset_d1_driver_exit(void)
+static __exit void reset_f133_driver_exit(void)
 {
-	unregister_driver(&reset_d1);
+	unregister_driver(&reset_f133);
 }
 
-driver_initcall(reset_d1_driver_init);
-driver_exitcall(reset_d1_driver_exit);
+driver_initcall(reset_f133_driver_init);
+driver_exitcall(reset_f133_driver_exit);

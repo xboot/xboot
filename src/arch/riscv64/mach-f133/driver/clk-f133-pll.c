@@ -1,5 +1,5 @@
 /*
- * driver/clk-d1-pll.c
+ * driver/clk-f133-pll.c
  *
  * Copyright(c) 2007-2021 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -27,40 +27,40 @@
  */
 
 #include <clk/clk.h>
-#include <d1/reg-ccu.h>
+#include <f133/reg-ccu.h>
 
-struct clk_d1_pll_pdata_t {
+struct clk_f133_pll_pdata_t {
 	virtual_addr_t virt;
 	char * parent;
 	int channel;
 };
 
-static void clk_d1_pll_set_parent(struct clk_t * clk, const char * pname)
+static void clk_f133_pll_set_parent(struct clk_t * clk, const char * pname)
 {
 }
 
-static const char * clk_d1_pll_get_parent(struct clk_t * clk)
+static const char * clk_f133_pll_get_parent(struct clk_t * clk)
 {
-	struct clk_d1_pll_pdata_t * pdat = (struct clk_d1_pll_pdata_t *)clk->priv;
+	struct clk_f133_pll_pdata_t * pdat = (struct clk_f133_pll_pdata_t *)clk->priv;
 	return pdat->parent;
 }
 
-static void clk_d1_pll_set_enable(struct clk_t * clk, bool_t enable)
+static void clk_f133_pll_set_enable(struct clk_t * clk, bool_t enable)
 {
 }
 
-static bool_t clk_d1_pll_get_enable(struct clk_t * clk)
+static bool_t clk_f133_pll_get_enable(struct clk_t * clk)
 {
 	return TRUE;
 }
 
-static void clk_d1_pll_set_rate(struct clk_t * clk, u64_t prate, u64_t rate)
+static void clk_f133_pll_set_rate(struct clk_t * clk, u64_t prate, u64_t rate)
 {
 }
 
-static u64_t clk_d1_pll_get_rate(struct clk_t * clk, u64_t prate)
+static u64_t clk_f133_pll_get_rate(struct clk_t * clk, u64_t prate)
 {
-	struct clk_d1_pll_pdata_t * pdat = (struct clk_d1_pll_pdata_t *)clk->priv;
+	struct clk_f133_pll_pdata_t * pdat = (struct clk_f133_pll_pdata_t *)clk->priv;
 	u32_t r, n, m, p, m0, m1;
 	u64_t rate = 0;
 
@@ -133,9 +133,9 @@ static u64_t clk_d1_pll_get_rate(struct clk_t * clk, u64_t prate)
 	return rate;
 }
 
-static struct device_t * clk_d1_pll_probe(struct driver_t * drv, struct dtnode_t * n)
+static struct device_t * clk_f133_pll_probe(struct driver_t * drv, struct dtnode_t * n)
 {
-	struct clk_d1_pll_pdata_t * pdat;
+	struct clk_f133_pll_pdata_t * pdat;
 	struct clk_t * clk;
 	struct device_t * dev;
 	struct dtnode_t o;
@@ -152,7 +152,7 @@ static struct device_t * clk_d1_pll_probe(struct driver_t * drv, struct dtnode_t
 	if(!search_clk(parent) || search_clk(name))
 		return NULL;
 
-	pdat = malloc(sizeof(struct clk_d1_pll_pdata_t));
+	pdat = malloc(sizeof(struct clk_f133_pll_pdata_t));
 	if(!pdat)
 		return NULL;
 
@@ -163,18 +163,18 @@ static struct device_t * clk_d1_pll_probe(struct driver_t * drv, struct dtnode_t
 		return NULL;
 	}
 
-	pdat->virt = phys_to_virt(D1_CCU_BASE);
+	pdat->virt = phys_to_virt(F133_CCU_BASE);
 	pdat->parent = strdup(parent);
 	pdat->channel = channel;
 
 	clk->name = strdup(name);
 	clk->count = 0;
-	clk->set_parent = clk_d1_pll_set_parent;
-	clk->get_parent = clk_d1_pll_get_parent;
-	clk->set_enable = clk_d1_pll_set_enable;
-	clk->get_enable = clk_d1_pll_get_enable;
-	clk->set_rate = clk_d1_pll_set_rate;
-	clk->get_rate = clk_d1_pll_get_rate;
+	clk->set_parent = clk_f133_pll_set_parent;
+	clk->get_parent = clk_f133_pll_get_parent;
+	clk->set_enable = clk_f133_pll_set_enable;
+	clk->get_enable = clk_f133_pll_get_enable;
+	clk->set_rate = clk_f133_pll_set_rate;
+	clk->get_rate = clk_f133_pll_get_rate;
 	clk->priv = pdat;
 
 	if(!(dev = register_clk(clk, drv)))
@@ -207,10 +207,10 @@ static struct device_t * clk_d1_pll_probe(struct driver_t * drv, struct dtnode_t
 	return dev;
 }
 
-static void clk_d1_pll_remove(struct device_t * dev)
+static void clk_f133_pll_remove(struct device_t * dev)
 {
 	struct clk_t * clk = (struct clk_t *)dev->priv;
-	struct clk_d1_pll_pdata_t * pdat = (struct clk_d1_pll_pdata_t *)clk->priv;
+	struct clk_f133_pll_pdata_t * pdat = (struct clk_f133_pll_pdata_t *)clk->priv;
 
 	if(clk)
 	{
@@ -222,31 +222,31 @@ static void clk_d1_pll_remove(struct device_t * dev)
 	}
 }
 
-static void clk_d1_pll_suspend(struct device_t * dev)
+static void clk_f133_pll_suspend(struct device_t * dev)
 {
 }
 
-static void clk_d1_pll_resume(struct device_t * dev)
+static void clk_f133_pll_resume(struct device_t * dev)
 {
 }
 
-static struct driver_t clk_d1_pll = {
-	.name		= "clk-d1-pll",
-	.probe		= clk_d1_pll_probe,
-	.remove		= clk_d1_pll_remove,
-	.suspend	= clk_d1_pll_suspend,
-	.resume		= clk_d1_pll_resume,
+static struct driver_t clk_f133_pll = {
+	.name		= "clk-f133-pll",
+	.probe		= clk_f133_pll_probe,
+	.remove		= clk_f133_pll_remove,
+	.suspend	= clk_f133_pll_suspend,
+	.resume		= clk_f133_pll_resume,
 };
 
-static __init void clk_d1_pll_driver_init(void)
+static __init void clk_f133_pll_driver_init(void)
 {
-	register_driver(&clk_d1_pll);
+	register_driver(&clk_f133_pll);
 }
 
-static __exit void clk_d1_pll_driver_exit(void)
+static __exit void clk_f133_pll_driver_exit(void)
 {
-	unregister_driver(&clk_d1_pll);
+	unregister_driver(&clk_f133_pll);
 }
 
-driver_initcall(clk_d1_pll_driver_init);
-driver_exitcall(clk_d1_pll_driver_exit);
+driver_initcall(clk_f133_pll_driver_init);
+driver_exitcall(clk_f133_pll_driver_exit);

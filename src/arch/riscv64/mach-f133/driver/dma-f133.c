@@ -1,5 +1,5 @@
 /*
- * driver/dma-d1.c
+ * driver/dma-f133.c
  *
  * Copyright(c) 2007-2021 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -31,7 +31,7 @@
 #include <reset/reset.h>
 #include <interrupt/interrupt.h>
 #include <dma/dma.h>
-#include <d1-dma.h>
+#include <f133-dma.h>
 
 enum {
 	DMA_IRQ_EN0				= 0x00,
@@ -54,7 +54,7 @@ enum {
 #define DMA_CH_FDESC(x)		(0x12c + ((x) << 6))
 #define DMA_CH_PKGNUM(x)	(0x130 + ((x) << 6))
 
-struct dma_d1_desc_t {
+struct dma_f133_desc_t {
 	u32_t config;
 	u32_t src;
 	u32_t dst;
@@ -64,7 +64,7 @@ struct dma_d1_desc_t {
 	u32_t reserved[2];
 };
 
-struct dma_d1_pdata_t
+struct dma_f133_pdata_t
 {
 	virtual_addr_t virt;
 	char * clk;
@@ -72,10 +72,10 @@ struct dma_d1_pdata_t
 	int reset;
 	int base;
 	int ndma;
-	struct dma_d1_desc_t * desc;
+	struct dma_f133_desc_t * desc;
 };
 
-static u32_t get_d1_config(struct dma_channel_t * ch)
+static u32_t get_f133_config(struct dma_channel_t * ch)
 {
 	u32_t cfg = 0;
 
@@ -199,25 +199,25 @@ static u32_t get_d1_config(struct dma_channel_t * ch)
 	{
 	case DMA_TYPE_MEMTOMEM:
 		if(((u64_t)ch->src >= 0x00020000) && ((u64_t)ch->src < 0x00059000))
-			cfg = (cfg & ~(0x3f << 0)) | (D1_DMA_PORT_SRAM << 0);
-		else if(((u64_t)ch->src >= 0x40000000) && ((u64_t)ch->src < 0xc0000000))
-			cfg = (cfg & ~(0x3f << 0)) | (D1_DMA_PORT_DRAM << 0);
+			cfg = (cfg & ~(0x3f << 0)) | (F133_DMA_PORT_SRAM << 0);
+		else if(((u64_t)ch->src >= 0x40000000) && ((u64_t)ch->src < 0x44000000))
+			cfg = (cfg & ~(0x3f << 0)) | (F133_DMA_PORT_DRAM << 0);
 		if(((u64_t)ch->dst >= 0x00020000) && ((u64_t)ch->dst < 0x00059000))
-			cfg = (cfg & ~(0x3f << 16)) | (D1_DMA_PORT_SRAM << 16);
-		else if(((u64_t)ch->dst >= 0x40000000) && ((u64_t)ch->dst < 0xc0000000))
-			cfg = (cfg & ~(0x3f << 16)) | (D1_DMA_PORT_DRAM << 16);
+			cfg = (cfg & ~(0x3f << 16)) | (F133_DMA_PORT_SRAM << 16);
+		else if(((u64_t)ch->dst >= 0x40000000) && ((u64_t)ch->dst < 0x44000000))
+			cfg = (cfg & ~(0x3f << 16)) | (F133_DMA_PORT_DRAM << 16);
 		break;
 	case DMA_TYPE_MEMTODEV:
 		if(((u64_t)ch->src >= 0x00020000) && ((u64_t)ch->src < 0x00059000))
-			cfg = (cfg & ~(0x3f << 0)) | (D1_DMA_PORT_SRAM << 0);
-		else if(((u64_t)ch->src >= 0x40000000) && ((u64_t)ch->src < 0xc0000000))
-			cfg = (cfg & ~(0x3f << 0)) | (D1_DMA_PORT_DRAM << 0);
+			cfg = (cfg & ~(0x3f << 0)) | (F133_DMA_PORT_SRAM << 0);
+		else if(((u64_t)ch->src >= 0x40000000) && ((u64_t)ch->src < 0x44000000))
+			cfg = (cfg & ~(0x3f << 0)) | (F133_DMA_PORT_DRAM << 0);
 		break;
 	case DMA_TYPE_DEVTOMEM:
 		if(((u64_t)ch->dst >= 0x00020000) && ((u64_t)ch->dst < 0x00059000))
-			cfg = (cfg & ~(0x3f << 16)) | (D1_DMA_PORT_SRAM << 16);
-		else if(((u64_t)ch->dst >= 0x40000000) && ((u64_t)ch->dst < 0xc0000000))
-			cfg = (cfg & ~(0x3f << 16)) | (D1_DMA_PORT_DRAM << 16);
+			cfg = (cfg & ~(0x3f << 16)) | (F133_DMA_PORT_SRAM << 16);
+		else if(((u64_t)ch->dst >= 0x40000000) && ((u64_t)ch->dst < 0x44000000))
+			cfg = (cfg & ~(0x3f << 16)) | (F133_DMA_PORT_DRAM << 16);
 		break;
 	case DMA_TYPE_DEVTODEV:
 	default:
@@ -226,7 +226,7 @@ static u32_t get_d1_config(struct dma_channel_t * ch)
 	return cfg;
 }
 
-static u32_t get_d1_para(struct dma_channel_t * ch)
+static u32_t get_f133_para(struct dma_channel_t * ch)
 {
 	u32_t para = 0;
 
@@ -235,10 +235,10 @@ static u32_t get_d1_para(struct dma_channel_t * ch)
 	return para;
 }
 
-static void dma_d1_start(struct dmachip_t * chip, int offset)
+static void dma_f133_start(struct dmachip_t * chip, int offset)
 {
-	struct dma_d1_pdata_t * pdat = (struct dma_d1_pdata_t *)chip->priv;
-	struct dma_d1_desc_t * desc;
+	struct dma_f133_pdata_t * pdat = (struct dma_f133_pdata_t *)chip->priv;
+	struct dma_f133_desc_t * desc;
 	struct dma_channel_t * ch;
 
 	if(offset >= chip->ndma)
@@ -246,11 +246,11 @@ static void dma_d1_start(struct dmachip_t * chip, int offset)
 
 	desc = &pdat->desc[offset];
 	ch = &chip->channel[offset];
-	desc->config = get_d1_config(ch);
+	desc->config = get_f133_config(ch);
 	desc->src = (u64_t)(ch->src);
 	desc->dst = (u64_t)(ch->dst);
 	desc->count = (u32_t)(ch->size);
-	desc->para = get_d1_para(ch);
+	desc->para = get_f133_para(ch);
 	desc->link = 0xfffff800;
 	smp_mb();
 	write32(pdat->virt + DMA_CH_DST(offset), (u64_t)desc);
@@ -260,18 +260,18 @@ static void dma_d1_start(struct dmachip_t * chip, int offset)
 	smp_mb();
 }
 
-static void dma_d1_stop(struct dmachip_t * chip, int offset)
+static void dma_f133_stop(struct dmachip_t * chip, int offset)
 {
-	struct dma_d1_pdata_t * pdat = (struct dma_d1_pdata_t *)chip->priv;
+	struct dma_f133_pdata_t * pdat = (struct dma_f133_pdata_t *)chip->priv;
 
 	if(offset >= chip->ndma)
 		return;
 	write32(pdat->virt + DMA_CH_EN(offset), 0);
 }
 
-static int dma_d1_busying(struct dmachip_t * chip, int offset)
+static int dma_f133_busying(struct dmachip_t * chip, int offset)
 {
-	struct dma_d1_pdata_t * pdat = (struct dma_d1_pdata_t *)chip->priv;
+	struct dma_f133_pdata_t * pdat = (struct dma_f133_pdata_t *)chip->priv;
 
 	if(offset < chip->ndma)
 	{
@@ -282,10 +282,10 @@ static int dma_d1_busying(struct dmachip_t * chip, int offset)
 	return 0;
 }
 
-static void dma_d1_interrupt(void * data)
+static void dma_f133_interrupt(void * data)
 {
 	struct dmachip_t * chip = (struct dmachip_t *)data;
-	struct dma_d1_pdata_t * pdat = (struct dma_d1_pdata_t *)chip->priv;
+	struct dma_f133_pdata_t * pdat = (struct dma_f133_pdata_t *)chip->priv;
 	struct dma_channel_t * ch;
 	u32_t pending;
 	int i;
@@ -337,9 +337,9 @@ static void dma_d1_interrupt(void * data)
 	}
 }
 
-static struct device_t * dma_d1_probe(struct driver_t * drv, struct dtnode_t * n)
+static struct device_t * dma_f133_probe(struct driver_t * drv, struct dtnode_t * n)
 {
-	struct dma_d1_pdata_t * pdat;
+	struct dma_f133_pdata_t * pdat;
 	struct dmachip_t * chip;
 	struct device_t * dev;
 	virtual_addr_t virt = phys_to_virt(dt_read_address(n));
@@ -358,7 +358,7 @@ static struct device_t * dma_d1_probe(struct driver_t * drv, struct dtnode_t * n
 	if((base < 0) || (ndma <= 0))
 		return NULL;
 
-	pdat = malloc(sizeof(struct dma_d1_pdata_t));
+	pdat = malloc(sizeof(struct dma_f133_pdata_t));
 	if(!pdat)
 		return NULL;
 
@@ -375,15 +375,15 @@ static struct device_t * dma_d1_probe(struct driver_t * drv, struct dtnode_t * n
 	pdat->irq = irq;
 	pdat->base = base;
 	pdat->ndma = ndma;
-	pdat->desc = dma_alloc_coherent(sizeof(struct dma_d1_desc_t) * ndma);
+	pdat->desc = dma_alloc_coherent(sizeof(struct dma_f133_desc_t) * ndma);
 
 	chip->name = alloc_device_name(dt_read_name(n), -1);
 	chip->base = pdat->base;
 	chip->ndma = pdat->ndma;
 	chip->channel = malloc(sizeof(struct dma_channel_t) * pdat->ndma);
-	chip->start = dma_d1_start;
-	chip->stop = dma_d1_stop;
-	chip->busying = dma_d1_busying;
+	chip->start = dma_f133_start;
+	chip->stop = dma_f133_stop;
+	chip->busying = dma_f133_busying;
 	chip->priv = pdat;
 
 	clk_enable(pdat->clk);
@@ -394,7 +394,7 @@ static struct device_t * dma_d1_probe(struct driver_t * drv, struct dtnode_t * n
 		reset_deassert(pdat->reset);
 		udelay(1);
 	}
-	request_irq(pdat->irq, dma_d1_interrupt, IRQ_TYPE_NONE, chip);
+	request_irq(pdat->irq, dma_f133_interrupt, IRQ_TYPE_NONE, chip);
 	write32(pdat->virt + DMA_IRQ_EN0, 0x33333333);
 	write32(pdat->virt + DMA_IRQ_EN1, 0x33333333);
 	write32(pdat->virt + DMA_IRQ_PEND0, 0x77777777);
@@ -423,10 +423,10 @@ static struct device_t * dma_d1_probe(struct driver_t * drv, struct dtnode_t * n
 	return dev;
 }
 
-static void dma_d1_remove(struct device_t * dev)
+static void dma_f133_remove(struct device_t * dev)
 {
 	struct dmachip_t * chip = (struct dmachip_t *)dev->priv;
-	struct dma_d1_pdata_t * pdat = (struct dma_d1_pdata_t *)chip->priv;
+	struct dma_f133_pdata_t * pdat = (struct dma_f133_pdata_t *)chip->priv;
 
 	if(chip)
 	{
@@ -442,31 +442,31 @@ static void dma_d1_remove(struct device_t * dev)
 	}
 }
 
-static void dma_d1_suspend(struct device_t * dev)
+static void dma_f133_suspend(struct device_t * dev)
 {
 }
 
-static void dma_d1_resume(struct device_t * dev)
+static void dma_f133_resume(struct device_t * dev)
 {
 }
 
-static struct driver_t dma_d1 = {
-	.name		= "dma-d1",
-	.probe		= dma_d1_probe,
-	.remove		= dma_d1_remove,
-	.suspend	= dma_d1_suspend,
-	.resume		= dma_d1_resume,
+static struct driver_t dma_f133 = {
+	.name		= "dma-f133",
+	.probe		= dma_f133_probe,
+	.remove		= dma_f133_remove,
+	.suspend	= dma_f133_suspend,
+	.resume		= dma_f133_resume,
 };
 
-static __init void dma_d1_driver_init(void)
+static __init void dma_f133_driver_init(void)
 {
-	register_driver(&dma_d1);
+	register_driver(&dma_f133);
 }
 
-static __exit void dma_d1_driver_exit(void)
+static __exit void dma_f133_driver_exit(void)
 {
-	unregister_driver(&dma_d1);
+	unregister_driver(&dma_f133);
 }
 
-driver_initcall(dma_d1_driver_init);
-driver_exitcall(dma_d1_driver_exit);
+driver_initcall(dma_f133_driver_init);
+driver_exitcall(dma_f133_driver_exit);

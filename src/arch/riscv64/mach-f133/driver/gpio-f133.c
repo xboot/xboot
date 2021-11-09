@@ -1,5 +1,5 @@
 /*
- * driver/gpio-d1.c
+ * driver/gpio-f133.c
  *
  * Copyright(c) 2007-2021 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -43,7 +43,7 @@ enum {
 	GPIO_PUL1	= 0x28,
 };
 
-struct gpio_d1_pdata_t
+struct gpio_f133_pdata_t
 {
 	virtual_addr_t virt;
 	int base;
@@ -51,9 +51,9 @@ struct gpio_d1_pdata_t
 	int oirq;
 };
 
-static void gpio_d1_set_cfg(struct gpiochip_t * chip, int offset, int cfg)
+static void gpio_f133_set_cfg(struct gpiochip_t * chip, int offset, int cfg)
 {
-	struct gpio_d1_pdata_t * pdat = (struct gpio_d1_pdata_t *)chip->priv;
+	struct gpio_f133_pdata_t * pdat = (struct gpio_f133_pdata_t *)chip->priv;
 	virtual_addr_t addr;
 	u32_t val;
 
@@ -67,9 +67,9 @@ static void gpio_d1_set_cfg(struct gpiochip_t * chip, int offset, int cfg)
 	write32(addr, val);
 }
 
-static int gpio_d1_get_cfg(struct gpiochip_t * chip, int offset)
+static int gpio_f133_get_cfg(struct gpiochip_t * chip, int offset)
 {
-	struct gpio_d1_pdata_t * pdat = (struct gpio_d1_pdata_t *)chip->priv;
+	struct gpio_f133_pdata_t * pdat = (struct gpio_f133_pdata_t *)chip->priv;
 	virtual_addr_t addr;
 	u32_t val;
 
@@ -81,9 +81,9 @@ static int gpio_d1_get_cfg(struct gpiochip_t * chip, int offset)
 	return val;
 }
 
-static void gpio_d1_set_pull(struct gpiochip_t * chip, int offset, enum gpio_pull_t pull)
+static void gpio_f133_set_pull(struct gpiochip_t * chip, int offset, enum gpio_pull_t pull)
 {
-	struct gpio_d1_pdata_t * pdat = (struct gpio_d1_pdata_t *)chip->priv;
+	struct gpio_f133_pdata_t * pdat = (struct gpio_f133_pdata_t *)chip->priv;
 	virtual_addr_t addr;
 	u32_t val, v;
 
@@ -116,9 +116,9 @@ static void gpio_d1_set_pull(struct gpiochip_t * chip, int offset, enum gpio_pul
 	write32(addr, val);
 }
 
-static enum gpio_pull_t gpio_d1_get_pull(struct gpiochip_t * chip, int offset)
+static enum gpio_pull_t gpio_f133_get_pull(struct gpiochip_t * chip, int offset)
 {
-	struct gpio_d1_pdata_t * pdat = (struct gpio_d1_pdata_t *)chip->priv;
+	struct gpio_f133_pdata_t * pdat = (struct gpio_f133_pdata_t *)chip->priv;
 	virtual_addr_t addr;
 	u32_t v = 0;
 
@@ -142,9 +142,9 @@ static enum gpio_pull_t gpio_d1_get_pull(struct gpiochip_t * chip, int offset)
 	return GPIO_PULL_NONE;
 }
 
-static void gpio_d1_set_drv(struct gpiochip_t * chip, int offset, enum gpio_drv_t drv)
+static void gpio_f133_set_drv(struct gpiochip_t * chip, int offset, enum gpio_drv_t drv)
 {
-	struct gpio_d1_pdata_t * pdat = (struct gpio_d1_pdata_t *)chip->priv;
+	struct gpio_f133_pdata_t * pdat = (struct gpio_f133_pdata_t *)chip->priv;
 	virtual_addr_t addr;
 	u32_t val, v;
 
@@ -181,9 +181,9 @@ static void gpio_d1_set_drv(struct gpiochip_t * chip, int offset, enum gpio_drv_
 	write32(addr, val);
 }
 
-static enum gpio_drv_t gpio_d1_get_drv(struct gpiochip_t * chip, int offset)
+static enum gpio_drv_t gpio_f133_get_drv(struct gpiochip_t * chip, int offset)
 {
-	struct gpio_d1_pdata_t * pdat = (struct gpio_d1_pdata_t *)chip->priv;
+	struct gpio_f133_pdata_t * pdat = (struct gpio_f133_pdata_t *)chip->priv;
 	virtual_addr_t addr;
 	u32_t v = 0;
 
@@ -209,16 +209,16 @@ static enum gpio_drv_t gpio_d1_get_drv(struct gpiochip_t * chip, int offset)
 	return GPIO_DRV_WEAK;
 }
 
-static void gpio_d1_set_rate(struct gpiochip_t * chip, int offset, enum gpio_rate_t rate)
+static void gpio_f133_set_rate(struct gpiochip_t * chip, int offset, enum gpio_rate_t rate)
 {
 }
 
-static enum gpio_rate_t gpio_d1_get_rate(struct gpiochip_t * chip, int offset)
+static enum gpio_rate_t gpio_f133_get_rate(struct gpiochip_t * chip, int offset)
 {
 	return GPIO_RATE_SLOW;
 }
 
-static void gpio_d1_set_dir(struct gpiochip_t * chip, int offset, enum gpio_direction_t dir)
+static void gpio_f133_set_dir(struct gpiochip_t * chip, int offset, enum gpio_direction_t dir)
 {
 	if(offset >= chip->ngpio)
 		return;
@@ -226,11 +226,11 @@ static void gpio_d1_set_dir(struct gpiochip_t * chip, int offset, enum gpio_dire
 	switch(dir)
 	{
 	case GPIO_DIRECTION_INPUT:
-		gpio_d1_set_cfg(chip, offset, 0);
+		gpio_f133_set_cfg(chip, offset, 0);
 		break;
 
 	case GPIO_DIRECTION_OUTPUT:
-		gpio_d1_set_cfg(chip, offset, 1);
+		gpio_f133_set_cfg(chip, offset, 1);
 		break;
 
 	default:
@@ -238,12 +238,12 @@ static void gpio_d1_set_dir(struct gpiochip_t * chip, int offset, enum gpio_dire
 	}
 }
 
-static enum gpio_direction_t gpio_d1_get_dir(struct gpiochip_t * chip, int offset)
+static enum gpio_direction_t gpio_f133_get_dir(struct gpiochip_t * chip, int offset)
 {
 	if(offset >= chip->ngpio)
 		return GPIO_DIRECTION_INPUT;
 
-	switch(gpio_d1_get_cfg(chip, offset))
+	switch(gpio_f133_get_cfg(chip, offset))
 	{
 	case 0:
 		return GPIO_DIRECTION_INPUT;
@@ -255,9 +255,9 @@ static enum gpio_direction_t gpio_d1_get_dir(struct gpiochip_t * chip, int offse
 	return GPIO_DIRECTION_INPUT;
 }
 
-static void gpio_d1_set_value(struct gpiochip_t * chip, int offset, int value)
+static void gpio_f133_set_value(struct gpiochip_t * chip, int offset, int value)
 {
-	struct gpio_d1_pdata_t * pdat = (struct gpio_d1_pdata_t *)chip->priv;
+	struct gpio_f133_pdata_t * pdat = (struct gpio_f133_pdata_t *)chip->priv;
 	u32_t val;
 
 	if(offset >= chip->ngpio)
@@ -269,9 +269,9 @@ static void gpio_d1_set_value(struct gpiochip_t * chip, int offset, int value)
 	write32(pdat->virt + GPIO_DAT, val);
 }
 
-static int gpio_d1_get_value(struct gpiochip_t * chip, int offset)
+static int gpio_f133_get_value(struct gpiochip_t * chip, int offset)
 {
-	struct gpio_d1_pdata_t * pdat = (struct gpio_d1_pdata_t *)chip->priv;
+	struct gpio_f133_pdata_t * pdat = (struct gpio_f133_pdata_t *)chip->priv;
 	u32_t val;
 
 	if(offset >= chip->ngpio)
@@ -281,18 +281,18 @@ static int gpio_d1_get_value(struct gpiochip_t * chip, int offset)
 	return !!(val & (1 << offset));
 }
 
-static int gpio_d1_to_irq(struct gpiochip_t * chip, int offset)
+static int gpio_f133_to_irq(struct gpiochip_t * chip, int offset)
 {
-	struct gpio_d1_pdata_t * pdat = (struct gpio_d1_pdata_t *)chip->priv;
+	struct gpio_f133_pdata_t * pdat = (struct gpio_f133_pdata_t *)chip->priv;
 
 	if((offset >= chip->ngpio) || (pdat->oirq < 0))
 		return -1;
 	return pdat->oirq + offset;
 }
 
-static struct device_t * gpio_d1_probe(struct driver_t * drv, struct dtnode_t * n)
+static struct device_t * gpio_f133_probe(struct driver_t * drv, struct dtnode_t * n)
 {
-	struct gpio_d1_pdata_t * pdat;
+	struct gpio_f133_pdata_t * pdat;
 	struct gpiochip_t * chip;
 	struct device_t * dev;
 	virtual_addr_t virt = phys_to_virt(dt_read_address(n));
@@ -302,7 +302,7 @@ static struct device_t * gpio_d1_probe(struct driver_t * drv, struct dtnode_t * 
 	if((base < 0) || (ngpio <= 0))
 		return NULL;
 
-	pdat = malloc(sizeof(struct gpio_d1_pdata_t));
+	pdat = malloc(sizeof(struct gpio_f133_pdata_t));
 	if(!pdat)
 		return NULL;
 
@@ -321,19 +321,19 @@ static struct device_t * gpio_d1_probe(struct driver_t * drv, struct dtnode_t * 
 	chip->name = alloc_device_name(dt_read_name(n), -1);
 	chip->base = pdat->base;
 	chip->ngpio = pdat->ngpio;
-	chip->set_cfg = gpio_d1_set_cfg;
-	chip->get_cfg = gpio_d1_get_cfg;
-	chip->set_pull = gpio_d1_set_pull;
-	chip->get_pull = gpio_d1_get_pull;
-	chip->set_drv = gpio_d1_set_drv;
-	chip->get_drv = gpio_d1_get_drv;
-	chip->set_rate = gpio_d1_set_rate;
-	chip->get_rate = gpio_d1_get_rate;
-	chip->set_dir = gpio_d1_set_dir;
-	chip->get_dir = gpio_d1_get_dir;
-	chip->set_value = gpio_d1_set_value;
-	chip->get_value = gpio_d1_get_value;
-	chip->to_irq = gpio_d1_to_irq;
+	chip->set_cfg = gpio_f133_set_cfg;
+	chip->get_cfg = gpio_f133_get_cfg;
+	chip->set_pull = gpio_f133_set_pull;
+	chip->get_pull = gpio_f133_get_pull;
+	chip->set_drv = gpio_f133_set_drv;
+	chip->get_drv = gpio_f133_get_drv;
+	chip->set_rate = gpio_f133_set_rate;
+	chip->get_rate = gpio_f133_get_rate;
+	chip->set_dir = gpio_f133_set_dir;
+	chip->get_dir = gpio_f133_get_dir;
+	chip->set_value = gpio_f133_set_value;
+	chip->get_value = gpio_f133_get_value;
+	chip->to_irq = gpio_f133_to_irq;
 	chip->priv = pdat;
 
 	if(!(dev = register_gpiochip(chip, drv)))
@@ -346,7 +346,7 @@ static struct device_t * gpio_d1_probe(struct driver_t * drv, struct dtnode_t * 
 	return dev;
 }
 
-static void gpio_d1_remove(struct device_t * dev)
+static void gpio_f133_remove(struct device_t * dev)
 {
 	struct gpiochip_t * chip = (struct gpiochip_t *)dev->priv;
 
@@ -359,31 +359,31 @@ static void gpio_d1_remove(struct device_t * dev)
 	}
 }
 
-static void gpio_d1_suspend(struct device_t * dev)
+static void gpio_f133_suspend(struct device_t * dev)
 {
 }
 
-static void gpio_d1_resume(struct device_t * dev)
+static void gpio_f133_resume(struct device_t * dev)
 {
 }
 
-static struct driver_t gpio_d1 = {
-	.name		= "gpio-d1",
-	.probe		= gpio_d1_probe,
-	.remove		= gpio_d1_remove,
-	.suspend	= gpio_d1_suspend,
-	.resume		= gpio_d1_resume,
+static struct driver_t gpio_f133 = {
+	.name		= "gpio-f133",
+	.probe		= gpio_f133_probe,
+	.remove		= gpio_f133_remove,
+	.suspend	= gpio_f133_suspend,
+	.resume		= gpio_f133_resume,
 };
 
-static __init void gpio_d1_driver_init(void)
+static __init void gpio_f133_driver_init(void)
 {
-	register_driver(&gpio_d1);
+	register_driver(&gpio_f133);
 }
 
-static __exit void gpio_d1_driver_exit(void)
+static __exit void gpio_f133_driver_exit(void)
 {
-	unregister_driver(&gpio_d1);
+	unregister_driver(&gpio_f133);
 }
 
-driver_initcall(gpio_d1_driver_init);
-driver_exitcall(gpio_d1_driver_exit);
+driver_initcall(gpio_f133_driver_init);
+driver_exitcall(gpio_f133_driver_exit);

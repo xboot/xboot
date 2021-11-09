@@ -1,5 +1,5 @@
 /*
- * driver/rtc-d1.c
+ * driver/rtc-f133.c
  *
  * Copyright(c) 2007-2021 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -57,7 +57,7 @@ enum {
 #define LEAPS_THRU_END(y)	((y) / 4 - (y) / 100 + (y) / 400)
 #define LEAP_YEAR(year)		((!(year % 4) && (year % 100)) || !(year % 400))
 
-struct rtc_d1_pdata_t {
+struct rtc_f133_pdata_t {
 	virtual_addr_t virt;
 	char * clk;
 };
@@ -118,7 +118,7 @@ static u32_t from_rtc_time(struct rtc_time_t * rt)
 	return ((((u32_t)(year/4 - year/100 + year/400 + 367*month/12 + rt->day) + year*365 - 719499)*24 + rt->hour)*60 + rt->minute)*60 + rt->second;
 }
 
-static int rtc_d1_wait(struct rtc_d1_pdata_t * pdat, u32_t offset, u32_t mask, u32_t ms)
+static int rtc_f133_wait(struct rtc_f133_pdata_t * pdat, u32_t offset, u32_t mask, u32_t ms)
 {
 	ktime_t timeout = ktime_add_ms(ktime_get(), ms);
 	u32_t val;
@@ -132,36 +132,36 @@ static int rtc_d1_wait(struct rtc_d1_pdata_t * pdat, u32_t offset, u32_t mask, u
 	return 0;
 }
 
-static bool_t rtc_d1_settime(struct rtc_t * rtc, struct rtc_time_t * time)
+static bool_t rtc_f133_settime(struct rtc_t * rtc, struct rtc_time_t * time)
 {
-	struct rtc_d1_pdata_t * pdat = (struct rtc_d1_pdata_t *)rtc->priv;
+	struct rtc_f133_pdata_t * pdat = (struct rtc_f133_pdata_t *)rtc->priv;
 	u32_t d, t;
 
 	t = (time->second << 0) | (time->minute << 8) | (time->hour << 16);
 	d = from_rtc_time(time) / (24 * 3600);
 
-	if(!rtc_d1_wait(pdat, RTC_LOSC_CTRL, 1 << 8, 50))
+	if(!rtc_f133_wait(pdat, RTC_LOSC_CTRL, 1 << 8, 50))
 		return FALSE;
 	mdelay(2);
 	write32(pdat->virt + RTC_RTC_HH_MM_SS, t);
-	if(!rtc_d1_wait(pdat, RTC_LOSC_CTRL, 1 << 8, 50))
+	if(!rtc_f133_wait(pdat, RTC_LOSC_CTRL, 1 << 8, 50))
 		return FALSE;
 	mdelay(2);
 
-	if(!rtc_d1_wait(pdat, RTC_LOSC_CTRL, 1 << 7, 50))
+	if(!rtc_f133_wait(pdat, RTC_LOSC_CTRL, 1 << 7, 50))
 		return FALSE;
 	mdelay(2);
 	write32(pdat->virt + RTC_RTC_DAY, d);
-	if(!rtc_d1_wait(pdat, RTC_LOSC_CTRL, 1 << 7, 50))
+	if(!rtc_f133_wait(pdat, RTC_LOSC_CTRL, 1 << 7, 50))
 		return FALSE;
 	mdelay(2);
 
 	return TRUE;
 }
 
-static bool_t rtc_d1_gettime(struct rtc_t * rtc, struct rtc_time_t * time)
+static bool_t rtc_f133_gettime(struct rtc_t * rtc, struct rtc_time_t * time)
 {
-	struct rtc_d1_pdata_t * pdat = (struct rtc_d1_pdata_t *)rtc->priv;
+	struct rtc_f133_pdata_t * pdat = (struct rtc_f133_pdata_t *)rtc->priv;
 	u32_t d, t, tmp;
 
 	do {
@@ -174,9 +174,9 @@ static bool_t rtc_d1_gettime(struct rtc_t * rtc, struct rtc_time_t * time)
 	return TRUE;
 }
 
-static struct device_t * rtc_d1_probe(struct driver_t * drv, struct dtnode_t * n)
+static struct device_t * rtc_f133_probe(struct driver_t * drv, struct dtnode_t * n)
 {
-	struct rtc_d1_pdata_t * pdat;
+	struct rtc_f133_pdata_t * pdat;
 	struct rtc_t * rtc;
 	struct device_t * dev;
 	virtual_addr_t virt = phys_to_virt(dt_read_address(n));
@@ -186,7 +186,7 @@ static struct device_t * rtc_d1_probe(struct driver_t * drv, struct dtnode_t * n
 	if(!search_clk(clk))
 		return NULL;
 
-	pdat = malloc(sizeof(struct rtc_d1_pdata_t));
+	pdat = malloc(sizeof(struct rtc_f133_pdata_t));
 	if(!pdat)
 		return NULL;
 
@@ -201,8 +201,8 @@ static struct device_t * rtc_d1_probe(struct driver_t * drv, struct dtnode_t * n
 	pdat->clk = strdup(clk);
 
 	rtc->name = alloc_device_name(dt_read_name(n), -1);
-	rtc->settime = rtc_d1_settime;
-	rtc->gettime = rtc_d1_gettime;
+	rtc->settime = rtc_f133_settime;
+	rtc->gettime = rtc_f133_gettime;
 	rtc->priv = pdat;
 
 	clk_enable(pdat->clk);
@@ -224,10 +224,10 @@ static struct device_t * rtc_d1_probe(struct driver_t * drv, struct dtnode_t * n
 	return dev;
 }
 
-static void rtc_d1_remove(struct device_t * dev)
+static void rtc_f133_remove(struct device_t * dev)
 {
 	struct rtc_t * rtc = (struct rtc_t *)dev->priv;
-	struct rtc_d1_pdata_t * pdat = (struct rtc_d1_pdata_t *)rtc->priv;
+	struct rtc_f133_pdata_t * pdat = (struct rtc_f133_pdata_t *)rtc->priv;
 
 	if(rtc)
 	{
@@ -240,31 +240,31 @@ static void rtc_d1_remove(struct device_t * dev)
 	}
 }
 
-static void rtc_d1_suspend(struct device_t * dev)
+static void rtc_f133_suspend(struct device_t * dev)
 {
 }
 
-static void rtc_d1_resume(struct device_t * dev)
+static void rtc_f133_resume(struct device_t * dev)
 {
 }
 
-static struct driver_t rtc_d1 = {
-	.name		= "rtc-d1",
-	.probe		= rtc_d1_probe,
-	.remove		= rtc_d1_remove,
-	.suspend	= rtc_d1_suspend,
-	.resume		= rtc_d1_resume,
+static struct driver_t rtc_f133 = {
+	.name		= "rtc-f133",
+	.probe		= rtc_f133_probe,
+	.remove		= rtc_f133_remove,
+	.suspend	= rtc_f133_suspend,
+	.resume		= rtc_f133_resume,
 };
 
-static __init void rtc_d1_driver_init(void)
+static __init void rtc_f133_driver_init(void)
 {
-	register_driver(&rtc_d1);
+	register_driver(&rtc_f133);
 }
 
-static __exit void rtc_d1_driver_exit(void)
+static __exit void rtc_f133_driver_exit(void)
 {
-	unregister_driver(&rtc_d1);
+	unregister_driver(&rtc_f133);
 }
 
-driver_initcall(rtc_d1_driver_init);
-driver_exitcall(rtc_d1_driver_exit);
+driver_initcall(rtc_f133_driver_init);
+driver_exitcall(rtc_f133_driver_exit);

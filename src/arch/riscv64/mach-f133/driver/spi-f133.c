@@ -1,5 +1,5 @@
 /*
- * driver/spi-d1.c
+ * driver/spi-f133.c
  *
  * Copyright(c) 2007-2021 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -48,7 +48,7 @@ enum {
 	SPI_RXD	= 0x300,
 };
 
-struct spi_d1_pdata_t {
+struct spi_f133_pdata_t {
 	virtual_addr_t virt;
 	char * clk;
 	int reset;
@@ -62,7 +62,7 @@ struct spi_d1_pdata_t {
 	int cscfg;
 };
 
-static void d1_spi_enable_chip(struct spi_d1_pdata_t * pdat)
+static void f133_spi_enable_chip(struct spi_f133_pdata_t * pdat)
 {
 	u32_t val;
 
@@ -80,7 +80,7 @@ static void d1_spi_enable_chip(struct spi_d1_pdata_t * pdat)
 	write32(pdat->virt + SPI_FCR, val);
 }
 
-static void d1_spi_set_rate(struct spi_d1_pdata_t * pdat, u64_t rate)
+static void f133_spi_set_rate(struct spi_f133_pdata_t * pdat, u64_t rate)
 {
 	u64_t pclk = clk_get_rate(pdat->clk);
 	u32_t div, val;
@@ -100,7 +100,7 @@ static void d1_spi_set_rate(struct spi_d1_pdata_t * pdat, u64_t rate)
 	write32(pdat->virt + SPI_CCR, val);
 }
 
-static void d1_spi_set_mode(struct spi_d1_pdata_t * pdat, int mode)
+static void f133_spi_set_mode(struct spi_f133_pdata_t * pdat, int mode)
 {
 	u32_t val;
 
@@ -110,7 +110,7 @@ static void d1_spi_set_mode(struct spi_d1_pdata_t * pdat, int mode)
 	write32(pdat->virt + SPI_TCR, val);
 }
 
-static void d1_spi_write_txbuf(struct spi_d1_pdata_t * pdat, u8_t * buf, int len)
+static void f133_spi_write_txbuf(struct spi_f133_pdata_t * pdat, u8_t * buf, int len)
 {
 	int i;
 
@@ -128,7 +128,7 @@ static void d1_spi_write_txbuf(struct spi_d1_pdata_t * pdat, u8_t * buf, int len
 	}
 }
 
-static int d1_spi_xfer(struct spi_d1_pdata_t * pdat, struct spi_msg_t * msg)
+static int f133_spi_xfer(struct spi_f133_pdata_t * pdat, struct spi_msg_t * msg)
 {
 	int count = msg->len * msg->bits / 8;
 	u8_t * tx = msg->txbuf;
@@ -140,7 +140,7 @@ static int d1_spi_xfer(struct spi_d1_pdata_t * pdat, struct spi_msg_t * msg)
 	{
 		n = (count <= 64) ? count : 64;
 		write32(pdat->virt + SPI_MBC, n);
-		d1_spi_write_txbuf(pdat, tx, n);
+		f133_spi_write_txbuf(pdat, tx, n);
 		write32(pdat->virt + SPI_TCR, read32(pdat->virt + SPI_TCR) | (1 << 31));
 
 		while((read32(pdat->virt + SPI_FSR) & 0xff) < n);
@@ -158,18 +158,18 @@ static int d1_spi_xfer(struct spi_d1_pdata_t * pdat, struct spi_msg_t * msg)
 	return msg->len;
 }
 
-static int spi_d1_transfer(struct spi_t * spi, struct spi_msg_t * msg)
+static int spi_f133_transfer(struct spi_t * spi, struct spi_msg_t * msg)
 {
-	struct spi_d1_pdata_t * pdat = (struct spi_d1_pdata_t *)spi->priv;
+	struct spi_f133_pdata_t * pdat = (struct spi_f133_pdata_t *)spi->priv;
 
-	d1_spi_set_mode(pdat, msg->mode);
-	d1_spi_set_rate(pdat, (msg->speed > 0) ? msg->speed : 1000000);
-	return d1_spi_xfer(pdat, msg);
+	f133_spi_set_mode(pdat, msg->mode);
+	f133_spi_set_rate(pdat, (msg->speed > 0) ? msg->speed : 1000000);
+	return f133_spi_xfer(pdat, msg);
 }
 
-static void spi_d1_select(struct spi_t * spi, int cs)
+static void spi_f133_select(struct spi_t * spi, int cs)
 {
-	struct spi_d1_pdata_t * pdat = (struct spi_d1_pdata_t *)spi->priv;
+	struct spi_f133_pdata_t * pdat = (struct spi_f133_pdata_t *)spi->priv;
 	u32_t val;
 
 	val = read32(pdat->virt + SPI_TCR);
@@ -178,9 +178,9 @@ static void spi_d1_select(struct spi_t * spi, int cs)
 	write32(pdat->virt + SPI_TCR, val);
 }
 
-static void spi_d1_deselect(struct spi_t * spi, int cs)
+static void spi_f133_deselect(struct spi_t * spi, int cs)
 {
-	struct spi_d1_pdata_t * pdat = (struct spi_d1_pdata_t *)spi->priv;
+	struct spi_f133_pdata_t * pdat = (struct spi_f133_pdata_t *)spi->priv;
 	u32_t val;
 
 	val = read32(pdat->virt + SPI_TCR);
@@ -189,15 +189,15 @@ static void spi_d1_deselect(struct spi_t * spi, int cs)
 	write32(pdat->virt + SPI_TCR, val);
 }
 
-static struct device_t * spi_d1_probe(struct driver_t * drv, struct dtnode_t * n)
+static struct device_t * spi_f133_probe(struct driver_t * drv, struct dtnode_t * n)
 {
-	struct spi_d1_pdata_t * pdat;
+	struct spi_f133_pdata_t * pdat;
 	struct spi_t * spi;
 	struct device_t * dev;
 	virtual_addr_t virt = phys_to_virt(dt_read_address(n));
 	char * clk = dt_read_string(n, "clock-name", NULL);
 
-	pdat = malloc(sizeof(struct spi_d1_pdata_t));
+	pdat = malloc(sizeof(struct spi_f133_pdata_t));
 	if(!pdat)
 		return NULL;
 
@@ -223,9 +223,9 @@ static struct device_t * spi_d1_probe(struct driver_t * drv, struct dtnode_t * n
 
 	spi->name = alloc_device_name(dt_read_name(n), -1);
 	spi->type = SPI_TYPE_SINGLE;
-	spi->transfer = spi_d1_transfer;
-	spi->select = spi_d1_select;
-	spi->deselect = spi_d1_deselect;
+	spi->transfer = spi_f133_transfer;
+	spi->select = spi_f133_select;
+	spi->deselect = spi_f133_deselect;
 	spi->priv = pdat;
 
 	if(pdat->reset >= 0)
@@ -254,7 +254,7 @@ static struct device_t * spi_d1_probe(struct driver_t * drv, struct dtnode_t * n
 			gpio_set_cfg(pdat->cs, pdat->cscfg);
 		gpio_set_pull(pdat->cs, GPIO_PULL_NONE);
 	}
-	d1_spi_enable_chip(pdat);
+	f133_spi_enable_chip(pdat);
 
 	if(!(dev = register_spi(spi, drv)))
 	{
@@ -268,10 +268,10 @@ static struct device_t * spi_d1_probe(struct driver_t * drv, struct dtnode_t * n
 	return dev;
 }
 
-static void spi_d1_remove(struct device_t * dev)
+static void spi_f133_remove(struct device_t * dev)
 {
 	struct spi_t * spi = (struct spi_t *)dev->priv;
-	struct spi_d1_pdata_t * pdat = (struct spi_d1_pdata_t *)spi->priv;
+	struct spi_f133_pdata_t * pdat = (struct spi_f133_pdata_t *)spi->priv;
 
 	if(spi)
 	{
@@ -284,31 +284,31 @@ static void spi_d1_remove(struct device_t * dev)
 	}
 }
 
-static void spi_d1_suspend(struct device_t * dev)
+static void spi_f133_suspend(struct device_t * dev)
 {
 }
 
-static void spi_d1_resume(struct device_t * dev)
+static void spi_f133_resume(struct device_t * dev)
 {
 }
 
-static struct driver_t spi_d1 = {
-	.name		= "spi-d1",
-	.probe		= spi_d1_probe,
-	.remove		= spi_d1_remove,
-	.suspend	= spi_d1_suspend,
-	.resume		= spi_d1_resume,
+static struct driver_t spi_f133 = {
+	.name		= "spi-f133",
+	.probe		= spi_f133_probe,
+	.remove		= spi_f133_remove,
+	.suspend	= spi_f133_suspend,
+	.resume		= spi_f133_resume,
 };
 
-static __init void spi_d1_driver_init(void)
+static __init void spi_f133_driver_init(void)
 {
-	register_driver(&spi_d1);
+	register_driver(&spi_f133);
 }
 
-static __exit void spi_d1_driver_exit(void)
+static __exit void spi_f133_driver_exit(void)
 {
-	unregister_driver(&spi_d1);
+	unregister_driver(&spi_f133);
 }
 
-driver_initcall(spi_d1_driver_init);
-driver_exitcall(spi_d1_driver_exit);
+driver_initcall(spi_f133_driver_init);
+driver_exitcall(spi_f133_driver_exit);

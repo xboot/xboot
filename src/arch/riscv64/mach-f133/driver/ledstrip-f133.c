@@ -1,5 +1,5 @@
 /*
- * driver/led/ledstrip-d1.c
+ * driver/led/ledstrip-f133.c
  *
  * Copyright(c) 2007-2021 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -49,7 +49,7 @@ enum {
 	LEDC_FIFO_DATA2			= 0x38,
 };
 
-struct ledstrip_d1_pdata_t {
+struct ledstrip_f133_pdata_t {
 	virtual_addr_t virt;
 	char * clk;
 	int reset;
@@ -68,7 +68,7 @@ struct ledstrip_d1_pdata_t {
 	struct color_t * color;
 };
 
-static inline void ledc_set_reset_ns(struct ledstrip_d1_pdata_t * pdat, u32_t ns)
+static inline void ledc_set_reset_ns(struct ledstrip_f133_pdata_t * pdat, u32_t ns)
 {
 	u32_t n, val;
 
@@ -81,7 +81,7 @@ static inline void ledc_set_reset_ns(struct ledstrip_d1_pdata_t * pdat, u32_t ns
 	write32(pdat->virt + LED_RST_TIMING_CTRL, val);
 }
 
-static inline void ledc_set_t1h_ns(struct ledstrip_d1_pdata_t * pdat, u32_t ns)
+static inline void ledc_set_t1h_ns(struct ledstrip_f133_pdata_t * pdat, u32_t ns)
 {
 	u32_t n, val;
 
@@ -94,7 +94,7 @@ static inline void ledc_set_t1h_ns(struct ledstrip_d1_pdata_t * pdat, u32_t ns)
 	write32(pdat->virt + LED_T01_TIMING_CTRL, val);
 }
 
-static inline void ledc_set_t1l_ns(struct ledstrip_d1_pdata_t * pdat, u32_t ns)
+static inline void ledc_set_t1l_ns(struct ledstrip_f133_pdata_t * pdat, u32_t ns)
 {
 	u32_t n, val;
 
@@ -107,7 +107,7 @@ static inline void ledc_set_t1l_ns(struct ledstrip_d1_pdata_t * pdat, u32_t ns)
 	write32(pdat->virt + LED_T01_TIMING_CTRL, val);
 }
 
-static inline void ledc_set_t0h_ns(struct ledstrip_d1_pdata_t * pdat, u32_t ns)
+static inline void ledc_set_t0h_ns(struct ledstrip_f133_pdata_t * pdat, u32_t ns)
 {
 	u32_t n, val;
 
@@ -120,7 +120,7 @@ static inline void ledc_set_t0h_ns(struct ledstrip_d1_pdata_t * pdat, u32_t ns)
 	write32(pdat->virt + LED_T01_TIMING_CTRL, val);
 }
 
-static inline void ledc_set_t0l_ns(struct ledstrip_d1_pdata_t * pdat, u32_t ns)
+static inline void ledc_set_t0l_ns(struct ledstrip_f133_pdata_t * pdat, u32_t ns)
 {
 	u32_t n, val;
 
@@ -133,7 +133,7 @@ static inline void ledc_set_t0l_ns(struct ledstrip_d1_pdata_t * pdat, u32_t ns)
 	write32(pdat->virt + LED_T01_TIMING_CTRL, val);
 }
 
-static inline void ledc_set_wait_time0_ns(struct ledstrip_d1_pdata_t * pdat, u32_t ns)
+static inline void ledc_set_wait_time0_ns(struct ledstrip_f133_pdata_t * pdat, u32_t ns)
 {
 	u32_t n, val;
 
@@ -144,7 +144,7 @@ static inline void ledc_set_wait_time0_ns(struct ledstrip_d1_pdata_t * pdat, u32
 	write32(pdat->virt + LEDC_WAIT_TIME0_CTRL, val);
 }
 
-static inline void ledc_set_wait_time1_ns(struct ledstrip_d1_pdata_t * pdat, u32_t ns)
+static inline void ledc_set_wait_time1_ns(struct ledstrip_f133_pdata_t * pdat, u32_t ns)
 {
 	u64_t tmp;
 	u32_t n, val;
@@ -158,7 +158,7 @@ static inline void ledc_set_wait_time1_ns(struct ledstrip_d1_pdata_t * pdat, u32
 	write32(pdat->virt + LEDC_WAIT_TIME1_CTRL, val);
 }
 
-static inline void ledc_set_wait_data_time_ns(struct ledstrip_d1_pdata_t * pdat, u32_t ns)
+static inline void ledc_set_wait_data_time_ns(struct ledstrip_f133_pdata_t * pdat, u32_t ns)
 {
 	u32_t n, val;
 
@@ -171,7 +171,7 @@ static inline void ledc_set_wait_data_time_ns(struct ledstrip_d1_pdata_t * pdat,
 	write32(pdat->virt + LEDC_DATA_FINISH_CNT, val);
 }
 
-static inline void ledc_set_length(struct ledstrip_d1_pdata_t * pdat, int length)
+static inline void ledc_set_length(struct ledstrip_f133_pdata_t * pdat, int length)
 {
 	u32_t val;
 
@@ -189,7 +189,7 @@ static inline void ledc_set_length(struct ledstrip_d1_pdata_t * pdat, int length
 	write32(pdat->virt + LED_RST_TIMING_CTRL, val);
 }
 
-static inline void ledc_set_output_mode(struct ledstrip_d1_pdata_t * pdat, int m)
+static inline void ledc_set_output_mode(struct ledstrip_f133_pdata_t * pdat, int m)
 {
 	u32_t val;
 
@@ -199,7 +199,7 @@ static inline void ledc_set_output_mode(struct ledstrip_d1_pdata_t * pdat, int m
 	write32(pdat->virt + LEDC_CTRL, val);
 }
 
-static inline void ledc_set_dma_mode(struct ledstrip_d1_pdata_t * pdat, int en)
+static inline void ledc_set_dma_mode(struct ledstrip_f133_pdata_t * pdat, int en)
 {
 	u32_t val;
 
@@ -211,7 +211,7 @@ static inline void ledc_set_dma_mode(struct ledstrip_d1_pdata_t * pdat, int en)
 	write32(pdat->virt + LEDC_DMA_CTRL, val);
 }
 
-static inline void ledc_reset_en(struct ledstrip_d1_pdata_t * pdat)
+static inline void ledc_reset_en(struct ledstrip_f133_pdata_t * pdat)
 {
 	u32_t val;
 
@@ -220,7 +220,7 @@ static inline void ledc_reset_en(struct ledstrip_d1_pdata_t * pdat)
 	write32(pdat->virt + LEDC_CTRL, val);
 }
 
-static inline void ledc_enable(struct ledstrip_d1_pdata_t * pdat)
+static inline void ledc_enable(struct ledstrip_f133_pdata_t * pdat)
 {
 	u32_t val;
 
@@ -229,7 +229,7 @@ static inline void ledc_enable(struct ledstrip_d1_pdata_t * pdat)
 	write32(pdat->virt + LEDC_CTRL, val);
 }
 
-static void ledc_init(struct ledstrip_d1_pdata_t * pdat)
+static void ledc_init(struct ledstrip_f133_pdata_t * pdat)
 {
 	ledc_reset_en(pdat);
 	ledc_set_reset_ns(pdat, pdat->reset_ns);
@@ -242,9 +242,9 @@ static void ledc_init(struct ledstrip_d1_pdata_t * pdat)
 	ledc_set_wait_data_time_ns(pdat, pdat->wait_data_time_ns);
 }
 
-static void ledstrip_d1_set_count(struct ledstrip_t * strip, int n)
+static void ledstrip_f133_set_count(struct ledstrip_t * strip, int n)
 {
-	struct ledstrip_d1_pdata_t * pdat = (struct ledstrip_d1_pdata_t *)strip->priv;
+	struct ledstrip_f133_pdata_t * pdat = (struct ledstrip_f133_pdata_t *)strip->priv;
 
 	if((n != pdat->count) && (n > 0))
 	{
@@ -256,27 +256,27 @@ static void ledstrip_d1_set_count(struct ledstrip_t * strip, int n)
 	}
 }
 
-static int ledstrip_d1_get_count(struct ledstrip_t * strip)
+static int ledstrip_f133_get_count(struct ledstrip_t * strip)
 {
-	struct ledstrip_d1_pdata_t * pdat = (struct ledstrip_d1_pdata_t *)strip->priv;
+	struct ledstrip_f133_pdata_t * pdat = (struct ledstrip_f133_pdata_t *)strip->priv;
 	return pdat->count;
 }
 
-static void ledstrip_d1_set_color(struct ledstrip_t * strip, int i, struct color_t * c)
+static void ledstrip_f133_set_color(struct ledstrip_t * strip, int i, struct color_t * c)
 {
-	struct ledstrip_d1_pdata_t * pdat = (struct ledstrip_d1_pdata_t *)strip->priv;
+	struct ledstrip_f133_pdata_t * pdat = (struct ledstrip_f133_pdata_t *)strip->priv;
 	memcpy(&pdat->color[i], c, sizeof(struct color_t));
 }
 
-static void ledstrip_d1_get_color(struct ledstrip_t * strip, int i, struct color_t * c)
+static void ledstrip_f133_get_color(struct ledstrip_t * strip, int i, struct color_t * c)
 {
-	struct ledstrip_d1_pdata_t * pdat = (struct ledstrip_d1_pdata_t *)strip->priv;
+	struct ledstrip_f133_pdata_t * pdat = (struct ledstrip_f133_pdata_t *)strip->priv;
 	memcpy(c, &pdat->color[i], sizeof(struct color_t));
 }
 
-static void ledstrip_d1_refresh(struct ledstrip_t * strip)
+static void ledstrip_f133_refresh(struct ledstrip_t * strip)
 {
-	struct ledstrip_d1_pdata_t * pdat = (struct ledstrip_d1_pdata_t *)strip->priv;
+	struct ledstrip_f133_pdata_t * pdat = (struct ledstrip_f133_pdata_t *)strip->priv;
 	int i;
 
 	ledc_set_output_mode(pdat, pdat->mode);
@@ -292,9 +292,9 @@ static void ledstrip_d1_refresh(struct ledstrip_t * strip)
 	}
 }
 
-static struct device_t * ledstrip_d1_probe(struct driver_t * drv, struct dtnode_t * n)
+static struct device_t * ledstrip_f133_probe(struct driver_t * drv, struct dtnode_t * n)
 {
-	struct ledstrip_d1_pdata_t * pdat;
+	struct ledstrip_f133_pdata_t * pdat;
 	struct ledstrip_t * strip;
 	struct device_t * dev;
 	virtual_addr_t virt = phys_to_virt(dt_read_address(n));
@@ -303,7 +303,7 @@ static struct device_t * ledstrip_d1_probe(struct driver_t * drv, struct dtnode_
 	if(!search_clk(clk))
 		return NULL;
 
-	pdat = malloc(sizeof(struct ledstrip_d1_pdata_t));
+	pdat = malloc(sizeof(struct ledstrip_f133_pdata_t));
 	if(!pdat)
 		return NULL;
 
@@ -332,11 +332,11 @@ static struct device_t * ledstrip_d1_probe(struct driver_t * drv, struct dtnode_
 	pdat->color = NULL;
 
 	strip->name = alloc_device_name(dt_read_name(n), -1);
-	strip->set_count = ledstrip_d1_set_count;
-	strip->get_count = ledstrip_d1_get_count;
-	strip->set_color = ledstrip_d1_set_color;
-	strip->get_color = ledstrip_d1_get_color;
-	strip->refresh = ledstrip_d1_refresh;
+	strip->set_count = ledstrip_f133_set_count;
+	strip->get_count = ledstrip_f133_get_count;
+	strip->set_color = ledstrip_f133_set_color;
+	strip->get_color = ledstrip_f133_get_color;
+	strip->refresh = ledstrip_f133_refresh;
 	strip->priv = pdat;
 
 	clk_enable(pdat->clk);
@@ -354,8 +354,8 @@ static struct device_t * ledstrip_d1_probe(struct driver_t * drv, struct dtnode_
 		gpio_set_pull(pdat->gpio, GPIO_PULL_UP);
 	}
 	ledc_init(pdat);
-	ledstrip_d1_set_count(strip, dt_read_int(n, "count", 1));
-	ledstrip_d1_refresh(strip);
+	ledstrip_f133_set_count(strip, dt_read_int(n, "count", 1));
+	ledstrip_f133_refresh(strip);
 
 	if(!(dev = register_ledstrip(strip, drv)))
 	{
@@ -369,10 +369,10 @@ static struct device_t * ledstrip_d1_probe(struct driver_t * drv, struct dtnode_
 	return dev;
 }
 
-static void ledstrip_d1_remove(struct device_t * dev)
+static void ledstrip_f133_remove(struct device_t * dev)
 {
 	struct ledstrip_t * strip = (struct ledstrip_t *)dev->priv;
-	struct ledstrip_d1_pdata_t * pdat = (struct ledstrip_d1_pdata_t *)strip->priv;
+	struct ledstrip_f133_pdata_t * pdat = (struct ledstrip_f133_pdata_t *)strip->priv;
 
 	if(strip)
 	{
@@ -387,31 +387,31 @@ static void ledstrip_d1_remove(struct device_t * dev)
 	}
 }
 
-static void ledstrip_d1_suspend(struct device_t * dev)
+static void ledstrip_f133_suspend(struct device_t * dev)
 {
 }
 
-static void ledstrip_d1_resume(struct device_t * dev)
+static void ledstrip_f133_resume(struct device_t * dev)
 {
 }
 
-static struct driver_t ledstrip_d1 = {
-	.name		= "ledstrip-d1",
-	.probe		= ledstrip_d1_probe,
-	.remove		= ledstrip_d1_remove,
-	.suspend	= ledstrip_d1_suspend,
-	.resume		= ledstrip_d1_resume,
+static struct driver_t ledstrip_f133 = {
+	.name		= "ledstrip-f133",
+	.probe		= ledstrip_f133_probe,
+	.remove		= ledstrip_f133_remove,
+	.suspend	= ledstrip_f133_suspend,
+	.resume		= ledstrip_f133_resume,
 };
 
-static __init void ledstrip_d1_driver_init(void)
+static __init void ledstrip_f133_driver_init(void)
 {
-	register_driver(&ledstrip_d1);
+	register_driver(&ledstrip_f133);
 }
 
-static __exit void ledstrip_d1_driver_exit(void)
+static __exit void ledstrip_f133_driver_exit(void)
 {
-	unregister_driver(&ledstrip_d1);
+	unregister_driver(&ledstrip_f133);
 }
 
-driver_initcall(ledstrip_d1_driver_init);
-driver_exitcall(ledstrip_d1_driver_exit);
+driver_initcall(ledstrip_f133_driver_init);
+driver_exitcall(ledstrip_f133_driver_exit);

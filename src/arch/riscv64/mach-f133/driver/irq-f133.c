@@ -1,5 +1,5 @@
 /*
- * driver/irq-d1.c
+ * driver/irq-f133.c
  *
  * Copyright(c) 2007-2021 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -40,38 +40,38 @@
 #define PLIC_STH			(0x201000)
 #define PLIC_SCLAIM			(0x201004)
 
-struct irq_d1_pdata_t
+struct irq_f133_pdata_t
 {
 	virtual_addr_t virt;
 	int base;
 	int nirq;
 };
 
-static void irq_d1_enable(struct irqchip_t * chip, int offset)
+static void irq_f133_enable(struct irqchip_t * chip, int offset)
 {
-	struct irq_d1_pdata_t * pdat = (struct irq_d1_pdata_t *)chip->priv;
+	struct irq_f133_pdata_t * pdat = (struct irq_f133_pdata_t *)chip->priv;
 	int irq = chip->base + offset;
 	u32_t val = read32(pdat->virt + PLIC_MIE(irq >> 5));
 	val |= (1 << (irq & 0x1f));
 	write32(pdat->virt + PLIC_MIE(irq >> 5), val);
 }
 
-static void irq_d1_disable(struct irqchip_t * chip, int offset)
+static void irq_f133_disable(struct irqchip_t * chip, int offset)
 {
-	struct irq_d1_pdata_t * pdat = (struct irq_d1_pdata_t *)chip->priv;
+	struct irq_f133_pdata_t * pdat = (struct irq_f133_pdata_t *)chip->priv;
 	int irq = chip->base + offset;
 	u32_t val = read32(pdat->virt + PLIC_MIE(irq >> 5));
 	val &= ~(1 << (irq & 0x1f));
 	write32(pdat->virt + PLIC_MIE(irq >> 5), val);
 }
 
-static void irq_d1_settype(struct irqchip_t * chip, int offset, enum irq_type_t type)
+static void irq_f133_settype(struct irqchip_t * chip, int offset, enum irq_type_t type)
 {
 }
 
-static void irq_d1_dispatch(struct irqchip_t * chip)
+static void irq_f133_dispatch(struct irqchip_t * chip)
 {
-	struct irq_d1_pdata_t * pdat = (struct irq_d1_pdata_t *)chip->priv;
+	struct irq_f133_pdata_t * pdat = (struct irq_f133_pdata_t *)chip->priv;
 	u32_t irq = read32(pdat->virt + PLIC_MCLAIM);
 	int offset = irq + chip->base;
 
@@ -82,7 +82,7 @@ static void irq_d1_dispatch(struct irqchip_t * chip)
 	}
 }
 
-static void plic_init(struct irq_d1_pdata_t * pdat)
+static void plic_init(struct irq_f133_pdata_t * pdat)
 {
 	u32_t val;
 	int i;
@@ -112,9 +112,9 @@ static void plic_init(struct irq_d1_pdata_t * pdat)
 	}
 }
 
-static struct device_t * irq_d1_probe(struct driver_t * drv, struct dtnode_t * n)
+static struct device_t * irq_f133_probe(struct driver_t * drv, struct dtnode_t * n)
 {
-	struct irq_d1_pdata_t * pdat;
+	struct irq_f133_pdata_t * pdat;
 	struct irqchip_t * chip;
 	struct device_t * dev;
 	virtual_addr_t virt = phys_to_virt(dt_read_address(n));
@@ -124,7 +124,7 @@ static struct device_t * irq_d1_probe(struct driver_t * drv, struct dtnode_t * n
 	if((base < 0) || (nirq <= 0))
 		return NULL;
 
-	pdat = malloc(sizeof(struct irq_d1_pdata_t));
+	pdat = malloc(sizeof(struct irq_f133_pdata_t));
 	if(!pdat)
 		return NULL;
 
@@ -143,10 +143,10 @@ static struct device_t * irq_d1_probe(struct driver_t * drv, struct dtnode_t * n
 	chip->base = pdat->base;
 	chip->nirq = pdat->nirq;
 	chip->handler = malloc(sizeof(struct irq_handler_t) * pdat->nirq);
-	chip->enable = irq_d1_enable;
-	chip->disable = irq_d1_disable;
-	chip->settype = irq_d1_settype;
-	chip->dispatch = irq_d1_dispatch;
+	chip->enable = irq_f133_enable;
+	chip->disable = irq_f133_disable;
+	chip->settype = irq_f133_settype;
+	chip->dispatch = irq_f133_dispatch;
 	chip->priv = pdat;
 
 	plic_init(pdat);
@@ -164,7 +164,7 @@ static struct device_t * irq_d1_probe(struct driver_t * drv, struct dtnode_t * n
 	return dev;
 }
 
-static void irq_d1_remove(struct device_t * dev)
+static void irq_f133_remove(struct device_t * dev)
 {
 	struct irqchip_t * chip = (struct irqchip_t *)dev->priv;
 
@@ -178,31 +178,31 @@ static void irq_d1_remove(struct device_t * dev)
 	}
 }
 
-static void irq_d1_suspend(struct device_t * dev)
+static void irq_f133_suspend(struct device_t * dev)
 {
 }
 
-static void irq_d1_resume(struct device_t * dev)
+static void irq_f133_resume(struct device_t * dev)
 {
 }
 
-static struct driver_t irq_d1 = {
-	.name		= "irq-d1",
-	.probe		= irq_d1_probe,
-	.remove		= irq_d1_remove,
-	.suspend	= irq_d1_suspend,
-	.resume		= irq_d1_resume,
+static struct driver_t irq_f133 = {
+	.name		= "irq-f133",
+	.probe		= irq_f133_probe,
+	.remove		= irq_f133_remove,
+	.suspend	= irq_f133_suspend,
+	.resume		= irq_f133_resume,
 };
 
-static __init void irq_d1_driver_init(void)
+static __init void irq_f133_driver_init(void)
 {
-	register_driver(&irq_d1);
+	register_driver(&irq_f133);
 }
 
-static __exit void irq_d1_driver_exit(void)
+static __exit void irq_f133_driver_exit(void)
 {
-	unregister_driver(&irq_d1);
+	unregister_driver(&irq_f133);
 }
 
-driver_initcall(irq_d1_driver_init);
-driver_exitcall(irq_d1_driver_exit);
+driver_initcall(irq_f133_driver_init);
+driver_exitcall(irq_f133_driver_exit);

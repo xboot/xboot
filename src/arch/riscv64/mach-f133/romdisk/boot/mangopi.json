@@ -24,14 +24,14 @@
 	},
 	"clk-fixed-factor@2": { "parent": "rtc32k", "name": "rtc-1k", "mult": 1, "div": 32 },
 
-	"clk-d1-pll@0": { "parent": "dcxo24m", "name": "pll-cpux", "channel": 0 },
-	"clk-d1-pll@1": { "parent": "dcxo24m", "name": "pll-ddr0", "channel": 1 },
-	"clk-d1-pll@2": { "parent": "dcxo24m", "name": "pll-periph0-parent", "channel": 2 },
-	"clk-d1-pll@3": { "parent": "dcxo24m", "name": "pll-video0", "channel": 3 },
-	"clk-d1-pll@4": { "parent": "dcxo24m", "name": "pll-video1", "channel": 4 },
-	"clk-d1-pll@5": { "parent": "dcxo24m", "name": "pll-ve", "channel": 5 },
-	"clk-d1-pll@6": { "parent": "dcxo24m", "name": "pll-audio0-4x", "channel": 6 },
-	"clk-d1-pll@7": { "parent": "dcxo24m", "name": "pll-audio1", "channel": 7 },
+	"clk-f133-pll@0": { "parent": "dcxo24m", "name": "pll-cpux", "channel": 0 },
+	"clk-f133-pll@1": { "parent": "dcxo24m", "name": "pll-ddr0", "channel": 1 },
+	"clk-f133-pll@2": { "parent": "dcxo24m", "name": "pll-periph0-parent", "channel": 2 },
+	"clk-f133-pll@3": { "parent": "dcxo24m", "name": "pll-video0", "channel": 3 },
+	"clk-f133-pll@4": { "parent": "dcxo24m", "name": "pll-video1", "channel": 4 },
+	"clk-f133-pll@5": { "parent": "dcxo24m", "name": "pll-ve", "channel": 5 },
+	"clk-f133-pll@6": { "parent": "dcxo24m", "name": "pll-audio0-4x", "channel": 6 },
+	"clk-f133-pll@7": { "parent": "dcxo24m", "name": "pll-audio1", "channel": 7 },
 
 	"clk-ratio@0x02001500": { "parent": "pll-cpux", "name": "pll-cpux-div", "shift": 16, "width": 2 },
 	"clk-divider@0x02001020": { "parent": "pll-periph0-parent", "name": "pll-periph0-2x", "shift": 16, "width": 3, "divider-one-based": true },
@@ -226,61 +226,61 @@
 
 	"clk-link": { "parent": "dcxo24m-div32k", "name": "wdg" },
 
-	"reset-d1@0x0200160c": { "reset-base":    0, "reset-count": 32 },
-	"reset-d1@0x0200162c": { "reset-base":   32, "reset-count": 32 },
-	"reset-d1@0x0200163c": { "reset-base":   64, "reset-count": 32 },
-	"reset-d1@0x0200168c": { "reset-base":   96, "reset-count": 32 },
-	"reset-d1@0x0200169c": { "reset-base":  128, "reset-count": 32 },
-	"reset-d1@0x0200170c": { "reset-base":  160, "reset-count": 32 },
-	"reset-d1@0x0200171c": { "reset-base":  192, "reset-count": 32 },
-	"reset-d1@0x0200172c": { "reset-base":  224, "reset-count": 32 },
-	"reset-d1@0x0200173c": { "reset-base":  256, "reset-count": 32 },
-	"reset-d1@0x0200178c": { "reset-base":  288, "reset-count": 32 },
-	"reset-d1@0x020017ac": { "reset-base":  320, "reset-count": 32 },
-	"reset-d1@0x0200180c": { "reset-base":  352, "reset-count": 32 },
-	"reset-d1@0x0200184c": { "reset-base":  384, "reset-count": 32 },
-	"reset-d1@0x0200190c": { "reset-base":  416, "reset-count": 32 },
-	"reset-d1@0x0200191c": { "reset-base":  448, "reset-count": 32 },
-	"reset-d1@0x0200196c": { "reset-base":  480, "reset-count": 32 },
-	"reset-d1@0x0200197c": { "reset-base":  512, "reset-count": 32 },
-	"reset-d1@0x020019cc": { "reset-base":  544, "reset-count": 32 },
-	"reset-d1@0x020019ec": { "reset-base":  576, "reset-count": 32 },
-	"reset-d1@0x020019fc": { "reset-base":  608, "reset-count": 32 },
-	"reset-d1@0x02001a20": { "reset-base":  640, "reset-count": 32 },
-	"reset-d1@0x02001a2c": { "reset-base":  672, "reset-count": 32 },
-	"reset-d1@0x02001a4c": { "reset-base":  704, "reset-count": 32 },
-	"reset-d1@0x02001a5c": { "reset-base":  736, "reset-count": 32 },
-	"reset-d1@0x02001a8c": { "reset-base":  768, "reset-count": 32 },
-	"reset-d1@0x02001a9c": { "reset-base":  800, "reset-count": 32 },
-	"reset-d1@0x02001abc": { "reset-base":  832, "reset-count": 32 },
-	"reset-d1@0x02001b4c": { "reset-base":  864, "reset-count": 32 },
-	"reset-d1@0x02001b7c": { "reset-base":  896, "reset-count": 32 },
-	"reset-d1@0x02001b9c": { "reset-base":  928, "reset-count": 32 },
-	"reset-d1@0x02001bac": { "reset-base":  960, "reset-count": 32 },
-	"reset-d1@0x02001bbc": { "reset-base":  992, "reset-count": 32 },
-	"reset-d1@0x02001bdc": { "reset-base": 1024, "reset-count": 32 },
-	"reset-d1@0x02001bfc": { "reset-base": 1056, "reset-count": 32 },
-	"reset-d1@0x02001c1c": { "reset-base": 1088, "reset-count": 32 },
-	"reset-d1@0x02001c5c": { "reset-base": 1120, "reset-count": 32 },
-	"reset-d1@0x02001c7c": { "reset-base": 1152, "reset-count": 32 },
-	"reset-d1@0x02001d0c": { "reset-base": 1184, "reset-count": 32 },
+	"reset-f133@0x0200160c": { "reset-base":    0, "reset-count": 32 },
+	"reset-f133@0x0200162c": { "reset-base":   32, "reset-count": 32 },
+	"reset-f133@0x0200163c": { "reset-base":   64, "reset-count": 32 },
+	"reset-f133@0x0200168c": { "reset-base":   96, "reset-count": 32 },
+	"reset-f133@0x0200169c": { "reset-base":  128, "reset-count": 32 },
+	"reset-f133@0x0200170c": { "reset-base":  160, "reset-count": 32 },
+	"reset-f133@0x0200171c": { "reset-base":  192, "reset-count": 32 },
+	"reset-f133@0x0200172c": { "reset-base":  224, "reset-count": 32 },
+	"reset-f133@0x0200173c": { "reset-base":  256, "reset-count": 32 },
+	"reset-f133@0x0200178c": { "reset-base":  288, "reset-count": 32 },
+	"reset-f133@0x020017ac": { "reset-base":  320, "reset-count": 32 },
+	"reset-f133@0x0200180c": { "reset-base":  352, "reset-count": 32 },
+	"reset-f133@0x0200184c": { "reset-base":  384, "reset-count": 32 },
+	"reset-f133@0x0200190c": { "reset-base":  416, "reset-count": 32 },
+	"reset-f133@0x0200191c": { "reset-base":  448, "reset-count": 32 },
+	"reset-f133@0x0200196c": { "reset-base":  480, "reset-count": 32 },
+	"reset-f133@0x0200197c": { "reset-base":  512, "reset-count": 32 },
+	"reset-f133@0x020019cc": { "reset-base":  544, "reset-count": 32 },
+	"reset-f133@0x020019ec": { "reset-base":  576, "reset-count": 32 },
+	"reset-f133@0x020019fc": { "reset-base":  608, "reset-count": 32 },
+	"reset-f133@0x02001a20": { "reset-base":  640, "reset-count": 32 },
+	"reset-f133@0x02001a2c": { "reset-base":  672, "reset-count": 32 },
+	"reset-f133@0x02001a4c": { "reset-base":  704, "reset-count": 32 },
+	"reset-f133@0x02001a5c": { "reset-base":  736, "reset-count": 32 },
+	"reset-f133@0x02001a8c": { "reset-base":  768, "reset-count": 32 },
+	"reset-f133@0x02001a9c": { "reset-base":  800, "reset-count": 32 },
+	"reset-f133@0x02001abc": { "reset-base":  832, "reset-count": 32 },
+	"reset-f133@0x02001b4c": { "reset-base":  864, "reset-count": 32 },
+	"reset-f133@0x02001b7c": { "reset-base":  896, "reset-count": 32 },
+	"reset-f133@0x02001b9c": { "reset-base":  928, "reset-count": 32 },
+	"reset-f133@0x02001bac": { "reset-base":  960, "reset-count": 32 },
+	"reset-f133@0x02001bbc": { "reset-base":  992, "reset-count": 32 },
+	"reset-f133@0x02001bdc": { "reset-base": 1024, "reset-count": 32 },
+	"reset-f133@0x02001bfc": { "reset-base": 1056, "reset-count": 32 },
+	"reset-f133@0x02001c1c": { "reset-base": 1088, "reset-count": 32 },
+	"reset-f133@0x02001c5c": { "reset-base": 1120, "reset-count": 32 },
+	"reset-f133@0x02001c7c": { "reset-base": 1152, "reset-count": 32 },
+	"reset-f133@0x02001d0c": { "reset-base": 1184, "reset-count": 32 },
 
-	"irq-d1@0x10000000": { "interrupt-base": 0, "interrupt-count": 256 },
-	"irq-d1-gpio@0x02000220": { "interrupt-base": 256, "interrupt-count": 13, "interrupt-parent":  85 },
-	"irq-d1-gpio@0x02000240": { "interrupt-base": 288, "interrupt-count":  8, "interrupt-parent":  87 },
-	"irq-d1-gpio@0x02000260": { "interrupt-base": 320, "interrupt-count": 23, "interrupt-parent":  89 },
-	"irq-d1-gpio@0x02000280": { "interrupt-base": 352, "interrupt-count": 18, "interrupt-parent":  91 },
-	"irq-d1-gpio@0x020002a0": { "interrupt-base": 384, "interrupt-count":  7, "interrupt-parent":  93 },
-	"irq-d1-gpio@0x020002c0": { "interrupt-base": 416, "interrupt-count": 19, "interrupt-parent":  95 },
+	"irq-f133@0x10000000": { "interrupt-base": 0, "interrupt-count": 256 },
+	"irq-f133-gpio@0x02000220": { "interrupt-base": 256, "interrupt-count": 13, "interrupt-parent":  85 },
+	"irq-f133-gpio@0x02000240": { "interrupt-base": 288, "interrupt-count":  8, "interrupt-parent":  87 },
+	"irq-f133-gpio@0x02000260": { "interrupt-base": 320, "interrupt-count": 23, "interrupt-parent":  89 },
+	"irq-f133-gpio@0x02000280": { "interrupt-base": 352, "interrupt-count": 18, "interrupt-parent":  91 },
+	"irq-f133-gpio@0x020002a0": { "interrupt-base": 384, "interrupt-count":  7, "interrupt-parent":  93 },
+	"irq-f133-gpio@0x020002c0": { "interrupt-base": 416, "interrupt-count": 19, "interrupt-parent":  95 },
 
-	"gpio-d1@0x02000030": { "gpio-base":  32, "gpio-count": 13, "interrupt-offset": 256 },
-	"gpio-d1@0x02000060": { "gpio-base":  64, "gpio-count":  8, "interrupt-offset": 288 },
-	"gpio-d1@0x02000090": { "gpio-base":  96, "gpio-count": 23, "interrupt-offset": 320 },
-	"gpio-d1@0x020000c0": { "gpio-base": 128, "gpio-count": 18, "interrupt-offset": 352 },
-	"gpio-d1@0x020000f0": { "gpio-base": 160, "gpio-count":  7, "interrupt-offset": 384 },
-	"gpio-d1@0x02000120": { "gpio-base": 192, "gpio-count": 19, "interrupt-offset": 416 },
+	"gpio-f133@0x02000030": { "gpio-base":  32, "gpio-count": 13, "interrupt-offset": 256 },
+	"gpio-f133@0x02000060": { "gpio-base":  64, "gpio-count":  8, "interrupt-offset": 288 },
+	"gpio-f133@0x02000090": { "gpio-base":  96, "gpio-count": 23, "interrupt-offset": 320 },
+	"gpio-f133@0x020000c0": { "gpio-base": 128, "gpio-count": 18, "interrupt-offset": 352 },
+	"gpio-f133@0x020000f0": { "gpio-base": 160, "gpio-count":  7, "interrupt-offset": 384 },
+	"gpio-f133@0x02000120": { "gpio-base": 192, "gpio-count": 19, "interrupt-offset": 416 },
 
-	"dma-d1@0x03002000": {
+	"dma-f133@0x03002000": {
 		"clock-name": "bus-dma",
 		"reset": 176,
 		"interrupt": 66,
@@ -288,18 +288,18 @@
 		"dma-count": 16
 	},
 
-	"adc-d1@0x02009000": {
+	"adc-f133@0x02009000": {
 		"clock-name": "bus-gpadc",
 		"reset": 592,
 		"reference-voltage": 1800000
 	},
 
-	"ce-d1-timer@0x02050000": {
+	"ce-f133-timer@0x02050000": {
 		"clock-name": "timer0",
 		"interrupt": 75
 	},
 
-	"cs-d1-timer@0x02050000": {
+	"cs-f133-timer@0x02050000": {
 		"clock-name": "timer1"
 	},
 
@@ -381,7 +381,7 @@
 		"stop-bits": 1
 	},
 
-	"i2c-d1@0x02502000": {
+	"i2c-f133@0x02502000": {
 		"clock-name": "bus-i2c0",
 		"clock-frequency": 400000,
 		"reset": 464,
@@ -391,7 +391,7 @@
 		"scl-gpio-config": -1
 	},
 
-	"i2c-d1@0x02502400": {
+	"i2c-f133@0x02502400": {
 		"clock-name": "bus-i2c1",
 		"clock-frequency": 400000,
 		"reset": 465,
@@ -401,7 +401,7 @@
 		"scl-gpio-config": -1
 	},
 
-	"i2c-d1@0x02502800": {
+	"i2c-f133@0x02502800": {
 		"clock-name": "bus-i2c2",
 		"clock-frequency": 400000,
 		"reset": 466,
@@ -411,7 +411,7 @@
 		"scl-gpio-config": 4
 	},
 
-	"i2c-d1@0x02502c00": {
+	"i2c-f133@0x02502c00": {
 		"clock-name": "bus-i2c3",
 		"clock-frequency": 400000,
 		"reset": 467,
@@ -421,7 +421,7 @@
 		"scl-gpio-config": -1
 	},
 
-	"spi-d1@0x04025000": {
+	"spi-f133@0x04025000": {
 		"clock-name": "spi0",
 		"reset": 496,
 		"sclk-gpio": 66,
@@ -434,7 +434,7 @@
 		"cs-gpio-config": 2
 	},
 
-	"spi-d1@0x04026000": {
+	"spi-f133@0x04026000": {
 		"clock-name": "spi1",
 		"reset": 497,
 		"sclk-gpio": 107,
@@ -448,7 +448,7 @@
 	},
 
 	"gpio-pcf8574@0": {
-		"i2c-bus": "i2c-d1.2",
+		"i2c-bus": "i2c-f133.2",
 		"slave-address": 56,
 		"gpio-base": 224,
 		"gpio-count": 8,
@@ -456,7 +456,7 @@
 	},
 
 	"blk-spinor@0": {
-		"spi-bus": "spi-d1.0",
+		"spi-bus": "spi-f133.0",
 		"chip-select": 0,
 		"mode": 0,
 		"speed": 50000000,
@@ -466,18 +466,18 @@
 		]
 	},
 
-	"rtc-d1@0x07090000": {
+	"rtc-f133@0x07090000": {
 		"clock-name": "rtc32k"
 	},
 
-	"wdg-d1@0x020500a0": {
+	"wdg-f133@0x020500a0": {
 		"clock-name": "wdg"
 	},
 
-	"regulator-d1-ldo@0x03000150": { "name": "ldoa", "channel": 0 },
-	"regulator-d1-ldo@0x03000150": { "name": "ldob", "channel": 1 },
+	"regulator-f133-ldo@0x03000150": { "name": "ldoa", "channel": 0 },
+	"regulator-f133-ldo@0x03000150": { "name": "ldob", "channel": 1 },
 
-	"key-d1-lradc@0x02009800": {
+	"key-f133-lradc@0x02009800": {
 		"interrupt": 77,
 		"reference-voltage": 1800000,
 		"keys": [
@@ -485,7 +485,7 @@
 		]
 	},
 
-	"ledstrip-d1@0x02008000": {
+	"ledstrip-f133@0x02008000": {
 		"clock-name": "ledc",
 		"reset": 1072,
 		"gpio": 64,

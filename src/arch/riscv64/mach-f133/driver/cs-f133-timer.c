@@ -1,5 +1,5 @@
 /*
- * driver/cs-d1-timer.c
+ * driver/cs-f133-timer.c
  *
  * Copyright(c) 2007-2021 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -36,21 +36,21 @@
 #define TIMER_INTV(x)	((x + 1) * 0x10 + 0x04)
 #define TIMER_CUR(x)	((x + 1) * 0x10 + 0x08)
 
-struct cs_d1_timer_pdata_t
+struct cs_f133_timer_pdata_t
 {
 	virtual_addr_t virt;
 	char * clk;
 };
 
-static u64_t cs_d1_timer_read(struct clocksource_t * cs)
+static u64_t cs_f133_timer_read(struct clocksource_t * cs)
 {
-	struct cs_d1_timer_pdata_t * pdat = (struct cs_d1_timer_pdata_t *)cs->priv;
+	struct cs_f133_timer_pdata_t * pdat = (struct cs_f133_timer_pdata_t *)cs->priv;
 	return (u64_t)(0xffffffff - read32(pdat->virt + TIMER_CUR(1)));
 }
 
-static struct device_t * cs_d1_timer_probe(struct driver_t * drv, struct dtnode_t * n)
+static struct device_t * cs_f133_timer_probe(struct driver_t * drv, struct dtnode_t * n)
 {
-	struct cs_d1_timer_pdata_t * pdat;
+	struct cs_f133_timer_pdata_t * pdat;
 	struct clocksource_t * cs;
 	struct device_t * dev;
 	virtual_addr_t virt = phys_to_virt(dt_read_address(n));
@@ -60,7 +60,7 @@ static struct device_t * cs_d1_timer_probe(struct driver_t * drv, struct dtnode_
 	if(!search_clk(clk))
 		return NULL;
 
-	pdat = malloc(sizeof(struct cs_d1_timer_pdata_t));
+	pdat = malloc(sizeof(struct cs_f133_timer_pdata_t));
 	if(!pdat)
 		return NULL;
 
@@ -78,7 +78,7 @@ static struct device_t * cs_d1_timer_probe(struct driver_t * drv, struct dtnode_
 	clocksource_calc_mult_shift(&cs->mult, &cs->shift, clk_get_rate(pdat->clk), 1000000000ULL, 10);
 	cs->name = alloc_device_name(dt_read_name(n), -1);
 	cs->mask = CLOCKSOURCE_MASK(32);
-	cs->read = cs_d1_timer_read;
+	cs->read = cs_f133_timer_read;
 	cs->priv = pdat;
 
 	write32(pdat->virt + TIMER_IRQ_EN, read32(pdat->virt + TIMER_IRQ_EN) & ~(1 << 1));
@@ -101,10 +101,10 @@ static struct device_t * cs_d1_timer_probe(struct driver_t * drv, struct dtnode_
 	return dev;
 }
 
-static void cs_d1_timer_remove(struct device_t * dev)
+static void cs_f133_timer_remove(struct device_t * dev)
 {
 	struct clocksource_t * cs = (struct clocksource_t *)dev->priv;
-	struct cs_d1_timer_pdata_t * pdat = (struct cs_d1_timer_pdata_t *)cs->priv;
+	struct cs_f133_timer_pdata_t * pdat = (struct cs_f133_timer_pdata_t *)cs->priv;
 
 	if(cs)
 	{
@@ -117,31 +117,31 @@ static void cs_d1_timer_remove(struct device_t * dev)
 	}
 }
 
-static void cs_d1_timer_suspend(struct device_t * dev)
+static void cs_f133_timer_suspend(struct device_t * dev)
 {
 }
 
-static void cs_d1_timer_resume(struct device_t * dev)
+static void cs_f133_timer_resume(struct device_t * dev)
 {
 }
 
-static struct driver_t cs_d1_timer = {
-	.name		= "cs-d1-timer",
-	.probe		= cs_d1_timer_probe,
-	.remove		= cs_d1_timer_remove,
-	.suspend	= cs_d1_timer_suspend,
-	.resume		= cs_d1_timer_resume,
+static struct driver_t cs_f133_timer = {
+	.name		= "cs-f133-timer",
+	.probe		= cs_f133_timer_probe,
+	.remove		= cs_f133_timer_remove,
+	.suspend	= cs_f133_timer_suspend,
+	.resume		= cs_f133_timer_resume,
 };
 
-static __init void cs_d1_timer_driver_init(void)
+static __init void cs_f133_timer_driver_init(void)
 {
-	register_driver(&cs_d1_timer);
+	register_driver(&cs_f133_timer);
 }
 
-static __exit void cs_d1_timer_driver_exit(void)
+static __exit void cs_f133_timer_driver_exit(void)
 {
-	unregister_driver(&cs_d1_timer);
+	unregister_driver(&cs_f133_timer);
 }
 
-driver_initcall(cs_d1_timer_driver_init);
-driver_exitcall(cs_d1_timer_driver_exit);
+driver_initcall(cs_f133_timer_driver_init);
+driver_exitcall(cs_f133_timer_driver_exit);

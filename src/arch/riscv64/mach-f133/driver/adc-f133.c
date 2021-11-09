@@ -1,5 +1,5 @@
 /*
- * driver/adc-d1.c
+ * driver/adc-f133.c
  *
  * Copyright(c) 2007-2021 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -51,16 +51,16 @@ enum {
 	GPADC_CH1_DATA		= 0x84,
 };
 
-struct adc_d1_pdata_t
+struct adc_f133_pdata_t
 {
 	virtual_addr_t virt;
 	char * clk;
 	int reset;
 };
 
-static u32_t adc_d1_read(struct adc_t * adc, int channel)
+static u32_t adc_f133_read(struct adc_t * adc, int channel)
 {
-	struct adc_d1_pdata_t * pdat = (struct adc_d1_pdata_t *)adc->priv;
+	struct adc_f133_pdata_t * pdat = (struct adc_f133_pdata_t *)adc->priv;
 	u32_t val;
 
 	val = read32(pdat->virt + GPADC_CS_EN);
@@ -83,9 +83,9 @@ static u32_t adc_d1_read(struct adc_t * adc, int channel)
 	return read32(pdat->virt + GPADC_CH0_DATA + (channel << 2));
 }
 
-static struct device_t * adc_d1_probe(struct driver_t * drv, struct dtnode_t * n)
+static struct device_t * adc_f133_probe(struct driver_t * drv, struct dtnode_t * n)
 {
-	struct adc_d1_pdata_t * pdat;
+	struct adc_f133_pdata_t * pdat;
 	struct adc_t * adc;
 	struct device_t * dev;
 	virtual_addr_t virt = phys_to_virt(dt_read_address(n));
@@ -94,7 +94,7 @@ static struct device_t * adc_d1_probe(struct driver_t * drv, struct dtnode_t * n
 	if(!search_clk(clk))
 		return NULL;
 
-	pdat = malloc(sizeof(struct adc_d1_pdata_t));
+	pdat = malloc(sizeof(struct adc_f133_pdata_t));
 	if(!pdat)
 		return NULL;
 
@@ -113,7 +113,7 @@ static struct device_t * adc_d1_probe(struct driver_t * drv, struct dtnode_t * n
 	adc->vreference = dt_read_int(n, "reference-voltage", 1800000);
 	adc->resolution = 12;
 	adc->nchannel = 2;
-	adc->read = adc_d1_read;
+	adc->read = adc_f133_read;
 	adc->priv = pdat;
 
 	clk_enable(pdat->clk);
@@ -140,10 +140,10 @@ static struct device_t * adc_d1_probe(struct driver_t * drv, struct dtnode_t * n
 	return dev;
 }
 
-static void adc_d1_remove(struct device_t * dev)
+static void adc_f133_remove(struct device_t * dev)
 {
 	struct adc_t * adc = (struct adc_t *)dev->priv;
-	struct adc_d1_pdata_t * pdat = (struct adc_d1_pdata_t *)adc->priv;
+	struct adc_f133_pdata_t * pdat = (struct adc_f133_pdata_t *)adc->priv;
 
 	if(adc)
 	{
@@ -157,31 +157,31 @@ static void adc_d1_remove(struct device_t * dev)
 	}
 }
 
-static void adc_d1_suspend(struct device_t * dev)
+static void adc_f133_suspend(struct device_t * dev)
 {
 }
 
-static void adc_d1_resume(struct device_t * dev)
+static void adc_f133_resume(struct device_t * dev)
 {
 }
 
-static struct driver_t adc_d1 = {
-	.name		= "adc-d1",
-	.probe		= adc_d1_probe,
-	.remove		= adc_d1_remove,
-	.suspend	= adc_d1_suspend,
-	.resume		= adc_d1_resume,
+static struct driver_t adc_f133 = {
+	.name		= "adc-f133",
+	.probe		= adc_f133_probe,
+	.remove		= adc_f133_remove,
+	.suspend	= adc_f133_suspend,
+	.resume		= adc_f133_resume,
 };
 
-static __init void adc_d1_driver_init(void)
+static __init void adc_f133_driver_init(void)
 {
-	register_driver(&adc_d1);
+	register_driver(&adc_f133);
 }
 
-static __exit void adc_d1_driver_exit(void)
+static __exit void adc_f133_driver_exit(void)
 {
-	unregister_driver(&adc_d1);
+	unregister_driver(&adc_f133);
 }
 
-driver_initcall(adc_d1_driver_init);
-driver_exitcall(adc_d1_driver_exit);
+driver_initcall(adc_f133_driver_init);
+driver_exitcall(adc_f133_driver_exit);

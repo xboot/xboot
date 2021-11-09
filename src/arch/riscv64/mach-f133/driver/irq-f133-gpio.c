@@ -1,5 +1,5 @@
 /*
- * driver/irq-d1-gpio.c
+ * driver/irq-f133-gpio.c
  *
  * Copyright(c) 2007-2021 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -39,7 +39,7 @@ enum {
 	GPIO_INT_DEB	= 0x18,
 };
 
-struct irq_d1_gpio_pdata_t
+struct irq_f133_gpio_pdata_t
 {
 	virtual_addr_t virt;
 	int base;
@@ -47,23 +47,23 @@ struct irq_d1_gpio_pdata_t
 	int parent;
 };
 
-static void irq_d1_gpio_enable(struct irqchip_t * chip, int offset)
+static void irq_f133_gpio_enable(struct irqchip_t * chip, int offset)
 {
-	struct irq_d1_gpio_pdata_t * pdat = (struct irq_d1_gpio_pdata_t *)chip->priv;
+	struct irq_f133_gpio_pdata_t * pdat = (struct irq_f133_gpio_pdata_t *)chip->priv;
 
 	write32(pdat->virt + GPIO_INT_CTL, (read32(pdat->virt + GPIO_INT_CTL) | (0x1 << offset)));
 }
 
-static void irq_d1_gpio_disable(struct irqchip_t * chip, int offset)
+static void irq_f133_gpio_disable(struct irqchip_t * chip, int offset)
 {
-	struct irq_d1_gpio_pdata_t * pdat = (struct irq_d1_gpio_pdata_t *)chip->priv;
+	struct irq_f133_gpio_pdata_t * pdat = (struct irq_f133_gpio_pdata_t *)chip->priv;
 
 	write32(pdat->virt + GPIO_INT_CTL, (read32(pdat->virt + GPIO_INT_CTL) & ~(0x1 << offset)));
 }
 
-static void irq_d1_gpio_settype(struct irqchip_t * chip, int offset, enum irq_type_t type)
+static void irq_f133_gpio_settype(struct irqchip_t * chip, int offset, enum irq_type_t type)
 {
-	struct irq_d1_gpio_pdata_t * pdat = (struct irq_d1_gpio_pdata_t *)chip->priv;
+	struct irq_f133_gpio_pdata_t * pdat = (struct irq_f133_gpio_pdata_t *)chip->priv;
 	virtual_addr_t addr;
 	u32_t val, cfg = 0x7;
 
@@ -96,9 +96,9 @@ static void irq_d1_gpio_settype(struct irqchip_t * chip, int offset, enum irq_ty
 	write32(addr, val);
 }
 
-static void irq_d1_gpio_dispatch(struct irqchip_t * chip)
+static void irq_f133_gpio_dispatch(struct irqchip_t * chip)
 {
-	struct irq_d1_gpio_pdata_t * pdat = (struct irq_d1_gpio_pdata_t *)chip->priv;
+	struct irq_f133_gpio_pdata_t * pdat = (struct irq_f133_gpio_pdata_t *)chip->priv;
 	u32_t pend = read32(pdat->virt + GPIO_INT_STA);
 
 	if(pend != 0)
@@ -112,9 +112,9 @@ static void irq_d1_gpio_dispatch(struct irqchip_t * chip)
 	}
 }
 
-static struct device_t * irq_d1_gpio_probe(struct driver_t * drv, struct dtnode_t * n)
+static struct device_t * irq_f133_gpio_probe(struct driver_t * drv, struct dtnode_t * n)
 {
-	struct irq_d1_gpio_pdata_t * pdat;
+	struct irq_f133_gpio_pdata_t * pdat;
 	struct irqchip_t * chip;
 	struct device_t * dev;
 	virtual_addr_t virt = phys_to_virt(dt_read_address(n));
@@ -125,7 +125,7 @@ static struct device_t * irq_d1_gpio_probe(struct driver_t * drv, struct dtnode_
 	if((base < 0) || (nirq <= 0) || !irq_is_valid(parent))
 		return NULL;
 
-	pdat = malloc(sizeof(struct irq_d1_gpio_pdata_t));
+	pdat = malloc(sizeof(struct irq_f133_gpio_pdata_t));
 	if(!pdat)
 		return NULL;
 
@@ -145,10 +145,10 @@ static struct device_t * irq_d1_gpio_probe(struct driver_t * drv, struct dtnode_
 	chip->base = pdat->base;
 	chip->nirq = pdat->nirq;
 	chip->handler = malloc(sizeof(struct irq_handler_t) * pdat->nirq);
-	chip->enable = irq_d1_gpio_enable;
-	chip->disable = irq_d1_gpio_disable;
-	chip->settype = irq_d1_gpio_settype;
-	chip->dispatch = irq_d1_gpio_dispatch;
+	chip->enable = irq_f133_gpio_enable;
+	chip->disable = irq_f133_gpio_disable;
+	chip->settype = irq_f133_gpio_settype;
+	chip->dispatch = irq_f133_gpio_dispatch;
 	chip->priv = pdat;
 
 	if(!(dev = register_sub_irqchip(pdat->parent, chip, drv)))
@@ -162,10 +162,10 @@ static struct device_t * irq_d1_gpio_probe(struct driver_t * drv, struct dtnode_
 	return dev;
 }
 
-static void irq_d1_gpio_remove(struct device_t * dev)
+static void irq_f133_gpio_remove(struct device_t * dev)
 {
 	struct irqchip_t * chip = (struct irqchip_t *)dev->priv;
-	struct irq_d1_gpio_pdata_t * pdat = (struct irq_d1_gpio_pdata_t *)chip->priv;
+	struct irq_f133_gpio_pdata_t * pdat = (struct irq_f133_gpio_pdata_t *)chip->priv;
 
 	if(chip)
 	{
@@ -177,31 +177,31 @@ static void irq_d1_gpio_remove(struct device_t * dev)
 	}
 }
 
-static void irq_d1_gpio_suspend(struct device_t * dev)
+static void irq_f133_gpio_suspend(struct device_t * dev)
 {
 }
 
-static void irq_d1_gpio_resume(struct device_t * dev)
+static void irq_f133_gpio_resume(struct device_t * dev)
 {
 }
 
-static struct driver_t irq_d1_gpio = {
-	.name		= "irq-d1-gpio",
-	.probe		= irq_d1_gpio_probe,
-	.remove		= irq_d1_gpio_remove,
-	.suspend	= irq_d1_gpio_suspend,
-	.resume		= irq_d1_gpio_resume,
+static struct driver_t irq_f133_gpio = {
+	.name		= "irq-f133-gpio",
+	.probe		= irq_f133_gpio_probe,
+	.remove		= irq_f133_gpio_remove,
+	.suspend	= irq_f133_gpio_suspend,
+	.resume		= irq_f133_gpio_resume,
 };
 
-static __init void irq_d1_gpio_driver_init(void)
+static __init void irq_f133_gpio_driver_init(void)
 {
-	register_driver(&irq_d1_gpio);
+	register_driver(&irq_f133_gpio);
 }
 
-static __exit void irq_d1_gpio_driver_exit(void)
+static __exit void irq_f133_gpio_driver_exit(void)
 {
-	unregister_driver(&irq_d1_gpio);
+	unregister_driver(&irq_f133_gpio);
 }
 
-driver_initcall(irq_d1_gpio_driver_init);
-driver_exitcall(irq_d1_gpio_driver_exit);
+driver_initcall(irq_f133_gpio_driver_init);
+driver_exitcall(irq_f133_gpio_driver_exit);

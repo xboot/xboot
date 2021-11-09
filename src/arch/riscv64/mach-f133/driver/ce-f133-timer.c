@@ -1,5 +1,5 @@
 /*
- * driver/ce-d1-timer.c
+ * driver/ce-f133-timer.c
  *
  * Copyright(c) 2007-2021 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -37,24 +37,24 @@
 #define TIMER_INTV(x)	((x + 1) * 0x10 + 0x04)
 #define TIMER_CUR(x)	((x + 1) * 0x10 + 0x08)
 
-struct ce_d1_timer_pdata_t
+struct ce_f133_timer_pdata_t
 {
 	virtual_addr_t virt;
 	char * clk;
 	int irq;
 };
 
-static void ce_d1_timer_interrupt(void * data)
+static void ce_f133_timer_interrupt(void * data)
 {
 	struct clockevent_t * ce = (struct clockevent_t *)data;
-	struct ce_d1_timer_pdata_t * pdat = (struct ce_d1_timer_pdata_t *)ce->priv;
+	struct ce_f133_timer_pdata_t * pdat = (struct ce_f133_timer_pdata_t *)ce->priv;
 	write32(pdat->virt + TIMER_IRQ_STA, 1 << 0);
 	ce->handler(ce, ce->data);
 }
 
-static bool_t ce_d1_timer_next(struct clockevent_t * ce, u64_t evt)
+static bool_t ce_f133_timer_next(struct clockevent_t * ce, u64_t evt)
 {
-	struct ce_d1_timer_pdata_t * pdat = (struct ce_d1_timer_pdata_t *)ce->priv;
+	struct ce_f133_timer_pdata_t * pdat = (struct ce_f133_timer_pdata_t *)ce->priv;
 	u32_t val;
 
 	write32(pdat->virt + TIMER_INTV(0), (evt & 0xffffffff));
@@ -68,9 +68,9 @@ static bool_t ce_d1_timer_next(struct clockevent_t * ce, u64_t evt)
 	return TRUE;
 }
 
-static struct device_t * ce_d1_timer_probe(struct driver_t * drv, struct dtnode_t * n)
+static struct device_t * ce_f133_timer_probe(struct driver_t * drv, struct dtnode_t * n)
 {
-	struct ce_d1_timer_pdata_t * pdat;
+	struct ce_f133_timer_pdata_t * pdat;
 	struct clockevent_t * ce;
 	struct device_t * dev;
 	virtual_addr_t virt = phys_to_virt(dt_read_address(n));
@@ -84,7 +84,7 @@ static struct device_t * ce_d1_timer_probe(struct driver_t * drv, struct dtnode_
 	if(!irq_is_valid(irq))
 		return NULL;
 
-	pdat = malloc(sizeof(struct ce_d1_timer_pdata_t));
+	pdat = malloc(sizeof(struct ce_f133_timer_pdata_t));
 	if(!pdat)
 		return NULL;
 
@@ -104,10 +104,10 @@ static struct device_t * ce_d1_timer_probe(struct driver_t * drv, struct dtnode_
 	ce->name = alloc_device_name(dt_read_name(n), -1);
 	ce->min_delta_ns = clockevent_delta2ns(ce, 0x1);
 	ce->max_delta_ns = clockevent_delta2ns(ce, 0xffffffff);
-	ce->next = ce_d1_timer_next;
+	ce->next = ce_f133_timer_next;
 	ce->priv = pdat;
 
-	if(!request_irq(pdat->irq, ce_d1_timer_interrupt, IRQ_TYPE_NONE, ce))
+	if(!request_irq(pdat->irq, ce_f133_timer_interrupt, IRQ_TYPE_NONE, ce))
 	{
 		clk_disable(pdat->clk);
 		free(pdat->clk);
@@ -136,10 +136,10 @@ static struct device_t * ce_d1_timer_probe(struct driver_t * drv, struct dtnode_
 	return dev;
 }
 
-static void ce_d1_timer_remove(struct device_t * dev)
+static void ce_f133_timer_remove(struct device_t * dev)
 {
 	struct clockevent_t * ce = (struct clockevent_t *)dev->priv;
-	struct ce_d1_timer_pdata_t * pdat = (struct ce_d1_timer_pdata_t *)ce->priv;
+	struct ce_f133_timer_pdata_t * pdat = (struct ce_f133_timer_pdata_t *)ce->priv;
 
 	if(ce)
 	{
@@ -153,31 +153,31 @@ static void ce_d1_timer_remove(struct device_t * dev)
 	}
 }
 
-static void ce_d1_timer_suspend(struct device_t * dev)
+static void ce_f133_timer_suspend(struct device_t * dev)
 {
 }
 
-static void ce_d1_timer_resume(struct device_t * dev)
+static void ce_f133_timer_resume(struct device_t * dev)
 {
 }
 
-static struct driver_t ce_d1_timer = {
-	.name		= "ce-d1-timer",
-	.probe		= ce_d1_timer_probe,
-	.remove		= ce_d1_timer_remove,
-	.suspend	= ce_d1_timer_suspend,
-	.resume		= ce_d1_timer_resume,
+static struct driver_t ce_f133_timer = {
+	.name		= "ce-f133-timer",
+	.probe		= ce_f133_timer_probe,
+	.remove		= ce_f133_timer_remove,
+	.suspend	= ce_f133_timer_suspend,
+	.resume		= ce_f133_timer_resume,
 };
 
-static __init void ce_d1_timer_driver_init(void)
+static __init void ce_f133_timer_driver_init(void)
 {
-	register_driver(&ce_d1_timer);
+	register_driver(&ce_f133_timer);
 }
 
-static __exit void ce_d1_timer_driver_exit(void)
+static __exit void ce_f133_timer_driver_exit(void)
 {
-	unregister_driver(&ce_d1_timer);
+	unregister_driver(&ce_f133_timer);
 }
 
-driver_initcall(ce_d1_timer_driver_init);
-driver_exitcall(ce_d1_timer_driver_exit);
+driver_initcall(ce_f133_timer_driver_init);
+driver_exitcall(ce_f133_timer_driver_exit);

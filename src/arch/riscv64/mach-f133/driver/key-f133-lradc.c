@@ -1,5 +1,5 @@
 /*
- * driver/key-d1-lradc.c
+ * driver/key-f133-lradc.c
  *
  * Copyright(c) 2007-2021 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -68,7 +68,7 @@ struct adc_key_t {
 	int keycode;
 };
 
-struct key_d1_lradc_pdata_t {
+struct key_f133_lradc_pdata_t {
 	virtual_addr_t virt;
 	int irq;
 	int vref;
@@ -77,7 +77,7 @@ struct key_d1_lradc_pdata_t {
 	int keycode;
 };
 
-static int key_d1_lradc_get_keycode(struct key_d1_lradc_pdata_t * pdat, int voltage)
+static int key_f133_lradc_get_keycode(struct key_f133_lradc_pdata_t * pdat, int voltage)
 {
 	int i;
 
@@ -89,10 +89,10 @@ static int key_d1_lradc_get_keycode(struct key_d1_lradc_pdata_t * pdat, int volt
 	return 0;
 }
 
-static void key_d1_lradc_interrupt(void * data)
+static void key_f133_lradc_interrupt(void * data)
 {
 	struct input_t * input = (struct input_t *)data;
-	struct key_d1_lradc_pdata_t * pdat = (struct key_d1_lradc_pdata_t *)input->priv;
+	struct key_f133_lradc_pdata_t * pdat = (struct key_f133_lradc_pdata_t *)input->priv;
 	u32_t ints, val;
 	int voltage, keycode;
 
@@ -107,7 +107,7 @@ static void key_d1_lradc_interrupt(void * data)
 	{
 		val = read32(pdat->virt + LRADC_DATA0) & 0x3f;
 		voltage = val * pdat->vref / 63;
-		keycode = key_d1_lradc_get_keycode(pdat, voltage);
+		keycode = key_f133_lradc_get_keycode(pdat, voltage);
 		if(keycode != 0)
 		{
 			pdat->keycode = keycode;
@@ -117,14 +117,14 @@ static void key_d1_lradc_interrupt(void * data)
 	write32(pdat->virt + LRADC_INTS, ints);
 }
 
-static int key_d1_lradc_ioctl(struct input_t * input, const char * cmd, void * arg)
+static int key_f133_lradc_ioctl(struct input_t * input, const char * cmd, void * arg)
 {
 	return -1;
 }
 
-static struct device_t * key_d1_lradc_probe(struct driver_t * drv, struct dtnode_t * n)
+static struct device_t * key_f133_lradc_probe(struct driver_t * drv, struct dtnode_t * n)
 {
-	struct key_d1_lradc_pdata_t * pdat;
+	struct key_f133_lradc_pdata_t * pdat;
 	struct adc_key_t * keys;
 	struct input_t * input;
 	struct device_t * dev;
@@ -139,7 +139,7 @@ static struct device_t * key_d1_lradc_probe(struct driver_t * drv, struct dtnode
 	if((nkeys = dt_read_array_length(n, "keys")) <= 0)
 		return NULL;
 
-	pdat = malloc(sizeof(struct key_d1_lradc_pdata_t));
+	pdat = malloc(sizeof(struct key_f133_lradc_pdata_t));
 	if(!pdat)
 		return NULL;
 
@@ -174,10 +174,10 @@ static struct device_t * key_d1_lradc_probe(struct driver_t * drv, struct dtnode
 	pdat->keycode = 0;
 
 	input->name = alloc_device_name(dt_read_name(n), -1);
-	input->ioctl = key_d1_lradc_ioctl;
+	input->ioctl = key_f133_lradc_ioctl;
 	input->priv = pdat;
 
-	request_irq(pdat->irq, key_d1_lradc_interrupt, IRQ_TYPE_NONE, input);
+	request_irq(pdat->irq, key_f133_lradc_interrupt, IRQ_TYPE_NONE, input);
 
 	/*
 	 * Set sample time to 4 ms / 250 Hz. Wait 2 * 4 ms for key to
@@ -200,10 +200,10 @@ static struct device_t * key_d1_lradc_probe(struct driver_t * drv, struct dtnode
 	return dev;
 }
 
-static void key_d1_lradc_remove(struct device_t * dev)
+static void key_f133_lradc_remove(struct device_t * dev)
 {
 	struct input_t * input = (struct input_t *)dev->priv;
-	struct key_d1_lradc_pdata_t * pdat = (struct key_d1_lradc_pdata_t *)input->priv;
+	struct key_f133_lradc_pdata_t * pdat = (struct key_f133_lradc_pdata_t *)input->priv;
 
 	if(input)
 	{
@@ -218,31 +218,31 @@ static void key_d1_lradc_remove(struct device_t * dev)
 	}
 }
 
-static void key_d1_lradc_suspend(struct device_t * dev)
+static void key_f133_lradc_suspend(struct device_t * dev)
 {
 }
 
-static void key_d1_lradc_resume(struct device_t * dev)
+static void key_f133_lradc_resume(struct device_t * dev)
 {
 }
 
-static struct driver_t key_d1_lradc = {
-	.name		= "key-d1-lradc",
-	.probe		= key_d1_lradc_probe,
-	.remove		= key_d1_lradc_remove,
-	.suspend	= key_d1_lradc_suspend,
-	.resume		= key_d1_lradc_resume,
+static struct driver_t key_f133_lradc = {
+	.name		= "key-f133-lradc",
+	.probe		= key_f133_lradc_probe,
+	.remove		= key_f133_lradc_remove,
+	.suspend	= key_f133_lradc_suspend,
+	.resume		= key_f133_lradc_resume,
 };
 
-static __init void key_d1_lradc_driver_init(void)
+static __init void key_f133_lradc_driver_init(void)
 {
-	register_driver(&key_d1_lradc);
+	register_driver(&key_f133_lradc);
 }
 
-static __exit void key_d1_lradc_driver_exit(void)
+static __exit void key_f133_lradc_driver_exit(void)
 {
-	unregister_driver(&key_d1_lradc);
+	unregister_driver(&key_f133_lradc);
 }
 
-driver_initcall(key_d1_lradc_driver_init);
-driver_exitcall(key_d1_lradc_driver_exit);
+driver_initcall(key_f133_lradc_driver_init);
+driver_exitcall(key_f133_lradc_driver_exit);

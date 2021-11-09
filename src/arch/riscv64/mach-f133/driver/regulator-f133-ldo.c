@@ -1,5 +1,5 @@
 /*
- * driver/regulator-d1-ldo.c
+ * driver/regulator-f133-ldo.c
  *
  * Copyright(c) 2007-2021 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -29,30 +29,30 @@
 #include <xboot.h>
 #include <regulator/regulator.h>
 
-struct regulator_d1_ldo_pdata_t {
+struct regulator_f133_ldo_pdata_t {
 	virtual_addr_t virt;
 	int channel;
 };
 
-static void regulator_d1_ldo_set_parent(struct regulator_t * supply, const char * pname)
+static void regulator_f133_ldo_set_parent(struct regulator_t * supply, const char * pname)
 {
 }
 
-static const char * regulator_d1_ldo_get_parent(struct regulator_t * supply)
+static const char * regulator_f133_ldo_get_parent(struct regulator_t * supply)
 {
 	return NULL;
 }
 
-static void regulator_d1_ldo_set_enable(struct regulator_t * supply, bool_t enable)
+static void regulator_f133_ldo_set_enable(struct regulator_t * supply, bool_t enable)
 {
 }
 
-static bool_t regulator_d1_ldo_get_enable(struct regulator_t * supply)
+static bool_t regulator_f133_ldo_get_enable(struct regulator_t * supply)
 {
 	return TRUE;
 }
 
-static u8_t d1_ldo_vol_to_reg(int vol, int step, int min, int max)
+static u8_t f133_ldo_vol_to_reg(int vol, int step, int min, int max)
 {
 	int reg;
 
@@ -65,7 +65,7 @@ static u8_t d1_ldo_vol_to_reg(int vol, int step, int min, int max)
 	return (u8_t)(reg & 0xff);
 }
 
-static int d1_ldo_reg_to_vol(u8_t reg, int step, int min, int max)
+static int f133_ldo_reg_to_vol(u8_t reg, int step, int min, int max)
 {
 	int vol = (int)reg * step + min;
 
@@ -76,9 +76,9 @@ static int d1_ldo_reg_to_vol(u8_t reg, int step, int min, int max)
 	return vol;
 }
 
-static void regulator_d1_ldo_set_voltage(struct regulator_t * supply, int voltage)
+static void regulator_f133_ldo_set_voltage(struct regulator_t * supply, int voltage)
 {
-	struct regulator_d1_ldo_pdata_t * pdat = (struct regulator_d1_ldo_pdata_t *)supply->priv;
+	struct regulator_f133_ldo_pdata_t * pdat = (struct regulator_f133_ldo_pdata_t *)supply->priv;
 	u32_t val;
 	u8_t v;
 
@@ -86,7 +86,7 @@ static void regulator_d1_ldo_set_voltage(struct regulator_t * supply, int voltag
 	{
 	/* LDOA - 1.593V ~ 2.013V, 0.0135V/step, 0.2A */
 	case 0:
-		v = d1_ldo_vol_to_reg(voltage, 13500, 1593000, 2013000);
+		v = f133_ldo_vol_to_reg(voltage, 13500, 1593000, 2013000);
 		val = read32(pdat->virt);
 		val &= ~(0xff << 0);
 		val |= (v & 0x1f) << 0;
@@ -95,7 +95,7 @@ static void regulator_d1_ldo_set_voltage(struct regulator_t * supply, int voltag
 
 	/* LDOB - 1.167V ~ 2.013V, 0.0135V/step, 0.4A */
 	case 1:
-		v = d1_ldo_vol_to_reg(voltage, 13500, 1167000, 2013000);
+		v = f133_ldo_vol_to_reg(voltage, 13500, 1167000, 2013000);
 		val = read32(pdat->virt);
 		val &= ~(0xff << 8);
 		val |= (v & 0x3f) << 8;
@@ -107,9 +107,9 @@ static void regulator_d1_ldo_set_voltage(struct regulator_t * supply, int voltag
 	}
 }
 
-static int regulator_d1_ldo_get_voltage(struct regulator_t * supply)
+static int regulator_f133_ldo_get_voltage(struct regulator_t * supply)
 {
-	struct regulator_d1_ldo_pdata_t * pdat = (struct regulator_d1_ldo_pdata_t *)supply->priv;
+	struct regulator_f133_ldo_pdata_t * pdat = (struct regulator_f133_ldo_pdata_t *)supply->priv;
 	int voltage;
 	u8_t v;
 
@@ -118,13 +118,13 @@ static int regulator_d1_ldo_get_voltage(struct regulator_t * supply)
 	/* LDOA - 1.593V ~ 2.013V, 0.0135V/step, 0.2A */
 	case 0:
 		v = (read32(pdat->virt) >> 0) & 0x1f;
-		voltage = d1_ldo_reg_to_vol(v, 13500, 1593000, 2013000);
+		voltage = f133_ldo_reg_to_vol(v, 13500, 1593000, 2013000);
 		break;
 
 	/* LDOB - 1.167V ~ 2.013V, 0.0135V/step, 0.4A */
 	case 1:
 		v = (read32(pdat->virt) >> 8) & 0x3f;
-		voltage = d1_ldo_reg_to_vol(v, 13500, 1167000, 2013000);
+		voltage = f133_ldo_reg_to_vol(v, 13500, 1167000, 2013000);
 		break;
 
 	default:
@@ -134,9 +134,9 @@ static int regulator_d1_ldo_get_voltage(struct regulator_t * supply)
 	return voltage;
 }
 
-static struct device_t * regulator_d1_ldo_probe(struct driver_t * drv, struct dtnode_t * n)
+static struct device_t * regulator_f133_ldo_probe(struct driver_t * drv, struct dtnode_t * n)
 {
-	struct regulator_d1_ldo_pdata_t * pdat;
+	struct regulator_f133_ldo_pdata_t * pdat;
 	struct regulator_t * supply;
 	struct device_t * dev;
 	struct dtnode_t o;
@@ -150,7 +150,7 @@ static struct device_t * regulator_d1_ldo_probe(struct driver_t * drv, struct dt
 	if(channel < 0 || channel > 1)
 		return NULL;
 
-	pdat = malloc(sizeof(struct regulator_d1_ldo_pdata_t));
+	pdat = malloc(sizeof(struct regulator_f133_ldo_pdata_t));
 	if(!pdat)
 		return NULL;
 
@@ -166,12 +166,12 @@ static struct device_t * regulator_d1_ldo_probe(struct driver_t * drv, struct dt
 
 	supply->name = strdup(name);
 	supply->count = 0;
-	supply->set_parent = regulator_d1_ldo_set_parent;
-	supply->get_parent = regulator_d1_ldo_get_parent;
-	supply->set_enable = regulator_d1_ldo_set_enable;
-	supply->get_enable = regulator_d1_ldo_get_enable;
-	supply->set_voltage = regulator_d1_ldo_set_voltage;
-	supply->get_voltage = regulator_d1_ldo_get_voltage;
+	supply->set_parent = regulator_f133_ldo_set_parent;
+	supply->get_parent = regulator_f133_ldo_get_parent;
+	supply->set_enable = regulator_f133_ldo_set_enable;
+	supply->get_enable = regulator_f133_ldo_get_enable;
+	supply->set_voltage = regulator_f133_ldo_set_voltage;
+	supply->get_voltage = regulator_f133_ldo_get_voltage;
 	supply->priv = pdat;
 
 	if(!(dev = register_regulator(supply, drv)))
@@ -203,7 +203,7 @@ static struct device_t * regulator_d1_ldo_probe(struct driver_t * drv, struct dt
 	return dev;
 }
 
-static void regulator_d1_ldo_remove(struct device_t * dev)
+static void regulator_f133_ldo_remove(struct device_t * dev)
 {
 	struct regulator_t * supply = (struct regulator_t *)dev->priv;
 
@@ -216,31 +216,31 @@ static void regulator_d1_ldo_remove(struct device_t * dev)
 	}
 }
 
-static void regulator_d1_ldo_suspend(struct device_t * dev)
+static void regulator_f133_ldo_suspend(struct device_t * dev)
 {
 }
 
-static void regulator_d1_ldo_resume(struct device_t * dev)
+static void regulator_f133_ldo_resume(struct device_t * dev)
 {
 }
 
-static struct driver_t regulator_d1_ldo = {
-	.name		= "regulator-d1-ldo",
-	.probe		= regulator_d1_ldo_probe,
-	.remove		= regulator_d1_ldo_remove,
-	.suspend	= regulator_d1_ldo_suspend,
-	.resume		= regulator_d1_ldo_resume,
+static struct driver_t regulator_f133_ldo = {
+	.name		= "regulator-f133-ldo",
+	.probe		= regulator_f133_ldo_probe,
+	.remove		= regulator_f133_ldo_remove,
+	.suspend	= regulator_f133_ldo_suspend,
+	.resume		= regulator_f133_ldo_resume,
 };
 
-static __init void regulator_d1_ldo_driver_init(void)
+static __init void regulator_f133_ldo_driver_init(void)
 {
-	register_driver(&regulator_d1_ldo);
+	register_driver(&regulator_f133_ldo);
 }
 
-static __exit void regulator_d1_ldo_driver_exit(void)
+static __exit void regulator_f133_ldo_driver_exit(void)
 {
-	unregister_driver(&regulator_d1_ldo);
+	unregister_driver(&regulator_f133_ldo);
 }
 
-driver_initcall(regulator_d1_ldo_driver_init);
-driver_exitcall(regulator_d1_ldo_driver_exit);
+driver_initcall(regulator_f133_ldo_driver_init);
+driver_exitcall(regulator_f133_ldo_driver_exit);

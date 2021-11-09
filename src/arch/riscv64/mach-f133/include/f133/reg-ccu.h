@@ -1,7 +1,7 @@
-#ifndef __D1_REG_CCU_H__
-#define __D1_REG_CCU_H__
+#ifndef __F133_REG_CCU_H__
+#define __F133_REG_CCU_H__
 
-#define D1_CCU_BASE						(0x02001000)
+#define F133_CCU_BASE					(0x02001000)
 
 #define CCU_PLL_CPU_CTRL_REG			(0x000)
 #define CCU_PLL_DDR_CTRL_REG			(0x010)
@@ -65,4 +65,4 @@
 #define CCU_RISCV_GATING_REG			(0xd04)
 #define CCU_RISCV_CFG_BGR_REG			(0xd0c)
 
-#endif /* __D1_REG_CCU_H__ */
+#endif /* __F133_REG_CCU_H__ */

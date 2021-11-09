@@ -105,15 +105,15 @@ static struct machine_t nezha = {
 	.keygen		= mach_keygen,
 };
 
-static __init void virt_machine_init(void)
+static __init void nezha_machine_init(void)
 {
 	register_machine(&nezha);
 }
 
-static __exit void virt_machine_exit(void)
+static __exit void nezha_machine_exit(void)
 {
 	unregister_machine(&nezha);
 }
 
-machine_initcall(virt_machine_init);
-machine_exitcall(virt_machine_exit);
+machine_initcall(nezha_machine_init);
+machine_exitcall(nezha_machine_exit);

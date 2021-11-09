@@ -33,16 +33,16 @@ void sys_uart_init(void)
 	virtual_addr_t addr;
 	u32_t val;
 
-	/* Config GPIOB8 and GPIOB9 to txd0 and rxd0 */
-	addr = 0x02000030 + 0x04;
+	/* Config GPIOE2 and GPIOE3 to txd0 and rxd0 */
+	addr = 0x020000c0 + 0x0;
 	val = read32(addr);
-	val &= ~(0xf << ((8 & 0x7) << 2));
-	val |= ((0x6 & 0xf) << ((8 & 0x7) << 2));
+	val &= ~(0xf << ((2 & 0x7) << 2));
+	val |= ((0x6 & 0xf) << ((2 & 0x7) << 2));
 	write32(addr, val);
 
 	val = read32(addr);
-	val &= ~(0xf << ((9 & 0x7) << 2));
-	val |= ((0x6 & 0xf) << ((9 & 0x7) << 2));
+	val &= ~(0xf << ((3 & 0x7) << 2));
+	val |= ((0x6 & 0xf) << ((3 & 0x7) << 2));
 	write32(addr, val);
 
 	/* Open the clock gate for uart0 */

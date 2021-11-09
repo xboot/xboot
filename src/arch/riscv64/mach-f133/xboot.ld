@@ -6,9 +6,9 @@ STACK_SIZE = 0x100000;
 
 MEMORY
 {
-	ram  : org = 0x40000000, len = 128M
-	dma  : org = 0x48000000, len = 128M
-	heap : org = 0x50000000, len = 256M
+	ram  : org = 0x40000000, len = 8M
+	dma  : org = 0x40800000, len = 8M
+	heap : org = 0x41000000, len = 48M
 }
 
 SECTIONS

@@ -306,9 +306,9 @@
 	"uart-16550@0x02500000": {
 		"clock-name": "bus-uart0",
 		"reset": 432,
-		"txd-gpio": 40,
+		"txd-gpio": 130,
 		"txd-gpio-config": 6,
-		"rxd-gpio": 41,
+		"rxd-gpio": 131,
 		"rxd-gpio-config": 6,
 		"baud-rates": 115200,
 		"data-bits": 8,

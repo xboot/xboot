@@ -447,14 +447,6 @@
 		"cs-gpio-config": 4
 	},
 
-	"gpio-pcf8574@0": {
-		"i2c-bus": "i2c-f133.2",
-		"slave-address": 56,
-		"gpio-base": 224,
-		"gpio-count": 8,
-		"interrupt-offset": -1
-	},
-
 	"blk-spinor@0": {
 		"spi-bus": "spi-f133.0",
 		"chip-select": 0,

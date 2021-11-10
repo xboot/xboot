@@ -5,22 +5,13 @@
 extern "C" {
 #endif
 
-#define F133_GPIOB0			(32 + 0)
-#define F133_GPIOB1			(32 + 1)
 #define F133_GPIOB2			(32 + 2)
 #define F133_GPIOB3			(32 + 3)
 #define F133_GPIOB4			(32 + 4)
 #define F133_GPIOB5			(32 + 5)
 #define F133_GPIOB6			(32 + 6)
 #define F133_GPIOB7			(32 + 7)
-#define F133_GPIOB8			(32 + 8)
-#define F133_GPIOB9			(32 + 9)
-#define F133_GPIOB10		(32 + 10)
-#define F133_GPIOB11		(32 + 11)
-#define F133_GPIOB12		(32 + 12)
 
-#define F133_GPIOC0			(64 + 0)
-#define F133_GPIOC1			(64 + 1)
 #define F133_GPIOC2			(64 + 2)
 #define F133_GPIOC3			(64 + 3)
 #define F133_GPIOC4			(64 + 4)
@@ -66,10 +57,6 @@ extern "C" {
 #define F133_GPIOE11		(128 + 11)
 #define F133_GPIOE12		(128 + 12)
 #define F133_GPIOE13		(128 + 13)
-#define F133_GPIOE14		(128 + 14)
-#define F133_GPIOE15		(128 + 15)
-#define F133_GPIOE16		(128 + 16)
-#define F133_GPIOE17		(128 + 17)
 
 #define F133_GPIOF0			(160 + 0)
 #define F133_GPIOF1			(160 + 1)
@@ -95,9 +82,6 @@ extern "C" {
 #define F133_GPIOG13		(192 + 13)
 #define F133_GPIOG14		(192 + 14)
 #define F133_GPIOG15		(192 + 15)
-#define F133_GPIOG16		(192 + 16)
-#define F133_GPIOG17		(192 + 17)
-#define F133_GPIOG18		(192 + 18)
 
 #ifdef __cplusplus
 }

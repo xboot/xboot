@@ -95,22 +95,13 @@ extern "C" {
 #define F133_IRQ_DBGWRUPREQ_OUT0	(196)
 #define F133_IRQ_DBGWRUPREQ_OUT1	(197)
 
-#define F133_IRQ_GPIOB0				(256 + 0)
-#define F133_IRQ_GPIOB1				(256 + 1)
 #define F133_IRQ_GPIOB2				(256 + 2)
 #define F133_IRQ_GPIOB3				(256 + 3)
 #define F133_IRQ_GPIOB4				(256 + 4)
 #define F133_IRQ_GPIOB5				(256 + 5)
 #define F133_IRQ_GPIOB6				(256 + 6)
 #define F133_IRQ_GPIOB7				(256 + 7)
-#define F133_IRQ_GPIOB8				(256 + 8)
-#define F133_IRQ_GPIOB9				(256 + 9)
-#define F133_IRQ_GPIOB10			(256 + 10)
-#define F133_IRQ_GPIOB11			(256 + 11)
-#define F133_IRQ_GPIOB12			(256 + 12)
 
-#define F133_IRQ_GPIOC0				(288 + 0)
-#define F133_IRQ_GPIOC1				(288 + 1)
 #define F133_IRQ_GPIOC2				(288 + 2)
 #define F133_IRQ_GPIOC3				(288 + 3)
 #define F133_IRQ_GPIOC4				(288 + 4)
@@ -156,10 +147,6 @@ extern "C" {
 #define F133_IRQ_GPIOE11			(352 + 11)
 #define F133_IRQ_GPIOE12			(352 + 12)
 #define F133_IRQ_GPIOE13			(352 + 13)
-#define F133_IRQ_GPIOE14			(352 + 14)
-#define F133_IRQ_GPIOE15			(352 + 15)
-#define F133_IRQ_GPIOE16			(352 + 16)
-#define F133_IRQ_GPIOE17			(352 + 17)
 
 #define F133_IRQ_GPIOF0				(384 + 0)
 #define F133_IRQ_GPIOF1				(384 + 1)
@@ -185,9 +172,6 @@ extern "C" {
 #define F133_IRQ_GPIOG13			(416 + 13)
 #define F133_IRQ_GPIOG14			(416 + 14)
 #define F133_IRQ_GPIOG15			(416 + 15)
-#define F133_IRQ_GPIOG16			(416 + 16)
-#define F133_IRQ_GPIOG17			(416 + 17)
-#define F133_IRQ_GPIOG18			(416 + 18)
 
 #ifdef __cplusplus
 }

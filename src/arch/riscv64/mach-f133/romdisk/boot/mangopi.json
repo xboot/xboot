@@ -444,7 +444,8 @@
 		"miso-gpio": 109,
 		"miso-gpio-config": 4,
 		"cs-gpio": 106,
-		"cs-gpio-config": 4
+		"cs-gpio-config": 4,
+		"status": "disabled"
 	},
 
 	"blk-spinor@0": {
@@ -491,7 +492,8 @@
 		"wait-time0-ns": 84,
 		"wait-time1-ns": 84,
 		"wait-data-time-ns": 600000,
-		"count": 1
+		"count": 1,
+		"status": "disabled"
 	},
 
 	"console-uart@0": {

@@ -480,8 +480,8 @@
 	"ledstrip-f133@0x02008000": {
 		"clock-name": "ledc",
 		"reset": 1072,
-		"gpio": 64,
-		"gpio-config": 4,
+		"gpio": 133,
+		"gpio-config": 5,
 		"output-mode": 0,
 		"reset-ns": 280000,
 		"t1h-ns": 790,

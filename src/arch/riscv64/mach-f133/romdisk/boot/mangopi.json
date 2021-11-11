@@ -470,14 +470,6 @@
 	"regulator-f133-ldo@0x03000150": { "name": "ldoa", "channel": 0 },
 	"regulator-f133-ldo@0x03000150": { "name": "ldob", "channel": 1 },
 
-	"key-f133-lradc@0x02009800": {
-		"interrupt": 77,
-		"reference-voltage": 1800000,
-		"keys": [
-			{ "min-voltage": 100000, "max-voltage": 1800000, "key-code": 6 }
-		]
-	},
-
 	"ledstrip-f133@0x02008000": {
 		"clock-name": "ledc",
 		"reset": 1072,

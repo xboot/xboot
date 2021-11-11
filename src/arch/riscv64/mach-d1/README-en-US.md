@@ -50,7 +50,7 @@ sudo make install
 
   https://xboot.github.io/
 
-* XBOOT source code(completely open source) is registered in `github`. Please `star` and `fork` a copy directly. If you want to merge it, just sent `pull request`.
+* XBOOT source code(completely open source) is registered in `github`. Please `star` and `fork` a copy directly. If you want to merge it, just send a `pull request`.
 
   https://github.com/xboot/xboot
 

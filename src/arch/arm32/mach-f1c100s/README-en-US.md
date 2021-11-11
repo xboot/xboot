@@ -2,23 +2,23 @@
 
 ***
 
-## Compile source code and generate the target files at the  output directory
+## Compile source code and generate the target files at the output directory
 ```shell
 make clean
 make CROSS_COMPILE=/path/to/arm-none-eabi- PLATFORM=arm32-f1c100s
 ```
 
-## Brun to RAM and execute
+## Program to RAM and execute
 ```shell
 sudo xfel ddr; sudo xfel write 0x80000000 xboot.bin; sudo xfel exec 0x80000000;
 ```
 
-## Brun normal image to SPI Flash
+## Burn normal image to SPI Nor Flash
 ```shell
 sudo xfel spinor write 0 xboot.bin
 ```
 
-## Brun compress image to SPI Flash
+## Burn compress image to SPI Nor Flash
 ```shell
 sudo xfel spinor write 0 xboot.bin.z
 ```
@@ -40,7 +40,7 @@ sudo make install
 
   https://xboot.github.io/
 
-* XBOOT source code(open source completely),registered in `github`,please `star` and `fork` a copy directly,if you want to merge it, just sent `pull request`
+* XBOOT source code(completely open source) is registered in `github`. Please `star` and `fork` a copy directly. If you want to merge it, just send a `pull request`.
 
   https://github.com/xboot/xboot
 
@@ -56,8 +56,8 @@ sudo make install
 
   https://github.com/xboot/xboot/blob/master/documents/xboot-application-development-guide-en-US.md
 
-* XBOOT official tencent qq group,many big brother, welcome to join us.
+* XBOOT official tencent qq group with many other participants. You are welcome to join us.
 
   [658250248](https://jq.qq.com/?_wv=1027&k=5BOkXYO) (2000 peoples)
 
-* You can isuse us if you have any question.
+* You can create an isuse for us if you have any question.

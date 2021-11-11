@@ -70,4 +70,4 @@ sudo make install
 
   [658250248](https://jq.qq.com/?_wv=1027&k=5BOkXYO) (2000 peoples)
 
-* You can create an isuse for us us if you have any question.
+* You can create an isuse for us if you have any question.

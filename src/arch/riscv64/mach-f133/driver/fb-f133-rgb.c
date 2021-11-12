@@ -83,7 +83,7 @@ static void inline f133_de_enable(struct fb_f133_rgb_pdata_t * pdat)
 
 static inline void f133_de_set_address(struct fb_f133_rgb_pdata_t * pdat, void * vram)
 {
-	struct de_ui_t * ui = (struct de_ui_t *)(pdat->virt_de + F133_DE_MUX_CHAN + 0x1000 * 2);
+	struct de_ui_t * ui = (struct de_ui_t *)(pdat->virt_de + F133_DE_MUX_CHAN + 0x1000 * 1);
 	write32((virtual_addr_t)&ui->cfg[0].top_laddr, (u32_t)(unsigned long)vram);
 }
 
@@ -92,7 +92,7 @@ static inline void f133_de_set_mode(struct fb_f133_rgb_pdata_t * pdat)
 	struct de_clk_t * clk = (struct de_clk_t *)(pdat->virt_de);
 	struct de_glb_t * glb = (struct de_glb_t *)(pdat->virt_de + F133_DE_MUX_GLB);
 	struct de_bld_t * bld = (struct de_bld_t *)(pdat->virt_de + F133_DE_MUX_BLD);
-	struct de_ui_t * ui = (struct de_ui_t *)(pdat->virt_de + F133_DE_MUX_CHAN + 0x1000 * 2);
+	struct de_ui_t * ui = (struct de_ui_t *)(pdat->virt_de + F133_DE_MUX_CHAN + 0x1000 * 1);
 	u32_t size = (((pdat->height - 1) << 16) | (pdat->width - 1));
 	u32_t val;
 	int i;
@@ -126,7 +126,7 @@ static inline void f133_de_set_mode(struct fb_f133_rgb_pdata_t * pdat)
 	memset(bld, 0, sizeof(struct de_bld_t));
 
 	write32((virtual_addr_t)&bld->fcolor_ctl, 0x00000101);
-	write32((virtual_addr_t)&bld->route, 2);
+	write32((virtual_addr_t)&bld->route, 1);
 	write32((virtual_addr_t)&bld->premultiply, 0);
 	write32((virtual_addr_t)&bld->bkcolor, 0xff000000);
 	write32((virtual_addr_t)&bld->bld_mode[0], 0x03010301);
@@ -190,7 +190,7 @@ static void f133_tconlcd_set_timing(struct fb_f133_rgb_pdata_t * pdat)
 	u32_t val;
 
 	val = (pdat->timing.v_front_porch + pdat->timing.v_back_porch + pdat->timing.v_sync_len) / 2;
-	write32((virtual_addr_t)&tcon->ctrl, (1 << 31) | (0 << 24) | (0 << 23) | ((val & 0x1f) << 4) | (7 << 0));
+	write32((virtual_addr_t)&tcon->ctrl, (1 << 31) | (0 << 24) | (0 << 23) | ((val & 0x1f) << 4) | (0 << 0));
 	val = clk_get_rate(pdat->clk_tconlcd) / pdat->timing.pixel_clock_hz;
 	write32((virtual_addr_t)&tcon->dclk, (0xf << 28) | ((val / 2) << 0));
 	write32((virtual_addr_t)&tcon->timing0, ((pdat->width - 1) << 16) | ((pdat->height - 1) << 0));

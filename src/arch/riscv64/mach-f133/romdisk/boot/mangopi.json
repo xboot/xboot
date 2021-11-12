@@ -160,6 +160,37 @@
 	"clk-ratio@0x02001bf0": { "parent": "div-ledc", "name": "radio-ledc", "shift": 8, "width": 2 },
 	"clk-gate@0x02001bf0": {"parent": "radio-ledc", "name": "ledc", "shift": 31, "invert": false },
 
+	"clk-mux@0x02001600": {
+		"parent": [
+			{ "name": "pll-periph0-2x", "value": 0 },
+			{ "name": "pll-video0-4x", "value": 1 },
+			{ "name": "pll-video1-4x", "value": 2 },
+			{ "name": "pll-audio1-div2", "value": 3 }
+		],
+		"name": "mux-de", "shift": 24, "width": 3,
+		"default": { "parent": "pll-video0-4x" }
+	},
+	"clk-divider@0x02001600": { "parent": "mux-de", "name": "div-de", "shift": 0, "width": 4, "divider-one-based": true, "default": { "rate": 396000000 } },
+	"clk-gate@0x02001600": {"parent": "div-de", "name": "gate-de", "shift": 31, "invert": false },
+	"clk-link": { "parent": "gate-de", "name": "link-de" },
+
+	"clk-mux@0x02001b60": {
+		"parent": [
+			{ "name": "pll-video0", "value": 0 },
+			{ "name": "pll-video0-4x", "value": 1 },
+			{ "name": "pll-video1", "value": 2 },
+			{ "name": "pll-video1-4x", "value": 3 },
+			{ "name": "pll-periph0-2x", "value": 4 },
+			{ "name": "pll-audio1-div2", "value": 5 }
+		],
+		"name": "mux-tconlcd", "shift": 24, "width": 3,
+		"default": { "parent": "pll-video0-4x" }
+	},
+	"clk-divider@0x02001b60": { "parent": "mux-tconlcd", "name": "div-tconlcd", "shift": 0, "width": 4, "divider-one-based": true, "default": { "rate": 396000000 } },
+	"clk-ratio@0x02001b60": { "parent": "div-tconlcd", "name": "ratio-tconlcd", "shift": 8, "width": 2 },
+	"clk-gate@0x02001b60": {"parent": "ratio-tconlcd", "name": "gate-tconlcd", "shift": 31, "invert": false },
+	"clk-link": { "parent": "gate-tconlcd", "name": "link-tconlcd" },
+
 	"clk-gate@0x020017ac": { "parent": "apb0", "name": "bus-pwm", "shift": 0, "invert": false },
 	"clk-gate@0x020017bc": { "parent": "apb0", "name": "bus-iommu", "shift": 0, "invert": false },
 	"clk-gate@0x020019cc": { "parent": "apb0", "name": "bus-ir-tx", "shift": 0, "invert": false },
@@ -187,7 +218,7 @@
 	"clk-gate@0x02001a20": { "parent": "apb1", "name": "bus-i2s1", "shift": 1, "invert": false },
 	"clk-gate@0x02001a20": { "parent": "apb1", "name": "bus-i2s2", "shift": 2, "invert": false },
 
-	"clk-gate@0x0200160c": { "parent": "psi-ahb", "name": "bus-de0", "shift": 0, "invert": false },
+	"clk-gate@0x0200160c": { "parent": "psi-ahb", "name": "bus-de0", "shift": 0, "invert": false, "default": { "enable": true } },
 	"clk-gate@0x0200162c": { "parent": "psi-ahb", "name": "bus-di", "shift": 0, "invert": false },
 	"clk-gate@0x0200163c": { "parent": "psi-ahb", "name": "bus-g2d", "shift": 0, "invert": false },
 	"clk-gate@0x0200168c": { "parent": "psi-ahb", "name": "bus-ce", "shift": 0, "invert": false },
@@ -213,7 +244,7 @@
 	"clk-gate@0x02001abc": { "parent": "psi-ahb", "name": "bus-dpss-top0", "shift": 0, "invert": false },
 	"clk-gate@0x02001b1c": { "parent": "psi-ahb", "name": "bus-hdmi", "shift": 0, "invert": false },
 	"clk-gate@0x02001b4c": { "parent": "psi-ahb", "name": "bus-mipi-dsi", "shift": 0, "invert": false },
-	"clk-gate@0x02001b7c": { "parent": "psi-ahb", "name": "bus-tcon-lcd0", "shift": 0, "invert": false },
+	"clk-gate@0x02001b7c": { "parent": "psi-ahb", "name": "bus-tcon-lcd0", "shift": 0, "invert": false, "default": { "enable": true } },
 	"clk-gate@0x02001b9c": { "parent": "psi-ahb", "name": "bus-tcon-tv", "shift": 0, "invert": false },
 	"clk-gate@0x02001bbc": { "parent": "psi-ahb", "name": "bus-tve-top", "shift": 0, "invert": false },
 	"clk-gate@0x02001bbc": { "parent": "psi-ahb", "name": "bus-tve", "shift": 1, "invert": false },
@@ -486,6 +517,30 @@
 		"wait-data-time-ns": 600000,
 		"count": 1,
 		"status": "disabled"
+	},
+
+	"fb-f133-rgb@0x05000000": {
+		"clock-name-de": "link-de",
+		"clock-name-tconlcd": "link-tconlcd",
+		"reset-de": 16,
+		"reset-tconlcd": 912,
+		"width": 800,
+		"height": 480,
+		"physical-width": 216,
+		"physical-height": 135,
+		"bits-per-pixel": 18,
+		"clock-frequency": 33000000,
+		"hfront-porch": 40,
+		"hback-porch": 87,
+		"hsync-len": 1,
+		"vfront-porch": 13,
+		"vback-porch": 31,
+		"vsync-len": 1,
+		"hsync-active": false,
+		"vsync-active": false,
+		"den-active": true,
+		"clk-active": true,
+		"backlight": null
 	},
 
 	"console-uart@0": {

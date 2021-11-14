@@ -160,6 +160,17 @@
 	"clk-ratio@0x02001bf0": { "parent": "div-ledc", "name": "radio-ledc", "shift": 8, "width": 2 },
 	"clk-gate@0x02001bf0": {"parent": "radio-ledc", "name": "ledc", "shift": 31, "invert": false },
 
+	"clk-mux@0x02001c50": {
+		"parent": [
+			{ "name": "dcxo24m", "value": 0 },
+			{ "name": "pll-audio0", "value": 1 }
+		],
+		"name": "mux-tpadc", "shift": 24, "width": 1,
+		"default": { "parent": "dcxo24m" }
+	},
+	"clk-gate@0x02001c50": {"parent": "mux-tpadc", "name": "gate-tpadc", "shift": 31, "invert": false },
+	"clk-link": { "parent": "gate-tpadc", "name": "link-tpadc" },
+
 	"clk-mux@0x02001600": {
 		"parent": [
 			{ "name": "pll-periph0-2x", "value": 0 },
@@ -199,7 +210,7 @@
 	"clk-gate@0x02001a2c": { "parent": "apb0", "name": "bus-spdif", "shift": 0, "invert": false },
 	"clk-gate@0x02001a4c": { "parent": "apb0", "name": "bus-dmic", "shift": 0, "invert": false },
 	"clk-gate@0x02001a5c": { "parent": "apb0", "name": "bus-audio-codec", "shift": 0, "invert": false },
-	"clk-gate@0x02001c5c": { "parent": "apb0", "name": "bus-tpadc", "shift": 0, "invert": false },
+	"clk-gate@0x02001c5c": { "parent": "apb0", "name": "bus-tpadc", "shift": 0, "invert": false, "default": { "enable": true } },
 	"clk-gate@0x02001c6c": { "parent": "apb0", "name": "bus-tzma", "shift": 0, "invert": false },
 
 	"clk-gate@0x0200190c": { "parent": "apb1", "name": "bus-uart0", "shift": 0, "invert": false },
@@ -516,6 +527,16 @@
 		"wait-time1-ns": 84,
 		"wait-data-time-ns": 600000,
 		"count": 1,
+		"status": "disabled"
+	},
+
+	"ts-f133@0x02009c00": {
+		"clock-name": "link-tpadc",
+		"interrupt": 78,
+		"reset": 1136,
+		"median-filter-length": 5,
+		"mean-filter-length": 5,
+		"calibration": [14052, 21, -2411064, -67, 8461, -1219628, 65536],
 		"status": "disabled"
 	},
 

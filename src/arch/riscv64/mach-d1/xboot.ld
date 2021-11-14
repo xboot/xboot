@@ -27,7 +27,6 @@ SECTIONS
 		.obj/arch/riscv64/mach-d1/sys-clock.o (.text*)
 		.obj/arch/riscv64/mach-d1/sys-dram.o (.text*)
 		.obj/arch/riscv64/mach-d1/sys-decompress.o (.text*)
-		.obj/arch/riscv64/mach-d1/sys-crypt.o (.text*)
 		.obj/arch/riscv64/mach-d1/sys-hash.o (.text*)
 		.obj/arch/riscv64/mach-d1/sys-verify.o (.text*)
 		.obj/arch/riscv64/mach-d1/sys-spinor.o (.text*)

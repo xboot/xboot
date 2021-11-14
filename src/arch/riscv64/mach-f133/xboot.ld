@@ -27,7 +27,6 @@ SECTIONS
 		.obj/arch/riscv64/mach-f133/sys-clock.o (.text*)
 		.obj/arch/riscv64/mach-f133/sys-dram.o (.text*)
 		.obj/arch/riscv64/mach-f133/sys-decompress.o (.text*)
-		.obj/arch/riscv64/mach-f133/sys-crypt.o (.text*)
 		.obj/arch/riscv64/mach-f133/sys-hash.o (.text*)
 		.obj/arch/riscv64/mach-f133/sys-verify.o (.text*)
 		.obj/arch/riscv64/mach-f133/sys-spinor.o (.text*)

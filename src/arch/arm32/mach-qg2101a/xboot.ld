@@ -31,7 +31,6 @@ SECTIONS
 		.obj/arch/arm32/mach-qg2101a/sys-dram.o (.text*)
 		.obj/arch/arm32/mach-qg2101a/sys-mmu.o (.text*)
 		.obj/arch/arm32/mach-qg2101a/sys-decompress.o (.text*)
-		.obj/arch/arm32/mach-qg2101a/sys-crypt.o (.text*)
 		.obj/arch/arm32/mach-qg2101a/sys-hash.o (.text*)
 		.obj/arch/arm32/mach-qg2101a/sys-verify.o (.text*)
 		.obj/arch/arm32/mach-qg2101a/sys-spinor.o (.text*)

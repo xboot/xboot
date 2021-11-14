@@ -86,8 +86,10 @@ void sys_copyself(void)
 				sys_spinor_init();
 				sys_spinor_read(65536 + sizeof(struct zdesc_t), tmp, csize);
 				sys_spinor_exit();
-				//if(sys_hash(NULL, (char *)(&z->majoy), (sizeof(struct zdesc_t) - 100) + csize, (char *)z->sha256))
+				//if(sys_hash((char *)(&z->majoy), (sizeof(struct zdesc_t) - 100) + csize, (char *)z->sha256))
+				{
 					sys_decompress(tmp, csize, mem, dsize);
+				}
 			}
 		}
 		else

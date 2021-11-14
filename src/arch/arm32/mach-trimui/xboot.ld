@@ -31,8 +31,8 @@ SECTIONS
 		.obj/arch/arm32/mach-trimui/sys-dram.o (.text*)
 		.obj/arch/arm32/mach-trimui/sys-mmu.o (.text*)
 		.obj/arch/arm32/mach-trimui/sys-decompress.o (.text*)
-		.obj/arch/arm32/mach-trimui/sys-crypt.o (.text*)
 		.obj/arch/arm32/mach-trimui/sys-hash.o (.text*)
+		.obj/arch/arm32/mach-trimui/sys-verify.o (.text*)
 		.obj/arch/arm32/mach-trimui/sys-spinor.o (.text*)
 		.obj/arch/arm32/mach-trimui/sys-copyself.o (.text*)
 		PROVIDE(__spl_end = .);

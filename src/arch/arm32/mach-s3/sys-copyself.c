@@ -35,25 +35,23 @@ extern void return_to_fel(void);
 extern void sys_mmu_init(void);
 extern void sys_uart_putc(char c);
 extern void sys_decompress(char * src, int slen, char * dst, int dlen);
-extern void sys_crypt(char * key, char * buf, int len);
-extern int sys_hash_keygen(char * msg, void * key);
-extern int sys_hash(char * id, char * buf, int len, char * sha256);
+extern int sys_hash(char * buf, int len, char * sha256);
+extern int sys_verify(char * public, char * sha256, char * signature);
 extern void sys_spinor_init(void);
 extern void sys_spinor_exit(void);
 extern void sys_spinor_read(int addr, void * buf, int count);
 
 struct zdesc_t {			/* Total 256 bytes */
-	uint8_t magic[4];		/* ZB??, I for bind id, E for encrypt image */
-	uint8_t key[32];		/* Aes256 encrypt key (hardcode or efuse suggested) */
-	uint8_t sha256[32];		/* Sha256 hash */
+	uint8_t magic[4];		/* ZBL! */
 	uint8_t signature[64];	/* Ecdsa256 signature of sha256 */
-	uint8_t csize[4];		/* Compress size of image */
-	uint8_t dsize[4];		/* Decompress size of image */
-	uint8_t public[33];		/* Ecdsa256 public key (hardcode suggested) */
+	uint8_t sha256[32];		/* Sha256 hash */
 	uint8_t majoy;			/* Majoy version */
 	uint8_t minior;			/* Minior version */
 	uint8_t patch;			/* Patch version */
-	uint8_t message[80];	/* Message additionally */
+	uint8_t csize[4];		/* Compress size of image */
+	uint8_t dsize[4];		/* Decompress size of image */
+	uint8_t pubkey[33];		/* Ecdsa256 public key */
+	uint8_t message[112];	/* Message additionally */
 };
 
 enum {
@@ -82,10 +80,6 @@ static int get_boot_device(void)
 
 void sys_copyself(void)
 {
-	struct zdesc_t * z;
-	uint32_t csize, dsize;
-	void * mem, * tmp;
-	uint32_t size;
 	int d = get_boot_device();
 
 	if(d == BOOT_DEVICE_FEL)
@@ -112,39 +106,32 @@ void sys_copyself(void)
 	}
 	else if(d == BOOT_DEVICE_MMC0)
 	{
-		mem = (void *)__image_start;
-		size = (__image_end - __image_start + 512) >> 9;
-		sys_mmu_init();
 	}
 	else if(d == BOOT_DEVICE_MMC2)
 	{
-		mem = (void *)__image_start;
-		size = (__image_end - __image_start + 512) >> 9;
-		sys_mmu_init();
 	}
 	else if(d == BOOT_DEVICE_SPI)
 	{
-		z = (struct zdesc_t *)__heap_start;
-		mem = (void *)__image_start;
-		tmp = (void *)z + sizeof(struct zdesc_t);
-		size = __image_end - __image_start;
-		sys_mmu_init();
+		struct zdesc_t * z = (struct zdesc_t *)__heap_start;
+		void * mem = (void *)__image_start;
+		void * tmp = (void *)z + sizeof(struct zdesc_t);
+		uint32_t size = __image_end - __image_start;
 
+		sys_mmu_init();
 		sys_spinor_init();
 		sys_spinor_read(32768, z, sizeof(struct zdesc_t));
 		sys_spinor_exit();
-		if((z->magic[0] == 'Z') && (z->magic[1] == 'B') && ((z->magic[2] == 'I') || (z->magic[2] == 0)) && ((z->magic[3] == 'E') || (z->magic[3] == 0)))
+		if((z->magic[0] == 'Z') && (z->magic[1] == 'B') && (z->magic[2] == 'L') && (z->magic[3] == '!'))
 		{
-			sys_crypt((char *)z->key, (char *)z->sha256, sizeof(struct zdesc_t) - 36);
+			if(sys_verify((char *)z->pubkey, (char *)z->sha256, (char *)z->signature))
 			{
-				csize = (z->csize[0] << 24) | (z->csize[1] << 16) | (z->csize[2] << 8) | (z->csize[3] << 0);
-				dsize = (z->dsize[0] << 24) | (z->dsize[1] << 16) | (z->dsize[2] << 8) | (z->dsize[3] << 0);
+				uint32_t csize = (z->csize[0] << 24) | (z->csize[1] << 16) | (z->csize[2] << 8) | (z->csize[3] << 0);
+				uint32_t dsize = (z->dsize[0] << 24) | (z->dsize[1] << 16) | (z->dsize[2] << 8) | (z->dsize[3] << 0);
 				sys_spinor_init();
 				sys_spinor_read(32768 + sizeof(struct zdesc_t), tmp, csize);
 				sys_spinor_exit();
+				if(sys_hash((char *)(&z->majoy), (sizeof(struct zdesc_t) - 100) + csize, (char *)z->sha256))
 				{
-					if(z->magic[3] == 'E')
-						sys_crypt((char *)z->key, tmp, csize);
 					sys_decompress(tmp, csize, mem, dsize);
 				}
 			}

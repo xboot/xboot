@@ -145,8 +145,8 @@ static void ts_f133_interrupt(void * data)
 	}
 	if(val & FIFO_DATA_PENDING)
 	{
-		y = read32(pdat->virt + TP_DATA);
 		x = read32(pdat->virt + TP_DATA);
+		y = read32(pdat->virt + TP_DATA);
 
 		if(!pdat->ignore_fifo_data)
 		{

@@ -550,7 +550,7 @@
 		"reset": 1136,
 		"median-filter-length": 5,
 		"mean-filter-length": 5,
-		"calibration": [14052, 21, -2411064, -67, 8461, -1219628, 65536],
+		"calibration": [168012, -57, -137136144, -344, 8674, -2840431, 65536],
 		"status": "disabled"
 	},
 

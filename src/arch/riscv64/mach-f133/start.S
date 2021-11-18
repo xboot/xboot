@@ -74,6 +74,12 @@ reset:
 _fel:
 	nop
 
+	/* Config pmp register */
+	li t0, (0xfffffffc >> 2)
+	csrw pmpaddr0, t0
+	li t0, ((0x0 << 7) | (0x1 << 3) | (0x1 << 2) | (0x1 << 1) | (0x1 << 0))
+	csrw pmpcfg0, t0
+
 	/* Mask all interrupts */
 	csrw mideleg, zero
 	csrw medeleg, zero

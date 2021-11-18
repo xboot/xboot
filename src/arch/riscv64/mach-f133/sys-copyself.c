@@ -53,13 +53,21 @@ struct zdesc_t {			/* Total 256 bytes */
 };
 
 enum {
-	BOOT_DEVICE_SPINOR	= 1,
-	BOOT_DEVICE_SPINAND	= 2,
-	BOOT_DEVICE_SDCARD	= 3,
+	BOOT_DEVICE_SPINOR,
+	BOOT_DEVICE_SPINAND,
+	BOOT_DEVICE_SDCARD,
 };
 
 static int get_boot_device(void)
 {
+	uint8_t s = *((volatile uint8_t *)(0x00020000 + 0x28));
+
+	if(s == 0x3)
+		return BOOT_DEVICE_SPINOR;
+	else if(s == 0x4)
+		return BOOT_DEVICE_SPINAND;
+	else if(s == 0x0)
+		return BOOT_DEVICE_SDCARD;
 	return BOOT_DEVICE_SPINOR;
 }
 

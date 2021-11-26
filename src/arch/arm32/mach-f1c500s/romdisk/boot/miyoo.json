@@ -281,7 +281,7 @@
 	},
 
 	"adc-f1c500s@0x01c23400": {
-		"reference-voltage": 3000000
+		"reference-voltage": 2000000
 	},
 
 	"ce-f1c500s-timer@0x01c20c00": {

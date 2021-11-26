@@ -69,14 +69,15 @@ static u32_t adc_f1c500s_read(struct adc_t * adc, int channel)
 {
 	struct adc_f1c500s_pdata_t * pdat = (struct adc_f1c500s_pdata_t *)adc->priv;
 	u32_t ints, val;
+	int count = 50000;
 
+	write32(pdat->virt + LRADC_INTS, 0x1f);
 	write32(pdat->virt + LRADC_CTRL, FIRST_CONVERT_DLY(2) | LEVELA_B_CNT(1) | SAMPLE_RATE(0) | ENABLE(1));
-	write32(pdat->virt + LRADC_INTS, 0);
 	do {
 		ints = read32(pdat->virt + LRADC_INTS);
-	} while(!(ints & CHAN0_DATA_IRQ));
+	} while((!(ints & CHAN0_DATA_IRQ)) && (count-- > 0));
 	val = (read32(pdat->virt + LRADC_DATA0) & 0x3f);
-	write32(pdat->virt + LRADC_INTS, ints);
+	write32(pdat->virt + LRADC_INTS, 0x1f);
 	write32(pdat->virt + LRADC_CTRL, 0);
 
 	return val;
@@ -103,7 +104,7 @@ static struct device_t * adc_f1c500s_probe(struct driver_t * drv, struct dtnode_
 	pdat->virt = virt;
 
 	adc->name = alloc_device_name(dt_read_name(n), -1);
-	adc->vreference = dt_read_int(n, "reference-voltage", 3000000) * 2 / 3;
+	adc->vreference = dt_read_int(n, "reference-voltage", 2000000);
 	adc->resolution = 6;
 	adc->nchannel = 1;
 	adc->read = adc_f1c500s_read;

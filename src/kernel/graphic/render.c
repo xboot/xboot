@@ -1156,7 +1156,7 @@ static void xvg_init(struct xvg_context_t * ctx, struct surface_t * s, struct re
 	else
 		color_init(&ctx->color, 0, 0, 0, 255);
 	ctx->thickness = thickness > 0 ? thickness : 1;
-	ctx->miter = 4;
+	ctx->miter = 10;
 	ctx->join = XVG_JOIN_MITER;
 	ctx->cap = XVG_CAP_BUTT;
 	ctx->rule = XVG_FILLRULE_NONZERO;

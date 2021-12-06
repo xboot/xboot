@@ -55,6 +55,8 @@ static void render_cg_blit(struct surface_t * s, struct region_t * clip, struct 
 	{
 		cg_set_matrix(cg, (struct cg_matrix_t *)m);
 	}
+	cg_rectangle(cg, 0, 0, src->width, src->height);
+	cg_clip(cg);
 	cg_set_source_surface(cg, ((struct render_cg_ctx_t *)src->rctx)->cs, 0, 0);
 	cg_paint(cg);
 	cg_restore(cg);

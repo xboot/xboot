@@ -1899,6 +1899,44 @@ static void blend_radial_gradient(struct cg_surface_t * surface, enum cg_operato
 }
 
 #define FIXED_SCALE (1 << 16)
+static void blend_untransformed_argb(struct cg_surface_t * surface, enum cg_operator_t op, struct cg_rle_t * rle, struct texture_data_t * texture)
+{
+	composition_function_t func = composition_map[op];
+
+	int image_width = texture->width;
+	int image_height = texture->height;
+	int xoff = (int)(texture->matrix.tx);
+	int yoff = (int)(texture->matrix.ty);
+	int count = rle->spans.size;
+	struct cg_span_t * spans = rle->spans.data;
+	while(count--)
+	{
+		int x = spans->x;
+		int length = spans->len;
+		int sx = xoff + x;
+		int sy = yoff + spans->y;
+		if(sy >= 0 && sy < image_height && sx < image_width)
+		{
+			if(sx < 0)
+			{
+				x -= sx;
+				length += sx;
+				sx = 0;
+			}
+			if(sx + length > image_width)
+				length = image_width - sx;
+			if(length > 0)
+			{
+				int coverage = (spans->coverage * texture->const_alpha) >> 8;
+				uint32_t * src = (uint32_t *)(texture->pixels + sy * texture->stride) + sx;
+				uint32_t * dest = (uint32_t *)(surface->pixels + spans->y * surface->stride) + x;
+				func(dest, length, src, coverage);
+			}
+		}
+		++spans;
+	}
+}
+
 static void blend_transformed_argb(struct cg_surface_t * surface, enum cg_operator_t op, struct cg_rle_t * rle, struct texture_data_t * texture)
 {
 	composition_function_t func = composition_map[op];
@@ -1938,44 +1976,6 @@ static void blend_transformed_argb(struct cg_surface_t * surface, enum cg_operat
 			func(target, l, buffer, coverage);
 			target += l;
 			length -= l;
-		}
-		++spans;
-	}
-}
-
-static void blend_untransformed_argb(struct cg_surface_t * surface, enum cg_operator_t op, struct cg_rle_t * rle, struct texture_data_t * texture)
-{
-	composition_function_t func = composition_map[op];
-
-	int image_width = texture->width;
-	int image_height = texture->height;
-	int xoff = (int)(texture->matrix.tx);
-	int yoff = (int)(texture->matrix.ty);
-	int count = rle->spans.size;
-	struct cg_span_t * spans = rle->spans.data;
-	while(count--)
-	{
-		int x = spans->x;
-		int length = spans->len;
-		int sx = xoff + x;
-		int sy = yoff + spans->y;
-		if(sy >= 0 && sy < image_height && sx < image_width)
-		{
-			if(sx < 0)
-			{
-				x -= sx;
-				length += sx;
-				sx = 0;
-			}
-			if(sx + length > image_width)
-				length = image_width - sx;
-			if(length > 0)
-			{
-				int coverage = (spans->coverage * texture->const_alpha) >> 8;
-				uint32_t * src = (uint32_t *)(texture->pixels + sy * texture->stride) + sx;
-				uint32_t * dest = (uint32_t *)(surface->pixels + spans->y * surface->stride) + x;
-				func(dest, length, src, coverage);
-			}
 		}
 		++spans;
 	}

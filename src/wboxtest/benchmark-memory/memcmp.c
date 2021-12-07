@@ -1,5 +1,5 @@
 /*
- * wboxtest/benchmark/memcmp.c
+ * wboxtest/benchmark-memory/memcmp.c
  */
 
 #include <wboxtest.h>
@@ -74,7 +74,7 @@ static void memcmp_run(struct wboxtest_t * wbt, void * data)
 }
 
 static struct wboxtest_t wbt_memcmp = {
-	.group	= "benchmark",
+	.group	= "benchmark-memory",
 	.name	= "memcmp",
 	.setup	= memcmp_setup,
 	.clean	= memcmp_clean,

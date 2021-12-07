@@ -258,7 +258,7 @@ endif
 ifeq ($(strip $(CFG_WBOXTEST)), y)
 INCDIRS		+=	wboxtest
 SRCDIRS		+=	wboxtest \
-				wboxtest/benchmark \
+				wboxtest/benchmark-memory \
 				wboxtest/block \
 				wboxtest/camera \
 				wboxtest/crypto \

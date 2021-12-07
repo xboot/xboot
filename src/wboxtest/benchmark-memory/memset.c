@@ -1,5 +1,5 @@
 /*
- * wboxtest/benchmark/memset.c
+ * wboxtest/benchmark-memory/memset.c
  */
 
 #include <wboxtest.h>
@@ -69,7 +69,7 @@ static void memset_run(struct wboxtest_t * wbt, void * data)
 }
 
 static struct wboxtest_t wbt_memset = {
-	.group	= "benchmark",
+	.group	= "benchmark-memory",
 	.name	= "memset",
 	.setup	= memset_setup,
 	.clean	= memset_clean,

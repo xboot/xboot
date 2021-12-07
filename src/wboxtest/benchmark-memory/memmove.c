@@ -1,5 +1,5 @@
 /*
- * wboxtest/benchmark/memmove.c
+ * wboxtest/benchmark-memory/memmove.c
  */
 
 #include <wboxtest.h>
@@ -74,7 +74,7 @@ static void memmove_run(struct wboxtest_t * wbt, void * data)
 }
 
 static struct wboxtest_t wbt_memmove = {
-	.group	= "benchmark",
+	.group	= "benchmark-memory",
 	.name	= "memmove",
 	.setup	= memmove_setup,
 	.clean	= memmove_clean,

@@ -190,8 +190,8 @@ SRCDIRS		+=	external/stb_vorbis-1.21
 INCDIRS		+=	external/quirc-1.1.0
 SRCDIRS		+=	external/quirc-1.1.0
 
-INCDIRS		+=	external/libcg-1.0.0
-SRCDIRS		+=	external/libcg-1.0.0
+INCDIRS		+=	external/libcg-1.0.1
+SRCDIRS		+=	external/libcg-1.0.1
 
 INCDIRS		+= 	external/freetype-2.10.4/include \
 				external/freetype-2.10.4/src/autofit \

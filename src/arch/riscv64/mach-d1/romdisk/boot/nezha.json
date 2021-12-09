@@ -497,7 +497,7 @@
 		"interrupt-offset": -1
 	},
 
-	"blk-spinor@0": {
+	"blk-spinand@0": {
 		"spi-bus": "spi-d1.0",
 		"chip-select": 0,
 		"mode": 0,

@@ -38,6 +38,9 @@ extern int sys_verify(char * public, char * sha256, char * signature);
 extern void sys_spinor_init(void);
 extern void sys_spinor_exit(void);
 extern void sys_spinor_read(int addr, void * buf, int count);
+extern void sys_spinand_init(void);
+extern void sys_spinand_exit(void);
+extern void sys_spinand_read(int addr, void * buf, int count);
 
 struct zdesc_t {			/* Total 256 bytes */
 	uint8_t magic[4];		/* ZBL! */
@@ -109,6 +112,35 @@ void sys_copyself(void)
 	}
 	else if(d == BOOT_DEVICE_SPINAND)
 	{
+		struct zdesc_t * z = (struct zdesc_t *)__heap_start;
+		void * mem = (void *)__image_start;
+		void * tmp = (void *)z + sizeof(struct zdesc_t);
+		uint32_t size = __image_end - __image_start;
+
+		sys_spinand_init();
+		sys_spinand_read(262144 + 65536, z, sizeof(struct zdesc_t));
+		sys_spinand_exit();
+		if((z->magic[0] == 'Z') && (z->magic[1] == 'B') && (z->magic[2] == 'L') && (z->magic[3] == '!'))
+		{
+			//if(sys_verify((char *)z->pubkey, (char *)z->sha256, (char *)z->signature))
+			{
+				uint32_t csize = (z->csize[0] << 24) | (z->csize[1] << 16) | (z->csize[2] << 8) | (z->csize[3] << 0);
+				uint32_t dsize = (z->dsize[0] << 24) | (z->dsize[1] << 16) | (z->dsize[2] << 8) | (z->dsize[3] << 0);
+				sys_spinand_init();
+				sys_spinand_read(262144 + 65536 + sizeof(struct zdesc_t), tmp, csize);
+				sys_spinand_exit();
+				//if(sys_hash((char *)(&z->majoy), (sizeof(struct zdesc_t) - 100) + csize, (char *)z->sha256))
+				{
+					sys_decompress(tmp, csize, mem, dsize);
+				}
+			}
+		}
+		else
+		{
+			sys_spinand_init();
+			sys_spinand_read(262144, mem, size);
+			sys_spinand_exit();
+		}
 	}
 	else if(d == BOOT_DEVICE_SDCARD)
 	{

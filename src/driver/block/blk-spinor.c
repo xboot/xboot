@@ -187,7 +187,7 @@ static bool_t blk_spinor_detect(struct spi_device_t * dev, struct spinor_info_t 
 
 	if(blk_spinor_read_sfdp(dev, &sfdp))
 	{
-		info->name = "";
+		info->name = "SFDP";
 		info->id = 0;
 		/* Basic flash parameter table 2th dword */
 		v = (sfdp.bt.table[7] << 24) | (sfdp.bt.table[6] << 16) | (sfdp.bt.table[5] << 8) | (sfdp.bt.table[4] << 0);
@@ -801,6 +801,8 @@ static struct device_t * blk_spinor_probe(struct driver_t * drv, struct dtnode_t
 	struct dtnode_t o;
 	struct spi_device_t * spidev;
 	struct spinor_info_t info;
+	char nbuf[64];
+	char sbuf[64];
 	int npart, i;
 
 	spidev = spi_device_alloc(dt_read_string(n, "spi-bus", NULL), dt_read_int(n, "chip-select", 0), dt_read_int(n, "type", 0), dt_read_int(n, "mode", 0), 8, dt_read_int(n, "speed", 0));
@@ -849,29 +851,25 @@ static struct device_t * blk_spinor_probe(struct driver_t * drv, struct dtnode_t
 		free(blk);
 		return NULL;
 	}
+	LOG("Found spi nor flash '%s' with %s", info.name, ssize(sbuf, block_capacity(blk)));
 	if((npart = dt_read_array_length(n, "partition")) > 0)
 	{
-		char nbuf[64];
-		char sbuf[64];
-		char * name;
-		u64_t offset, length, maxlen;
-
 		LOG("Found partition:");
 		LOG("  0x%016Lx ~ 0x%016Lx %s %*s- %s", 0ULL, block_capacity(blk) - 1, ssize(sbuf, block_capacity(blk)), 9 - strlen(sbuf), "", blk->name);
 		for(i = 0; i < npart; i++)
 		{
 			dt_read_array_object(n, "partition", i, &o);
-			name = dt_read_string(&o, "name", NULL);
+			char * name = dt_read_string(&o, "name", NULL);
 			if(!name)
 			{
 				snprintf(nbuf, sizeof(nbuf), "p%d", i);
 				name = nbuf;
 			}
-			offset = dt_read_long(&o, "offset", 0);
+			u64_t offset = dt_read_long(&o, "offset", 0);
 			if(offset < block_capacity(blk))
 			{
-				length = dt_read_long(&o, "length", 0);
-				maxlen = block_capacity(blk) - offset;
+				u64_t length = dt_read_long(&o, "length", 0);
+				u64_t maxlen = block_capacity(blk) - offset;
 				if((length <= 0) || (length > maxlen))
 					length = maxlen;
 				sdev = register_sub_block(blk, offset, length, name);

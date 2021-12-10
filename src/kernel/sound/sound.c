@@ -130,15 +130,15 @@ static inline struct sound_t * sound_alloc_from_xfs_wav(struct xfs_context_t * c
 		return NULL;
 	}
 
-	header.riffsz = be32_to_cpu(header.riffsz);
-	header.fmtsz = be32_to_cpu(header.fmtsz);
-	header.fmttag = be16_to_cpu(header.fmttag);
-	header.channel = be16_to_cpu(header.channel);
-	header.samplerate = be32_to_cpu(header.samplerate);
-	header.byterate = be32_to_cpu(header.byterate);
-	header.align = be16_to_cpu(header.align);
-	header.bps = be16_to_cpu(header.bps);
-	header.datasz = be32_to_cpu(header.datasz);
+	header.riffsz = le32_to_cpu(header.riffsz);
+	header.fmtsz = le32_to_cpu(header.fmtsz);
+	header.fmttag = le16_to_cpu(header.fmttag);
+	header.channel = le16_to_cpu(header.channel);
+	header.samplerate = le32_to_cpu(header.samplerate);
+	header.byterate = le32_to_cpu(header.byterate);
+	header.align = le16_to_cpu(header.align);
+	header.bps = le16_to_cpu(header.bps);
+	header.datasz = le32_to_cpu(header.datasz);
 
 	if( (memcmp(header.riff, "RIFF", 4) != 0) ||
 		(memcmp(header.wave, "WAVE", 4) != 0) ||

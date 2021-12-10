@@ -23,6 +23,16 @@ sudo xfel spinor write 0 xboot.bin
 sudo xfel spinor write 0 xboot.bin.z
 ```
 
+## Burn normal image to SPI Nand Flash
+```shell
+sudo xfel spinand splwrite 2048 1048576 xboot.bin
+```
+
+## Burn compress image to SPI Nand Flash
+```shell
+sudo xfel spinand splwrite 2048 1048576 xboot.bin.z
+```
+
 ## Download riscv toolchain
 ```shell
 http://pan.baidu.com/s/1dDtssIt

@@ -118,7 +118,7 @@ void sys_copyself(void)
 		uint32_t size = __image_end - __image_start;
 
 		sys_spinand_init();
-		sys_spinand_read(262144 + 65536, z, sizeof(struct zdesc_t));
+		sys_spinand_read(1048576 + 65536, z, sizeof(struct zdesc_t));
 		sys_spinand_exit();
 		if((z->magic[0] == 'Z') && (z->magic[1] == 'B') && (z->magic[2] == 'L') && (z->magic[3] == '!'))
 		{
@@ -127,7 +127,7 @@ void sys_copyself(void)
 				uint32_t csize = (z->csize[0] << 24) | (z->csize[1] << 16) | (z->csize[2] << 8) | (z->csize[3] << 0);
 				uint32_t dsize = (z->dsize[0] << 24) | (z->dsize[1] << 16) | (z->dsize[2] << 8) | (z->dsize[3] << 0);
 				sys_spinand_init();
-				sys_spinand_read(262144 + 65536 + sizeof(struct zdesc_t), tmp, csize);
+				sys_spinand_read(1048576 + 65536 + sizeof(struct zdesc_t), tmp, csize);
 				sys_spinand_exit();
 				//if(sys_hash((char *)(&z->majoy), (sizeof(struct zdesc_t) - 100) + csize, (char *)z->sha256))
 				{
@@ -138,7 +138,7 @@ void sys_copyself(void)
 		else
 		{
 			sys_spinand_init();
-			sys_spinand_read(262144, mem, size);
+			sys_spinand_read(1048576, mem, size);
 			sys_spinand_exit();
 		}
 	}

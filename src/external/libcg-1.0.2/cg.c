@@ -1938,7 +1938,6 @@ static inline void blend_transformed_argb(struct cg_surface_t * surface, enum cg
 	while(count--)
 	{
 		uint32_t * target = (uint32_t *)(surface->pixels + spans->y * surface->stride) + spans->x;
-
 		double cx = spans->x + 0.5;
 		double cy = spans->y + 0.5;
 		int x = (int)((texture->matrix.c * cy + texture->matrix.a * cx + texture->matrix.tx) * FIXED_SCALE);
@@ -1952,10 +1951,12 @@ static inline void blend_transformed_argb(struct cg_surface_t * surface, enum cg
 			uint32_t * b = buffer;
 			while(b < end)
 			{
-				int px = CG_CLAMP(x >> 16, 0, image_width - 1);
-				int py = CG_CLAMP(y >> 16, 0, image_height - 1);
-				*b = ((uint32_t *)(texture->pixels + py * texture->stride))[px];
-
+				int px = x >> 16;
+				int py = y >> 16;
+				if((px < 0) || (px >= image_width) || (py < 0) || (py >= image_height))
+					*b = 0;
+				else
+					*b = ((uint32_t *)(texture->pixels + py * texture->stride))[px];
 				x += fdx;
 				y += fdy;
 				++b;

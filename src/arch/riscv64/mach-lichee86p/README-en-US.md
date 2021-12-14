@@ -40,7 +40,7 @@ http://pan.baidu.com/s/1dDtssIt
 ```
 ```
 https://occ.t-head.cn/
-riscv64-linux-x86_64-20210512.tar.gz
+Xuantie-900-gcc-elf-newlib-x86_64-V2.0.3-20210806.tar.gz
 ```
 
 ## Download xfel tool's source code

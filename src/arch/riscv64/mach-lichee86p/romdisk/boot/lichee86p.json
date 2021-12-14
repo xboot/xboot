@@ -565,6 +565,15 @@
 		"status": "disabled"
 	},
 
+	"ts-ft6336u@0": {
+		"i2c-bus": "i2c-d1.2",
+		"slave-address": 72,
+		"interrupt-gpio": 206,
+		"interrupt-gpio-config": 14,
+		"reset-gpio": 207,
+		"reset-gpio-config": 1
+	},
+
 	"fb-d1-rgb@0x05000000": {
 		"clock-name-de": "link-de",
 		"clock-name-tconlcd": "link-tconlcd",

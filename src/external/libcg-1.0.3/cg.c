@@ -1949,19 +1949,24 @@ static inline void blend_transformed_argb(struct cg_surface_t * surface, enum cg
 			int l = CG_MIN(length, 1024);
 			uint32_t * end = buffer + l;
 			uint32_t * b = buffer;
+			int start = 0;
+			int clen = 0;
 			while(b < end)
 			{
 				int px = x >> 16;
 				int py = y >> 16;
-				if((px < 0) || (px >= image_width) || (py < 0) || (py >= image_height))
-					*b = 0;
-				else
+				if(((unsigned int)px < (unsigned int)image_width) && ((unsigned int)py < (unsigned int)image_height))
+				{
 					*b = ((uint32_t *)(texture->pixels + py * texture->stride))[px];
+					clen++;
+				}
 				x += fdx;
 				y += fdy;
 				++b;
+				if(clen == 0)
+					start++;
 			}
-			func(target, l, buffer, coverage);
+			func(target + start, clen, buffer + start, coverage);
 			target += l;
 			length -= l;
 		}

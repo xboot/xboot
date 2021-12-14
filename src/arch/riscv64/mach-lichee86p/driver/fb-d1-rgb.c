@@ -249,8 +249,300 @@ static void fb_d1_cfg_gpios(int base, int n, int cfg, enum gpio_pull_t pull, enu
 	}
 }
 
+static void st7701s_write_command(struct fb_d1_rgb_pdata_t * pdat, uint8_t val)
+{
+	int i;
+
+	gpio_set_value(D1_GPIOE14, 0);
+	gpio_set_value(D1_GPIOE12, 0);
+	gpio_set_value(D1_GPIOE15, 0);
+	gpio_set_value(D1_GPIOE15, 1);
+	for(i = 0; i < 8; i++)
+	{
+		if(val & (0x80 >> i))
+			gpio_set_value(D1_GPIOE12, 1);
+		else
+			gpio_set_value(D1_GPIOE12, 0);
+		gpio_set_value(D1_GPIOE15, 0);
+		gpio_set_value(D1_GPIOE15, 1);
+	}
+	gpio_set_value(D1_GPIOE14, 1);
+}
+
+static void st7701s_write_data(struct fb_d1_rgb_pdata_t * pdat, uint8_t val)
+{
+	int i;
+
+	gpio_set_value(D1_GPIOE14, 0);
+	gpio_set_value(D1_GPIOE12, 1);
+	gpio_set_value(D1_GPIOE15, 0);
+	gpio_set_value(D1_GPIOE15, 1);
+	for(i = 0; i < 8; i++)
+	{
+		if(val & (0x80 >> i))
+			gpio_set_value(D1_GPIOE12, 1);
+		else
+			gpio_set_value(D1_GPIOE12, 0);
+		gpio_set_value(D1_GPIOE15, 0);
+		gpio_set_value(D1_GPIOE15, 1);
+	}
+	gpio_set_value(D1_GPIOE14, 1);
+}
+
+static void st7701s_init(struct fb_d1_rgb_pdata_t * pdat)
+{
+	gpio_set_cfg(D1_GPIOE15, 1);
+	gpio_set_pull(D1_GPIOE15, GPIO_PULL_UP);
+	gpio_direction_output(D1_GPIOE15, 1);
+
+	gpio_set_cfg(D1_GPIOE12, 1);
+	gpio_set_pull(D1_GPIOE12, GPIO_PULL_UP);
+	gpio_direction_output(D1_GPIOE12, 1);
+
+	gpio_set_cfg(D1_GPIOE14, 1);
+	gpio_set_pull(D1_GPIOE14, GPIO_PULL_UP);
+	gpio_direction_output(D1_GPIOE14, 1);
+
+	gpio_set_cfg(D1_GPIOG13, 1);
+	gpio_set_pull(D1_GPIOG13, GPIO_PULL_UP);
+	gpio_direction_output(D1_GPIOG13, 0);
+	mdelay(10);
+	gpio_direction_output(D1_GPIOG13, 1);
+	mdelay(10);
+
+	st7701s_write_command(pdat, 0xff);
+	st7701s_write_data(pdat, 0x77);
+	st7701s_write_data(pdat, 0x01);
+	st7701s_write_data(pdat, 0x00);
+	st7701s_write_data(pdat, 0x00);
+	st7701s_write_data(pdat, 0x10);
+
+	st7701s_write_command(pdat, 0xc0);
+	st7701s_write_data(pdat, 0x3b);
+	st7701s_write_data(pdat, 0x00);
+
+	st7701s_write_command(pdat, 0xc1);
+	st7701s_write_data(pdat, 0x0d);
+	st7701s_write_data(pdat, 0x02);
+
+	st7701s_write_command(pdat, 0xc2);
+	st7701s_write_data(pdat, 0x21);
+	st7701s_write_data(pdat, 0x08);
+
+	st7701s_write_command(pdat, 0xcd);
+	st7701s_write_data(pdat, 0x18);
+
+	st7701s_write_command(pdat, 0xb0);
+	st7701s_write_data(pdat, 0x00);
+	st7701s_write_data(pdat, 0x11);
+	st7701s_write_data(pdat, 0x18);
+	st7701s_write_data(pdat, 0x0e);
+	st7701s_write_data(pdat, 0x11);
+	st7701s_write_data(pdat, 0x06);
+	st7701s_write_data(pdat, 0x07);
+	st7701s_write_data(pdat, 0x08);
+	st7701s_write_data(pdat, 0x07);
+	st7701s_write_data(pdat, 0x22);
+	st7701s_write_data(pdat, 0x04);
+	st7701s_write_data(pdat, 0x12);
+	st7701s_write_data(pdat, 0x0f);
+	st7701s_write_data(pdat, 0xaa);
+	st7701s_write_data(pdat, 0x31);
+	st7701s_write_data(pdat, 0x18);
+
+	st7701s_write_command(pdat, 0xb1);
+	st7701s_write_data(pdat, 0x00);
+	st7701s_write_data(pdat, 0x11);
+	st7701s_write_data(pdat, 0x19);
+	st7701s_write_data(pdat, 0x0e);
+	st7701s_write_data(pdat, 0x12);
+	st7701s_write_data(pdat, 0x07);
+	st7701s_write_data(pdat, 0x08);
+	st7701s_write_data(pdat, 0x08);
+	st7701s_write_data(pdat, 0x08);
+	st7701s_write_data(pdat, 0x22);
+	st7701s_write_data(pdat, 0x04);
+	st7701s_write_data(pdat, 0x11);
+	st7701s_write_data(pdat, 0x11);
+	st7701s_write_data(pdat, 0xa9);
+	st7701s_write_data(pdat, 0x32);
+	st7701s_write_data(pdat, 0x18);
+
+	st7701s_write_command(pdat, 0xff);
+	st7701s_write_data(pdat, 0x77);
+	st7701s_write_data(pdat, 0x01);
+	st7701s_write_data(pdat, 0x00);
+	st7701s_write_data(pdat, 0x00);
+	st7701s_write_data(pdat, 0x11);
+
+	st7701s_write_command(pdat, 0xb0);
+	st7701s_write_data(pdat, 0x60);
+
+	st7701s_write_command(pdat, 0xb1);
+	st7701s_write_data(pdat, 0x30);
+
+	st7701s_write_command(pdat, 0xb2);
+	st7701s_write_data(pdat, 0x87);
+
+	st7701s_write_command(pdat, 0xb3);
+	st7701s_write_data(pdat, 0x80);
+
+	st7701s_write_command(pdat, 0xb5);
+	st7701s_write_data(pdat, 0x49);
+
+	st7701s_write_command(pdat, 0xb7);
+	st7701s_write_data(pdat, 0x85);
+
+	st7701s_write_command(pdat, 0xb8);
+	st7701s_write_data(pdat, 0x21);
+
+	st7701s_write_command(pdat, 0xc1);
+	st7701s_write_data(pdat, 0x78);
+
+	st7701s_write_command(pdat, 0xc2);
+	st7701s_write_data(pdat, 0x78);
+	mdelay(10);
+
+	st7701s_write_command(pdat, 0xe0);
+	st7701s_write_data(pdat, 0x00);
+	st7701s_write_data(pdat, 0x1b);
+	st7701s_write_data(pdat, 0x02);
+
+	st7701s_write_command(pdat, 0xe1);
+	st7701s_write_data(pdat, 0x08);
+	st7701s_write_data(pdat, 0xa0);
+	st7701s_write_data(pdat, 0x00);
+	st7701s_write_data(pdat, 0x00);
+	st7701s_write_data(pdat, 0x07);
+	st7701s_write_data(pdat, 0xa0);
+	st7701s_write_data(pdat, 0x00);
+	st7701s_write_data(pdat, 0x00);
+	st7701s_write_data(pdat, 0x00);
+	st7701s_write_data(pdat, 0x44);
+	st7701s_write_data(pdat, 0x44);
+
+	st7701s_write_command(pdat, 0xe2);
+	st7701s_write_data(pdat, 0x11);
+	st7701s_write_data(pdat, 0x11);
+	st7701s_write_data(pdat, 0x44);
+	st7701s_write_data(pdat, 0x44);
+	st7701s_write_data(pdat, 0xed);
+	st7701s_write_data(pdat, 0xa0);
+	st7701s_write_data(pdat, 0x00);
+	st7701s_write_data(pdat, 0x00);
+	st7701s_write_data(pdat, 0xec);
+	st7701s_write_data(pdat, 0xa0);
+	st7701s_write_data(pdat, 0x00);
+	st7701s_write_data(pdat, 0x00);
+
+	st7701s_write_command(pdat, 0xe3);
+	st7701s_write_data(pdat, 0x00);
+	st7701s_write_data(pdat, 0x00);
+	st7701s_write_data(pdat, 0x11);
+	st7701s_write_data(pdat, 0x11);
+
+	st7701s_write_command(pdat, 0xe4);
+	st7701s_write_data(pdat, 0x44);
+	st7701s_write_data(pdat, 0x44);
+
+	st7701s_write_command(pdat, 0xe5);
+	st7701s_write_data(pdat, 0x0a);
+	st7701s_write_data(pdat, 0xe9);
+	st7701s_write_data(pdat, 0xd8);
+	st7701s_write_data(pdat, 0xa0);
+	st7701s_write_data(pdat, 0x0c);
+	st7701s_write_data(pdat, 0xeb);
+	st7701s_write_data(pdat, 0xd8);
+	st7701s_write_data(pdat, 0xa0);
+	st7701s_write_data(pdat, 0x0e);
+	st7701s_write_data(pdat, 0xed);
+	st7701s_write_data(pdat, 0xd8);
+	st7701s_write_data(pdat, 0xa0);
+	st7701s_write_data(pdat, 0x10);
+	st7701s_write_data(pdat, 0xef);
+	st7701s_write_data(pdat, 0xd8);
+	st7701s_write_data(pdat, 0xa0);
+
+	st7701s_write_command(pdat, 0xe6);
+	st7701s_write_data(pdat, 0x00);
+	st7701s_write_data(pdat, 0x00);
+	st7701s_write_data(pdat, 0x11);
+	st7701s_write_data(pdat, 0x11);
+
+	st7701s_write_command(pdat, 0xe7);
+	st7701s_write_data(pdat, 0x44);
+	st7701s_write_data(pdat, 0x44);
+
+	st7701s_write_command(pdat, 0xe8);
+	st7701s_write_data(pdat, 0x09);
+	st7701s_write_data(pdat, 0xe8);
+	st7701s_write_data(pdat, 0xd8);
+	st7701s_write_data(pdat, 0xa0);
+	st7701s_write_data(pdat, 0x0b);
+	st7701s_write_data(pdat, 0xea);
+	st7701s_write_data(pdat, 0xd8);
+	st7701s_write_data(pdat, 0xa0);
+	st7701s_write_data(pdat, 0x0d);
+	st7701s_write_data(pdat, 0xec);
+	st7701s_write_data(pdat, 0xd8);
+	st7701s_write_data(pdat, 0xa0);
+	st7701s_write_data(pdat, 0x0f);
+	st7701s_write_data(pdat, 0xee);
+	st7701s_write_data(pdat, 0xd8);
+	st7701s_write_data(pdat, 0xa0);
+
+	st7701s_write_command(pdat, 0xeb);
+	st7701s_write_data(pdat, 0x02);
+	st7701s_write_data(pdat, 0x00);
+	st7701s_write_data(pdat, 0xe4);
+	st7701s_write_data(pdat, 0xe4);
+	st7701s_write_data(pdat, 0x88);
+	st7701s_write_data(pdat, 0x00);
+	st7701s_write_data(pdat, 0x40);
+
+	st7701s_write_command(pdat, 0xec);
+	st7701s_write_data(pdat, 0x3c);
+	st7701s_write_data(pdat, 0x00);
+
+	st7701s_write_command(pdat, 0xed);
+	st7701s_write_data(pdat, 0xab);
+	st7701s_write_data(pdat, 0x89);
+	st7701s_write_data(pdat, 0x76);
+	st7701s_write_data(pdat, 0x54);
+	st7701s_write_data(pdat, 0x02);
+	st7701s_write_data(pdat, 0xff);
+	st7701s_write_data(pdat, 0xff);
+	st7701s_write_data(pdat, 0xff);
+	st7701s_write_data(pdat, 0xff);
+	st7701s_write_data(pdat, 0xff);
+	st7701s_write_data(pdat, 0xff);
+	st7701s_write_data(pdat, 0x20);
+	st7701s_write_data(pdat, 0x45);
+	st7701s_write_data(pdat, 0x67);
+	st7701s_write_data(pdat, 0x98);
+	st7701s_write_data(pdat, 0xba);
+
+	st7701s_write_command(pdat, 0xff);
+	st7701s_write_data(pdat, 0x77);
+	st7701s_write_data(pdat, 0x01);
+	st7701s_write_data(pdat, 0x00);
+	st7701s_write_data(pdat, 0x00);
+	st7701s_write_data(pdat, 0x00);
+
+	st7701s_write_command(pdat, 0x3a);
+	st7701s_write_data(pdat, 0x66);
+
+	st7701s_write_command(pdat, 0x36);
+	st7701s_write_data(pdat, 0x00);
+
+	st7701s_write_command(pdat, 0x21);
+	st7701s_write_command(pdat, 0x11);
+	st7701s_write_command(pdat, 0x29);
+}
+
 static void fb_d1_rgb_init(struct fb_d1_rgb_pdata_t * pdat)
 {
+	st7701s_init(pdat);
 	if(pdat->bits_per_pixel == 16)
 	{
 		fb_d1_cfg_gpios(D1_GPIOD1, 5, 0x2, GPIO_PULL_NONE, GPIO_DRV_STRONG);
@@ -265,7 +557,6 @@ static void fb_d1_rgb_init(struct fb_d1_rgb_pdata_t * pdat)
 		fb_d1_cfg_gpios(D1_GPIOD12, 6, 0x2, GPIO_PULL_NONE, GPIO_DRV_STRONG);
 		fb_d1_cfg_gpios(D1_GPIOD18, 4, 0x2, GPIO_PULL_NONE, GPIO_DRV_STRONG);
 	}
-
 	d1_tconlcd_disable(pdat);
 	d1_tconlcd_set_timing(pdat);
 	d1_tconlcd_set_dither(pdat);

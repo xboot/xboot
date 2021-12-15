@@ -539,6 +539,17 @@
 		"interrupt-offset": -1
 	},
 
+	"blk-spinand@0": {
+		"spi-bus": "spi-d1.0",
+		"chip-select": 0,
+		"mode": 0,
+		"speed": 50000000,
+		"partition": [
+			{ "name": "xboot",   "offset": 0,       "length": 4194304 },
+			{ "name": "private", "offset": 4194304, "length": 0 }
+		]
+	},
+
 	"sdhci-d1@0x04020000": {
 		"clock-name": "gate-sdmmc0",
 		"reset": 400,
@@ -565,17 +576,6 @@
 		"dat7-gpio-config": -1,
 		"cd-gpio": -1,
 		"cd-gpio-config": -1
-	},
-
-	"blk-spinand@0": {
-		"spi-bus": "spi-d1.0",
-		"chip-select": 0,
-		"mode": 0,
-		"speed": 50000000,
-		"partition": [
-			{ "name": "xboot",   "offset": 0,       "length": 4194304 },
-			{ "name": "private", "offset": 4194304, "length": 0 }
-		]
 	},
 
 	"rtc-d1@0x07090000": {

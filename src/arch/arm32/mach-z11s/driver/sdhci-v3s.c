@@ -209,14 +209,14 @@ static bool_t v3s_transfer_command(struct sdhci_v3s_pdata_t * pdat, struct sdhci
 {
 	u32_t cmdval = SDXC_START;
 	u32_t status = 0;
-	int timeout = 0;
+	ktime_t timeout;
 
 	if(cmd->cmdidx == MMC_STOP_TRANSMISSION)
 	{
-		timeout = 10000;
+		timeout = ktime_add_ms(ktime_get(), 1);
 		do {
 			status = read32(pdat->virt + SD_STAR);
-			if(!timeout--)
+			if(ktime_after(ktime_get(), timeout))
 			{
 				write32(pdat->virt + SD_GCTL, SDXC_HARDWARE_RESET);
 				write32(pdat->virt + SD_RISR, 0xffffffff);
@@ -252,10 +252,10 @@ static bool_t v3s_transfer_command(struct sdhci_v3s_pdata_t * pdat, struct sdhci
 		write32(pdat->virt + SD_GCTL, read32(pdat->virt + SD_GCTL) | 0x80000000);
 	write32(pdat->virt + SD_CMDR, cmdval | cmd->cmdidx);
 
-	timeout = 10000;
+	timeout = ktime_add_ms(ktime_get(), 1);
 	do {
 		status = read32(pdat->virt + SD_RISR);
-		if(!timeout-- || (status & SDXC_INTERRUPT_ERROR_BIT))
+		if(ktime_after(ktime_get(), timeout) || (status & SDXC_INTERRUPT_ERROR_BIT))
 		{
 			write32(pdat->virt + SD_GCTL, SDXC_HARDWARE_RESET);
 			write32(pdat->virt + SD_RISR, 0xffffffff);
@@ -265,10 +265,10 @@ static bool_t v3s_transfer_command(struct sdhci_v3s_pdata_t * pdat, struct sdhci
 
 	if(cmd->resptype & MMC_RSP_BUSY)
 	{
-		timeout = 10000;
+		timeout = ktime_add_ms(ktime_get(), 1);
 		do {
 			status = read32(pdat->virt + SD_STAR);
-			if(!timeout--)
+			if(ktime_after(ktime_get(), timeout))
 			{
 				write32(pdat->virt + SD_GCTL, SDXC_HARDWARE_RESET);
 				write32(pdat->virt + SD_RISR, 0xffffffff);
@@ -437,12 +437,13 @@ static bool_t sdhci_v3s_setwidth(struct sdhci_t * sdhci, u32_t width)
 static bool_t sdhci_v3s_update_clk(struct sdhci_v3s_pdata_t * pdat)
 {
 	u32_t cmd = (1U << 31) | (1 << 21) | (1 << 13);
-	int timeout = 10000;
 
 	write32(pdat->virt + SD_CMDR, cmd);
-	while((read32(pdat->virt + SD_CMDR) & 0x80000000) && timeout--);
-	if(!timeout)
-		return FALSE;
+	ktime_t timeout = ktime_add_ms(ktime_get(), 1);
+	do {
+		if(ktime_after(ktime_get(), timeout))
+			return FALSE;
+	} while(read32(pdat->virt + SD_CMDR) & 0x80000000);
 	write32(pdat->virt + SD_RISR, read32(pdat->virt + SD_RISR));
 	return TRUE;
 }

@@ -489,10 +489,10 @@
 		"clock-name": "bus-i2c2",
 		"clock-frequency": 400000,
 		"reset": 466,
-		"sda-gpio": 33,
-		"sda-gpio-config": 4,
-		"scl-gpio": 32,
-		"scl-gpio-config": 4
+		"sda-gpio": 141,
+		"sda-gpio-config": 2,
+		"scl-gpio": 140,
+		"scl-gpio-config": 2
 	},
 
 	"i2c-f133@0x02502c00": {
@@ -608,6 +608,15 @@
 		"mean-filter-length": 5,
 		"calibration": [168012, -57, -137136144, -344, 8674, -2840431, 65536],
 		"status": "disabled"
+	},
+
+	"ts-gt911@0": {
+		"i2c-bus": "i2c-f133.2",
+		"slave-address": 20,
+		"interrupt-gpio": 35,
+		"interrupt-gpio-config": 14,
+		"reset-gpio": 34,
+		"reset-gpio-config": 1
 	},
 
 	"fb-f133-rgb@0x05000000": {

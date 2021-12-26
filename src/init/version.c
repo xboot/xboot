@@ -28,10 +28,6 @@
 
 #include <version.h>
 
-#define	XBOOT_MAJOY		3
-#define	XBOOT_MINIOR	0
-#define	XBOOT_PATCH		0
-
 #define VERSION_TO_STRING(major, minor, patch) \
 	#major"."#minor"."#patch
 

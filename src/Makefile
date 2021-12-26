@@ -16,6 +16,14 @@ CFG_CAIRO		?= y
 CFG_WBOXTEST 	?= n
 
 #
+# Xboot version
+#
+XBOOT_MAJOY		:= 3
+XBOOT_MINIOR	:= 0
+XBOOT_PATCH		:= 0
+DEFINES			:= -DXBOOT_MAJOY=$(XBOOT_MAJOY) -DXBOOT_MINIOR=$(XBOOT_MINIOR) -DXBOOT_PATCH=$(XBOOT_PATCH)
+
+#
 # Get platform information about ARCH and MACH from PLATFORM variable.
 #
 ifeq ($(words $(subst -, , $(PLATFORM))), 2)
@@ -56,7 +64,7 @@ SRCDIRS			:=
 sinclude arch/$(ARCH)/$(MACH)/xboot.mk
 
 #
-# Modify default variables.
+# Define some variables.
 #
 ifeq ($(strip $(ARCH)), arm32)
 DEFINES		+=	-D__ARM32__

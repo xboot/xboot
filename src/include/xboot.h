@@ -66,6 +66,7 @@ extern "C" {
 #include <xboot/window.h>
 #include <xboot/module.h>
 #include <xboot/setting.h>
+#include <xboot/sync.h>
 #include <time/delay.h>
 #include <time/timer.h>
 #include <vfs/vfs.h>

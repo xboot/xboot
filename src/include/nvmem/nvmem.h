@@ -33,6 +33,7 @@ int nvmem_write(struct nvmem_t * m, void * buf, int offset, int count);
 void nvmem_set(struct nvmem_t * m, const char * key, const char * value);
 const char * nvmem_get(struct nvmem_t * m, const char * key, const char * def);
 void nvmem_clear(struct nvmem_t * m);
+void nvmem_sync(struct nvmem_t * m);
 
 #ifdef __cplusplus
 }

@@ -1,5 +1,5 @@
 /*
- * kernel/command/cmd-sync.c
+ * kernel/core/sync.c
  *
  * Copyright(c) 2007-2021 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -27,36 +27,36 @@
  */
 
 #include <xboot.h>
-#include <command/command.h>
+#include <nvmem/nvmem.h>
+#include <xboot/sync.h>
 
-static void usage(void)
+void sync(void)
 {
-	printf("usage:\r\n");
-	printf("    sync\r\n");
+	struct device_t * pos, * n;
+
+	/*
+	 * Nvmem sync
+	 */
+	list_for_each_entry_safe(pos, n, &__device_head[DEVICE_TYPE_NVMEM], head)
+	{
+		nvmem_sync((struct nvmem_t *)(pos->priv));
+	}
+
+	/*
+	 * Setting sync
+	 */
+	setting_sync();
+
+	/*
+	 * Vfs sync
+	 */
+	vfs_sync();
+
+	/*
+	 * Block sync
+	 */
+	list_for_each_entry_safe(pos, n, &__device_head[DEVICE_TYPE_BLOCK], head)
+	{
+		block_sync((struct block_t *)(pos->priv));
+	}
 }
-
-static int do_sync(int argc, char ** argv)
-{
-	sync();
-	return 0;
-}
-
-static struct command_t cmd_sync = {
-	.name	= "sync",
-	.desc	= "synchronize cached writes to storage",
-	.usage	= usage,
-	.exec	= do_sync,
-};
-
-static __init void sync_cmd_init(void)
-{
-	register_command(&cmd_sync);
-}
-
-static __exit void sync_cmd_exit(void)
-{
-	unregister_command(&cmd_sync);
-}
-
-command_initcall(sync_cmd_init);
-command_exitcall(sync_cmd_exit);

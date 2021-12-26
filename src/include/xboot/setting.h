@@ -8,6 +8,7 @@ extern "C" {
 void setting_set(const char * key, const char * value);
 const char * setting_get(const char * key, const char * def);
 void setting_clear(void);
+void setting_sync(void);
 void setting_summary(void);
 
 void do_init_setting(void);

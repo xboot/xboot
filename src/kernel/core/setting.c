@@ -57,7 +57,7 @@ void setting_set(const char * key, const char * value)
 		hmap_add(__setting.map, key, strdup(value));
 	}
 	if(__setting.dirty)
-		timer_start(&__setting.timer, ms_to_ktime(10000));
+		timer_start(&__setting.timer, ms_to_ktime(5000));
 	spin_unlock_irqrestore(&__setting.lock, flags);
 }
 
@@ -87,8 +87,16 @@ void setting_clear(void)
 	spin_lock_irqsave(&__setting.lock, flags);
 	hmap_clear(__setting.map, hmap_entry_callback);
 	__setting.dirty = 1;
-	timer_start(&__setting.timer, ms_to_ktime(10000));
+	timer_start(&__setting.timer, ms_to_ktime(5000));
 	spin_unlock_irqrestore(&__setting.lock, flags);
+}
+
+void setting_sync(void)
+{
+	while(__setting.dirty)
+	{
+		task_yield();
+	}
 }
 
 void setting_summary(void)
@@ -105,7 +113,7 @@ void setting_summary(void)
 static int setting_timer_function(struct timer_t * timer, void * data)
 {
 	struct hmap_entry_t * e;
-	char buf[256];
+	char buf[2048];
 	int fd, len;
 	irq_flags_t flags;
 

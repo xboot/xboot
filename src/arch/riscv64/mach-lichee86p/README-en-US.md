@@ -40,7 +40,7 @@ http://pan.baidu.com/s/1dDtssIt
 ```
 ```
 https://occ.t-head.cn/
-Xuantie-900-gcc-elf-newlib-x86_64-V2.0.3-20210806.tar.gz
+Xuantie-900-gcc-elf-newlib-x86_64-V2.2.4-20211227.tar.gz
 ```
 
 ## Download xfel tool's source code

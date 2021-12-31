@@ -579,6 +579,33 @@
 		"clock-name": "wdg"
 	},
 
+	"regulator-r528-ldo@0x03000150": { "name": "ldoa", "channel": 0 },
+	"regulator-r528-ldo@0x03000150": { "name": "ldob", "channel": 1 },
+
+	"fb-r528-rgb@0x05000000": {
+		"clock-name-de": "link-de",
+		"clock-name-tconlcd": "link-tconlcd",
+		"reset-de": 16,
+		"reset-tconlcd": 912,
+		"width": 800,
+		"height": 480,
+		"physical-width": 216,
+		"physical-height": 135,
+		"bits-per-pixel": 18,
+		"clock-frequency": 33000000,
+		"hfront-porch": 40,
+		"hback-porch": 87,
+		"hsync-len": 1,
+		"vfront-porch": 13,
+		"vback-porch": 31,
+		"vsync-len": 1,
+		"hsync-active": false,
+		"vsync-active": false,
+		"den-active": true,
+		"clk-active": true,
+		"backlight": null
+	},
+
 	"console-uart@0": {
 		"uart-bus": "uart-16550.0"
 	}

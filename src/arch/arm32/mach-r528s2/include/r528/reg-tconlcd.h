@@ -5,7 +5,7 @@
 
 #define R528_TCONLCD_BASE		(0x05461000)
 
-struct d1_tconlcd_reg_t {
+struct r528_tconlcd_reg_t {
 	u32_t gctrl;				/* 0x00 */
 	u32_t gint0;				/* 0x04 */
 	u32_t gint1;				/* 0x08 */

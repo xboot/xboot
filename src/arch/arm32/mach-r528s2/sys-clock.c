@@ -40,7 +40,7 @@ static void set_pll_cpux_axi(void)
 	uint32_t val;
 
 	/* Select cpux clock src to osc24m, axi divide ratio is 3, system apb clk ratio is 4 */
-	write32(R528_CCU_BASE + CCU_RISCV_CLK_REG, (0 << 24) | (3 << 8) | (1 << 0));
+	write32(R528_CCU_BASE + CCU_CPU_AXI_CFG_REG, (0 << 24) | (3 << 8) | (1 << 0));
 	sdelay(1);
 
 	/* Disable pll gating */
@@ -86,10 +86,10 @@ static void set_pll_cpux_axi(void)
 	sdelay(1);
 
 	/* Set and change cpu clk src */
-	val = read32(R528_CCU_BASE + CCU_RISCV_CLK_REG);
-	val &= ~(0x07 << 24 | 0x3 << 8 | 0xf << 0);
-	val |= (0x05 << 24 | 0x1 << 8);
-	write32(R528_CCU_BASE + CCU_RISCV_CLK_REG, val);
+	val = read32(R528_CCU_BASE + CCU_CPU_AXI_CFG_REG);
+	val &= ~(0x07 << 24 | 0x3 << 16 | 0x3 << 8 | 0xf << 0);
+	val |= (0x03 << 24 | 0x0 << 16 | 0x0 << 8 | 0x0 << 0);
+	write32(R528_CCU_BASE + CCU_CPU_AXI_CFG_REG, val);
 	sdelay(1);
 }
 
@@ -192,7 +192,7 @@ static void set_module(virtual_addr_t addr)
 
 void sys_clock_init(void)
 {
-//	set_pll_cpux_axi();//xxx
+	set_pll_cpux_axi();
 	set_pll_periph0();
 	set_ahb();
 	set_apb();

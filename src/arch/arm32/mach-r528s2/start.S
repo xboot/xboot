@@ -172,7 +172,6 @@ reset:
 	bl sys_dram_init
 1:	nop
 
-
 	/* Initialize stacks */
 	mrc p15, 0, r4, c0, c0, 5
 	and r4, r4, #0xf
@@ -248,11 +247,7 @@ reset:
 	ldr r1, =_start
 	cmp r0, r1
 	beq 1f
-	ldr r0, _image_start
-	adr r1, _start
-	ldr r2, _image_end
-	sub r2, r2, r0
-	bl memcpy
+	bl sys_copyself
 1:	nop
 
 	/* Clear bss section */
@@ -291,7 +286,7 @@ udiv32:
 	lsr r2, r2, #1
 	lsrs r3, r3, #1
 	bcc 2b
-3:	mov pc,lr
+3:	mov pc, lr
 
 /*
  * Exception handlers

@@ -25,11 +25,18 @@ SECTIONS
 		.obj/arch/arm32/mach-r528s2/start.o (.text*)
 		.obj/arch/arm32/lib/memcpy.o (.text*)
 		.obj/arch/arm32/lib/memset.o (.text*)
+		.obj/arch/arm32/mach-r528s2/sys-smp.o (.text*)
 		.obj/arch/arm32/mach-r528s2/sys-jtag.o (.text*)
 		.obj/arch/arm32/mach-r528s2/sys-uart.o (.text*)
 		.obj/arch/arm32/mach-r528s2/sys-clock.o (.text*)
 		.obj/arch/arm32/mach-r528s2/sys-dram.o (.text*)
 		.obj/arch/arm32/mach-r528s2/sys-mmu.o (.text*)
+		.obj/arch/arm32/mach-r528s2/sys-decompress.o (.text*)
+		.obj/arch/arm32/mach-r528s2/sys-hash.o (.text*)
+		.obj/arch/arm32/mach-r528s2/sys-verify.o (.text*)
+		.obj/arch/arm32/mach-r528s2/sys-spinor.o (.text*)
+		.obj/arch/arm32/mach-r528s2/sys-spinand.o (.text*)
+		.obj/arch/arm32/mach-r528s2/sys-copyself.o (.text*)
 		PROVIDE(__dram_param_start = .);
 		KEEP(*(.dram.param))
 		PROVIDE(__dram_param_end = .);

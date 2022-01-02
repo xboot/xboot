@@ -10,7 +10,7 @@ make CROSS_COMPILE=/path/to/arm-none-linux-gnueabihf- PLATFORM=arm32-r528s2
 
 ## 烧写到RAM中并运行
 ```shell
-sudo xfel ddr; sudo xfel write 0x40000000 xboot.bin; sudo xfel exec 0x40000000;
+sudo xfel ddr r528s2; sudo xfel write 0x40000000 xboot.bin; sudo xfel exec 0x40000000;
 ```
 
 ## 烧写普通镜像到SPI Nor Flash

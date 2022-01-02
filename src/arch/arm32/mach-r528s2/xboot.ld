@@ -37,12 +37,12 @@ SECTIONS
 		.obj/arch/arm32/mach-r528s2/sys-spinor.o (.text*)
 		.obj/arch/arm32/mach-r528s2/sys-spinand.o (.text*)
 		.obj/arch/arm32/mach-r528s2/sys-copyself.o (.text*)
-		PROVIDE(__dram_param_start = .);
-		KEEP(*(.dram.param))
-		PROVIDE(__dram_param_end = .);
-		PROVIDE(__dram_bin_start = .);
-		KEEP(*(.dram.bin))
-		PROVIDE(__dram_bin_end = .);
+		PROVIDE(__ddr_param_start = .);
+		KEEP(*(.ddr.param))
+		PROVIDE(__ddr_param_end = .);
+		PROVIDE(__ddr_bin_start = .);
+		KEEP(*(.ddr.bin))
+		PROVIDE(__ddr_bin_end = .);
 		PROVIDE(__spl_end = .);
 		*(.text*)
 		*(.init.text)

@@ -140,6 +140,17 @@ reset:
 	mrc p15, 0, lr, c1, c0, 0
 	str lr, [r0, #20]
 
+	/* Check flag and enter to fel mode */
+	ldr r0, =0x07090108
+	ldr r1, [r0]
+	ldr r2, =0x5aa5a55a
+	cmp r1, r2
+	bne _entry
+	mov r1, #0
+	str r1, [r0]
+	bl return_to_fel
+
+_entry:
 	/* Enter svc mode cleanly and mask interrupts */
 	mrs r0, cpsr
 	eor r0, r0, #0x1a
@@ -177,7 +188,7 @@ reset:
 
 	/* Initial system uart, clock and ddr using master */
 	mrc p15, 0, r0, c0, c0, 5
-	ands r0, #3
+	ands r0, #1
 	bne 1f
 	bl sys_jtag_init
 	bl sys_uart_init
@@ -254,6 +265,18 @@ reset:
 	msr cpsr_cxsf, r1
 	ldr sp, _stack_srv_end
 	sub sp, sp, r2
+
+	/* Initail smp by precessor id */
+	mrc p15, 0, r0, c0, c0, 5
+	and r0, #1
+	mov r4, #0
+	cmp r0, r4
+	beq _master
+_slave:
+	wfe
+	b _slave
+_master:
+	nop
 
 	/* Copyself to link address */
 	adr r0, _start

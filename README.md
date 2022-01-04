@@ -81,13 +81,6 @@ XBOOT is not only a powerful, portable, and highly reusable, embedded system boo
 * [Cross Toolchains](http://pan.baidu.com/s/1dDtssIt)
 * [Eclipse Integrated Development Environment](http://pan.baidu.com/s/1i3ImG0d)
 
-# Xboot Documents
-* [Xboot Documents](https://xboot.github.io/xboot)
-
-# Download Development Tools
-* [Download Eclipse Integrated Development Environment (Integrated cross toolchains)](http://pan.baidu.com/s/1i3ImG0d)
-* [Download Cross Toolchains](http://pan.baidu.com/s/1dDtssIt)
-
 # Compile The Source Code
 Makefile have two variables need to pass, one is cross toolchain, the other is a specific hardware platform
 

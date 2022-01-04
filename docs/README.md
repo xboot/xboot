@@ -1,4 +1,4 @@
-# 概要
+# 概要 <!-- {docsify-ignore} -->
 
 ## 简介
 
@@ -18,8 +18,8 @@
 
 ## 相关网址
 
-* [XBOOT官方首页](https://xboot.github.io)
-* [XBOOT工程源码](https://github.com/xboot/xboot)
+* [Xboot文档](https://xboot.github.io/xboot)
+* [Xboot源码](https://github.com/xboot/xboot)
 * [Eclipse集成开发环境](http://pan.baidu.com/s/1i3ImG0d)
 * [交叉工具链](http://pan.baidu.com/s/1dDtssIt)
 * [XBOOT官方QQ群658250248，大佬聚集，请踊跃加入(2000人)](https://jq.qq.com/?_wv=1027&k=5BOkXYO)

@@ -15,6 +15,9 @@
 #
 # Generated files
 #
+/.project
+/.cproject
+/.settings/
 /.vscode/
 /src/.obj/
 /output/

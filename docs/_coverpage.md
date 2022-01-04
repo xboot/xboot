@@ -1,4 +1,4 @@
-![logo](_images/logo.png)
+![logo](_images/xboot-logo.svg)
 
 # XBOOT <small>3.0.0</small>
 

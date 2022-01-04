@@ -1,4 +1,4 @@
-![xboot-logo](developments/logo/xboot-logo.png)
+![xboot-logo](developments/logo/xboot-logo.svg)
 
 ***
 
@@ -27,8 +27,8 @@
 
 # 文档及开发工具
 * [Xboot文档](https://xboot.github.io/xboot)
-* [Eclipse集成开发环境](http://pan.baidu.com/s/1i3ImG0d)
 * [交叉工具链](http://pan.baidu.com/s/1dDtssIt)
+* [Eclipse集成开发环境](http://pan.baidu.com/s/1i3ImG0d)
 
 # 编译源码
 Makefile中有两个变量在编译时需要传递，一个是交叉工具链，另一个是具体的硬件平台
@@ -78,8 +78,8 @@ XBOOT is not only a powerful, portable, and highly reusable, embedded system boo
 
 # Documents and Development Tools
 * [Xboot Documents](https://xboot.github.io/xboot)
-* [Eclipse Integrated Development Environment](http://pan.baidu.com/s/1i3ImG0d)
 * [Cross Toolchains](http://pan.baidu.com/s/1dDtssIt)
+* [Eclipse Integrated Development Environment](http://pan.baidu.com/s/1i3ImG0d)
 
 # Xboot Documents
 * [Xboot Documents](https://xboot.github.io/xboot)

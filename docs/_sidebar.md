@@ -3,6 +3,31 @@
 - [源码目录结构](sourcecode.md)
 - [系统移植](system-portting.md)
 - [驱动开发](driver-development.md)
+
+- 编译烧录指南
+  - [三星S5PV210](samsung-s5pv210.md)
+  - [三星EXYNOS4412](samsung-exynos4412.md)
+  - [全志F1C100S](allwinner-f1c100s.md)
+  - [全志F1C200S](allwinner-f1c200s.md)
+  - [Trimui掌机](allwinner-f1c200s-trimui.md)
+  - [全志F1C500S](allwinner-f1c500s.md)
+  - [全志V3S](allwinner-v3s.md)
+  - [SuperView Z11s](allwinner-v3s-z11s.md)
+  - [全志S3](allwinner-s3.md)
+  - [全志H2](allwinner-h2.md)
+  - [全志H3](allwinner-h3.md)
+  - [全志V831](allwinner-v831.md)
+  - [小蚁1080P摄像头](allwinner-v831-qg2101a.md)
+  - [全志D1](allwinner-d1.md)
+  - [荔枝86盒](allwinner-d1-lichee86p.md)
+  - [全志F133](allwinner-f133.md)
+  - [全志R528-S2](allwinner-r528s2.md)
+  - [瑞芯微RK3128](rockchip-rk3128.md)
+  - [瑞芯微RK3288](rockchip-rk3288.md)
+  - [瑞芯微RK3399](rockchip-rk3399.md)
+  - [瑞芯微RK1808](rockchip-rk1808.md)
+  - [瑞芯微PX30](rockchip-px30.md)
+
 - [案例展示](show-case.md)
 
 - 源码解析

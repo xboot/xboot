@@ -11,9 +11,9 @@ ADC驱动结构体，包含如下定义：
 
 - 驱动名字
 - 参考电压
-- 转换精度
-- 转换通道数
-- 转换方法
+- 采换精度
+- 总通道数
+- 采样接口
 - 私有数据
 
 ```c
@@ -33,15 +33,33 @@ struct adc_t
 
 ```c
 struct adc_t * search_adc(const char * name);
-bool_t register_adc(struct device_t ** device, struct adc_t * adc);
-bool_t unregister_adc(struct adc_t * adc);
+struct device_t * register_adc(struct adc_t * adc, struct driver_t * drv);
+void unregister_adc(struct adc_t * adc);
 ```
 
-### ADC设备C操作API
+### ADC设备C API接口
 
 ```c
 u32_t adc_read_raw(struct adc_t * adc, int channel);
 int adc_read_voltage(struct adc_t * adc, int channel);
+```
+
+### ADC设备调试接口
+
+当任何一个ADC设备在系统中成功注册后，在sysfs文件系统中，会自动导出以下调试接口，这些接口全是只读属性，可以通过`cat`指令来访问。
+
+| 节点       | 描述                                                         |
+| ---------- | ------------------------------------------------------------ |
+| vreference | ADC参考电压                                                  |
+| resolution | ADC采样精度                                                  |
+| nchannel   | ADC通道数量                                                  |
+| rawX       | 某个通道的采样原始值，`X`为通道数字编号，从0开始。           |
+| voltageX   | 某个通道的采样原始值经转换后的电压值，`X`为通道数字编号，从0开始。 |
+
+所有的adc设备驱动程序文件名，都是以`adc-`开头的`.c`文件，可以通过如下命令行搜索源码中所有的`ADC`驱动程序。
+
+```shell
+find . -name "adc-*.c"
 ```
 
 ## 音频驱动

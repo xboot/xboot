@@ -763,7 +763,7 @@ machine_exitcall(licheepi_zero_machine_exit);
 ## 创建licheepi-zero.json
 一个`machine`对应一个`json`设备树，在注册一个`machine`的同时，也需要提供相应的`json`设备树。当然系统里也可以提供多个`machine`及多个`json`设备树。系统在启动时，会自动遍历所有`machine`，如果某个`machine`检测通过，则会依据名称加载对应的设备树文件。利用这套机制，可以实现一个镜像支持若干平台，前提是这些平台提供了硬件版本号，且软件能够正确获取并加以区分。
 
-```
+```json
 {
 	"clk-fixed@0": { "name": "osc24m", "rate": 24000000 },
 	"clk-fixed@1": { "name": "osc32k", "rate": 32768 },

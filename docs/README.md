@@ -10,10 +10,13 @@
 * 支持各种协议栈
 * 支持矢量图形库，矢量字体
 * 支持各种现代GUI控件，以及动效
+* 支持图像特效处理
+* 支持二维码生成与识别
+* 支持压缩启动
 * 多平台支持
 * 各种总线驱动，UART，I2C，SPI等等
-* 各种设备驱动，GPIO，PWM，IRQ，CLK，LED，BUZZER，VIBRATOR，WATCHDOG，RNG，FRAMEBUFFER，RTC等
-* 支持用lua编写应用软件，包含高等级API,可直接操作各种硬件抽象接口
+* 各种设备驱动，GPIO、PWM、IRQ、CLK、LED、BUZZER、VIBRATOR、WATCHDOG、RNG、FRAMEBUFFER、RTC等
+* 支持用lua编写应用软件，包含高等级API，可直接操作各种硬件抽象接口
 * 应用软件平台无关，一次编写，到处运行
 
 ## 相关网址

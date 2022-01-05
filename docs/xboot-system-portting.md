@@ -4,50 +4,63 @@
 
 ```
 mach-v3s
-├── include
-│   ├── v3s
-│   │   ├── reg-ccu.h
-│   │   ├── reg-de.h
-│   │   ├── reg-dram.h
-│   │   └── reg-tcon.h
-│   ├── configs.h
-│   ├── v3s-gpio.h
-│   ├── v3s-irq.h
-│   └── v3s-reset.h
+├── cache-v7.c
+├── dmapool.c
 ├── driver
 │   ├── ce-v3s-timer.c
 │   ├── clk-v3s-pll.c
+│   ├── compass-hmc5883l.c
 │   ├── cs-v3s-timer.c
 │   ├── fb-v3s.c
+│   ├── gmeter-axdl345.c
 │   ├── gpio-v3s.c
+│   ├── i2c-v3s.c
 │   ├── irq-gic400.c
 │   ├── irq-v3s-gpio.c
 │   ├── key-v3s-lradc.c
 │   ├── pwm-v3s.c
 │   ├── reset-v3s.c
+│   ├── sdhci-v3s.c
 │   ├── spi-v3s.c
 │   ├── ts-ns2009.c
 │   ├── uart-16550.c
-│   └── wdog-v3s.c
-├── start.S
-├── sys-uart.c
-├── sys-clock.c
-├── sys-dram.c
-├── sys-spi-flash.c
-├── sys-copyself.c
-├── licheepi-zero.c
-├── arm32-gdbstub.c
+│   └── wdg-v3s.c
 ├── exception.c
-├── README-en-US.md
-├── README-zh-CN.md
+├── include
+│   ├── cache.h
+│   ├── configs.h
+│   ├── v3s
+│   │   ├── reg-ccu.h
+│   │   ├── reg-de.h
+│   │   ├── reg-dram.h
+│   │   └── reg-tcon.h
+│   ├── v3s-gpio.h
+│   ├── v3s-irq.h
+│   └── v3s-reset.h
+├── licheepi-zero.c
+├── mmu.c
+├── README.md
 ├── romdisk
 │   └── boot
 │       └── licheepi-zero.json
+├── start.S
+├── sys-clock.c
+├── sys-copyself.c
+├── sys-decompress.c
+├── sys-dram.c
+├── sys-hash.c
+├── sys-jtag.c
+├── sys-mmu.c
+├── sys-spinor.c
+├── sys-uart.c
+├── sys-verify.c
 ├── tools
 │   ├── linux
-│   │   └── mksunxi
+│   │   ├── mksunxi
+│   │   └── mkz
 │   └── windows
-│       └── mksunxi.exe
+│       ├── mksunxi.exe
+│       └── mkz.exe
 ├── xboot.ld
 └── xboot.mk
 ```
@@ -75,7 +88,7 @@ DEFINES		+= -D__ARM32_ARCH__=7 -D__CORTEX_A7__ -D__ARM32_NEON__
 ASFLAGS		:= -g -ggdb -Wall -O3
 CFLAGS		:= -g -ggdb -Wall -O3
 LDFLAGS		:= -T arch/$(ARCH)/$(MACH)/xboot.ld -nostdlib
-MCFLAGS		:= -march=armv7-a -mtune=cortex-a7 -mfpu=vfpv4 -mfloat-abi=hard -marm -mno-thumb-interwork
+MCFLAGS		:= -march=armv7-a -mtune=cortex-a7 -mfpu=vfpv4 -mfloat-abi=hard -marm -mno-thumb-interwork -mno-unaligned-access
 
 LIBDIRS		:=
 LIBS 		:=
@@ -84,16 +97,26 @@ SRCDIRS		:=
 
 ifeq ($(strip $(HOSTOS)), linux)
 MKSUNXI		:= arch/$(ARCH)/$(MACH)/tools/linux/mksunxi
+MKZ			:= arch/$(ARCH)/$(MACH)/tools/linux/mkz
 endif
 ifeq ($(strip $(HOSTOS)), windows)
 MKSUNXI		:= arch/$(ARCH)/$(MACH)/tools/windows/mksunxi
+MKZ			:= arch/$(ARCH)/$(MACH)/tools/windows/mkz
 endif
+
+PUBLIC_KEY	:= "03cfd18e4a4b40d6529448aa2df8bbb677128258b8fbfc5b9e492fbbba4e84832f"
+PRIVATE_KEY	:= "dc57b8a9e0e2b7f8b4c929bd8db2844e53f01f171bbcdf6e628908dbf2b2e6a9"
+MESSAGE		:= "https://github.com/xboot/xboot"
 
 xend:
 	@echo Make header information for brom booting
 	@$(MKSUNXI) $(X_NAME).bin
+	@$(MKZ) -majoy $(XBOOT_MAJOY) -minior $(XBOOT_MINIOR) -patch $(XBOOT_PATCH) -r 32768 -pb $(PUBLIC_KEY) -pv $(PRIVATE_KEY) -m $(MESSAGE) $(X_NAME).bin $(X_NAME).bin.z
+
 ```
 可以注意到在文件末尾，有个`xend`依赖规则，这个是对最终生成的目标文件做加头处理，这里用到了`mksunxi`这个工具，该工具是根据`V3S` BROM引导校验要求制作而成。现代的大部分SOC处理器在引导启动时，其内部的固化ROM都会对镜像进行一定的校验认证工作，而且大部分SOC也不会提供具体的技术细节。所以在移植前，需要研究引导启动并制作出相应的做头工具。这部分通常需要阅读大量的开放源码，并且由一些零星的信息，总结出中间技术细节，有可能还需要用上逆向工程技术，这是移植的难点，同时也是一个平台是否能够移植成功的基础。
+
+`mkz`工具用来生成压缩启动镜像，并能够对固件进行签名，使用ECDSA256及SHA256算法
 
 ## 创建xboot.ld
 xboot.ld文件是链接器生成最终目标文件时使用的链接脚本，它控制着整个目标代码的生成，比如入口点如何指定，代码段，数据段，堆，栈，内嵌根文件系统在哪里，如何保证系统自举代码链接到前32K空间等等。这里面涉及很多技术细节，自行编写难度较大，建议直接拷一份其他平台的链接脚本，简单做些修改就可以满足要求了。
@@ -103,17 +126,17 @@ OUTPUT_FORMAT("elf32-littlearm", "elf32-bigarm", "elf32-littlearm")
 OUTPUT_ARCH(arm)
 ENTRY(_start)
 
-STACK_UND_SIZE = 0x40000;
-STACK_ABT_SIZE = 0x40000;
-STACK_IRQ_SIZE = 0x40000;
-STACK_FIQ_SIZE = 0x40000;
-STACK_SRV_SIZE = 0x100000;
+STACK_UND_SIZE = 0x40000 * 1;
+STACK_ABT_SIZE = 0x40000 * 1;
+STACK_IRQ_SIZE = 0x40000 * 1;
+STACK_FIQ_SIZE = 0x40000 * 1;
+STACK_SRV_SIZE = 0x100000 * 1;
 
 MEMORY
 {
-	ram  : org = 0x40000000, len = 16M
-	dma  : org = 0x41000000, len = 16M
-	heap : org = 0x42000000, len = 32M
+	ram  : org = 0x40000000, len = 8M
+	dma  : org = 0x40800000, len = 8M
+	heap : org = 0x41000000, len = 48M
 }
 
 SECTIONS
@@ -122,20 +145,42 @@ SECTIONS
 	{
 		PROVIDE(__image_start = .);
 		PROVIDE(__text_start = .);
-		.obj/arch/arm32/mach-v3s/start.o (.text)
-		.obj/arch/arm32/lib/memcpy.o (.text)
-		.obj/arch/arm32/lib/memset.o (.text)
-		.obj/arch/arm32/mach-v3s/sys-uart.o (.text)
-		.obj/arch/arm32/mach-v3s/sys-clock.o (.text)
-		.obj/arch/arm32/mach-v3s/sys-dram.o (.text)
-		.obj/arch/arm32/mach-v3s/sys-spi-flash.o (.text)
-		.obj/arch/arm32/mach-v3s/sys-copyself.o (.text)
+		PROVIDE(__spl_start = .);
+		.obj/arch/arm32/mach-v3s/start.o (.text*)
+		.obj/arch/arm32/lib/memcpy.o (.text*)
+		.obj/arch/arm32/lib/memset.o (.text*)
+		.obj/arch/arm32/mach-v3s/sys-jtag.o (.text*)
+		.obj/arch/arm32/mach-v3s/sys-uart.o (.text*)
+		.obj/arch/arm32/mach-v3s/sys-clock.o (.text*)
+		.obj/arch/arm32/mach-v3s/sys-dram.o (.text*)
+		.obj/arch/arm32/mach-v3s/sys-mmu.o (.text*)
+		.obj/arch/arm32/mach-v3s/sys-decompress.o (.text*)
+		.obj/arch/arm32/mach-v3s/sys-hash.o (.text*)
+		.obj/arch/arm32/mach-v3s/sys-verify.o (.text*)
+		.obj/arch/arm32/mach-v3s/sys-spinor.o (.text*)
+		.obj/arch/arm32/mach-v3s/sys-copyself.o (.text*)
+		PROVIDE(__spl_end = .);
 		*(.text*)
 		*(.init.text)
 		*(.exit.text)
 		*(.glue*)
 		*(.note.gnu.build-id)
 		PROVIDE(__text_end = .);
+	} > ram
+	PROVIDE(__spl_size = __spl_end - __spl_start);
+
+	.ARM.exidx ALIGN(8) :
+	{
+		PROVIDE (__exidx_start = .);
+		*(.ARM.exidx*)
+		PROVIDE (__exidx_end = .);
+	} > ram
+
+	.ARM.extab ALIGN(8) :
+	{
+		PROVIDE (__extab_start = .);
+		*(.ARM.extab*)
+		PROVIDE (__extab_end = .);
 	} > ram
 
 	.initcall ALIGN(8) :
@@ -170,7 +215,7 @@ SECTIONS
 		PROVIDE(__exitcall_end = .);
 	} > ram
 
-	.ksymtab ALIGN(8) :
+	.ksymtab ALIGN(16) :
 	{
 		PROVIDE(__ksymtab_start = .);
 		KEEP(*(.ksymtab.text))
@@ -191,33 +236,13 @@ SECTIONS
 		PROVIDE(__rodata_end = .);
 	} > ram
 
-	.data_shadow ALIGN(8) :
+	.data ALIGN(8) :
 	{
-		PROVIDE(__data_shadow_start = .);
-		PROVIDE(__data_shadow_end = (. + SIZEOF(.data)));
-		PROVIDE(__image_end = __data_shadow_end);
-	} > ram
-
-	.data : AT(ADDR(.data_shadow))
-	{
-		PROVIDE(__data_start = .);	
+		PROVIDE(__data_start = .);
 		*(.data*)
 		. = ALIGN(8);
   		PROVIDE(__data_end = .);
-	} > ram
-
-	.ARM.exidx ALIGN(8) :
-	{
-		PROVIDE (__exidx_start = .);
-		*(.ARM.exidx*)
-		PROVIDE (__exidx_end = .);
-	} > ram
-
-	.ARM.extab ALIGN(8) :
-	{
-		PROVIDE (__extab_start = .);
-		*(.ARM.extab*)
-		PROVIDE (__extab_end = .);
+		PROVIDE(__image_end = .);
 	} > ram
 
 	.bss ALIGN(8) (NOLOAD) :
@@ -228,6 +253,13 @@ SECTIONS
 		*(COMMON)
 		. = ALIGN(8);
 		PROVIDE(__bss_end = .);
+	} > ram
+
+	.mmu ALIGN(0x4000) (NOLOAD) :
+	{
+		PROVIDE(__mmu_start = .);
+		. += 4096;
+		PROVIDE(__mmu_end = .);
 	} > ram
 
 	.stack ALIGN(8) (NOLOAD) :
@@ -296,37 +328,55 @@ SECTIONS
 start.S文件是程序的入口文件，一般由汇编代码编写而成。包括初始化向量表、栈指针，初始化系统时钟、DDR控制器、还有实现自举引导、为C语言准备环境、最终跳转到RAM中并执行`xboot_main`函数等等。这部分代码的编写难度较大，需要较深的编程功底。可以参考系统里的其它实现模仿而来，分步骤编写并测试代码。
 
 ```
+#include <xconfigs.h>
+
 .macro save_regs
-	sub sp, sp, #68
-	stmia sp, {r0-r12}
-	ldr r0, [sp, #72]
-	str r0, [sp, #60]
-	ldr r0, [sp, #76]
-	mov r3, r0
-	orr r0, r0, #0xc0
-	msr cpsr_c, r0
-	mov r1, sp
-	mov r2, lr
+	str lr, [sp, #-4]
+	mrs lr, spsr_all
+	str lr, [sp, #-8]
+	str r1, [sp, #-12]
+	str r0, [sp, #-16]
+	mov r0, sp
 	cps #0x13
-	str r1, [sp, #52]
-	str r2, [sp, #56]
-	str r3, [sp, #64]
+	ldr r1, [r0, #-4]
+	str r1, [sp, #-4]!
+	ldr r1, [r0, #-8]
+	str r1, [sp, #-(4 * 16)]
+	ldr r1, [r0, #-12]
+	ldr r0, [r0, #-16]
+	stmdb sp, {r0 - r14}^
+	sub sp, sp, #(4 * 16)
+	ldr r4, [sp]
+	and r0, r4, #0x1f
+	cmp r0, #0x10
+	beq 10f
+	cmp r0, #0x13
+	beq 11f
+	b .
+11:	add r1, sp, #(4 * 17)
+	str r1, [sp, #(4 * 14)]
+	str lr, [sp, #(4 * 15)]
+10:	add r1, sp, #(4 * 17)
+	str r1, [sp, #-4]!
 	mov r0, sp
 .endm
 
 .macro restore_regs
-	ldr r1, [sp, #52]
-	ldr r2, [sp, #56]
-	ldr r0, [sp, #64]
-	orr r0, r0, #0xc0
-	msr cpsr_c, r0
-	mov sp, r1
-	mov lr, r2
-	cps #0x13
-	ldr r0, [sp, #60]
-	str r0, [sp, #72]
-	ldmia sp, {r0-r12}
-	add sp, #68
+	mov r12, sp
+	ldr sp, [r12], #4
+	ldr r1, [r12], #4
+	msr spsr_cxsf, r1
+	and r0, r1, #0x1f
+	cmp r0, #0x10
+	beq 20f
+	cmp r0, #0x13
+	beq 21f
+	b .
+20:	ldr lr, [r12, #(4 * 15)]
+	ldmia r12, {r0 - r14}^
+	movs pc, lr
+21:	ldm r12, {r0 - r15}^
+	mov r0, r0
 .endm
 
 /*
@@ -335,12 +385,12 @@ start.S文件是程序的入口文件，一般由汇编代码编写而成。包�
 .text
 	.arm
 
-	.global	_start
+	.global _start
 _start:
 	/* Boot head information for BROM */
 	.long 0xea000016
 	.byte 'e', 'G', 'O', 'N', '.', 'B', 'T', '0'
-	.long 0, 0x8000
+	.long 0, __spl_size
 	.byte 'S', 'P', 'L', 2
 	.long 0, 0
 	.long 0, 0, 0, 0, 0, 0, 0, 0	/* 0x20 - dram size, 0x28 - boot type */
@@ -407,7 +457,7 @@ reset:
 	ldr r0, =_vector
 	mcr p15, 0, r0, c12, c0, 0
 	mrc p15, 0, r0, c1, c0, 0
-	bic r0, #(1<<13)
+	bic r0, #(1 << 13)
 	mcr p15, 0, r0, c1, c0, 0
 
 	/* Enable SMP mode for dcache, by setting bit 6 of auxiliary ctl reg */
@@ -423,10 +473,81 @@ reset:
 	mov r0, #0x40000000
 	vmsr fpexc, r0
 
-	/* Initial system uart, clock and ddr */
+	/* Initial system jtag, uart, clock and ddr */
+	bl sys_jtag_init
 	bl sys_uart_init
 	bl sys_clock_init
 	bl sys_dram_init
+
+	/* Initialize stacks */
+	mrc p15, 0, r4, c0, c0, 5
+	and r4, r4, #0xf
+	mov r5, #1
+
+	ldr r0, _stack_und_start
+	ldr r1, _stack_und_end
+	sub r0, r1, r0
+	mov r1, r5
+	bl udiv32
+	mul r2, r0, r4
+	mrs r0, cpsr
+	bic r0, r0, #0x1f
+	orr r1, r0, #0x1b
+	msr cpsr_cxsf, r1
+	ldr sp, _stack_und_end
+	sub sp, sp, r2
+
+	ldr r0, _stack_abt_start
+	ldr r1, _stack_abt_end
+	sub r0, r1, r0
+	mov r1, r5
+	bl udiv32
+	mul r2, r0, r4
+	mrs r0, cpsr
+	bic r0, r0, #0x1f
+	orr r1, r0, #0x17
+	msr cpsr_cxsf, r1
+	ldr sp, _stack_abt_end
+	sub sp, sp, r2
+
+	ldr r0, _stack_irq_start
+	ldr r1, _stack_irq_end
+	sub r0, r1, r0
+	mov r1, r5
+	bl udiv32
+	mul r2, r0, r4
+	mrs r0, cpsr
+	bic r0, r0, #0x1f
+	orr r1, r0, #0x12
+	msr cpsr_cxsf, r1
+	ldr sp, _stack_irq_end
+	sub sp, sp, r2
+
+	ldr r0, _stack_fiq_start
+	ldr r1, _stack_fiq_end
+	sub r0, r1, r0
+	mov r1, r5
+	bl udiv32
+	mul r2, r0, r4
+	mrs r0, cpsr
+	bic r0, r0, #0x1f
+	orr r1, r0, #0x11
+	msr cpsr_cxsf, r1
+	ldr sp, _stack_fiq_end
+	sub sp, sp, r2
+
+	ldr r0, _stack_srv_start
+	ldr r1, _stack_srv_end
+	sub r0, r1, r0
+	mov r1, r5
+	bl udiv32
+	mul r2, r0, r4
+	mrs r0, cpsr
+	bic r0, r0, #0x1f
+	orr r1, r0, #0x13
+	msr cpsr_cxsf, r1
+	ldr sp, _stack_srv_end
+	sub sp, sp, r2
 
 	/* Copyself to link address */
 	adr r0, _start
@@ -435,40 +556,6 @@ reset:
 	beq 1f
 	bl sys_copyself
 1:	nop
-
-	/* Initialize stacks */
-	mrs r0, cpsr
-	bic r0, r0, #0x1f
-	orr r1, r0, #0x1b
-	msr cpsr_cxsf, r1
-	ldr sp, _stack_und_end
-
-	bic r0, r0, #0x1f
-	orr r1, r0, #0x17
-	msr cpsr_cxsf, r1
-	ldr sp, _stack_abt_end
-
-	bic r0, r0, #0x1f
-	orr r1, r0, #0x12
-	msr cpsr_cxsf, r1
-	ldr sp, _stack_irq_end
-
-	bic r0, r0, #0x1f
-	orr r1, r0, #0x11
-	msr cpsr_cxsf, r1
-	ldr sp, _stack_fiq_end
-
-	bic r0, r0, #0x1f
-	orr r1, r0, #0x13
-	msr cpsr_cxsf, r1
-	ldr sp, _stack_srv_end
-
-	/* Copy data section */
-	ldr r0, _data_start
-	ldr r1, _data_shadow_start
-	ldr r2, _data_shadow_end
-	sub r2, r2, r1
-	bl memcpy
 
 	/* Clear bss section */
 	ldr r0, _bss_start
@@ -481,10 +568,32 @@ reset:
 	ldr r1, =_main
 	mov pc, r1
 _main:
-	mov r0, #1;
-	mov r1, #0;
+	bl mmu_setup
+	bl mmu_enable
 	bl xboot_main
 	b _main
+
+	.global udiv32
+udiv32:
+	cmp r1, #0
+	beq 3f
+	mov r2, r1
+	mov r1, r0
+	mov r0, #0
+	mov r3, #1
+1:	cmp r2, #0
+	blt 2f
+	cmp r2, r1
+	lslls r2, r2, #1
+	lslls r3, r3, #1
+	bls 1b
+2:	cmp r1, r2
+	subge r1, r1, r2
+	addge r0, r0, r3
+	lsr r2, r2, #1
+	lsrs r3, r3, #1
+	bcc 2b
+3:	mov pc, lr
 
 	.global return_to_fel
 return_to_fel:
@@ -507,58 +616,30 @@ return_to_fel:
 	.align 5
 undefined_instruction:
 	sub lr, lr, #4
-	srsdb sp!, #0x13
-	cps #0x13
-	cpsid if
-	push {lr}
 	save_regs
 	bl arm32_do_undefined_instruction
 	restore_regs
-	pop {lr}
-	cpsie if
-	rfeia sp!
 
 	.align 5
 software_interrupt:
 	sub lr, lr, #4
-	srsdb sp!, #0x13
-	cps #0x13
-	cpsid if
-	push {lr}
 	save_regs
 	bl arm32_do_software_interrupt
 	restore_regs
-	pop {lr}
-	cpsie if
-	rfeia sp!
 
 	.align 5
 prefetch_abort:
 	sub lr, lr, #4
-	srsdb sp!, #0x13
-	cps #0x13
-	cpsid if
-	push {lr}
 	save_regs
 	bl arm32_do_prefetch_abort
 	restore_regs
-	pop {lr}
-	cpsie if
-	rfeia sp!
 
 	.align 5
 data_abort:
-	sub lr, lr, #4
-	srsdb sp!, #0x13
-	cps #0x13
-	cpsid if
-	push {lr}
+	sub lr, lr, #8
 	save_regs
 	bl arm32_do_data_abort
 	restore_regs
-	pop {lr}
-	cpsie if
-	rfeia sp!
 
 	.align 5
 not_used:
@@ -567,30 +648,16 @@ not_used:
 	.align 5
 irq:
 	sub lr, lr, #4
-	srsdb sp!, #0x13
-	cps #0x13
-	cpsid if
-	push {lr}
 	save_regs
 	bl arm32_do_irq
 	restore_regs
-	pop {lr}
-	cpsie if
-	rfeia sp!
 
 	.align 5
 fiq:
 	sub lr, lr, #4
-	srsdb sp!, #0x13
-	cps #0x13
-	cpsid if
-	push {lr}
 	save_regs
 	bl arm32_do_fiq
 	restore_regs
-	pop {lr}
-	cpsie if
-	rfeia sp!
 
 /*
  * The location of section
@@ -600,10 +667,6 @@ _image_start:
 	.long __image_start
 _image_end:
 	.long __image_end
-_data_shadow_start:
-	.long __data_shadow_start
-_data_shadow_end:
-	.long __data_shadow_end
 _data_start:
 	.long __data_start
 _data_end:
@@ -612,14 +675,24 @@ _bss_start:
 	.long __bss_start
 _bss_end:
 	.long __bss_end
+_stack_und_start:
+	.long __stack_und_start
 _stack_und_end:
 	.long __stack_und_end
+_stack_abt_start:
+	.long __stack_abt_start
 _stack_abt_end:
 	.long __stack_abt_end
+_stack_irq_start:
+	.long __stack_irq_start
 _stack_irq_end:
 	.long __stack_irq_end
+_stack_fiq_start:
+	.long __stack_fiq_start
 _stack_fiq_end:
 	.long __stack_fiq_end
+_stack_srv_start:
+	.long __stack_srv_start
 _stack_srv_end:
 	.long __stack_srv_end
 ```
@@ -631,13 +704,14 @@ _stack_srv_end:
 struct machine_t {
 	struct kobj_t * kobj;
 	struct list_head list;
+	struct list_head mmap;
 
 	const char * name;
 	const char * desc;
-	const struct mmap_t * map;
 
 	int (*detect)(struct machine_t * mach);
-	void (*memmap)(struct machine_t * mach);
+	void (*smpinit)(struct machine_t * mach);
+	void (*smpboot)(struct machine_t * mach, void (*func)(void));
 	void (*shutdown)(struct machine_t * mach);
 	void (*reboot)(struct machine_t * mach);
 	void (*sleep)(struct machine_t * mach);
@@ -651,14 +725,6 @@ struct machine_t {
 这里有个比较关键的方法，就是`detect`方法，这是machine的检测函数，如果返回为真，代表检测到该平台并依据对应的设备树文件生成设备，如果返回为假，则检测不通过，继续下一个`machine`的检测，直到检测到为止。
 ```
 #include <xboot.h>
-#include <mmu.h>
-
-static const struct mmap_t mach_map[] = {
-	{"ram",  0x40000000, 0x40000000, SZ_16M, MAP_TYPE_CB},
-	{"dma",  0x41000000, 0x41000000, SZ_16M, MAP_TYPE_NCNB},
-	{"heap", 0x42000000, 0x42000000, SZ_32M, MAP_TYPE_CB},
-	{ 0 },
-};
 
 static u32_t sram_read_id(virtual_addr_t virt)
 {
@@ -679,9 +745,12 @@ static int mach_detect(struct machine_t * mach)
 	return 0;
 }
 
-static void mach_memmap(struct machine_t * mach)
+static void mach_smpinit(struct machine_t * mach)
 {
-	mmu_setup(mach->map);
+}
+
+static void mach_smpboot(struct machine_t * mach, void (*func)(void))
+{
 }
 
 static void mach_shutdown(struct machine_t * mach)
@@ -714,15 +783,15 @@ static void mach_logger(struct machine_t * mach, const char * buf, int count)
 
 static const char * mach_uniqueid(struct machine_t * mach)
 {
-	static char uniqueid[32 + 3 + 1] = { 0 };
+	static char uniqueid[32 + 1] = { 0 };
 	virtual_addr_t virt = phys_to_virt(0x01c23800);
-	u32_t sid0, sid1, sid2, sid3;
+	uint32_t sid[4];
 
-	sid0 = read32(virt + 0 * 4);
-	sid1 = read32(virt + 1 * 4);
-	sid2 = read32(virt + 2 * 4);
-	sid3 = read32(virt + 3 * 4);
-	snprintf(uniqueid, sizeof(uniqueid), "%08x:%08x:%08x:%08x",sid0, sid1, sid2, sid3);
+	sid[0] = read32(virt + 0 * 4);
+	sid[1] = read32(virt + 1 * 4);
+	sid[2] = read32(virt + 2 * 4);
+	sid[3] = read32(virt + 3 * 4);
+	snprintf(uniqueid, sizeof(uniqueid), "%08x%08x%08x%08x",sid[0], sid[1], sid[2], sid[3]);
 	return uniqueid;
 }
 
@@ -734,9 +803,9 @@ static int mach_keygen(struct machine_t * mach, const char * msg, void * key)
 static struct machine_t licheepi_zero = {
 	.name 		= "licheepi-zero",
 	.desc 		= "Lichee Pi Zero Based On Allwinner V3S SOC",
-	.map		= mach_map,
 	.detect 	= mach_detect,
-	.memmap		= mach_memmap,
+	.smpinit	= mach_smpinit,
+	.smpboot	= mach_smpboot,
 	.shutdown	= mach_shutdown,
 	.reboot		= mach_reboot,
 	.sleep		= mach_sleep,
@@ -924,6 +993,51 @@ machine_exitcall(licheepi_zero_machine_exit);
 	"clk-gate@0x01c20064": {"parent": "gate-tcon", "name": "gate-bus-tcon", "shift": 4, "invert": false },
 	"clk-link": { "parent": "gate-bus-tcon", "name": "link-tcon" },
 
+	"clk-mux@0x01c20088": {
+		"parent": [
+			{ "name": "osc24m", "value": 0 },
+			{ "name": "pll-periph0", "value": 1 },
+			{ "name": "pll-periph1", "value": 2 }
+		],
+		"name": "mux-sdmmc0", "shift": 24, "width": 2,
+		"default": { "parent": "pll-periph0" }
+	},
+	"clk-ratio@0x01c20088": { "parent": "mux-sdmmc0", "name": "ratio-sdmmc0", "shift": 16, "width": 2 },
+	"clk-divider@0x01c20088": { "parent": "ratio-sdmmc0", "name": "div-sdmmc0", "shift": 0, "width": 4, "divider-one-based": true, "default": { "rate": 50000000 } },
+	"clk-gate@0x01c20088": {"parent": "div-sdmmc0", "name": "gate-sdmmc0", "shift": 31, "invert": false },
+	"clk-gate@0x01c20060": {"parent": "gate-sdmmc0", "name": "gate-bus-sdmmc0", "shift": 8, "invert": false },
+	"clk-link": { "parent": "gate-bus-sdmmc0", "name": "link-sdmmc0" },
+
+	"clk-mux@0x01c2008c": {
+		"parent": [
+			{ "name": "osc24m", "value": 0 },
+			{ "name": "pll-periph0", "value": 1 },
+			{ "name": "pll-periph1", "value": 2 }
+		],
+		"name": "mux-sdmmc1", "shift": 24, "width": 2,
+		"default": { "parent": "pll-periph0" }
+	},
+	"clk-ratio@0x01c2008c": { "parent": "mux-sdmmc1", "name": "ratio-sdmmc1", "shift": 16, "width": 2 },
+	"clk-divider@0x01c2008c": { "parent": "ratio-sdmmc1", "name": "div-sdmmc1", "shift": 0, "width": 4, "divider-one-based": true, "default": { "rate": 50000000 } },
+	"clk-gate@0x01c2008c": {"parent": "div-sdmmc1", "name": "gate-sdmmc1", "shift": 31, "invert": false },
+	"clk-gate@0x01c20060": {"parent": "gate-sdmmc1", "name": "gate-bus-sdmmc1", "shift": 9, "invert": false },
+	"clk-link": { "parent": "gate-bus-sdmmc1", "name": "link-sdmmc1" },
+
+	"clk-mux@0x01c20090": {
+		"parent": [
+			{ "name": "osc24m", "value": 0 },
+			{ "name": "pll-periph0", "value": 1 },
+			{ "name": "pll-periph1", "value": 2 }
+		],
+		"name": "mux-sdmmc2", "shift": 24, "width": 2,
+		"default": { "parent": "pll-periph0" }
+	},
+	"clk-ratio@0x01c20090": { "parent": "mux-sdmmc2", "name": "ratio-sdmmc2", "shift": 16, "width": 2 },
+	"clk-divider@0x01c20090": { "parent": "ratio-sdmmc2", "name": "div-sdmmc2", "shift": 0, "width": 4, "divider-one-based": true, "default": { "rate": 50000000 } },
+	"clk-gate@0x01c20090": {"parent": "div-sdmmc2", "name": "gate-sdmmc2", "shift": 31, "invert": false },
+	"clk-gate@0x01c20060": {"parent": "gate-sdmmc2", "name": "gate-bus-sdmmc2", "shift": 10, "invert": false },
+	"clk-link": { "parent": "gate-bus-sdmmc2", "name": "link-sdmmc2" },
+
 	"reset-v3s@0x01c202c0": {
 		"reset-base": 0,
 		"reset-count": 32
@@ -1058,15 +1172,24 @@ machine_exitcall(licheepi_zero_machine_exit);
 		"stop-bits": 1
 	},
 
-	"i2c-gpio@0": {
+	"i2c-v3s@0x01c2ac00": {
+		"clock-name": "link-i2c0",
+		"clock-frequency": 400000,
+		"reset": 128,
 		"sda-gpio": 39,
-	 	"sda-gpio-config": 1,
+		"sda-gpio-config": 2,
 		"scl-gpio": 38,
-		"scl-gpio-config": 1,
-		"sda-open-drain": false,
-		"scl-open-drain": false,
-		"scl-output-only": false,
-		"delay-us": 5
+		"scl-gpio-config": 2
+	},
+
+	"i2c-v3s@0x01c2b000": {
+		"clock-name": "link-i2c1",
+		"clock-frequency": 400000,
+		"reset": 129,
+		"sda-gpio": -1,
+		"sda-gpio-config": -1,
+		"scl-gpio": -1,
+		"scl-gpio-config": -1
 	},
 
 	"spi-v3s@0x01c68000": {
@@ -1082,14 +1205,46 @@ machine_exitcall(licheepi_zero_machine_exit);
 		"cs-gpio-config": 3
 	},
 
-	"spi-flash@0": {
+	"sdhci-v3s@0x01c0f000": {
+		"clock-name": "link-sdmmc0",
+		"reset": 8,
+		"max-clock-frequency": 2000000,
+		"clk-gpio": 162,
+		"clk-gpio-config": 2,
+		"cmd-gpio": 163,
+		"cmd-gpio-config": 2,
+		"dat0-gpio": 161,
+		"dat0-gpio-config": 2,
+		"dat1-gpio": 160,
+		"dat1-gpio-config": 2,
+		"dat2-gpio": 165,
+		"dat2-gpio-config": 2,
+		"dat3-gpio": 164,
+		"dat3-gpio-config": 2,
+		"dat4-gpio": -1,
+		"dat4-gpio-config": -1,
+		"dat5-gpio": -1,
+		"dat5-gpio-config": -1,
+		"dat6-gpio": -1,
+		"dat6-gpio-config": -1,
+		"dat7-gpio": -1,
+		"dat7-gpio-config": -1,
+		"cd-gpio": 166,
+		"cd-gpio-config": 0
+	},
+
+	"blk-spinor@0": {
 		"spi-bus": "spi-v3s.0",
 		"chip-select": 0,
 		"mode": 0,
-		"speed": 50000000
+		"speed": 50000000,
+		"partition": [
+			{ "name": "xboot",   "offset": 0,       "length": 4194304 },
+			{ "name": "private", "offset": 4194304, "length": 0 }
+		]
 	},
 
-	"wdog-v3s@0x01c20ca0": {
+	"wdg-v3s@0x01c20ca0": {
 		"clock-name": "link-wdt"
 	},
 
@@ -1105,7 +1260,7 @@ machine_exitcall(licheepi_zero_machine_exit);
 	},
 	
 	"ts-ns2009@0": {
-		"i2c-bus": "i2c-gpio.0",
+		"i2c-bus": "i2c-v3s.0",
 		"slave-address": 72,
 		"median-filter-length": 5,
 		"mean-filter-length": 5,
@@ -1162,8 +1317,6 @@ machine_exitcall(licheepi_zero_machine_exit);
 		"height": 480,
 		"physical-width": 216,
 		"physical-height": 135,
-		"bits-per-pixel": 18,
-		"bytes-per-pixel": 4,
 		"clock-frequency": 33000000,
 		"hfront-porch": 40,
 		"hback-porch": 87,
@@ -1173,8 +1326,8 @@ machine_exitcall(licheepi_zero_machine_exit);
 		"vsync-len": 1,
 		"hsync-active": false,
 		"vsync-active": false,
-		"den-active": false,
-		"clk-active": false,
+		"den-active": true,
+		"clk-active": true,
 		"backlight": "led-pwm-bl.0"
 	},
 
@@ -1191,7 +1344,7 @@ machine_exitcall(licheepi_zero_machine_exit);
 /* Boot head information for BROM */
 .long 0xea000016
 .byte 'e', 'G', 'O', 'N', '.', 'B', 'T', '0'
-.long 0, 0x8000
+.long 0, __spl_size
 .byte 'S', 'P', 'L', 2
 .long 0, 0
 .long 0, 0, 0, 0, 0, 0, 0, 0	/* 0x20 - dram size, 0x28 - boot type */
@@ -1199,11 +1352,14 @@ machine_exitcall(licheepi_zero_machine_exit);
 ```
 
 mksunxi工具就是根据上面的规则填充CheckSum字段，该算法为累加和，小端格式存储，初值为0x5F0A6C39，实现代码如下：
-```
+```c
 #include <stdio.h>
 #include <string.h>
 #include <stdint.h>
 #include <stdlib.h>
+
+#define __ALIGN_MASK(x, mask)	(((x) + (mask)) & ~(mask))
+#define ALIGN(x, a)		__ALIGN_MASK((x), (typeof(x))(a) - 1)
 
 #if 0
 static inline uint32_t __swab32(uint32_t x)
@@ -1212,11 +1368,11 @@ static inline uint32_t __swab32(uint32_t x)
 		((x & (uint32_t)0x0000ff00UL)<<8) | \
 		((x & (uint32_t)0x00ff0000UL)>>8) );
 }
-#define cpu_to_le32(x)	(__swab32((uint32_t)(x)))
-#define le32_to_cpu(x)	(__swab32((uint32_t)(x)))
+#define cpu_to_le32(x)		(__swab32((uint32_t)(x)))
+#define le32_to_cpu(x)		(__swab32((uint32_t)(x)))
 #else
-#define cpu_to_le32(x)	(x)
-#define le32_to_cpu(x)	(x)
+#define cpu_to_le32(x)		(x)
+#define le32_to_cpu(x)		(x)
 #endif
 
 struct boot_head_t {
@@ -1266,7 +1422,7 @@ int main (int argc, char *argv[])
 		return -1;
 	}
 
-	buflen = (filelen + 0x2000) & ~(0x2000 - 1);
+	buflen = ALIGN(filelen, 8192);
 	buffer = malloc(buflen);
 	memset(buffer, 0, buflen);
 	if(fread(buffer, 1, filelen, fp) != filelen)
@@ -1280,12 +1436,14 @@ int main (int argc, char *argv[])
 	h = (struct boot_head_t *)buffer;
 	p = (uint32_t *)h;
 	l = le32_to_cpu(h->length);
+	l = ALIGN(l, 8192);
+	h->length = cpu_to_le32(l);
 	h->checksum = cpu_to_le32(0x5F0A6C39);
 	loop = l >> 2;
 	for(i = 0, sum = 0; i < loop; i++)
 		sum += le32_to_cpu(p[i]);
 	h->checksum = cpu_to_le32(sum);
-	
+
 	fseek(fp, 0L, SEEK_SET);
 	if(fwrite(buffer, 1, buflen, fp) != buflen)
 	{
@@ -1296,29 +1454,317 @@ int main (int argc, char *argv[])
 	}
 
 	fclose(fp);
-	printf("The bootloader head has been fixed\n");
+	printf("The bootloader head has been fixed, spl size is %d bytes.\r\n", l);
 	return 0;
 }
 ```
 
+## mkz工具
+`mkz`工具用来生成压缩启动镜像，并采用ECDSA256及SHA256算法对固件进行签名。固件头信息如下，其中签名是对sha256结果进行签名，sha256运算为从`majoy`字段开始之后的所有内容，包括压缩镜像自身。
+
+```c
+struct zdesc_t {			/* Total 256 bytes */
+	uint8_t magic[4];		/* ZBL! */
+	uint8_t signature[64];	/* Ecdsa256 signature of sha256 */
+	uint8_t sha256[32];		/* Sha256 hash */
+	uint8_t majoy;			/* Majoy version */
+	uint8_t minior;			/* Minior version */
+	uint8_t patch;			/* Patch version */
+	uint8_t csize[4];		/* Compress size of image */
+	uint8_t dsize[4];		/* Decompress size of image */
+	uint8_t pubkey[33];		/* Ecdsa256 public key */
+	uint8_t message[112];	/* Message additionally */
+};
+
+```
+
+完整实现代码如下：
+
+```c
+#include <main.h>
+
+struct zdesc_t {			/* Total 256 bytes */
+	uint8_t magic[4];		/* ZBL! */
+	uint8_t signature[64];	/* Ecdsa256 signature of sha256 */
+	uint8_t sha256[32];		/* Sha256 hash */
+	uint8_t majoy;			/* Majoy version */
+	uint8_t minior;			/* Minior version */
+	uint8_t patch;			/* Patch version */
+	uint8_t csize[4];		/* Compress size of image */
+	uint8_t dsize[4];		/* Decompress size of image */
+	uint8_t pubkey[33];		/* Ecdsa256 public key */
+	uint8_t message[112];	/* Message additionally */
+};
+
+static void usage(void)
+{
+	printf("usage:\r\n");
+	printf("    mkz [-majoy number] [-minior number] [-patch number] [-r reserve-image-size] [-pb ecdsa256-public-key] [-pv ecdsa256-private-key] [-m message] <image> <zimage>\r\n");
+	printf("    -majoy  The majoy version\r\n");
+	printf("    -minior The minior version\r\n");
+	printf("    -patch  The patch version\r\n");
+	printf("    -r      The reserve size\r\n");
+	printf("    -pb     The ecdsa256 public key\r\n");
+	printf("    -pv     The ecdsa256 private key\r\n");
+	printf("    -m      The additional message\r\n");
+}
+
+static inline unsigned char hex_to_bin(char c)
+{
+	if((c >= 'a') && (c <= 'f'))
+		return c - 'a' + 10;
+	if((c >= '0') && (c <= '9'))
+		return c - '0';
+	if((c >= 'A') && (c <= 'F'))
+		return c - 'A' + 10;
+	return 0;
+}
+
+static inline unsigned char hex_string(const char * s, int o)
+{
+	return (hex_to_bin(s[o]) << 4) | hex_to_bin(s[o + 1]);
+}
+
+int main(int argc, char * argv[])
+{
+	struct sha256_ctx_t shactx;
+	struct zdesc_t * z;
+	FILE * blfp, * zblfp;
+	char * blpath = NULL;
+	char * zblpath = NULL;
+	char * blbuf = NULL;
+	char * zblbuf = NULL;
+	char * msg = NULL;
+	uint8_t public[33] = {
+		0x03, 0xcf, 0xd1, 0x8e, 0x4a, 0x4b, 0x40, 0xd6,
+		0x52, 0x94, 0x48, 0xaa, 0x2d, 0xf8, 0xbb, 0xb6,
+		0x77, 0x12, 0x82, 0x58, 0xb8, 0xfb, 0xfc, 0x5b,
+		0x9e, 0x49, 0x2f, 0xbb, 0xba, 0x4e, 0x84, 0x83,
+		0x2f,
+	};
+	uint8_t private[32] = {
+		0xdc, 0x57, 0xb8, 0xa9, 0xe0, 0xe2, 0xb7, 0xf8,
+		0xb4, 0xc9, 0x29, 0xbd, 0x8d, 0xb2, 0x84, 0x4e,
+		0x53, 0xf0, 0x1f, 0x17, 0x1b, 0xbc, 0xdf, 0x6e,
+		0x62, 0x89, 0x08, 0xdb, 0xf2, 0xb2, 0xe6, 0xa9,
+	};
+	uint8_t majoy = 0, minior = 0, patch = 0;
+	int rsize = 0;
+	int index = 0;
+	int bllen, zbllen;
+	int clen, len;
+	int i, o;
+
+	if(argc < 2)
+	{
+		usage();
+		return -1;
+	}
+	for(i = 1; i < argc; i++)
+	{
+		if(!strcmp(argv[i], "-majoy") && (argc > i + 1))
+		{
+			majoy = (uint8_t)strtoul(argv[i + 1], NULL, 0);
+			i++;
+		}
+		else if(!strcmp(argv[i], "-minior") && (argc > i + 1))
+		{
+			minior = (uint8_t)strtoul(argv[i + 1], NULL, 0);
+			i++;
+		}
+		else if(!strcmp(argv[i], "-patch") && (argc > i + 1))
+		{
+			patch = (uint8_t)strtoul(argv[i + 1], NULL, 0);
+			i++;
+		}
+		else if(!strcmp(argv[i], "-r") && (argc > i + 1))
+		{
+			rsize = (int)strtoul(argv[i + 1], NULL, 0);
+			i++;
+		}
+		else if(!strcmp(argv[i], "-pb") && (argc > i + 1))
+		{
+			char * p = argv[i + 1];
+			if(p && (strcmp(p, "") != 0) && (strlen(p) == 33 * 2))
+			{
+				for(o = 0; o < 33; o++)
+					public[o] = hex_string(p, o * 2);
+			}
+			i++;
+		}
+		else if(!strcmp(argv[i], "-pv") && (argc > i + 1))
+		{
+			char * p = argv[i + 1];
+			if(p && (strcmp(p, "") != 0) && (strlen(p) == 32 * 2))
+			{
+				for(o = 0; o < 32; o++)
+					private[o] = hex_string(p, o * 2);
+			}
+			i++;
+		}
+		else if(!strcmp(argv[i], "-m") && (argc > i + 1))
+		{
+			char * p = argv[i + 1];
+			if(p && (strcmp(p, "") != 0) && (strlen(p) > 0))
+				msg = p;
+			i++;
+		}
+		else if(*argv[i] == '-')
+		{
+			usage();
+			return -1;
+		}
+		else if(*argv[i] != '-' && strcmp(argv[i], "-") != 0)
+		{
+			if(index == 0)
+				blpath = argv[i];
+			else if(index == 1)
+				zblpath = argv[i];
+			else
+			{
+				usage();
+				return -1;
+			}
+			index++;
+		}
+	}
+	if(!blpath || !zblpath)
+	{
+		usage();
+		return -1;
+	}
+	blfp = fopen(blpath, "r+b");
+	if(blfp == NULL)
+	{
+		printf("Open image error\r\n");
+		return -1;
+	}
+	fseek(blfp, 0L, SEEK_END);
+	bllen = ftell(blfp);
+	fseek(blfp, 0L, SEEK_SET);
+	if(rsize > bllen)
+	{
+		printf("The reserve size is too large\r\n");
+		fclose(blfp);
+		return -1;
+	}
+	blbuf = malloc(bllen);
+	memset(blbuf, 0, bllen);
+	if(fread(blbuf, 1, bllen, blfp) != bllen)
+	{
+		printf("Can't read image\r\n");
+		free(blbuf);
+		fclose(blfp);
+		return -1;
+	}
+	fclose(blfp);
+
+	len = LZ4_compressBound(bllen);
+	zbllen = rsize + sizeof(struct zdesc_t) + len;
+	zblbuf = malloc(zbllen);
+	memset(zblbuf, 0, zbllen);
+	memcpy(&zblbuf[0], &blbuf[0], rsize);
+	clen = LZ4_compress_HC(&blbuf[0], &zblbuf[rsize + sizeof(struct zdesc_t)], bllen, len, 12);
+	zbllen = rsize + sizeof(struct zdesc_t) + clen;
+
+	z = (struct zdesc_t *)&zblbuf[rsize];
+	z->magic[0] = 'Z';
+	z->magic[1] = 'B';
+	z->magic[2] = 'L';
+	z->magic[3] = '!';
+	z->majoy = majoy;
+	z->minior = minior;
+	z->patch = patch;
+	z->csize[0] = (clen >> 24) & 0xff;
+	z->csize[1] = (clen >> 16) & 0xff;
+	z->csize[2] = (clen >>  8) & 0xff;
+	z->csize[3] = (clen >>  0) & 0xff;
+	z->dsize[0] = (bllen >> 24) & 0xff;
+	z->dsize[1] = (bllen >> 16) & 0xff;
+	z->dsize[2] = (bllen >>  8) & 0xff;
+	z->dsize[3] = (bllen >>  0) & 0xff;
+	memcpy(&z->pubkey[0], &public[0], 33);
+	if(msg)
+		strncpy((char *)&z->message[0], msg, 112 - 1);
+
+	sha256_init(&shactx);
+	sha256_update(&shactx, (void *)(&z->majoy), 1);
+	sha256_update(&shactx, (void *)(&z->minior), 1);
+	sha256_update(&shactx, (void *)(&z->patch), 1);
+	sha256_update(&shactx, (void *)(&z->csize[0]), 4);
+	sha256_update(&shactx, (void *)(&z->dsize[0]), 4);
+	sha256_update(&shactx, (void *)(&z->pubkey[0]), 33);
+	sha256_update(&shactx, (void *)(&z->message[0]), 112);
+	sha256_update(&shactx, (void *)(&zblbuf[rsize + sizeof(struct zdesc_t)]), clen);
+	memcpy(&z->sha256[0], sha256_final(&shactx), SHA256_DIGEST_SIZE);
+
+	printf("Ecdsa256 public key:\r\n\t");
+	for(o = 0; o < 33; o++)
+		printf("%02x", z->pubkey[o]);
+	printf("\r\n");
+	printf("Ecdsa256 private key:\r\n\t");
+	for(o = 0; o < 32; o++)
+		printf("%02x", private[o]);
+	printf("\r\n");
+
+	ecdsa256_sign(private, &z->sha256[0], &z->signature[0]);
+	if(!ecdsa256_verify(&z->pubkey[0], &z->sha256[0], &z->signature[0]))
+	{
+		printf("Ecdsa256 signature verify failed, please check the ecdsa256 public and private key!\r\n");
+		free(zblbuf);
+		return -1;
+	}
+
+	zblfp = fopen(zblpath, "w+b");
+	if(zblfp == NULL)
+	{
+		printf("Open zimage error\r\n");
+		free(zblbuf);
+		return -1;
+	}
+	if(fwrite(zblbuf, 1, zbllen, zblfp) != zbllen)
+	{
+		printf("Write zimage error\r\n");
+		free(blbuf);
+		free(zblbuf);
+		fclose(zblfp);
+		return -1;
+	}
+	free(blbuf);
+	free(zblbuf);
+	fclose(zblfp);
+
+	printf("Compressed %d bytes into %d bytes ==> %f%%\r\n", bllen, clen, clen * 100.0 / bllen);
+	return 0;
+}
+```
+
+
+
 ## 编写驱动程序
+
 移植进行到这一步，基本系统已经能够运行起来了，但是系统里还没有任何驱动。按照驱动实现的优先级及难易程度，推荐如下顺序：
 
-| 驱动       | 文件名             |
-| -------- | --------------- |
-| 时钟驱动     | clk-v3s-pll.c   |
-| RESET驱动  | reset-v3s.c     |
-| GPIO驱动   | gpio-v3s.c      |
-| 串口驱动     | uart-16550.c    |
-| 系统中断驱动   | irq-gic400.c    |
-| GPIO中断驱动 | irq-v3s-gpio.c  |
-| 时钟源驱动    | cs-v3s-timer.c  |
-| 时钟事件驱动   | ce-v3s-timer.c  |
-| PWM驱动    | pwm-v3s.c       |
-| SPI驱动    | spi-v3s.c       |
-| ADC按键驱动  | key-v3s-lradc.c |
-| 看门狗驱动    | wdog-v3s.c      |
-| 显示屏驱动    | fb-v3s.c        |
+| 驱动             | 文件名             |
+| ---------------- | ------------------ |
+| 时钟驱动         | clk-v3s-pll.c      |
+| RESET驱动        | reset-v3s.c        |
+| GPIO驱动         | gpio-v3s.c         |
+| 串口驱动         | uart-16550.c       |
+| 系统中断驱动     | irq-gic400.c       |
+| GPIO中断驱动     | irq-v3s-gpio.c     |
+| 时钟源驱动       | cs-v3s-timer.c     |
+| 时钟事件驱动     | ce-v3s-timer.c     |
+| PWM驱动          | pwm-v3s.c          |
+| SPI驱动          | spi-v3s.c          |
+| ADC按键驱动      | key-v3s-lradc.c    |
+| 看门狗驱动       | wdog-v3s.c         |
+| I2C驱动          | i2c-v3s.c          |
+| SD卡驱动         | sdhci-v3s.c        |
+| 指南针驱动       | compass-hmc5883l.c |
+| 重力加速度计驱动 | gmeter-axdl345.c   |
+| 电阻触摸驱动     | ts-ns2009.c        |
+| 显示屏驱动       | fb-v3s.c           |
 
-这里仅列出部分`V3S`驱动，还有相当一大部分驱动是仅通过设备树就可以添加的。关于如何编写驱动，以及如何用设备树来描述设备，请参阅下一个章节`驱动开发`。
+这里仅列出部分`V3S`驱动，还有相当一大部分驱动是仅通过设备树就可以添加的。关于如何编写驱动，以及如何用设备树来描述设备，请参阅`驱动开发`章节。
 

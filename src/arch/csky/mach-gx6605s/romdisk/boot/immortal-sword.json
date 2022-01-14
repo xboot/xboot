@@ -1,0 +1,224 @@
+/* SPDX-License-Identifier: MIT */
+/*
+ * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
+ */
+
+{
+    "clk-fixed@0": {
+        "name": "xin27m",
+        "rate": 27000000
+    },
+
+    "clk-gx6605s-pll@0x0030a000": {
+        "name": "pll-dto",
+        "parent": "xin27m",
+        "channel": 0
+    },
+
+    "clk-gx6605s-pll@0x0030a000": {
+        "name": "pll-dvb",
+        "parent": "xin27m",
+        "channel": 1
+    },
+
+    "clk-gx6605s-pll@0x0030a000": {
+        "name": "pll-dram",
+        "parent": "xin27m",
+        "channel": 2
+    },
+
+    "clk-gx6605s-divider@0x0030a000": {
+        "name": "dto-i2s",
+        "parent": "pll-dto",
+        "channel": 0
+    },
+
+    "clk-gx6605s-divider@0x0030a000": {
+        "name": "dto-spdif",
+        "parent": "pll-dto",
+        "channel": 1
+    },
+
+    "clk-gx6605s-divider@0x0030a000": {
+        "name": "dto-video",
+        "parent": "pll-dto",
+        "channel": 2
+    },
+
+    "clk-gx6605s-divider@0x0030a000": {
+        "name": "dto-jpeg",
+        "parent": "pll-dto",
+        "channel": 3
+    },
+
+    "clk-gx6605s-divider@0x0030a000": {
+        "name": "dto-pp",
+        "parent": "pll-dto",
+        "channel": 4
+    },
+
+    "clk-gx6605s-divider@0x0030a000": {
+        "name": "dto-audiod",
+        "parent": "pll-dto",
+        "channel": 5
+    },
+
+    "clk-gx6605s-divider@0x0030a000": {
+        "name": "dto-ga",
+        "parent": "pll-dto",
+        "channel": 6
+    },
+
+    "clk-gx6605s-divider@0x0030a000": {
+        "name": "dto-dsys",
+        "parent": "pll-dto",
+        "channel": 7
+    },
+
+    "clk-gx6605s-divider@0x0030a000": {
+        "name": "dto-dstc",
+        "parent": "pll-dto",
+        "channel": 8
+    },
+
+    "clk-gx6605s-divider@0x0030a000": {
+        "name": "dto-apb",
+        "parent": "pll-dto",
+        "channel": 9
+    },
+
+    "clk-gx6605s-divider@0x0030a000": {
+        "name": "dto-uart",
+        "parent": "pll-dto",
+        "channel": 10
+    },
+
+    "clk-gx6605s-divider@0x0030a000": {
+        "name": "dto-cpu",
+        "parent": "pll-dto",
+        "channel": 11
+    },
+
+    "clk-mux@0x0030a170": {
+        "name": "apb-clk",
+        "parent": [
+            { "name": "xin27m", "value": 0 },
+            { "name": "dto-apb", "value": 1 }
+        ],
+        "shift": 19, "width": 1
+    },
+
+    "clk-mux@0x0030a170": {
+        "name": "uart-clk",
+        "parent": [
+            { "name": "xin27m", "value": 0 },
+            { "name": "dto-uart", "value": 1 }
+        ],
+        "shift": 20, "width": 1
+    },
+
+    "clk-mux@0x0030a170": {
+        "name": "cpu-clk",
+        "parent": [
+            { "name": "xin27m", "value": 0 },
+            { "name": "cpu-div", "value": 1 }
+        ],
+        "shift": 24, "width": 1
+    },
+
+    "irq-gx6605s@0x00500000": {
+        "interrupt-base": 0,
+        "interrupt-count": 64
+    },
+
+    "gpio-gx6605s@0x00305000": {
+        "gpio-base": 0,
+        "gpio-count": 20
+    },
+
+    "ce-gx6605s-timer@0x0020a000": {
+        "clock-name": "apb-clk",
+        "interrupt": 10
+    },
+
+    "cs-gx6605s-timer@0x0020a040": {
+        "clock-name": "apb-clk"
+    },
+
+    "cir-gx6605s@0x00204000": {
+        "clock-name": "apb-clk"
+    },
+
+    "i2c-gx6605s@0x00205000": {
+        "clock-name": "xin27m",
+		"clock-frequency": 400000,
+        "sda-gpio": 14,
+        "sda-gpio-config": 0,
+        "scl-gpio": 15,
+        "scl-gpio-config": 0
+    },
+
+    "rtc-gx6605s@0x00209000": {
+        "clock-name": "xin27m"
+    },
+
+    "wdg-gx6605s@0x0020b000": {
+        "clock-name": "xin27m"
+    },
+
+    "spi-gx6605s@0x00302000": {
+    },
+
+    "uart-gx6605s@0x00400000": {
+        "clock-name": "uart-clk",
+        "baud-rates": 115200,
+        "txd-gpio": 16,
+        "txd-gpio-config": 0,
+        "rxd-gpio": 17,
+        "rxd-gpio-config": 0
+    },
+
+    "ehci-hcd@900000": {
+    },
+
+    "ohci-hcd0@a00000": {
+    },
+
+    "ohci-hcd1@b00000": {
+    },
+
+    "jpeg-gx6605s@4400000": {
+    },
+
+    "vpu-gx6605s@0x04800000": {
+    },
+
+    "vout-gx6605s@0x04804000": {
+    },
+
+    "svpu-gx6605s@0x04900000": {
+    },
+
+    "svout-gx6605s@0x04904000": {
+    },
+
+    "nvmem-at24c02@0": {
+        "i2c-bus": "i2c-gx6605s.0",
+        "slave-address": 80
+    },
+
+    "blk-spinor@0": {
+        "spi-bus": "spi-gx6605s.0",
+        "chip-select": 0,
+        "mode": 0,
+        "speed": 50000000,
+        "partition": [
+            { "name": "xboot",   "offset": 0,       "length": 8388608 },
+            { "name": "private", "offset": 8388608, "length": 0 }
+        ]
+    },
+
+    "console-uart@0": {
+        "uart-bus": "uart-gx6605s.0"
+    }
+}

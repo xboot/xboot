@@ -4,6 +4,7 @@
  */
 
 #include <xboot.h>
+#include <gx6605s.h>
 
 static int mach_detect(struct machine_t *mach)
 {
@@ -36,6 +37,8 @@ static void mach_cleanup(struct machine_t *mach)
 
 static void mach_logger(struct machine_t *mach, const char *buf, int count)
 {
+    while (count--)
+        sys_uart_putc(*buf++);
 }
 
 static const char *mach_uniqueid(struct machine_t *mach)

@@ -26,29 +26,31 @@ struct regs {
 #define mfcr(reg) ({            \
     unsigned int tmp;           \
     asm volatile(               \
-    "mfcr %0, "reg"\n"          \
+    "mfcr   %0, "reg"\n"        \
     :"=r"(tmp) ::"memory");     \
     tmp;                        \
 })
 
 #define mtcr(reg, val) ({       \
     asm volatile(               \
-    "mtcr %0, "reg"\n"          \
+    "mtcr   %0, "reg"\n"        \
     ::"r"(val) : "memory");     \
 })
 
 #define cprcr(reg) ({           \
     unsigned int tmp;           \
     asm volatile(               \
-    "cprcr %0, "reg"\n"         \
-    :"=b"(tmp));                \
+    "cpseti cp15        \n"     \
+    "cprcr  %0, "reg"   \n"     \
+    : "=b"(tmp));               \
     tmp;                        \
 })
 
 #define cpwcr(reg, val) ({      \
     asm volatile(               \
-    "cpwcr %0, "reg"\n"         \
-    ::"b"(val));                \
+    "cpseti cp15        \n"     \
+    "cpwcr  %0, "reg"   \n"     \
+    :: "b"(val));               \
 })
 
 /* PSR CR0 */

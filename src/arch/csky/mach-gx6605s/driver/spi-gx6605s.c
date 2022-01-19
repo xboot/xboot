@@ -29,7 +29,8 @@ static void spi_gx6605s_select(struct spi_t *spi, int cs)
     uint32_t val;
 
     val = gx6605s_read(gdev, GX6605S_SPI_CTRL);
-    val |= GX6605S_SPI_CTRL_CS_SEL | GX6605S_SPI_CTRL_CS_EN | GX6605S_SPI_CTRL_CS_FORCE;
+    val &= ~GX6605S_SPI_CTRL_CS_SEL;
+    val |= GX6605S_SPI_CTRL_CS_EN | GX6605S_SPI_CTRL_CS_FORCE;
     gx6605s_write(gdev, GX6605S_SPI_CTRL, val);
 }
 
@@ -39,7 +40,8 @@ static void spi_gx6605s_deselect(struct spi_t *spi, int cs)
     uint32_t val;
 
     val = gx6605s_read(gdev, GX6605S_SPI_CTRL);
-    val &= ~(GX6605S_SPI_CTRL_CS_SEL | GX6605S_SPI_CTRL_CS_EN | GX6605S_SPI_CTRL_CS_FORCE);
+    val &= ~GX6605S_SPI_CTRL_CS_SEL;
+    val &= ~(GX6605S_SPI_CTRL_CS_EN | GX6605S_SPI_CTRL_CS_FORCE);
     gx6605s_write(gdev, GX6605S_SPI_CTRL, val);
 }
 
@@ -55,7 +57,7 @@ static int spi_gx6605s_transfer(struct spi_t *spi, struct spi_msg_t *msg)
         /* set transmit len */
         val = gx6605s_read(gdev, GX6605S_SPI_CTRL);
         val &= ~GX6605S_SPI_CTRL_ICNT_MASK;
-        val |= ((len - 1) << 14) & GX6605S_SPI_CTRL_ICNT_MASK;
+        val |= ((xfer - 1) << 14) & GX6605S_SPI_CTRL_ICNT_MASK;
         gx6605s_write(gdev, GX6605S_SPI_CTRL, val);
 
         for (val = 0, count = xfer; count; --count) {
@@ -72,13 +74,14 @@ static int spi_gx6605s_transfer(struct spi_t *spi, struct spi_msg_t *msg)
         gx6605s_write(gdev, GX6605S_SPI_CTRL, val);
 
         while(!(gx6605s_read(gdev, GX6605S_SPI_STAT) & GX6605S_SPI_STAT_OPE_RDY));
+
         val = gx6605s_read(gdev, GX6605S_SPI_CTRL);
         val &= ~GX6605S_SPI_CTRL_SPGO;
         gx6605s_write(gdev, GX6605S_SPI_CTRL, val);
         val = gx6605s_read(gdev, GX6605S_SPI_RX_FIFO);
 
-        for (count = 0; rxbuf && count < xfer; ++count)
-            *rxbuf++ = (val >> (count * 8));
+        for (count = xfer; rxbuf && count; --count)
+            *rxbuf++ = val >> ((count - 1) * 8);
     }
 
     return msg->len;

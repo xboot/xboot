@@ -20,7 +20,7 @@ enum gx6605s_gctl_registers {
     GX6605S_MPEG_CLK_INHIBIT_DAT    = 0x18,
     GX6605S_MPEG_CLK_INHIBIT_SET    = 0x1c,
     GX6605S_MPEG_CLK_INHIBIT_CLR    = 0x20,
-    CONFIG_CLOCK_DIV_CONFIG0        = 0x24,
+    GX6605S_CLOCK_DIV_CONFIG0       = 0x24,
 
     GX6605S_DTO0_CONFIG	            = 0x28,     /* Audio I2S        */
     GX6605S_DTO1_CONFIG	            = 0x2c,     /* Audio Spdif      */
@@ -219,6 +219,7 @@ enum gx6605s_pinmux {
 
 #define GX6605S_DTO_CONFIG_SEL              BIT(31)
 #define GX6605S_DTO_CONFIG_SET              BIT(30)
+#define GX6605S_DTO_CONFIG_POWERDOWN        BIT(14)
 
 #define GX6605S_CLOCK_DIV0_AUDIO_RST        BIT(31)
 #define GX6605S_CLOCK_DIV0_AUDIO_END        BIT(30)

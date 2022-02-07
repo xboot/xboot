@@ -6,8 +6,9 @@
 OUTPUT_ARCH(csky)
 ENTRY(_start)
 
-STACK_SIZE = 0x40000;
-HEAP_SIZE = 0x2000000;
+STACK_EXC_SIZE  = 0x10000;
+STACK_USR_SIZE  = 0x40000;
+HEAP_SIZE       = 0x3000000;
 
 MEMORY {
     SIG  (r)  : ORIGIN = 0x8ffffffc, LENGTH = 0x0004
@@ -108,14 +109,19 @@ SECTIONS {
         PROVIDE(__bss_start = .);
         *(.bss)
         *(.bss*)
+        *(COMMON)
         . = ALIGN(4);
         PROVIDE(__bss_end = .);
     } > DRAM
 
     .stack ALIGN(4) (NOLOAD) : {
         PROVIDE(__stack_start = .);
-        . += STACK_SIZE;
-        . = ALIGN(4);
+        PROVIDE(__stack_usr_start = .);
+        . += STACK_USR_SIZE;
+        PROVIDE(__stack_usr_end = .);
+        PROVIDE(__stack_exc_start = .);
+        . += STACK_EXC_SIZE;
+        PROVIDE(__stack_exc_end = .);
         PROVIDE(__stack_end = .);
     } > DRAM
 

@@ -43,7 +43,7 @@ ENTRY(init)
     and         lr, l1
     sub         l0, lr
     cmpnei      l0, 0
-    bf          bss_setup
+    bf          normal_setup
 
     /* flush v4 I/D caches */
     mfcr        r1, cr17
@@ -94,8 +94,6 @@ ENTRY(init)
     /* stuffing data to jtlb */
     bgeni       r1, 28
     cpwcr       r1, cpcr8
-    movi        r1, 0x0
-    cpwcr       r1, cpcr8
 
     /* setup segment regsiters */
     lrw         r1, 0x00000000 | 0x0e   /* cache able */
@@ -141,6 +139,11 @@ sgot_loop:
     bsr         sys_copyself
     jmpi        _start
 
+normal_setup:
+    /* flush all tlb */
+    bgeni       r1, 26
+    cpwcr       r1, cpcr8
+
 bss_setup:
     /* clear the bss region */
     xor         r1, r1
@@ -158,7 +161,10 @@ main:
     lrw         r1, _start
     mtcr        r1, vbr
 
-    lrw         r1, __stack_end
+    lrw         r1, __stack_exc_end
+    mtcr        r1, exc_sp
+
+    lrw         r1, __stack_usr_end
     mov         sp, r1
 
     psrset      ee, fe, ie

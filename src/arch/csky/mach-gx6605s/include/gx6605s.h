@@ -22,6 +22,7 @@
 
 #define SSEG0_BASE  ((virtual_addr_t)0x80000000)
 #define SSEG1_BASE  ((virtual_addr_t)0xa0000000)
+#define KVMR_BASE   ((virtual_addr_t)0xc0000000)
 
 #define TIM_BASE    (SSEG1_BASE + 0x0020a000)
 #define WDT_BASE    (SSEG1_BASE + 0x0020b000)
@@ -38,7 +39,22 @@
 extern uint8_t _ld_image_start;
 extern uint8_t _ld_image_end;
 #define IMAGE_SIZE ((uint32_t)&_ld_image_end - (uint32_t)&_ld_image_start)
-#define IMAGE_POS sizeof(0x55aa55aaU)
+#define IMAGE_MAGIC 0x55aa55aaU
+#define IMAGE_POS sizeof(IMAGE_MAGIC)
+
+static inline virtual_addr_t cache_to_dma(virtual_addr_t cache)
+{
+    if (cache < SSEG0_BASE || cache >= SSEG1_BASE)
+        return 0;
+    return (cache - SSEG0_BASE) + SSEG1_BASE;
+}
+
+static inline virtual_addr_t dma_to_cache(virtual_addr_t dma)
+{
+    if (dma < SSEG1_BASE || dma >= KVMR_BASE)
+        return 0;
+    return (dma - SSEG1_BASE) + SSEG0_BASE;
+}
 
 extern __startup void halt(void);
 extern __startup void sys_ccu_cpu(uint32_t dto, uint32_t freq);

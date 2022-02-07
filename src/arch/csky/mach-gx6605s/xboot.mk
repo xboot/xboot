@@ -4,7 +4,7 @@
 
 DEFINES     +=
 
-ASFLAGS     := -g -ggdb -Wall
+ASFLAGS     := -g -ggdb -Wall -D __ASSEMBLY__
 CFLAGS      := -g -ggdb -Wall
 LDFLAGS     := -T arch/$(ARCH)/$(MACH)/xboot.ld -nostdlib
 MCFLAGS     := -mlittle-endian -mcpu=ck610 -Wa,-mcpu=ck610 -fno-tree-vectorize -msoft-float -mdiv
@@ -12,7 +12,7 @@ MCFLAGS     := -mlittle-endian -mcpu=ck610 -Wa,-mcpu=ck610 -fno-tree-vectorize -
 LIBDIRS     :=
 LIBS        :=
 INCDIRS     :=
-SRCDIRS     :=
+SRCDIRS     := arch/csky/mach-gx6605s/driver/video
 
 UNIQUEID    := ""
 ENCRYPT_KEY := "679408dc82ae80d411d5d9720b65a43fc4f1534fa563fb28c6cd8928e46aaae9"

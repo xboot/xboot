@@ -26,29 +26,31 @@ struct regs {
 #define mfcr(reg) ({            \
     unsigned int tmp;           \
     asm volatile(               \
-    "mfcr %0, "reg"\n"          \
+    "mfcr   %0, "reg"\n"        \
     :"=r"(tmp) ::"memory");     \
     tmp;                        \
 })
 
 #define mtcr(reg, val) ({       \
     asm volatile(               \
-    "mtcr %0, "reg"\n"          \
+    "mtcr   %0, "reg"\n"        \
     ::"r"(val) : "memory");     \
 })
 
 #define cprcr(reg) ({           \
     unsigned int tmp;           \
     asm volatile(               \
-    "cprcr %0, "reg"\n"         \
-    :"=b"(tmp));                \
+    "cpseti cp15        \n"     \
+    "cprcr  %0, "reg"   \n"     \
+    : "=b"(tmp));               \
     tmp;                        \
 })
 
 #define cpwcr(reg, val) ({      \
     asm volatile(               \
-    "cpwcr %0, "reg"\n"         \
-    ::"b"(val));                \
+    "cpseti cp15        \n"     \
+    "cpwcr  %0, "reg"   \n"     \
+    :: "b"(val));               \
 })
 
 /* PSR CR0 */
@@ -88,7 +90,7 @@ struct regs {
 #define CFR_SELI            BIT(0)
 
 /* CCR CR18 */
-#define CCR_CLK             (0x3<<8)
+#define CCR_CLK             BIT_RANGE(9, 8)
 #define CCR_BE              BIT(7)
 #define CCR_Z               BIT(6)
 #define CCR_RS              BIT(5)
@@ -100,11 +102,11 @@ struct regs {
 /* CP15 CR0 */
 #define MIR_P               BIT(31)
 #define MIR_TF              BIT(30)
-#define MIR_INDEX           (0x3ff<<0)
+#define MIR_INDEX           BIT_RANGE(9, 0)
 
 /* CP15 CR4 */
-#define MEH_VPN             (0xfffff<<12)
-#define MEH_ASID            (0xff<<0)
+#define MEH_VPN             BIT_RANGE(31, 12)
+#define MEH_ASID            BIT_RANGE(7, 0)
 
 /* CP15 CR8 */
 #define MCIR_TLBP           BIT(31)
@@ -117,7 +119,7 @@ struct regs {
 #define MCIR_ASID           BIT(0)
 
 /* CP15 CR29 */
-#define MPGD_PBA            (0xfffff<<12)
+#define MPGD_PBA            BIT_RANGE(31, 12)
 #define MPGD_HRE            BIT(0)
 
 /* CP15 CR30/31 */

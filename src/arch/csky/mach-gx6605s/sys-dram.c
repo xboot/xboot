@@ -105,7 +105,7 @@ static const __startup_data uint32_t dramc_phy_config[26] = {
     0x0000006d, 0x6b036b03, 0x00000000, 0x26272627, 0x263a263a,
     0x012100a0, 0x0000006d, 0x6b036b03, 0x00000000, 0x00004005,
     0x00010101,
-}
+};
 
 #else
 # error "unknow dram freq"

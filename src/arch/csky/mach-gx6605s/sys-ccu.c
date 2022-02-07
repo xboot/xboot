@@ -80,6 +80,7 @@ void __startup sys_ccu_ahb(uint32_t cpu, uint32_t freq)
 {
     uint32_t val;
 
+    /* 0x07 is five div */
     val = read32(GCTL_BASE + GX6605S_SOURCE_SEL1);
     val &= ~(0x0f << 28);
     val |= (7 & 0x0f) << 28;

@@ -5,6 +5,7 @@
 
 #include <xboot.h>
 #include <gpio/gpio.h>
+#include <gx6605s-gctl.h>
 #include <gx6605s-gpio.h>
 
 struct gx6605s_device {
@@ -46,14 +47,15 @@ static void gpio_gx6605s_set_cfg(struct gpiochip_t *chip, int offset, int cfg)
 
     for (count = 0; count < 3; ++count) {
         virtual_addr_t reg;
+        unsigned int shift;
 
-        if (gx6605s_pinmux[offset][count] == 255)
+        if ((shift = gx6605s_pinmux[offset][count]) == 255)
             break;
 
-        reg = (gx6605s_pinmux[offset][count] / 32) * 4;
+        reg = GX6605S_PINMUX_PORTA + ((shift / 32) * 4);
         val = read32(GCTL_BASE + reg);
-        val &= gx6605s_pinmux[offset][count] % 32;
-        val |= (cfg >> count) & 0x01;
+        val &= ~(0x01 << (shift % 32));
+        val |= ((cfg >> count) & 0x01) << (shift % 32);
         write32(GCTL_BASE + reg, val);
     }
 }
@@ -65,13 +67,14 @@ static int gpio_gx6605s_get_cfg(struct gpiochip_t * chip, int offset)
 
     for (count = 0; count < 3; ++count) {
         virtual_addr_t reg;
+        unsigned int shift;
 
-        if (gx6605s_pinmux[offset][count] == 255)
+        if ((shift = gx6605s_pinmux[offset][count]) == 255)
             break;
 
-        reg = (gx6605s_pinmux[offset][count] / 32) * 4;
+        reg = GX6605S_PINMUX_PORTA + ((shift / 32) * 4);
         val = read32(GCTL_BASE + reg);
-        val = (val >> (gx6605s_pinmux[offset][count] % 32)) & 0x01;
+        val = (val >> (shift % 32)) & 0x01;
         fun |= val << count;
     }
 
@@ -115,7 +118,7 @@ static void gpio_gx6605s_set_dir(struct gpiochip_t *chip, int offset, enum gpio_
 
     val = gx6605s_read(gdev, GX6605S_GPIO_DIROUT);
     val &= ~(0x01 << offset);
-    val |= (dir << offset) & 0x01;
+    val |= (dir & 0x01) << offset;
     gx6605s_write(gdev, GX6605S_GPIO_DIROUT, val);
 }
 
@@ -142,7 +145,7 @@ static void gpio_gx6605s_set_value(struct gpiochip_t *chip, int offset, int valu
 
     val = gx6605s_read(gdev, GX6605S_GPIO_DAT);
     val &= ~(0x01 << offset);
-    val |= (value << offset) & 0x01;
+    val |= (value & 0x01) << offset;
     gx6605s_write(gdev, GX6605S_GPIO_DAT, val);
 }
 

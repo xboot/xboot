@@ -64,18 +64,41 @@ void __startup sys_spinor_init(void)
     tim_mdelay(10);
 }
 
-void __startup sys_spinor_read(uint8_t *buff, size_t addr, uint32_t len)
+static bool_t __startup sys_spinor_detect(void)
 {
-    uint8_t cmd[5] = {
-        [0] = 0x0b,
-        [1] = addr >> 16,
-        [2] = addr >> 8,
-        [3] = addr >> 0,
-        [4] = 0x00,
+    uint8_t cmd[6] = {
+        [0] = 0x03,
     };
 
     spi_sel(TRUE);
-    spi_transmit(cmd, NULL, ARRAY_SIZE(cmd));
+    spi_transmit(cmd, cmd, sizeof(cmd));
+    spi_sel(FALSE);
+
+    return cmd[5] == (uint8_t)IMAGE_MAGIC;
+}
+
+void __startup sys_spinor_read(uint8_t *buff, size_t addr, uint32_t len)
+{
+    unsigned int cmdlen;
+    uint8_t cmd[5];
+
+    if (sys_spinor_detect()) {
+        cmdlen = 5;
+        cmd[0] = 0x03;
+        cmd[1] = addr >> 24;
+        cmd[2] = addr >> 16;
+        cmd[3] = addr >> 8;
+        cmd[4] = addr >> 0;
+    } else {
+        cmdlen = 4;
+        cmd[0] = 0x03;
+        cmd[1] = addr >> 16;
+        cmd[2] = addr >> 8;
+        cmd[3] = addr >> 0;
+    }
+
+    spi_sel(TRUE);
+    spi_transmit(cmd, NULL, cmdlen);
     spi_transmit(NULL, buff, len);
     spi_sel(FALSE);
 }

@@ -10,8 +10,8 @@
 extern "C" {
 #endif
 
-#include <macro.h>
 #include <stdint.h>
+#include <bits.h>
 
 struct regs {
     uint32_t psr, pc;

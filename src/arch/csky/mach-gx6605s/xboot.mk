@@ -14,8 +14,9 @@ LIBS 		:=
 INCDIRS		:=
 SRCDIRS		:= arch/$(ARCH)/$(MACH)/driver/video
 
-export sys-ccu-flags 		:= -fPIC
-export sys-copyself-flags	:= -fPIC
-export sys-dram-flags		:= -fPIC
-export sys-spinor-flags		:= -fPIC
-export sys-uart-flags		:= -fPIC
+export arch/$(ARCH)/$(MACH)/sys-ccu-flags 		:= -fPIC
+export arch/$(ARCH)/$(MACH)/sys-copyself-flags	:= -fPIC
+export arch/$(ARCH)/$(MACH)/sys-dram-flags		:= -fPIC
+export arch/$(ARCH)/$(MACH)/sys-spinor-flags	:= -fPIC
+export arch/$(ARCH)/$(MACH)/sys-timer-flags		:= -fPIC
+export arch/$(ARCH)/$(MACH)/sys-uart-flags		:= -fPIC

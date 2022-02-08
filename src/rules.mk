@@ -1,4 +1,4 @@
-X_BASENAME = $(basename $(notdir $<))
+BASENAME = $(basename $<)
 
 SFILES	:= $(foreach dir, $(SRCDIR), $(wildcard $(dir)/*.S))
 CFILES	:= $(foreach dir, $(SRCDIR), $(wildcard $(dir)/*.c))
@@ -26,10 +26,10 @@ endif
 
 $(SOBJS) : .obj/%.o : %.S
 	@echo [AS] $<
-	@$(AS) $(X_ASFLAGS) $($(X_BASENAME)-flags) -MD -MP -MF $@.d $(X_INCDIRS) -c $< -o $@
+	@$(AS) $(X_ASFLAGS) $($(BASENAME)-flags) -MD -MP -MF $@.d $(X_INCDIRS) -c $< -o $@
 
 $(COBJS) : .obj/%.o : %.c
 	@echo [CC] $<
-	@$(CC) $(X_CFLAGS) $($(X_BASENAME)-flags) -MD -MP -MF $@.d $(X_INCDIRS) -c $< -o $@
+	@$(CC) $(X_CFLAGS) $($(BASENAME)-flags) -MD -MP -MF $@.d $(X_INCDIRS) -c $< -o $@
 
 sinclude $(DEPS)

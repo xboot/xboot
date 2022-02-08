@@ -21,6 +21,7 @@ extern "C" {
 #include <setjmp.h>
 #include <ctype.h>
 #include <errno.h>
+#include <bits.h>
 #include <environ.h>
 #include <byteorder.h>
 #include <stdlib.h>

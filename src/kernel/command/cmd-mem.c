@@ -1,4 +1,4 @@
-/* SPDX-License-Identifier: GPL-2.0-or-later */
+/* SPDX-License-Identifier: MIT */
 /*
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
@@ -198,15 +198,15 @@ skip_va:
 
     switch (type) {
         case VALUE_BIT:
-            va = BIT(vb);
+            va = BIT_ULL(vb);
             break;
 
         case VALUE_BIT_SHIFT:
-            va = BIT_SHIFT(va, vb);
+            va = BIT_SHIFT_ULL(va, vb);
             break;
 
         case VALUE_BIT_RANGE:
-            va = BIT_RANGE(va, vb);
+            va = BIT_RANGE_ULL(va, vb);
             break;
 
         default:

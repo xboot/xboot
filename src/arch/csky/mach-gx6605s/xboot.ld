@@ -1,4 +1,4 @@
-/* SPDX-License-Identifier: GPL-2.0-or-later */
+/* SPDX-License-Identifier: MIT */
 /*
  * Copyright(c) 2021 Sanpe <1512819690@qq.com>
  */

@@ -1,4 +1,3 @@
-/* SPDX-License-Identifier: GPL-2.0-or-later */
 #include <xboot.h>
 #include "gx6605s-video.h"
 

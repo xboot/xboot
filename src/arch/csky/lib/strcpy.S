@@ -1,8 +1,3 @@
-/* SPDX-License-Identifier: GPL-2.0-or-later */
-/*
- * Copyright (C) 2018 Hangzhou C-SKY Microsystems co.,ltd.
- */
-
 #include <linkage.h>
 
 ENTRY(strcpy)

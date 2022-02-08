@@ -7,7 +7,6 @@
 #define __GX6605S_H__
 
 #include <xboot.h>
-#include <macro.h>
 
 #define MHZ         1000000UL
 #define osc_freq    (27 * MHZ)

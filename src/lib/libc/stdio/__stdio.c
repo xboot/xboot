@@ -6,23 +6,31 @@
 #include <console/console.h>
 #include <stdio.h>
 
-static FILE * __stdin = NULL;
-static FILE * __stdout = NULL;
-static FILE * __stderr = NULL;
-
 static ssize_t __tty_stdin_read(FILE * f, unsigned char * buf, size_t size)
 {
-	return console_stdin_read(buf, size);
+	struct console_t * c = (struct console_t *)f->priv;
+
+	if(c && c->read)
+		return c->read(c, buf, size);
+	return 0;
 }
 
 static ssize_t __tty_stdout_write(FILE * f, const unsigned char * buf, size_t size)
 {
-	return console_stdout_write(buf, size);
+	struct console_t * c = (struct console_t *)f->priv;
+
+	if(c && c->write)
+		return c->write(c, buf, size);
+	return 0;
 }
 
 static ssize_t __tty_stderr_write(FILE * f, const unsigned char * buf, size_t size)
 {
-	return console_stderr_write(buf, size);
+	struct console_t * c = (struct console_t *)f->priv;
+
+	if(c && c->write)
+		return c->write(c, buf, size);
+	return 0;
 }
 
 static ssize_t __tty_null_read(FILE * f, unsigned char * buf, size_t size)
@@ -65,10 +73,7 @@ static int __file_close(FILE * f)
 	return vfs_close(f->fd);
 }
 
-/*
- * file alloc
- */
-FILE * __file_alloc(int fd)
+FILE * __file_alloc(int fd, void * data)
 {
 	FILE * f;
 
@@ -96,6 +101,8 @@ FILE * __file_alloc(int fd)
 		f->mode = _IOLBF;
 		f->error = 0;
 		f->eof = 0;
+
+		f->priv = data;
 	}
 	else if(fd == 1)
 	{
@@ -117,6 +124,8 @@ FILE * __file_alloc(int fd)
 		f->mode = _IOLBF;
 		f->error = 0;
 		f->eof = 0;
+
+		f->priv = data;
 	}
 	else if(fd == 2)
 	{
@@ -138,6 +147,8 @@ FILE * __file_alloc(int fd)
 		f->mode = _IONBF;
 		f->error = 0;
 		f->eof = 0;
+
+		f->priv = data;
 	}
 	else
 	{
@@ -159,31 +170,56 @@ FILE * __file_alloc(int fd)
 		f->mode = _IOFBF;
 		f->error = 0;
 		f->eof = 0;
-	}
 
+		f->priv = data;
+	}
 	return f;
+}
+
+void __file_free(FILE * f)
+{
+	if(f)
+	{
+		if(f->rwflush)
+			f->rwflush(f);
+		if(f->close)
+			f->close(f);
+		if(f->fifo_read)
+			fifo_free(f->fifo_read);
+		if(f->fifo_write)
+			fifo_free(f->fifo_write);
+		if(f->buf)
+			free(f->buf);
+		free(f);
+	}
 }
 
 FILE * __stdio_get_stdin(void)
 {
-	if(!__stdin)
-		__stdin = __file_alloc(0);
-	return __stdin;
+	struct task_t * self = task_self();
+
+	if(!self->__stdin)
+		self->__stdin = __file_alloc(0, self->__con);
+	return self->__stdin;
 }
 EXPORT_SYMBOL(__stdio_get_stdin);
 
 FILE * __stdio_get_stdout(void)
 {
-	if(!__stdout)
-		__stdout = __file_alloc(1);
-	return __stdout;
+	struct task_t * self = task_self();
+
+	if(!self->__stdout)
+		self->__stdout = __file_alloc(1, self->__con);
+	return self->__stdout;
 }
 EXPORT_SYMBOL(__stdio_get_stdout);
 
 FILE * __stdio_get_stderr(void)
 {
-	if(!__stderr)
-		__stderr = __file_alloc(2);
-	return __stderr;
+	struct task_t * self = task_self();
+
+	if(!self->__stderr)
+		self->__stderr = __file_alloc(2, self->__con);
+	return self->__stderr;
 }
 EXPORT_SYMBOL(__stdio_get_stderr);

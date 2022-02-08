@@ -203,6 +203,12 @@ static void fcontext_entry(struct transfer_t from)
 	t->fctx = from.fctx;
 	task->func(task, task->data);
 	uint32_t weight = nice_to_weight[task->nice];
+	if(task->__stdin)
+		__file_free(task->__stdin);
+	if(task->__stdout)
+		__file_free(task->__stdout);
+	if(task->__stderr)
+		__file_free(task->__stderr);
 	if(task->name)
 		free(task->name);
 	if(task->fb)
@@ -231,6 +237,7 @@ static void fcontext_entry(struct transfer_t from)
 
 struct task_t * task_create(struct scheduler_t * sched, const char * name, const char * fb, const char * input, task_func_t func, void * data, size_t stksz, int nice)
 {
+	struct task_t * self = task_self();
 	struct task_t * task;
 	void * stack;
 
@@ -275,6 +282,14 @@ struct task_t * task_create(struct scheduler_t * sched, const char * name, const
 	task->fctx = make_fcontext(task->stack + stksz, task->stksz, fcontext_entry);
 	task->func = func;
 	task->data = data;
+
+	if(self)
+		task->__con = self->__con;
+	else
+		task->__con = NULL;
+	task->__stdin = NULL;
+	task->__stdout = NULL;
+	task->__stderr = NULL;
 	task->__errno = 0;
 
 	spin_lock(&sched->lock);
@@ -284,6 +299,26 @@ struct task_t * task_create(struct scheduler_t * sched, const char * name, const
 	spin_unlock(&sched->lock);
 
 	return task;
+}
+
+void task_console(struct task_t * task, struct console_t * con)
+{
+	if(task->__stdin)
+	{
+		__file_free(task->__stdin);
+		task->__stdin = NULL;
+	}
+	if(task->__stdout)
+	{
+		__file_free(task->__stdout);
+		task->__stdout = NULL;
+	}
+	if(task->__stderr)
+	{
+		__file_free(task->__stderr);
+		task->__stderr = NULL;
+	}
+	task->__con = con;
 }
 
 void task_nice(struct task_t * task, int nice)

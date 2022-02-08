@@ -37,6 +37,9 @@ static void init_task(struct task_t * task, void * data)
 	/* Do initial calls */
 	do_initcalls();
 
+	/* Set default console */
+	task_console(task, search_first_console());
+
 	/* Do initial setting */
 	do_init_setting();
 

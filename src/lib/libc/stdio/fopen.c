@@ -46,7 +46,7 @@ FILE * fopen(const char * path, const char * mode)
 	if(fd < 0)
 		return NULL;
 
-	f = __file_alloc(fd);
+	f = __file_alloc(fd, NULL);
 	if(!f)
 	{
 		vfs_close(fd);

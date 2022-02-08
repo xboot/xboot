@@ -64,6 +64,8 @@ struct __FILE {
 	fpos_t pos;
 	int mode;
 	int eof, error;
+
+	void * priv;
 };
 
 #define stdin		(__stdio_get_stdin())
@@ -132,7 +134,9 @@ int __stdio_write_flush(FILE * f);
 ssize_t __stdio_read(FILE * f, unsigned char * buf, size_t size);
 ssize_t __stdio_write(FILE * f, const unsigned char * buf, size_t size);
 
-FILE * __file_alloc(int fd);
+FILE * __file_alloc(int fd, void * data);
+void __file_free(FILE * f);
+
 FILE * __stdio_get_stdin(void);
 FILE * __stdio_get_stdout(void);
 FILE * __stdio_get_stderr(void);

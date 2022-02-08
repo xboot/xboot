@@ -413,8 +413,16 @@ int shell_system(const char * cmdline)
 
 static void usage(void)
 {
+	struct device_t * pos, * n;
+
 	printf("usage:\r\n");
-	printf("    shell [args ...]\r\n");
+	printf("    shell [console ...]\r\n");
+
+	printf("console list:\r\n");
+	list_for_each_entry_safe(pos, n, &__device_head[DEVICE_TYPE_CONSOLE], head)
+	{
+		printf("    %s\r\n", pos->name);
+	}
 }
 
 static void shell_task(struct task_t * task, void * data)
@@ -433,7 +441,23 @@ static void shell_task(struct task_t * task, void * data)
 
 static int do_shell(int argc, char ** argv)
 {
-	task_create(scheduler_self(), "shell", NULL, NULL, shell_task, NULL, 0, 0);
+	if(argc > 1)
+	{
+		for(int i = 1; i < argc; i++)
+		{
+			struct console_t * con = search_console(argv[i]);
+			if(con)
+			{
+				struct task_t * task = task_create(scheduler_self(), "shell", NULL, NULL, shell_task, NULL, 0, 0);
+				task_console(task, con);
+			}
+		}
+	}
+	else
+	{
+		struct task_t * task = task_create(scheduler_self(), "shell", NULL, NULL, shell_task, NULL, 0, 0);
+		task_console(task, search_first_console());
+	}
 	return 0;
 }
 

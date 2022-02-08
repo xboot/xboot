@@ -13,6 +13,7 @@ extern "C" {
 #include <spinlock.h>
 #include <smp.h>
 #include <rbtree_augmented.h>
+#include <console/console.h>
 
 struct task_t;
 struct scheduler_t;
@@ -33,6 +34,11 @@ struct task_t {
 	int dynice;
 	task_func_t func;
 	void * data;
+
+	struct console_t * __con;
+	void * __stdin;
+	void * __stdout;
+	void * __stderr;
 	int __errno;
 };
 
@@ -75,6 +81,7 @@ static inline void task_dynice_restore(struct task_t * task)
 }
 
 struct task_t * task_create(struct scheduler_t * sched, const char * name, const char * fb, const char * input, task_func_t func, void * data, size_t stksz, int nice);
+void task_console(struct task_t * task, struct console_t * con);
 void task_nice(struct task_t * task, int nice);
 void task_yield(void);
 

@@ -10,8 +10,8 @@
 
 #define MHZ         1000000UL
 #define osc_freq    (27 * MHZ)
-#define dto_freq    (1152 * MHZ)
-#define dvb_freq    (999 * MHZ)
+#define dto_freq    (CONFIG_PRELOAD_DTO_CLK * MHZ)
+#define dvb_freq    (CONFIG_PRELOAD_DVB_CLK * MHZ)
 #define cpu_freq    (CONFIG_PRELOAD_CPU_CLK * MHZ)
 #define axi_freq    (CONFIG_PRELOAD_AXI_CLK * MHZ)
 #define ahb_freq    (CONFIG_PRELOAD_AHB_CLK * MHZ)

@@ -303,41 +303,47 @@ struct task_t * task_create(struct scheduler_t * sched, const char * name, const
 
 void task_console(struct task_t * task, struct console_t * con)
 {
-	if(task->__stdin)
+	if(task)
 	{
-		__file_free(task->__stdin);
-		task->__stdin = NULL;
+		if(task->__stdin)
+		{
+			__file_free(task->__stdin);
+			task->__stdin = NULL;
+		}
+		if(task->__stdout)
+		{
+			__file_free(task->__stdout);
+			task->__stdout = NULL;
+		}
+		if(task->__stderr)
+		{
+			__file_free(task->__stderr);
+			task->__stderr = NULL;
+		}
+		task->__con = con;
 	}
-	if(task->__stdout)
-	{
-		__file_free(task->__stdout);
-		task->__stdout = NULL;
-	}
-	if(task->__stderr)
-	{
-		__file_free(task->__stderr);
-		task->__stderr = NULL;
-	}
-	task->__con = con;
 }
 
 void task_nice(struct task_t * task, int nice)
 {
-	if(nice < -20)
-		nice = 0;
-	else if(nice > 19)
-		nice = 39;
-	else
-		nice += 20;
-
-	if(task->nice != nice)
+	if(task)
 	{
-		spin_lock(&task->sched->lock);
-		task->sched->weight -= nice_to_weight[task->nice];
-		task->sched->weight += nice_to_weight[nice];
-		task->nice = nice;
-		task->dynice = nice;
-		spin_unlock(&task->sched->lock);
+		if(nice < -20)
+			nice = 0;
+		else if(nice > 19)
+			nice = 39;
+		else
+			nice += 20;
+
+		if(task->nice != nice)
+		{
+			spin_lock(&task->sched->lock);
+			task->sched->weight -= nice_to_weight[task->nice];
+			task->sched->weight += nice_to_weight[nice];
+			task->nice = nice;
+			task->dynice = nice;
+			spin_unlock(&task->sched->lock);
+		}
 	}
 }
 

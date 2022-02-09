@@ -356,59 +356,60 @@ int shell_system(const char * cmdline)
 	size_t len;
 	int n, ret;
 
-	if(!cmdline)
-		return 0;
-
-	len = strlen(cmdline);
-	buf = malloc(len + 2);
-	if(!buf)
-		return 0;
-	memcpy(buf, cmdline, len);
-	memcpy(buf + len, " ", 2);
-
-	p = buf;
-	while(*p)
+	if(cmdline && *cmdline)
 	{
-		if(shell_parser(p, &n, &args, &pos))
+		len = strlen(cmdline);
+		p = buf = malloc(len + 2);
+		if(buf)
 		{
-			if(n > 0)
+			memcpy(p, cmdline, len);
+			p[len] = ' ';
+			p[len + 1] = '\0';
+			while(*p)
 			{
-				if((cmd = search_command(args[0])))
+				if(shell_parser(p, &n, &args, &pos))
 				{
-					ret = cmd->exec(n, args);
-				}
-				else
-				{
-					if(vmexec == __vmexec)
+					if(n > 0)
 					{
-						printf(" could not found \'%s\' command\r\n", args[0]);
-						ret = -1;
-					}
-					else
-					{
-						if(shell_realpath(args[0], fpath) >= 0)
-							ret = vmexec(fpath, (n > 1) ? args[1] : NULL, (n > 2) ? args[2] : NULL);
+						if((cmd = search_command(args[0])))
+						{
+							ret = cmd->exec(n, args);
+						}
 						else
-							ret = -1;
+						{
+							if(vmexec == __vmexec)
+							{
+								printf(" could not found \'%s\' command\r\n", args[0]);
+								ret = -1;
+							}
+							else
+							{
+								if(shell_realpath(args[0], fpath) >= 0)
+									ret = vmexec(fpath, (n > 1) ? args[1] : NULL, (n > 2) ? args[2] : NULL);
+								else
+									ret = -1;
+							}
+						}
+						if((ret < 0) && pos)
+						{
+							free(args[0]);
+							free(args);
+							break;
+						}
 					}
+					free(args[0]);
+					free(args);
 				}
-				if((ret < 0) && pos)
-				{
-			    	free(args[0]);
-			    	free(args);
-			    	break;
-				}
-    		}
-			free(args[0]);
-			free(args);
-    	}
-		if(!pos)
-			*p = 0;
-		else
-			p = pos;
-    }
-	free(buf);
-	return 1;
+				if(!pos)
+					*p = 0;
+				else
+					p = pos;
+			}
+			free(buf);
+			return 1;
+		}
+	}
+	return 0;
 }
 
 static void usage(void)

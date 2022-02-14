@@ -56,14 +56,16 @@ void machine_shutdown(void);
 void machine_reboot(void);
 void machine_sleep(void);
 void machine_cleanup(void);
-int machine_logger(const char * fmt, ...);
+int machine_logger(int stamp, const char * fmt, ...);
 const char * machine_uniqueid(void);
 int machine_keygen(const char * msg, void * key);
 
 #if	defined(CONFIG_NO_LOG) && (CONFIG_NO_LOG > 0)
-#define LOG(fmt, arg...)	do { } while(0)
+#define LOG_PRINT(fmt, arg...)	do { } while(0)
+#define LOG(fmt, arg...)		do { } while(0)
 #else
-#define LOG(fmt, arg...)	do { machine_logger(" " fmt "\r\n", ##arg); } while(0)
+#define LOG_PRINT(fmt, arg...)	do { machine_logger(0, fmt, ##arg); } while(0)
+#define LOG(fmt, arg...)		do { machine_logger(1, " " fmt "\r\n", ##arg); } while(0)
 #endif
 
 #ifdef __cplusplus

@@ -256,10 +256,9 @@ void machine_cleanup(void)
 		mach->cleanup(mach);
 }
 
-int machine_logger(const char * fmt, ...)
+int machine_logger(int stamp, const char * fmt, ...)
 {
 	struct machine_t * mach = get_machine();
-	uint64_t us;
 	char buf[SZ_4K];
 	int len = 0;
 	va_list ap;
@@ -267,8 +266,11 @@ int machine_logger(const char * fmt, ...)
 	if(mach && mach->logger)
 	{
 		va_start(ap, fmt);
-		us = ktime_to_us(ktime_get());
-		len += sprintf((char *)(buf + len), "[%5u.%06u]", (unsigned long)(us / 1000000), (unsigned long)((us % 1000000)));
+		if(stamp)
+		{
+			uint64_t us = ktime_to_us(ktime_get());
+			len += sprintf((char *)(buf + len), "[%5u.%06u]", (unsigned long)(us / 1000000), (unsigned long)((us % 1000000)));
+		}
 		len += vsnprintf((char *)(buf + len), (SZ_4K - len), fmt, ap);
 		va_end(ap);
 		mach->logger(mach, (const char *)buf, len);

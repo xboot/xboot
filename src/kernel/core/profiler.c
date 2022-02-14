@@ -75,12 +75,12 @@ void profiler_dump(struct hmap_t * m)
 
 	if(m)
 	{
-		printf("Profiler analysis:\r\n");
+		LOG("Profiler analysis:");
 		hmap_sort(m);
 		hmap_for_each_entry(e, m)
 		{
 			p = (struct profiler_t *)e->value;
-		    printf("%-32s %ld %12.3f(us)\r\n", e->key, p->count, (p->count > 0) ? ((double)p->elapsed / 1000.0f) / (double)p->count : 0);
+			LOG("%-32s %ld %12.3f(us)", e->key, p->count, (p->count > 0) ? ((double)p->elapsed / 1000.0f) / (double)p->count : 0);
 		}
 	}
 }

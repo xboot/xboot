@@ -272,22 +272,22 @@ static void show_regs(struct pt_regs_t * regs)
 	if(regs->cause & (1UL << 63))
 	{
 		if((regs->cause & ~(1UL << 63)) < ARRAY_SIZE(interrupt_names))
-			LOG("Interrupt:          %s", interrupt_names[regs->cause & ~(1UL << 63)]);
+			LOG("Interrupt:          %s\r\n", interrupt_names[regs->cause & ~(1UL << 63)]);
 		else
-			LOG("Trap:               Unknown cause %p", (void *)regs->cause);
+			LOG("Trap:               Unknown cause %p\r\n", (void *)regs->cause);
 	}
 	else
 	{
 		if(regs->cause < ARRAY_SIZE(exception_names))
-			LOG("Exception:          %s", exception_names[regs->cause]);
+			LOG("Exception:          %s\r\n", exception_names[regs->cause]);
 		else
-			LOG("Trap:               Unknown cause %p", (void *)regs->cause);
+			LOG("Trap:               Unknown cause %p\r\n", (void *)regs->cause);
 	}
-	LOG("Previous mode:      %s%s", mstatus_to_previous_mode(csr_read(mstatus)), (regs->status & (1 << 17)) ? " (MPRV)" : "");
-	LOG("Bad instruction pc: %p", (void *)regs->epc);
-	LOG("Bad address:        %p", (void *)regs->badvaddr);
-	LOG("Stored ra:          %p", (void*) regs->x[1]);
-	LOG("Stored sp:          %p", (void*) regs->x[2]);
+	LOG("Previous mode:      %s%s\r\n", mstatus_to_previous_mode(csr_read(mstatus)), (regs->status & (1 << 17)) ? " (MPRV)" : "");
+	LOG("Bad instruction pc: %p\r\n", (void *)regs->epc);
+	LOG("Bad address:        %p\r\n", (void *)regs->badvaddr);
+	LOG("Stored ra:          %p\r\n", (void*) regs->x[1]);
+	LOG("Stored sp:          %p\r\n", (void*) regs->x[2]);
 }
 
 static struct instruction_info_t * match_instruction(unsigned long insn)

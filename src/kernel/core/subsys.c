@@ -119,7 +119,7 @@ static void subsys_init_private(void)
 				{
 					if(vfs_mount(dev, "/private", type, MOUNT_RW) >= 0)
 					{
-						LOG("Mount /private using '%s' device with '%s' filesystem", dev, type);
+						LOG("Mount /private using '%s' device with '%s' filesystem\r\n", dev, type);
 						mounted = 1;
 						break;
 					}
@@ -131,7 +131,7 @@ static void subsys_init_private(void)
 	if(!mounted)
 	{
 		if(vfs_mount(NULL, "/private", "ram", MOUNT_RW) >= 0)
-			LOG("mount /private with 'ram' filesystem");
+			LOG("mount /private with 'ram' filesystem\r\n");
 	}
 	vfs_mkdir("/private/application", 0755);
 	vfs_mkdir("/private/userdata", 0755);

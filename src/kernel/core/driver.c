@@ -160,15 +160,15 @@ void probe_device(const char * json, int length, const char * tips)
 				{
 					drv = search_driver(n.name);
 					if(drv && (dev = drv->probe(drv, &n)))
-						LOG("Probe device '%s' with %s", dev->name, drv->name);
+						LOG("Probe device '%s' with %s\r\n", dev->name, drv->name);
 					else
-						LOG("Fail to probe device with %s", n.name);
+						LOG("Fail to probe device with %s\r\n", n.name);
 				}
 			}
 		}
 		else
 		{
-			LOG("[%s]-%s", tips ? tips : "Json", errbuf);
+			LOG("[%s]-%s\r\n", tips ? tips : "Json", errbuf);
 		}
 		json_free(v);
 	}

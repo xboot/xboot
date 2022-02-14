@@ -129,7 +129,7 @@ static struct device_t * key_gpio_probe(struct driver_t * drv, struct dtnode_t *
 	for(i = 0; i < pdat->nkeys; i++)
 	{
 		if(!request_irq(gpio_to_irq(pdat->keys[i].gpio), key_gpio_interrupt_function, IRQ_TYPE_EDGE_BOTH, &pdat->keys[i]))
-			LOG("Fail to request interrupt %d, gpio is %d", gpio_to_irq(pdat->keys[i].gpio), pdat->keys[i].gpio);
+			LOG("Fail to request interrupt %d, gpio is %d\r\n", gpio_to_irq(pdat->keys[i].gpio), pdat->keys[i].gpio);
 	}
 
 	if(!(dev = register_input(input, drv)))

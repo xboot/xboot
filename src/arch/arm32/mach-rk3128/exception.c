@@ -43,15 +43,11 @@ static void show_regs(struct arm_regs_t * regs)
 {
 	int i;
 
-	printf("pc : [<%08lx>] lr : [<%08lx>] cpsr: %08lx\r\n", regs->pc, regs->lr, regs->cpsr);
-	printf("sp : %08lx esp : %08lx\r\n", regs->sp, regs->esp);
+	LOG("pc : [<%08lx>] lr : [<%08lx>] cpsr: %08lx\r\n", regs->pc, regs->lr, regs->cpsr);
+	LOG("sp : %08lx esp : %08lx\r\n", regs->sp, regs->esp);
 	for(i = 12; i >= 0; i--)
-	{
-		printf("r%-2d: %08lx ", i, regs->r[i]);
-		if(i % 2 == 0)
-			printf("\r\n");
-	}
-	printf("\r\n");
+		LOG("r%-2d: %08lx\r\n", i, regs->r[i]);
+	LOG("\r\n");
 }
 
 void arm32_do_undefined_instruction(struct arm_regs_t * regs)

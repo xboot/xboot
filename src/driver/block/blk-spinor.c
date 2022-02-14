@@ -325,7 +325,7 @@ static bool_t blk_spinor_detect(struct spi_device_t * dev, struct spinor_info_t 
 				return TRUE;
 			}
 		}
-		LOG("The spi nor flash '0x%x' is not yet supported", id);
+		LOG("The spi nor flash '0x%x' is not yet supported\r\n", id);
 	}
 	return FALSE;
 }
@@ -851,11 +851,11 @@ static struct device_t * blk_spinor_probe(struct driver_t * drv, struct dtnode_t
 		free(blk);
 		return NULL;
 	}
-	LOG("Found spi nor flash '%s' with %s", info.name, ssize(sbuf, block_capacity(blk)));
+	LOG("Found spi nor flash '%s' with %s\r\n", info.name, ssize(sbuf, block_capacity(blk)));
 	if((npart = dt_read_array_length(n, "partition")) > 0)
 	{
-		LOG("Found partition:");
-		LOG("  0x%016Lx ~ 0x%016Lx %s %*s- %s", 0ULL, block_capacity(blk) - 1, ssize(sbuf, block_capacity(blk)), 9 - strlen(sbuf), "", blk->name);
+		LOG("Found partition:\r\n");
+		LOG("  0x%016Lx ~ 0x%016Lx %s %*s- %s\r\n", 0ULL, block_capacity(blk) - 1, ssize(sbuf, block_capacity(blk)), 9 - strlen(sbuf), "", blk->name);
 		for(i = 0; i < npart; i++)
 		{
 			dt_read_array_object(n, "partition", i, &o);
@@ -876,7 +876,7 @@ static struct device_t * blk_spinor_probe(struct driver_t * drv, struct dtnode_t
 				if(sdev)
 				{
 					sblk = (struct block_t *)sdev->priv;
-					LOG("  0x%016Lx ~ 0x%016Lx %s %*s- %s", offset, offset + length - 1, ssize(sbuf, length), 9 - strlen(sbuf), "", sblk->name);
+					LOG("  0x%016Lx ~ 0x%016Lx %s %*s- %s\r\n", offset, offset + length - 1, ssize(sbuf, length), 9 - strlen(sbuf), "", sblk->name);
 				}
 			}
 		}

@@ -78,8 +78,8 @@ static bool_t mbr_map(struct block_t * pblk)
 	if((mbr.entry[0].type == 0xee) || (mbr.entry[1].type == 0xee) || (mbr.entry[2].type == 0xee) || (mbr.entry[3].type == 0xee))
 		return FALSE;
 
-	LOG("Found mbr partition:");
-	LOG("  0x%016Lx ~ 0x%016Lx %s %*s- %s", 0ULL, block_capacity(pblk) - 1, ssize(sbuf, block_capacity(pblk)), 9 - strlen(sbuf), "", pblk->name);
+	LOG("Found mbr partition:\r\n");
+	LOG("  0x%016Lx ~ 0x%016Lx %s %*s- %s\r\n", 0ULL, block_capacity(pblk) - 1, ssize(sbuf, block_capacity(pblk)), 9 - strlen(sbuf), "", pblk->name);
 	for(i = 0; i < 4; i++)
 	{
 		if((mbr.entry[i].type != 0) && (!is_extended(mbr.entry[i].type)))
@@ -91,7 +91,7 @@ static bool_t mbr_map(struct block_t * pblk)
 			if(dev)
 			{
 				blk = (struct block_t *)dev->priv;
-				LOG("  0x%016Lx ~ 0x%016Lx %s %*s- %s", offset, offset + length - 1, ssize(sbuf, length), 9 - strlen(sbuf), "", blk->name);
+				LOG("  0x%016Lx ~ 0x%016Lx %s %*s- %s\r\n", offset, offset + length - 1, ssize(sbuf, length), 9 - strlen(sbuf), "", blk->name);
 			}
 		}
 	}

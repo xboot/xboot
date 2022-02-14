@@ -144,7 +144,7 @@ static bool_t gt911_initial(struct i2c_device_t * dev)
 	if(!gt911_read(dev, GT911_FIRMWARE_VERSION, &ver[0], 2))
 		return FALSE;
 
-	LOG("GT911 Version: %c%c%c%c(0x%02x%02x)(0x%02x)", id[0], id[1], id[2], id[3], ver[1], ver[0], cfg);
+	LOG("GT911 Version: %c%c%c%c(0x%02x%02x)(0x%02x)\r\n", id[0], id[1], id[2], id[3], ver[1], ver[0], cfg);
 	return gt911_send_cfg(dev, (u8_t *)gt911_config_data, ARRAY_SIZE(gt911_config_data));
 }
 

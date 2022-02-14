@@ -454,7 +454,7 @@ int ext4fs_control_init(struct ext4fs_control_t * ctrl, struct block_t * bdev)
 	if(le32_to_cpu(ctrl->sblock.feature_compatibility) &
 	EXT2_FEAT_COMPAT_DIR_INDEX)
 	{
-		LOG("ext4: directory indexing is not available");
+		LOG("ext4: directory indexing is not available\r\n");
 	}
 
 	/* Pre-compute frequently required values */

@@ -65,7 +65,7 @@ int machine_keygen(const char * msg, void * key);
 #define LOG(fmt, arg...)		do { } while(0)
 #else
 #define LOG_PRINT(fmt, arg...)	do { machine_logger(0, fmt, ##arg); } while(0)
-#define LOG(fmt, arg...)		do { machine_logger(1, " " fmt "\r\n", ##arg); } while(0)
+#define LOG(fmt, arg...)		do { machine_logger(1, fmt, ##arg); } while(0)
 #endif
 
 #ifdef __cplusplus

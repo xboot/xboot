@@ -33,41 +33,40 @@ void luahelper_dump_stack(lua_State * L)
 	int top = lua_gettop(L);
 	int i;
 
-	printf("total in stack: %d\r\n", top);
+	LOG("total in stack: %d\r\n", top);
 	for(i = top; i >= 1; i--)
 	{
 		int t = lua_type(L, i);
 		switch(t)
 		{
 		case LUA_TBOOLEAN:
-			printf("[%d]%s: %s", i, lua_typename(L, t), lua_toboolean(L, i) ? "true" : "false");
+			LOG("[%d]%s: %s\r\n", i, lua_typename(L, t), lua_toboolean(L, i) ? "true" : "false");
 			break;
 		case LUA_TLIGHTUSERDATA:
-			printf("[%d]%s: %p", i, lua_typename(L, t), lua_touserdata(L, i));
+			LOG("[%d]%s: %p\r\n", i, lua_typename(L, t), lua_touserdata(L, i));
 			break;
 		case LUA_TNUMBER:
-			printf("[%d]%s: %g", i, lua_typename(L, t), lua_tonumber(L, i));
+			LOG("[%d]%s: %g\r\n", i, lua_typename(L, t), lua_tonumber(L, i));
 			break;
 		case LUA_TSTRING:
-			printf("[%d]%s: %s", i, lua_typename(L, t), lua_tostring(L, i));
+			LOG("[%d]%s: %s\r\n", i, lua_typename(L, t), lua_tostring(L, i));
 			break;
 		case LUA_TTABLE:
-			printf("[%d]%s", i, lua_typename(L, t));
+			LOG("[%d]%s\r\n", i, lua_typename(L, t));
 			break;
 		case LUA_TFUNCTION:
-			printf("[%d]%s: %p", i, lua_typename(L, t), lua_tocfunction(L, i));
+			LOG("[%d]%s: %p\r\n", i, lua_typename(L, t), lua_tocfunction(L, i));
 			break;
 		case LUA_TUSERDATA:
-			printf("[%d]%s: %p", i, lua_typename(L, t), lua_touserdata(L, i));
+			LOG("[%d]%s: %p\r\n", i, lua_typename(L, t), lua_touserdata(L, i));
 			break;
 		case LUA_TTHREAD:
-			printf("[%d]%s", i, lua_typename(L, t));
+			LOG("[%d]%s\r\n", i, lua_typename(L, t));
 			break;
 		default:
-			printf("[%d]%s", i, lua_typename(L, t));
+			LOG("[%d]%s\r\n", i, lua_typename(L, t));
 			break;
 		}
-		printf("\r\n");
 	}
 }
 

@@ -64,7 +64,7 @@ static void irq_gx6605s_dispatch(struct irqchip_t *chip)
         chip->handler[nr].func(chip->handler[nr].data);
     } if (!timeout) {
         gx6605s_write(gdev, GX6605S_INTC_GATECLR1, val);
-        printf("interrupt 32-63 (%u) timeout, forced mask\n", nr);
+        LOG("interrupt 32-63 (%u) timeout, forced mask\r\n", nr);
     }
 
     timeout = 33;
@@ -73,7 +73,7 @@ static void irq_gx6605s_dispatch(struct irqchip_t *chip)
         chip->handler[nr].func(chip->handler[nr].data);
     } if (!timeout) {
         gx6605s_write(gdev, GX6605S_INTC_GATECLR0, val);
-        printf("interrupt 0-31 (%u) timeout, forced mask\n", nr);
+        LOG("interrupt 0-31 (%u) timeout, forced mask\r\n", nr);
     }
 }
 

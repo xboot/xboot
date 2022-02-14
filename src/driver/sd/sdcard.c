@@ -656,21 +656,21 @@ static bool_t sdcard_detect(struct sdhci_t * hci, struct sdcard_t * card)
 	if(!sdhci_transfer(hci, &cmd, NULL))
 		return FALSE;
 
-	LOG("SD/MMC card at the '%s' host controller:", hci->name);
-	LOG("  Attached is a %s card", card->version & SD_VERSION_SD ? "SD" : "MMC");
-	LOG("  Version: %s", sdcard_version_string(card));
-	LOG("  Capacity: %s", ssize(scap, card->capacity));
+	LOG("SD/MMC card at the '%s' host controller:\r\n", hci->name);
+	LOG("  Attached is a %s card\r\n", card->version & SD_VERSION_SD ? "SD" : "MMC");
+	LOG("  Version: %s\r\n", sdcard_version_string(card));
+	LOG("  Capacity: %s\r\n", ssize(scap, card->capacity));
 	if(card->high_capacity)
-		LOG("  High capacity card");
-	LOG("  CID: %08X-%08X-%08X-%08X", card->cid[0], card->cid[1], card->cid[2], card->cid[3]);
-	LOG("  CSD: %08X-%08X-%08X-%08X", card->csd[0], card->csd[1], card->csd[2], card->csd[3]);
-	LOG("  Max transfer speed: %u HZ", card->tran_speed);
-	LOG("  Manufacturer ID: %02X", extract_mid(card));
-	LOG("  OEM/Application ID: %04X", extract_oid(card));
-	LOG("  Product name: '%c%c%c%c%c'", card->cid[0] & 0xff, (card->cid[1] >> 24), (card->cid[1] >> 16) & 0xff, (card->cid[1] >> 8) & 0xff, card->cid[1] & 0xff);
-	LOG("  Product revision: %u.%u", extract_prv(card) >> 4, extract_prv(card) & 0xf);
-	LOG("  Serial no: %0u", extract_psn(card));
-	LOG("  Manufacturing date: %u.%u", extract_year(card), extract_month(card));
+		LOG("  High capacity card\r\n");
+	LOG("  CID: %08X-%08X-%08X-%08X\r\n", card->cid[0], card->cid[1], card->cid[2], card->cid[3]);
+	LOG("  CSD: %08X-%08X-%08X-%08X\r\n", card->csd[0], card->csd[1], card->csd[2], card->csd[3]);
+	LOG("  Max transfer speed: %u HZ\r\n", card->tran_speed);
+	LOG("  Manufacturer ID: %02X\r\n", extract_mid(card));
+	LOG("  OEM/Application ID: %04X\r\n", extract_oid(card));
+	LOG("  Product name: '%c%c%c%c%c'\r\n", card->cid[0] & 0xff, (card->cid[1] >> 24), (card->cid[1] >> 16) & 0xff, (card->cid[1] >> 8) & 0xff, card->cid[1] & 0xff);
+	LOG("  Product revision: %u.%u\r\n", extract_prv(card) >> 4, extract_prv(card) & 0xf);
+	LOG("  Serial no: %0u\r\n", extract_psn(card));
+	LOG("  Manufacturing date: %u.%u\r\n", extract_year(card), extract_month(card));
 	return TRUE;
 }
 

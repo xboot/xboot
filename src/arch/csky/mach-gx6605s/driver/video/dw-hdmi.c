@@ -488,7 +488,7 @@ static void halFrameComposerVideo_PreambleFilter(uint16_t baseAddr, uint8_t valu
     else if (channel == 2)
         access_CoreWrite(value, (baseAddr + FC_CH2PREAM), 0, 6);
     else
-        ;//printf("invalid channel number: %d", channel);
+        ;//LOG("invalid channel number: %d\r\n", channel);
 }
 
 static void halFrameComposerVideo_PixelRepetitionInput(uint16_t baseAddr, uint8_t value)

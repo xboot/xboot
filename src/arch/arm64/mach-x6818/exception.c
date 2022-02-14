@@ -83,15 +83,11 @@ static void show_regs(struct pt_regs_t * regs)
 {
 	int i;
 
-	printf("pc : [<%016llx>] lr : [<%016llx>] pstate: %08llx\r\n", regs->pc, regs->regs[30], regs->pstate);
-	printf("sp : %016llx\r\n", regs->sp);
+	LOG("pc : [<%016llx>] lr : [<%016llx>] pstate: %08llx\r\n", regs->pc, regs->regs[30], regs->pstate);
+	LOG("sp : %016llx\r\n", regs->sp);
 	for(i = 29; i >= 0; i--)
-	{
-		printf("x%-2d: %016llx ", i, regs->regs[i]);
-		if(i % 2 == 0)
-			printf("\r\n");
-	}
-	printf("\r\n");
+		LOG("x%-2d: %016llx\r\n", i, regs->regs[i]);
+	LOG("\r\n");
 	while(1);
 }
 
@@ -104,7 +100,7 @@ void arm64_invalid_exception(struct pt_regs_t * regs, int reason, unsigned int e
 		"Error"
 	};
 
-	printf("Invalid exception in %s handler detected, code 0x%08x -- %s\r\n", handler[reason], esr, esr_class_str[esr >> 26]);
+	LOG("Invalid exception in %s handler detected, code 0x%08x -- %s\r\n", handler[reason], esr, esr_class_str[esr >> 26]);
 	show_regs(regs);
 }
 
@@ -129,7 +125,7 @@ void arm64_sync_exception(struct pt_regs_t * regs)
 		break;
 	}
 
-	printf("Synchronous exception detected, ec:0x%x iss:0x%x far:0x%x\r\n", ec, iss, far);
+	LOG("Synchronous exception detected, ec:0x%x iss:0x%x far:0x%x\r\n", ec, iss, far);
 	show_regs(regs);
 }
 

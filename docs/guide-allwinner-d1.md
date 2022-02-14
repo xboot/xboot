@@ -8,7 +8,7 @@ make CROSS_COMPILE=/path/to/riscv64-unknown-elf- PLATFORM=riscv64-d1
 
 ## 烧写到RAM中并运行
 ```shell
-sudo xfel ddr ddr3; sudo xfel write 0x40000000 xboot.bin; sudo xfel exec 0x40000000;
+sudo xfel ddr d1; sudo xfel write 0x40000000 xboot.bin; sudo xfel exec 0x40000000;
 ```
 
 ## 烧写普通镜像到SPI Nor Flash

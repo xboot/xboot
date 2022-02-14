@@ -1,14 +1,14 @@
-# Allwinner R528-S2
+# Allwinner R528-S3
 
 ## Compile source code and generate the target files at the output directory
 ```shell
 make clean
-make CROSS_COMPILE=/path/to/arm-none-linux-gnueabihf- PLATFORM=arm32-r528s2
+make CROSS_COMPILE=/path/to/arm-none-linux-gnueabihf- PLATFORM=arm32-r528s3
 ```
 
 ## Program to RAM and execute
 ```shell
-sudo xfel ddr r528s2; sudo xfel write 0x40000000 xboot.bin; sudo xfel exec 0x40000000;
+sudo xfel ddr r528s3; sudo xfel write 0x40000000 xboot.bin; sudo xfel exec 0x40000000;
 ```
 
 ## Burn normal image to SPI Nor Flash

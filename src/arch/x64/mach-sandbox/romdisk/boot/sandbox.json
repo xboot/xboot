@@ -11,6 +11,9 @@
 	"rtc-sandbox@0": {
 	},
 
+	"net-sandbox@0": {
+	},
+
 	"cam-sandbox@0": {
 		"device": "/dev/video0"
 	},

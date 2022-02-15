@@ -309,6 +309,17 @@ void sandbox_pm_sleep(void);
 void sandbox_shell(const char * cmd, char * msg, int sz, int async);
 
 /*
+ * Socket interface
+ */
+void * sandbox_socket_listen(const char * type, const char * address);
+void * sandbox_socket_accept(void * l);
+void * sandbox_socket_connect(const char * type, const char * address);
+int sandbox_socket_read(void * c, void * buf, int count);
+int sandbox_socket_write(void * c, void * buf, int count);
+int sandbox_socket_close(void * c);
+int sandbox_socket_shutdown(void * l);
+
+/*
  * Stdio interface
  */
 ssize_t sandbox_stdio_read(void * buf, size_t count);

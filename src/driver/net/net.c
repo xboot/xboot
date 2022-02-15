@@ -145,5 +145,5 @@ int net_ioctl(struct net_t * net, const char * cmd, void * arg)
 {
 	if(net && net->ioctl)
 		return net->ioctl(net, cmd, arg);
-	return NULL;
+	return -1;
 }

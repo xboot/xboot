@@ -33,6 +33,44 @@ struct net_t
 	void * priv;
 };
 
+static inline struct socket_listen_t * socket_listen_alloc(struct net_t * net, void * data)
+{
+	struct socket_listen_t * l = malloc(sizeof(struct socket_listen_t));
+
+	if(l)
+	{
+		l->net = net;
+		l->priv = data;
+		return l;
+	}
+	return NULL;
+}
+
+static inline void socket_listen_free(struct socket_listen_t * l)
+{
+	if(l)
+		free(l);
+}
+
+static inline struct socket_connect_t * socket_connect_alloc(struct net_t * net, void * data)
+{
+	struct socket_connect_t * c = malloc(sizeof(struct socket_connect_t));
+
+	if(c)
+	{
+		c->net = net;
+		c->priv = data;
+		return c;
+	}
+	return NULL;
+}
+
+static inline void socket_connect_free(struct socket_connect_t * c)
+{
+	if(c)
+		free(c);
+}
+
 struct net_t * search_net(const char * name);
 struct net_t * search_first_net(void);
 struct device_t * register_net(struct net_t * net, struct driver_t * drv);

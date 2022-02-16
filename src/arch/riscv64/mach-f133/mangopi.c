@@ -92,7 +92,7 @@ static int mach_keygen(struct machine_t * mach, const char * msg, void * key)
 
 static struct machine_t mangopi = {
 	.name 		= "mangopi",
-	.desc 		= "MangoPi-MQ1 Based On Allwinner F133 SOC",
+	.desc 		= "MangoPi-MQ Based On Allwinner F133 SOC",
 	.detect 	= mach_detect,
 	.smpinit	= mach_smpinit,
 	.smpboot	= mach_smpboot,

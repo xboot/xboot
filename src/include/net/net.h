@@ -26,8 +26,8 @@ struct net_t
 	struct socket_connect_t * (*connect)(struct net_t * net, const char * type, const char * address);
 	int (*read)(struct socket_connect_t * c, void * buf, int count);
 	int (*write)(struct socket_connect_t * c, void * buf, int count);
-	int (*close)(struct socket_connect_t * c);
-	int (*delete)(struct socket_listen_t * l);
+	void (*close)(struct socket_connect_t * c);
+	void (*delete)(struct socket_listen_t * l);
 	int (*ioctl)(struct net_t * net, const char * cmd, void * arg);
 
 	void * priv;
@@ -81,8 +81,8 @@ struct socket_connect_t * net_accept(struct socket_listen_t * l);
 struct socket_connect_t * net_connect(struct net_t * net, const char * type, const char * address);
 int net_read(struct socket_connect_t * c, void * buf, int count);
 int net_write(struct socket_connect_t * c, void * buf, int count);
-int net_close(struct socket_connect_t * c);
-int net_delete(struct socket_listen_t * l);
+void net_close(struct socket_connect_t * c);
+void net_delete(struct socket_listen_t * l);
 int net_ioctl(struct net_t * net, const char * cmd, void * arg);
 
 #ifdef __cplusplus

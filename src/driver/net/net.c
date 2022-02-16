@@ -112,7 +112,7 @@ struct socket_listen_t * net_listen(struct net_t * net, const char * type, const
 
 struct socket_connect_t * net_accept(struct socket_listen_t * l)
 {
-	if(l)
+	if(l && l->net)
 		return l->net->accept(l);
 	return NULL;
 }
@@ -126,30 +126,28 @@ struct socket_connect_t * net_connect(struct net_t * net, const char * type, con
 
 int net_read(struct socket_connect_t * c, void * buf, int count)
 {
-	if(c && buf && (count > 0))
+	if(c && c->net && buf && (count > 0))
 		return c->net->read(c, buf, count);
 	return 0;
 }
 
 int net_write(struct socket_connect_t * c, void * buf, int count)
 {
-	if(c && buf && (count > 0))
+	if(c && c->net && buf && (count > 0))
 		return c->net->write(c, buf, count);
 	return 0;
 }
 
-int net_close(struct socket_connect_t * c)
+void net_close(struct socket_connect_t * c)
 {
-	if(c)
-		return c->net->close(c);
-	return 0;
+	if(c && c->net)
+		c->net->close(c);
 }
 
-int net_delete(struct socket_listen_t * l)
+void net_delete(struct socket_listen_t * l)
 {
-	if(l)
-		return l->net->delete(l);
-	return 0;
+	if(l && l->net)
+		l->net->delete(l);
 }
 
 int net_ioctl(struct net_t * net, const char * cmd, void * arg)

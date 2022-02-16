@@ -70,18 +70,16 @@ static int net_sandbox_write(struct socket_connect_t * c, void * buf, int count)
 	return sandbox_socket_write(c->priv, buf, count);
 }
 
-static int net_sandbox_close(struct socket_connect_t * c)
+static void net_sandbox_close(struct socket_connect_t * c)
 {
 	sandbox_socket_close(c->priv);
 	socket_connect_free(c);
-	return 1;
 }
 
-static int net_sandbox_delete(struct socket_listen_t * l)
+static void net_sandbox_delete(struct socket_listen_t * l)
 {
 	sandbox_socket_delete(l->priv);
 	socket_listen_free(l);
-	return 1;
 }
 
 static int net_sandbox_ioctl(struct net_t * net, const char * cmd, void * arg)

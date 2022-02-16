@@ -90,7 +90,7 @@ static int mach_keygen(struct machine_t * mach, const char * msg, void * key)
 
 static struct machine_t board = {
 	.name 		= "board",
-	.desc 		= "Board Based On R528-S2",
+	.desc 		= "Board Based On R528-S3",
 	.detect 	= mach_detect,
 	.smpinit	= mach_smpinit,
 	.smpboot	= mach_smpboot,

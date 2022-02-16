@@ -76,6 +76,9 @@ void * sandbox_socket_connect(const char * type, const char * address)
 			free(cctx);
 			return NULL;
 		}
+		int flags = fcntl(cctx->fd, F_GETFL);
+		flags |= O_NONBLOCK;
+		fcntl(cctx->fd, F_SETFL, flags);
 		return cctx;
 	}
 	return NULL;
@@ -101,26 +104,18 @@ int sandbox_socket_write(void * c, void * buf, int count)
 	return 0;
 }
 
-int sandbox_socket_close(void * c)
+void sandbox_socket_close(void * c)
 {
 	struct sandbox_socket_connect_context_t * cctx = (struct sandbox_socket_connect_context_t *)c;
 
 	if(cctx)
-	{
 		close(cctx->fd);
-		return 1;
-	}
-	return 0;
 }
 
-int sandbox_socket_delete(void * l)
+void sandbox_socket_delete(void * l)
 {
 	struct sandbox_socket_listen_context_t * lctx = (struct sandbox_socket_listen_context_t *)l;
 
 	if(lctx)
-	{
 		close(lctx->fd);
-		return 1;
-	}
-	return 0;
 }

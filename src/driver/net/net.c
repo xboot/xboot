@@ -128,14 +128,14 @@ int net_read(struct socket_connect_t * c, void * buf, int count)
 {
 	if(c && c->net && buf && (count > 0))
 		return c->net->read(c, buf, count);
-	return 0;
+	return -1;
 }
 
 int net_write(struct socket_connect_t * c, void * buf, int count)
 {
 	if(c && c->net && buf && (count > 0))
 		return c->net->write(c, buf, count);
-	return 0;
+	return -1;
 }
 
 void net_close(struct socket_connect_t * c)

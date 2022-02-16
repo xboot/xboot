@@ -89,9 +89,9 @@ int sandbox_socket_read(void * c, void * buf, int count)
 	struct sandbox_socket_connect_context_t * cctx = (struct sandbox_socket_connect_context_t *)c;
 	int n;
 
-	if((n = recv(cctx->fd, buf, count, 0)) > 0)
+	if((n = recv(cctx->fd, buf, count, 0)) >= 0)
 		return n;
-	return 0;
+	return -1;
 }
 
 int sandbox_socket_write(void * c, void * buf, int count)
@@ -99,9 +99,9 @@ int sandbox_socket_write(void * c, void * buf, int count)
 	struct sandbox_socket_connect_context_t * cctx = (struct sandbox_socket_connect_context_t *)c;
 	int n;
 
-	if((n = send(cctx->fd, buf, count, 0)) > 0)
+	if((n = send(cctx->fd, buf, count, 0)) >= 0)
 		return n;
-	return 0;
+	return -1;
 }
 
 void sandbox_socket_close(void * c)

@@ -21,6 +21,7 @@
   - [全志D1](guide-allwinner-d1.md)
   - [荔枝86盒](guide-allwinner-d1-lichee86p.md)
   - [全志F133](guide-allwinner-f133.md)
+  - [全志T113-S3](guide-allwinner-t113s3.md)
   - [全志R528-S3](guide-allwinner-r528s3.md)
   - [瑞芯微RK3128](guide-rockchip-rk3128.md)
   - [瑞芯微RK3288](guide-rockchip-rk3288.md)

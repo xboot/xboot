@@ -29,6 +29,16 @@
 #include <xboot.h>
 #include <net/net.h>
 
+static ssize_t net_read_type(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct net_t * net = (struct net_t *)kobj->priv;
+	char type[256];
+
+	if(net_ioctl(net, "net-get-type", type) >= 0)
+		return sprintf(buf, "%s", type);
+	return sprintf(buf, "unknown");
+}
+
 struct net_t * search_net(const char * name)
 {
 	struct device_t * dev;
@@ -65,6 +75,7 @@ struct device_t * register_net(struct net_t * net, struct driver_t * drv)
 	dev->driver = drv;
 	dev->priv = net;
 	dev->kobj = kobj_alloc_directory(dev->name);
+	kobj_add_regular(dev->kobj, "type", net_read_type, NULL, net);
 
 	if(!register_device(dev))
 	{

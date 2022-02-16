@@ -32,41 +32,72 @@
 
 static struct socket_listen_t * net_sandbox_listen(struct net_t * net, const char * type, const char * address)
 {
+	void * lctx;
+
+	lctx = sandbox_socket_listen(type, address);
+	if(lctx)
+		return socket_listen_alloc(net, lctx);
 	return NULL;
 }
 
 static struct socket_connect_t * net_sandbox_accept(struct socket_listen_t * l)
 {
+	void * cctx;
+
+	cctx = sandbox_socket_accept(l->priv);
+	if(cctx)
+		return socket_connect_alloc(l->net, cctx);
 	return NULL;
 }
 
 static struct socket_connect_t * net_sandbox_connect(struct net_t * net, const char * type, const char * address)
 {
+	void * cctx;
+
+	cctx = sandbox_socket_connect(type, address);
+	if(cctx)
+		return socket_connect_alloc(net, cctx);
 	return NULL;
 }
 
 static int net_sandbox_read(struct socket_connect_t * c, void * buf, int count)
 {
-	return 0;
+	return sandbox_socket_read(c->priv, buf, count);
 }
 
 static int net_sandbox_write(struct socket_connect_t * c, void * buf, int count)
 {
-	return 0;
+	return sandbox_socket_write(c->priv, buf, count);
 }
 
 static int net_sandbox_close(struct socket_connect_t * c)
 {
-	return 0;
+	sandbox_socket_close(c->priv);
+	socket_connect_free(c);
+	return 1;
 }
 
 static int net_sandbox_shutdown(struct socket_listen_t * l)
 {
-	return 0;
+	sandbox_socket_shutdown(l->priv);
+	socket_listen_free(l);
+	return 1;
 }
 
 static int net_sandbox_ioctl(struct net_t * net, const char * cmd, void * arg)
 {
+	switch(shash(cmd))
+	{
+	case 0xccaf0ac8: /* "net-get-type" */
+		if(arg)
+		{
+			strcpy((char *)arg, "socket");
+			return 0;
+		}
+		break;
+	default:
+		break;
+	}
 	return -1;
 }
 

@@ -105,22 +105,13 @@ extern "C" {
 #define T113_IRQ_DBGWRUPREQ_OUT0	(212)
 #define T113_IRQ_DBGWRUPREQ_OUT1	(213)
 
-#define T113_IRQ_GPIOB0				(224 + 0)
-#define T113_IRQ_GPIOB1				(224 + 1)
 #define T113_IRQ_GPIOB2				(224 + 2)
 #define T113_IRQ_GPIOB3				(224 + 3)
 #define T113_IRQ_GPIOB4				(224 + 4)
 #define T113_IRQ_GPIOB5				(224 + 5)
 #define T113_IRQ_GPIOB6				(224 + 6)
 #define T113_IRQ_GPIOB7				(224 + 7)
-#define T113_IRQ_GPIOB8				(224 + 8)
-#define T113_IRQ_GPIOB9				(224 + 9)
-#define T113_IRQ_GPIOB10			(224 + 10)
-#define T113_IRQ_GPIOB11			(224 + 11)
-#define T113_IRQ_GPIOB12			(224 + 12)
 
-#define T113_IRQ_GPIOC0				(256 + 0)
-#define T113_IRQ_GPIOC1				(256 + 1)
 #define T113_IRQ_GPIOC2				(256 + 2)
 #define T113_IRQ_GPIOC3				(256 + 3)
 #define T113_IRQ_GPIOC4				(256 + 4)
@@ -166,10 +157,6 @@ extern "C" {
 #define T113_IRQ_GPIOE11			(320 + 11)
 #define T113_IRQ_GPIOE12			(320 + 12)
 #define T113_IRQ_GPIOE13			(320 + 13)
-#define T113_IRQ_GPIOE14			(320 + 14)
-#define T113_IRQ_GPIOE15			(320 + 15)
-#define T113_IRQ_GPIOE16			(320 + 16)
-#define T113_IRQ_GPIOE17			(320 + 17)
 
 #define T113_IRQ_GPIOF0				(352 + 0)
 #define T113_IRQ_GPIOF1				(352 + 1)
@@ -195,9 +182,6 @@ extern "C" {
 #define T113_IRQ_GPIOG13			(384 + 13)
 #define T113_IRQ_GPIOG14			(384 + 14)
 #define T113_IRQ_GPIOG15			(384 + 15)
-#define T113_IRQ_GPIOG16			(384 + 16)
-#define T113_IRQ_GPIOG17			(384 + 17)
-#define T113_IRQ_GPIOG18			(384 + 18)
 
 #ifdef __cplusplus
 }

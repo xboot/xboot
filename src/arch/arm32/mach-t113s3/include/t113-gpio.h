@@ -5,22 +5,13 @@
 extern "C" {
 #endif
 
-#define T113_GPIOB0			(32 + 0)
-#define T113_GPIOB1			(32 + 1)
 #define T113_GPIOB2			(32 + 2)
 #define T113_GPIOB3			(32 + 3)
 #define T113_GPIOB4			(32 + 4)
 #define T113_GPIOB5			(32 + 5)
 #define T113_GPIOB6			(32 + 6)
 #define T113_GPIOB7			(32 + 7)
-#define T113_GPIOB8			(32 + 8)
-#define T113_GPIOB9			(32 + 9)
-#define T113_GPIOB10		(32 + 10)
-#define T113_GPIOB11		(32 + 11)
-#define T113_GPIOB12		(32 + 12)
 
-#define T113_GPIOC0			(64 + 0)
-#define T113_GPIOC1			(64 + 1)
 #define T113_GPIOC2			(64 + 2)
 #define T113_GPIOC3			(64 + 3)
 #define T113_GPIOC4			(64 + 4)
@@ -66,10 +57,6 @@ extern "C" {
 #define T113_GPIOE11		(128 + 11)
 #define T113_GPIOE12		(128 + 12)
 #define T113_GPIOE13		(128 + 13)
-#define T113_GPIOE14		(128 + 14)
-#define T113_GPIOE15		(128 + 15)
-#define T113_GPIOE16		(128 + 16)
-#define T113_GPIOE17		(128 + 17)
 
 #define T113_GPIOF0			(160 + 0)
 #define T113_GPIOF1			(160 + 1)
@@ -95,9 +82,6 @@ extern "C" {
 #define T113_GPIOG13		(192 + 13)
 #define T113_GPIOG14		(192 + 14)
 #define T113_GPIOG15		(192 + 15)
-#define T113_GPIOG16		(192 + 16)
-#define T113_GPIOG17		(192 + 17)
-#define T113_GPIOG18		(192 + 18)
 
 #ifdef __cplusplus
 }

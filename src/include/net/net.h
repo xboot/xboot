@@ -27,7 +27,7 @@ struct net_t
 	int (*read)(struct socket_connect_t * c, void * buf, int count);
 	int (*write)(struct socket_connect_t * c, void * buf, int count);
 	int (*close)(struct socket_connect_t * c);
-	int (*shutdown)(struct socket_listen_t * l);
+	int (*delete)(struct socket_listen_t * l);
 	int (*ioctl)(struct net_t * net, const char * cmd, void * arg);
 
 	void * priv;
@@ -82,7 +82,7 @@ struct socket_connect_t * net_connect(struct net_t * net, const char * type, con
 int net_read(struct socket_connect_t * c, void * buf, int count);
 int net_write(struct socket_connect_t * c, void * buf, int count);
 int net_close(struct socket_connect_t * c);
-int net_shutdown(struct socket_listen_t * l);
+int net_delete(struct socket_listen_t * l);
 int net_ioctl(struct net_t * net, const char * cmd, void * arg);
 
 #ifdef __cplusplus

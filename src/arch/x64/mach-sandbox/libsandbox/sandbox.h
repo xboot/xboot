@@ -317,7 +317,7 @@ void * sandbox_socket_connect(const char * type, const char * address);
 int sandbox_socket_read(void * c, void * buf, int count);
 int sandbox_socket_write(void * c, void * buf, int count);
 int sandbox_socket_close(void * c);
-int sandbox_socket_shutdown(void * l);
+int sandbox_socket_delete(void * l);
 
 /*
  * Stdio interface

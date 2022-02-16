@@ -145,10 +145,10 @@ int net_close(struct socket_connect_t * c)
 	return 0;
 }
 
-int net_shutdown(struct socket_listen_t * l)
+int net_delete(struct socket_listen_t * l)
 {
 	if(l)
-		return l->net->shutdown(l);
+		return l->net->delete(l);
 	return 0;
 }
 

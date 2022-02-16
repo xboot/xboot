@@ -68,8 +68,8 @@ void * sandbox_socket_connect(const char * type, const char * address)
 		cctx->fd = socket(AF_INET, SOCK_STREAM, 0);
 		memset(&addr, 0, sizeof(addr));
 		addr.sin_family = AF_INET;
-		addr.sin_port = htons(6666);
-		inet_pton(AF_INET, "192.168.0.100", &addr.sin_addr);
+		addr.sin_port = htons(8888);
+		inet_pton(AF_INET, "192.168.3.230", &addr.sin_addr);
 		if(connect(cctx->fd, (struct sockaddr *)&addr, sizeof(addr)) < 0)
 		{
 			close(cctx->fd);
@@ -113,7 +113,7 @@ int sandbox_socket_close(void * c)
 	return 0;
 }
 
-int sandbox_socket_shutdown(void * l)
+int sandbox_socket_delete(void * l)
 {
 	struct sandbox_socket_listen_context_t * lctx = (struct sandbox_socket_listen_context_t *)l;
 

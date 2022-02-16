@@ -77,9 +77,9 @@ static int net_sandbox_close(struct socket_connect_t * c)
 	return 1;
 }
 
-static int net_sandbox_shutdown(struct socket_listen_t * l)
+static int net_sandbox_delete(struct socket_listen_t * l)
 {
-	sandbox_socket_shutdown(l->priv);
+	sandbox_socket_delete(l->priv);
 	socket_listen_free(l);
 	return 1;
 }
@@ -117,7 +117,7 @@ static struct device_t * net_sandbox_probe(struct driver_t * drv, struct dtnode_
 	net->read = net_sandbox_read;
 	net->write = net_sandbox_write;
 	net->close = net_sandbox_close;
-	net->shutdown = net_sandbox_shutdown;
+	net->delete = net_sandbox_delete;
 	net->ioctl = net_sandbox_ioctl;
 	net->priv = NULL;
 

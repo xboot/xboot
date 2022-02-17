@@ -122,13 +122,19 @@ static int do_net(int argc, char ** argv)
 				struct socket_connect_t * c = net_connect(net, argv[0], argv[1], atoi(argv[2]));
 				if(c)
 				{
-					char buf[SZ_1K];
 					struct srl_buf_t srl;
+					char buf[SZ_1K];
+					int cknet = 1;
+					if(strstr(argv[0], "udp"))
+						cknet = 0;
 					srl.len = 0;
 					while(1)
 					{
-						if(!net_status(c))
-							break;
+						if(cknet)
+						{
+							if(!net_status(c))
+								break;
+						}
 						int r = simple_readline(&srl);
 						if(r > 0)
 						{

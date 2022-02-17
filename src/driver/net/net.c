@@ -138,6 +138,13 @@ int net_write(struct socket_connect_t * c, void * buf, int count)
 	return 0;
 }
 
+int net_status(struct socket_connect_t * c)
+{
+	if(c && c->net)
+		return c->net->status(c);
+	return 0;
+}
+
 void net_close(struct socket_connect_t * c)
 {
 	if(c && c->net)

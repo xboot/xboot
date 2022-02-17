@@ -190,6 +190,18 @@ int sandbox_socket_write(void * c, void * buf, int count)
 	return 0;
 }
 
+int sandbox_socket_status(void * c)
+{
+	struct sandbox_socket_connect_context_t * cctx = (struct sandbox_socket_connect_context_t *)c;
+	struct tcp_info info;
+	int len = sizeof(info);
+
+	getsockopt(cctx->fd, IPPROTO_TCP, TCP_INFO, &info, (socklen_t *)&len);
+	if(info.tcpi_state == TCP_ESTABLISHED)
+		return 1;
+	return 0;
+}
+
 void sandbox_socket_close(void * c)
 {
 	struct sandbox_socket_connect_context_t * cctx = (struct sandbox_socket_connect_context_t *)c;

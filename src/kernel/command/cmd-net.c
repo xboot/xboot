@@ -87,9 +87,10 @@ static int do_net(int argc, char ** argv)
 				if(c)
 				{
 					char buf[SZ_4K];
-
 					while(1)
 					{
+						if(!net_status(c))
+							break;
 						int ch = getchar();
 						if(ch != EOF)
 						{

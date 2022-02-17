@@ -70,6 +70,11 @@ static int net_sandbox_write(struct socket_connect_t * c, void * buf, int count)
 	return sandbox_socket_write(c->priv, buf, count);
 }
 
+static int net_sandbox_status(struct socket_connect_t * c)
+{
+	return sandbox_socket_status(c->priv);
+}
+
 static void net_sandbox_close(struct socket_connect_t * c)
 {
 	sandbox_socket_close(c->priv);
@@ -114,6 +119,7 @@ static struct device_t * net_sandbox_probe(struct driver_t * drv, struct dtnode_
 	net->connect = net_sandbox_connect;
 	net->read = net_sandbox_read;
 	net->write = net_sandbox_write;
+	net->status = net_sandbox_status;
 	net->close = net_sandbox_close;
 	net->delete = net_sandbox_delete;
 	net->ioctl = net_sandbox_ioctl;

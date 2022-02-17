@@ -6,13 +6,49 @@
 #include <net/net.h>
 #include <command/command.h>
 
+struct srl_buf_t {
+	char buf[SZ_1K];
+	int len;
+};
+
+static int simple_readline(struct srl_buf_t * srl)
+{
+	int ch;
+
+	if((ch = getchar()) != EOF)
+	{
+		unsigned char c = ch;
+		switch(c)
+		{
+		case 0x3:
+			return -1;
+		case 0xd:
+			if(srl->len < sizeof(srl->buf) - 1)
+			{
+				srl->buf[srl->len++] = '\r';
+				srl->buf[srl->len++] = '\n';
+				printf("\r\n");
+			}
+			return 1;
+		default:
+			if(srl->len < sizeof(srl->buf))
+			{
+				srl->buf[srl->len++] = c;
+				printf("%c", c);
+			}
+			break;
+		}
+	}
+	return 0;
+}
+
 static void usage(void)
 {
 	struct device_t * pos, * n;
 
 	printf("usage:\r\n");
 	printf("    net <device> server <type> <port>        - Listen port for waiting connection\r\n");
-	printf("    net <device> client <type> <host> <port> - Connect to the remote host port\r\n");
+	printf("    net <device> client <type> <host> <port> - Connect to the remote server\r\n");
 
 	printf("supported device list:\r\n");
 	list_for_each_entry_safe(pos, n, &__device_head[DEVICE_TYPE_NET], head)
@@ -86,20 +122,21 @@ static int do_net(int argc, char ** argv)
 				struct socket_connect_t * c = net_connect(net, argv[0], argv[1], atoi(argv[2]));
 				if(c)
 				{
-					char buf[SZ_4K];
+					char buf[SZ_1K];
+					struct srl_buf_t srl;
+					srl.len = 0;
 					while(1)
 					{
 						if(!net_status(c))
 							break;
-						int ch = getchar();
-						if(ch != EOF)
+						int r = simple_readline(&srl);
+						if(r > 0)
 						{
-							if(ch == 0x3)
-								break;
-							unsigned char uc = ch;
-							net_write(c, &uc, 1);
-							printf("%c", uc);
+							net_write(c, srl.buf, srl.len);
+							srl.len = 0;
 						}
+						else if(r < 0)
+							break;
 						int len = net_read(c, buf, sizeof(buf));
 						if(len > 0)
 						{
@@ -116,7 +153,7 @@ static int do_net(int argc, char ** argv)
 					net_close(c);
 				}
 				else
-					printf("Failed to connect '%s:%s' with '%s' type\r\n", argv[1], argv[2], argv[0]);
+					printf("Failed to connect server '%s:%s' with '%s' type\r\n", argv[1], argv[2], argv[0]);
 			}
 			else
 				usage();
@@ -131,7 +168,7 @@ static int do_net(int argc, char ** argv)
 
 static struct command_t cmd_net = {
 	.name	= "net",
-	.desc	= "network protocol tool",
+	.desc	= "network protocol debug tool",
 	.usage	= usage,
 	.exec	= do_net,
 };

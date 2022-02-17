@@ -311,9 +311,9 @@ void sandbox_shell(const char * cmd, char * msg, int sz, int async);
 /*
  * Socket interface
  */
-void * sandbox_socket_listen(const char * type, const char * address);
+void * sandbox_socket_listen(const char * type, int port);
 void * sandbox_socket_accept(void * l);
-void * sandbox_socket_connect(const char * type, const char * address);
+void * sandbox_socket_connect(const char * type, const char * host, int port);
 int sandbox_socket_read(void * c, void * buf, int count);
 int sandbox_socket_write(void * c, void * buf, int count);
 void sandbox_socket_close(void * c);

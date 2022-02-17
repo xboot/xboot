@@ -103,10 +103,10 @@ void unregister_net(struct net_t * net)
 	}
 }
 
-struct socket_listen_t * net_listen(struct net_t * net, const char * type, const char * address)
+struct socket_listen_t * net_listen(struct net_t * net, const char * type, int port)
 {
-	if(net && type && address)
-		return net->listen(net, type, address);
+	if(net && type)
+		return net->listen(net, type, port);
 	return NULL;
 }
 
@@ -117,10 +117,10 @@ struct socket_connect_t * net_accept(struct socket_listen_t * l)
 	return NULL;
 }
 
-struct socket_connect_t * net_connect(struct net_t * net, const char * type, const char * address)
+struct socket_connect_t * net_connect(struct net_t * net, const char * type, const char * host, int port)
 {
-	if(net && type && address)
-		return net->connect(net, type, address);
+	if(net && type && host)
+		return net->connect(net, type, host, port);
 	return NULL;
 }
 
@@ -128,14 +128,14 @@ int net_read(struct socket_connect_t * c, void * buf, int count)
 {
 	if(c && c->net && buf && (count > 0))
 		return c->net->read(c, buf, count);
-	return -1;
+	return 0;
 }
 
 int net_write(struct socket_connect_t * c, void * buf, int count)
 {
 	if(c && c->net && buf && (count > 0))
 		return c->net->write(c, buf, count);
-	return -1;
+	return 0;
 }
 
 void net_close(struct socket_connect_t * c)

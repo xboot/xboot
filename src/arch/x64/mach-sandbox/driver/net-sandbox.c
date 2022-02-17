@@ -30,11 +30,11 @@
 #include <net/net.h>
 #include <sandbox.h>
 
-static struct socket_listen_t * net_sandbox_listen(struct net_t * net, const char * type, const char * address)
+static struct socket_listen_t * net_sandbox_listen(struct net_t * net, const char * type, int port)
 {
 	void * lctx;
 
-	lctx = sandbox_socket_listen(type, address);
+	lctx = sandbox_socket_listen(type, port);
 	if(lctx)
 		return socket_listen_alloc(net, lctx);
 	return NULL;
@@ -50,11 +50,11 @@ static struct socket_connect_t * net_sandbox_accept(struct socket_listen_t * l)
 	return NULL;
 }
 
-static struct socket_connect_t * net_sandbox_connect(struct net_t * net, const char * type, const char * address)
+static struct socket_connect_t * net_sandbox_connect(struct net_t * net, const char * type, const char * host, int port)
 {
 	void * cctx;
 
-	cctx = sandbox_socket_connect(type, address);
+	cctx = sandbox_socket_connect(type, host, port);
 	if(cctx)
 		return socket_connect_alloc(net, cctx);
 	return NULL;

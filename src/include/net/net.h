@@ -21,9 +21,9 @@ struct net_t
 {
 	char * name;
 
-	struct socket_listen_t * (*listen)(struct net_t * net, const char * type, const char * address);
+	struct socket_listen_t * (*listen)(struct net_t * net, const char * type, int port);
 	struct socket_connect_t * (*accept)(struct socket_listen_t * l);
-	struct socket_connect_t * (*connect)(struct net_t * net, const char * type, const char * address);
+	struct socket_connect_t * (*connect)(struct net_t * net, const char * type, const char * host, int port);
 	int (*read)(struct socket_connect_t * c, void * buf, int count);
 	int (*write)(struct socket_connect_t * c, void * buf, int count);
 	void (*close)(struct socket_connect_t * c);
@@ -76,9 +76,9 @@ struct net_t * search_first_net(void);
 struct device_t * register_net(struct net_t * net, struct driver_t * drv);
 void unregister_net(struct net_t * net);
 
-struct socket_listen_t * net_listen(struct net_t * net, const char * type, const char * address);
+struct socket_listen_t * net_listen(struct net_t * net, const char * type, int port);
 struct socket_connect_t * net_accept(struct socket_listen_t * l);
-struct socket_connect_t * net_connect(struct net_t * net, const char * type, const char * address);
+struct socket_connect_t * net_connect(struct net_t * net, const char * type, const char * host, int port);
 int net_read(struct socket_connect_t * c, void * buf, int count);
 int net_write(struct socket_connect_t * c, void * buf, int count);
 void net_close(struct socket_connect_t * c);

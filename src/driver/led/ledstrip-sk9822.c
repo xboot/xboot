@@ -185,6 +185,7 @@ static struct device_t * ledstrip_sk9822_probe(struct driver_t * drv, struct dtn
 		gpio_set_value(pdat->clk, pdat->clkinv ? 1 : 0);
 	}
 	ledstrip_sk9822_set_count(strip, dt_read_int(n, "count", 1));
+	ledstrip_sk9822_refresh(strip);
 
 	if(!(dev = register_ledstrip(strip, drv)))
 	{

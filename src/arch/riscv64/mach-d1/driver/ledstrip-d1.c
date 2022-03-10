@@ -288,7 +288,7 @@ static void ledstrip_d1_refresh(struct ledstrip_t * strip)
 	for(i = 0; i < pdat->count; i++)
 	{
 		while(read32(pdat->virt + LEDC_INTS) & (1 << 16));
-		write32(pdat->virt + LEDC_DATA, (u32_t)((pdat->color[i].g << 16) | (pdat->color[i].r << 0) | (pdat->color[i].b << 0)));
+		write32(pdat->virt + LEDC_DATA, (u32_t)((pdat->color[i].g << 16) | (pdat->color[i].r << 8) | (pdat->color[i].b << 0)));
 	}
 }
 
@@ -320,11 +320,11 @@ static struct device_t * ledstrip_d1_probe(struct driver_t * drv, struct dtnode_
 	pdat->gpio = dt_read_int(n, "gpio", -1);
 	pdat->gpiocfg = dt_read_int(n, "gpio-config", -1);
 	pdat->mode = dt_read_int(n, "output-mode", 0);
-	pdat->reset_ns = dt_read_int(n, "reset-ns", 84);
-	pdat->t1h_ns = dt_read_int(n, "t1h-ns", 800);
-	pdat->t1l_ns = dt_read_int(n, "t1l-ns", 320);
-	pdat->t0h_ns = dt_read_int(n, "t0h-ns", 300);
-	pdat->t0l_ns = dt_read_int(n, "t0l-ns", 800);
+	pdat->reset_ns = dt_read_int(n, "reset-ns", 300000);
+	pdat->t1h_ns = dt_read_int(n, "t1h-ns", 1000);
+	pdat->t1l_ns = dt_read_int(n, "t1l-ns", 250);
+	pdat->t0h_ns = dt_read_int(n, "t0h-ns", 250);
+	pdat->t0l_ns = dt_read_int(n, "t0l-ns", 1000);
 	pdat->wait_time0_ns = dt_read_int(n, "wait-time0-ns", 84);
 	pdat->wait_time1_ns = dt_read_int(n, "wait-time1-ns", 84);
 	pdat->wait_data_time_ns = dt_read_int(n, "wait-data-time-ns", 600000);

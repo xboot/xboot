@@ -47,9 +47,11 @@ struct ledstrip_ws2812_pdata_t {
 	struct spi_device_t * spidev;
 	int count;
 	struct color_t * color;
+	int buflen;
+	unsigned char * buffer;
 };
 
-static const unsigned char ws2812_table[256][5]={
+static const unsigned char ws2812_map[256][5]={
 	{ 0x84, 0x21, 0x08, 0x42, 0x10, },
 	{ 0x84, 0x21, 0x08, 0x42, 0x1e, },
 	{ 0x84, 0x21, 0x08, 0x43, 0xd0, },
@@ -308,12 +310,6 @@ static const unsigned char ws2812_table[256][5]={
 	{ 0xf7, 0xbd, 0xef, 0x7b, 0xde, },
 };
 
-static void ledstrip_ws2812_send(struct ledstrip_t * strip, unsigned char byte)
-{
-	struct ledstrip_ws2812_pdata_t * pdat = (struct ledstrip_ws2812_pdata_t *)strip->priv;
-	spi_device_write_then_read(pdat->spidev, (void *)&ws2812_table[byte][0], 5, NULL, 0);
-}
-
 static void ledstrip_ws2812_set_count(struct ledstrip_t * strip, int n)
 {
 	struct ledstrip_ws2812_pdata_t * pdat = (struct ledstrip_ws2812_pdata_t *)strip->priv;
@@ -322,9 +318,20 @@ static void ledstrip_ws2812_set_count(struct ledstrip_t * strip, int n)
 	{
 		if(pdat->color)
 			free(pdat->color);
+		if(pdat->buffer)
+			free(pdat->buffer);
 		pdat->count = n;
 		pdat->color = malloc(pdat->count * sizeof(struct color_t));
 		memset(pdat->color, 0, pdat->count * sizeof(struct color_t));
+		pdat->buflen = n * 3 * 5 + 150;
+		pdat->buffer = malloc(pdat->buflen);
+		for(int i = 0; i < n; i++)
+		{
+			memcpy(&pdat->buffer[(i * 3 + 0) * 5], (void *)&ws2812_map[0][0], 5);
+			memcpy(&pdat->buffer[(i * 3 + 1) * 5], (void *)&ws2812_map[0][0], 5);
+			memcpy(&pdat->buffer[(i * 3 + 2) * 5], (void *)&ws2812_map[0][0], 5);
+		}
+		memset(&pdat->buffer[n * 3 * 5], 0, 150);
 	}
 }
 
@@ -338,6 +345,9 @@ static void ledstrip_ws2812_set_color(struct ledstrip_t * strip, int i, struct c
 {
 	struct ledstrip_ws2812_pdata_t * pdat = (struct ledstrip_ws2812_pdata_t *)strip->priv;
 	memcpy(&pdat->color[i], c, sizeof(struct color_t));
+	memcpy(&pdat->buffer[(i * 3 + 0) * 5], (void *)&ws2812_map[pdat->color[i].g][0], 5);
+	memcpy(&pdat->buffer[(i * 3 + 1) * 5], (void *)&ws2812_map[pdat->color[i].r][0], 5);
+	memcpy(&pdat->buffer[(i * 3 + 2) * 5], (void *)&ws2812_map[pdat->color[i].b][0], 5);
 }
 
 static void ledstrip_ws2812_get_color(struct ledstrip_t * strip, int i, struct color_t * c)
@@ -349,16 +359,7 @@ static void ledstrip_ws2812_get_color(struct ledstrip_t * strip, int i, struct c
 static void ledstrip_ws2812_refresh(struct ledstrip_t * strip)
 {
 	struct ledstrip_ws2812_pdata_t * pdat = (struct ledstrip_ws2812_pdata_t *)strip->priv;
-	int i;
-
-	for(i = 0; i < 150; i++)
-		ledstrip_ws2812_send(strip, 0x00);
-	for(i = 0; i < pdat->count; i++)
-	{
-		ledstrip_ws2812_send(strip, pdat->color[i].g);
-		ledstrip_ws2812_send(strip, pdat->color[i].r);
-		ledstrip_ws2812_send(strip, pdat->color[i].b);
-	}
+	spi_device_write_then_read(pdat->spidev, pdat->buffer, pdat->buflen, NULL, 0);
 }
 
 static struct device_t * ledstrip_ws2812_probe(struct driver_t * drv, struct dtnode_t * n)
@@ -386,6 +387,8 @@ static struct device_t * ledstrip_ws2812_probe(struct driver_t * drv, struct dtn
 	pdat->spidev = spidev;
 	pdat->count = 0;
 	pdat->color = NULL;
+	pdat->buflen = 0;
+	pdat->buffer = NULL;
 
 	strip->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	strip->set_count = ledstrip_ws2812_set_count;

@@ -32,8 +32,8 @@
 
 static int l_ledstrip_new(lua_State * L)
 {
-	const char * name = luaL_checkstring(L, 1);
-	struct ledstrip_t * strip = search_ledstrip(name);
+	const char * name = luaL_optstring(L, 1, NULL);
+	struct ledstrip_t * strip = name ? search_ledstrip(name) : search_first_ledstrip();
 	if(!strip)
 		return 0;
 	lua_pushlightuserdata(L, strip);

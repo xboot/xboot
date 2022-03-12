@@ -89,6 +89,16 @@ struct ledstrip_t * search_ledstrip(const char * name)
 	return (struct ledstrip_t *)dev->priv;
 }
 
+struct ledstrip_t * search_first_ledstrip(void)
+{
+	struct device_t * dev;
+
+	dev = search_first_device(DEVICE_TYPE_LEDSTRIP);
+	if(!dev)
+		return NULL;
+	return (struct ledstrip_t *)dev->priv;
+}
+
 struct device_t * register_ledstrip(struct ledstrip_t * strip, struct driver_t * drv)
 {
 	struct device_t * dev;

@@ -21,6 +21,7 @@ struct ledstrip_t
 };
 
 struct ledstrip_t * search_ledstrip(const char * name);
+struct ledstrip_t * search_first_ledstrip(void);
 struct device_t * register_ledstrip(struct ledstrip_t * strip, struct driver_t * drv);
 void unregister_ledstrip(struct ledstrip_t * strip);
 

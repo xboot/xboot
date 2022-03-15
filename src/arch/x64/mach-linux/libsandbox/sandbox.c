@@ -114,6 +114,8 @@ void sandbox_init(int argc, char * argv[])
 	ta.c_cc[VMIN] = 1;
 	ta.c_cc[VTIME] = 0;
 	tcsetattr(0, TCSANOW, &ta);
+	signal(SIGPIPE, SIG_IGN);
+
 }
 
 void sandbox_exit(void)

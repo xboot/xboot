@@ -269,6 +269,20 @@ void sandbox_pm_sleep(void);
 void sandbox_shell(const char * cmd, char * msg, int sz, int async);
 
 /*
+ * Socket interface
+ */
+void * sandbox_socket_listen(const char * type, int port);
+void * sandbox_socket_accept(void * l);
+void * sandbox_socket_connect(const char * type, const char * host, int port);
+int sandbox_socket_read(void * c, void * buf, int count);
+int sandbox_socket_write(void * c, void * buf, int count);
+int sandbox_socket_status(void * c);
+void sandbox_socket_close(void * c);
+void sandbox_socket_delete(void * l);
+int sandbox_socket_get_ip(const char * iface, char * ip);
+int sandbox_socket_get_mac(const char * iface, char * mac);
+
+/*
  * Stdio interface
  */
 ssize_t sandbox_stdio_read(void * buf, size_t count);

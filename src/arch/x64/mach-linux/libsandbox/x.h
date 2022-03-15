@@ -30,6 +30,12 @@ extern "C" {
 #include <sys/timerfd.h>
 #include <sys/inotify.h>
 #include <sys/poll.h>
+#include <sys/socket.h>
+#include <netdb.h>
+#include <net/if.h>
+#include <netinet/in.h>
+#include <netinet/tcp.h>
+#include <arpa/inet.h>
 #include <linux/fb.h>
 #include <linux/input.h>
 #include <linux/videodev2.h>

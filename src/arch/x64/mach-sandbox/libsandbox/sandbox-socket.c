@@ -1,8 +1,11 @@
 #include <x.h>
 #include <sandbox.h>
 
+#define MAX_CLIENTS		(32)
+
 struct sandbox_socket_listen_context_t {
 	int fd;
+	int clients[MAX_CLIENTS];
 	struct sockaddr_in addr;
 };
 
@@ -94,6 +97,15 @@ void * sandbox_socket_listen(const char * type, int port)
 			free(lctx);
 			return NULL;
 		}
+		int opt = 1;
+		if(setsockopt(lctx->fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(int)) != 0)
+		{
+			free(lctx);
+			return NULL;
+		}
+		int flags = fcntl(lctx->fd, F_GETFL);
+		flags |= O_NONBLOCK;
+		fcntl(lctx->fd, F_SETFL, flags);
 		lctx->addr.sin_family = namespace;
 		lctx->addr.sin_addr.s_addr = htonl(INADDR_ANY);
 		lctx->addr.sin_port = htons(port);
@@ -109,9 +121,6 @@ void * sandbox_socket_listen(const char * type, int port)
 			free(lctx);
 			return NULL;
 		}
-		int flags = fcntl(lctx->fd, F_GETFL);
-		flags |= O_NONBLOCK;
-		fcntl(lctx->fd, F_SETFL, flags);
 		return lctx;
 	}
 	return NULL;
@@ -121,18 +130,53 @@ void * sandbox_socket_accept(void * l)
 {
 	struct sandbox_socket_listen_context_t * lctx = (struct sandbox_socket_listen_context_t *)l;
 	struct sandbox_socket_connect_context_t * cctx;
+	struct timeval tv;
+	fd_set fds;
+	int maxfd = lctx->fd;
 	int fd;
+	int i;
 
-	fd = accept(lctx->fd, (struct sockaddr *)NULL, NULL);
-	if(fd >= 0)
+	FD_ZERO(&fds);
+	FD_SET(lctx->fd, &fds);
+	for(i = 0; i < MAX_CLIENTS; i++)
 	{
-		cctx = malloc(sizeof(struct sandbox_socket_connect_context_t));
-		if(cctx)
-		{
-			cctx->fd = fd;
-			return cctx;
-		}
+		fd = lctx->clients[i];
+		if(fd > 0)
+			FD_SET(fd, &fds);
+		if(fd > maxfd)
+			maxfd = fd;
 	}
+	tv.tv_sec = 0;
+	tv.tv_usec = 5000;
+	if(select(maxfd + 1, &fds, NULL, NULL, &tv) > 0)
+	{
+		if(FD_ISSET(lctx->fd, &fds))
+		{
+			fd = accept(lctx->fd, (struct sockaddr *)NULL, NULL);
+			if(fd >= 0)
+			{
+				for(i = 0; i < MAX_CLIENTS; i++)
+				{
+					if(lctx->clients[i] == 0)
+					{
+						lctx->clients[i] = fd;
+						break;
+					}
+				}
+				if(i >= MAX_CLIENTS)
+					return NULL;
+				cctx = malloc(sizeof(struct sandbox_socket_connect_context_t));
+				if(cctx)
+				{
+					cctx->fd = fd;
+					int flags = fcntl(cctx->fd, F_GETFL);
+					flags |= O_NONBLOCK;
+					fcntl(cctx->fd, F_SETFL, flags);
+					return cctx;
+				}
+			}
+		}
+    }
 	return NULL;
 }
 
@@ -240,7 +284,15 @@ void sandbox_socket_close(void * c)
 void sandbox_socket_delete(void * l)
 {
 	struct sandbox_socket_listen_context_t * lctx = (struct sandbox_socket_listen_context_t *)l;
+	int i;
 
 	if(lctx)
+	{
+		for(i = 0; i < MAX_CLIENTS; i++)
+		{
+			if(lctx->clients[i] != 0)
+				close(lctx->clients[i]);
+		}
 		close(lctx->fd);
+	}
 }

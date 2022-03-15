@@ -4,6 +4,7 @@
 
 #include <xboot.h>
 #include <net/net.h>
+#include <shell/ctrlc.h>
 #include <command/command.h>
 
 struct srl_buf_t {
@@ -71,26 +72,39 @@ static int do_net(int argc, char ** argv)
 	{
 		if(!strcmp(argv[2], "server"))
 		{
-/*			argc -= 3;
+			argc -= 3;
 			argv += 3;
 			if(argc == 2)
 			{
 				struct socket_listen_t * l = net_listen(net, argv[0], atoi(argv[1]));
 				if(l)
 				{
-					struct socket_connect_t * c;
-					printf("listen ok\r\n");
-
 					while(1)
 					{
-						c = net_accept(l);
+						struct socket_connect_t * c = net_accept(l);
 						if(c)
 						{
-							printf("net_accept ok\r\n");
-							char buf[256];
+							struct srl_buf_t srl;
+							char buf[SZ_1K];
+							int cknet = 1;
+							if(strstr(argv[0], "udp"))
+								cknet = 0;
+							srl.len = 0;
 							while(1)
 							{
-								printf("net_read \r\n");
+								if(cknet)
+								{
+									if(!net_status(c))
+										break;
+								}
+								int r = simple_readline(&srl);
+								if(r > 0)
+								{
+									net_write(c, srl.buf, srl.len);
+									srl.len = 0;
+								}
+								else if(r < 0)
+									break;
 								int len = net_read(c, buf, sizeof(buf));
 								if(len > 0)
 								{
@@ -101,17 +115,19 @@ static int do_net(int argc, char ** argv)
 										else
 											putchar('.');
 									}
-									printf("len = %d\r\n", len);
 								}
 								task_yield();
 							}
+							net_close(c);
 						}
-						task_yield();
+						if(ctrlc())
+							break;
 					}
+					net_delete(l);
 				}
 				else
 					printf("Failed to listen '%s' with '%s' type\r\n", argv[1], argv[0]);
-			}*/
+			}
 		}
 		else if(!strcmp(argv[2], "client"))
 		{
@@ -174,7 +190,7 @@ static int do_net(int argc, char ** argv)
 
 static struct command_t cmd_net = {
 	.name	= "net",
-	.desc	= "network protocol debug tool",
+	.desc	= "network device transport tool",
 	.usage	= usage,
 	.exec	= do_net,
 };

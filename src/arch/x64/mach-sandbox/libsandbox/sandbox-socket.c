@@ -21,6 +21,32 @@ static inline uint32_t shash(const char * s)
 	return v;
 }
 
+static int host_to_addr(const char * host, struct in_addr * addr)
+{
+	struct hostent he, * result;
+	int herr, ret, bufsz = 512;
+	char * buf = NULL;
+
+	do {
+		char * nbuf = (char *)realloc(buf, bufsz);
+		if(nbuf == NULL)
+		{
+			free(buf);
+			return ENOMEM;
+		}
+		buf = nbuf;
+		ret = gethostbyname_r(host, &he, buf, bufsz, &result, &herr);
+		bufsz <<= 1;
+	} while(ret == ERANGE);
+	if((ret == 0) && (result != NULL))
+		*addr = *(struct in_addr *)he.h_addr;
+	else if(result != &he)
+		ret = herr;
+	free(buf);
+
+	return ret;
+}
+
 void * sandbox_socket_listen(const char * type, int port)
 {
 	struct sandbox_socket_listen_context_t * lctx;
@@ -148,14 +174,15 @@ void * sandbox_socket_connect(const char * type, const char * host, int port)
 		style = SOCK_STREAM;
 		break;
 	}
+	memset(&addr, 0, sizeof(addr));
+	addr.sin_family = namespace;
+	addr.sin_port = htons(port);
+	if(host_to_addr(host, &addr.sin_addr) != 0)
+		return NULL;
 	cctx = malloc(sizeof(struct sandbox_socket_connect_context_t));
 	if(cctx)
 	{
 		cctx->fd = socket(namespace, style, 0);
-		memset(&addr, 0, sizeof(addr));
-		addr.sin_family = namespace;
-		addr.sin_port = htons(port);
-		inet_pton(namespace, host, &addr.sin_addr);
 		if(connect(cctx->fd, (struct sockaddr *)&addr, sizeof(addr)) < 0)
 		{
 			close(cctx->fd);

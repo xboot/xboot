@@ -172,8 +172,7 @@ SRCDIRS		+=	arch/$(ARCH)/lib/cpu \
 				driver/thermometer \
 				driver/uart \
 				driver/vibrator \
-				driver/watchdog \
-				driver/wifi
+				driver/watchdog
 
 #
 # Add necessary external library

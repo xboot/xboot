@@ -56,9 +56,8 @@ enum device_type_t {
 	DEVICE_TYPE_UART			= 41,
 	DEVICE_TYPE_VIBRATOR		= 42,
 	DEVICE_TYPE_WATCHDOG		= 43,
-	DEVICE_TYPE_WIFI			= 44,
 
-	DEVICE_TYPE_MAX_COUNT		= 45,
+	DEVICE_TYPE_MAX_COUNT		= 44,
 };
 
 struct driver_t;

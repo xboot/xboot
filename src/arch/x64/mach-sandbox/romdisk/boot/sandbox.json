@@ -12,6 +12,7 @@
 	},
 
 	"net-sandbox@0": {
+		"interface": "eth0"
 	},
 
 	"cam-sandbox@0": {

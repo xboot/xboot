@@ -296,3 +296,47 @@ void sandbox_socket_delete(void * l)
 		close(lctx->fd);
 	}
 }
+
+int sandbox_socket_get_ip(const char * iface, char * ip)
+{
+	struct sockaddr_in sin;
+	struct ifreq ifr;
+	int fd;
+
+	fd = socket(AF_INET, SOCK_DGRAM, 0);
+	if(fd < 0)
+		return 0;
+	strncpy(ifr.ifr_name, iface, IFNAMSIZ);
+	ifr.ifr_name[IFNAMSIZ - 1] = 0;
+	if(ioctl(fd, SIOCGIFADDR, &ifr) < 0)
+	{
+		close(fd);
+		return 0;
+	}
+	memcpy(&sin, &ifr.ifr_addr, sizeof(sin));
+	sprintf(ip, "%s", inet_ntoa(sin.sin_addr));
+	close(fd);
+	return 1;
+}
+
+int sandbox_socket_get_mac(const char * iface, char * mac)
+{
+	struct ifreq ifr;
+	int fd;
+
+	bzero(&ifr, sizeof(struct ifreq));
+	if((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+		return 0;
+	strncpy(ifr.ifr_name, iface, sizeof(ifr.ifr_name) - 1);
+	if(ioctl(fd, SIOCGIFHWADDR, &ifr) < 0)
+	{
+		close(fd);
+		return 0;
+	}
+	sprintf(mac, "%02x:%02x:%02x:%02x:%02x:%02x",
+		(unsigned char)ifr.ifr_hwaddr.sa_data[0], (unsigned char)ifr.ifr_hwaddr.sa_data[1],
+		(unsigned char)ifr.ifr_hwaddr.sa_data[2], (unsigned char)ifr.ifr_hwaddr.sa_data[3],
+		(unsigned char)ifr.ifr_hwaddr.sa_data[4], (unsigned char)ifr.ifr_hwaddr.sa_data[5]);
+	close(fd);
+	return 1;
+}

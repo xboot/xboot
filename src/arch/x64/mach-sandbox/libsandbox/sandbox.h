@@ -319,6 +319,8 @@ int sandbox_socket_write(void * c, void * buf, int count);
 int sandbox_socket_status(void * c);
 void sandbox_socket_close(void * c);
 void sandbox_socket_delete(void * l);
+int sandbox_socket_get_ip(const char * iface, char * ip);
+int sandbox_socket_get_mac(const char * iface, char * mac);
 
 /*
  * Stdio interface

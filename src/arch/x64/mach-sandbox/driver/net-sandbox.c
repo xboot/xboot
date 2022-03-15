@@ -30,6 +30,10 @@
 #include <net/net.h>
 #include <sandbox.h>
 
+struct net_sandbox_pdata_t {
+	char * iface;
+};
+
 static struct socket_listen_t * net_sandbox_listen(struct net_t * net, const char * type, int port)
 {
 	void * lctx;
@@ -89,15 +93,34 @@ static void net_sandbox_delete(struct socket_listen_t * l)
 
 static int net_sandbox_ioctl(struct net_t * net, const char * cmd, void * arg)
 {
+	struct net_sandbox_pdata_t * pdat = (struct net_sandbox_pdata_t *)net->priv;
+
 	switch(shash(cmd))
 	{
 	case 0xccaf0ac8: /* "net-get-type" */
 		if(arg)
 		{
-			strcpy((char *)arg, "socket");
+			strcpy((char *)arg, "sandbox");
 			return 0;
 		}
 		break;
+
+	case 0x74c961bf: /* "net-get-ip" */
+		if(arg)
+		{
+			if(sandbox_socket_get_ip(pdat->iface, arg))
+				return 0;
+		}
+		break;
+
+	case 0x0df5a917: /* "net-get-mac" */
+		if(arg)
+		{
+			if(sandbox_socket_get_mac(pdat->iface, arg))
+				return 0;
+		}
+		break;
+
 	default:
 		break;
 	}
@@ -106,12 +129,19 @@ static int net_sandbox_ioctl(struct net_t * net, const char * cmd, void * arg)
 
 static struct device_t * net_sandbox_probe(struct driver_t * drv, struct dtnode_t * n)
 {
+	struct net_sandbox_pdata_t * pdat;
 	struct net_t * net;
 	struct device_t * dev;
+
+	pdat = malloc(sizeof(struct net_sandbox_pdata_t));
+	if(!pdat)
+		return NULL;
 
 	net = malloc(sizeof(struct net_t));
 	if(!net)
 		return NULL;
+
+	pdat->iface = strdup(dt_read_string(n, "interface", "eth0"));
 
 	net->name = alloc_device_name(dt_read_name(n), -1);
 	net->listen = net_sandbox_listen;
@@ -123,7 +153,7 @@ static struct device_t * net_sandbox_probe(struct driver_t * drv, struct dtnode_
 	net->close = net_sandbox_close;
 	net->delete = net_sandbox_delete;
 	net->ioctl = net_sandbox_ioctl;
-	net->priv = NULL;
+	net->priv = pdat;
 
 	if(!(dev = register_net(net, drv)))
 	{

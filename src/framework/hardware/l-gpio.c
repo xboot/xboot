@@ -180,10 +180,10 @@ int luaopen_hardware_gpio(lua_State * L)
 	luahelper_set_intfield(L, "PULL_DOWN",		GPIO_PULL_DOWN);
 	luahelper_set_intfield(L, "PULL_NONE",		GPIO_PULL_NONE);
     /* gpio_drv_t */
-	luahelper_set_intfield(L, "DRV_WEAK)",		GPIO_DRV_WEAK);
-	luahelper_set_intfield(L, "DRV_WEAKER)",	GPIO_DRV_WEAKER);
-	luahelper_set_intfield(L, "DRV_STRONGER)",	GPIO_DRV_STRONGER);
-	luahelper_set_intfield(L, "DRV_STRONG)",	GPIO_DRV_STRONG);
+	luahelper_set_intfield(L, "DRV_WEAK",		GPIO_DRV_WEAK);
+	luahelper_set_intfield(L, "DRV_WEAKER",		GPIO_DRV_WEAKER);
+	luahelper_set_intfield(L, "DRV_STRONGER",	GPIO_DRV_STRONGER);
+	luahelper_set_intfield(L, "DRV_STRONG",		GPIO_DRV_STRONG);
     /* gpio_rate_t */
 	luahelper_set_intfield(L, "RATE_SLOW",		GPIO_RATE_SLOW);
 	luahelper_set_intfield(L, "RATE_FAST",		GPIO_RATE_FAST);

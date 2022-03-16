@@ -41,7 +41,7 @@ static int rtc_month_days(int year, int month)
 	const unsigned char rtc_days_in_month[13] = {
 		0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
 	};
-	return rtc_days_in_month[month] + (LEAP_YEAR(year) && (month == 2));
+	return rtc_days_in_month[month] + ((LEAP_YEAR(year) && (month == 2)) ? 1 : 0);
 }
 
 static void secs_to_rtc_time(uint32_t time, struct rtc_time_t * rt)

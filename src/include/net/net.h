@@ -81,7 +81,9 @@ struct socket_listen_t * net_listen(struct net_t * net, const char * type, int p
 struct socket_connect_t * net_accept(struct socket_listen_t * l);
 struct socket_connect_t * net_connect(struct net_t * net, const char * type, const char * host, int port);
 int net_read(struct socket_connect_t * c, void * buf, int count);
+int net_read_timeout(struct socket_connect_t * c, void * buf, int count, int timeout);
 int net_write(struct socket_connect_t * c, void * buf, int count);
+int net_write_timeout(struct socket_connect_t * c, void * buf, int count, int timeout);
 int net_status(struct socket_connect_t * c);
 void net_close(struct socket_connect_t * c);
 void net_delete(struct socket_listen_t * l);

@@ -153,11 +153,53 @@ int net_read(struct socket_connect_t * c, void * buf, int count)
 	return 0;
 }
 
+int net_read_timeout(struct socket_connect_t * c, void * buf, int count, int timeout)
+{
+	int len = 0;
+	int n;
+
+	if(c && c->net && buf && (count > 0))
+	{
+		ktime_t time = ktime_add_ms(ktime_get(), timeout);
+		do {
+			n = c->net->read(c, buf + len, count);
+			if(n > 0)
+			{
+				len += n;
+				count -= n;
+			}
+			task_yield();
+		} while((count > 0) && ktime_before(ktime_get(), time));
+	}
+	return len;
+}
+
 int net_write(struct socket_connect_t * c, void * buf, int count)
 {
 	if(c && c->net && buf && (count > 0))
 		return c->net->write(c, buf, count);
 	return 0;
+}
+
+int net_write_timeout(struct socket_connect_t * c, void * buf, int count, int timeout)
+{
+	int len = 0;
+	int n;
+
+	if(c && c->net && buf && (count > 0))
+	{
+		ktime_t time = ktime_add_ms(ktime_get(), timeout);
+		do {
+			n = c->net->write(c, buf + len, count);
+			if(n > 0)
+			{
+				len += n;
+				count -= n;
+			}
+			task_yield();
+		} while((count > 0) && ktime_before(ktime_get(), time));
+	}
+	return len;
 }
 
 int net_status(struct socket_connect_t * c)

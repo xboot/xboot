@@ -8,13 +8,13 @@ extern "C" {
 #include <xboot.h>
 
 struct rtc_time_t {
-	u8_t second;
-	u8_t minute;
-	u8_t hour;
-	u8_t week;
-	u8_t day;
-	u8_t month;
-	u16_t year;
+	u8_t second;	/* second [0 - 59] */
+	u8_t minute;	/* minute [0 - 59] */
+	u8_t hour;		/* hour [0 - 23] */
+	u8_t week;		/* week [0 - 6] */
+	u8_t day;		/* day [1 - 31] */
+	u8_t month;		/* month [1 - 12] */
+	u16_t year;		/* year */
 };
 
 struct rtc_t

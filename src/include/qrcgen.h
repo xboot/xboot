@@ -38,6 +38,7 @@ int qrcgen_encode_text(const char * txt, uint8_t * tmp, uint8_t * qrc, enum qrcg
 int qrcgen_encode_binary(uint8_t * buf, int len, uint8_t * qrc, enum qrcgen_ecc_t ecc, int minv, int maxv, enum qrcgen_mask_t mask, int boost);
 int qrcgen_get_size(uint8_t * qrc);
 int qrcgen_get_pixel(uint8_t * qrc, int x, int y);
+char * qrcgen_tostring(const char * txt, int invert);
 
 #ifdef __cplusplus
 }

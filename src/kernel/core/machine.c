@@ -27,6 +27,7 @@
  */
 
 #include <sha256.h>
+#include <qrcgen.h>
 #include <watchdog/watchdog.h>
 #include <xboot/machine.h>
 
@@ -96,7 +97,6 @@ static struct machine_t * search_machine(const char * name)
 bool_t register_machine(struct machine_t * mach)
 {
 	irq_flags_t flags;
-	int i;
 
 	if(!mach || !mach->name || !mach->detect)
 		return FALSE;
@@ -119,9 +119,18 @@ bool_t register_machine(struct machine_t * mach)
 	if(!__machine && (mach->detect(mach) > 0))
 	{
 		__machine = mach;
+#if !defined(CONFIG_NO_LOG) || !(CONFIG_NO_LOG > 0)
 		if(mach->logger)
 		{
-			for(i = 0; i < 5; i++)
+			char uri[1024];
+			snprintf(uri, sizeof(uri), "https://xboot.org/search?uniqueid=%s", machine_uniqueid());
+			char * s = qrcgen_tostring(uri, 1);
+			if(s)
+			{
+				mach->logger(mach, s, strlen(s));
+				free(s);
+			}
+			for(int i = 0; i < 5; i++)
 			{
 				mach->logger(mach, xboot_character_logo_string(i), strlen(xboot_character_logo_string(i)));
 				mach->logger(mach, "\r\n", 2);
@@ -133,6 +142,7 @@ bool_t register_machine(struct machine_t * mach)
 			mach->logger(mach, mach->desc, strlen(mach->desc));
 			mach->logger(mach, "]\r\n", 3);
 		}
+#endif
 	}
 	return TRUE;
 }

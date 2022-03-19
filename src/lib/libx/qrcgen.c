@@ -825,3 +825,70 @@ int qrcgen_get_pixel(uint8_t * qrc, int x, int y)
 	}
 	return 0;
 }
+
+/* ▀▄█ */
+#define UTF8_EMPTY(inv)			do{ if(inv) { *p++ = 0xe2; *p++ = 0x96; *p++ = 0x88; } else { *p++ = 0x20; } } while(0)
+#define UTF8_TOPHALF(inv)		do{ if(inv) { *p++ = 0xe2; *p++ = 0x96; *p++ = 0x84; } else { *p++ = 0xe2; *p++ = 0x96; *p++ = 0x80; } } while(0)
+#define UTF8_BOTTOMHALF(inv)	do{ if(inv) { *p++ = 0xe2; *p++ = 0x96; *p++ = 0x80; } else { *p++ = 0xe2; *p++ = 0x96; *p++ = 0x84; } } while(0)
+#define UTF8_FULL(inv)			do{ if(inv) { *p++ = 0x20; } else { *p++ = 0xe2; *p++ = 0x96; *p++ = 0x88; } } while(0)
+#define UTF8_NEWLINE()			do{ *p++ = '\r'; *p++ = '\n'; } while(0)
+#define UTF8_END()				do{ *p++ = '\0'; } while(0)
+
+char * qrcgen_tostring(const char * txt, int invert)
+{
+	uint8_t qrc[QRCGEN_BUFFER_LEN_MAX];
+	uint8_t tmp[QRCGEN_BUFFER_LEN_MAX];
+	int qrs, x, y, i;
+	int t, b;
+	char *s, *p;
+
+	if(qrcgen_encode_text(txt, tmp, qrc, QRCGEN_ECC_MEDIUM, QRCGEN_VERSION_MIN, QRCGEN_VERSION_MAX, QRCGEN_MASK_AUTO, 1))
+	{
+		qrs = qrcgen_get_size(qrc);
+		if(qrs > 0)
+		{
+			p = s = malloc(((qrs + 4) * 3 + 2) * (qrs / 2 + 1 + 2) + 1);
+			if(s)
+			{
+				for(i = 0; i < qrs + 4; ++i)
+					UTF8_EMPTY(invert);
+				UTF8_NEWLINE();
+				for(y = 0; y < qrs; y += 2)
+				{
+					UTF8_EMPTY(invert);
+					UTF8_EMPTY(invert);
+					for(x = 0; x < qrs; x++)
+					{
+						t = qrcgen_get_pixel(qrc, x, y);
+						b = 0;
+						if(y + 1 < qrs)
+							b = qrcgen_get_pixel(qrc, x, y + 1);
+						if(t)
+						{
+							if(b)
+								UTF8_FULL(invert);
+							else
+								UTF8_TOPHALF(invert);
+						}
+						else
+						{
+							if(b)
+								UTF8_BOTTOMHALF(invert);
+							else
+								UTF8_EMPTY(invert);
+						}
+					}
+					UTF8_EMPTY(invert);
+					UTF8_EMPTY(invert);
+					UTF8_NEWLINE();
+				}
+				for(i = 0; i < qrs + 4; i++)
+					UTF8_EMPTY(invert);
+				UTF8_NEWLINE();
+				UTF8_END();
+				return s;
+			}
+		}
+	}
+	return NULL;
+}

@@ -347,19 +347,24 @@ void sandbox_audio_set_playback_volume(int vol)
 	const char * name = "Master";
 	long minvol, maxvol;
 
-	snd_mixer_open(&handle, 0);
-	snd_mixer_attach(handle, card);
-	snd_mixer_selem_register(handle, NULL, NULL);
-	snd_mixer_load(handle);
-
-	snd_mixer_selem_id_alloca(&sid);
-	snd_mixer_selem_id_set_index(sid, 0);
-	snd_mixer_selem_id_set_name(sid, name);
-	elem = snd_mixer_find_selem(handle, sid);
-
-	snd_mixer_selem_get_playback_volume_range(elem, &minvol, &maxvol);
-	snd_mixer_selem_set_playback_volume_all(elem, vol * (maxvol - minvol) / 1000);
-	snd_mixer_close(handle);
+	if(snd_mixer_open(&handle, 0) == 0)
+	{
+		if(snd_mixer_attach(handle, card) == 0)
+		{
+			snd_mixer_selem_register(handle, NULL, NULL);
+			snd_mixer_load(handle);
+			snd_mixer_selem_id_alloca(&sid);
+			snd_mixer_selem_id_set_index(sid, 0);
+			snd_mixer_selem_id_set_name(sid, name);
+			elem = snd_mixer_find_selem(handle, sid);
+			if(elem)
+			{
+				snd_mixer_selem_get_playback_volume_range(elem, &minvol, &maxvol);
+				snd_mixer_selem_set_playback_volume_all(elem, vol * (maxvol - minvol) / 1000);
+			}
+		}
+		snd_mixer_close(handle);
+	}
 }
 
 int sandbox_audio_get_playback_volume(void)
@@ -370,27 +375,31 @@ int sandbox_audio_get_playback_volume(void)
 	const char * card = "default";
 	const char * name = "Master";
 	long minvol, maxvol;
-	long vol;
+	long vol = 0;
 
-	snd_mixer_open(&handle, 0);
-	snd_mixer_attach(handle, card);
-	snd_mixer_selem_register(handle, NULL, NULL);
-	snd_mixer_load(handle);
-
-	snd_mixer_selem_id_alloca(&sid);
-	snd_mixer_selem_id_set_index(sid, 0);
-	snd_mixer_selem_id_set_name(sid, name);
-	elem = snd_mixer_find_selem(handle, sid);
-
-	snd_mixer_selem_get_playback_volume_range(elem, &minvol, &maxvol);
-	snd_mixer_selem_get_playback_volume(elem, SND_MIXER_SCHN_FRONT_LEFT, &vol);
-	snd_mixer_close(handle);
-
-	vol = vol * 1000 / (maxvol - minvol);
-	if(vol < 0)
-		vol = 0;
-	else if(vol > 1000)
-		vol = 1000;
+	if(snd_mixer_open(&handle, 0) == 0)
+	{
+		if(snd_mixer_attach(handle, card) == 0)
+		{
+			snd_mixer_selem_register(handle, NULL, NULL);
+			snd_mixer_load(handle);
+			snd_mixer_selem_id_alloca(&sid);
+			snd_mixer_selem_id_set_index(sid, 0);
+			snd_mixer_selem_id_set_name(sid, name);
+			elem = snd_mixer_find_selem(handle, sid);
+			if(elem)
+			{
+				snd_mixer_selem_get_playback_volume_range(elem, &minvol, &maxvol);
+				snd_mixer_selem_get_playback_volume(elem, SND_MIXER_SCHN_FRONT_LEFT, &vol);
+				vol = vol * 1000 / (maxvol - minvol);
+				if(vol < 0)
+					vol = 0;
+				else if(vol > 1000)
+					vol = 1000;
+			}
+		}
+		snd_mixer_close(handle);
+	}
 	return (int)vol;
 }
 
@@ -403,19 +412,24 @@ void sandbox_audio_set_capture_volume(int vol)
 	const char * name = "Capture";
 	long minvol, maxvol;
 
-	snd_mixer_open(&handle, 0);
-	snd_mixer_attach(handle, card);
-	snd_mixer_selem_register(handle, NULL, NULL);
-	snd_mixer_load(handle);
-
-	snd_mixer_selem_id_alloca(&sid);
-	snd_mixer_selem_id_set_index(sid, 0);
-	snd_mixer_selem_id_set_name(sid, name);
-	elem = snd_mixer_find_selem(handle, sid);
-
-	snd_mixer_selem_get_capture_volume_range(elem, &minvol, &maxvol);
-	snd_mixer_selem_set_capture_volume_all(elem, vol * (maxvol - minvol) / 1000);
-	snd_mixer_close(handle);
+	if(snd_mixer_open(&handle, 0) == 0)
+	{
+		if(snd_mixer_attach(handle, card) == 0)
+		{
+			snd_mixer_selem_register(handle, NULL, NULL);
+			snd_mixer_load(handle);
+			snd_mixer_selem_id_alloca(&sid);
+			snd_mixer_selem_id_set_index(sid, 0);
+			snd_mixer_selem_id_set_name(sid, name);
+			elem = snd_mixer_find_selem(handle, sid);
+			if(elem)
+			{
+				snd_mixer_selem_get_capture_volume_range(elem, &minvol, &maxvol);
+				snd_mixer_selem_set_capture_volume_all(elem, vol * (maxvol - minvol) / 1000);
+			}
+		}
+		snd_mixer_close(handle);
+	}
 }
 
 int sandbox_audio_get_capture_volume(void)
@@ -428,24 +442,28 @@ int sandbox_audio_get_capture_volume(void)
 	long minvol, maxvol;
 	long vol;
 
-	snd_mixer_open(&handle, 0);
-	snd_mixer_attach(handle, card);
-	snd_mixer_selem_register(handle, NULL, NULL);
-	snd_mixer_load(handle);
-
-	snd_mixer_selem_id_alloca(&sid);
-	snd_mixer_selem_id_set_index(sid, 0);
-	snd_mixer_selem_id_set_name(sid, name);
-	elem = snd_mixer_find_selem(handle, sid);
-
-	snd_mixer_selem_get_capture_volume_range(elem, &minvol, &maxvol);
-	snd_mixer_selem_get_capture_volume(elem, SND_MIXER_SCHN_FRONT_LEFT, &vol);
-	snd_mixer_close(handle);
-
-	vol = vol * 1000 / (maxvol - minvol);
-	if(vol < 0)
-		vol = 0;
-	else if(vol > 1000)
-		vol = 1000;
+	if(snd_mixer_open(&handle, 0) == 0)
+	{
+		if(snd_mixer_attach(handle, card) == 0)
+		{
+			snd_mixer_selem_register(handle, NULL, NULL);
+			snd_mixer_load(handle);
+			snd_mixer_selem_id_alloca(&sid);
+			snd_mixer_selem_id_set_index(sid, 0);
+			snd_mixer_selem_id_set_name(sid, name);
+			elem = snd_mixer_find_selem(handle, sid);
+			if(elem)
+			{
+				snd_mixer_selem_get_capture_volume_range(elem, &minvol, &maxvol);
+				snd_mixer_selem_get_capture_volume(elem, SND_MIXER_SCHN_FRONT_LEFT, &vol);
+				vol = vol * 1000 / (maxvol - minvol);
+				if(vol < 0)
+					vol = 0;
+				else if(vol > 1000)
+					vol = 1000;
+			}
+		}
+		snd_mixer_close(handle);
+	}
 	return (int)vol;
 }

@@ -38,7 +38,7 @@ static int l_gpio_new(lua_State * L)
 {
 	int offset = luaL_checkinteger(L, 1);
 	struct gpiochip_t * chip = search_gpiochip(offset);
-	if(chip && (offset >= 0) && (offset < chip->ngpio))
+	if(chip && (offset >= 0) && (offset < (chip->base + chip->ngpio)))
 	{
 		struct lgpio_t * gpio = lua_newuserdata(L, sizeof(struct lgpio_t));
 		gpio->chip = chip;

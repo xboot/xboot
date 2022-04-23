@@ -24,6 +24,7 @@ extern "C" {
 #include <bits.h>
 #include <environ.h>
 #include <byteorder.h>
+#include <unaligned.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>

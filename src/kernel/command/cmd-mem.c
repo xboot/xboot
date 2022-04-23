@@ -9,15 +9,17 @@ static int number_table[] = {
 	[0] = 8, [1] = 4, [2] = 4, [4] = 2,
 };
 
-static int align_table[] = {
-	[0] = 3, [1] = 6, [2] = 11, [4] = 16,
+static int dec_align_table[] = {
+	[0] = 4, [1] = 6, [2] = 11, [4] = 20,
+};
+
+static int oct_align_table[] = {
+	[0] = 3, [1] = 6, [2] = 11, [4] = 22,
 };
 
 enum mem_action_t {
 	ACTION_MEM_READ		= 0,
 	ACTION_MEM_WRITE	= 1,
-	ACTION_IOPORT_IN	= 2,
-	ACTION_IOPORT_OUT	= 3,
 };
 
 enum write_operator_t {
@@ -27,11 +29,12 @@ enum write_operator_t {
 	OPERATOR_SUB		= 3,
 	OPERATOR_MUL		= 4,
 	OPERATOR_DIV		= 5,
-	OPERATOR_AND		= 6,
-	OPERATOR_OR			= 7,
-	OPERATOR_XOR		= 8,
-	OPERATOR_LEFT		= 9,
-	OPERATOR_RIGHT		= 10,
+	OPERATOR_MOD		= 6,
+	OPERATOR_AND		= 7,
+	OPERATOR_OR			= 8,
+	OPERATOR_XOR		= 9,
+	OPERATOR_LEFT		= 10,
+	OPERATOR_RIGHT		= 11,
 };
 
 enum value_type_t {
@@ -52,6 +55,8 @@ static enum write_operator_t get_operator(const char * str)
 		return OPERATOR_MUL;
 	else if(!strcmp(str, "/="))
 		return OPERATOR_DIV;
+	else if(!strcmp(str, "%="))
+		return OPERATOR_MOD;
 	else if(!strcmp(str, "&="))
 		return OPERATOR_AND;
 	else if(!strcmp(str, "|="))
@@ -84,6 +89,10 @@ static uint64_t do_operator(enum write_operator_t oper, uint64_t va, uint64_t vb
 	case OPERATOR_DIV:
 		if(vb)
 			va /= vb;
+		break;
+	case OPERATOR_MOD:
+		if(vb)
+			va %= vb;
 		break;
 	case OPERATOR_AND:
 		va &= vb;
@@ -163,7 +172,7 @@ static uint64_t convert_val(char * str)
 	str = tmp + 1;
 
 skip_va:
-    tmp = strchr(str, ')');
+	tmp = strchr(str, ')');
 	if(!tmp || tmp == str)
 		return 0;
 	*tmp = '\0';
@@ -184,11 +193,12 @@ skip_va:
 	}
 
 skip_type:
-    return reversal ? ~va : va;
+	return reversal ? ~va : va;
 }
 
 static void mem_read_usage(void)
 {
+	printf("usage:\r\n");
 	printf("    mem -r /nfu <addr>\r\n");
 	printf("    /n - length\r\n");
 	printf("    /o - octal\r\n");
@@ -262,10 +272,14 @@ static int mem_read(int argc, char *argv[])
 	else
 		goto _usage;
 _pass:
-	if(fmt == 'x')
-		sprintf(buff, "0x%%0%d%c", byte * 2, fmt);
-	else
-		sprintf(buff, "%%-%d%c", align_table[byte / 2], fmt);
+	if (fmt == 'x') {
+		sprintf(buff, "0x%%0%d%s%c", byte * 2,
+				byte == 8 ? "ll" : "", fmt);
+	} else {
+		sprintf(buff, "%%-%d%s%c", (fmt == 'o' ?
+				oct_align_table : dec_align_table)[byte / 2],
+				byte == 8 ? "ll" : "", fmt);
+	}
 _exit:
 	if(count)
 	{
@@ -290,14 +304,14 @@ _exit:
 				printf(buff, read8(addr), read8(addr));
 				break;
 			case 2:
-				printf(buff, read16(addr));
+				printf(buff, unaligned_get_u16(addr));
 				break;
 			case 4:
-				printf(buff, read32(addr));
+				printf(buff, unaligned_get_u32(addr));
 				break;
 			case 8:
 			default:
-				printf(buff, read64(addr));
+				printf(buff, unaligned_get_u64(addr));
 				break;
 			}
 			phys += byte;
@@ -314,12 +328,35 @@ _usage:
 
 static void mem_write_usage(void)
 {
+	printf("usage:\r\n");
 	printf("    mem -w /nu <addr> <operator> <value>\r\n");
 	printf("    /n - length\r\n");
 	printf("    /b - byte (8-bit)\r\n");
 	printf("    /h - halfword (16-bit)\r\n");
 	printf("    /w - word (32-bit)\r\n");
 	printf("    /g - giant word (64-bit)\r\n");
+	printf("    Operator types:\r\n");
+	printf("    +=  - add target memory\r\n");
+	printf("    -=  - sub target memory\r\n");
+	printf("    *=  - mul target memory\r\n");
+	printf("    /=  - div target memory\r\n");
+	printf("    %%=  - mod target memory\r\n");
+	printf("    &=  - and target memory\r\n");
+	printf("    |=  - or  target memory\r\n");
+	printf("    ^=  - xor target memory\r\n");
+	printf("    <<= - shl target memory\r\n");
+	printf("    >>= - shr target memory\r\n");
+	printf("    Value types:\r\n");
+	printf("    BIT(shift)       - create a bitmask\r\n");
+	printf("    SHIFT(shift,val) - create a shifted bitmask\r\n");
+	printf("    RANGE(high,low)  - create a contiguous bitmask\r\n");
+	printf("    ~expression      - bit inversion\r\n");
+	printf("    Expression example:\r\n");
+	printf("    addr &= ~RANGE(7,0)    - 0x000012ff -> 0x00001200\r\n");
+	printf("    addr <<= 16            - 0x00001200 -> 0x12000000\r\n");
+	printf("    addr |= SHIFT(16,0x34) - 0x12000000 -> 0x12340000\r\n");
+	printf("    addr += 0x5670         - 0x12340000 -> 0x12345670\r\n");
+	printf("    addr |= BIT(3)         - 0x12345670 -> 0x12345678\r\n");
 }
 
 static int mem_write(int argc, char * argv[])
@@ -402,22 +439,22 @@ _pass:
 			break;
 
 		case 2:
-			tmp = read16(addr);
+			tmp = unaligned_get_u16(addr);
 			tmp = do_operator(oper, tmp, (uint16_t)value);
-			write16(addr, tmp);
+			unaligned_set_u16(addr, tmp);
 			break;
 
 		case 4:
-			tmp = read32(addr);
+			tmp = unaligned_get_u32(addr);
 			tmp = do_operator(oper, tmp, (uint32_t)value);
-			write32(addr, tmp);
+			unaligned_set_u32(addr, tmp);
 			break;
 
 		case 8:
 		default:
-			tmp = read64(addr);
+			tmp = unaligned_get_u64(addr);
 			tmp = do_operator(oper, tmp, (uint64_t)value);
-			write64(addr, tmp);
+			unaligned_set_u64(addr, tmp);
 			break;
 		}
 		addr += byte;

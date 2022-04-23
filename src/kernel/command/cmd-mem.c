@@ -10,7 +10,7 @@ static int number_table[] = {
 };
 
 static int dec_align_table[] = {
-	[0] = 4, [1] = 6, [2] = 11, [4] = 20,
+	[0] = 3, [1] = 5, [2] = 11, [4] = 20,
 };
 
 static int oct_align_table[] = {

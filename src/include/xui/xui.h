@@ -27,7 +27,7 @@ extern "C" {
 #define XUI_MAX_WIDTHS				(32)
 
 #define T(s)						xui_translate(ctx, (s))
-
+#define xui_timeout(ctx, ms)		({ static ktime_t t = { 0 }; int v = 0; if(ktime_after((ctx)->stamp, ktime_add_ms(t, (ms)))) { t = (ctx)->stamp; v = 1; } v; })
 #define xui_push(stk, val)			do { assert((stk).idx < (int)(sizeof((stk).items) / sizeof(*(stk).items))); (stk).items[(stk).idx] = (val); (stk).idx++; } while(0)
 #define xui_pop(stk)				do { assert((stk).idx > 0); (stk).idx--; } while(0)
 

@@ -37,6 +37,7 @@ static void usage(void)
 
 static int do_date(int argc, char ** argv)
 {
+	struct tm tm;
 	char * fmt = "%c";
 	char buf[256];
 	time_t t;
@@ -45,7 +46,7 @@ static int do_date(int argc, char ** argv)
 		fmt = argv[1];
 	if(time(&t) < 0)
 		return -1;
-	strftime(buf, sizeof(buf), fmt, localtime(&t));
+	strftime(buf, sizeof(buf), fmt, localtime_r(&t, &tm));
 	printf("%s\r\n", buf);
 	return 0;
 }

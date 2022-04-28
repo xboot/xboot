@@ -38,6 +38,7 @@ static void usage(void)
 
 static int do_ntpdate(int argc, char ** argv)
 {
+	struct tm tm;
 	struct net_t * net = NULL;
 	char * host = NULL;
 	char buf[256];
@@ -53,7 +54,7 @@ static int do_ntpdate(int argc, char ** argv)
 		return -1;
 	}
 	time(&t);
-	strftime(buf, sizeof(buf), "%c", localtime(&t));
+	strftime(buf, sizeof(buf), "%c", localtime_r(&t, &tm));
 	printf("%s\r\n", buf);
 	return 0;
 }

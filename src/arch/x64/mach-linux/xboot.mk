@@ -83,11 +83,15 @@ NS_STRING	:=	-Dmemchr=xboot_memchr -Dmemcmp=xboot_memcmp \
 				-Dstrrchr=xboot_strrchr -Dstrsep=xboot_strsep \
 				-Dstrspn=xboot_strspn -Dstrstr=xboot_strstr
 
-NS_TIME		:=	-Dasctime=xboot_asctime -Dclock=xboot_clock \
+NS_TIME		:=	-Dasctime_r=xboot_asctime_r -Dasctime=xboot_asctime \
+				-Dclock=xboot_clock -Dctime_r=xboot_ctime_r \
 				-Dctime=xboot_ctime -Ddifftime=xboot_difftime \
-				-Dgettimeofday=xboot_gettimeofday -Dgmtime=xboot_gmtime \
+				-Dgettimeofday=xboot_gettimeofday -Dgmtime_r=xboot_gmtime_r \
+				-Dgmtime=xboot_gmtime -Dlocaltime_r=xboot_localtime_r \
 				-Dlocaltime=xboot_localtime -Dmktime=xboot_mktime \
-				-Dstrftime=xboot_strftime -Dtime=xboot_time
+				-Dsettimeofday=xboot_settimeofday -Dstrftime=xboot_strftime \
+				-Dtime=xboot_time -Dtimegm=xboot_timegm \
+				-Dtimezone=xboot_timezone
 
 NS_MATH		:=	-Dacos=xboot_acos -Dacosf=xboot_acosf \
 				-Dacosh=xboot_acosh -Dacoshf=xboot_acoshf \

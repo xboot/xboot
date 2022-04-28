@@ -31,6 +31,7 @@ struct timeval {
 
 clock_t clock(void);
 time_t time(time_t * t);
+time_t timegm(struct tm * tm);
 time_t mktime(struct tm * tm);
 double difftime (time_t, time_t);
 struct tm * gmtime(const time_t * t);

@@ -7,6 +7,6 @@
 
 time_t mktime(struct tm * tm)
 {
-	return __tm_to_secs(tm);
+	return timegm(tm);
 }
 EXPORT_SYMBOL(mktime);

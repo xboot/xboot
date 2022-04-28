@@ -15,6 +15,7 @@
 #define HAVE_STDINT_H			(1)
 #define HAVE_LOCALTIME_R		(1)
 #define HAVE_GMTIME_R			(1)
+#define HAVE_CTIME_R			(1)
 
 #endif /* __CAIRO_CONF_H__ */
 

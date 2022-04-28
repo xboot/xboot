@@ -499,53 +499,53 @@ u32_t fatfs_pack_timestamp(u32_t year, u32_t mon, u32_t day, u32_t hour, u32_t m
 
 void fatfs_current_timestamp(u32_t * year, u32_t * mon, u32_t * day, u32_t * hour, u32_t * min, u32_t * sec)
 {
-	struct tm * ti;
+	struct tm ti;
 	time_t t;
 
 	time(&t);
-	ti = localtime(&t);
+	gmtime_r(&t, &ti);
 
 	if(year)
 	{
-		if(ti->tm_year < 80)
+		if(ti.tm_year < 80)
 			*year = 0;
 		else
-			*year = ti->tm_year + 1900 - 1980;
+			*year = ti.tm_year + 1900 - 1980;
 	}
 	if(mon)
-		*mon = ti->tm_mon;
+		*mon = ti.tm_mon;
 	if(day)
-		*day = ti->tm_mday;
+		*day = ti.tm_mday;
 	if(hour)
-		*hour = ti->tm_hour;
+		*hour = ti.tm_hour;
 	if(min)
-		*min = ti->tm_min;
+		*min = ti.tm_min;
 	if(sec)
-		*sec = ti->tm_sec;
+		*sec = ti.tm_sec;
 }
 
-void fatfs_timestamp(time_t *t, u32_t * year, u32_t * mon, u32_t * day, u32_t * hour, u32_t * min, u32_t * sec)
+void fatfs_timestamp(time_t * t, u32_t * year, u32_t * mon, u32_t * day, u32_t * hour, u32_t * min, u32_t * sec)
 {
-	struct tm * ti;
-	ti = localtime(t);
+	struct tm ti;
+	gmtime_r(t, &ti);
 
 	if(year)
 	{
-		if(ti->tm_year < 80)
+		if(ti.tm_year < 80)
 			*year = 0;
 		else
-			*year = ti->tm_year + 1900 - 1980;
+			*year = ti.tm_year + 1900 - 1980;
 	}
 	if(mon)
-		*mon = ti->tm_mon;
+		*mon = ti.tm_mon;
 	if(day)
-		*day = ti->tm_mday;
+		*day = ti.tm_mday;
 	if(hour)
-		*hour = ti->tm_hour;
+		*hour = ti.tm_hour;
 	if(min)
-		*min = ti->tm_min;
+		*min = ti.tm_min;
 	if(sec)
-		*sec = ti->tm_sec;
+		*sec = ti.tm_sec;
 }
 
 bool_t fatfs_control_valid_cluster(struct fatfs_control_t * ctrl, u32_t clust)

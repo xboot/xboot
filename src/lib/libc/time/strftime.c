@@ -7,41 +7,39 @@
 #include <xboot/module.h>
 
 static char * aday[] = {
-    "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"
+	"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"
 };
 
 static char * day[] = {
-    "Sunday", "Monday", "Tuesday", "Wednesday",
-    "Thursday", "Friday", "Saturday"
+	"Sunday", "Monday", "Tuesday", "Wednesday",
+	"Thursday", "Friday", "Saturday"
 };
 
 static char * amonth[] = {
-    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+	"Jan", "Feb", "Mar", "Apr", "May", "Jun",
+	"Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
 };
 
 static char * month[] = {
-    "January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December"
+	"January", "February", "March", "April", "May", "June",
+	"July", "August", "September", "October", "November", "December"
 };
 
-static char buf[26];
-
-static int powers[5] = { 1, 10, 100, 1000, 10000 };
+static const int powers[5] = { 1, 10, 100, 1000, 10000 };
 
 static void strfmt(char * str, const char * fmt, ...)
 {
 	int ival, ilen;
-	char *sval;
+	char * sval;
 	va_list vp;
 
 	va_start(vp, fmt);
-	while (*fmt)
+	while(*fmt)
 	{
-		if (*fmt++ == '%')
+		if(*fmt++ == '%')
 		{
 			ilen = *fmt++ - '0';
-			if (ilen == 0)
+			if(ilen == 0)
 			{
 				sval = va_arg(vp, char *);
 				while (*sval)
@@ -50,11 +48,10 @@ static void strfmt(char * str, const char * fmt, ...)
 			else
 			{
 				ival = va_arg(vp, int);
-
-				while (ilen)
+				while(ilen)
 				{
 					ival %= powers[ilen--];
-					*str++ = (char) ('0' + ival / powers[ilen]);
+					*str++ = (char)('0' + ival / powers[ilen]);
 				}
 			}
 		}
@@ -67,17 +64,18 @@ static void strfmt(char * str, const char * fmt, ...)
 
 size_t strftime(char * s, size_t max, const char * fmt, const struct tm * t)
 {
+	char buf[32];
 	int w, d;
-	char *p, *q, *r;
+	char * p, * q, * r;
 
 	p = s;
 	q = s + max - 1;
-	while ((*fmt != '\0'))
+	while((*fmt != '\0'))
 	{
-		if (*fmt++ == '%')
+		if(*fmt++ == '%')
 		{
 			r = buf;
-			switch (*fmt++)
+			switch(*fmt++)
 			{
 			case '%':
 				r = "%";
@@ -155,11 +153,11 @@ size_t strftime(char * s, size_t max, const char * fmt, const struct tm * t)
 				w = (t->tm_yday + 7 - (t->tm_wday ? t->tm_wday - 1 : 6)) / 7;
 				d = (t->tm_yday + 7 - (t->tm_wday ? t->tm_wday - 1 : 6)) % 7;
 
-				if (d >= 4)
+				if(d >= 4)
 				{
 					w++;
 				}
-				else if (w == 0)
+				else if(w == 0)
 				{
 					w = 53;
 				}
@@ -199,9 +197,9 @@ size_t strftime(char * s, size_t max, const char * fmt, const struct tm * t)
 					fmt--;
 				break;
 			}
-			while (*r)
+			while(*r)
 			{
-				if (p == q)
+				if(p == q)
 				{
 					*q = '\0';
 					return 0;
@@ -211,7 +209,7 @@ size_t strftime(char * s, size_t max, const char * fmt, const struct tm * t)
 		}
 		else
 		{
-			if (p == q)
+			if(p == q)
 			{
 				*q = '\0';
 				return 0;

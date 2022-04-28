@@ -39,6 +39,7 @@ double difftime (time_t, time_t);
 struct tm * gmtime(const time_t * t);
 struct tm * localtime(const time_t * t);
 char * asctime(const struct tm * tm);
+char * asctime_r(const struct tm * tm, char * buf);
 char * ctime(const time_t * t);
 size_t strftime(char * s, size_t max, const char * fmt, const struct tm * t);
 int gettimeofday(struct timeval * tv, const char * tz);

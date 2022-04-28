@@ -7,6 +7,7 @@
 
 struct tm * localtime(const time_t * t)
 {
-	return gmtime(t);
+	static struct tm tm;
+	return localtime_r(t, &tm);
 }
 EXPORT_SYMBOL(localtime);

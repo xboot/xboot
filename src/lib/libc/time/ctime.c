@@ -7,6 +7,9 @@
 
 char * ctime(const time_t * t)
 {
-	return asctime((const struct tm *)localtime(t));
+	struct tm * tm = localtime(t);
+	if(!tm)
+		return NULL;
+	return asctime(tm);
 }
 EXPORT_SYMBOL(ctime);

@@ -45,8 +45,8 @@ char * asctime_r(const struct tm * tm, char * buf);
 char * ctime(const time_t * t);
 char * ctime_r(const time_t * t, char * buf);
 size_t strftime(char * s, size_t max, const char * fmt, const struct tm * t);
-int gettimeofday(struct timeval * tv, const char * tz);
-int settimeofday(struct timeval * tv, const char * tz);
+int gettimeofday(struct timeval * tv, void * tz);
+int settimeofday(struct timeval * tv, void * tz);
 int timezone(const char * tz);
 
 int __secs_to_tm(long long t, struct tm * tm);

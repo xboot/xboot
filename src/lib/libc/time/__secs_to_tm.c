@@ -84,10 +84,10 @@ int __secs_to_tm(long long t, struct tm * tm)
 	tm->tm_mday = remdays + 1;
 	tm->tm_wday = wday;
 	tm->tm_yday = yday;
-
 	tm->tm_hour = remsecs / 3600;
 	tm->tm_min = remsecs / 60 % 60;
 	tm->tm_sec = remsecs % 60;
+	tm->tm_isdst = 0;
 
 	return 0;
 }

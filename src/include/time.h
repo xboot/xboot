@@ -22,9 +22,6 @@ struct tm {
 	int tm_wday;		/* day of week [0 - 6] */
 	int tm_yday;		/* day in year [0 - 365] */
 	int tm_isdst;		/* dst [0 / 1] */
-
-	long __tm_gmtoff;	/* seconds east of utc */
-	char * __tm_zone;	/* timezone abbreviation */
 };
 
 struct timeval {

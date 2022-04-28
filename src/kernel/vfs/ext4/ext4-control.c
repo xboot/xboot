@@ -32,7 +32,7 @@ u32_t ext4fs_current_timestamp(void)
 {
 	struct timeval tv;
 
-	gettimeofday(&tv, 0);
+	gettimeofday(&tv, NULL);
 	return (u32_t)tv.tv_sec;
 }
 

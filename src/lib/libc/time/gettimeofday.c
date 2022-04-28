@@ -21,7 +21,7 @@ static uint32_t rtc_time_to_secs(struct rtc_time_t * rt)
 	return ((((uint32_t)(year / 4 - year / 100 + year / 400 + 367 * month / 12 + rt->day) + year * 365 - 719499) * 24 + rt->hour) * 60 + rt->minute) * 60 + rt->second;
 }
 
-int gettimeofday(struct timeval * tv, void * tz)
+int gettimeofday(struct timeval * tv, const char * tz)
 {
 	static ktime_t old = { -30000000000LL };
 

@@ -56,7 +56,7 @@ static void secs_to_rtc_time(uint32_t time, struct rtc_time_t * rt)
 	rt->second = time - rt->minute * 60;
 }
 
-int settimeofday(struct timeval * tv, void * tz)
+int settimeofday(struct timeval * tv, const char * tz)
 {
 	if(!tv)
 		return -1;

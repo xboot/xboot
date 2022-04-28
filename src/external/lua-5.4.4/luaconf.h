@@ -781,6 +781,8 @@
 */
 #define lua_writeline()		(lua_writestring("\r\n", 2), fflush(stdout))
 #define l_signalT			int
+#define l_gmtime(t,r)		gmtime_r(t,r)
+#define l_localtime(t,r)	localtime_r(t,r)
 
 #endif
 

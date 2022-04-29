@@ -14,7 +14,7 @@ struct rtc_time_t {
 	u8_t week;		/* week [0 - 6] */
 	u8_t day;		/* day [1 - 31] */
 	u8_t month;		/* month [1 - 12] */
-	u16_t year;		/* year */
+	u32_t year;		/* year */
 };
 
 struct rtc_t

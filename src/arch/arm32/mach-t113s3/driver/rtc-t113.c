@@ -54,69 +54,10 @@ enum {
 	RTC_SPI_CLK_CTRL_REG		= 0x310,
 };
 
-#define LEAPS_THRU_END(y)	((y) / 4 - (y) / 100 + (y) / 400)
-#define LEAP_YEAR(year)		((!(year % 4) && (year % 100)) || !(year % 400))
-
 struct rtc_t113_pdata_t {
 	virtual_addr_t virt;
 	char * clk;
 };
-
-static int rtc_month_days(int year, int month)
-{
-	const unsigned char rtc_days_in_month[13] = {
-		0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
-	};
-	return rtc_days_in_month[month] + ((LEAP_YEAR(year) && (month == 2)) ? 1 : 0);
-}
-
-static void to_rtc_time(u32_t time, struct rtc_time_t * rt)
-{
-	u32_t month, year;
-	int days;
-	int newdays;
-
-	days = time / 86400;
-	time -= (u32_t)days * 86400;
-
-	rt->week = (days + 4) % 7;
-	year = 1970 + days / 365;
-	days -= (year - 1970) * 365	+ LEAPS_THRU_END(year - 1) - LEAPS_THRU_END(1970 - 1);
-
-	if(days < 0)
-	{
-		year -= 1;
-		days += 365 + LEAP_YEAR(year);
-	}
-	rt->year = year;
-	rt->day = days + 1;
-
-	for(month = 1; month < 12; month++)
-	{
-		newdays = days - rtc_month_days(year, month);
-		if(newdays < 0)
-			break;
-		days = newdays;
-	}
-	rt->month = month;
-	rt->day = days + 1;
-	rt->hour = time / 3600;
-	time -= rt->hour * 3600;
-	rt->minute = time / 60;
-	rt->second = time - rt->minute * 60;
-}
-
-static u32_t from_rtc_time(struct rtc_time_t * rt)
-{
-	int month = rt->month, year = rt->year;
-
-	if (0 >= (int)(month -= 2))
-	{
-		month += 12;
-		year -= 1;
-	}
-	return ((((u32_t)(year/4 - year/100 + year/400 + 367*month/12 + rt->day) + year*365 - 719499)*24 + rt->hour)*60 + rt->minute)*60 + rt->second;
-}
 
 static int rtc_t113_wait(struct rtc_t113_pdata_t * pdat, u32_t offset, u32_t mask, u32_t ms)
 {
@@ -138,7 +79,7 @@ static bool_t rtc_t113_settime(struct rtc_t * rtc, struct rtc_time_t * time)
 	u32_t d, t;
 
 	t = (time->second << 0) | (time->minute << 8) | (time->hour << 16);
-	d = from_rtc_time(time) / (24 * 3600);
+	d = rtc_time_to_secs(time) / (24 * 3600);
 
 	if(!rtc_t113_wait(pdat, RTC_LOSC_CTRL, 1 << 8, 50))
 		return FALSE;
@@ -162,7 +103,8 @@ static bool_t rtc_t113_settime(struct rtc_t * rtc, struct rtc_time_t * time)
 static bool_t rtc_t113_gettime(struct rtc_t * rtc, struct rtc_time_t * time)
 {
 	struct rtc_t113_pdata_t * pdat = (struct rtc_t113_pdata_t *)rtc->priv;
-	u32_t d, t, tmp;
+	u32_t d, t;
+	u64_t tmp;
 
 	do {
 		d = read32(pdat->virt + RTC_RTC_DAY);
@@ -170,7 +112,7 @@ static bool_t rtc_t113_gettime(struct rtc_t * rtc, struct rtc_time_t * time)
 	} while((d != read32(pdat->virt + RTC_RTC_DAY)) || (t != read32(pdat->virt + RTC_RTC_HH_MM_SS)));
 
 	tmp = ((t >> 0) & 0x3f) + ((t >> 8) & 0x3f) * 60 + ((t >> 16) & 0x1f) * 3600 + d * 24 * 3600;
-	to_rtc_time(tmp, time);
+	secs_to_rtc_time(tmp, time);
 	return TRUE;
 }
 

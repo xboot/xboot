@@ -48,77 +48,15 @@ enum {
 	RTC_ICR		= 0x1c,		/* Interrupt clear register */
 };
 
-#define LEAPS_THRU_END(y)	((y)/4 - (y)/100 + (y)/400)
-#define LEAP_YEAR(year)		((!(year % 4) && (year % 100)) || !(year % 400))
-
 struct rtc_pl031_pdata_t {
 	virtual_addr_t virt;
 };
-
-static int rtc_month_days(int year, int month)
-{
-	const unsigned char rtc_days_in_month[13] = {
-		0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
-	};
-	return rtc_days_in_month[month] + ((LEAP_YEAR(year) && (month == 2)) ? 1 : 0);
-}
-
-static void to_rtc_time(u32_t time, struct rtc_time_t * rt)
-{
-	u32_t month, year;
-	int days;
-	int newdays;
-
-	days = time / 86400;
-	time -= (u32_t)days * 86400;
-
-	rt->week = (days + 4) % 7;
-
-	year = 1970 + days / 365;
-	days -= (year - 1970) * 365	+ LEAPS_THRU_END(year - 1) - LEAPS_THRU_END(1970 - 1);
-
-	if(days < 0)
-	{
-		year -= 1;
-		days += 365 + LEAP_YEAR(year);
-	}
-	rt->year = year;
-	rt->day = days + 1;
-
-	for(month = 1; month < 12; month++)
-	{
-		newdays = days - rtc_month_days(year, month);
-		if(newdays < 0)
-			break;
-		days = newdays;
-	}
-	rt->month = month;
-	rt->day = days + 1;
-
-	rt->hour = time / 3600;
-	time -= rt->hour * 3600;
-	rt->minute = time / 60;
-	rt->second = time - rt->minute * 60;
-}
-
-static u32_t from_rtc_time(struct rtc_time_t * rt)
-{
-	int month = rt->month, year = rt->year;
-
-	if (0 >= (int)(month -= 2))
-	{
-		month += 12;
-		year -= 1;
-	}
-
-	return ((((u32_t)(year/4 - year/100 + year/400 + 367*month/12 + rt->day) + year*365 - 719499)*24 + rt->hour)*60 + rt->minute)*60 + rt->second;
-}
 
 static bool_t rtc_pl031_settime(struct rtc_t * rtc, struct rtc_time_t * time)
 {
 	struct rtc_pl031_pdata_t * pdat = (struct rtc_pl031_pdata_t *)rtc->priv;
 
-	write32(pdat->virt + RTC_LR, from_rtc_time(time));
+	write32(pdat->virt + RTC_LR, (u32_t)rtc_time_to_secs(time));
 	return TRUE;
 }
 
@@ -126,7 +64,7 @@ static bool_t rtc_pl031_gettime(struct rtc_t * rtc, struct rtc_time_t * time)
 {
 	struct rtc_pl031_pdata_t * pdat = (struct rtc_pl031_pdata_t *)rtc->priv;
 
-	to_rtc_time(read32(pdat->virt + RTC_DR), time);
+	secs_to_rtc_time(read32(pdat->virt + RTC_DR), time);
 	return TRUE;
 }
 

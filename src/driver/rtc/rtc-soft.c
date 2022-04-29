@@ -44,14 +44,15 @@ static int rtc_month_days(int year, int month)
 	return rtc_days_in_month[month] + ((LEAP_YEAR(year) && (month == 2)) ? 1 : 0);
 }
 
-static void secs_to_rtc_time(uint32_t time, struct rtc_time_t * rt)
+static void secs_to_rtc_time(uint64_t time, struct rtc_time_t * rt)
 {
-	uint32_t month, year;
+	int year;
+	int month;
 	int days;
 	int newdays;
 
 	days = time / 86400;
-	time -= (uint32_t)days * 86400;
+	time -= (uint64_t)days * 86400;
 
 	rt->week = (days + 4) % 7;
 	year = 1970 + days / 365;
@@ -80,7 +81,7 @@ static void secs_to_rtc_time(uint32_t time, struct rtc_time_t * rt)
 	rt->second = time - rt->minute * 60;
 }
 
-static uint32_t rtc_time_to_secs(struct rtc_time_t * rt)
+static uint64_t rtc_time_to_secs(struct rtc_time_t * rt)
 {
 	int month = rt->month, year = rt->year;
 
@@ -89,7 +90,7 @@ static uint32_t rtc_time_to_secs(struct rtc_time_t * rt)
 		month += 12;
 		year -= 1;
 	}
-	return ((((uint32_t)(year / 4 - year / 100 + year / 400 + 367 * month / 12 + rt->day) + year * 365 - 719499) * 24 + rt->hour) * 60 + rt->minute) * 60 + rt->second;
+	return ((((uint64_t)(year / 4 - year / 100 + year / 400 + 367 * month / 12 + rt->day) + year * 365 - 719499) * 24 + rt->hour) * 60 + rt->minute) * 60 + rt->second;
 }
 
 static bool_t rtc_soft_settime(struct rtc_t * rtc, struct rtc_time_t * time)
@@ -104,7 +105,7 @@ static bool_t rtc_soft_gettime(struct rtc_t * rtc, struct rtc_time_t * time)
 {
 	struct rtc_soft_pdata_t * pdat = (struct rtc_soft_pdata_t *)rtc->priv;
 
-	secs_to_rtc_time((uint32_t)((ktime_to_ns(ktime_get()) + pdat->adjust) / 1000000000ULL), time);
+	secs_to_rtc_time((uint64_t)((ktime_to_ns(ktime_get()) + pdat->adjust) / 1000000000ULL), time);
 	return TRUE;
 }
 

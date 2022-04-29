@@ -20,14 +20,15 @@ static int rtc_month_days(int year, int month)
 	return rtc_days_in_month[month] + ((LEAP_YEAR(year) && (month == 2)) ? 1 : 0);
 }
 
-static void secs_to_rtc_time(uint32_t time, struct rtc_time_t * rt)
+static void secs_to_rtc_time(uint64_t time, struct rtc_time_t * rt)
 {
-	uint32_t month, year;
+	int year;
+	int month;
 	int days;
 	int newdays;
 
 	days = time / 86400;
-	time -= (uint32_t)days * 86400;
+	time -= (uint64_t)days * 86400;
 
 	rt->week = (days + 4) % 7;
 	year = 1970 + days / 365;
@@ -66,7 +67,7 @@ int settimeofday(struct timeval * tv, void * tz)
 	if(rtc)
 	{
 		struct rtc_time_t t;
-		secs_to_rtc_time((uint32_t)tv->tv_sec, &t);
+		secs_to_rtc_time((uint64_t)tv->tv_sec, &t);
 		rtc_settime(rtc, &t);
 	}
 	return 0;

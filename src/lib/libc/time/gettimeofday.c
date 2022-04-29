@@ -9,7 +9,7 @@
 
 int64_t time_of_day_adjust = 0;
 
-static uint32_t rtc_time_to_secs(struct rtc_time_t * rt)
+static uint64_t rtc_time_to_secs(struct rtc_time_t * rt)
 {
 	int month = rt->month, year = rt->year;
 
@@ -18,7 +18,7 @@ static uint32_t rtc_time_to_secs(struct rtc_time_t * rt)
 		month += 12;
 		year -= 1;
 	}
-	return ((((uint32_t)(year / 4 - year / 100 + year / 400 + 367 * month / 12 + rt->day) + year * 365 - 719499) * 24 + rt->hour) * 60 + rt->minute) * 60 + rt->second;
+	return ((((uint64_t)(year / 4 - year / 100 + year / 400 + 367 * month / 12 + rt->day) + year * 365 - 719499) * 24 + rt->hour) * 60 + rt->minute) * 60 + rt->second;
 }
 
 int gettimeofday(struct timeval * tv, void * tz)

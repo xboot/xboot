@@ -8,8 +8,8 @@ static void usage(void)
 
 int main(int argc, char * argv[])
 {
-	uint8_t public[33] = { 0 };
-	uint8_t private[32] = { 0 };
+	uint8_t public_key[33] = { 0 };
+	uint8_t private_key[32] = { 0 };
 	int r = 0, s = 0, c = 0;
 	unsigned int seed;
 	int fd, i;
@@ -58,35 +58,35 @@ int main(int argc, char * argv[])
 		seed = (unsigned int)time(NULL);
 	}
 	srand(seed);
-	if(!ecdsa256_keygen(public, private))
+	if(!ecdsa256_keygen(public_key, private_key))
 		return -1;
 	if(s)
 	{
 		printf("PUBLIC_KEY\t:= \"");
-		for(i = 0; i < sizeof(public); i++)
-			printf("%02x", public[i]);
+		for(i = 0; i < sizeof(public_key); i++)
+			printf("%02x", public_key[i]);
 		printf("\"\r\n");
 		printf("PRIVATE_KEY\t:= \"");
-		for(i = 0; i < sizeof(private); i++)
-			printf("%02x", private[i]);
+		for(i = 0; i < sizeof(private_key); i++)
+			printf("%02x", private_key[i]);
 		printf("\"\r\n");
 	}
 	if(c)
 	{
-		printf("static const uint8_t public[] = {");
-		for(i = 0; i < sizeof(public); i++)
+		printf("static const uint8_t public_key[] = {");
+		for(i = 0; i < sizeof(public_key); i++)
 		{
 			if(i % 8 == 0)
 				printf("\r\n\t");
-			printf("0x%02x, ", public[i]);
+			printf("0x%02x, ", public_key[i]);
 		}
 		printf("\r\n}\r\n");
-		printf("static const uint8_t private[] = {");
-		for(i = 0; i < sizeof(private); i++)
+		printf("static const uint8_t private_key[] = {");
+		for(i = 0; i < sizeof(private_key); i++)
 		{
 			if(i % 8 == 0)
 				printf("\r\n\t");
-			printf("0x%02x, ", private[i]);
+			printf("0x%02x, ", private_key[i]);
 		}
 		printf("\r\n}\r\n");
 	}

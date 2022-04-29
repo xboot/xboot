@@ -32,6 +32,10 @@ struct rtc_t
 	void * priv;
 };
 
+void secs_to_rtc_time(uint64_t time, struct rtc_time_t * rt);
+uint64_t rtc_time_to_secs(struct rtc_time_t * rt);
+int rtc_time_is_valid(struct rtc_time_t * time);
+
 struct rtc_t * search_rtc(const char * name);
 struct rtc_t * search_first_rtc(void);
 struct device_t * register_rtc(struct rtc_t * rtc, struct driver_t * drv);

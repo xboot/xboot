@@ -4,7 +4,7 @@
 
 #include <time.h>
 
-static long long __year_to_secs(long long year, int * is_leap)
+static int64_t __year_to_secs(int64_t year, int * is_leap)
 {
 	if(year - 2ULL <= 136)
 	{
@@ -84,10 +84,10 @@ static int __month_to_secs(int month, int is_leap)
 	return t;
 }
 
-long long __tm_to_secs(const struct tm * tm)
+int64_t __tm_to_secs(const struct tm * tm)
 {
 	int is_leap;
-	long long year = tm->tm_year;
+	int64_t year = tm->tm_year;
 	int month = tm->tm_mon;
 	if(month >= 12 || month < 0)
 	{
@@ -100,7 +100,7 @@ long long __tm_to_secs(const struct tm * tm)
 		}
 		year += adj;
 	}
-	long long t = __year_to_secs(year, &is_leap);
+	int64_t t = __year_to_secs(year, &is_leap);
 	t += __month_to_secs(month, is_leap);
 	t += 86400LL * (tm->tm_mday - 1);
 	t += 3600LL * tm->tm_hour;

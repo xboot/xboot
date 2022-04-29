@@ -52,14 +52,14 @@ int main(int argc, char * argv[])
 	char * blbuf = NULL;
 	char * zblbuf = NULL;
 	char * msg = NULL;
-	uint8_t public[33] = {
+	uint8_t public_key[33] = {
 		0x03, 0xcf, 0xd1, 0x8e, 0x4a, 0x4b, 0x40, 0xd6,
 		0x52, 0x94, 0x48, 0xaa, 0x2d, 0xf8, 0xbb, 0xb6,
 		0x77, 0x12, 0x82, 0x58, 0xb8, 0xfb, 0xfc, 0x5b,
 		0x9e, 0x49, 0x2f, 0xbb, 0xba, 0x4e, 0x84, 0x83,
 		0x2f,
 	};
-	uint8_t private[32] = {
+	uint8_t private_key[32] = {
 		0xdc, 0x57, 0xb8, 0xa9, 0xe0, 0xe2, 0xb7, 0xf8,
 		0xb4, 0xc9, 0x29, 0xbd, 0x8d, 0xb2, 0x84, 0x4e,
 		0x53, 0xf0, 0x1f, 0x17, 0x1b, 0xbc, 0xdf, 0x6e,
@@ -105,7 +105,7 @@ int main(int argc, char * argv[])
 			if(p && (strcmp(p, "") != 0) && (strlen(p) == 33 * 2))
 			{
 				for(o = 0; o < 33; o++)
-					public[o] = hex_string(p, o * 2);
+					public_key[o] = hex_string(p, o * 2);
 			}
 			i++;
 		}
@@ -115,7 +115,7 @@ int main(int argc, char * argv[])
 			if(p && (strcmp(p, "") != 0) && (strlen(p) == 32 * 2))
 			{
 				for(o = 0; o < 32; o++)
-					private[o] = hex_string(p, o * 2);
+					private_key[o] = hex_string(p, o * 2);
 			}
 			i++;
 		}
@@ -200,7 +200,7 @@ int main(int argc, char * argv[])
 	z->dsize[1] = (bllen >> 16) & 0xff;
 	z->dsize[2] = (bllen >>  8) & 0xff;
 	z->dsize[3] = (bllen >>  0) & 0xff;
-	memcpy(&z->pubkey[0], &public[0], 33);
+	memcpy(&z->pubkey[0], &public_key[0], 33);
 	if(msg)
 		strncpy((char *)&z->message[0], msg, 112 - 1);
 
@@ -221,10 +221,10 @@ int main(int argc, char * argv[])
 	printf("\r\n");
 	printf("Ecdsa256 private key:\r\n\t");
 	for(o = 0; o < 32; o++)
-		printf("%02x", private[o]);
+		printf("%02x", private_key[o]);
 	printf("\r\n");
 
-	ecdsa256_sign(private, &z->sha256[0], &z->signature[0]);
+	ecdsa256_sign(private_key, &z->sha256[0], &z->signature[0]);
 	if(!ecdsa256_verify(&z->pubkey[0], &z->sha256[0], &z->signature[0]))
 	{
 		printf("Ecdsa256 signature verify failed, please check the ecdsa256 public and private key!\r\n");

@@ -238,7 +238,7 @@ struct window_t * window_alloc(const char * fb, const char * input)
 	w->rl = region_list_alloc(0);
 	w->event = fifo_alloc(sizeof(struct event_t) * CONFIG_EVENT_FIFO_SIZE);
 	w->launcher = 0;
-	if(p)
+	if(p && (*p != '\0'))
 	{
 		w->map = hmap_alloc(0);
 		while((r = strsep(&p, ",;:|")) != NULL)

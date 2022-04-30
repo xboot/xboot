@@ -296,13 +296,14 @@ const char * machine_uniqueid(void)
 int machine_keygen(const char * msg, void * key)
 {
 	struct machine_t * mach = get_machine();
+	int len;
 
 	if(msg && key)
 	{
-		if(mach && mach->keygen && (mach->keygen(mach, msg, key) > 0))
-			return 1;
+		if(mach && mach->keygen && (len = mach->keygen(mach, msg, key) > 0))
+			return len;
 		sha256_hash(msg, strlen(msg), key);
-		return 1;
+		return 32;
 	}
 	return 0;
 }

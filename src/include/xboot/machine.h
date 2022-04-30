@@ -59,6 +59,7 @@ void machine_cleanup(void);
 int machine_logger(const char * fmt, ...);
 const char * machine_uniqueid(void);
 int machine_keygen(const char * msg, void * key);
+int machine_approve(const void * pubkey, const void * signature);
 
 #if	defined(CONFIG_NO_LOG) && (CONFIG_NO_LOG > 0)
 #define LOG(fmt, arg...)		do { } while(0)

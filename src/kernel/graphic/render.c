@@ -1221,7 +1221,10 @@ void render_default_shape_polyline(struct surface_t * s, struct region_t * clip,
 		xvg_move_to(&ctx, p[0].x, p[0].y);
 		for(i = 1; i < n; i++)
 			xvg_line_to(&ctx, p[i].x, p[i].y);
-		xvg_stroke(&ctx);
+		if(thickness > 0)
+			xvg_stroke(&ctx);
+		else
+			xvg_fill(&ctx);
 		xvg_exit(&ctx);
 	}
 }
@@ -1245,7 +1248,10 @@ void render_default_shape_curve(struct surface_t * s, struct region_t * clip, st
 		xvg_move_to(&ctx, p[0].x, p[0].y);
 		for(i = 1; i <= n - 3; i += 3)
 			xvg_cubic_bezto(&ctx, p[i].x, p[i].y, p[i + 1].x, p[i + 1].y, p[i + 2].x, p[i + 2].y);
-		xvg_stroke(&ctx);
+		if(thickness > 0)
+			xvg_stroke(&ctx);
+		else
+			xvg_fill(&ctx);
 		xvg_exit(&ctx);
 	}
 }

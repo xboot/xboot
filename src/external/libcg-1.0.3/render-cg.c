@@ -147,7 +147,15 @@ static void render_cg_shape_polyline(struct surface_t * s, struct region_t * cli
 		for(i = 1; i < n; i++)
 			cg_line_to(cg, p[i].x, p[i].y);
 		cg_set_source_rgba(cg, c->r / 255.0, c->g / 255.0, c->b / 255.0, c->a / 255.0);
-		cg_set_line_width(cg, thickness > 0 ? thickness : 1);
+		if(thickness > 0)
+		{
+			cg_set_line_width(cg, thickness);
+			cg_stroke(cg);
+		}
+		else
+		{
+			cg_fill(cg);
+		}
 		cg_stroke(cg);
 		cg_restore(cg);
 	}
@@ -180,8 +188,15 @@ static void render_cg_shape_curve(struct surface_t * s, struct region_t * clip, 
 		for(i = 1; i <= n - 3; i += 3)
 			cg_curve_to(cg, p[i].x, p[i].y, p[i + 1].x, p[i + 1].y, p[i + 2].x, p[i + 2].y);
 		cg_set_source_rgba(cg, c->r / 255.0, c->g / 255.0, c->b / 255.0, c->a / 255.0);
-		cg_set_line_width(cg, thickness > 0 ? thickness : 1);
-		cg_stroke(cg);
+		if(thickness > 0)
+		{
+			cg_set_line_width(cg, thickness);
+			cg_stroke(cg);
+		}
+		else
+		{
+			cg_fill(cg);
+		}
 		cg_restore(cg);
 	}
 }

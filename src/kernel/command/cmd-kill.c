@@ -59,6 +59,7 @@ static int do_kill(int argc, char ** argv)
 {
 	struct window_manager_t * pos, * n;
 	struct window_t * wpos, * wn;
+	int find = 0;
 
 	if(argc < 2)
 	{
@@ -73,12 +74,13 @@ static int do_kill(int argc, char ** argv)
 			if(strcmp(argv[1], wpos->task->name) == 0)
 			{
 				window_exit(wpos);
-				return 0;
+				find = 1;
 			}
 		}
 	}
-	printf("No such window task '%s'\r\n", argv[1]);
-	return -1;
+	if(!find)
+		printf("No such window task '%s'\r\n", argv[1]);
+	return 0;
 }
 
 static struct command_t cmd_kill = {

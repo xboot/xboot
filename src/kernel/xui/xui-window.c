@@ -100,7 +100,12 @@ int xui_begin_window_ex(struct xui_context_t * ctx, const char * title, struct r
 				if(~opt & XUI_WINDOW_NOCLOSE)
 				{
 					id = xui_get_id(ctx, "!close", 6);
-					xui_draw_icon(ctx, ctx->style.font.icon_family, ctx->style.window.close_icon, hcr.x, hcr.y, hcr.w, hcr.h, &ctx->style.window.text_color);
+					int u = (hcr.h * 164) >> 9;
+					int v = (hcr.h * 348) >> 9;
+					int t = (hcr.h *  42) >> 9;
+					xui_draw_circle(ctx, hcr.x + (hcr.h >> 1), hcr.y + (hcr.h >> 1), (hcr.h * 213) >> 9, 0, &ctx->style.window.text_color);
+					xui_draw_line(ctx, &(struct point_t){hcr.x + u, hcr.y + u}, &(struct point_t){hcr.x + v, hcr.y + v}, t, &ctx->style.window.title_color);
+					xui_draw_line(ctx, &(struct point_t){hcr.x + u, hcr.y + v}, &(struct point_t){hcr.x + v, hcr.y + u}, t, &ctx->style.window.title_color);
 					xui_control_update(ctx, id, &hcr, opt);
 					if((ctx->active == id) && (ctx->mouse.up & XUI_MOUSE_LEFT))
 						c->open = 0;

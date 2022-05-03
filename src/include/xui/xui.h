@@ -370,7 +370,6 @@ struct xui_style_t {
 	} layout;
 
 	struct {
-		uint32_t close_icon;
 		int border_radius;
 		int border_width;
 		int title_height;

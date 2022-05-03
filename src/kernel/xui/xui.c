@@ -146,7 +146,6 @@ static const char style_default[] = X({
 	"layout-spacing": 4,
 	"layout-indent": 24,
 
-	"window-close-icon": 58825,
 	"window-border-radius": 4,
 	"window-border-width": 4,
 	"window-title-height": 24,
@@ -1372,10 +1371,6 @@ void xui_load_style(struct xui_context_t * ctx, const char * json, int len)
 						ctx->style.layout.indent = o->u.integer;
 					break;
 
-				case 0x4f4608f6: /* "window-close-icon" */
-					if(o && (o->type == JSON_INTEGER))
-						ctx->style.window.close_icon = o->u.integer;
-					break;
 				case 0xb2771add: /* "window-border-radius" */
 					if(o && (o->type == JSON_INTEGER))
 						ctx->style.window.border_radius = o->u.integer;

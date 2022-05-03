@@ -398,8 +398,6 @@ struct xui_style_t {
 	} collapse;
 
 	struct {
-		uint32_t collapsed_icon;
-		uint32_t expanded_icon;
 		int border_radius;
 		int border_width;
 	} tree;

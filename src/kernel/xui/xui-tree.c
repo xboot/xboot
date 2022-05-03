@@ -29,6 +29,28 @@
 #include <xboot.h>
 #include <xui/tree.h>
 
+static void xui_draw_arrow(struct xui_context_t * ctx, int expanded, struct region_t * r, struct color_t * c)
+{
+	if(expanded)
+	{
+		struct point_t expanded_pts[] = {
+			{ (r->x + (r->h * 149 >> 9)), (r->y + (r->h * 202 >> 9)) },
+			{ (r->x + (r->h * 256 >> 9)), (r->y + (r->h * 310 >> 9)) },
+			{ (r->x + (r->h * 363 >> 9)), (r->y + (r->h * 202 >> 9)) },
+		};
+		xui_draw_polyline(ctx, expanded_pts, ARRAY_SIZE(expanded_pts), 0, c);
+	}
+	else
+	{
+		struct point_t collapsed_pts[] = {
+			{ (r->x + (r->h * 202 >> 9)), (r->y + (r->h * 149 >> 9)) },
+			{ (r->x + (r->h * 202 >> 9)), (r->y + (r->h * 363 >> 9)) },
+			{ (r->x + (r->h * 310 >> 9)), (r->y + (r->h * 256 >> 9)) },
+		};
+		xui_draw_polyline(ctx, collapsed_pts, ARRAY_SIZE(collapsed_pts), 0, c);
+	}
+}
+
 int xui_begin_tree_ex(struct xui_context_t * ctx, const char * label, int opt)
 {
 	unsigned int id = xui_get_id(ctx, label, strlen(label));
@@ -99,7 +121,7 @@ int xui_begin_tree_ex(struct xui_context_t * ctx, const char * label, int opt)
 			xui_draw_rectangle(ctx, r.x, r.y, r.w, r.h, radius, 0, bg);
 		if(fg->a)
 		{
-			xui_draw_icon(ctx, ctx->style.font.icon_family, expanded ? ctx->style.tree.expanded_icon : ctx->style.tree.collapsed_icon, r.x, r.y, r.h, r.h, fg);
+			xui_draw_arrow(ctx, expanded, &r, fg);
 			r.x += r.h - ctx->style.layout.padding;
 			r.w -= r.h - ctx->style.layout.padding;
 			if(label)
@@ -117,7 +139,7 @@ int xui_begin_tree_ex(struct xui_context_t * ctx, const char * label, int opt)
 			xui_draw_rectangle(ctx, r.x, r.y, r.w, r.h, radius, 0, bg);
 		if(fg->a)
 		{
-			xui_draw_icon(ctx, ctx->style.font.icon_family, expanded ? ctx->style.tree.expanded_icon : ctx->style.tree.collapsed_icon, r.x, r.y, r.h, r.h, fg);
+			xui_draw_arrow(ctx, expanded, &r, fg);
 			r.x += r.h - ctx->style.layout.padding;
 			r.w -= r.h - ctx->style.layout.padding;
 			if(label)
@@ -131,7 +153,7 @@ int xui_begin_tree_ex(struct xui_context_t * ctx, const char * label, int opt)
 		bc = &wc->normal.border;
 		if(bg->a)
 		{
-			xui_draw_icon(ctx, ctx->style.font.icon_family, expanded ? ctx->style.tree.expanded_icon : ctx->style.tree.collapsed_icon, r.x, r.y, r.h, r.h, bg);
+			xui_draw_arrow(ctx, expanded, &r, bg);
 			r.x += r.h - ctx->style.layout.padding;
 			r.w -= r.h - ctx->style.layout.padding;
 			if(label)

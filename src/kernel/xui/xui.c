@@ -166,8 +166,6 @@ static const char style_default[] = X({
 	"collapse-border-radius": 2,
 	"collapse-border-width": 0,
 
-	"tree-collapsed-icon": 58828,
-	"tree-expanded-icon": 58831,
 	"tree-border-radius": 2,
 	"tree-border-width": 0,
 
@@ -1439,14 +1437,6 @@ void xui_load_style(struct xui_context_t * ctx, const char * json, int len)
 						ctx->style.collapse.border_width = o->u.integer;
 					break;
 
-				case 0xfa1f8d0f: /* "tree-collapsed-icon" */
-					if(o && (o->type == JSON_INTEGER))
-						ctx->style.tree.collapsed_icon = o->u.integer;
-					break;
-				case 0x11dfc2e1: /* "tree-expanded-icon" */
-					if(o && (o->type == JSON_INTEGER))
-						ctx->style.tree.expanded_icon = o->u.integer;
-					break;
 				case 0xa2dc6c55: /* "tree-border-radius" */
 					if(o && (o->type == JSON_INTEGER))
 						ctx->style.tree.border_radius = o->u.integer;

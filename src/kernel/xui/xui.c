@@ -176,7 +176,6 @@ static const char style_default[] = X({
 	"button-border-width": 4,
 	"button-outline-width": 2,
 
-	"checkbox-check-icon": 59510,
 	"checkbox-border-radius": 4,
 	"checkbox-border-width": 4,
 	"checkbox-outline-width": 2,
@@ -1475,10 +1474,6 @@ void xui_load_style(struct xui_context_t * ctx, const char * json, int len)
 						ctx->style.button.outline_width = o->u.integer;
 					break;
 
-				case 0x8ef2db2d: /* "checkbox-check-icon" */
-					if(o && (o->type == JSON_INTEGER))
-						ctx->style.checkbox.check_icon = o->u.integer;
-					break;
 				case 0xd513cbcc: /* "checkbox-border-radius" */
 					if(o && (o->type == JSON_INTEGER))
 						ctx->style.checkbox.border_radius = o->u.integer;

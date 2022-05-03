@@ -412,7 +412,6 @@ struct xui_style_t {
 	} button;
 
 	struct {
-		uint32_t check_icon;
 		int border_radius;
 		int border_width;
 		int outline_width;

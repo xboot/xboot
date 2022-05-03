@@ -106,7 +106,14 @@ int xui_checkbox_ex(struct xui_context_t * ctx, const char * label, int * state,
 	if(bg->a)
 		xui_draw_rectangle(ctx, r->x, r->y, r->h, r->h, radius, *state ? 0 : ctx->style.checkbox.outline_width, bg);
 	if(*state)
-		xui_draw_icon(ctx, ctx->style.font.icon_family, ctx->style.checkbox.check_icon, r->x, r->y, r->h, r->h, fg);
+	{
+		struct point_t pts[] = {
+			{ (r->x + (r->h * 122 >> 9)), (r->y + (r->h * 241 >> 9)) },
+			{ (r->x + (r->h * 213 >> 9)), (r->y + (r->h * 332 >> 9)) },
+			{ (r->x + (r->h * 390 >> 9)), (r->y + (r->h * 155 >> 9)) },
+		};
+		xui_draw_polyline(ctx, pts, ARRAY_SIZE(pts), (r->h * 42) >> 9, fg);
+	}
 	if(label && fg->a)
 	{
 		region_init(&region, r->x + r->h, r->y, r->w - r->h, r->h);

@@ -126,84 +126,84 @@ static void pcba_window(struct xui_context_t * ctx)
 			if(xui_textedit(ctx, qrcode, sizeof(qrcode)) & (1 << 0))
 			{
 			}
-			if(xui_button_ex(ctx, 0xf2ed, NULL, XUI_BUTTON_PRIMARY | XUI_BUTTON_OUTLINE))
+			if(xui_button_ex(ctx, 0xe14a, NULL, XUI_BUTTON_PRIMARY | XUI_BUTTON_OUTLINE))
 				qrcode[0] = 0;
 
 			xui_layout_row(ctx, 1, (int[]){ -1 }, 40);
 			xui_split(ctx);
 
 			xui_layout_row(ctx, 2, (int[]){ -40, -1 }, 40);
-			if(xui_tabbar(ctx, 62637, T("Information"), item == PCBA_ITEM_INFORMATION))
+			if(xui_tabbar(ctx, 0xe88f, T("Information"), item == PCBA_ITEM_INFORMATION))
 				item = PCBA_ITEM_INFORMATION;
 			xui_badge_result(ctx, result[PCBA_ITEM_INFORMATION]);
 
 			xui_layout_row(ctx, 2, (int[]){ -40, -1 }, 40);
-			if(xui_tabbar(ctx, 62060, T("LCD"), item == PCBA_ITEM_LCD))
+			if(xui_tabbar(ctx, 0xef5b, T("LCD"), item == PCBA_ITEM_LCD))
 				item = PCBA_ITEM_LCD;
 			xui_badge_result(ctx, result[PCBA_ITEM_LCD]);
 
 			xui_layout_row(ctx, 2, (int[]){ -40, -1 }, 40);
-			if(xui_tabbar(ctx, 62042, T("Touchscreen"), item == PCBA_ITEM_TOUCHSCREEN))
+			if(xui_tabbar(ctx, 0xe913, T("Touchscreen"), item == PCBA_ITEM_TOUCHSCREEN))
 				item = PCBA_ITEM_TOUCHSCREEN;
 			xui_badge_result(ctx, result[PCBA_ITEM_TOUCHSCREEN]);
 
 			xui_layout_row(ctx, 2, (int[]){ -40, -1 }, 40);
-			if(xui_tabbar(ctx, 0xf042, T("Backlight"), item == PCBA_ITEM_BACKLIGHT))
+			if(xui_tabbar(ctx, 0xe8bd, T("Backlight"), item == PCBA_ITEM_BACKLIGHT))
 				item = PCBA_ITEM_BACKLIGHT;
 			xui_badge_result(ctx, result[PCBA_ITEM_BACKLIGHT]);
 
 			xui_layout_row(ctx, 2, (int[]){ -40, -1 }, 40);
-			if(xui_tabbar(ctx, 0xf0eb, T("Led"), item == PCBA_ITEM_LED))
+			if(xui_tabbar(ctx, 0xf02a, T("Led"), item == PCBA_ITEM_LED))
 				item = PCBA_ITEM_LED;
 			xui_badge_result(ctx, result[PCBA_ITEM_LED]);
 
 			xui_layout_row(ctx, 2, (int[]){ -40, -1 }, 40);
-			if(xui_tabbar(ctx, 0xf2ce, T("Buzzer"), item == PCBA_ITEM_BUZZER))
+			if(xui_tabbar(ctx, 0xef49, T("Buzzer"), item == PCBA_ITEM_BUZZER))
 				item = PCBA_ITEM_BUZZER;
 			xui_badge_result(ctx, result[PCBA_ITEM_BUZZER]);
 
 			xui_layout_row(ctx, 2, (int[]){ -40, -1 }, 40);
-			if(xui_tabbar(ctx, 0xf2ce, T("Vibrator"), item == PCBA_ITEM_VIBRATOR))
+			if(xui_tabbar(ctx, 0xe62d, T("Vibrator"), item == PCBA_ITEM_VIBRATOR))
 				item = PCBA_ITEM_VIBRATOR;
 			xui_badge_result(ctx, result[PCBA_ITEM_VIBRATOR]);
 
 			xui_layout_row(ctx, 2, (int[]){ -40, -1 }, 40);
-			if(xui_tabbar(ctx, 0xf3c5, T("Gnns"), item == PCBA_ITEM_GNNS))
+			if(xui_tabbar(ctx, 0xe0c8, T("Gnns"), item == PCBA_ITEM_GNNS))
 				item = PCBA_ITEM_GNNS;
 			xui_badge_result(ctx, result[PCBA_ITEM_GNNS]);
 
 			xui_layout_row(ctx, 2, (int[]){ -40, -1 }, 40);
-			if(xui_tabbar(ctx, 0xf030, T("Camera"), item == PCBA_ITEM_CAMERA))
+			if(xui_tabbar(ctx, 0xe3af, T("Camera"), item == PCBA_ITEM_CAMERA))
 				item = PCBA_ITEM_CAMERA;
 			xui_badge_result(ctx, result[PCBA_ITEM_CAMERA]);
 
 			xui_layout_row(ctx, 2, (int[]){ -40, -1 }, 40);
-			if(xui_tabbar(ctx, 0xf030, T("Speaker"), item == PCBA_ITEM_SPEAKER))
+			if(xui_tabbar(ctx, 0xe050, T("Speaker"), item == PCBA_ITEM_SPEAKER))
 				item = PCBA_ITEM_SPEAKER;
 			xui_badge_result(ctx, result[PCBA_ITEM_SPEAKER]);
 
 			xui_layout_row(ctx, 2, (int[]){ -40, -1 }, 40);
-			if(xui_tabbar(ctx, 0xf796, T("Ethernet"), item == PCBA_ITEM_ETHERNET))
+			if(xui_tabbar(ctx, 0xe8be, T("Ethernet"), item == PCBA_ITEM_ETHERNET))
 				item = PCBA_ITEM_ETHERNET;
 			xui_badge_result(ctx, result[PCBA_ITEM_ETHERNET]);
 
 			xui_layout_row(ctx, 2, (int[]){ -40, -1 }, 40);
-			if(xui_tabbar(ctx, 0xf1eb, T("Wifi"), item == PCBA_ITEM_WIFI))
+			if(xui_tabbar(ctx, 0xe63e, T("Wifi"), item == PCBA_ITEM_WIFI))
 				item = PCBA_ITEM_WIFI;
 			xui_badge_result(ctx, result[PCBA_ITEM_WIFI]);
 
 			xui_layout_row(ctx, 2, (int[]){ -40, -1 }, 40);
-			if(xui_tabbar(ctx, 0xf7c0, T("Bluetooth"), item == PCBA_ITEM_BLUETOOTH))
+			if(xui_tabbar(ctx, 0xe1a7, T("Bluetooth"), item == PCBA_ITEM_BLUETOOTH))
 				item = PCBA_ITEM_BLUETOOTH;
 			xui_badge_result(ctx, result[PCBA_ITEM_BLUETOOTH]);
 
 			xui_layout_row(ctx, 2, (int[]){ -40, -1 }, 40);
-			if(xui_tabbar(ctx, 0xf0a0, T("Udisk"), item == PCBA_ITEM_UDISK))
+			if(xui_tabbar(ctx, 0xe1e0, T("Udisk"), item == PCBA_ITEM_UDISK))
 				item = PCBA_ITEM_UDISK;
 			xui_badge_result(ctx, result[PCBA_ITEM_UDISK]);
 
 			xui_layout_row(ctx, 2, (int[]){ -40, -1 }, 40);
-			if(xui_tabbar(ctx, 0xf7c2, T("Tfcard"), item == PCBA_ITEM_TFCARD))
+			if(xui_tabbar(ctx, 0xe623, T("Tfcard"), item == PCBA_ITEM_TFCARD))
 				item = PCBA_ITEM_TFCARD;
 			xui_badge_result(ctx, result[PCBA_ITEM_TFCARD]);
 
@@ -211,11 +211,11 @@ static void pcba_window(struct xui_context_t * ctx)
 			xui_split(ctx);
 
 			xui_layout_row(ctx, 1, (int[]){ -1 }, 40);
-			if(xui_button_ex(ctx, 0xf7b6, T("Sleep"), XUI_BUTTON_PRIMARY | XUI_OPT_TEXT_LEFT))
+			if(xui_button_ex(ctx, 0xef44, T("Sleep"), XUI_BUTTON_PRIMARY | XUI_OPT_TEXT_LEFT))
 				machine_sleep();
-			if(xui_button_ex(ctx, 0xf2ea, T("Reboot"), XUI_BUTTON_PRIMARY | XUI_OPT_TEXT_LEFT))
+			if(xui_button_ex(ctx, 0xf053, T("Reboot"), XUI_BUTTON_PRIMARY | XUI_OPT_TEXT_LEFT))
 				machine_reboot();
-			if(xui_button_ex(ctx, 0xf011, T("Shutdown"), XUI_BUTTON_PRIMARY | XUI_OPT_TEXT_LEFT))
+			if(xui_button_ex(ctx, 0xe8ac, T("Shutdown"), XUI_BUTTON_PRIMARY | XUI_OPT_TEXT_LEFT))
 				machine_shutdown();
 
 			xui_layout_row(ctx, 1, (int[]){ -1 }, 40);
@@ -733,13 +733,13 @@ static void pcba_window(struct xui_context_t * ctx)
 			xui_begin_panel(ctx, "!result");
 			{
 				xui_layout_row(ctx, 2, (int[]){ xui_get_container(ctx)->region.w * 0.5, -1 }, -1);
-				if(xui_button_ex(ctx, 61796, T("Pass"), XUI_BUTTON_SUCCESS | XUI_BUTTON_ROUNDED | XUI_OPT_TEXT_LEFT))
+				if(xui_button_ex(ctx, 0xe8dc, T("Pass"), XUI_BUTTON_SUCCESS | XUI_BUTTON_ROUNDED | XUI_OPT_TEXT_LEFT))
 				{
 					result[item] = 1;
 					if(item + 1 < PCBA_ITEM_MAX)
 						item++;
 				}
-				if(xui_button_ex(ctx, 61797, T("Fail"), XUI_BUTTON_DANGER | XUI_BUTTON_ROUNDED | XUI_OPT_TEXT_LEFT))
+				if(xui_button_ex(ctx, 0xe8db, T("Fail"), XUI_BUTTON_DANGER | XUI_BUTTON_ROUNDED | XUI_OPT_TEXT_LEFT))
 				{
 					result[item] = 0;
 					if(item + 1 < PCBA_ITEM_MAX)

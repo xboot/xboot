@@ -135,7 +135,7 @@ static const char style_default[] = X({
 		"active-border-color": "#323a4660",
 	},
 
-	"icon-family": "fa-solid",
+	"icon-family": "material-icons",
 	"font-family": "roboto-regular",
 	"text-color": "#6c757dff",
 	"font-size": 16,
@@ -146,7 +146,7 @@ static const char style_default[] = X({
 	"layout-spacing": 4,
 	"layout-indent": 24,
 
-	"window-close-icon": 61527,
+	"window-close-icon": 58825,
 	"window-border-radius": 4,
 	"window-border-width": 4,
 	"window-title-height": 24,
@@ -167,8 +167,8 @@ static const char style_default[] = X({
 	"collapse-border-radius": 2,
 	"collapse-border-width": 0,
 
-	"tree-collapsed-icon": 61563,
-	"tree-expanded-icon": 61564,
+	"tree-collapsed-icon": 58828,
+	"tree-expanded-icon": 58831,
 	"tree-border-radius": 2,
 	"tree-border-width": 0,
 
@@ -176,7 +176,7 @@ static const char style_default[] = X({
 	"button-border-width": 4,
 	"button-outline-width": 2,
 
-	"checkbox-check-icon": 61452,
+	"checkbox-check-icon": 59510,
 	"checkbox-border-radius": 4,
 	"checkbox-border-width": 4,
 	"checkbox-outline-width": 2,

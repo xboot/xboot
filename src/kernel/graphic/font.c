@@ -259,20 +259,20 @@ struct font_context_t * font_context_alloc(void)
 	FTC_ImageCache_New((FTC_Manager)ctx->manager, (FTC_ImageCache *)&ctx->image);
 	init_list_head(&ctx->list);
 
-	font_add(ctx, NULL, "roboto-thin",			"/framework/assets/fonts/Roboto-Thin.ttf");
-	font_add(ctx, NULL, "roboto-Thin-italic",	"/framework/assets/fonts/Roboto-ThinItalic.ttf");
-	font_add(ctx, NULL, "roboto-light",			"/framework/assets/fonts/Roboto-Light.ttf");
-	font_add(ctx, NULL, "roboto-light-italic",	"/framework/assets/fonts/Roboto-LightItalic.ttf");
-	font_add(ctx, NULL, "roboto-regular",		"/framework/assets/fonts/Roboto-Regular.ttf");
-	font_add(ctx, NULL, "roboto-italic",		"/framework/assets/fonts/Roboto-Italic.ttf");
-	font_add(ctx, NULL, "roboto-medium",		"/framework/assets/fonts/Roboto-Medium.ttf");
-	font_add(ctx, NULL, "roboto-medium-italic",	"/framework/assets/fonts/Roboto-MediumItalic.ttf");
-	font_add(ctx, NULL, "roboto-bold",			"/framework/assets/fonts/Roboto-Bold.ttf");
-	font_add(ctx, NULL, "roboto-bold-italic",	"/framework/assets/fonts/Roboto-BoldItalic.ttf");
-	font_add(ctx, NULL, "roboto-black",			"/framework/assets/fonts/Roboto-Black.ttf");
-	font_add(ctx, NULL, "roboto-black-italic",	"/framework/assets/fonts/Roboto-BlackItalic.ttf");
+	font_add(ctx, NULL, "roboto-thin",				"/framework/assets/fonts/Roboto-Thin.ttf");
+	font_add(ctx, NULL, "roboto-Thin-italic",		"/framework/assets/fonts/Roboto-ThinItalic.ttf");
+	font_add(ctx, NULL, "roboto-light",				"/framework/assets/fonts/Roboto-Light.ttf");
+	font_add(ctx, NULL, "roboto-light-italic",		"/framework/assets/fonts/Roboto-LightItalic.ttf");
+	font_add(ctx, NULL, "roboto-regular",			"/framework/assets/fonts/Roboto-Regular.ttf");
+	font_add(ctx, NULL, "roboto-italic",			"/framework/assets/fonts/Roboto-Italic.ttf");
+	font_add(ctx, NULL, "roboto-medium",			"/framework/assets/fonts/Roboto-Medium.ttf");
+	font_add(ctx, NULL, "roboto-medium-italic",		"/framework/assets/fonts/Roboto-MediumItalic.ttf");
+	font_add(ctx, NULL, "roboto-bold",				"/framework/assets/fonts/Roboto-Bold.ttf");
+	font_add(ctx, NULL, "roboto-bold-italic",		"/framework/assets/fonts/Roboto-BoldItalic.ttf");
+	font_add(ctx, NULL, "roboto-black",				"/framework/assets/fonts/Roboto-Black.ttf");
+	font_add(ctx, NULL, "roboto-black-italic",		"/framework/assets/fonts/Roboto-BlackItalic.ttf");
 
-	font_add(ctx, NULL, "fa-solid",				"/framework/assets/fonts/fa-solid-900.ttf");
+	font_add(ctx, NULL, "material-icons",			"/framework/assets/fonts/MaterialIcons-Regular.ttf");
 
 	return ctx;
 }

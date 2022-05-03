@@ -48,22 +48,22 @@ static void usage(void)
 
 static const char menu_json[] = X([
 	{
-		"icon": 63414,
+		"icon": 61252,
 		"title": "Sleep",
 		"command": "sleep"
 	},
 	{
-		"icon": 61528,
+		"icon": 61523,
 		"title": "Reboot",
 		"command": "reboot"
 	},
 	{
-		"icon": 61526,
+		"icon": 59564,
 		"title": "Shutdown",
 		"command": "shutdown"
 	},
 	{
-		"icon": 61526,
+		"icon": 59513,
 		"title": "Exit menu program",
 		"command": "kill menu;"
 	}

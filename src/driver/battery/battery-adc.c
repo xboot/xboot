@@ -84,10 +84,10 @@ static inline int battery_adc_get_level(struct battery_adc_pdata_t * pdat, int v
 		voltage = c[0].voltage;
 		level = c[0].level;
 	}
-	else if(voltage > c[pdat->ncc - 1].voltage)
+	else if(voltage > c[nc - 1].voltage)
 	{
-		voltage = c[pdat->ncc - 1].voltage;
-		level = c[pdat->ncc - 1].level;
+		voltage = c[nc - 1].voltage;
+		level = c[nc - 1].level;
 	}
 
 	for(i = 1; i < nc; i++)

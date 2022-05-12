@@ -78,31 +78,25 @@ static inline int battery_adc_get_level(struct battery_adc_pdata_t * pdat, int v
 		c = pdat->dc;
 		nc = pdat->ndc;
 	}
-
-	if(voltage < c[0].voltage)
+	if(voltage <= c[0].voltage)
 	{
-		voltage = c[0].voltage;
-		level = c[0].level;
+		level = c[0].level + (c[1].level - c[0].level) * (voltage - c[0].voltage) / (c[1].voltage - c[0].voltage);
 	}
-	else if(voltage > c[nc - 1].voltage)
+	else if(voltage >= c[nc - 1].voltage)
 	{
-		voltage = c[nc - 1].voltage;
-		level = c[nc - 1].level;
+		level = c[nc - 2].level + (c[nc - 1].level - c[nc - 2].level) * (voltage - c[nc - 2].voltage) / (c[nc - 1].voltage - c[nc - 2].voltage);
 	}
-
-	for(i = 1; i < nc; i++)
+	else
 	{
-		if(voltage < c[i].voltage)
+		for(i = 1; i < nc; i++)
 		{
-			level = c[i - 1].level + (c[i].level - c[i - 1].level) * (voltage - c[i - 1].voltage) / (c[i].voltage - c[i - 1].voltage);
-			break;
-		}
-		else
-		{
-			level = c[i].level;
+			if(voltage < c[i].voltage)
+			{
+				level = c[i - 1].level + (c[i].level - c[i - 1].level) * (voltage - c[i - 1].voltage) / (c[i].voltage - c[i - 1].voltage);
+				break;
+			}
 		}
 	}
-
 	if(level < 0)
 		level = 0;
 	else if(level > 100)
@@ -152,10 +146,10 @@ static struct device_t * battery_adc_probe(struct driver_t * drv, struct dtnode_
 	if(!(adc = search_adc(dt_read_string(n, "adc-name", NULL))))
 		return NULL;
 
-	if((ncc = dt_read_array_length(n, "charging-curve")) <= 0)
+	if((ncc = dt_read_array_length(n, "charging-curve")) < 2)
 		return NULL;
 
-	if((ndc = dt_read_array_length(n, "discharging-curve")) <= 0)
+	if((ndc = dt_read_array_length(n, "discharging-curve")) < 2)
 		return NULL;
 
 	pdat = malloc(sizeof(struct battery_adc_pdata_t));
@@ -189,15 +183,15 @@ static struct device_t * battery_adc_probe(struct driver_t * drv, struct dtnode_
 	for(i = 0; i < ncc; i++)
 	{
 		dt_read_array_object(n, "charging-curve", i, &o);
-		cc[i].voltage = dt_read_int(&o, "voltage", -1);
-		cc[i].level = dt_read_int(&o, "level", -1);
+		cc[i].voltage = dt_read_int(&o, "voltage", 0);
+		cc[i].level = dt_read_int(&o, "level", 0);
 	}
 
 	for(i = 0; i < ndc; i++)
 	{
 		dt_read_array_object(n, "discharging-curve", i, &o);
-		dc[i].voltage = dt_read_int(&o, "voltage", -1);
-		dc[i].level = dt_read_int(&o, "level", -1);
+		dc[i].voltage = dt_read_int(&o, "voltage", 0);
+		dc[i].level = dt_read_int(&o, "level", 0);
 	}
 
 	pdat->adc = adc;

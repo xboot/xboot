@@ -74,18 +74,12 @@ const char * setting_get(const char * key, const char * def)
 	return v;
 }
 
-static void hmap_entry_callback(struct hmap_entry_t * e)
-{
-	if(e)
-		free(e->value);
-}
-
 void setting_clear(void)
 {
 	irq_flags_t flags;
 
 	spin_lock_irqsave(&__setting.lock, flags);
-	hmap_clear(__setting.map, hmap_entry_callback);
+	hmap_clear(__setting.map);
 	__setting.dirty = 1;
 	timer_start(&__setting.timer, ms_to_ktime(5000));
 	spin_unlock_irqrestore(&__setting.lock, flags);
@@ -137,6 +131,12 @@ static int setting_timer_function(struct timer_t * timer, void * data)
 	return 0;
 }
 
+static void hmap_entry_callback(struct hmap_t * m, struct hmap_entry_t * e)
+{
+	if(e)
+		free(e->value);
+}
+
 void do_init_setting(void)
 {
 	struct vfs_stat_t st;
@@ -144,7 +144,7 @@ void do_init_setting(void)
 	int fd, n, len = 0;
 	irq_flags_t flags;
 
-	__setting.map = hmap_alloc(0);
+	__setting.map = hmap_alloc(0, hmap_entry_callback);
 	__setting.path = "/private/setting.cfg";
 	__setting.dirty = 0;
 	timer_init(&__setting.timer, setting_timer_function, NULL);

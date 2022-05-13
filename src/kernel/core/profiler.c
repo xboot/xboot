@@ -29,20 +29,20 @@
 #include <xboot.h>
 #include <xboot/profiler.h>
 
-struct hmap_t * profiler_alloc(int size)
-{
-	return hmap_alloc(size);
-}
-
-static void hmap_entry_callback(struct hmap_entry_t * e)
+static void hmap_entry_callback(struct hmap_t * m, struct hmap_entry_t * e)
 {
 	if(e && e->value)
 		free(e->value);
 }
 
+struct hmap_t * profiler_alloc(int size)
+{
+	return hmap_alloc(size, hmap_entry_callback);
+}
+
 void profiler_free(struct hmap_t * m)
 {
-	hmap_free(m, hmap_entry_callback);
+	hmap_free(m);
 }
 
 struct profiler_t * profiler_search(struct hmap_t * m, const char * name)

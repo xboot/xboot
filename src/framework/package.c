@@ -216,11 +216,17 @@ static struct surface_t * package_panel_default(void)
 	return __package_panel;
 }
 
+static void hmap_entry_callback(struct hmap_t * m, struct hmap_entry_t * e)
+{
+	if(e)
+		package_free(e->value);
+}
+
 struct hmap_t * get_package_list(void)
 {
 	if(!__package_list)
 	{
-		__package_list = hmap_alloc(0);
+		__package_list = hmap_alloc(0, hmap_entry_callback);
 		package_rescan();
 	}
 	return __package_list;
@@ -287,12 +293,6 @@ struct surface_t * package_get_panel(struct package_t * pkg)
 	return package_panel_default();
 }
 
-static void hmap_entry_callback(struct hmap_entry_t * e)
-{
-	if(e)
-		package_free(e->value);
-}
-
 void package_rescan(void)
 {
 	struct package_t * pkg;
@@ -304,7 +304,7 @@ void package_rescan(void)
 
 	if(__package_list)
 	{
-		hmap_clear(__package_list, hmap_entry_callback);
+		hmap_clear(__package_list);
 		sl = slist_alloc();
 		path = "/application";
 		if(vfs_stat(path, &st) >= 0 && S_ISDIR(st.st_mode))

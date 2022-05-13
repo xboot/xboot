@@ -240,7 +240,7 @@ struct window_t * window_alloc(const char * fb, const char * input)
 	w->launcher = 0;
 	if(p && (*p != '\0'))
 	{
-		w->map = hmap_alloc(0);
+		w->map = hmap_alloc(0, NULL);
 		while((r = strsep(&p, ",;:|")) != NULL)
 		{
 			dev = search_input(r);
@@ -291,7 +291,7 @@ void window_free(struct window_t * w)
 	if(w->wm->wcount <= 0)
 		window_manager_free(w->wm);
 	fifo_free(w->event);
-	hmap_free(w->map, NULL);
+	hmap_free(w->map);
 	framebuffer_destroy_surface(w->wm->fb, w->s);
 	region_list_free(w->rl);
 	free(w);

@@ -69,12 +69,6 @@ struct nvmem_t * search_first_nvmem(void)
 	return (struct nvmem_t *)dev->priv;
 }
 
-static void hmap_entry_callback(struct hmap_entry_t * e)
-{
-	if(e)
-		free(e->value);
-}
-
 static int kvdb_timer_function(struct timer_t * timer, void * data)
 {
 	struct nvmem_t * m = (struct nvmem_t *)data;
@@ -124,6 +118,12 @@ static int kvdb_timer_function(struct timer_t * timer, void * data)
 	return 0;
 }
 
+static void hmap_entry_callback(struct hmap_t * m, struct hmap_entry_t * e)
+{
+	if(e)
+		free(e->value);
+}
+
 static void nvmem_init_kvdb(struct nvmem_t * m)
 {
 	irq_flags_t flags;
@@ -136,7 +136,7 @@ static void nvmem_init_kvdb(struct nvmem_t * m)
 	if(m)
 	{
 		timer_init(&m->kvdb.timer, kvdb_timer_function, m);
-		m->kvdb.map = hmap_alloc(0);
+		m->kvdb.map = hmap_alloc(0, hmap_entry_callback);
 		spin_lock_init(&m->kvdb.lock);
 		m->kvdb.dirty = 0;
 
@@ -203,7 +203,7 @@ struct device_t * register_nvmem(struct nvmem_t * m, struct driver_t * drv)
 	if(!register_device(dev))
 	{
 		timer_cancel(&m->kvdb.timer);
-		hmap_free(m->kvdb.map, hmap_entry_callback);
+		hmap_free(m->kvdb.map);
 		kobj_remove_self(dev->kobj);
 		free(dev->name);
 		free(dev);
@@ -222,7 +222,7 @@ void unregister_nvmem(struct nvmem_t * m)
 		if(dev && unregister_device(dev))
 		{
 			timer_cancel(&m->kvdb.timer);
-			hmap_free(m->kvdb.map, hmap_entry_callback);
+			hmap_free(m->kvdb.map);
 			kobj_remove_self(dev->kobj);
 			free(dev->name);
 			free(dev);
@@ -324,7 +324,7 @@ void nvmem_clear(struct nvmem_t * m)
 	if(m)
 	{
 		spin_lock_irqsave(&m->kvdb.lock, flags);
-		hmap_clear(m->kvdb.map, hmap_entry_callback);
+		hmap_clear(m->kvdb.map);
 		m->kvdb.dirty = 1;
 		timer_start(&m->kvdb.timer, ms_to_ktime(5000));
 		spin_unlock_irqrestore(&m->kvdb.lock, flags);

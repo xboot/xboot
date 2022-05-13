@@ -1211,12 +1211,6 @@ struct xui_context_t * xui_context_alloc(const char * fb, const char * input, vo
 	return ctx;
 }
 
-static void hmap_entry_callback(struct hmap_entry_t * e)
-{
-	if(e && e->value)
-		free(e->value);
-}
-
 void xui_context_free(struct xui_context_t * ctx)
 {
 	if(ctx)
@@ -1224,7 +1218,7 @@ void xui_context_free(struct xui_context_t * ctx)
 		window_free(ctx->w);
 		font_context_free(ctx->f);
 		if(ctx->lang)
-			hmap_free(ctx->lang, hmap_entry_callback);
+			hmap_free(ctx->lang);
 		if(ctx->cells[0])
 			free(ctx->cells[0]);
 		if(ctx->cells[1])
@@ -1584,6 +1578,12 @@ void xui_load_style(struct xui_context_t * ctx, const char * json, int len)
 	}
 }
 
+static void hmap_entry_callback(struct hmap_t * m, struct hmap_entry_t * e)
+{
+	if(e && e->value)
+		free(e->value);
+}
+
 void xui_load_lang(struct xui_context_t * ctx, const char * json, int len)
 {
 	struct json_value_t * v;
@@ -1593,10 +1593,10 @@ void xui_load_lang(struct xui_context_t * ctx, const char * json, int len)
 	if(json && (len > 0))
 	{
 		if(!ctx->lang)
-			ctx->lang = hmap_alloc(0);
+			ctx->lang = hmap_alloc(0, hmap_entry_callback);
 		if(ctx->lang)
 		{
-			hmap_clear(ctx->lang, hmap_entry_callback);
+			hmap_clear(ctx->lang);
 			v = json_parse(json, len, NULL);
 			if(v && (v->type == JSON_OBJECT))
 			{

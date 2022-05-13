@@ -478,6 +478,7 @@ struct xui_context_t {
 	struct window_t * w;
 	struct font_context_t * f;
 	struct hmap_t * lang;
+	struct lru_t * surface;
 	struct region_t screen;
 	unsigned int cpshift;
 	unsigned int cpsize;
@@ -716,6 +717,7 @@ struct xui_context_t * xui_context_alloc(const char * fb, const char * input, vo
 void xui_context_free(struct xui_context_t * ctx);
 void xui_load_style(struct xui_context_t * ctx, const char * json, int len);
 void xui_load_lang(struct xui_context_t * ctx, const char * json, int len);
+struct surface_t * xui_load_surface(struct xui_context_t * ctx, const char * path);
 void xui_add_font(struct xui_context_t * ctx,  const char * family, const char * path);
 void xui_loop(struct xui_context_t * ctx, void (*func)(struct xui_context_t *));
 

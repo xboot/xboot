@@ -1183,6 +1183,7 @@ struct xui_context_t * xui_context_alloc(const char * fb, const char * input, vo
 	ctx->w = window_alloc(fb, input);
 	ctx->f = font_context_alloc();
 	ctx->lang = NULL;
+	ctx->surface = NULL;
 	region_init(&ctx->screen, 0, 0, window_get_width(ctx->w), window_get_height(ctx->w));
 	ctx->cpshift = 7;
 	ctx->cpsize = 1 << ctx->cpshift;
@@ -1219,6 +1220,8 @@ void xui_context_free(struct xui_context_t * ctx)
 		font_context_free(ctx->f);
 		if(ctx->lang)
 			hmap_free(ctx->lang);
+		if(ctx->surface)
+			lru_free(ctx->surface);
 		if(ctx->cells[0])
 			free(ctx->cells[0]);
 		if(ctx->cells[1])
@@ -1618,6 +1621,38 @@ void xui_load_lang(struct xui_context_t * ctx, const char * json, int len)
 			json_free(v);
 		}
 	}
+}
+
+static void lru_callback(struct lru_t * l, const char * key, int nkey, void * buf, int nbuf)
+{
+	struct surface_t * s;
+
+	if(nbuf == sizeof(struct surface_t *))
+	{
+		memcpy(&s, buf, nbuf);
+		surface_free(s);
+	}
+}
+
+struct surface_t * xui_load_surface(struct xui_context_t * ctx, const char * path)
+{
+	struct surface_t * s = NULL;
+
+	if(!ctx->surface)
+		ctx->surface = lru_alloc(0, 0, lru_callback);
+	if(lru_get(ctx->surface, path, strlen(path), &s, sizeof(struct surface_t *)) != sizeof(struct surface_t *))
+	{
+		struct xfs_context_t * xfs;
+		xfs = xfs_alloc("/private/framework", 0);
+		if(xfs)
+		{
+			s = surface_alloc_from_xfs(xfs, path);
+			if(s)
+				lru_set(ctx->surface, path, strlen(path), &s, sizeof(struct surface_t *));
+			xfs_free(xfs);
+		}
+	}
+	return s;
 }
 
 void xui_add_font(struct xui_context_t * ctx,  const char * family, const char * path)

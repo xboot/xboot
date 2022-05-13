@@ -42,6 +42,7 @@ extern "C" {
 #include <list.h>
 #include <lsort.h>
 #include <slist.h>
+#include <lru.h>
 #include <hmap.h>
 #include <fifo.h>
 #include <queue.h>

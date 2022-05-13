@@ -76,6 +76,8 @@ static inline void lru_hash_remove(struct lru_t * l, const char * key, int nkey,
 
 static inline void lru_remove_item_hv(struct lru_t * l, struct lru_item_t * item, uint32_t hv)
 {
+	if(l->callback)
+		l->callback(l, item->data, item->nkey, item->data + item->nkey + 1, item->nbytes - sizeof(struct lru_item_t) - item->nkey - 1);
 	lru_hash_remove(l, item->data, item->nkey, hv);
 	if(l->head == item)
 	{
@@ -137,7 +139,7 @@ static inline void * lru_alloc_item(struct lru_t * l, int sz, struct lru_item_t 
 	return m;
 }
 
-struct lru_t * lru_alloc(size_t maxbytes, unsigned int hashpower)
+struct lru_t * lru_alloc(size_t maxbytes, unsigned int hashpower, void (*cb)(struct lru_t *, const char *, int, void *, int))
 {
 	struct lru_t * l;
 
@@ -145,8 +147,8 @@ struct lru_t * lru_alloc(size_t maxbytes, unsigned int hashpower)
 	if(!l)
 		return NULL;
 
-	l->hashpower = (hashpower == 0 || hashpower > 32) ? 16 : hashpower;
-	l->max_bytes = (maxbytes <= 0) ? SZ_1M : maxbytes;
+	l->hashpower = (hashpower == 0 || hashpower > 32) ? 12 : hashpower;
+	l->max_bytes = (maxbytes <= 0) ? SZ_512K : maxbytes;
 	l->curr_bytes = 0;
 	l->table = calloc((1 << l->hashpower), sizeof(void *));
 	if(!l->table)
@@ -156,6 +158,7 @@ struct lru_t * lru_alloc(size_t maxbytes, unsigned int hashpower)
 	}
 	l->head = NULL;
 	l->tail = NULL;
+	l->callback = cb;
 
 	return l;
 }
@@ -177,7 +180,7 @@ void lru_free(struct lru_t * l)
 	}
 }
 
-int lru_get(struct lru_t * l, const char * key, int nkey, char * buf, int nbuf)
+int lru_get(struct lru_t * l, const char * key, int nkey, void * buf, int nbuf)
 {
 	struct lru_item_t * item = lru_hash_search(l, key, nkey, lru_hash(key, nkey));
 	int len;
@@ -194,7 +197,7 @@ int lru_get(struct lru_t * l, const char * key, int nkey, char * buf, int nbuf)
 	return 0;
 }
 
-int lru_set(struct lru_t * l, const char * key, int nkey, char * buf, int nbuf)
+int lru_set(struct lru_t * l, const char * key, int nkey, void * buf, int nbuf)
 {
 	uint32_t hv = lru_hash(key, nkey);
 	struct lru_item_t * old = lru_hash_search(l, key, nkey, hv);

@@ -21,12 +21,13 @@ struct lru_t {
 	struct lru_item_t ** table;
 	struct lru_item_t * head;
 	struct lru_item_t * tail;
+	void (*callback)(struct lru_t * l, const char * key, int nkey, void * buf, int nbuf);
 };
 
-struct lru_t * lru_alloc(size_t maxbytes, unsigned int hashpower);
+struct lru_t * lru_alloc(size_t maxbytes, unsigned int hashpower, void (*cb)(struct lru_t *, const char *, int, void *, int));
 void lru_free(struct lru_t * l);
-int lru_get(struct lru_t * l, const char * key, int nkey, char * buf, int nbuf);
-int lru_set(struct lru_t * l, const char * key, int nkey, char * buf, int nbuf);
+int lru_get(struct lru_t * l, const char * key, int nkey, void * buf, int nbuf);
+int lru_set(struct lru_t * l, const char * key, int nkey, void * buf, int nbuf);
 int lru_remove(struct lru_t * l, const char * key, int nkey);
 
 #ifdef __cplusplus

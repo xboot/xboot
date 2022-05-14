@@ -4,12 +4,11 @@ M.STATE_NORMAL = "NORMAL"
 M.STATE_PRESSED = "PRESSED"
 M.STATE_DISABLED = "DISABLED"
 
-function M:init(option, name)
+function M:init(option)
 	self.super:init()
 
 	local assets = assets
 	local option = option or {}
-	local theme = assets:loadTheme(name)
 
 	self.opt = {}
 	self.opt.x = option.x or 0
@@ -19,19 +18,9 @@ function M:init(option, name)
 	self.opt.visible = option.visible or true
 	self.opt.touchable = option.touchable or true
 	self.opt.enable = option.enable or true
-	self.opt.text = option.text
-	self.opt.imageNormal = assert(option.imageNormal or theme.button.image.normal)
-	self.opt.imagePressed = assert(option.imagePressed or theme.button.image.pressed)
-	self.opt.imageDisabled = assert(option.imageDisabled or theme.button.image.disabled)
-	self.opt.textFontFamily = assert(option.textFontFamily or theme.button.text.fontFamily)
-	self.opt.textFontSize = assert(option.textFontSize or theme.button.text.fontSize)
-	self.opt.textColorNormal = assert(option.textColorNormal or theme.button.text.color.normal)
-	self.opt.textColorPressed = assert(option.textColorPressed or theme.button.text.color.pressed)
-	self.opt.textColorDisabled = assert(option.textColorDisabled or theme.button.text.color.disabled)
-	self.opt.textMarginLeft = assert(option.textMarginLeft or theme.button.text.margin.left)
-	self.opt.textMarginTop = assert(option.textMarginTop or theme.button.text.margin.top)
-	self.opt.textMarginRight = assert(option.textMarginRight or theme.button.text.margin.right)
-	self.opt.textMarginBottom = assert(option.textMarginBottom or theme.button.text.margin.bottom)
+	self.opt.imageNormal = assert(option.imageNormal)
+	self.opt.imagePressed = assert(option.imagePressed)
+	self.opt.imageDisabled = assert(option.imageDisabled)
 
 	self.frameNormal = assets:loadDisplay(self.opt.imageNormal)
 	self.framePressed = assets:loadDisplay(self.opt.imagePressed)
@@ -49,7 +38,6 @@ function M:init(option, name)
 	self:setVisible(self.opt.visible)
 	self:setTouchable(self.opt.touchable)
 	self:setEnable(self.opt.enable)
-	self:setText(self.opt.text)
 	self:updateVisualState()
 
 	self:addEventListener("mouse-down", self.onMouseDown)
@@ -82,20 +70,6 @@ function M:setSize(width, height)
 	self.frameNormal:setSize(width, height)
 	self.framePressed:setSize(width, height)
 	self.frameDisabled:setSize(width, height)
-	return self
-end
-
-function M:setText(text)
-	if text then
-		if self.text then
-			self.text:setText(text)
-		else
-			self.text = DisplayText.new(text, self.opt.textColorNormal, self.opt.textFontFamily, self.opt.textFontSize)
-		end
-	else
-		self.text = nil
-	end
-	self:updateVisualState()
 	return self
 end
 
@@ -205,16 +179,6 @@ function M:updateVisualState()
 		if not self:contains(self.frameNormal) then
 			self:addChild(self.frameNormal)
 		end
-		if self.text then
-			if not self:contains(self.text) then
-				self:addChild(self.text)
-			end
-			self.text:toFront():setColor(self.opt.textColorNormal)
-		else
-			if self:contains(self.text) then
-				self:removeChild(self.text)
-			end
-		end
 	elseif self.state == self.STATE_PRESSED then
 		if self:contains(self.frameNormal) then
 			self:removeChild(self.frameNormal)
@@ -225,16 +189,6 @@ function M:updateVisualState()
 		if not self:contains(self.framePressed) then
 			self:addChild(self.framePressed)
 		end
-		if self.text then
-			if not self:contains(self.text) then
-				self:addChild(self.text)
-			end
-			self.text:toFront():setColor(self.opt.textColorPressed)
-		else
-			if self:contains(self.text) then
-				self:removeChild(self.text)
-			end
-		end
 	elseif self.state == self.STATE_DISABLED then
 		if self:contains(self.frameNormal) then
 			self:removeChild(self.frameNormal)
@@ -244,16 +198,6 @@ function M:updateVisualState()
 		end
 		if not self:contains(self.frameDisabled) then
 			self:addChild(self.frameDisabled)
-		end
-		if self.text then
-			if not self:contains(self.text) then
-				self:addChild(self.text)
-			end
-			self.text:toFront():setColor(self.opt.textColorDisabled)
-		else
-			if self:contains(self.text) then
-				self:removeChild(self.text)
-			end
 		end
 	end
 end

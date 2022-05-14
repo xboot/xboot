@@ -35,12 +35,12 @@ function M:init(option, name)
 	self.opt.textMarginRight = assert(option.textMarginRight or theme.checkbox.text.margin.right)
 	self.opt.textMarginBottom = assert(option.textMarginBottom or theme.checkbox.text.margin.bottom)
 
-	self.frameOnNormal = assets:loadDisplay(self.opt.imageOnNormal):setLayoutEnable(true)
-	self.frameOnPressed = assets:loadDisplay(self.opt.imageOnPressed):setLayoutEnable(true)
-	self.frameOnDisabled = assets:loadDisplay(self.opt.imageOnDisabled):setLayoutEnable(true)
-	self.frameOffNormal = assets:loadDisplay(self.opt.imageOffNormal):setLayoutEnable(true)
-	self.frameOffPressed = assets:loadDisplay(self.opt.imageOffPressed):setLayoutEnable(true)
-	self.frameOffDisabled = assets:loadDisplay(self.opt.imageOffDisabled):setLayoutEnable(true)
+	self.frameOnNormal = assets:loadDisplay(self.opt.imageOnNormal)
+	self.frameOnPressed = assets:loadDisplay(self.opt.imageOnPressed)
+	self.frameOnDisabled = assets:loadDisplay(self.opt.imageOnDisabled)
+	self.frameOffNormal = assets:loadDisplay(self.opt.imageOffNormal)
+	self.frameOffPressed = assets:loadDisplay(self.opt.imageOffPressed)
+	self.frameOffDisabled = assets:loadDisplay(self.opt.imageOffDisabled)
 
 	local width, height = self.frameOnNormal:getSize()
 	self.opt.width = width
@@ -57,7 +57,6 @@ function M:init(option, name)
 	self:setChecked(self.opt.checked)
 	self:setText(self.opt.text)
 	self:setSize(0, 0)
-	self:setLayoutDirection("row"):setLayoutJustify("start"):setLayoutAlign("center")
 	self:updateVisualState()
 
 	self:addEventListener("mouse-down", self.onMouseDown)
@@ -106,8 +105,6 @@ function M:setText(text)
 			self.text:setText(text)
 		else
 			self.text = DisplayText.new(text, self.opt.textColorNormal, self.opt.textFontFamily, self.opt.textFontSize)
-			self.text:setLayoutMargin(self.opt.textMarginLeft, self.opt.textMarginTop, self.opt.textMarginRight, self.opt.textMarginBottom)
-			self.text:setLayoutEnable(true)
 		end
 	else
 		self.text = nil

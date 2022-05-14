@@ -1,4 +1,4 @@
-local Button = require "xboot.widget.Button"
+local Button = require ("Button")
 local Tile = require("Tile")
 local Score = require("Score")
 local M = Class(DisplayObject)

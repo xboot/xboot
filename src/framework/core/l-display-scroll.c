@@ -44,11 +44,6 @@ function M:init(w, h, vertial, friction)
 	self._view = DisplayObject.new(self._width, self._height)
 	self:addChild(self._view)
 
-	if not self._vertial then
-		self._view:setLayoutDirection("row"):setLayoutJustify("between"):setLayoutAlign("stretch")
-	else
-		self._view:setLayoutDirection("column"):setLayoutJustify("between"):setLayoutAlign("stretch")
-	end
 	self:addEventListener("mouse-down", self.onMouseDown)
 	self:addEventListener("mouse-move", self.onMouseMove)
 	self:addEventListener("mouse-up", self.onMouseUp)
@@ -93,15 +88,12 @@ end
 
 function M:addItem(item)
 	if item then
-		local left, top, right, bottom = item:getLayoutMargin()
 		if not self._vertial then
-			item:setLayoutEnable(1):setLayoutAlignSelf("auto"):setLayoutGrow(1):setLayoutShrink(1):setLayoutBasis(1)
-			self._width = self._width + item:getWidth() + left + right
+			self._width = self._width + item:getWidth()
 			self._height = self:getHeight()
 		else
-			item:setLayoutEnable(1):setLayoutAlignSelf("auto"):setLayoutGrow(1):setLayoutShrink(1):setLayoutBasis(1)
 			self._width = self:getWidth()
-			self._height = self._height + item:getHeight() + top + bottom
+			self._height = self._height + item:getHeight()
 		end
 		self._view:addChild(item)
 		self._view:setSize(self._width, self._height)
@@ -111,13 +103,12 @@ end
 
 function M:removeItem(item)
 	if item then
-		local left, top, right, bottom = item:getLayoutMargin()
 		if not self._vertial then
-			self._width = self._width - item:getWidth() - left - right
+			self._width = self._width - item:getWidth()
 			self._height = self:getHeight()
 		else
 			self._width = self:getWidth()
-			self._height = self._height - item:getHeight() - top - bottom
+			self._height = self._height - item:getHeight()
 		end
 		self._view:removeChild(item)
 		self._view:setSize(self._width, self._height)

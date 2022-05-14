@@ -42,23 +42,6 @@ struct ldobject_t {
 	double anchorx, anchory;
 	struct color_t bgcolor;
 
-	struct {
-		int style;
-		double grow;
-		double shrink;
-		double basis;
-		double width, height;
-		struct {
-			double left;
-			double top;
-			double right;
-			double bottom;
-		} margin;
-
-		double x, y;
-		double w, h;
-	} layout;
-
 	enum collider_type_t ctype;
 	union {
 		struct {

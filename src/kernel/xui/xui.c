@@ -849,6 +849,32 @@ void xui_draw_glass(struct xui_context_t * ctx, int x, int y, int w, int h, int 
 	}
 }
 
+void xui_draw_shadow(struct xui_context_t * ctx, int x, int y, int w, int h, int radius, struct color_t * c, int refresh)
+{
+	union xui_cmd_t * cmd;
+	struct region_t r;
+	int r2 = radius << 1;
+	int r4 = radius << 2;
+	int clip;
+
+	region_init(&r, x - r2, y - r2, w + r4, h + r4);
+	if((clip = xui_check_clip(ctx, &r)))
+	{
+		if(clip < 0)
+			xui_cmd_push_clip(ctx, xui_get_clip(ctx));
+		cmd = xui_cmd_push(ctx, XUI_CMD_TYPE_SHADOW, sizeof(struct xui_cmd_glass_t), &r);
+		cmd->shadow.x = x;
+		cmd->shadow.y = y;
+		cmd->shadow.w = w;
+		cmd->shadow.h = h;
+		cmd->shadow.radius = radius;
+		memcpy(&cmd->shadow.c, c, sizeof(struct color_t));
+		cmd->shadow.refresh ^= refresh ? 1 : 0;
+		if(clip < 0)
+			xui_cmd_push_clip(ctx, &unlimited_region);
+	}
+}
+
 void xui_draw_gradient(struct xui_context_t * ctx, int x, int y, int w, int h, struct color_t * lt, struct color_t * rt, struct color_t * rb, struct color_t * lb)
 {
 	union xui_cmd_t * cmd;
@@ -1729,6 +1755,9 @@ static void xui_draw(struct window_t * w, void * o)
 					break;
 				case XUI_CMD_TYPE_GLASS:
 					surface_effect_glass(s, clip, cmd->glass.x, cmd->glass.y, cmd->glass.w, cmd->glass.h, cmd->glass.radius);
+					break;
+				case XUI_CMD_TYPE_SHADOW:
+					surface_effect_shadow(s, clip, cmd->shadow.x, cmd->shadow.y, cmd->shadow.w, cmd->shadow.h, cmd->shadow.radius, &cmd->shadow.c);
 					break;
 				case XUI_CMD_TYPE_GRADIENT:
 					surface_effect_gradient(s, clip, cmd->gradient.x, cmd->gradient.y, cmd->gradient.w, cmd->gradient.h, &cmd->gradient.lt, &cmd->gradient.rt, &cmd->gradient.rb, &cmd->gradient.lb);

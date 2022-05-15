@@ -430,6 +430,20 @@ static int m_image_glass(lua_State * L)
 	return 1;
 }
 
+static int m_image_shadow(lua_State * L)
+{
+	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
+	int x = luaL_optinteger(L, 2, 0);
+	int y = luaL_optinteger(L, 3, 0);
+	int w = luaL_optinteger(L, 4, 0);
+	int h = luaL_optinteger(L, 5, 0);
+	int radius = luaL_optinteger(L, 6, 0);
+	struct color_t * c = luaL_testudata(L, 7, MT_COLOR) ? lua_touserdata(L, 7) : &(struct color_t){0, 0, 0, 255};
+	surface_effect_shadow(img->s, NULL, x, y, w, h, radius, c);
+	lua_settop(L, 1);
+	return 1;
+}
+
 static int m_image_gradient(lua_State * L)
 {
 	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
@@ -583,6 +597,7 @@ static const luaL_Reg m_image[] = {
 	{"arc",				m_image_arc},
 
 	{"glass",			m_image_glass},
+	{"shadow",			m_image_shadow},
 	{"gradient",		m_image_gradient},
 	{"checkerboard",	m_image_checkerboard},
 

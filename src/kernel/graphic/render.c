@@ -1597,6 +1597,58 @@ void render_default_effect_glass(struct surface_t * s, struct region_t * clip, i
 	}
 }
 
+void render_default_effect_shadow(struct surface_t * s, struct region_t * clip, int x, int y, int w, int h, int radius, struct color_t * c)
+{
+	struct region_t region, r;
+	uint32_t * p, * q;
+	int i, j;
+
+	if(radius > 0)
+	{
+		region_init(&r, 0, 0, surface_get_width(s), surface_get_height(s));
+		if(clip)
+		{
+			if(!region_intersect(&r, &r, clip))
+				return;
+		}
+		int r2 = radius << 1;
+		int r4 = radius << 2;
+		region_init(&region, x - r2, y - r2, w + r4, h + r4);
+		if(!region_intersect(&r, &r, &region))
+			return;
+		int tw = w + r4;
+		int th = h + r4;
+		int pixlen = th * (tw << 2);
+		void * pixels = malloc(pixlen);
+		if(pixels)
+		{
+			memset(pixels, 0, pixlen);
+			int x1 = r2;
+			int x2 = r2 + w;
+			int y1 = r2;
+			int y2 = r2 + h;
+			uint32_t v = color_get_premult(c);
+			q = (uint32_t *)pixels + y1 * tw + x1;
+			for(j = y1; j < y2; j++, q += tw)
+			{
+				for(i = x1, p = q; i < x2; i++, p++)
+					*p = v;
+			}
+			expblur(pixels, tw, th, 0, 0, tw, th, radius);
+			p = (uint32_t *)s->pixels + r.y * s->width + r.x;
+			q = (uint32_t *)pixels + (max(region.y, r.y) - region.y) * tw + (max(region.x, r.x) - region.x);
+			for(j = 0; j < r.h; j++, p += s->width, q += tw)
+			{
+				for(i = 0; i < r.w; i++)
+				{
+					blend(p + i, q + i);
+				}
+			}
+			free(pixels);
+		}
+	}
+}
+
 void render_default_effect_gradient(struct surface_t * s, struct region_t * clip, int x, int y, int w, int h, struct color_t * lt, struct color_t * rt, struct color_t * rb, struct color_t * lb)
 {
 	struct region_t region, r;

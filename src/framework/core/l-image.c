@@ -188,7 +188,7 @@ static int m_image_apply(lua_State * L)
 static int m_image_clear(lua_State * L)
 {
 	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
-	struct color_t * c = luaL_checkudata(L, 2, MT_COLOR);
+	struct color_t * c = luaL_testudata(L, 2, MT_COLOR) ? lua_touserdata(L, 2) : &(struct color_t){0, 0, 0, 0};
 	int x = luaL_optinteger(L, 3, 0);
 	int y = luaL_optinteger(L, 4, 0);
 	int w = luaL_optinteger(L, 5, 0);

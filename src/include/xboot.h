@@ -39,6 +39,7 @@ extern "C" {
 #include <io.h>
 #include <bcd.h>
 #include <div.h>
+#include <uri.h>
 #include <list.h>
 #include <lsort.h>
 #include <slist.h>

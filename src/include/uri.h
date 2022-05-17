@@ -6,21 +6,32 @@ extern "C" {
 #endif
 
 /*
- * scheme:[//[user[:password]@]host[:port]][/path][?query][#fragment]
+ * scheme:[//[user[:pass]@]host[:port]][/path][?query][#fragment]
  */
 struct uri_t {
 	char * scheme;
-	char * user;
-	char * pass;
+	char * userpass;
 	char * host;
-	char * port;
+	int port;
 	char * path;
 	char * query;
 	char * fragment;
-	char buf[2083 + 1 + 1];
 };
 
-int uri_parse(const char * s, struct uri_t * uri);
+struct uri_t * uri_alloc(const char * str);
+void uri_free(struct uri_t * uri);
+int uri_path(struct uri_t * uri, char * buf, int len);
+int uri_userpass(struct uri_t * uri, char * user, int ul, char * pass, int pl);
+
+struct uri_query_t {
+	const char * key;
+	int nkey;
+	const char * value;
+	int nvalue;
+};
+
+int uri_query(const char * query, struct uri_query_t ** info);
+void uri_query_free(struct uri_query_t ** info);
 
 #ifdef __cplusplus
 }

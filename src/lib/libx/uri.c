@@ -3,6 +3,7 @@
  */
 
 #include <types.h>
+#include <ctype.h>
 #include <stddef.h>
 #include <stdarg.h>
 #include <stdint.h>
@@ -11,420 +12,273 @@
 #include <stdio.h>
 #include <uri.h>
 
-struct uri_component_t {
-	int has_scheme;
-	int has_userpass;
-	int has_host;
-	int has_port;
-};
-
-static int uri_char_check(uint8_t c)
+static const char * find_string(const char * s, size_t len, const char * str)
 {
-	static const uint32_t ctable[8] = {
-		0x00000000,
-		0xaffffffa,
-		0xafffffff,
-		0x47fffffe,
-		0x00000000,
-		0x00000000,
-		0x00000000,
-		0x00000000,
-	};
-	int n = c / 32;
-	int m = c % 32;
-	return ctable[n] & (1 << m);
+	const char * end = s + len;
+	const char * p = s;
+	size_t n = strlen(str);
+	int i;
+
+	while(p < end)
+	{
+		for(i = 0; i < n; i++)
+		{
+			if(*p == str[i])
+				return p;
+		}
+		p++;
+	}
+	return NULL;
 }
 
-static int uri_check(const char * str, int len, struct uri_component_t * comp)
+static const char * find_string_reverse(const char * s, size_t len, const char * str)
 {
-	const char * pend;
-	enum {
-		URI_PARSE_START,
-		URI_PARSE_SCHEME,
-		URI_PARSE_AUTHORITY,
-		URI_PARSE_USERPASS,
-		URI_PARSE_HOST,
-		URI_PARSE_PORT,
-		URI_PARSE_HOST_IPV6,
-	} state;
+	const char * end = s + len;
+	const char * p = end - 1;
+	size_t n = strlen(str);
+	int i;
+
+	while(p >= s)
+	{
+		for(i = 0; i < n; i++)
+		{
+			if(*p == str[i])
+				return p;
+		}
+		p--;
+	}
+	return NULL;
+}
+
+static const char * lookup_scheme(const char * s)
+{
+	const char * p = s;
 	char c;
 
-	state = URI_PARSE_START;
-	comp->has_scheme = 0;
-	comp->has_userpass = 0;
-	comp->has_host = 0;
-	comp->has_port = 0;
-	for(pend = str + len; str < pend; ++str)
+	if(strlen(s) == 0)
+		return NULL;
+	if(!isalpha(*p))
+		return NULL;
+	p++;
+	while(*p != '\0')
 	{
-		c = *str;
-		if(uri_char_check(c) == 0)
+		c = *p;
+		if(c == ':')
+			return p;
+		if(!isalpha(c) && !isdigit(c) && (c != '+') && (c != '-') && (c != '.'))
+			return NULL;
+		p++;
+	}
+	return NULL;
+}
+
+static int parse_user_password(const char * s, size_t len, struct uri_t * uri)
+{
+	const char * end = s + len;
+	const char * found;
+
+	found = strnstr(s, ":", len);
+	if(found)
+	{
+		uri->user = strndup(s, found - s);
+		if(uri->user == NULL)
 			return 0;
-		switch(state)
-		{
-		case URI_PARSE_START:
-			switch(c)
-			{
-			case '/':
-				return 1;
-			case '[':
-				state = URI_PARSE_HOST_IPV6;
-				comp->has_host = 1;
-				break;
-			default:
-				state = URI_PARSE_SCHEME;
-				comp->has_host = 1;
-				--str;
-				break;
-			}
-			break;
-		case URI_PARSE_SCHEME:
-			switch(c)
-			{
-			case ':':
-				state = URI_PARSE_AUTHORITY;
-				break;
-			case '@':
-				state = URI_PARSE_HOST;
-				comp->has_userpass = 1;
-				break;
-			case '/':
-			case '?':
-			case '#':
-				return 1;
-			default:
-				break;
-			}
-			break;
-		case URI_PARSE_AUTHORITY:
-			if(c == '/')
-			{
-				if((str + 1 < pend) && (str[1] == '/'))
-				{
-					state = URI_PARSE_HOST;
-					comp->has_scheme = 1;
-					str += 1;
-				}
-				else
-				{
-					comp->has_port = 1;
-					return 1;
-				}
-			}
-			else
-			{
-				comp->has_port = 1;
-				state = URI_PARSE_PORT;
-			}
-			break;
-		case URI_PARSE_HOST:
-			switch(c)
-			{
-			case '@':
-				comp->has_userpass = 1;
-				break;
-			case '[':
-				state = URI_PARSE_HOST_IPV6;
-				break;
-			case ':':
-				comp->has_port = 1;
-				state = URI_PARSE_PORT;
-				break;
-			case '/':
-			case '?':
-			case '#':
-				return 1;
-			default:
-				break;
-			}
-			break;
-		case URI_PARSE_PORT:
-			switch(c)
-			{
-			case '@':
-				comp->has_port = 0;
-				comp->has_userpass = 1;
-				state = URI_PARSE_HOST;
-				break;
-			case '[':
-			case ']':
-			case ':':
-				return 0;
-			case '/':
-			case '?':
-			case '#':
-				comp->has_port = 1;
-				return 1;
-			default:
-				break;
-			}
-			break;
-		case URI_PARSE_HOST_IPV6:
-			switch(c)
-			{
-			case ']':
-				state = URI_PARSE_HOST;
-				break;
-			case '@':
-			case '[':
-			case '/':
-			case '?':
-			case '#':
-				return 0;
-			default:
-				break;
-			}
-			break;
-		default:
+		uri->pass = strndup(found + 1, end - found - 1);
+		if(uri->pass == NULL)
 			return 0;
-		}
+	}
+	else
+	{
+		uri->user = strndup(s, len);
+		if(uri->user == NULL)
+			return 0;
 	}
 	return 1;
 }
 
-static int uri_parse(struct uri_t * uri, const char * str, int len)
+static int parse_authority(const char * s, size_t len, struct uri_t * uri)
 {
-	struct uri_component_t items;
-	const char * pend;
-	char * p;
+	const char * end = s + len;
+	const char * p, * found, * host_start, * host_end;
+	int port;
 
-	if(!uri_check(str, len, &items))
+	uri->port = 0;
+	if(len == 0)
+		return 1;
+	found = strnstr(s, "@", len);
+	if(found)
+	{
+		if(!parse_user_password(s, found - s, uri))
+			return 0;
+		host_start = found + 1;
+	}
+	else
+		host_start = s;
+	if(*host_start == '[')
+	{
+		if(find_string(host_start + 1, end - host_start - 1, "["))
+			return 0;
+		host_end = find_string(host_start + 1, end - host_start - 1, "]");
+		if(!host_end)
+			return 0;
+		if(host_end + 1 != end && host_end[1] != ':')
+			return 0;
+		host_end++;
+	}
+	else
+	{
+		host_end = find_string_reverse(host_start, end - host_start, ":");
+		if(host_end == NULL)
+			host_end = end;
+		if(find_string(host_start, host_end - host_start, "[]"))
+			return 0;
+	}
+	if(find_string(host_start, host_end - host_start, " "))
 		return 0;
-	pend = str + len;
-	p = (char *)(uri + 1);
-	if(items.has_scheme)
+	if(host_end == end)
 	{
-		uri->scheme = p;
-		while((str < pend) && (*str != ':'))
-			*p++ = *str++;
-		*p++ = 0;
-		str += 3;
+		if(host_start == end)
+			return 0;
+		uri->host = strndup(host_start, end - host_start);
+		if(uri->host == NULL)
+			return 0;
+		return 1;
 	}
-	else
-		uri->scheme = NULL;
-	if(items.has_userpass)
+	if(host_start == host_end)
+		return 0;
+	if(host_end + 1 < end)
 	{
-		uri->userpass = p;
-		while((str < pend) && (*str != '@'))
-			*p++ = *str++;
-		*p++ = 0;
-		str += 1;
-	}
-	else
-		uri->userpass = NULL;
-	if(items.has_host)
-	{
-		uri->host = p;
-		if('[' == *str)
+		p = host_end + 1;
+		port = 0;
+		while(p < end)
 		{
-			++str;
-			while((str < pend) && (*str != ']'))
-				*p++ = *str++;
-			*p++ = 0;
-			str += 1;
-			if((str < pend) && *str && !strchr(":/?#", *str))
+			if(*p < '0' || *p > '9')
 				return 0;
+			port = port * 10 + *p - '0';
+			if(port > 65535)
+				return 0;
+			p++;
+		}
+	}
+	else
+		port = 0;
+	uri->host = strndup(host_start, (size_t)(host_end - host_start));
+	if(uri->host == NULL)
+		return 0;
+	uri->port = port;
+	return 1;
+}
+
+struct uri_t * uri_alloc(const char * s)
+{
+	struct uri_t * uri;
+	const char * p;
+	const char * end;
+	const char * found;
+	size_t len;
+
+	if(!s)
+		return NULL;
+	end = s + strlen(s);
+	for(p = s; p < end; p++)
+	{
+		if(iscntrl(*p))
+			return NULL;
+	}
+	uri = malloc(sizeof(struct uri_t));
+	if(!uri)
+		return NULL;
+	memset(uri, 0, sizeof(struct uri_t));
+	uri->port = 0;
+	p = s;
+	found = lookup_scheme(p);
+	if(found)
+	{
+		uri->scheme = strndup(s, (size_t)(found - p));
+		if(uri->scheme == NULL)
+			goto error;
+		p = found + 1;
+		if(p >= end)
+			return uri;
+	}
+	if((strlen(p) >= 2) && (p[0] == '/') && (p[1] == '/'))
+	{
+		p = p + 2;
+		found = find_string(p, strlen(p), "/?#");
+		if(found == NULL)
+			len = strlen(p);
+		else
+			len = (size_t)(found - p);
+		if(!parse_authority(p, len, uri))
+			goto error;
+		if(!found)
+			return uri;
+		p = found;
+	}
+	if((*p != '?') && (*p != '#'))
+	{
+		found = find_string(p, strlen(p), "?#");
+		if(found == NULL)
+		{
+			uri->path = strdup(p);
+			if(uri->path == NULL)
+				goto error;
 		}
 		else
 		{
-			while((str < pend) && *str && !strchr(":/?#", *str))
-				*p++ = *str++;
-			*p++ = 0;
+			if(found != p)
+			{
+				uri->path = strndup(p, (size_t)(found - p));
+				if(uri->path == NULL)
+					goto error;
+			}
 		}
+		if(!found)
+			return uri;
+		p = found;
 	}
-	else
-		uri->host = NULL;
-	if(items.has_port)
+	if(*p == '?')
 	{
-		++str;
-		for(uri->port = 0; (str < pend) && (*str >= '0') && (*str <= '9'); str++)
-			uri->port = uri->port * 10 + (*str - '0');
-		if((str < pend) && *str && !strchr(":/?#", *str))
-			return 0;
+		p = p + 1;
+		found = find_string(p, strlen(p), "#");
+		if(found == NULL)
+			uri->query = strdup(p);
+		else
+			uri->query = strndup(p, (size_t)(found - p));
+		if(uri->query == NULL)
+			goto error;
+		if(!found)
+			return uri;
+		p = found;
 	}
-	else
-		uri->port = 0;
-	uri->path = p;
-	if((str < pend) && (*str == '/'))
-	{
-		while((str < pend) && *str && (*str != '?') && (*str != '#'))
-			*p++ = *str++;
-		*p++ = 0;
-	}
-	else
-	{
-		*p++ = '/';
-		*p++ = 0;
-	}
-	if((str < pend) && (*str == '?'))
-	{
-		uri->query = p;
-		for(++str; (str < pend) && *str && (*str != '#'); ++str)
-			*p++ = *str;
-		*p++ = 0;
-	}
-	else
-		uri->query = NULL;
-	if((str < pend) && (*str == '#'))
-	{
-		uri->fragment = p;
-		while((str < pend) && *++str)
-			*p++ = *str;
-		*p++ = 0;
-	}
-	else
-		uri->fragment = NULL;
-	return 1;
-}
-
-struct uri_t * uri_alloc(const char * str)
-{
-	struct uri_t * uri;
-	int len;
-
-	if(!str || !*str || ((len = strlen(str)) < 1))
-		return NULL;
-	uri = (struct uri_t *)malloc(sizeof(struct uri_t) + len + 5);
-	if(!uri)
-		return NULL;
-	if(!uri_parse(uri, str, len))
-	{
-		free(uri);
-		return NULL;
-	}
+	p = p + 1;
+	uri->fragment = strdup(p);
+	if(uri->fragment == NULL)
+		goto error;
 	return uri;
+error:
+	free(uri);
+	return NULL;
 }
 
 void uri_free(struct uri_t * uri)
 {
 	if(uri)
+	{
+		if(uri->scheme)
+			free(uri->scheme);
+		if(uri->user)
+			free(uri->user);
+		if(uri->pass)
+			free(uri->pass);
+		if(uri->host)
+			free(uri->host);
+		if(uri->path)
+			free(uri->path);
+		if(uri->query)
+			free(uri->query);
+		if(uri->fragment)
+			free(uri->fragment);
 		free(uri);
-}
-
-int uri_path(struct uri_t * uri, char * buf, int len)
-{
-	int r, n;
-
-	n = snprintf(buf, len, "%s", uri->path);
-	if(n < 0 || n >= len)
-		return 0;
-	if(uri->query && *uri->query)
-	{
-		r = snprintf(buf + n, len - n, "?%s", uri->query);
-		if(r < 0 || r + n >= len)
-			return 0;
-		n += r;
-	}
-	if(uri->fragment && *uri->fragment)
-	{
-		r = snprintf(buf + n, len - n, "#%s", uri->fragment);
-		if(r < 0 || r + n >= len)
-			return 0;
-		n += r;
-	}
-	return n;
-}
-
-int uri_userpass(struct uri_t * uri, char * user, int ul, char * pass, int pl)
-{
-	char * sep;
-
-	if(!uri->userpass)
-	{
-		user[0] = '\0';
-		pass[0] = '\0';
-	}
-	else
-	{
-		sep = strchr(uri->userpass, ':');
-		if(sep)
-		{
-			snprintf(user, ul, "%.*s", (int)(sep - uri->userpass), uri->userpass);
-			snprintf(pass, pl, "%s", sep + 1);
-		}
-		else
-		{
-			snprintf(user, ul, "%s", uri->userpass);
-			pass[0] = '\0';
-		}
-	}
-	return 1;
-}
-
-int uri_query(const char * query, struct uri_query_t ** info)
-{
-	struct uri_query_t items[64], * pp;
-
-	if(query && info)
-	{
-		const char * end = query + strlen(query);
-		const char * p;
-		int capacity = 0;
-		int count = 0;
-		*info = NULL;
-		for(p = query; p && (p < end); query = p + 1)
-		{
-			p = strpbrk(query, "&=");
-			if(!p || p > end)
-				break;
-			if(p == query)
-			{
-				if('&' == *p)
-					continue;
-				else
-				{
-					uri_query_free(info);
-					return 0;
-				}
-			}
-			if(count < ARRAY_SIZE(items))
-				pp = &items[count++];
-			else
-			{
-				if(count >= capacity)
-				{
-					capacity = count + 64;
-					pp = (struct uri_query_t *)realloc(*info, capacity * sizeof(struct uri_query_t));
-					if(!pp)
-						return 0;
-					*info = pp;
-				}
-				pp = &(*info)[count++];
-			}
-			pp->key = query;
-			pp->nkey = (int)(p - query);
-			if(*p == '=')
-			{
-				pp->value = p + 1;
-				p = strchr(pp->value, '&');
-				if(NULL == p)
-					p = end;
-				pp->nvalue = (int)(p - pp->value);
-			}
-			else
-			{
-				pp->value = NULL;
-				pp->nvalue = 0;
-			}
-		}
-		if((count <= ARRAY_SIZE(items)) && (count > 0))
-		{
-			*info = (struct uri_query_t *)malloc(count * sizeof(struct uri_query_t));
-			if(!*info)
-				return 0;
-			memcpy(*info, items, count * sizeof(struct uri_query_t));
-		}
-		else if(count > ARRAY_SIZE(items))
-			memcpy(*info, items, ARRAY_SIZE(items) * sizeof(struct uri_query_t));
-		return count;
-	}
-	return 0;
-}
-
-void uri_query_free(struct uri_query_t ** info)
-{
-	if(info && *info)
-	{
-		free(*info);
-		*info = NULL;
 	}
 }

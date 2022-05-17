@@ -78,10 +78,11 @@ NS_STRING	:=	-Dmemchr=xboot_memchr -Dmemcmp=xboot_memcmp \
 				-Dstrlen=xboot_strlen -Dstrncasecmp=xboot_strncasecmp \
 				-Dstrncat=xboot_strncat -Dstrnchr=xboot_strnchr \
 				-Dstrncmp=xboot_strncmp -Dstrncpy=xboot_strncpy \
-				-Dstrnicmp=xboot_strnicmp -Dstrnlen=xboot_strnlen \
-				-Dstrnstr=xboot_strnstr -Dstrpbrk=xboot_strpbrk \
-				-Dstrrchr=xboot_strrchr -Dstrsep=xboot_strsep \
-				-Dstrspn=xboot_strspn -Dstrstr=xboot_strstr
+				-Dstrndup=xboot_strndup -Dstrnicmp=xboot_strnicmp \
+				-Dstrnlen=xboot_strnlen -Dstrnstr=xboot_strnstr \
+				-Dstrpbrk=xboot_strpbrk -Dstrrchr=xboot_strrchr \
+				-Dstrsep=xboot_strsep -Dstrspn=xboot_strspn \
+				-Dstrstr=xboot_strstr
 
 NS_TIME		:=	-Dasctime_r=xboot_asctime_r -Dasctime=xboot_asctime \
 				-Dclock=xboot_clock -Dctime_r=xboot_ctime_r \

@@ -37,6 +37,7 @@ char * strpbrk(const char * s1, const char * s2);
 char * strstr(const char * s1, const char * s2);
 char * strnstr(const char * s1, const char * s2, size_t n);
 char * strdup(const char * s);
+char * strndup(const char * s, size_t n);
 char * strsep(char ** s, const char * ct);
 char * strim(char * s);
 

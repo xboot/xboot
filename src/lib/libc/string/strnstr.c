@@ -8,7 +8,7 @@
 #include <xboot/module.h>
 
 /*
- * Locate a substring in a strin
+ * Locate a substring in a string
  */
 char * strnstr(const char * s1, const char * s2, size_t n)
 {

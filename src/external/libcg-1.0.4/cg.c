@@ -455,63 +455,38 @@ static void cg_path_add_ellipse(struct cg_path_t * path, double cx, double cy, d
 static void cg_path_add_arc(struct cg_path_t * path, double cx, double cy, double r, double a0, double a1, int ccw)
 {
 	double da = a1 - a0;
-	if(ccw == 0)
+	if(fabs(da) > 6.28318530717958647693)
 	{
-		if(fabs(da) >= M_PI * 2)
-		{
-			da = M_PI * 2;
-		}
-		else
-		{
-			while(da < 0.0)
-				da += M_PI * 2;
-		}
+		da = 6.28318530717958647693;
 	}
+	else if(da != 0.0 && ccw != (da < 0.0))
+	{
+		da += 6.28318530717958647693 * (ccw ? -1 : 1);
+	}
+	int seg_n = (int)(ceil(fabs(da) / 1.57079632679489661923));
+	double seg_a = da / seg_n;
+	double d = (seg_a / 1.57079632679489661923) * 0.55228474983079339840 * r;
+	double a = a0;
+	double ax = cx + cos(a) * r;
+	double ay = cy + sin(a) * r;
+	double dx = -sin(a) * d;
+	double dy = cos(a) * d;
+	if(path->points.size == 0)
+		cg_path_move_to(path, ax, ay);
 	else
+		cg_path_line_to(path, ax, ay);
+	for(int i = 0; i < seg_n; i++)
 	{
-		if(fabs(da) >= M_PI * 2)
-		{
-			da = -M_PI * 2;
-		}
-		else
-		{
-			while(da > 0.0)
-				da -= M_PI * 2;
-		}
-	}
-	int ndivs = CG_MAX(1, CG_MIN((int)(fabs(da) / (M_PI * 0.5) + 0.5), 5));
-	double hda = (da / (double)ndivs) / 2.0;
-	double kappa = fabs(4.0 / 3.0 * (1.0 - cos(hda)) / sin(hda));
-	if(ccw == 1)
-		kappa = -kappa;
-	double px = 0, py = 0;
-	double ptanx = 0, ptany = 0;
-	for(int i = 0; i <= ndivs; i++)
-	{
-		double a = a0 + da * (i / (double)ndivs);
-		double dx = cos(a);
-		double dy = sin(a);
-		double x = cx + dx * r;
-		double y = cy + dy * r;
-		double tanx = -dy * r * kappa;
-		double tany = dx * r * kappa;
-		if(i == 0)
-		{
-			if(path->elements.size == 0)
-				cg_path_move_to(path, x, y);
-			else
-				cg_path_line_to(path, x, y);
-			if(da == 0)
-				break;
-		}
-		else
-		{
-			cg_path_curve_to(path, px + ptanx, py + ptany, x - tanx, y - tany, x, y);
-		}
-		px = x;
-		py = y;
-		ptanx = tanx;
-		ptany = tany;
+		double cp1x = ax + dx;
+		double cp1y = ay + dy;
+		a += seg_a;
+		ax = cx + cos(a) * r;
+		ay = cy + sin(a) * r;
+		dx = -sin(a) * d;
+		dy = cos(a) * d;
+		double cp2x = ax - dx;
+		double cp2y = ay - dy;
+		cg_path_curve_to(path, cp1x, cp1y, cp2x, cp2y, ax, ay);
 	}
 }
 

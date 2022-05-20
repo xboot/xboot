@@ -380,8 +380,7 @@
 
 	"ce-r528-timer@0x02050000": {
 		"clock-name": "timer0",
-		"interrupt": 91,
-		"status" : "disabled"
+		"interrupt": 91
 	},
 
 	"cs-r528-timer@0x02050000": {

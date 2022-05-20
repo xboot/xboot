@@ -58,8 +58,9 @@ void arm32_do_undefined_instruction(struct arm_regs_t * regs)
 
 void arm32_do_software_interrupt(struct arm_regs_t * regs)
 {
-	show_regs(regs);
-	regs->pc += 4;
+//	show_regs(regs);
+//	regs->pc += 4;
+	interrupt_handle_exception(regs);
 }
 
 void arm32_do_prefetch_abort(struct arm_regs_t * regs)

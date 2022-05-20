@@ -380,8 +380,7 @@
 
 	"ce-t113-timer@0x02050000": {
 		"clock-name": "timer0",
-		"interrupt": 91,
-		"status" : "disabled"
+		"interrupt": 91
 	},
 
 	"cs-t113-timer@0x02050000": {

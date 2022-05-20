@@ -25,7 +25,6 @@ SECTIONS
 		.obj/arch/arm32/mach-r528s3/start.o (.text*)
 		.obj/arch/arm32/lib/memcpy.o (.text*)
 		.obj/arch/arm32/lib/memset.o (.text*)
-		.obj/arch/arm32/mach-r528s3/sys-smp.o (.text*)
 		.obj/arch/arm32/mach-r528s3/sys-jtag.o (.text*)
 		.obj/arch/arm32/mach-r528s3/sys-uart.o (.text*)
 		.obj/arch/arm32/mach-r528s3/sys-clock.o (.text*)

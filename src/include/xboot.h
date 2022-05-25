@@ -50,6 +50,7 @@ extern "C" {
 #include <ssize.h>
 #include <spring.h>
 #include <malloc.h>
+#include <alloca.h>
 #include <charset.h>
 #include <version.h>
 #include <xboot/kobj.h>

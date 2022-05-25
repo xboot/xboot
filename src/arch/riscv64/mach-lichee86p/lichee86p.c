@@ -90,6 +90,11 @@ static int mach_keygen(struct machine_t * mach, const char * msg, void * key)
 	return 0;
 }
 
+static int mach_verify(struct machine_t * mach)
+{
+	return 1;
+}
+
 static struct machine_t lichee86p = {
 	.name 		= "lichee86p",
 	.desc 		= "Sipeed Lichee RV 86 Panel Based On Allwinner D1 SOC",
@@ -103,6 +108,7 @@ static struct machine_t lichee86p = {
 	.logger		= mach_logger,
 	.uniqueid	= mach_uniqueid,
 	.keygen		= mach_keygen,
+	.verify		= mach_verify,
 };
 
 static __init void lichee86p_machine_init(void)

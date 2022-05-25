@@ -76,6 +76,11 @@ static int mach_keygen(struct machine_t * mach, const char * msg, void * key)
 	return sandbox_keygen(msg, key);
 }
 
+static int mach_verify(struct machine_t * mach)
+{
+	return sandbox_verify();
+}
+
 static struct machine_t sandbox = {
 	.name 		= "sandbox",
 	.desc 		= "Xboot Sandbox Runtime Enverionment",
@@ -89,6 +94,7 @@ static struct machine_t sandbox = {
 	.logger		= mach_logger,
 	.uniqueid	= mach_uniqueid,
 	.keygen		= mach_keygen,
+	.verify		= mach_verify,
 };
 
 static __init void sandbox_machine_init(void)

@@ -27,7 +27,6 @@
  */
 
 #include <sha256.h>
-#include <ecdsa256.h>
 #include <qrcgen.h>
 #include <watchdog/watchdog.h>
 #include <xboot/machine.h>
@@ -306,16 +305,12 @@ int machine_keygen(const char * msg, void * key)
 	return 0;
 }
 
-int machine_approve(const void * pubkey, const void * signature)
+int machine_verify(void)
 {
-	const char * uniqueid = machine_uniqueid();
+	struct machine_t * mach = get_machine();
 
-	if(uniqueid && pubkey && signature)
-	{
-		uint8_t sha256[32];
-		sha256_hash(uniqueid, strlen(uniqueid), sha256);
-		return ecdsa256_verify(pubkey, sha256, signature);
-	}
+	if(mach && mach->verify)
+		return mach->verify(mach);
 	return 0;
 }
 

@@ -245,6 +245,7 @@ int64_t sandbox_file_length(int fd);
  */
 const char * sandbox_uniqueid(void);
 int sandbox_keygen(const char * msg, void * key);
+int sandbox_verify(void);
 
 /*
  * Malloc interface

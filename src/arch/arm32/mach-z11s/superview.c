@@ -102,6 +102,11 @@ static int mach_keygen(struct machine_t * mach, const char * msg, void * key)
 	return 0;
 }
 
+static int mach_verify(struct machine_t * mach)
+{
+	return 1;
+}
+
 static struct machine_t superview = {
 	.name 		= "superview",
 	.desc 		= "SuperView Z11s Based On Allwinner V3S SOC",
@@ -115,6 +120,7 @@ static struct machine_t superview = {
 	.logger		= mach_logger,
 	.uniqueid	= mach_uniqueid,
 	.keygen		= mach_keygen,
+	.verify		= mach_verify,
 };
 
 static __init void superview_machine_init(void)

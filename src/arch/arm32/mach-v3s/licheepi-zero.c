@@ -102,6 +102,11 @@ static int mach_keygen(struct machine_t * mach, const char * msg, void * key)
 	return 0;
 }
 
+static int mach_verify(struct machine_t * mach)
+{
+	return 1;
+}
+
 static struct machine_t licheepi_zero = {
 	.name 		= "licheepi-zero",
 	.desc 		= "Lichee Pi Zero Based On Allwinner V3S SOC",
@@ -115,6 +120,7 @@ static struct machine_t licheepi_zero = {
 	.logger		= mach_logger,
 	.uniqueid	= mach_uniqueid,
 	.keygen		= mach_keygen,
+	.verify		= mach_verify,
 };
 
 static __init void licheepi_zero_machine_init(void)

@@ -44,6 +44,7 @@ struct machine_t {
 	void (*logger)(struct machine_t * mach, const char * buf, int count);
 	const char * (*uniqueid)(struct machine_t * mach);
 	int (*keygen)(struct machine_t * mach, const char * msg, void * key);
+	int (*verify)(struct machine_t * mach);
 };
 
 bool_t register_machine(struct machine_t * mach);
@@ -59,7 +60,7 @@ void machine_cleanup(void);
 int machine_logger(const char * fmt, ...);
 const char * machine_uniqueid(void);
 int machine_keygen(const char * msg, void * key);
-int machine_approve(const void * pubkey, const void * signature);
+int machine_verify(void);
 
 #if	defined(CONFIG_NO_LOG) && (CONFIG_NO_LOG > 0)
 #define LOG(fmt, arg...)		do { } while(0)

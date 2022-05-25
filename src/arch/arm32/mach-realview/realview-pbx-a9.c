@@ -126,6 +126,11 @@ static int mach_keygen(struct machine_t * mach, const char * msg, void * key)
 	return 0;
 }
 
+static int mach_verify(struct machine_t * mach)
+{
+	return 1;
+}
+
 static struct machine_t realview_pbx_a9 = {
 	.name 		= "realview-pbx-a9",
 	.desc 		= "ARM RealView Platform Baseboard Explore for Cortex-A9",
@@ -139,6 +144,7 @@ static struct machine_t realview_pbx_a9 = {
 	.logger		= mach_logger,
 	.uniqueid	= mach_uniqueid,
 	.keygen		= mach_keygen,
+	.verify		= mach_verify,
 };
 
 static __init void realview_pbx_a9_machine_init(void)

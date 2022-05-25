@@ -105,6 +105,11 @@ static int mach_keygen(struct machine_t * mach, const char * msg, void * key)
 	return 0;
 }
 
+static int mach_verify(struct machine_t * mach)
+{
+	return 1;
+}
+
 static struct machine_t mangopi = {
 	.name 		= "mangopi",
 	.desc 		= "MangoPi-MQ Based On Allwinner T133-S3 SOC",
@@ -118,6 +123,7 @@ static struct machine_t mangopi = {
 	.logger		= mach_logger,
 	.uniqueid	= mach_uniqueid,
 	.keygen		= mach_keygen,
+	.verify		= mach_verify,
 };
 
 static __init void mangopi_machine_init(void)

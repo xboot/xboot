@@ -79,6 +79,11 @@ static int mach_keygen(struct machine_t * mach, const char * msg, void * key)
 	return 0;
 }
 
+static int mach_verify(struct machine_t * mach)
+{
+	return 1;
+}
+
 static struct machine_t sast_kk131 = {
 	.name 		= "sast-kk131",
 	.desc 		= "SAST KK131 Digital Player Based On Allwinner F1C100S",
@@ -92,6 +97,7 @@ static struct machine_t sast_kk131 = {
 	.logger		= mach_logger,
 	.uniqueid	= mach_uniqueid,
 	.keygen		= mach_keygen,
+	.verify		= mach_verify,
 };
 
 static __init void sast_kk131_machine_init(void)

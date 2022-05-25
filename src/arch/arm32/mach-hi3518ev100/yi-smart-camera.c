@@ -92,6 +92,11 @@ static int mach_keygen(struct machine_t * mach, const char * msg, void * key)
 	return 0;
 }
 
+static int mach_verify(struct machine_t * mach)
+{
+	return 1;
+}
+
 static struct machine_t yi_smart_camera = {
 	.name 		= "yi-smart-camera",
 	.desc 		= "XiaoMi YI Smart Camera Based On Hi3518ev100",
@@ -105,6 +110,7 @@ static struct machine_t yi_smart_camera = {
 	.logger		= mach_logger,
 	.uniqueid	= mach_uniqueid,
 	.keygen		= mach_keygen,
+	.verify		= mach_verify,
 };
 
 static __init void yi_smart_camera_machine_init(void)

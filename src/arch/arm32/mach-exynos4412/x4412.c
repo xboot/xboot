@@ -94,6 +94,11 @@ static int mach_keygen(struct machine_t * mach, const char * msg, void * key)
 	return 0;
 }
 
+static int mach_verify(struct machine_t * mach)
+{
+	return 1;
+}
+
 static struct machine_t x4412 = {
 	.name 		= "x4412",
 	.desc 		= "X4412 Based On Samsung Exynos4412",
@@ -107,6 +112,7 @@ static struct machine_t x4412 = {
 	.logger		= mach_logger,
 	.uniqueid	= mach_uniqueid,
 	.keygen		= mach_keygen,
+	.verify		= mach_verify,
 };
 
 static __init void x4412_machine_init(void)

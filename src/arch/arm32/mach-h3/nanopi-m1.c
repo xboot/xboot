@@ -151,6 +151,11 @@ static int mach_keygen(struct machine_t * mach, const char * msg, void * key)
 	return 0;
 }
 
+static int mach_verify(struct machine_t * mach)
+{
+	return 1;
+}
+
 static struct machine_t nanopi_m1 = {
 	.name 		= "nanopi-m1",
 	.desc 		= "NanoPi M1 Based On Allwinner H3 SOC",
@@ -164,6 +169,7 @@ static struct machine_t nanopi_m1 = {
 	.logger		= mach_logger,
 	.uniqueid	= mach_uniqueid,
 	.keygen		= mach_keygen,
+	.verify		= mach_verify,
 };
 
 static __init void nanopi_m1_machine_init(void)

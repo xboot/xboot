@@ -52,6 +52,11 @@ static int mach_keygen(struct machine_t * mach, const char * msg, void * key)
 	return 0;
 }
 
+static int mach_verify(struct machine_t * mach)
+{
+	return 1;
+}
+
 static struct machine_t immortal_sword = {
 	.name		= "immortal-sword",
 	.desc		= "C-Sky CK610m Development Platform",
@@ -65,6 +70,7 @@ static struct machine_t immortal_sword = {
 	.logger		= mach_logger,
 	.uniqueid	= mach_uniqueid,
 	.keygen		= mach_keygen,
+	.verify		= mach_verify,
 };
 
 static __init void immortal_sword_machine_init(void)

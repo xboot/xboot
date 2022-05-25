@@ -151,6 +151,11 @@ static int mach_keygen(struct machine_t * mach, const char * msg, void * key)
 	return 0;
 }
 
+static int mach_verify(struct machine_t * mach)
+{
+	return 1;
+}
+
 static struct machine_t orangepi_zero = {
 	.name 		= "orangepi-zero",
 	.desc 		= "OrangePi Zero Based On Allwinner H2 SOC",
@@ -164,6 +169,7 @@ static struct machine_t orangepi_zero = {
 	.logger		= mach_logger,
 	.uniqueid	= mach_uniqueid,
 	.keygen		= mach_keygen,
+	.verify		= mach_verify,
 };
 
 static __init void orangepi_zero_machine_init(void)

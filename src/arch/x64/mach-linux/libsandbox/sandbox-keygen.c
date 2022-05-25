@@ -10,3 +10,8 @@ int sandbox_keygen(const char * msg, void * key)
 {
 	return 0;
 }
+
+int sandbox_verify(void)
+{
+	return 1;
+}

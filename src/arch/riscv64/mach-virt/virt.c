@@ -81,6 +81,11 @@ static int mach_keygen(struct machine_t * mach, const char * msg, void * key)
 	return 0;
 }
 
+static int mach_verify(struct machine_t * mach)
+{
+	return 1;
+}
+
 static struct machine_t virt = {
 	.name 		= "virt",
 	.desc 		= "RiscV64 Virtual Machine",
@@ -94,6 +99,7 @@ static struct machine_t virt = {
 	.logger		= mach_logger,
 	.uniqueid	= mach_uniqueid,
 	.keygen		= mach_keygen,
+	.verify		= mach_verify,
 };
 
 static __init void virt_machine_init(void)

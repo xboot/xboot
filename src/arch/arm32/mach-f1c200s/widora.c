@@ -79,6 +79,11 @@ static int mach_keygen(struct machine_t * mach, const char * msg, void * key)
 	return 0;
 }
 
+static int mach_verify(struct machine_t * mach)
+{
+	return 1;
+}
+
 static struct machine_t widora = {
 	.name 		= "widora",
 	.desc 		= "Widora TINY200 R3 Based On Allwinner F1C200S",
@@ -92,6 +97,7 @@ static struct machine_t widora = {
 	.logger		= mach_logger,
 	.uniqueid	= mach_uniqueid,
 	.keygen		= mach_keygen,
+	.verify		= mach_verify,
 };
 
 static __init void widora_machine_init(void)

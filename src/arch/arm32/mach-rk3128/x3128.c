@@ -105,6 +105,11 @@ static int mach_keygen(struct machine_t * mach, const char * msg, void * key)
 	return 0;
 }
 
+static int mach_verify(struct machine_t * mach)
+{
+	return 1;
+}
+
 static struct machine_t x3128 = {
 	.name 		= "x3128",
 	.desc 		= "X3128 Based On RK3128 SOC",
@@ -118,6 +123,7 @@ static struct machine_t x3128 = {
 	.logger		= mach_logger,
 	.uniqueid	= mach_uniqueid,
 	.keygen		= mach_keygen,
+	.verify		= mach_verify,
 };
 
 static __init void x3128_machine_init(void)

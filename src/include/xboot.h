@@ -18,6 +18,7 @@ extern "C" {
 #include <stdarg.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include <setjmp.h>
 #include <ctype.h>
 #include <errno.h>

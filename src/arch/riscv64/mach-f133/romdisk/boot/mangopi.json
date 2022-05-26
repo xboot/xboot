@@ -551,8 +551,9 @@
 		"mode": 0,
 		"speed": 50000000,
 		"partition": [
-			{ "name": "xboot",   "offset": 0,       "length": 4194304 },
-			{ "name": "private", "offset": 4194304, "length": 0 }
+			{ "name": "xboot",   "offset": 0,       "length": 6291456 },
+			{ "name": "reserve", "offset": 6291456, "length": 2097152 },
+			{ "name": "private", "offset": 8388608, "length": 0 }
 		]
 	},
 

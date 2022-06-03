@@ -110,6 +110,7 @@ extern "C" {
 #include <xui/number.h>
 #include <xui/textedit.h>
 #include <xui/colorpicker.h>
+#include <xui/chart.h>
 #include <xui/glass.h>
 #include <xui/image.h>
 #include <xui/icon.h>

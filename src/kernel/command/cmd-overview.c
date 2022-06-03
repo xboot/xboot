@@ -777,6 +777,75 @@ static void overview_window(struct xui_context_t * ctx)
 			xui_end_tree(ctx);
 		}
 
+		if(xui_begin_tree(ctx, "Chart"))
+		{
+			static double values[127] = { 0 };
+			static double offset = 0;
+			if(xui_timeout(ctx, 20))
+			{
+				for(int i = 0; i < ARRAY_SIZE(values); i++)
+				{
+					values[i] = sin(offset);
+					offset += (2 * 3.141592654) / 32;
+				}
+			}
+
+			if(xui_begin_tree(ctx, "Line Chart"))
+			{
+				xui_layout_row(ctx, 1, (int[]){ -1 }, 80);
+				xui_chart_ex(ctx, &values[0], ARRAY_SIZE(values), -1.5, 1.5, &(struct color_t){ 255, 0, 0, 128 }, 0);
+				xui_layout_row(ctx, 1, (int[]){ -1 }, 80);
+				xui_chart_ex(ctx, &values[8], ARRAY_SIZE(values) / 2, -1.5, 1.5, &(struct color_t){ 0, 255, 0, 128 }, 0);
+				xui_layout_row(ctx, 1, (int[]){ -1 }, 80);
+				xui_chart_ex(ctx, &values[16], ARRAY_SIZE(values) / 3, -1.5, 1.5, &(struct color_t){ 0, 0, 255, 128 }, 0);
+				xui_end_tree(ctx);
+			}
+
+			if(xui_begin_tree(ctx, "Fill Chart"))
+			{
+				xui_layout_row(ctx, 1, (int[]){ -1 }, 80);
+				xui_chart_ex(ctx, &values[0], ARRAY_SIZE(values), -1.5, 1.5, &(struct color_t){ 255, 0, 0, 128 }, XUI_CHART_FILL);
+				xui_layout_row(ctx, 1, (int[]){ -1 }, 80);
+				xui_chart_ex(ctx, &values[8], ARRAY_SIZE(values) / 2, -1.5, 1.5, &(struct color_t){ 0, 255, 0, 128 }, XUI_CHART_FILL);
+				xui_layout_row(ctx, 1, (int[]){ -1 }, 80);
+				xui_chart_ex(ctx, &values[16], ARRAY_SIZE(values) / 3, -1.5, 1.5, &(struct color_t){ 0, 0, 255, 128 }, XUI_CHART_FILL);
+				xui_end_tree(ctx);
+			}
+
+			if(xui_begin_tree(ctx, "Multiple Line Chart"))
+			{
+				xui_layout_row(ctx, 1, (int[]){ -1 }, 80);
+				xui_begin_panel_ex(ctx, "panel", XUI_OPT_NOSCROLL);
+				{
+					xui_layout_set_next(ctx, &xui_get_container(ctx)->body, 0);
+					xui_chart_ex(ctx, &values[0], ARRAY_SIZE(values), -1.5, 1.5, &(struct color_t){ 255, 0, 0, 128 }, 0);
+					xui_layout_set_next(ctx, &xui_get_container(ctx)->body, 0);
+					xui_chart_ex(ctx, &values[8], ARRAY_SIZE(values) / 2, -1.5, 1.5, &(struct color_t){ 0, 255, 0, 128 }, 0);
+					xui_layout_set_next(ctx, &xui_get_container(ctx)->body, 0);
+					xui_chart_ex(ctx, &values[16], ARRAY_SIZE(values) / 3, -1.5, 1.5, &(struct color_t){ 0, 0, 255, 128 }, 0);
+				}
+				xui_end_panel(ctx);
+				xui_end_tree(ctx);
+			}
+
+			if(xui_begin_tree(ctx, "Multiple Fill Chart"))
+			{
+				xui_layout_row(ctx, 1, (int[]){ -1 }, 80);
+				xui_begin_panel_ex(ctx, "panel", XUI_OPT_NOSCROLL);
+				{
+					xui_layout_set_next(ctx, &xui_get_container(ctx)->body, 0);
+					xui_chart_ex(ctx, &values[0], ARRAY_SIZE(values), -1.5, 1.5, &(struct color_t){ 255, 0, 0, 128 }, XUI_CHART_FILL);
+					xui_layout_set_next(ctx, &xui_get_container(ctx)->body, 0);
+					xui_chart_ex(ctx, &values[8], ARRAY_SIZE(values) / 2, -1.5, 1.5, &(struct color_t){ 0, 255, 0, 128 }, XUI_CHART_FILL);
+					xui_layout_set_next(ctx, &xui_get_container(ctx)->body, 0);
+					xui_chart_ex(ctx, &values[16], ARRAY_SIZE(values) / 3, -1.5, 1.5, &(struct color_t){ 0, 0, 255, 128 }, XUI_CHART_FILL);
+				}
+				xui_end_panel(ctx);
+				xui_end_tree(ctx);
+			}
+			xui_end_tree(ctx);
+		}
+
 		if(xui_begin_tree(ctx, "Split"))
 		{
 			xui_layout_row(ctx, 1, (int[]){ -1 }, 0);

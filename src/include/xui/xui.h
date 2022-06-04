@@ -365,6 +365,7 @@ struct xui_style_t {
 	struct xui_widget_color_t warning;
 	struct xui_widget_color_t danger;
 	struct xui_widget_color_t cancel;
+	struct color_t invalid_color;
 
 	struct {
 		char icon_family[128];
@@ -442,7 +443,6 @@ struct xui_style_t {
 	} tabbar;
 
 	struct {
-		struct color_t invalid_color;
 		int border_width;
 	} slider;
 
@@ -465,13 +465,8 @@ struct xui_style_t {
 	} badge;
 
 	struct {
-		struct color_t invalid_color;
 		int border_radius;
 	} progress;
-
-	struct {
-		struct color_t invalid_color;
-	} radialbar;
 
 	struct {
 		int width;

@@ -121,6 +121,7 @@ static const char style_default[] = X({
 		"active-foreground-color": "#ffffffff",
 		"active-border-color": "#6c757d60",
 	},
+	"invalid-color": "#eef2f7ff",
 
 	"icon-family": "material-icons",
 	"font-family": "roboto-regular",
@@ -173,7 +174,6 @@ static const char style_default[] = X({
 	"tabbar-border-radius": 2,
 	"tabbar-border-width": 0,
 
-	"slider-invalid-color": "#eef2f7ff",
 	"slider-border-width": 4,
 
 	"number-border-radius": 4,
@@ -188,10 +188,7 @@ static const char style_default[] = X({
 	"badge-border-width": 4,
 	"badge-outline-width": 2,
 
-	"progress-invalid-color": "#eef2f7ff",
 	"progress-border-radius": 4,
-
-	"radialbar-invalid-color": "#eef2f7ff",
 
 	"split-width": 2,
 });
@@ -1334,6 +1331,10 @@ void xui_load_style(struct xui_context_t * ctx, const char * json, int len)
 				case 0xf5e7082b: /* "cancel" */
 					style_widget_color(o, &ctx->style.cancel);
 					break;
+				case 0x91baf2b8: /* "invalid-color" */
+					if(o && (o->type == JSON_STRING))
+						color_init_string(&ctx->style.invalid_color, o->u.string.ptr);
+					break;
 
 				case 0xb1c870bd: /* "icon-family" */
 					if(o && (o->type == JSON_STRING))
@@ -1503,10 +1504,6 @@ void xui_load_style(struct xui_context_t * ctx, const char * json, int len)
 						ctx->style.tabbar.border_width = o->u.integer;
 					break;
 
-				case 0x118b4b08: /* "slider-invalid-color" */
-					if(o && (o->type == JSON_STRING))
-						color_init_string(&ctx->style.slider.invalid_color, o->u.string.ptr);
-					break;
 				case 0xa5534dc0: /* "slider-border-width" */
 					if(o && (o->type == JSON_INTEGER))
 						ctx->style.slider.border_width = o->u.integer;
@@ -1551,18 +1548,9 @@ void xui_load_style(struct xui_context_t * ctx, const char * json, int len)
 						ctx->style.badge.outline_width = o->u.integer;
 					break;
 
-				case 0x98e7d09a: /* "progress-invalid-color" */
-					if(o && (o->type == JSON_STRING))
-						color_init_string(&ctx->style.progress.invalid_color, o->u.string.ptr);
-					break;
 				case 0xcadecf7a: /* "progress-border-radius" */
 					if(o && (o->type == JSON_INTEGER))
 						ctx->style.progress.border_radius = o->u.integer;
-					break;
-
-				case 0xc2184287: /* "radialbar-invalid-color" */
-					if(o && (o->type == JSON_STRING))
-						color_init_string(&ctx->style.radialbar.invalid_color, o->u.string.ptr);
 					break;
 
 				case 0xf72f0b7e: /* "split-width" */

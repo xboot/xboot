@@ -108,6 +108,19 @@ static const char style_default[] = X({
 		"active-foreground-color": "#ffffffff",
 		"active-border-color": "#ff5b5b60",
 	},
+	"cancel": {
+		"normal-bakcground-color": "#6c757dff",
+		"normal-foreground-color": "#ffffffff",
+		"normal-border-color": "#00000000",
+
+		"hover-bakcground-color": "#5a6268ff",
+		"hover-foreground-color": "#ffffffff",
+		"hover-border-color": "#00000000",
+
+		"active-bakcground-color": "#545b62ff",
+		"active-foreground-color": "#ffffffff",
+		"active-border-color": "#6c757d60",
+	},
 
 	"icon-family": "material-icons",
 	"font-family": "roboto-regular",
@@ -1317,6 +1330,9 @@ void xui_load_style(struct xui_context_t * ctx, const char * json, int len)
 					break;
 				case 0xf83c41d6: /* "danger" */
 					style_widget_color(o, &ctx->style.danger);
+					break;
+				case 0xf5e7082b: /* "cancel" */
+					style_widget_color(o, &ctx->style.cancel);
 					break;
 
 				case 0xb1c870bd: /* "icon-family" */

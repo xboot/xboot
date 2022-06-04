@@ -73,7 +73,7 @@ int xui_tabbar_ex(struct xui_context_t * ctx, int icon, const char * label, int 
 	}
 	else
 	{
-		wc = &ctx->style.secondary;
+		wc = &ctx->style.cancel;
 	}
 	if(ctx->active == id)
 	{

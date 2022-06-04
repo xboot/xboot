@@ -310,6 +310,43 @@ static void style_window(struct xui_context_t * ctx)
 				}
 				xui_end_tree(ctx);
 			}
+			if(xui_begin_tree(ctx, "Cancel"))
+			{
+				if(xui_begin_tree(ctx, "Normal"))
+				{
+					xui_layout_row(ctx, 2, (int[]){ 100, -1 }, 0);
+					xui_label(ctx, "Background :");
+					xui_style_color(ctx, &ctx->style.cancel.normal.background);
+					xui_label(ctx, "Foreground :");
+					xui_style_color(ctx, &ctx->style.cancel.normal.foreground);
+					xui_label(ctx, "Border :");
+					xui_style_color(ctx, &ctx->style.cancel.normal.border);
+					xui_end_tree(ctx);
+				}
+				if(xui_begin_tree(ctx, "Hover"))
+				{
+					xui_layout_row(ctx, 2, (int[]){ 100, -1 }, 0);
+					xui_label(ctx, "Background :");
+					xui_style_color(ctx, &ctx->style.cancel.hover.background);
+					xui_label(ctx, "Foreground :");
+					xui_style_color(ctx, &ctx->style.cancel.hover.foreground);
+					xui_label(ctx, "Border :");
+					xui_style_color(ctx, &ctx->style.cancel.hover.border);
+					xui_end_tree(ctx);
+				}
+				if(xui_begin_tree(ctx, "Focus"))
+				{
+					xui_layout_row(ctx, 2, (int[]){ 100, -1 }, 0);
+					xui_label(ctx, "Background :");
+					xui_style_color(ctx, &ctx->style.cancel.active.background);
+					xui_label(ctx, "Foreground :");
+					xui_style_color(ctx, &ctx->style.cancel.active.foreground);
+					xui_label(ctx, "Border :");
+					xui_style_color(ctx, &ctx->style.cancel.active.border);
+					xui_end_tree(ctx);
+				}
+				xui_end_tree(ctx);
+			}
 			xui_end_tree(ctx);
 		}
 		if(xui_begin_tree(ctx, "Font"))

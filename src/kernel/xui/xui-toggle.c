@@ -77,7 +77,7 @@ int xui_toggle_ex(struct xui_context_t * ctx, int * state, int opt)
 	}
 	else
 	{
-		wc = &ctx->style.secondary;
+		wc = &ctx->style.cancel;
 	}
 	if(idx >= 0)
 	{

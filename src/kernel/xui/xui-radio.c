@@ -72,7 +72,7 @@ int xui_radio_ex(struct xui_context_t * ctx, const char * label, int state, int 
 	}
 	else
 	{
-		wc = &ctx->style.secondary;
+		wc = &ctx->style.cancel;
 	}
 	if(ctx->active == id)
 	{

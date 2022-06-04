@@ -75,7 +75,7 @@ int xui_checkbox_ex(struct xui_context_t * ctx, const char * label, int * state,
 	}
 	else
 	{
-		wc = &ctx->style.secondary;
+		wc = &ctx->style.cancel;
 	}
 	if(ctx->active == id)
 	{

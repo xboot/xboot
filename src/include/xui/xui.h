@@ -364,6 +364,7 @@ struct xui_style_t {
 	struct xui_widget_color_t info;
 	struct xui_widget_color_t warning;
 	struct xui_widget_color_t danger;
+	struct xui_widget_color_t cancel;
 
 	struct {
 		char icon_family[128];

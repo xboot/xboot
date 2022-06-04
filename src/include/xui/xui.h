@@ -472,7 +472,6 @@ struct xui_style_t {
 
 	struct {
 		struct color_t invalid_color;
-		int width;
 	} radialbar;
 
 	struct {

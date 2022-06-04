@@ -205,7 +205,6 @@ static const char style_default[] = X({
 	"progress-border-radius": 4,
 
 	"radialbar-invalid-color": "#eef2f7ff",
-	"radialbar-width": 4,
 
 	"spinner-width": 4,
 
@@ -1582,10 +1581,6 @@ void xui_load_style(struct xui_context_t * ctx, const char * json, int len)
 				case 0xc2184287: /* "radialbar-invalid-color" */
 					if(o && (o->type == JSON_STRING))
 						color_init_string(&ctx->style.radialbar.invalid_color, o->u.string.ptr);
-					break;
-				case 0xe971a174: /* "radialbar-width" */
-					if(o && (o->type == JSON_INTEGER))
-						ctx->style.radialbar.width = o->u.integer;
 					break;
 
 				case 0xeb339651: /* "spinner-width" */

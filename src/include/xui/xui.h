@@ -476,10 +476,6 @@ struct xui_style_t {
 
 	struct {
 		int width;
-	} spinner;
-
-	struct {
-		int width;
 	} split;
 };
 

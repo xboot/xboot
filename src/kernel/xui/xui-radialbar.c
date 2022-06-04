@@ -72,9 +72,9 @@ void xui_radialbar_ex(struct xui_context_t * ctx, int percent, int opt)
 	fg = &ctx->style.font.color;
 	c = &ctx->style.radialbar.invalid_color;
 	width = min(r->w, r->h) >> 4;
-	radius = (min(r->w, r->h) - width - ctx->style.layout.padding * 2) / 2;
-	x = r->x + r->w / 2;
-	y = r->y + r->h / 2;
+	radius = (min(r->w, r->h) - width - (ctx->style.layout.padding << 1)) >> 1;
+	x = r->x + (r->w >> 1);
+	y = r->y + (r->h >> 1);
 	if(radius > width)
 	{
 		region_init(&region, x - radius + width, y - radius + width, (radius - width) * 2, (radius - width) * 2);

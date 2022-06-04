@@ -14,8 +14,6 @@ enum {
 	XUI_SPINNER_INFO		= (0x3 << 8),
 	XUI_SPINNER_WARNING		= (0x4 << 8),
 	XUI_SPINNER_DANGER		= (0x5 << 8),
-	XUI_SPINNER_LIGHT		= (0x6 << 8),
-	XUI_SPINNER_DARK		= (0x7 << 8),
 };
 
 void xui_spinner_ex(struct xui_context_t * ctx, int opt);

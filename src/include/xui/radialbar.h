@@ -14,8 +14,6 @@ enum {
 	XUI_RADIALBAR_INFO		= (0x3 << 8),
 	XUI_RADIALBAR_WARNING	= (0x4 << 8),
 	XUI_RADIALBAR_DANGER	= (0x5 << 8),
-	XUI_RADIALBAR_LIGHT		= (0x6 << 8),
-	XUI_RADIALBAR_DARK		= (0x7 << 8),
 };
 
 void xui_radialbar_ex(struct xui_context_t * ctx, int percent, int opt);

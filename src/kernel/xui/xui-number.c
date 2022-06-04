@@ -67,12 +67,6 @@ int xui_number_ex(struct xui_context_t * ctx, double * value, double low, double
 	case XUI_NUMBER_DANGER:
 		wc = &ctx->style.danger;
 		break;
-	case XUI_NUMBER_LIGHT:
-		wc = &ctx->style.light;
-		break;
-	case XUI_NUMBER_DARK:
-		wc = &ctx->style.dark;
-		break;
 	default:
 		wc = &ctx->style.primary;
 		break;

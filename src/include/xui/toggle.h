@@ -14,8 +14,6 @@ enum {
 	XUI_TOGGLE_INFO			= (0x3 << 8),
 	XUI_TOGGLE_WARNING		= (0x4 << 8),
 	XUI_TOGGLE_DANGER		= (0x5 << 8),
-	XUI_TOGGLE_LIGHT		= (0x6 << 8),
-	XUI_TOGGLE_DARK			= (0x7 << 8),
 };
 
 int xui_toggle_ex(struct xui_context_t * ctx, int * state, int opt);

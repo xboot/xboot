@@ -77,12 +77,6 @@ int xui_collapse_ex(struct xui_context_t * ctx, int icon, const char * label, in
 	case XUI_COLLAPSE_DANGER:
 		wc = &ctx->style.danger;
 		break;
-	case XUI_COLLAPSE_LIGHT:
-		wc = &ctx->style.light;
-		break;
-	case XUI_COLLAPSE_DARK:
-		wc = &ctx->style.dark;
-		break;
 	default:
 		wc = &ctx->style.primary;
 		break;

@@ -60,12 +60,6 @@ void xui_badge_ex(struct xui_context_t * ctx, const char * label, int opt)
 	case XUI_BADGE_DANGER:
 		wc = &ctx->style.danger;
 		break;
-	case XUI_BADGE_LIGHT:
-		wc = &ctx->style.light;
-		break;
-	case XUI_BADGE_DARK:
-		wc = &ctx->style.dark;
-		break;
 	default:
 		wc = &ctx->style.primary;
 		break;

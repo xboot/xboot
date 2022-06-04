@@ -14,8 +14,6 @@ enum {
 	XUI_NUMBER_INFO			= (0x3 << 8),
 	XUI_NUMBER_WARNING		= (0x4 << 8),
 	XUI_NUMBER_DANGER		= (0x5 << 8),
-	XUI_NUMBER_LIGHT		= (0x6 << 8),
-	XUI_NUMBER_DARK			= (0x7 << 8),
 
 	XUI_NUMBER_ROUNDED		= (0x1 << 12),
 	XUI_NUMBER_OUTLINE		= (0x1 << 13),

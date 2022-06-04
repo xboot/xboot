@@ -14,8 +14,6 @@ enum {
 	XUI_TREE_INFO		= (0x3 << 8),
 	XUI_TREE_WARNING	= (0x4 << 8),
 	XUI_TREE_DANGER		= (0x5 << 8),
-	XUI_TREE_LIGHT		= (0x6 << 8),
-	XUI_TREE_DARK		= (0x7 << 8),
 
 	XUI_TREE_EXPANDED	= (0x1 << 12),
 };

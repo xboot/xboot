@@ -14,8 +14,6 @@ enum {
 	XUI_BUTTON_INFO			= (0x3 << 8),
 	XUI_BUTTON_WARNING		= (0x4 << 8),
 	XUI_BUTTON_DANGER		= (0x5 << 8),
-	XUI_BUTTON_LIGHT		= (0x6 << 8),
-	XUI_BUTTON_DARK			= (0x7 << 8),
 
 	XUI_BUTTON_ROUNDED		= (0x1 << 12),
 	XUI_BUTTON_OUTLINE		= (0x1 << 13),

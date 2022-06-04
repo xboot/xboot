@@ -310,80 +310,6 @@ static void style_window(struct xui_context_t * ctx)
 				}
 				xui_end_tree(ctx);
 			}
-			if(xui_begin_tree(ctx, "Light"))
-			{
-				if(xui_begin_tree(ctx, "Normal"))
-				{
-					xui_layout_row(ctx, 2, (int[]){ 100, -1 }, 0);
-					xui_label(ctx, "Background :");
-					xui_style_color(ctx, &ctx->style.light.normal.background);
-					xui_label(ctx, "Foreground :");
-					xui_style_color(ctx, &ctx->style.light.normal.foreground);
-					xui_label(ctx, "Border :");
-					xui_style_color(ctx, &ctx->style.light.normal.border);
-					xui_end_tree(ctx);
-				}
-				if(xui_begin_tree(ctx, "Hover"))
-				{
-					xui_layout_row(ctx, 2, (int[]){ 100, -1 }, 0);
-					xui_label(ctx, "Background :");
-					xui_style_color(ctx, &ctx->style.light.hover.background);
-					xui_label(ctx, "Foreground :");
-					xui_style_color(ctx, &ctx->style.light.hover.foreground);
-					xui_label(ctx, "Border :");
-					xui_style_color(ctx, &ctx->style.light.hover.border);
-					xui_end_tree(ctx);
-				}
-				if(xui_begin_tree(ctx, "Focus"))
-				{
-					xui_layout_row(ctx, 2, (int[]){ 100, -1 }, 0);
-					xui_label(ctx, "Background :");
-					xui_style_color(ctx, &ctx->style.light.active.background);
-					xui_label(ctx, "Foreground :");
-					xui_style_color(ctx, &ctx->style.light.active.foreground);
-					xui_label(ctx, "Border :");
-					xui_style_color(ctx, &ctx->style.light.active.border);
-					xui_end_tree(ctx);
-				}
-				xui_end_tree(ctx);
-			}
-			if(xui_begin_tree(ctx, "dark"))
-			{
-				if(xui_begin_tree(ctx, "Normal"))
-				{
-					xui_layout_row(ctx, 2, (int[]){ 100, -1 }, 0);
-					xui_label(ctx, "Background :");
-					xui_style_color(ctx, &ctx->style.dark.normal.background);
-					xui_label(ctx, "Foreground :");
-					xui_style_color(ctx, &ctx->style.dark.normal.foreground);
-					xui_label(ctx, "Border :");
-					xui_style_color(ctx, &ctx->style.dark.normal.border);
-					xui_end_tree(ctx);
-				}
-				if(xui_begin_tree(ctx, "Hover"))
-				{
-					xui_layout_row(ctx, 2, (int[]){ 100, -1 }, 0);
-					xui_label(ctx, "Background :");
-					xui_style_color(ctx, &ctx->style.dark.hover.background);
-					xui_label(ctx, "Foreground :");
-					xui_style_color(ctx, &ctx->style.dark.hover.foreground);
-					xui_label(ctx, "Border :");
-					xui_style_color(ctx, &ctx->style.dark.hover.border);
-					xui_end_tree(ctx);
-				}
-				if(xui_begin_tree(ctx, "Focus"))
-				{
-					xui_layout_row(ctx, 2, (int[]){ 100, -1 }, 0);
-					xui_label(ctx, "Background :");
-					xui_style_color(ctx, &ctx->style.dark.active.background);
-					xui_label(ctx, "Foreground :");
-					xui_style_color(ctx, &ctx->style.dark.active.foreground);
-					xui_label(ctx, "Border :");
-					xui_style_color(ctx, &ctx->style.dark.active.border);
-					xui_end_tree(ctx);
-				}
-				xui_end_tree(ctx);
-			}
 			xui_end_tree(ctx);
 		}
 		if(xui_begin_tree(ctx, "Font"))
@@ -453,7 +379,7 @@ static void overview_window(struct xui_context_t * ctx)
 			if(xui_begin_tree(ctx, "Normal Button"))
 			{
 				xui_layout_row(ctx, 3, (int[]){ 100, 100, -1 }, 40);
-				for(int i = 0; i < 8; i++)
+				for(int i = 0; i < 6; i++)
 				{
 					xui_button_ex(ctx, 0, wcstr[i], (i << 8) | XUI_OPT_TEXT_CENTER);
 				}
@@ -463,7 +389,7 @@ static void overview_window(struct xui_context_t * ctx)
 			if(xui_begin_tree(ctx, "Rounded Button"))
 			{
 				xui_layout_row(ctx, 3, (int[]){ 100, 100, -1 }, 40);
-				for(int i = 0; i < 8; i++)
+				for(int i = 0; i < 6; i++)
 				{
 					xui_button_ex(ctx, 0, wcstr[i], (i << 8) | XUI_OPT_TEXT_CENTER | XUI_BUTTON_ROUNDED);
 				}
@@ -473,7 +399,7 @@ static void overview_window(struct xui_context_t * ctx)
 			if(xui_begin_tree(ctx, "Outline Button"))
 			{
 				xui_layout_row(ctx, 3, (int[]){ 100, 100, -1 }, 40);
-				for(int i = 0; i < 8; i++)
+				for(int i = 0; i < 6; i++)
 				{
 					xui_button_ex(ctx, 0, wcstr[i], (i << 8) | XUI_OPT_TEXT_CENTER | XUI_BUTTON_OUTLINE);
 				}
@@ -483,7 +409,7 @@ static void overview_window(struct xui_context_t * ctx)
 			if(xui_begin_tree(ctx, "Rounded Outline Button"))
 			{
 				xui_layout_row(ctx, 3, (int[]){ 100, 100, -1 }, 40);
-				for(int i = 0; i < 8; i++)
+				for(int i = 0; i < 6; i++)
 				{
 					xui_button_ex(ctx, 0, wcstr[i], (i << 8) | XUI_OPT_TEXT_CENTER | XUI_BUTTON_ROUNDED | XUI_BUTTON_OUTLINE);
 				}
@@ -493,7 +419,7 @@ static void overview_window(struct xui_context_t * ctx)
 			if(xui_begin_tree(ctx, "Normal Icon Button"))
 			{
 				xui_layout_row(ctx, 3, (int[]){ 100, 100, -1 }, 40);
-				for(int i = 0; i < 8; i++)
+				for(int i = 0; i < 6; i++)
 				{
 					xui_button_ex(ctx, 0xea29 + i, NULL, (i << 8) | XUI_OPT_TEXT_CENTER);
 				}
@@ -503,7 +429,7 @@ static void overview_window(struct xui_context_t * ctx)
 			if(xui_begin_tree(ctx, "Rounded Icon Button"))
 			{
 				xui_layout_row(ctx, 3, (int[]){ 100, 100, -1 }, 40);
-				for(int i = 0; i < 8; i++)
+				for(int i = 0; i < 6; i++)
 				{
 					xui_button_ex(ctx, 0xea29 + i, NULL, (i << 8) | XUI_OPT_TEXT_CENTER | XUI_BUTTON_ROUNDED);
 				}
@@ -513,7 +439,7 @@ static void overview_window(struct xui_context_t * ctx)
 			if(xui_begin_tree(ctx, "Outline Icon Button"))
 			{
 				xui_layout_row(ctx, 3, (int[]){ 100, 100, -1 }, 40);
-				for(int i = 0; i < 8; i++)
+				for(int i = 0; i < 6; i++)
 				{
 					xui_button_ex(ctx, 0xea29 + i, NULL, (i << 8) | XUI_OPT_TEXT_CENTER | XUI_BUTTON_OUTLINE);
 				}
@@ -523,7 +449,7 @@ static void overview_window(struct xui_context_t * ctx)
 			if(xui_begin_tree(ctx, "Rounded Outline Icon Button"))
 			{
 				xui_layout_row(ctx, 3, (int[]){ 100, 100, -1 }, 40);
-				for(int i = 0; i < 8; i++)
+				for(int i = 0; i < 6; i++)
 				{
 					xui_button_ex(ctx, 0xea29 + i, NULL, (i << 8) | XUI_OPT_TEXT_CENTER | XUI_BUTTON_ROUNDED | XUI_BUTTON_OUTLINE);
 				}
@@ -535,7 +461,7 @@ static void overview_window(struct xui_context_t * ctx)
 		if(xui_begin_tree(ctx, "Checkbox"))
 		{
 			static int states[8] = { 1, 1, 1, 1, 1, 1, 1, 1 };
-			for(int i = 0; i < 8; i++)
+			for(int i = 0; i < 6; i++)
 			{
 				xui_checkbox_ex(ctx, wcstr[i], &states[i], (i << 8));
 			}
@@ -551,8 +477,6 @@ static void overview_window(struct xui_context_t * ctx)
 				INFO,
 				WARNING,
 				DANGER,
-				LIGHT,
-				DARK,
 			} op = PRIMARY;
 			if(xui_radio_ex(ctx, wcstr[0], (op == PRIMARY), XUI_RADIO_PRIMARY))
 				op = PRIMARY;
@@ -566,17 +490,13 @@ static void overview_window(struct xui_context_t * ctx)
 				op = WARNING;
 			if(xui_radio_ex(ctx, wcstr[5], (op == DANGER), XUI_RADIO_DANGER))
 				op = DANGER;
-			if(xui_radio_ex(ctx, wcstr[6], (op == LIGHT), XUI_RADIO_LIGHT))
-				op = LIGHT;
-			if(xui_radio_ex(ctx, wcstr[7], (op == DARK), XUI_RADIO_DARK))
-				op = DARK;
 			xui_end_tree(ctx);
 		}
 
 		if(xui_begin_tree(ctx, "Toggle"))
 		{
 			static int states[8] = { 1, 1, 1, 1, 1, 1, 1, 1 };
-			for(int i = 0; i < 8; i++)
+			for(int i = 0; i < 6; i++)
 			{
 				xui_toggle_ex(ctx, &states[i], (i << 8));
 			}
@@ -587,13 +507,13 @@ static void overview_window(struct xui_context_t * ctx)
 		{
 			static double h[8] = { 10, 20, 30, 40, 50, 60, 70, 80 };
 			xui_layout_row(ctx, 1, (int[]){ -1 }, 0);
-			for(int i = 0; i < 8; i++)
+			for(int i = 0; i < 6; i++)
 			{
 				xui_slider_ex(ctx, &h[i], 0, 100, 0, (i << 8) | XUI_SLIDER_HORIZONTAL);
 			}
 			static double v[8] = { 10, 20, 30, 40, 50, 60, 70, 80 };
 			xui_layout_row(ctx, 8, (int[]){ 24, 24, 24, 24, 24, 24, 24, -1 }, 160);
-			for(int i = 0; i < 8; i++)
+			for(int i = 0; i < 6; i++)
 			{
 				xui_slider_ex(ctx, &v[i], 0, 100, 0, (i << 8) | XUI_SLIDER_VERTICAL);
 			}
@@ -606,7 +526,7 @@ static void overview_window(struct xui_context_t * ctx)
 			{
 				static double n[8] = { 10, 20, 30, 40, 50, 60, 70, 80 };
 				xui_layout_row(ctx, 1, (int[]){ -1 }, 0);
-				for(int i = 0; i < 8; i++)
+				for(int i = 0; i < 6; i++)
 				{
 					xui_number_ex(ctx, &n[i], -1000, 1000, 1, "%.2f", (i << 8) | XUI_OPT_TEXT_LEFT);
 				}
@@ -617,7 +537,7 @@ static void overview_window(struct xui_context_t * ctx)
 			{
 				static double n[8] = { 10, 20, 30, 40, 50, 60, 70, 80 };
 				xui_layout_row(ctx, 1, (int[]){ -1 }, 0);
-				for(int i = 0; i < 8; i++)
+				for(int i = 0; i < 6; i++)
 				{
 					xui_number_ex(ctx, &n[i], -1000, 1000, 1, "%.2f", (i << 8) | XUI_OPT_TEXT_LEFT | XUI_NUMBER_ROUNDED);
 				}
@@ -628,7 +548,7 @@ static void overview_window(struct xui_context_t * ctx)
 			{
 				static double n[8] = { 10, 20, 30, 40, 50, 60, 70, 80 };
 				xui_layout_row(ctx, 1, (int[]){ -1 }, 0);
-				for(int i = 0; i < 8; i++)
+				for(int i = 0; i < 6; i++)
 				{
 					xui_number_ex(ctx, &n[i], -1000, 1000, 1, "%.2f", (i << 8) | XUI_OPT_TEXT_LEFT | XUI_NUMBER_OUTLINE);
 				}
@@ -639,7 +559,7 @@ static void overview_window(struct xui_context_t * ctx)
 			{
 				static double n[8] = { 10, 20, 30, 40, 50, 60, 70, 80 };
 				xui_layout_row(ctx, 1, (int[]){ -1 }, 0);
-				for(int i = 0; i < 8; i++)
+				for(int i = 0; i < 6; i++)
 				{
 					xui_number_ex(ctx, &n[i], -1000, 1000, 1, "%.2f", (i << 8) | XUI_OPT_TEXT_LEFT | XUI_NUMBER_ROUNDED | XUI_NUMBER_OUTLINE);
 				}
@@ -651,7 +571,7 @@ static void overview_window(struct xui_context_t * ctx)
 		if(xui_begin_tree(ctx, "Collapse"))
 		{
 			xui_layout_row(ctx, 1, (int[]){ -1 }, 0);
-			for(int i = 0; i < 8; i++)
+			for(int i = 0; i < 6; i++)
 			{
 				if(xui_collapse_ex(ctx, 0xea29 + i, wcstr[i], (i << 8) | XUI_OPT_TEXT_LEFT))
 					xui_label(ctx, xui_format(ctx, "This is %s", wcstr[i]));
@@ -683,7 +603,7 @@ static void overview_window(struct xui_context_t * ctx)
 			if(xui_begin_tree(ctx, "Normal Badge"))
 			{
 				xui_layout_row(ctx, 3, (int[]){ 100, 100, -1 }, 0);
-				for(int i = 0; i < 8; i++)
+				for(int i = 0; i < 6; i++)
 				{
 					xui_badge_ex(ctx, wcstr[i], (i << 8));
 				}
@@ -693,7 +613,7 @@ static void overview_window(struct xui_context_t * ctx)
 			if(xui_begin_tree(ctx, "Rounded Badge"))
 			{
 				xui_layout_row(ctx, 3, (int[]){ 100, 100, -1 }, 0);
-				for(int i = 0; i < 8; i++)
+				for(int i = 0; i < 6; i++)
 				{
 					xui_badge_ex(ctx, wcstr[i], (i << 8) | XUI_BADGE_ROUNDED);
 				}
@@ -703,7 +623,7 @@ static void overview_window(struct xui_context_t * ctx)
 			if(xui_begin_tree(ctx, "Outline Badge"))
 			{
 				xui_layout_row(ctx, 3, (int[]){ 100, 100, -1 }, 0);
-				for(int i = 0; i < 8; i++)
+				for(int i = 0; i < 6; i++)
 				{
 					xui_badge_ex(ctx, wcstr[i], (i << 8) | XUI_BADGE_OUTLINE);
 				}
@@ -713,7 +633,7 @@ static void overview_window(struct xui_context_t * ctx)
 			if(xui_begin_tree(ctx, "Rounded Outline Badge"))
 			{
 				xui_layout_row(ctx, 3, (int[]){ 100, 100, -1 }, 0);
-				for(int i = 0; i < 8; i++)
+				for(int i = 0; i < 6; i++)
 				{
 					xui_badge_ex(ctx, wcstr[i], (i << 8) | XUI_BADGE_ROUNDED | XUI_BADGE_OUTLINE);
 				}
@@ -725,12 +645,12 @@ static void overview_window(struct xui_context_t * ctx)
 		if(xui_begin_tree(ctx, "Progress"))
 		{
 			xui_layout_row(ctx, 1, (int[]){ -1 }, 0);
-			for(int i = 0; i < 8; i++)
+			for(int i = 0; i < 6; i++)
 			{
 				xui_progress_ex(ctx, (i + 1) * 10, (i << 8) | XUI_PROGRESS_HORIZONTAL);
 			}
 			xui_layout_row(ctx, 8, (int[]){ 24, 24, 24, 24, 24, 24, 24, -1 }, 160);
-			for(int i = 0; i < 8; i++)
+			for(int i = 0; i < 6; i++)
 			{
 				xui_progress_ex(ctx, (i + 1) * 10, (i << 8) | XUI_PROGRESS_VERTICAL);
 			}
@@ -740,7 +660,7 @@ static void overview_window(struct xui_context_t * ctx)
 		if(xui_begin_tree(ctx, "Radialbar"))
 		{
 			xui_layout_row(ctx, 3, (int[]){ 100, 100, -1 }, 100);
-			for(int i = 0; i < 8; i++)
+			for(int i = 0; i < 6; i++)
 			{
 				xui_radialbar_ex(ctx, (i + 1) * 10, (i << 8));
 			}
@@ -750,7 +670,7 @@ static void overview_window(struct xui_context_t * ctx)
 		if(xui_begin_tree(ctx, "Spinner"))
 		{
 			xui_layout_row(ctx, 3, (int[]){ 100, 100, -1 }, 60);
-			for(int i = 0; i < 8; i++)
+			for(int i = 0; i < 6; i++)
 			{
 				xui_spinner_ex(ctx, (i << 8));
 			}
@@ -765,8 +685,8 @@ static void overview_window(struct xui_context_t * ctx)
 			xui_layout_row(ctx, 1, (int[]){ -1 }, 160);
 			xui_begin_panel_ex(ctx, "widget", XUI_OPT_NOSCROLL);
 			{
-				xui_layout_row(ctx, 8, (int[]){ 24, 24, 24, 24, 24, 24, 24, 24 }, -1);
-				for(int i = 0; i < 8; i++)
+				xui_layout_row(ctx, 6, (int[]){ 24, 24, 24, 24, 24, 24 }, -1);
+				for(int i = 0; i < 6; i++)
 				{
 					xui_progress_ex(ctx, (ctx->frame + i * 10) % 100, (i << 8) | XUI_PROGRESS_VERTICAL);
 				}
@@ -849,12 +769,12 @@ static void overview_window(struct xui_context_t * ctx)
 		if(xui_begin_tree(ctx, "Split"))
 		{
 			xui_layout_row(ctx, 1, (int[]){ -1 }, 0);
-			for(int i = 0; i < 8; i++)
+			for(int i = 0; i < 6; i++)
 			{
 				xui_split_ex(ctx, (i << 8) | XUI_SPLIT_HORIZONTAL);
 			}
-			xui_layout_row(ctx, 8, (int[]){ 24, 24, 24, 24, 24, 24, 24, -1 }, 160);
-			for(int i = 0; i < 8; i++)
+			xui_layout_row(ctx, 6, (int[]){ 24, 24, 24, 24, 24, 24 }, 160);
+			for(int i = 0; i < 6; i++)
 			{
 				xui_split_ex(ctx, (i << 8) | XUI_SPLIT_VERTICAL);
 			}

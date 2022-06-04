@@ -14,8 +14,6 @@ enum {
 	XUI_COLLAPSE_INFO		= (0x3 << 8),
 	XUI_COLLAPSE_WARNING	= (0x4 << 8),
 	XUI_COLLAPSE_DANGER		= (0x5 << 8),
-	XUI_COLLAPSE_LIGHT		= (0x6 << 8),
-	XUI_COLLAPSE_DARK		= (0x7 << 8),
 
 	XUI_COLLAPSE_EXPANDED	= (0x1 << 12),
 };

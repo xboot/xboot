@@ -108,32 +108,6 @@ static const char style_default[] = X({
 		"active-foreground-color": "#ffffffff",
 		"active-border-color": "#ff5b5b60",
 	},
-	"light": {
-		"normal-bakcground-color": "#eef2f7ff",
-		"normal-foreground-color": "#323a46ff",
-		"normal-border-color": "#00000000",
-
-		"hover-bakcground-color": "#d4deebff",
-		"hover-foreground-color": "#323a46ff",
-		"hover-border-color": "#00000000",
-
-		"active-bakcground-color": "#cbd7e7ff",
-		"active-foreground-color": "#323a46ff",
-		"active-border-color": "#eef2f760",
-	},
-	"dark": {
-		"normal-bakcground-color": "#323a46ff",
-		"normal-foreground-color": "#ffffffff",
-		"normal-border-color": "#00000000",
-
-		"hover-bakcground-color": "#222830ff",
-		"hover-foreground-color": "#ffffffff",
-		"hover-border-color": "#00000000",
-
-		"active-bakcground-color": "#1d2128ff",
-		"active-foreground-color": "#ffffffff",
-		"active-border-color": "#323a4660",
-	},
 
 	"icon-family": "material-icons",
 	"font-family": "roboto-regular",
@@ -1343,12 +1317,6 @@ void xui_load_style(struct xui_context_t * ctx, const char * json, int len)
 					break;
 				case 0xf83c41d6: /* "danger" */
 					style_widget_color(o, &ctx->style.danger);
-					break;
-				case 0x0fdcae5d: /* "light" */
-					style_widget_color(o, &ctx->style.light);
-					break;
-				case 0x7c959127: /* "dark" */
-					style_widget_color(o, &ctx->style.dark);
 					break;
 
 				case 0xb1c870bd: /* "icon-family" */

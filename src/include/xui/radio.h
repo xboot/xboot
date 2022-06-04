@@ -14,8 +14,6 @@ enum {
 	XUI_RADIO_INFO		= (0x3 << 8),
 	XUI_RADIO_WARNING	= (0x4 << 8),
 	XUI_RADIO_DANGER	= (0x5 << 8),
-	XUI_RADIO_LIGHT		= (0x6 << 8),
-	XUI_RADIO_DARK		= (0x7 << 8),
 };
 
 int xui_radio_ex(struct xui_context_t * ctx, const char * label, int state, int opt);

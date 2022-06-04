@@ -14,8 +14,6 @@ enum {
 	XUI_BADGE_INFO		= (0x3 << 8),
 	XUI_BADGE_WARNING	= (0x4 << 8),
 	XUI_BADGE_DANGER	= (0x5 << 8),
-	XUI_BADGE_LIGHT		= (0x6 << 8),
-	XUI_BADGE_DARK		= (0x7 << 8),
 
 	XUI_BADGE_ROUNDED	= (0x1 << 12),
 	XUI_BADGE_OUTLINE	= (0x1 << 13),

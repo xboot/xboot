@@ -14,8 +14,6 @@ enum {
 	XUI_SLIDER_INFO			= (0x3 << 8),
 	XUI_SLIDER_WARNING		= (0x4 << 8),
 	XUI_SLIDER_DANGER		= (0x5 << 8),
-	XUI_SLIDER_LIGHT		= (0x6 << 8),
-	XUI_SLIDER_DARK			= (0x7 << 8),
 
 	XUI_SLIDER_HORIZONTAL	= (0x0 << 12),
 	XUI_SLIDER_VERTICAL		= (0x1 << 12),

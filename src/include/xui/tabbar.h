@@ -14,8 +14,6 @@ enum {
 	XUI_TABBAR_INFO			= (0x3 << 8),
 	XUI_TABBAR_WARNING		= (0x4 << 8),
 	XUI_TABBAR_DANGER		= (0x5 << 8),
-	XUI_TABBAR_LIGHT		= (0x6 << 8),
-	XUI_TABBAR_DARK			= (0x7 << 8),
 };
 
 int xui_tabbar_ex(struct xui_context_t * ctx, int icon, const char * label, int state, int opt);

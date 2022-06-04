@@ -58,12 +58,6 @@ void xui_progress_ex(struct xui_context_t * ctx, int percent, int opt)
 	case XUI_PROGRESS_DANGER:
 		wc = &ctx->style.danger;
 		break;
-	case XUI_PROGRESS_LIGHT:
-		wc = &ctx->style.light;
-		break;
-	case XUI_PROGRESS_DARK:
-		wc = &ctx->style.dark;
-		break;
 	default:
 		wc = &ctx->style.primary;
 		break;

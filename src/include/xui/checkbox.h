@@ -14,8 +14,6 @@ enum {
 	XUI_CHECKBOX_INFO		= (0x3 << 8),
 	XUI_CHECKBOX_WARNING	= (0x4 << 8),
 	XUI_CHECKBOX_DANGER		= (0x5 << 8),
-	XUI_CHECKBOX_LIGHT		= (0x6 << 8),
-	XUI_CHECKBOX_DARK		= (0x7 << 8),
 };
 
 int xui_checkbox_ex(struct xui_context_t * ctx, const char * label, int * state, int opt);

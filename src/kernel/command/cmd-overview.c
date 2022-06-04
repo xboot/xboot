@@ -804,11 +804,11 @@ static void overview_window(struct xui_context_t * ctx)
 			if(xui_begin_tree(ctx, "Fill Chart"))
 			{
 				xui_layout_row(ctx, 1, (int[]){ -1 }, 80);
-				xui_chart_ex(ctx, &values[0], ARRAY_SIZE(values), -1.5, 1.5, &(struct color_t){ 255, 0, 0, 128 }, XUI_CHART_FILL);
+				xui_chart_ex(ctx, &values[0], ARRAY_SIZE(values), -1.5, 1.5, &(struct color_t){ 255, 0, 0, 128 }, XUI_CHART_AREA);
 				xui_layout_row(ctx, 1, (int[]){ -1 }, 80);
-				xui_chart_ex(ctx, &values[8], ARRAY_SIZE(values) / 2, -1.5, 1.5, &(struct color_t){ 0, 255, 0, 128 }, XUI_CHART_FILL);
+				xui_chart_ex(ctx, &values[8], ARRAY_SIZE(values) / 2, -1.5, 1.5, &(struct color_t){ 0, 255, 0, 128 }, XUI_CHART_AREA);
 				xui_layout_row(ctx, 1, (int[]){ -1 }, 80);
-				xui_chart_ex(ctx, &values[16], ARRAY_SIZE(values) / 3, -1.5, 1.5, &(struct color_t){ 0, 0, 255, 128 }, XUI_CHART_FILL);
+				xui_chart_ex(ctx, &values[16], ARRAY_SIZE(values) / 3, -1.5, 1.5, &(struct color_t){ 0, 0, 255, 128 }, XUI_CHART_AREA);
 				xui_end_tree(ctx);
 			}
 
@@ -834,11 +834,11 @@ static void overview_window(struct xui_context_t * ctx)
 				xui_begin_panel_ex(ctx, "panel", XUI_OPT_NOSCROLL);
 				{
 					xui_layout_set_next(ctx, &xui_get_container(ctx)->body, 0);
-					xui_chart_ex(ctx, &values[0], ARRAY_SIZE(values), -1.5, 1.5, &(struct color_t){ 255, 0, 0, 128 }, XUI_CHART_FILL);
+					xui_chart_ex(ctx, &values[0], ARRAY_SIZE(values), -1.5, 1.5, &(struct color_t){ 255, 0, 0, 128 }, XUI_CHART_AREA);
 					xui_layout_set_next(ctx, &xui_get_container(ctx)->body, 0);
-					xui_chart_ex(ctx, &values[8], ARRAY_SIZE(values) / 2, -1.5, 1.5, &(struct color_t){ 0, 255, 0, 128 }, XUI_CHART_FILL);
+					xui_chart_ex(ctx, &values[8], ARRAY_SIZE(values) / 2, -1.5, 1.5, &(struct color_t){ 0, 255, 0, 128 }, XUI_CHART_AREA);
 					xui_layout_set_next(ctx, &xui_get_container(ctx)->body, 0);
-					xui_chart_ex(ctx, &values[16], ARRAY_SIZE(values) / 3, -1.5, 1.5, &(struct color_t){ 0, 0, 255, 128 }, XUI_CHART_FILL);
+					xui_chart_ex(ctx, &values[16], ARRAY_SIZE(values) / 3, -1.5, 1.5, &(struct color_t){ 0, 0, 255, 128 }, XUI_CHART_AREA);
 				}
 				xui_end_panel(ctx);
 				xui_end_tree(ctx);

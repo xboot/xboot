@@ -8,7 +8,8 @@ extern "C" {
 #include <xui/xui.h>
 
 enum {
-	XUI_CHART_FILL		= (0x1 << 12),
+	XUI_CHART_DOTS		= (0x1 << 12),
+	XUI_CHART_AREA		= (0x1 << 13),
 };
 
 void xui_chart_ex(struct xui_context_t * ctx, double * values, int len, double ymin, double ymax, struct color_t * c, int opt);

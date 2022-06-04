@@ -31,10 +31,10 @@
 
 void xui_chart_ex(struct xui_context_t * ctx, double * values, int len, double ymin, double ymax, struct color_t * c, int opt)
 {
-	if(len >= 2)
+	if(len > 2)
 	{
 		struct region_t * r = xui_layout_next(ctx);
-		if(opt & XUI_CHART_FILL)
+		if(opt & XUI_CHART_AREA)
 		{
 			struct point_t p[len + 2];
 			p[0].x = r->x;
@@ -46,8 +46,16 @@ void xui_chart_ex(struct xui_context_t * ctx, double * values, int len, double y
 			}
 			p[len + 1].x = r->x + r->w;
 			p[len + 1].y = r->y + r->h;
+			struct color_t lc;
+			color_level(&lc, c, -2);
 			xui_push_clip(ctx, r);
-			xui_draw_polygon(ctx, p, len + 2, 0, c);
+			xui_draw_polygon(ctx, p, len + 2, 0, &lc);
+			xui_draw_polyline(ctx, &p[1], len, 2, c);
+			if(opt & XUI_CHART_DOTS)
+			{
+				for(int i = 1; i < len + 1; i++)
+					xui_draw_circle(ctx, p[i].x, p[i].y, 2, 0, c);
+			}
 			xui_pop_clip(ctx);
 		}
 		else
@@ -60,6 +68,11 @@ void xui_chart_ex(struct xui_context_t * ctx, double * values, int len, double y
 			}
 			xui_push_clip(ctx, r);
 			xui_draw_polyline(ctx, p, len, 2, c);
+			if(opt & XUI_CHART_DOTS)
+			{
+				for(int i = 0; i < len; i++)
+					xui_draw_circle(ctx, p[i].x, p[i].y, 2, 0, c);
+			}
 			xui_pop_clip(ctx);
 		}
 	}
@@ -67,10 +80,10 @@ void xui_chart_ex(struct xui_context_t * ctx, double * values, int len, double y
 
 void xui_chart_float_ex(struct xui_context_t * ctx, float * values, int len, float ymin, float ymax, struct color_t * c, int opt)
 {
-	if(len >= 2)
+	if(len > 2)
 	{
 		struct region_t * r = xui_layout_next(ctx);
-		if(opt & XUI_CHART_FILL)
+		if(opt & XUI_CHART_AREA)
 		{
 			struct point_t p[len + 2];
 			p[0].x = r->x;
@@ -82,8 +95,16 @@ void xui_chart_float_ex(struct xui_context_t * ctx, float * values, int len, flo
 			}
 			p[len + 1].x = r->x + r->w;
 			p[len + 1].y = r->y + r->h;
+			struct color_t lc;
+			color_level(&lc, c, -2);
 			xui_push_clip(ctx, r);
-			xui_draw_polygon(ctx, p, len + 2, 0, c);
+			xui_draw_polygon(ctx, p, len + 2, 0, &lc);
+			xui_draw_polyline(ctx, &p[1], len, 2, c);
+			if(opt & XUI_CHART_DOTS)
+			{
+				for(int i = 1; i < len + 1; i++)
+					xui_draw_circle(ctx, p[i].x, p[i].y, 2, 0, c);
+			}
 			xui_pop_clip(ctx);
 		}
 		else
@@ -96,6 +117,11 @@ void xui_chart_float_ex(struct xui_context_t * ctx, float * values, int len, flo
 			}
 			xui_push_clip(ctx, r);
 			xui_draw_polyline(ctx, p, len, 2, c);
+			if(opt & XUI_CHART_DOTS)
+			{
+				for(int i = 0; i < len; i++)
+					xui_draw_circle(ctx, p[i].x, p[i].y, 2, 0, c);
+			}
 			xui_pop_clip(ctx);
 		}
 	}
@@ -103,10 +129,10 @@ void xui_chart_float_ex(struct xui_context_t * ctx, float * values, int len, flo
 
 void xui_chart_int_ex(struct xui_context_t * ctx, int * values, int len, int ymin, int ymax, struct color_t * c, int opt)
 {
-	if(len >= 2)
+	if(len > 2)
 	{
 		struct region_t * r = xui_layout_next(ctx);
-		if(opt & XUI_CHART_FILL)
+		if(opt & XUI_CHART_AREA)
 		{
 			struct point_t p[len + 2];
 			p[0].x = r->x;
@@ -118,8 +144,16 @@ void xui_chart_int_ex(struct xui_context_t * ctx, int * values, int len, int ymi
 			}
 			p[len + 1].x = r->x + r->w;
 			p[len + 1].y = r->y + r->h;
+			struct color_t lc;
+			color_level(&lc, c, -2);
 			xui_push_clip(ctx, r);
-			xui_draw_polygon(ctx, p, len + 2, 0, c);
+			xui_draw_polygon(ctx, p, len + 2, 0, &lc);
+			xui_draw_polyline(ctx, &p[1], len, 2, c);
+			if(opt & XUI_CHART_DOTS)
+			{
+				for(int i = 1; i < len + 1; i++)
+					xui_draw_circle(ctx, p[i].x, p[i].y, 2, 0, c);
+			}
 			xui_pop_clip(ctx);
 		}
 		else
@@ -132,6 +166,11 @@ void xui_chart_int_ex(struct xui_context_t * ctx, int * values, int len, int ymi
 			}
 			xui_push_clip(ctx, r);
 			xui_draw_polyline(ctx, p, len, 2, c);
+			if(opt & XUI_CHART_DOTS)
+			{
+				for(int i = 0; i < len; i++)
+					xui_draw_circle(ctx, p[i].x, p[i].y, 2, 0, c);
+			}
 			xui_pop_clip(ctx);
 		}
 	}

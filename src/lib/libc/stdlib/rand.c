@@ -43,7 +43,7 @@ static void srand48(long val)
 
 int rand(void)
 {
-	return (int)lrand48();
+	return (int)(lrand48() & RAND_MAX);
 }
 EXPORT_SYMBOL(rand);
 

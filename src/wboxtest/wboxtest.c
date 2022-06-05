@@ -186,16 +186,12 @@ void wboxtest_list(void)
 
 int wboxtest_random_int(int a, int b)
 {
-	double r = (double)rand() * (1.0 / ((double)RAND_MAX + 1.0));
-	r *= (double)(b - a) + 1.0;
-	return (int)(r + a);
+	return (int)((b - a) * (double)rand() / (double)RAND_MAX + a);
 }
 
 double wboxtest_random_float(double a, double b)
 {
-	double r = (double)rand() * (1.0 / ((double)RAND_MAX + 1.0));
-	r *= b - a + 1.0;
-	return r + a;
+	return (b - a) * (double)rand() / (double)RAND_MAX + a;
 }
 
 char * wboxtest_random_string(char * buf, int len)

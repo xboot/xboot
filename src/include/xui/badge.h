@@ -23,7 +23,7 @@ void xui_badge_ex(struct xui_context_t * ctx, const char * label, int opt);
 
 static inline void xui_badge(struct xui_context_t * ctx, const char * label)
 {
-	xui_badge_ex(ctx, label, XUI_BADGE_PRIMARY);
+	xui_badge_ex(ctx, label, XUI_BADGE_DANGER);
 }
 
 #ifdef __cplusplus

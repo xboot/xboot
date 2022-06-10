@@ -50,6 +50,7 @@ extern "C" {
 #include <queue.h>
 #include <ssize.h>
 #include <spring.h>
+#include <easing.h>
 #include <malloc.h>
 #include <alloca.h>
 #include <charset.h>

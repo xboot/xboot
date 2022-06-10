@@ -18,7 +18,7 @@ knife:addEventListener("animate-complete", function(d, e)
 	if wood:hitting() then
 		knife:setVisible(false):setPosition(sw / 2, sh - 120)
 		dropknife:setVisible(true):setPosition(sw / 2, 120):animate({x = sw / 2, y = sh - 120, rotation = dropknife:getRotation() + 180}, 0.6, "sine-in")
-		wood:animate({scalex = 1.1, scaley = 1.1}, 0.3, "bounce-out"):animate({scalex = 1, scaley = 1}, 0.3, "bounce-in")
+		wood:animate({scalex = 1.1, scaley = 1.1}, 0.3, "circ-out"):animate({scalex = 1, scaley = 1}, 0.3, "circ-in")
 	else
 		knife:setPosition(sw / 2, sh - 120)
 		isready = true

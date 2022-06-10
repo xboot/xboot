@@ -126,18 +126,6 @@ static int l_new(lua_State * L)
 		case 0xd15749df: /* "back-in-out" */
 			cubic_bezier_init(&e->bezier, 0.68, -0.55, 0.27, 1.55);
 			break;
-		case 0x21ed4e6e: /* "elastic-in" */
-			break;
-		case 0x5f97370f: /* "elastic-out" */
-			break;
-		case 0xdbc56a33: /* "elastic-in-out" */
-			break;
-		case 0x3077fd85: /* "bounce-in" */
-			break;
-		case 0x3f77c906: /* "bounce-out" */
-			break;
-		case 0x7fafccca: /* "bounce-in-out" */
-			break;
 		default:
 			cubic_bezier_init(&e->bezier, 0, 0, 1, 1);
 			break;

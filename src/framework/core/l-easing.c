@@ -39,7 +39,7 @@ struct leasing_t {
 static int l_new(lua_State * L)
 {
 	double start = luaL_optnumber(L, 1, 0);
-	double stop = start + luaL_optnumber(L, 2, 1);
+	double stop = luaL_optnumber(L, 2, 1);
 	double duration = luaL_optnumber(L, 3, 1);
 	struct leasing_t * e;
 	if(lua_isstring(L, 4))

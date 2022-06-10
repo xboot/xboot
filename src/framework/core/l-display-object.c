@@ -323,28 +323,28 @@ function M:animate(properties, duration, easing)
 			if not tween.easinglist then
 				tween.easinglist = {}
 				for k, v in pairs(tween.properties) do
-					local b = nil
+					local s = nil
 					if k == "x" then
-						b = d:getX()
+						s = d:getX()
 					elseif k == "y" then
-						b = d:getY()
+						s = d:getY()
 					elseif k == "rotation" then
-						b = d:getRotation()
+						s = d:getRotation()
 					elseif k == "scalex" then
-						b = d:getScaleX()
+						s = d:getScaleX()
 					elseif k == "scaley" then
-						b = d:getScaleY()
+						s = d:getScaleY()
 					elseif k == "skewx" then
-						b = d:getSkewX()
+						s = d:getSkewX()
 					elseif k == "skewy" then
-						b = d:getSkewY()
+						s = d:getSkewY()
 					elseif k == "width" then
-						b = d:getWidth()
+						s = d:getWidth()
 					elseif k == "height" then
-						b = d:getHeight()
+						s = d:getHeight()
 					end
-					if b ~= nil then
-						tween.easinglist[k] = Easing.new(b, v - b, tween.duration, tween.easing)
+					if s ~= nil then
+						tween.easinglist[k] = Easing.new(s, v, tween.duration, tween.easing)
 					end
 				end
 			end

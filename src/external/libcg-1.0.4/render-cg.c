@@ -156,7 +156,6 @@ static void render_cg_shape_polyline(struct surface_t * s, struct region_t * cli
 		{
 			cg_fill(cg);
 		}
-		cg_stroke(cg);
 		cg_restore(cg);
 	}
 }

@@ -40,7 +40,6 @@ local M = Class()
 
 function M:init()
 	self._images = {}
-	self._themes = {}
 end
 
 function M:loadImage(name)
@@ -51,31 +50,6 @@ function M:loadImage(name)
 		return self._images[name]
 	end
 	return nil
-end
-
-function M:loadTheme(name)
-	local default = "assets/themes/default"
-	local name = type(name) == "string" and name or default
-	if not self._themes[name] then
-		if Xfs.isdir(name) then
-			self._themes[name] = require(name)
-		end
-		if not self._themes[name] then
-			name = "assets/themes/" .. name
-			if Xfs.isdir(name) then
-				self._themes[name] = require(name)
-			end
-			if not self._themes[name] then
-				if not self._themes[default] then
-					if Xfs.isdir(default) then
-						self._themes[default] = require(default)
-					end
-				end
-				return self._themes[default]
-			end
-		end
-	end
-	return self._themes[name]
 end
 
 function M:loadDisplay(name)
@@ -96,7 +70,6 @@ end
 
 function M:clear()
 	self._images = {}
-	self._themes = {}
 end
 
 return M

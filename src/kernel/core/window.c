@@ -1164,13 +1164,13 @@ void window_present(struct window_t * w, void * o, void (*draw)(struct window_t 
 		{
 			r = &wm->watermark.r;
 			matrix_init_translate(&m, r->x, r->y);
-			surface_blit(s, NULL, &m, wm->watermark.s, RENDER_TYPE_GOOD);
+			surface_blit(s, NULL, &m, wm->watermark.s);
 		}
 		if(wm->cursor.show && wm->cursor.s)
 		{
 			r = &wm->cursor.rn;
 			matrix_init_translate(&m, r->x - 2, r->y - 2);
-			surface_blit(s, NULL, &m, wm->cursor.s, RENDER_TYPE_GOOD);
+			surface_blit(s, NULL, &m, wm->cursor.s);
 		}
 	}
 	framebuffer_present_surface(wm->fb, w->s, w->rl);

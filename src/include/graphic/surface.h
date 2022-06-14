@@ -35,12 +35,6 @@ struct surface_t
 	void * priv;
 };
 
-enum render_type_t {
-	RENDER_TYPE_FAST	= 0,
-	RENDER_TYPE_GOOD	= 1,
-	RENDER_TYPE_BEST	= 2,
-};
-
 struct render_t
 {
 	char * name;
@@ -49,8 +43,8 @@ struct render_t
 	void * (*create)(struct surface_t * s);
 	void (*destroy)(void * rctx);
 
-	void (*blit)(struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct surface_t * src, enum render_type_t type);
-	void (*fill)(struct surface_t * s, struct region_t * clip, struct matrix_t * m, int w, int h, struct color_t * c, enum render_type_t type);
+	void (*blit)(struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct surface_t * src);
+	void (*fill)(struct surface_t * s, struct region_t * clip, struct matrix_t * m, int w, int h, struct color_t * c);
 	void (*text)(struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct text_t * txt);
 	void (*icon)(struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct icon_t * ico);
 
@@ -102,14 +96,14 @@ static inline void * surface_get_pixels(struct surface_t * s)
 	return s->pixels;
 }
 
-static inline void surface_blit(struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct surface_t * src, enum render_type_t type)
+static inline void surface_blit(struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct surface_t * src)
 {
-	s->r->blit(s, clip, m, src, type);
+	s->r->blit(s, clip, m, src);
 }
 
-static inline void surface_fill(struct surface_t * s, struct region_t * clip, struct matrix_t * m, int w, int h, struct color_t * c, enum render_type_t type)
+static inline void surface_fill(struct surface_t * s, struct region_t * clip, struct matrix_t * m, int w, int h, struct color_t * c)
 {
-	s->r->fill(s, clip, m, w, h, c, type);
+	s->r->fill(s, clip, m, w, h, c);
 }
 
 static inline void surface_text(struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct text_t * txt)
@@ -244,8 +238,8 @@ static inline void surface_filter_blur(struct surface_t * s, int radius)
 
 void * render_default_create(struct surface_t * s);
 void render_default_destroy(void * rctx);
-void render_default_blit(struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct surface_t * src, enum render_type_t type);
-void render_default_fill(struct surface_t * s, struct region_t * clip, struct matrix_t * m, int w, int h, struct color_t * c, enum render_type_t type);
+void render_default_blit(struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct surface_t * src);
+void render_default_fill(struct surface_t * s, struct region_t * clip, struct matrix_t * m, int w, int h, struct color_t * c);
 void render_default_text(struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct text_t * txt);
 void render_default_icon(struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct icon_t * ico);
 void render_default_shape_line(struct surface_t * s, struct region_t * clip, struct point_t * p0, struct point_t * p1, int thickness, struct color_t * c);

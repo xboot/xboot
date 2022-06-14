@@ -135,7 +135,7 @@ static int m_image_clone(lua_State * L)
 		c = surface_alloc(r.w, r.h, NULL);
 		if(!c)
 			return 0;
-		surface_blit(c, NULL, m, img->s, RENDER_TYPE_GOOD);
+		surface_blit(c, NULL, m, img->s);
 		struct limage_t * subimg = lua_newuserdata(L, sizeof(struct limage_t));
 		subimg->s = c;
 		luaL_setmetatable(L, MT_IMAGE);
@@ -203,7 +203,7 @@ static int m_image_blit(lua_State * L)
 	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
 	struct matrix_t * m = luaL_checkudata(L, 2, MT_MATRIX);
 	struct limage_t * o = luaL_checkudata(L, 3, MT_IMAGE);
-	surface_blit(img->s, NULL, m, o->s, RENDER_TYPE_GOOD);
+	surface_blit(img->s, NULL, m, o->s);
 	lua_settop(L, 1);
 	return 1;
 }
@@ -216,7 +216,7 @@ static int m_image_fill(lua_State * L)
 	int h = luaL_checkinteger(L, 4);
 	struct color_t * c = luaL_checkudata(L, 5, MT_COLOR);
 	if((w > 0) && (h > 0))
-		surface_fill(img->s, NULL, m, w, h, c, RENDER_TYPE_GOOD);
+		surface_fill(img->s, NULL, m, w, h, c);
 	lua_settop(L, 1);
 	return 1;
 }

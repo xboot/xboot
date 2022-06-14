@@ -70,7 +70,7 @@ static inline void blend(uint32_t * d, uint32_t * s)
 	}
 }
 
-void render_default_blit(struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct surface_t * src, enum render_type_t type)
+void render_default_blit(struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct surface_t * src)
 {
 	struct region_t r, region;
 	struct matrix_t t;
@@ -125,7 +125,7 @@ void render_default_blit(struct surface_t * s, struct region_t * clip, struct ma
 	}
 }
 
-void render_default_fill(struct surface_t * s, struct region_t * clip, struct matrix_t * m, int w, int h, struct color_t * c, enum render_type_t type)
+void render_default_fill(struct surface_t * s, struct region_t * clip, struct matrix_t * m, int w, int h, struct color_t * c)
 {
 	struct region_t r, region;
 	struct matrix_t t;

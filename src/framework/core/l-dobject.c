@@ -182,7 +182,7 @@ static inline void dobject_mark_dirty(struct ldobject_t * o)
 static void dobject_draw_image(struct ldobject_t * o, struct window_t * w)
 {
 	struct limage_t * img = o->priv;
-	surface_blit(w->s, dobject_parent_global_bounds(o), dobject_global_matrix(o), img->s, RENDER_TYPE_GOOD);
+	surface_blit(w->s, dobject_parent_global_bounds(o), dobject_global_matrix(o), img->s);
 }
 
 static void dobject_draw_text(struct ldobject_t * o, struct window_t * w)
@@ -200,7 +200,7 @@ static void dobject_draw_icon(struct ldobject_t * o, struct window_t * w)
 static void dobject_draw_container(struct ldobject_t * o, struct window_t * w)
 {
 	if(o->bgcolor.a != 0)
-		surface_fill(w->s, dobject_parent_global_bounds(o), dobject_global_matrix(o), o->width, o->height, &o->bgcolor, RENDER_TYPE_GOOD);
+		surface_fill(w->s, dobject_parent_global_bounds(o), dobject_global_matrix(o), o->width, o->height, &o->bgcolor);
 }
 
 static int l_dobject_new(lua_State * L)

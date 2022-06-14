@@ -31,7 +31,7 @@ static void render_cg_destroy(void * rctx)
 	free(ctx);
 }
 
-static void render_cg_blit(struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct surface_t * src, enum render_type_t type)
+static void render_cg_blit(struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct surface_t * src)
 {
 	struct cg_ctx_t * cg = ((struct render_cg_ctx_t *)s->rctx)->cg;
 	struct region_t r;
@@ -62,7 +62,7 @@ static void render_cg_blit(struct surface_t * s, struct region_t * clip, struct 
 	cg_restore(cg);
 }
 
-static void render_cg_fill(struct surface_t * s, struct region_t * clip, struct matrix_t * m, int w, int h, struct color_t * c, enum render_type_t type)
+static void render_cg_fill(struct surface_t * s, struct region_t * clip, struct matrix_t * m, int w, int h, struct color_t * c)
 {
 	struct cg_ctx_t * cg = ((struct render_cg_ctx_t *)s->rctx)->cg;
 	struct region_t r;

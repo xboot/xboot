@@ -1701,7 +1701,7 @@ static void xui_draw(struct window_t * w, void * o)
 					surface_shape_arc(s, clip, cmd->arc.x, cmd->arc.y, cmd->arc.radius, cmd->arc.a1, cmd->arc.a2, cmd->arc.thickness, &cmd->arc.c);
 					break;
 				case XUI_CMD_TYPE_SURFACE:
-					surface_blit(s, clip, &cmd->surface.m, cmd->surface.s, RENDER_TYPE_GOOD);
+					surface_blit(s, clip, &cmd->surface.m, cmd->surface.s);
 					break;
 				case XUI_CMD_TYPE_ICON:
 					size = min(cmd->icon.w, cmd->icon.h);

@@ -14,9 +14,8 @@ extern "C" {
 enum dobject_type_t {
 	DOBJECT_TYPE_CONTAINER			= 0,
 	DOBJECT_TYPE_IMAGE				= 1,
-	DOBJECT_TYPE_NINEPATCH			= 2,
-	DOBJECT_TYPE_TEXT				= 3,
-	DOBJECT_TYPE_ICON				= 4,
+	DOBJECT_TYPE_TEXT				= 2,
+	DOBJECT_TYPE_ICON				= 3,
 };
 
 enum collider_type_t {

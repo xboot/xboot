@@ -29,7 +29,6 @@
 #include <xboot.h>
 #include <core/l-color.h>
 #include <core/l-image.h>
-#include <core/l-ninepatch.h>
 #include <core/l-text.h>
 #include <core/l-icon.h>
 #include <core/l-window.h>
@@ -186,72 +185,6 @@ static void dobject_draw_image(struct ldobject_t * o, struct window_t * w)
 	surface_blit(w->s, dobject_parent_global_bounds(o), dobject_global_matrix(o), img->s, RENDER_TYPE_GOOD);
 }
 
-static void dobject_draw_ninepatch(struct ldobject_t * o, struct window_t * w)
-{
-	struct lninepatch_t * ninepatch = o->priv;
-	struct surface_t * s = w->s;
-	struct matrix_t m;
-	if(ninepatch->lt)
-	{
-		memcpy(&m, dobject_global_matrix(o), sizeof(struct matrix_t));
-		matrix_translate(&m, 0, 0);
-		surface_blit(s, dobject_parent_global_bounds(o), &m, ninepatch->lt, RENDER_TYPE_FAST);
-	}
-	if(ninepatch->mt)
-	{
-		memcpy(&m, dobject_global_matrix(o), sizeof(struct matrix_t));
-		matrix_translate(&m, ninepatch->left, 0);
-		matrix_scale(&m, ninepatch->__sx, 1);
-		surface_blit(s, dobject_parent_global_bounds(o), &m, ninepatch->mt, RENDER_TYPE_FAST);
-	}
-	if(ninepatch->rt)
-	{
-		memcpy(&m, dobject_global_matrix(o), sizeof(struct matrix_t));
-		matrix_translate(&m, ninepatch->__w - ninepatch->right, 0);
-		surface_blit(s, dobject_parent_global_bounds(o), &m, ninepatch->rt, RENDER_TYPE_FAST);
-	}
-	if(ninepatch->lm)
-	{
-		memcpy(&m, dobject_global_matrix(o), sizeof(struct matrix_t));
-		matrix_translate(&m, 0, ninepatch->top);
-		matrix_scale(&m, 1, ninepatch->__sy);
-		surface_blit(s, dobject_parent_global_bounds(o), &m, ninepatch->lm, RENDER_TYPE_FAST);
-	}
-	if(ninepatch->mm)
-	{
-		memcpy(&m, dobject_global_matrix(o), sizeof(struct matrix_t));
-		matrix_translate(&m, ninepatch->left, ninepatch->top);
-		matrix_scale(&m, ninepatch->__sx, ninepatch->__sy);
-		surface_blit(s, dobject_parent_global_bounds(o), &m, ninepatch->mm, RENDER_TYPE_FAST);
-	}
-	if(ninepatch->rm)
-	{
-		memcpy(&m, dobject_global_matrix(o), sizeof(struct matrix_t));
-		matrix_translate(&m, ninepatch->__w - ninepatch->right, ninepatch->top);
-		matrix_scale(&m, 1, ninepatch->__sy);
-		surface_blit(s, dobject_parent_global_bounds(o), &m, ninepatch->rm, RENDER_TYPE_FAST);
-	}
-	if(ninepatch->lb)
-	{
-		memcpy(&m, dobject_global_matrix(o), sizeof(struct matrix_t));
-		matrix_translate(&m, 0, ninepatch->__h - ninepatch->bottom);
-		surface_blit(s, dobject_parent_global_bounds(o), &m, ninepatch->lb, RENDER_TYPE_FAST);
-	}
-	if(ninepatch->mb)
-	{
-		memcpy(&m, dobject_global_matrix(o), sizeof(struct matrix_t));
-		matrix_translate(&m, ninepatch->left, ninepatch->__h - ninepatch->bottom);
-		matrix_scale(&m, ninepatch->__sx, 1);
-		surface_blit(s, dobject_parent_global_bounds(o), &m, ninepatch->mb, RENDER_TYPE_FAST);
-	}
-	if(ninepatch->rb)
-	{
-		memcpy(&m, dobject_global_matrix(o), sizeof(struct matrix_t));
-		matrix_translate(&m, ninepatch->__w - ninepatch->right, ninepatch->__h - ninepatch->bottom);
-		surface_blit(s, dobject_parent_global_bounds(o), &m, ninepatch->rb, RENDER_TYPE_FAST);
-	}
-}
-
 static void dobject_draw_text(struct ldobject_t * o, struct window_t * w)
 {
 	struct ltext_t * text = o->priv;
@@ -281,12 +214,6 @@ static int l_dobject_new(lua_State * L)
 	{
 		dtype = DOBJECT_TYPE_IMAGE;
 		draw = dobject_draw_image;
-		userdata = lua_touserdata(L, 3);
-	}
-	else if(luaL_testudata(L, 3, MT_NINEPATCH))
-	{
-		dtype = DOBJECT_TYPE_NINEPATCH;
-		draw = dobject_draw_ninepatch;
 		userdata = lua_touserdata(L, 3);
 	}
 	else if(luaL_testudata(L, 3, MT_TEXT))

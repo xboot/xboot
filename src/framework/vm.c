@@ -34,7 +34,6 @@
 #include <core/l-color.h>
 #include <core/l-display-icon.h>
 #include <core/l-display-image.h>
-#include <core/l-display-ninepatch.h>
 #include <core/l-display-object.h>
 #include <core/l-display-pager.h>
 #include <core/l-display-scroll.h>
@@ -47,7 +46,6 @@
 #include <core/l-icon.h>
 #include <core/l-image.h>
 #include <core/l-matrix.h>
-#include <core/l-ninepatch.h>
 #include <core/l-printr.h>
 #include <core/l-setting.h>
 #include <core/l-spring.h>
@@ -77,7 +75,6 @@ static void luaopen_glblibs(lua_State * L)
 		{ "Color",					luaopen_color },
 		{ "Matrix",					luaopen_matrix },
 		{ "Image",					luaopen_image },
-		{ "Ninepatch",				luaopen_ninepatch },
 		{ "Text",					luaopen_text },
 		{ "Icon",					luaopen_icon },
 		{ "Dobject",				luaopen_dobject },
@@ -87,7 +84,6 @@ static void luaopen_glblibs(lua_State * L)
 		{ "DisplayPager",			luaopen_display_pager },
 		{ "DisplayScroll",			luaopen_display_scroll },
 		{ "DisplayImage",			luaopen_display_image },
-		{ "DisplayNinepatch",		luaopen_display_ninepatch },
 		{ "DisplayText",			luaopen_display_text },
 		{ "DisplayIcon",			luaopen_display_icon },
 		{ "Timer",					luaopen_timer },

@@ -32,9 +32,7 @@ static const char assets_lua[] = X(
 local Xfs = Xfs
 local Font = Font
 local Image = Image
-local Ninepatch = Ninepatch
 local DisplayImage = DisplayImage
-local DisplayNinepatch = DisplayNinepatch
 
 local M = Class()
 
@@ -54,9 +52,7 @@ end
 
 function M:loadDisplay(name)
 	if type(name) == "string" and Xfs.isfile(name) then
-		if string.lower(string.sub(name, -6)) == ".9.png" then
-			return DisplayNinepatch.new(Ninepatch.new(name))
-		elseif string.lower(string.sub(name, -4)) == ".png" then
+		if string.lower(string.sub(name, -4)) == ".png" then
 			return DisplayImage.new(self:loadImage(name))
 		elseif string.lower(string.sub(name, -4)) == ".jpg" then
 			return DisplayImage.new(self:loadImage(name))

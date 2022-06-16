@@ -92,6 +92,16 @@ static inline void * surface_get_pixels(struct surface_t * s)
 	return s->pixels;
 }
 
+static inline void surface_blit(struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct surface_t * src)
+{
+	s->r->blit(s, clip, m, src);
+}
+
+static inline void surface_fill(struct surface_t * s, struct region_t * clip, struct matrix_t * m, int w, int h, struct color_t * c)
+{
+	s->r->fill(s, clip, m, w, h, c);
+}
+
 static inline void surface_shape_save(struct surface_t * s)
 {
 	s->r->shape_save(s);
@@ -229,11 +239,8 @@ void surface_clear(struct surface_t * s, struct color_t * c, int x, int y, int w
 void surface_set_pixel(struct surface_t * s, int x, int y, struct color_t * c);
 void surface_get_pixel(struct surface_t * s, int x, int y, struct color_t * c);
 
-void surface_blit(struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct surface_t * src);
-void surface_fill(struct surface_t * s, struct region_t * clip, struct matrix_t * m, int w, int h, struct color_t * c);
 void surface_text(struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct text_t * txt);
 void surface_icon(struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct icon_t * ico);
-
 void surface_effect_glass(struct surface_t * s, struct region_t * clip, int x, int y, int w, int h, int radius);
 void surface_effect_shadow(struct surface_t * s, struct region_t * clip, int x, int y, int w, int h, int radius, struct color_t * c);
 void surface_effect_gradient(struct surface_t * s, struct region_t * clip, int x, int y, int w, int h, struct color_t * lt, struct color_t * rt, struct color_t * rb, struct color_t * lb);

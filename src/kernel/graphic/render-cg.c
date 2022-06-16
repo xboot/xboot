@@ -261,8 +261,8 @@ struct render_t render_cg = {
 	.create						= render_cg_create,
 	.destroy					= render_cg_destroy,
 
-	.blit						= NULL,
-	.fill						= NULL,
+	.blit						= render_cg_blit,
+	.fill						= render_cg_fill,
 
 	.shape_save					= render_cg_shape_save,
 	.shape_restore				= render_cg_shape_restore,

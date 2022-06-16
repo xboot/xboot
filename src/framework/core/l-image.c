@@ -241,6 +241,7 @@ static int m_image_icon(lua_State * L)
 	return 1;
 }
 
+/*
 static int m_image_line(lua_State * L)
 {
 	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
@@ -416,6 +417,7 @@ static int m_image_arc(lua_State * L)
 	lua_settop(L, 1);
 	return 1;
 }
+*/
 
 static int m_image_glass(lua_State * L)
 {
@@ -586,6 +588,7 @@ static const luaL_Reg m_image[] = {
 	{"text",			m_image_text},
 	{"icon",			m_image_icon},
 
+/*
 	{"line",			m_image_line},
 	{"polyline",		m_image_polyline},
 	{"curve",			m_image_curve},
@@ -595,6 +598,7 @@ static const luaL_Reg m_image[] = {
 	{"circle",			m_image_circle},
 	{"ellipse",			m_image_ellipse},
 	{"arc",				m_image_arc},
+*/
 
 	{"glass",			m_image_glass},
 	{"shadow",			m_image_shadow},

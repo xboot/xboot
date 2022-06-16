@@ -58,7 +58,6 @@ static void render_cairo_blit(struct surface_t * s, struct region_t * clip, stru
 		cairo_set_matrix(cr, (cairo_matrix_t *)m);
 	}
 	cairo_set_source_surface(cr, ((struct render_cairo_context_t *)src->rctx)->cs, 0, 0);
-	cairo_pattern_set_filter(cairo_get_source(cr), CAIRO_FILTER_GOOD);
 	cairo_paint(cr);
 	cairo_restore(cr);
 }
@@ -89,419 +88,191 @@ static void render_cairo_fill(struct surface_t * s, struct region_t * clip, stru
 	}
 	cairo_rectangle(cr, 0, 0, w, h);
 	cairo_set_source_rgba(cr, c->r / 255.0, c->g / 255.0, c->b / 255.0, c->a / 255.0);
-	cairo_pattern_set_filter(cairo_get_source(cr), CAIRO_FILTER_GOOD);
 	cairo_fill(cr);
 	cairo_restore(cr);
 }
 
-static void render_cairo_shape_line(struct surface_t * s, struct region_t * clip, struct point_t * p0, struct point_t * p1, int thickness, struct color_t * c)
+
+static void render_cairo_shape_save(struct surface_t * s)
 {
 	cairo_t * cr = ((struct render_cairo_context_t *)s->rctx)->cr;
-	struct region_t r;
-
 	cairo_save(cr);
-	if(clip)
-	{
-		region_init(&r, 0, 0, surface_get_width(s), surface_get_height(s));
-		if(region_intersect(&r, &r, clip))
-		{
-			cairo_rectangle(cr, r.x, r.y, r.w, r.h);
-			cairo_clip(cr);
-		}
-		else
-		{
-			cairo_restore(cr);
-			return;
-		}
-	}
-	cairo_move_to(cr, p0->x, p0->y);
-	cairo_line_to(cr, p1->x, p1->y);
-	cairo_set_source_rgba(cr, c->r / 255.0, c->g / 255.0, c->b / 255.0, c->a / 255.0);
-	cairo_set_line_width(cr, thickness > 0 ? thickness : 1);
-	cairo_stroke(cr);
+}
+
+static void render_cairo_shape_restore(struct surface_t * s)
+{
+	cairo_t * cr = ((struct render_cairo_context_t *)s->rctx)->cr;
 	cairo_restore(cr);
 }
 
-static void render_cairo_shape_polyline(struct surface_t * s, struct region_t * clip, struct point_t * p, int n, int thickness, struct color_t * c)
+static void render_cairo_shape_set_source_color(struct surface_t * s, struct color_t * c)
 {
 	cairo_t * cr = ((struct render_cairo_context_t *)s->rctx)->cr;
-	struct region_t r;
-	int i;
-
-	if(p && (n > 0))
-	{
-		cairo_save(cr);
-		if(clip)
-		{
-			region_init(&r, 0, 0, surface_get_width(s), surface_get_height(s));
-			if(region_intersect(&r, &r, clip))
-			{
-				cairo_rectangle(cr, r.x, r.y, r.w, r.h);
-				cairo_clip(cr);
-			}
-			else
-			{
-				cairo_restore(cr);
-				return;
-			}
-		}
-		cairo_move_to(cr, p[0].x, p[0].y);
-		for(i = 1; i < n; i++)
-			cairo_line_to(cr, p[i].x, p[i].y);
-		cairo_set_source_rgba(cr, c->r / 255.0, c->g / 255.0, c->b / 255.0, c->a / 255.0);
-		if(thickness > 0)
-		{
-			cairo_set_line_width(cr, thickness);
-			cairo_stroke(cr);
-		}
-		else
-		{
-			cairo_fill(cr);
-		}
-		cairo_restore(cr);
-	}
+	cairo_set_source_rgba(cr, c->r / 255.0, c->g / 255.0, c->b / 255.0, c->a / 255.0);
 }
 
-static void render_cairo_shape_curve(struct surface_t * s, struct region_t * clip, struct point_t * p, int n, int thickness, struct color_t * c)
+static void render_cairo_shape_set_source_surface(struct surface_t * s, struct surface_t * o, double x, double y)
 {
 	cairo_t * cr = ((struct render_cairo_context_t *)s->rctx)->cr;
-	struct region_t r;
-	int i;
-
-	if(p && (n >= 4))
-	{
-		cairo_save(cr);
-		if(clip)
-		{
-			region_init(&r, 0, 0, surface_get_width(s), surface_get_height(s));
-			if(region_intersect(&r, &r, clip))
-			{
-				cairo_rectangle(cr, r.x, r.y, r.w, r.h);
-				cairo_clip(cr);
-			}
-			else
-			{
-				cairo_restore(cr);
-				return;
-			}
-		}
-		cairo_move_to(cr, p[0].x, p[0].y);
-		for(i = 1; i <= n - 3; i += 3)
-			cairo_curve_to(cr, p[i].x, p[i].y, p[i + 1].x, p[i + 1].y, p[i + 2].x, p[i + 2].y);
-		cairo_set_source_rgba(cr, c->r / 255.0, c->g / 255.0, c->b / 255.0, c->a / 255.0);
-		if(thickness > 0)
-		{
-			cairo_set_line_width(cr, thickness);
-			cairo_stroke(cr);
-		}
-		else
-		{
-			cairo_fill(cr);
-		}
-		cairo_restore(cr);
-	}
+	cairo_set_source_surface(cr, ((struct render_cairo_context_t *)o->rctx)->cs, x, y);
 }
 
-static void render_cairo_shape_triangle(struct surface_t * s, struct region_t * clip, struct point_t * p0, struct point_t * p1, struct point_t * p2, int thickness, struct color_t * c)
+static void render_cairo_shape_set_line_width(struct surface_t * s, double w)
 {
 	cairo_t * cr = ((struct render_cairo_context_t *)s->rctx)->cr;
-	struct region_t r;
+	cairo_set_line_width(cr, w);
+}
 
-	cairo_save(cr);
-	if(clip)
-	{
-		region_init(&r, 0, 0, surface_get_width(s), surface_get_height(s));
-		if(region_intersect(&r, &r, clip))
-		{
-			cairo_rectangle(cr, r.x, r.y, r.w, r.h);
-			cairo_clip(cr);
-		}
-		else
-		{
-			cairo_restore(cr);
-			return;
-		}
-	}
-	cairo_move_to(cr, p0->x, p0->y);
-	cairo_line_to(cr, p1->x, p1->y);
-	cairo_line_to(cr, p2->x, p2->y);
+static void render_cairo_shape_set_matrix(struct surface_t * s, struct matrix_t * m)
+{
+	cairo_t * cr = ((struct render_cairo_context_t *)s->rctx)->cr;
+	cairo_set_matrix(cr, (cairo_matrix_t *)m);
+}
+
+static void render_cairo_shape_new_path(struct surface_t * s)
+{
+	cairo_t * cr = ((struct render_cairo_context_t *)s->rctx)->cr;
+	cairo_new_path(cr);
+}
+
+static void render_cairo_shape_close_path(struct surface_t * s)
+{
+	cairo_t * cr = ((struct render_cairo_context_t *)s->rctx)->cr;
 	cairo_close_path(cr);
-	cairo_set_source_rgba(cr, c->r / 255.0, c->g / 255.0, c->b / 255.0, c->a / 255.0);
-	if(thickness > 0)
-	{
-		cairo_set_line_width(cr, thickness);
-		cairo_stroke(cr);
-	}
-	else
-	{
-		cairo_fill(cr);
-	}
-	cairo_restore(cr);
 }
 
-static void render_cairo_shape_rectangle(struct surface_t * s, struct region_t * clip, int x, int y, int w, int h, int radius, int thickness, struct color_t * c)
+static void render_cairo_shape_move_to(struct surface_t * s, double x, double y)
 {
 	cairo_t * cr = ((struct render_cairo_context_t *)s->rctx)->cr;
-	struct region_t r;
-	int corner;
-
-	cairo_save(cr);
-	if(clip)
-	{
-		region_init(&r, 0, 0, surface_get_width(s), surface_get_height(s));
-		if(region_intersect(&r, &r, clip))
-		{
-			cairo_rectangle(cr, r.x, r.y, r.w, r.h);
-			cairo_clip(cr);
-		}
-		else
-		{
-			cairo_restore(cr);
-			return;
-		}
-	}
-	corner = (radius >> 16) & 0xf;
-	radius &= 0xffff;
-	if(radius > 0)
-	{
-		cairo_move_to(cr, x + radius, y);
-		cairo_line_to(cr, x + w - radius, y);
-		if(corner & (1 << 1))
-		{
-			cairo_line_to(cr, x + w, y);
-			cairo_line_to(cr, x + w, y + radius);
-		}
-		else
-		{
-			cairo_arc(cr, x + w - radius, y + radius, radius, - M_PI_2, 0);
-		}
-		cairo_line_to(cr, x + w, y + h - radius);
-		if(corner & (1 << 2))
-		{
-			cairo_line_to(cr, x + w, y + h);
-			cairo_line_to(cr, w - radius, y + h);
-		}
-		else
-		{
-			cairo_arc(cr, x + w - radius, y + h - radius, radius, 0, M_PI_2);
-		}
-		cairo_line_to(cr, x + radius, y + h);
-		if(corner & (1 << 3))
-		{
-			cairo_line_to(cr, x, y + h);
-		}
-		else
-		{
-			cairo_arc(cr, x + radius, y + h - radius, radius, M_PI_2, M_PI);
-		}
-		if(corner & (1 << 0))
-		{
-			cairo_line_to(cr, x, y);
-			cairo_line_to(cr, x + radius, y);
-		}
-		else
-		{
-			cairo_arc(cr, x + radius, y + radius, radius, M_PI, M_PI + M_PI_2);
-		}
-	}
-	else
-	{
-		cairo_rectangle(cr, x, y, w, h);
-	}
-	cairo_set_source_rgba(cr, c->r / 255.0, c->g / 255.0, c->b / 255.0, c->a / 255.0);
-	if(thickness > 0)
-	{
-		cairo_set_line_width(cr, thickness);
-		cairo_stroke(cr);
-	}
-	else
-	{
-		cairo_fill(cr);
-	}
-	cairo_restore(cr);
+	cairo_move_to(cr, x, y);
 }
 
-static void render_cairo_shape_polygon(struct surface_t * s, struct region_t * clip, struct point_t * p, int n, int thickness, struct color_t * c)
+static void render_cairo_shape_line_to(struct surface_t * s, double x, double y)
 {
 	cairo_t * cr = ((struct render_cairo_context_t *)s->rctx)->cr;
-	struct region_t r;
-	int i;
-
-	if(p && (n > 0))
-	{
-		cairo_save(cr);
-		if(clip)
-		{
-			region_init(&r, 0, 0, surface_get_width(s), surface_get_height(s));
-			if(region_intersect(&r, &r, clip))
-			{
-				cairo_rectangle(cr, r.x, r.y, r.w, r.h);
-				cairo_clip(cr);
-			}
-			else
-			{
-				cairo_restore(cr);
-				return;
-			}
-		}
-		cairo_move_to(cr, p[0].x, p[0].y);
-		for(i = 1; i < n; i++)
-			cairo_line_to(cr, p[i].x, p[i].y);
-		cairo_close_path(cr);
-		cairo_set_source_rgba(cr, c->r / 255.0, c->g / 255.0, c->b / 255.0, c->a / 255.0);
-		if(thickness > 0)
-		{
-			cairo_set_line_width(cr, thickness);
-			cairo_stroke(cr);
-		}
-		else
-		{
-			cairo_fill(cr);
-		}
-		cairo_restore(cr);
-	}
+	cairo_line_to(cr, x, y);
 }
 
-static void render_cairo_shape_circle(struct surface_t * s, struct region_t * clip, int x, int y, int radius, int thickness, struct color_t * c)
+static void render_cairo_shape_curve_to(struct surface_t * s, double x1, double y1, double x2, double y2, double x3, double y3)
 {
 	cairo_t * cr = ((struct render_cairo_context_t *)s->rctx)->cr;
-	struct region_t r;
-
-	if(radius > 0)
-	{
-		cairo_save(cr);
-		if(clip)
-		{
-			region_init(&r, 0, 0, surface_get_width(s), surface_get_height(s));
-			if(region_intersect(&r, &r, clip))
-			{
-				cairo_rectangle(cr, r.x, r.y, r.w, r.h);
-				cairo_clip(cr);
-			}
-			else
-			{
-				cairo_restore(cr);
-				return;
-			}
-		}
-		cairo_move_to(cr, x + radius, y);
-		cairo_arc(cr, x, y, radius, 0, M_PI * 2);
-		cairo_set_source_rgba(cr, c->r / 255.0, c->g / 255.0, c->b / 255.0, c->a / 255.0);
-		if(thickness > 0)
-		{
-			cairo_set_line_width(cr, thickness);
-			cairo_stroke(cr);
-		}
-		else
-		{
-			cairo_fill(cr);
-		}
-		cairo_restore(cr);
-	}
+	cairo_curve_to(cr, x1, y1, x2, y2, x3, y3);
 }
 
-static void render_cairo_shape_ellipse(struct surface_t * s, struct region_t * clip, int x, int y, int w, int h, int thickness, struct color_t * c)
+static void render_cairo_shape_rectangle(struct surface_t * s, double x, double y, double w, double h)
+{
+	cairo_t * cr = ((struct render_cairo_context_t *)s->rctx)->cr;
+	cairo_rectangle(cr, x, y, w, h);
+}
+
+static void render_cairo_shape_arc(struct surface_t * s, double cx, double cy, double r, double a0, double a1)
+{
+	cairo_t * cr = ((struct render_cairo_context_t *)s->rctx)->cr;
+	cairo_arc(cr, cx, cy, r, a0, a1);
+}
+
+static void render_cairo_shape_arc_negative(struct surface_t * s, double cx, double cy, double r, double a0, double a1)
+{
+	cairo_t * cr = ((struct render_cairo_context_t *)s->rctx)->cr;
+	cairo_arc_negative(cr, cx, cy, r, a0, a1);
+}
+
+static void render_cairo_shape_circle(struct surface_t * s, double cx, double cy, double r)
+{
+	cairo_t * cr = ((struct render_cairo_context_t *)s->rctx)->cr;
+	cairo_move_to(cr, cx + r, cy);
+	cairo_arc(cr, cx, cy, r, 0, M_PI * 2);
+}
+
+static void render_cairo_shape_ellipse(struct surface_t * s, double cx, double cy, double rx, double ry)
 {
 	cairo_t * cr = ((struct render_cairo_context_t *)s->rctx)->cr;
 	cairo_matrix_t m;
-	struct region_t r;
 
-	if((w > 0) && (h > 0))
-	{
-		cairo_save(cr);
-		if(clip)
-		{
-			region_init(&r, 0, 0, surface_get_width(s), surface_get_height(s));
-			if(region_intersect(&r, &r, clip))
-			{
-				cairo_rectangle(cr, r.x, r.y, r.w, r.h);
-				cairo_clip(cr);
-			}
-			else
-			{
-				cairo_restore(cr);
-				return;
-			}
-		}
-		cairo_get_matrix(cr, &m);
-		cairo_translate(cr, x, y);
-		cairo_scale(cr, 1, (double)h / (double)w);
-		cairo_translate(cr, -x, -y);
-		cairo_move_to(cr, x + w, y);
-		cairo_arc(cr, x, y, w, 0, M_PI * 2);
-		cairo_close_path(cr);
-		cairo_set_matrix(cr, &m);
-		cairo_set_source_rgba(cr, c->r / 255.0, c->g / 255.0, c->b / 255.0, c->a / 255.0);
-		if(thickness > 0)
-		{
-			cairo_set_line_width(cr, thickness);
-			cairo_stroke(cr);
-		}
-		else
-		{
-			cairo_fill(cr);
-		}
-		cairo_restore(cr);
-	}
+	cairo_get_matrix(cr, &m);
+	cairo_translate(cr, cx, cy);
+	cairo_scale(cr, 1, (double)ry / (double)rx);
+	cairo_translate(cr, -cx, -cy);
+	cairo_move_to(cr, cx + rx, cy);
+	cairo_arc(cr, cx, cy, rx, 0, M_PI * 2);
+	cairo_close_path(cr);
+	cairo_set_matrix(cr, &m);
 }
 
-void render_cairo_shape_arc(struct surface_t * s, struct region_t * clip, int x, int y, int radius, int a1, int a2, int thickness, struct color_t * c)
+static void render_cairo_shape_clip(struct surface_t * s)
 {
 	cairo_t * cr = ((struct render_cairo_context_t *)s->rctx)->cr;
-	struct region_t r;
+	cairo_clip(cr);
+}
 
-	if(radius > 0)
-	{
-		cairo_save(cr);
-		if(clip)
-		{
-			region_init(&r, 0, 0, surface_get_width(s), surface_get_height(s));
-			if(region_intersect(&r, &r, clip))
-			{
-				cairo_rectangle(cr, r.x, r.y, r.w, r.h);
-				cairo_clip(cr);
-			}
-			else
-			{
-				cairo_restore(cr);
-				return;
-			}
-		}
-		cairo_arc(cr, x, y, radius, a1 * (M_PI / 180.0), a2 * (M_PI / 180.0));
-		cairo_set_source_rgba(cr, c->r / 255.0, c->g / 255.0, c->b / 255.0, c->a / 255.0);
-		if(thickness > 0)
-		{
-			cairo_set_line_width(cr, thickness);
-			cairo_stroke(cr);
-		}
-		else
-		{
-			cairo_fill(cr);
-		}
-		cairo_restore(cr);
-	}
+static void render_cairo_shape_clip_preserve(struct surface_t * s)
+{
+	cairo_t * cr = ((struct render_cairo_context_t *)s->rctx)->cr;
+	cairo_clip_preserve(cr);
+}
+
+static void render_cairo_shape_fill(struct surface_t * s)
+{
+	cairo_t * cr = ((struct render_cairo_context_t *)s->rctx)->cr;
+	cairo_fill(cr);
+}
+
+static void render_cairo_shape_fill_preserve(struct surface_t * s)
+{
+	cairo_t * cr = ((struct render_cairo_context_t *)s->rctx)->cr;
+	cairo_fill_preserve(cr);
+}
+
+static void render_cairo_shape_stroke(struct surface_t * s)
+{
+	cairo_t * cr = ((struct render_cairo_context_t *)s->rctx)->cr;
+	cairo_stroke(cr);
+}
+
+static void render_cairo_shape_stroke_preserve(struct surface_t * s)
+{
+	cairo_t * cr = ((struct render_cairo_context_t *)s->rctx)->cr;
+	cairo_stroke_preserve(cr);
+}
+
+static void render_cairo_shape_paint(struct surface_t * s)
+{
+	cairo_t * cr = ((struct render_cairo_context_t *)s->rctx)->cr;
+	cairo_paint(cr);
 }
 
 static struct render_t render_cairo = {
-	.name	 				= "cairo",
+	.name	 					= "cairo",
 
-	.create					= render_cairo_create,
-	.destroy				= render_cairo_destroy,
+	.create						= render_cairo_create,
+	.destroy					= render_cairo_destroy,
 
-	.blit					= render_cairo_blit,
-	.fill					= render_cairo_fill,
-	.text					= render_default_text,
-	.icon					= render_default_icon,
+	.blit						= render_cairo_blit,
+	.fill						= render_cairo_fill,
 
-	.shape_line				= render_cairo_shape_line,
-	.shape_polyline			= render_cairo_shape_polyline,
-	.shape_curve			= render_cairo_shape_curve,
-	.shape_triangle			= render_cairo_shape_triangle,
-	.shape_rectangle		= render_cairo_shape_rectangle,
-	.shape_polygon			= render_cairo_shape_polygon,
-	.shape_circle			= render_cairo_shape_circle,
-	.shape_ellipse			= render_cairo_shape_ellipse,
-	.shape_arc				= render_cairo_shape_arc,
+	.shape_save					= render_cairo_shape_save,
+	.shape_restore				= render_cairo_shape_restore,
+	.shape_set_source_color		= render_cairo_shape_set_source_color,
+	.shape_set_source_surface	= render_cairo_shape_set_source_surface,
+	.shape_set_line_width		= render_cairo_shape_set_line_width,
+	.shape_set_matrix			= render_cairo_shape_set_matrix,
+	.shape_new_path				= render_cairo_shape_new_path,
+	.shape_close_path			= render_cairo_shape_close_path,
+	.shape_move_to				= render_cairo_shape_move_to,
+	.shape_line_to				= render_cairo_shape_line_to,
+	.shape_curve_to				= render_cairo_shape_curve_to,
+	.shape_rectangle			= render_cairo_shape_rectangle,
+	.shape_arc					= render_cairo_shape_arc,
+	.shape_arc_negative			= render_cairo_shape_arc_negative,
+	.shape_circle				= render_cairo_shape_circle,
+	.shape_ellipse				= render_cairo_shape_ellipse,
+	.shape_clip					= render_cairo_shape_clip,
+	.shape_clip_preserve		= render_cairo_shape_clip_preserve,
+	.shape_fill					= render_cairo_shape_fill,
+	.shape_fill_preserve		= render_cairo_shape_fill_preserve,
+	.shape_stroke				= render_cairo_shape_stroke,
+	.shape_stroke_preserve		= render_cairo_shape_stroke_preserve,
+	.shape_paint				= render_cairo_shape_paint,
 };
 
 static __init void render_cairo_init(void)

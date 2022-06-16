@@ -57,23 +57,6 @@ struct render_t
 	void (*shape_circle)(struct surface_t * s, struct region_t * clip, int x, int y, int radius, int thickness, struct color_t * c);
 	void (*shape_ellipse)(struct surface_t * s, struct region_t * clip, int x, int y, int w, int h, int thickness, struct color_t * c);
 	void (*shape_arc)(struct surface_t * s, struct region_t * clip, int x, int y, int radius, int a1, int a2, int thickness, struct color_t * c);
-
-	void (*effect_glass)(struct surface_t * s, struct region_t * clip, int x, int y, int w, int h, int radius);
-	void (*effect_shadow)(struct surface_t * s, struct region_t * clip, int x, int y, int w, int h, int radius, struct color_t * c);
-	void (*effect_gradient)(struct surface_t * s, struct region_t * clip, int x, int y, int w, int h, struct color_t * lt, struct color_t * rt, struct color_t * rb, struct color_t * lb);
-	void (*effect_checkerboard)(struct surface_t * s, struct region_t * clip, int x, int y, int w, int h);
-
-	void (*filter_gray)(struct surface_t * s);
-	void (*filter_sepia)(struct surface_t * s);
-	void (*filter_invert)(struct surface_t * s);
-	void (*filter_coloring)(struct surface_t * s, struct color_t * c);
-	void (*filter_hue)(struct surface_t * s, int angle);
-	void (*filter_saturate)(struct surface_t * s, int saturate);
-	void (*filter_brightness)(struct surface_t * s, int brightness);
-	void (*filter_contrast)(struct surface_t * s, int contrast);
-	void (*filter_opacity)(struct surface_t * s, int alpha);
-	void (*filter_haldclut)(struct surface_t * s, struct surface_t * clut, const char * type);
-	void (*filter_blur)(struct surface_t * s, int radius);
 };
 
 static inline int surface_get_width(struct surface_t * s)
@@ -161,81 +144,6 @@ static inline void surface_shape_arc(struct surface_t * s, struct region_t * cli
 	s->r->shape_arc(s, clip, x, y, radius, a1, a2, thickness, c);
 }
 
-static inline void surface_effect_glass(struct surface_t * s, struct region_t * clip, int x, int y, int w, int h, int radius)
-{
-	s->r->effect_glass(s, clip, x, y, w, h, radius);
-}
-
-static inline void surface_effect_shadow(struct surface_t * s, struct region_t * clip, int x, int y, int w, int h, int radius, struct color_t * c)
-{
-	s->r->effect_shadow(s, clip, x, y, w, h, radius, c);
-}
-
-static inline void surface_effect_gradient(struct surface_t * s, struct region_t * clip, int x, int y, int w, int h, struct color_t * lt, struct color_t * rt, struct color_t * rb, struct color_t * lb)
-{
-	s->r->effect_gradient(s, clip, x, y, w, h, lt, rt, rb, lb);
-}
-
-static inline void surface_effect_checkerboard(struct surface_t * s, struct region_t * clip, int x, int y, int w, int h)
-{
-	s->r->effect_checkerboard(s, clip, x, y, w, h);
-}
-
-static inline void surface_filter_gray(struct surface_t * s)
-{
-	s->r->filter_gray(s);
-}
-
-static inline void surface_filter_sepia(struct surface_t * s)
-{
-	s->r->filter_sepia(s);
-}
-
-static inline void surface_filter_invert(struct surface_t * s)
-{
-	s->r->filter_invert(s);
-}
-
-static inline void surface_filter_coloring(struct surface_t * s, struct color_t * c)
-{
-	s->r->filter_coloring(s, c);
-}
-
-static inline void surface_filter_hue(struct surface_t * s, int angle)
-{
-	s->r->filter_hue(s, angle);
-}
-
-static inline void surface_filter_saturate(struct surface_t * s, int saturate)
-{
-	s->r->filter_saturate(s, saturate);
-}
-
-static inline void surface_filter_brightness(struct surface_t * s, int brightness)
-{
-	s->r->filter_brightness(s, brightness);
-}
-
-static inline void surface_filter_contrast(struct surface_t * s, int contrast)
-{
-	s->r->filter_contrast(s, contrast);
-}
-
-static inline void surface_filter_opacity(struct surface_t * s, int alpha)
-{
-	s->r->filter_opacity(s, alpha);
-}
-
-static inline void surface_filter_haldclut(struct surface_t * s, struct surface_t * clut, const char * type)
-{
-	s->r->filter_haldclut(s, clut, type);
-}
-
-static inline void surface_filter_blur(struct surface_t * s, int radius)
-{
-	s->r->filter_blur(s, radius);
-}
-
 void * render_default_create(struct surface_t * s);
 void render_default_destroy(void * rctx);
 void render_default_blit(struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct surface_t * src);
@@ -251,21 +159,6 @@ void render_default_shape_polygon(struct surface_t * s, struct region_t * clip, 
 void render_default_shape_circle(struct surface_t * s, struct region_t * clip, int x, int y, int radius, int thickness, struct color_t * c);
 void render_default_shape_ellipse(struct surface_t * s, struct region_t * clip, int x, int y, int w, int h, int thickness, struct color_t * c);
 void render_default_shape_arc(struct surface_t * s, struct region_t * clip, int x, int y, int radius, int a1, int a2, int thickness, struct color_t * c);
-void render_default_effect_glass(struct surface_t * s, struct region_t * clip, int x, int y, int w, int h, int radius);
-void render_default_effect_shadow(struct surface_t * s, struct region_t * clip, int x, int y, int w, int h, int radius, struct color_t * c);
-void render_default_effect_gradient(struct surface_t * s, struct region_t * clip, int x, int y, int w, int h, struct color_t * lt, struct color_t * rt, struct color_t * rb, struct color_t * lb);
-void render_default_effect_checkerboard(struct surface_t * s, struct region_t * clip, int x, int y, int w, int h);
-void render_default_filter_gray(struct surface_t * s);
-void render_default_filter_sepia(struct surface_t * s);
-void render_default_filter_invert(struct surface_t * s);
-void render_default_filter_coloring(struct surface_t * s, struct color_t * c);
-void render_default_filter_hue(struct surface_t * s, int angle);
-void render_default_filter_saturate(struct surface_t * s, int saturate);
-void render_default_filter_brightness(struct surface_t * s, int brightness);
-void render_default_filter_contrast(struct surface_t * s, int contrast);
-void render_default_filter_opacity(struct surface_t * s, int alpha);
-void render_default_filter_haldclut(struct surface_t * s, struct surface_t * clut, const char * type);
-void render_default_filter_blur(struct surface_t * s, int radius);
 
 struct render_t * search_render(void);
 bool_t register_render(struct render_t * r);
@@ -275,11 +168,28 @@ struct surface_t * surface_alloc_from_xfs(struct xfs_context_t * ctx, const char
 struct surface_t * surface_alloc_from_buf(const void * buf, int len);
 struct surface_t * surface_alloc_qrcode(const char * txt, int pixsz);
 void surface_free(struct surface_t * s);
+
 struct surface_t * surface_clone(struct surface_t * s, int x, int y, int w, int h, int r);
 struct surface_t * surface_extend(struct surface_t * s, int width, int height, const char * type);
 void surface_clear(struct surface_t * s, struct color_t * c, int x, int y, int w, int h);
 void surface_set_pixel(struct surface_t * s, int x, int y, struct color_t * c);
 void surface_get_pixel(struct surface_t * s, int x, int y, struct color_t * c);
+
+void surface_effect_glass(struct surface_t * s, struct region_t * clip, int x, int y, int w, int h, int radius);
+void surface_effect_shadow(struct surface_t * s, struct region_t * clip, int x, int y, int w, int h, int radius, struct color_t * c);
+void surface_effect_gradient(struct surface_t * s, struct region_t * clip, int x, int y, int w, int h, struct color_t * lt, struct color_t * rt, struct color_t * rb, struct color_t * lb);
+void surface_effect_checkerboard(struct surface_t * s, struct region_t * clip, int x, int y, int w, int h);
+void surface_filter_gray(struct surface_t * s);
+void surface_filter_sepia(struct surface_t * s);
+void surface_filter_invert(struct surface_t * s);
+void surface_filter_coloring(struct surface_t * s, struct color_t * c);
+void surface_filter_hue(struct surface_t * s, int angle);
+void surface_filter_saturate(struct surface_t * s, int saturate);
+void surface_filter_brightness(struct surface_t * s, int brightness);
+void surface_filter_contrast(struct surface_t * s, int contrast);
+void surface_filter_opacity(struct surface_t * s, int alpha);
+void surface_filter_haldclut(struct surface_t * s, struct surface_t * clut, const char * type);
+void surface_filter_blur(struct surface_t * s, int radius);
 
 #ifdef __cplusplus
 }

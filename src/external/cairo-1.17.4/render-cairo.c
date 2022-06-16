@@ -502,23 +502,6 @@ static struct render_t render_cairo = {
 	.shape_circle			= render_cairo_shape_circle,
 	.shape_ellipse			= render_cairo_shape_ellipse,
 	.shape_arc				= render_cairo_shape_arc,
-
-	.effect_glass			= render_default_effect_glass,
-	.effect_shadow			= render_default_effect_shadow,
-	.effect_gradient		= render_default_effect_gradient,
-	.effect_checkerboard	= render_default_effect_checkerboard,
-
-	.filter_gray			= render_default_filter_gray,
-	.filter_sepia			= render_default_filter_sepia,
-	.filter_invert			= render_default_filter_invert,
-	.filter_coloring		= render_default_filter_coloring,
-	.filter_hue				= render_default_filter_hue,
-	.filter_saturate		= render_default_filter_saturate,
-	.filter_brightness		= render_default_filter_brightness,
-	.filter_contrast		= render_default_filter_contrast,
-	.filter_opacity			= render_default_filter_opacity,
-	.filter_haldclut		= render_default_filter_haldclut,
-	.filter_blur			= render_default_filter_blur,
 };
 
 static __init void render_cairo_init(void)

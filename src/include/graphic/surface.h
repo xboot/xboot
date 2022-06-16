@@ -217,13 +217,6 @@ static inline void surface_shape_paint(struct surface_t * s)
 	s->r->shape_paint(s);
 }
 
-void * render_default_create(struct surface_t * s);
-void render_default_destroy(void * rctx);
-void render_default_blit(struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct surface_t * src);
-void render_default_fill(struct surface_t * s, struct region_t * clip, struct matrix_t * m, int w, int h, struct color_t * c);
-void render_default_text(struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct text_t * txt);
-void render_default_icon(struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct icon_t * ico);
-
 struct render_t * search_render(void);
 bool_t register_render(struct render_t * r);
 bool_t unregister_render(struct render_t * r);

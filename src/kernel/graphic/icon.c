@@ -270,7 +270,7 @@ static inline void draw_font_glyph(struct surface_t * s, struct region_t * clip,
 	}
 }
 
-void render_default_icon(struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct icon_t * ico)
+void surface_icon(struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct icon_t * ico)
 {
 	FTC_SBit sbit;
 	FT_BitmapGlyph bitmap;

@@ -422,7 +422,7 @@ static inline void draw_font_glyph(struct surface_t * s, struct region_t * clip,
 	}
 }
 
-void render_default_text(struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct text_t * txt)
+void surface_text(struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct text_t * txt)
 {
 	FTC_SBit sbit;
 	FT_BitmapGlyph bitmap;

@@ -52,7 +52,19 @@ static void draw_ellipse(struct window_t * w, void * o)
 	color_init(&c, rand() & 0xff, rand() & 0xff, rand() & 0xff, 255);
 	thickness = wboxtest_random_int(0, 50);
 
-	surface_shape_ellipse(s, NULL, tx, ty, tw, th, thickness, &c);
+	surface_shape_save(s);
+	surface_shape_ellipse(s, tx, ty, tw, th);
+	surface_shape_set_source_color(s, &c);
+	if(thickness > 0)
+	{
+		surface_shape_set_line_width(s, thickness);
+		surface_shape_stroke(s);
+	}
+	else
+	{
+		surface_shape_fill(s);
+	}
+	surface_shape_restore(s);
 }
 
 static void ellipse_run(struct wboxtest_t * wbt, void * data)

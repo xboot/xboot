@@ -52,7 +52,7 @@ static void draw_gray_qrcode(struct window_t * w, void * o)
 	{
 		matrix_init_identity(&m);
 		matrix_init_translate(&m, (surface_get_width(s) - surface_get_width(qr)) / 2, (surface_get_height(s) - surface_get_height(qr)) / 2);
-		surface_blit(s, NULL, &m, qr, RENDER_TYPE_GOOD);
+		surface_blit(s, NULL, &m, qr);
 		surface_free(qr);
 	}
 }

@@ -54,7 +54,22 @@ static void draw_triangle(struct window_t * w, void * o)
 	color_init(&c, rand() & 0xff, rand() & 0xff, rand() & 0xff, 255);
 	thickness = wboxtest_random_int(0, 50);
 
-	surface_shape_triangle(s, NULL, &p0, &p1, &p2, thickness, &c);
+	surface_shape_save(s);
+	surface_shape_move_to(s, p0.x, p0.y);
+	surface_shape_line_to(s, p1.x, p1.y);
+	surface_shape_line_to(s, p2.x, p2.y);
+	surface_shape_close_path(s);
+	surface_shape_set_source_color(s, &c);
+	if(thickness > 0)
+	{
+		surface_shape_set_line_width(s, thickness);
+		surface_shape_stroke(s);
+	}
+	else
+	{
+		surface_shape_fill(s);
+	}
+	surface_shape_restore(s);
 }
 
 static void triangle_run(struct wboxtest_t * wbt, void * data)

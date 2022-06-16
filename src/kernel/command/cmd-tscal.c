@@ -103,13 +103,23 @@ static int perform_calibration(struct tscal_t * cal)
 static void tscal_draw(struct window_t * w, void * o)
 {
 	struct tscal_t * cal = (struct tscal_t *)o;
-	struct color_t c = { 0xff, 0xff, 0x00, 0xff };
 	int x = cal->xfb[cal->index];
 	int y = cal->yfb[cal->index];
 
-	surface_shape_line(w->s, NULL, &(struct point_t){x - 15, y}, &(struct point_t){x + 15, y}, 2, &c);
-	surface_shape_line(w->s, NULL, &(struct point_t){x, y - 15}, &(struct point_t){x, y + 15}, 2, &c);
-	surface_shape_circle(w->s, NULL, x, y, 15, 4, &c);
+	surface_shape_save(w->s);
+	surface_shape_set_source_color(w->s, &(struct color_t){ 0xff, 0xff, 0x00, 0xff });
+	surface_shape_set_line_width(w->s, 2);
+	surface_shape_move_to(w->s, x - 15, y);
+	surface_shape_line_to(w->s, x + 15, y);
+	surface_shape_stroke(w->s);
+	surface_shape_set_line_width(w->s, 2);
+	surface_shape_move_to(w->s, x, y - 15);
+	surface_shape_line_to(w->s, x, y + 15);
+	surface_shape_stroke(w->s);
+	surface_shape_set_line_width(w->s, 4);
+	surface_shape_circle(w->s, x, y, 15);
+	surface_shape_stroke(w->s);
+	surface_shape_restore(w->s);
 }
 
 static int do_tscal(int argc, char ** argv)

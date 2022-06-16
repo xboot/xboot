@@ -56,7 +56,19 @@ static void draw_arc(struct window_t * w, void * o)
 	color_init(&c, rand() & 0xff, rand() & 0xff, rand() & 0xff, 255);
 	thickness = wboxtest_random_int(0, 50);
 
-	surface_shape_arc(s, NULL, x, y, radius, a1, a2, thickness, &c);
+	surface_shape_save(s);
+	surface_shape_arc(s, x, y, radius, a1 * (M_PI / 180.0), a2 * (M_PI / 180.0));
+	surface_shape_set_source_color(s, &c);
+	if(thickness > 0)
+	{
+		surface_shape_set_line_width(s, thickness);
+		surface_shape_stroke(s);
+	}
+	else
+	{
+		surface_shape_fill(s);
+	}
+	surface_shape_restore(s);
 }
 
 static void arc_run(struct wboxtest_t * wbt, void * data)

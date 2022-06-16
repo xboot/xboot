@@ -1647,6 +1647,376 @@ void xui_add_font(struct xui_context_t * ctx,  const char * family, const char *
 		font_add(ctx->f, NULL, family, path);
 }
 
+static void xui_surface_shape_line(struct surface_t * s, struct region_t * clip, struct point_t * p0, struct point_t * p1, int thickness, struct color_t * c)
+{
+	struct region_t r;
+
+	surface_shape_save(s);
+	if(clip)
+	{
+		region_init(&r, 0, 0, surface_get_width(s), surface_get_height(s));
+		if(region_intersect(&r, &r, clip))
+		{
+			surface_shape_rectangle(s, r.x, r.y, r.w, r.h);
+			surface_shape_clip(s);
+		}
+		else
+		{
+			surface_shape_restore(s);
+			return;
+		}
+	}
+	surface_shape_move_to(s, p0->x, p0->y);
+	surface_shape_line_to(s, p1->x, p1->y);
+	surface_shape_set_source_color(s, c);
+	surface_shape_set_line_width(s, thickness > 0 ? thickness : 1);
+	surface_shape_stroke(s);
+	surface_shape_restore(s);
+}
+
+static void xui_surface_shape_polyline(struct surface_t * s, struct region_t * clip, struct point_t * p, int n, int thickness, struct color_t * c)
+{
+	struct region_t r;
+	int i;
+
+	if(p && (n > 0))
+	{
+		surface_shape_save(s);
+		if(clip)
+		{
+			region_init(&r, 0, 0, surface_get_width(s), surface_get_height(s));
+			if(region_intersect(&r, &r, clip))
+			{
+				surface_shape_rectangle(s, r.x, r.y, r.w, r.h);
+				surface_shape_clip(s);
+			}
+			else
+			{
+				surface_shape_restore(s);
+				return;
+			}
+		}
+		surface_shape_move_to(s, p[0].x, p[0].y);
+		for(i = 1; i < n; i++)
+			surface_shape_line_to(s, p[i].x, p[i].y);
+		surface_shape_set_source_color(s, c);
+		if(thickness > 0)
+		{
+			surface_shape_set_line_width(s, thickness);
+			surface_shape_stroke(s);
+		}
+		else
+		{
+			surface_shape_fill(s);
+		}
+		surface_shape_restore(s);
+	}
+}
+
+static void xui_surface_shape_curve(struct surface_t * s, struct region_t * clip, struct point_t * p, int n, int thickness, struct color_t * c)
+{
+	struct region_t r;
+	int i;
+
+	if(p && (n >= 4))
+	{
+		surface_shape_save(s);
+		if(clip)
+		{
+			region_init(&r, 0, 0, surface_get_width(s), surface_get_height(s));
+			if(region_intersect(&r, &r, clip))
+			{
+				surface_shape_rectangle(s, r.x, r.y, r.w, r.h);
+				surface_shape_clip(s);
+			}
+			else
+			{
+				surface_shape_restore(s);
+				return;
+			}
+		}
+		surface_shape_move_to(s, p[0].x, p[0].y);
+		for(i = 1; i <= n - 3; i += 3)
+			surface_shape_curve_to(s, p[i].x, p[i].y, p[i + 1].x, p[i + 1].y, p[i + 2].x, p[i + 2].y);
+		surface_shape_set_source_color(s, c);
+		if(thickness > 0)
+		{
+			surface_shape_set_line_width(s, thickness);
+			surface_shape_stroke(s);
+		}
+		else
+		{
+			surface_shape_fill(s);
+		}
+		surface_shape_restore(s);
+	}
+}
+
+static void xui_surface_shape_triangle(struct surface_t * s, struct region_t * clip, struct point_t * p0, struct point_t * p1, struct point_t * p2, int thickness, struct color_t * c)
+{
+	struct region_t r;
+
+	surface_shape_save(s);
+	if(clip)
+	{
+		region_init(&r, 0, 0, surface_get_width(s), surface_get_height(s));
+		if(region_intersect(&r, &r, clip))
+		{
+			surface_shape_rectangle(s, r.x, r.y, r.w, r.h);
+			surface_shape_clip(s);
+		}
+		else
+		{
+			surface_shape_restore(s);
+			return;
+		}
+	}
+	surface_shape_move_to(s, p0->x, p0->y);
+	surface_shape_line_to(s, p1->x, p1->y);
+	surface_shape_line_to(s, p2->x, p2->y);
+	surface_shape_close_path(s);
+	surface_shape_set_source_color(s, c);
+	if(thickness > 0)
+	{
+		surface_shape_set_line_width(s, thickness);
+		surface_shape_stroke(s);
+	}
+	else
+	{
+		surface_shape_fill(s);
+	}
+	surface_shape_restore(s);
+}
+
+static void xui_surface_shape_rectangle(struct surface_t * s, struct region_t * clip, int x, int y, int w, int h, int radius, int thickness, struct color_t * c)
+{
+	struct region_t r;
+	int corner;
+
+	surface_shape_save(s);
+	if(clip)
+	{
+		region_init(&r, 0, 0, surface_get_width(s), surface_get_height(s));
+		if(region_intersect(&r, &r, clip))
+		{
+			surface_shape_rectangle(s, r.x, r.y, r.w, r.h);
+			surface_shape_clip(s);
+		}
+		else
+		{
+			surface_shape_restore(s);
+			return;
+		}
+	}
+	corner = (radius >> 16) & 0xf;
+	radius &= 0xffff;
+	if(radius > 0)
+	{
+		surface_shape_move_to(s, x + radius, y);
+		surface_shape_line_to(s, x + w - radius, y);
+		if(corner & (1 << 1))
+		{
+			surface_shape_line_to(s, x + w, y);
+			surface_shape_line_to(s, x + w, y + radius);
+		}
+		else
+		{
+			surface_shape_arc(s, x + w - radius, y + radius, radius, - M_PI_2, 0);
+		}
+		surface_shape_line_to(s, x + w, y + h - radius);
+		if(corner & (1 << 2))
+		{
+			surface_shape_line_to(s, x + w, y + h);
+			surface_shape_line_to(s, w - radius, y + h);
+		}
+		else
+		{
+			surface_shape_arc(s, x + w - radius, y + h - radius, radius, 0, M_PI_2);
+		}
+		surface_shape_line_to(s, x + radius, y + h);
+		if(corner & (1 << 3))
+		{
+			surface_shape_line_to(s, x, y + h);
+		}
+		else
+		{
+			surface_shape_arc(s, x + radius, y + h - radius, radius, M_PI_2, M_PI);
+		}
+		if(corner & (1 << 0))
+		{
+			surface_shape_line_to(s, x, y);
+			surface_shape_line_to(s, x + radius, y);
+		}
+		else
+		{
+			surface_shape_arc(s, x + radius, y + radius, radius, M_PI, M_PI + M_PI_2);
+		}
+	}
+	else
+	{
+		surface_shape_rectangle(s, x, y, w, h);
+	}
+	surface_shape_set_source_color(s, c);
+	if(thickness > 0)
+	{
+		surface_shape_set_line_width(s, thickness);
+		surface_shape_stroke(s);
+	}
+	else
+	{
+		surface_shape_fill(s);
+	}
+	surface_shape_restore(s);
+}
+
+static void xui_surface_shape_polygon(struct surface_t * s, struct region_t * clip, struct point_t * p, int n, int thickness, struct color_t * c)
+{
+	struct region_t r;
+	int i;
+
+	if(p && (n > 0))
+	{
+		surface_shape_save(s);
+		if(clip)
+		{
+			region_init(&r, 0, 0, surface_get_width(s), surface_get_height(s));
+			if(region_intersect(&r, &r, clip))
+			{
+				surface_shape_rectangle(s, r.x, r.y, r.w, r.h);
+				surface_shape_clip(s);
+			}
+			else
+			{
+				surface_shape_restore(s);
+				return;
+			}
+		}
+		surface_shape_move_to(s, p[0].x, p[0].y);
+		for(i = 1; i < n; i++)
+			surface_shape_line_to(s, p[i].x, p[i].y);
+		surface_shape_close_path(s);
+		surface_shape_set_source_color(s, c);
+		if(thickness > 0)
+		{
+			surface_shape_set_line_width(s, thickness);
+			surface_shape_stroke(s);
+		}
+		else
+		{
+			surface_shape_fill(s);
+		}
+		surface_shape_restore(s);
+	}
+}
+
+static void xui_surface_shape_circle(struct surface_t * s, struct region_t * clip, int x, int y, int radius, int thickness, struct color_t * c)
+{
+	struct region_t r;
+
+	if(radius > 0)
+	{
+		surface_shape_save(s);
+		if(clip)
+		{
+			region_init(&r, 0, 0, surface_get_width(s), surface_get_height(s));
+			if(region_intersect(&r, &r, clip))
+			{
+				surface_shape_rectangle(s, r.x, r.y, r.w, r.h);
+				surface_shape_clip(s);
+			}
+			else
+			{
+				surface_shape_restore(s);
+				return;
+			}
+		}
+		surface_shape_circle(s, x, y, radius);
+		surface_shape_set_source_color(s, c);
+		if(thickness > 0)
+		{
+			surface_shape_set_line_width(s, thickness);
+			surface_shape_stroke(s);
+		}
+		else
+		{
+			surface_shape_fill(s);
+		}
+		surface_shape_restore(s);
+	}
+}
+
+static void xui_surface_shape_ellipse(struct surface_t * s, struct region_t * clip, int x, int y, int w, int h, int thickness, struct color_t * c)
+{
+	struct region_t r;
+
+	if((w > 0) && (h > 0))
+	{
+		surface_shape_save(s);
+		if(clip)
+		{
+			region_init(&r, 0, 0, surface_get_width(s), surface_get_height(s));
+			if(region_intersect(&r, &r, clip))
+			{
+				surface_shape_rectangle(s, r.x, r.y, r.w, r.h);
+				surface_shape_clip(s);
+			}
+			else
+			{
+				surface_shape_restore(s);
+				return;
+			}
+		}
+		surface_shape_ellipse(s, x, y, w, h);
+		surface_shape_set_source_color(s, c);
+		if(thickness > 0)
+		{
+			surface_shape_set_line_width(s, thickness);
+			surface_shape_stroke(s);
+		}
+		else
+		{
+			surface_shape_fill(s);
+		}
+		surface_shape_restore(s);
+	}
+}
+
+static void xui_surface_shape_arc(struct surface_t * s, struct region_t * clip, int x, int y, int radius, int a1, int a2, int thickness, struct color_t * c)
+{
+	struct region_t r;
+
+	if(radius > 0)
+	{
+		surface_shape_save(s);
+		if(clip)
+		{
+			region_init(&r, 0, 0, surface_get_width(s), surface_get_height(s));
+			if(region_intersect(&r, &r, clip))
+			{
+				surface_shape_rectangle(s, r.x, r.y, r.w, r.h);
+				surface_shape_clip(s);
+			}
+			else
+			{
+				surface_shape_restore(s);
+				return;
+			}
+		}
+		surface_shape_arc(s, x, y, radius, a1 * (M_PI / 180.0), a2 * (M_PI / 180.0));
+		surface_shape_set_source_color(s, c);
+		if(thickness > 0)
+		{
+			surface_shape_set_line_width(s, thickness);
+			surface_shape_stroke(s);
+		}
+		else
+		{
+			surface_shape_fill(s);
+		}
+		surface_shape_restore(s);
+	}
+}
+
 static void xui_draw(struct window_t * w, void * o)
 {
 	struct xui_context_t * ctx = (struct xui_context_t *)o;
@@ -1674,31 +2044,31 @@ static void xui_draw(struct window_t * w, void * o)
 						region_init(clip, 0, 0, 0, 0);
 					break;
 				case XUI_CMD_TYPE_LINE:
-					surface_shape_line(s, clip, &cmd->line.p0, &cmd->line.p1, cmd->line.thickness, &cmd->line.c);
+					xui_surface_shape_line(s, clip, &cmd->line.p0, &cmd->line.p1, cmd->line.thickness, &cmd->line.c);
 					break;
 				case XUI_CMD_TYPE_POLYLINE:
-					surface_shape_polyline(s, clip, cmd->polyline.p, cmd->polyline.n, cmd->polyline.thickness, &cmd->polyline.c);
+					xui_surface_shape_polyline(s, clip, cmd->polyline.p, cmd->polyline.n, cmd->polyline.thickness, &cmd->polyline.c);
 					break;
 				case XUI_CMD_TYPE_CURVE:
-					surface_shape_curve(s, clip, cmd->curve.p, cmd->curve.n, cmd->curve.thickness, &cmd->curve.c);
+					xui_surface_shape_curve(s, clip, cmd->curve.p, cmd->curve.n, cmd->curve.thickness, &cmd->curve.c);
 					break;
 				case XUI_CMD_TYPE_TRIANGLE:
-					surface_shape_triangle(s, clip, &cmd->triangle.p0, &cmd->triangle.p1, &cmd->triangle.p2, cmd->triangle.thickness, &cmd->triangle.c);
+					xui_surface_shape_triangle(s, clip, &cmd->triangle.p0, &cmd->triangle.p1, &cmd->triangle.p2, cmd->triangle.thickness, &cmd->triangle.c);
 					break;
 				case XUI_CMD_TYPE_RECTANGLE:
-					surface_shape_rectangle(s, clip, cmd->rectangle.x, cmd->rectangle.y, cmd->rectangle.w, cmd->rectangle.h, cmd->rectangle.radius, cmd->rectangle.thickness, &cmd->rectangle.c);
+					xui_surface_shape_rectangle(s, clip, cmd->rectangle.x, cmd->rectangle.y, cmd->rectangle.w, cmd->rectangle.h, cmd->rectangle.radius, cmd->rectangle.thickness, &cmd->rectangle.c);
 					break;
 				case XUI_CMD_TYPE_POLYGON:
-					surface_shape_polygon(s, clip, cmd->polygon.p, cmd->polygon.n, cmd->polygon.thickness, &cmd->polygon.c);
+					xui_surface_shape_polygon(s, clip, cmd->polygon.p, cmd->polygon.n, cmd->polygon.thickness, &cmd->polygon.c);
 					break;
 				case XUI_CMD_TYPE_CIRCLE:
-					surface_shape_circle(s, clip, cmd->circle.x, cmd->circle.y, cmd->circle.radius, cmd->circle.thickness, &cmd->circle.c);
+					xui_surface_shape_circle(s, clip, cmd->circle.x, cmd->circle.y, cmd->circle.radius, cmd->circle.thickness, &cmd->circle.c);
 					break;
 				case XUI_CMD_TYPE_ELLIPSE:
-					surface_shape_ellipse(s, clip, cmd->ellipse.x, cmd->ellipse.y, cmd->ellipse.w, cmd->ellipse.h, cmd->ellipse.thickness, &cmd->ellipse.c);
+					xui_surface_shape_ellipse(s, clip, cmd->ellipse.x, cmd->ellipse.y, cmd->ellipse.w, cmd->ellipse.h, cmd->ellipse.thickness, &cmd->ellipse.c);
 					break;
 				case XUI_CMD_TYPE_ARC:
-					surface_shape_arc(s, clip, cmd->arc.x, cmd->arc.y, cmd->arc.radius, cmd->arc.a1, cmd->arc.a2, cmd->arc.thickness, &cmd->arc.c);
+					xui_surface_shape_arc(s, clip, cmd->arc.x, cmd->arc.y, cmd->arc.radius, cmd->arc.a1, cmd->arc.a2, cmd->arc.thickness, &cmd->arc.c);
 					break;
 				case XUI_CMD_TYPE_SURFACE:
 					surface_blit(s, clip, &cmd->surface.m, cmd->surface.s);

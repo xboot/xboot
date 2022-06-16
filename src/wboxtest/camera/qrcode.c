@@ -139,7 +139,7 @@ static void draw_qrcode(struct window_t * w, void * o)
 	}
 	matrix_init_identity(&m);
 	matrix_init_translate(&m, (surface_get_width(s) - surface_get_width(pdat->s)) / 2, (surface_get_height(s) - surface_get_height(pdat->s)) / 2);
-	surface_blit(s, NULL, &m, pdat->s, RENDER_TYPE_GOOD);
+	surface_blit(s, NULL, &m, pdat->s);
 }
 
 static void qrcode_run(struct wboxtest_t * wbt, void * data)

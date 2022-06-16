@@ -60,7 +60,13 @@ static void line_run(struct wboxtest_t * wbt, void * data)
 			struct color_t c;
 			color_init(&c, rand() & 0xff, rand() & 0xff, rand() & 0xff, 255);
 			int thickness = wboxtest_random_int(0, 50);
-			surface_shape_line(s, NULL, &p0, &p1, thickness, &c);
+			surface_shape_save(s);
+			surface_shape_move_to(s, p0.x, p0.y);
+			surface_shape_line_to(s, p1.x, p1.y);
+			surface_shape_set_source_color(s, &c);
+			surface_shape_set_line_width(s, thickness > 0 ? thickness : 1);
+			surface_shape_stroke(s);
+			surface_shape_restore(s);
 			pdat->calls++;
 			pdat->t2 = ktime_get();
 		} while(ktime_before(pdat->t2, ktime_add_ms(pdat->t1, 2000)));

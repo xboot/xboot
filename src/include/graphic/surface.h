@@ -11,6 +11,7 @@ extern "C" {
 #include <graphic/region.h>
 #include <graphic/color.h>
 #include <graphic/matrix.h>
+#include <graphic/expblur.h>
 #include <graphic/text.h>
 #include <graphic/icon.h>
 #include <xfs/xfs.h>
@@ -45,18 +46,30 @@ struct render_t
 
 	void (*blit)(struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct surface_t * src);
 	void (*fill)(struct surface_t * s, struct region_t * clip, struct matrix_t * m, int w, int h, struct color_t * c);
-	void (*text)(struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct text_t * txt);
-	void (*icon)(struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct icon_t * ico);
 
-	void (*shape_line)(struct surface_t * s, struct region_t * clip, struct point_t * p0, struct point_t * p1, int thickness, struct color_t * c);
-	void (*shape_polyline)(struct surface_t * s, struct region_t * clip, struct point_t * p, int n, int thickness, struct color_t * c);
-	void (*shape_curve)(struct surface_t * s, struct region_t * clip, struct point_t * p, int n, int thickness, struct color_t * c);
-	void (*shape_triangle)(struct surface_t * s, struct region_t * clip, struct point_t * p0, struct point_t * p1, struct point_t * p2, int thickness, struct color_t * c);
-	void (*shape_rectangle)(struct surface_t * s, struct region_t * clip, int x, int y, int w, int h, int radius, int thickness, struct color_t * c);
-	void (*shape_polygon)(struct surface_t * s, struct region_t * clip, struct point_t * p, int n, int thickness, struct color_t * c);
-	void (*shape_circle)(struct surface_t * s, struct region_t * clip, int x, int y, int radius, int thickness, struct color_t * c);
-	void (*shape_ellipse)(struct surface_t * s, struct region_t * clip, int x, int y, int w, int h, int thickness, struct color_t * c);
-	void (*shape_arc)(struct surface_t * s, struct region_t * clip, int x, int y, int radius, int a1, int a2, int thickness, struct color_t * c);
+	void (*shape_save)(struct surface_t * s);
+	void (*shape_restore)(struct surface_t * s);
+	void (*shape_set_source_color)(struct surface_t * s, struct color_t * c);
+	void (*shape_set_source_surface)(struct surface_t * s, struct surface_t * o, double x, double y);
+	void (*shape_set_line_width)(struct surface_t * s, double w);
+	void (*shape_set_matrix)(struct surface_t * s, struct matrix_t * m);
+	void (*shape_new_path)(struct surface_t * s);
+	void (*shape_close_path)(struct surface_t * s);
+	void (*shape_move_to)(struct surface_t * s, double x, double y);
+	void (*shape_line_to)(struct surface_t * s, double x, double y);
+	void (*shape_curve_to)(struct surface_t * s, double x1, double y1, double x2, double y2, double x3, double y3);
+	void (*shape_rectangle)(struct surface_t * s, double x, double y, double w, double h);
+	void (*shape_arc)(struct surface_t * s, double cx, double cy, double r, double a0, double a1);
+	void (*shape_arc_negative)(struct surface_t * s, double cx, double cy, double r, double a0, double a1);
+	void (*shape_circle)(struct surface_t * s, double cx, double cy, double r);
+	void (*shape_ellipse)(struct surface_t * s, double cx, double cy, double rx, double ry);
+	void (*shape_clip)(struct surface_t * s);
+	void (*shape_clip_preserve)(struct surface_t * s);
+	void (*shape_fill)(struct surface_t * s);
+	void (*shape_fill_preserve)(struct surface_t * s);
+	void (*shape_stroke)(struct surface_t * s);
+	void (*shape_stroke_preserve)(struct surface_t * s);
+	void (*shape_paint)(struct surface_t * s);
 };
 
 static inline int surface_get_width(struct surface_t * s)
@@ -79,69 +92,119 @@ static inline void * surface_get_pixels(struct surface_t * s)
 	return s->pixels;
 }
 
-static inline void surface_blit(struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct surface_t * src)
+static inline void surface_shape_save(struct surface_t * s)
 {
-	s->r->blit(s, clip, m, src);
+	s->r->shape_save(s);
 }
 
-static inline void surface_fill(struct surface_t * s, struct region_t * clip, struct matrix_t * m, int w, int h, struct color_t * c)
+static inline void surface_shape_restore(struct surface_t * s)
 {
-	s->r->fill(s, clip, m, w, h, c);
+	s->r->shape_restore(s);
 }
 
-static inline void surface_text(struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct text_t * txt)
+static inline void surface_shape_set_source_color(struct surface_t * s, struct color_t * c)
 {
-	s->r->text(s, clip, m, txt);
+	s->r->shape_set_source_color(s, c);
 }
 
-static inline void surface_icon(struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct icon_t * ico)
+static inline void surface_shape_set_source_surface(struct surface_t * s, struct surface_t * o, double x, double y)
 {
-	s->r->icon(s, clip, m, ico);
+	s->r->shape_set_source_surface(s, o, x, y);
 }
 
-static inline void surface_shape_line(struct surface_t * s, struct region_t * clip, struct point_t * p0, struct point_t * p1, int thickness, struct color_t * c)
+static inline void surface_shape_set_line_width(struct surface_t * s, double w)
 {
-	s->r->shape_line(s, clip, p0, p1, thickness, c);
+	s->r->shape_set_line_width(s, w);
 }
 
-static inline void surface_shape_polyline(struct surface_t * s, struct region_t * clip, struct point_t * p, int n, int thickness, struct color_t * c)
+static inline void surface_shape_set_matrix(struct surface_t * s, struct matrix_t * m)
 {
-	s->r->shape_polyline(s, clip, p, n, thickness, c);
+	s->r->shape_set_matrix(s, m);
 }
 
-static inline void surface_shape_curve(struct surface_t * s, struct region_t * clip, struct point_t * p, int n, int thickness, struct color_t * c)
+static inline void surface_shape_new_path(struct surface_t * s)
 {
-	s->r->shape_curve(s, clip, p, n, thickness, c);
+	s->r->shape_new_path(s);
 }
 
-static inline void surface_shape_triangle(struct surface_t * s, struct region_t * clip, struct point_t * p0, struct point_t * p1, struct point_t * p2, int thickness, struct color_t * c)
+static inline void surface_shape_close_path(struct surface_t * s)
 {
-	s->r->shape_triangle(s, clip, p0, p1, p2, thickness, c);
+	s->r->shape_close_path(s);
 }
 
-static inline void surface_shape_rectangle(struct surface_t * s, struct region_t * clip, int x, int y, int w, int h, int radius, int thickness, struct color_t * c)
+static inline void surface_shape_move_to(struct surface_t * s, double x, double y)
 {
-	s->r->shape_rectangle(s, clip, x, y, w, h, radius, thickness, c);
+	s->r->shape_move_to(s, x, y);
 }
 
-static inline void surface_shape_polygon(struct surface_t * s, struct region_t * clip, struct point_t * p, int n, int thickness, struct color_t * c)
+static inline void surface_shape_line_to(struct surface_t * s, double x, double y)
 {
-	s->r->shape_polygon(s, clip, p, n, thickness, c);
+	s->r->shape_line_to(s, x, y);
 }
 
-static inline void surface_shape_circle(struct surface_t * s, struct region_t * clip, int x, int y, int radius, int thickness, struct color_t * c)
+static inline void surface_shape_curve_to(struct surface_t * s, double x1, double y1, double x2, double y2, double x3, double y3)
 {
-	s->r->shape_circle(s, clip, x, y, radius, thickness, c);
+	s->r->shape_curve_to(s, x1, y1, x2, y2, x3, y3);
 }
 
-static inline void surface_shape_ellipse(struct surface_t * s, struct region_t * clip, int x, int y, int w, int h, int thickness, struct color_t * c)
+static inline void surface_shape_rectangle(struct surface_t * s, double x, double y, double w, double h)
 {
-	s->r->shape_ellipse(s, clip, x, y, w, h, thickness, c);
+	s->r->shape_rectangle(s, x, y, w, h);
 }
 
-static inline void surface_shape_arc(struct surface_t * s, struct region_t * clip, int x, int y, int radius, int a1, int a2, int thickness, struct color_t * c)
+static inline void surface_shape_arc(struct surface_t * s, double cx, double cy, double r, double a0, double a1)
 {
-	s->r->shape_arc(s, clip, x, y, radius, a1, a2, thickness, c);
+	s->r->shape_arc(s, cx, cy, r, a0, a1);
+}
+
+static inline void surface_shape_arc_negative(struct surface_t * s, double cx, double cy, double r, double a0, double a1)
+{
+	s->r->shape_arc_negative(s, cx, cy, r, a0, a1);
+}
+
+static inline void surface_shape_circle(struct surface_t * s, double cx, double cy, double r)
+{
+	s->r->shape_circle(s, cx, cy, r);
+}
+
+static inline void surface_shape_ellipse(struct surface_t * s, double cx, double cy, double rx, double ry)
+{
+	s->r->shape_ellipse(s, cx, cy, rx, ry);
+}
+
+static inline void surface_shape_clip(struct surface_t * s)
+{
+	s->r->shape_clip(s);
+}
+
+static inline void surface_shape_clip_preserve(struct surface_t * s)
+{
+	s->r->shape_clip_preserve(s);
+}
+
+static inline void surface_shape_fill(struct surface_t * s)
+{
+	s->r->shape_fill(s);
+}
+
+static inline void surface_shape_fill_preserve(struct surface_t * s)
+{
+	s->r->shape_fill_preserve(s);
+}
+
+static inline void surface_shape_stroke(struct surface_t * s)
+{
+	s->r->shape_stroke(s);
+}
+
+static inline void surface_shape_stroke_preserve(struct surface_t * s)
+{
+	s->r->shape_stroke_preserve(s);
+}
+
+static inline void surface_shape_paint(struct surface_t * s)
+{
+	s->r->shape_paint(s);
 }
 
 void * render_default_create(struct surface_t * s);
@@ -150,15 +213,6 @@ void render_default_blit(struct surface_t * s, struct region_t * clip, struct ma
 void render_default_fill(struct surface_t * s, struct region_t * clip, struct matrix_t * m, int w, int h, struct color_t * c);
 void render_default_text(struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct text_t * txt);
 void render_default_icon(struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct icon_t * ico);
-void render_default_shape_line(struct surface_t * s, struct region_t * clip, struct point_t * p0, struct point_t * p1, int thickness, struct color_t * c);
-void render_default_shape_polyline(struct surface_t * s, struct region_t * clip, struct point_t * p, int n, int thickness, struct color_t * c);
-void render_default_shape_curve(struct surface_t * s, struct region_t * clip, struct point_t * p, int n, int thickness, struct color_t * c);
-void render_default_shape_triangle(struct surface_t * s, struct region_t * clip, struct point_t * p0, struct point_t * p1, struct point_t * p2, int thickness, struct color_t * c);
-void render_default_shape_rectangle(struct surface_t * s, struct region_t * clip, int x, int y, int w, int h, int radius, int thickness, struct color_t * c);
-void render_default_shape_polygon(struct surface_t * s, struct region_t * clip, struct point_t * p, int n, int thickness, struct color_t * c);
-void render_default_shape_circle(struct surface_t * s, struct region_t * clip, int x, int y, int radius, int thickness, struct color_t * c);
-void render_default_shape_ellipse(struct surface_t * s, struct region_t * clip, int x, int y, int w, int h, int thickness, struct color_t * c);
-void render_default_shape_arc(struct surface_t * s, struct region_t * clip, int x, int y, int radius, int a1, int a2, int thickness, struct color_t * c);
 
 struct render_t * search_render(void);
 bool_t register_render(struct render_t * r);
@@ -174,6 +228,11 @@ struct surface_t * surface_extend(struct surface_t * s, int width, int height, c
 void surface_clear(struct surface_t * s, struct color_t * c, int x, int y, int w, int h);
 void surface_set_pixel(struct surface_t * s, int x, int y, struct color_t * c);
 void surface_get_pixel(struct surface_t * s, int x, int y, struct color_t * c);
+
+void surface_blit(struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct surface_t * src);
+void surface_fill(struct surface_t * s, struct region_t * clip, struct matrix_t * m, int w, int h, struct color_t * c);
+void surface_text(struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct text_t * txt);
+void surface_icon(struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct icon_t * ico);
 
 void surface_effect_glass(struct surface_t * s, struct region_t * clip, int x, int y, int w, int h, int radius);
 void surface_effect_shadow(struct surface_t * s, struct region_t * clip, int x, int y, int w, int h, int radius, struct color_t * c);

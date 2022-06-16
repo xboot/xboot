@@ -672,33 +672,12 @@ struct surface_t * surface_alloc_qrcode(const char * txt, int pixsz)
 	return NULL;
 }
 
-static inline void blend_edge(uint32_t * d, uint32_t * s, int l)
-{
-	uint32_t v = *s;
-	int a = (v >> 24) & 0xff;
-	int r = (v >> 16) & 0xff;
-	int g = (v >> 8) & 0xff;
-	int b = (v >> 0) & 0xff;
-
-	a = a * (32 - l) >> 5;
-	r = r * (32 - l) >> 5;
-	g = g * (32 - l) >> 5;
-	b = b * (32 - l) >> 5;
-
-	*d = (a << 24) | (r << 16) | (g << 8) | (b << 0);
-}
-
-struct surface_t * surface_clone(struct surface_t * s, int x, int y, int w, int h, int r)
+struct surface_t * surface_clone(struct surface_t * s, int x, int y, int w, int h)
 {
 	struct surface_t * o;
-	uint32_t * dp, * sp;
-	unsigned char * p, * q;
 	void * pixels;
 	int width, height, stride, pixlen;
-	int swidth, sstride;
 	int x1, y1, x2, y2;
-	int r2, n, l;
-	int i, j;
 
 	if(!s)
 		return NULL;
@@ -745,117 +724,17 @@ struct surface_t * surface_clone(struct surface_t * s, int x, int y, int w, int 
 					free(o);
 					return NULL;
 				}
-				if(r <= 0)
-				{
-					sstride = s->stride;
-					p = (unsigned char *)pixels;
-					q = (unsigned char *)s->pixels + y1 * sstride + (x1 << 2);
-					for(i = 0; i < height; i++, p += stride, q += sstride)
-						memcpy(p, q, stride);
-				}
-				else
-				{
-					swidth = s->width;
-					sstride = s->stride;
-					r = min(r, min(width >> 1, height >> 1));
-					r2 = r * r;
-
-					p = (unsigned char *)pixels + (r << 2);
-					q = (unsigned char *)s->pixels + y1 * sstride + ((x1 + r) << 2);
-					l = stride - (r << (1 + 2));
-					for(i = 0; i < r; i++, p += stride, q += sstride)
-						memcpy(p, q, l);
-
-					p = (unsigned char *)pixels + r * stride;
-					q = (unsigned char *)s->pixels + (y1 + r) * sstride + (x1 << 2);
-					l = stride;
-					for(i = 0; i < y2 - y1 - (r << 1); i++, p += stride, q += sstride)
-						memcpy(p, q, l);
-
-					p = (unsigned char *)pixels + (y2 - y1 - r) * stride + (r << 2);
-					q = (unsigned char *)s->pixels + (y2 - r) * sstride + ((x1 + r) << 2);
-					l = stride - (r << (1 + 2));
-					for(i = 0; i < r; i++, p += stride, q += sstride)
-						memcpy(p, q, l);
-
-					for(i = 0; i < r; i++)
-					{
-						dp = (uint32_t *)pixels + i * width;
-						sp = (uint32_t *)s->pixels + (y1 + i) * swidth + x1;
-						n = (r - i) * (r - i);
-						for(j = 0; j < r; j++, dp++, sp++)
-						{
-							l = n + (r - j) * (r - j);
-							if(l < r2)
-								*dp = *sp;
-							else if(l < r2 + 32)
-								blend_edge(dp, sp, l - r2);
-							else
-								*dp = 0;
-						}
-					}
-
-					for(i = 0; i < r; i++)
-					{
-						dp = (uint32_t *)pixels + i * width + (width - r);
-						sp = (uint32_t *)s->pixels + (y1 + i) * swidth + (x2 - r);
-						n = (r - i) * (r - i);
-						for(j = 0; j < r; j++, dp++, sp++)
-						{
-							l = n + j * j;
-							if(l < r2)
-								*dp = *sp;
-							else if(l < r2 + 32)
-								blend_edge(dp, sp, l - r2);
-							else
-								*dp = 0;
-						}
-					}
-
-					for(i = 0; i < r; i++)
-					{
-						dp = (uint32_t *)pixels + (height - r + i) * width;
-						sp = (uint32_t *)s->pixels + (y2 - r + i) * swidth + x1;
-						n = i * i;
-						for(j = 0; j < r; j++, dp++, sp++)
-						{
-							l = n + (r - j) * (r - j);
-							if(l < r2)
-								*dp = *sp;
-							else if(l < r2 + 32)
-								blend_edge(dp, sp, l - r2);
-							else
-								*dp = 0;
-						}
-					}
-
-					for(i = 0; i < r; i++)
-					{
-						dp = (uint32_t *)pixels + (height - r + i) * width + (width - r);
-						sp = (uint32_t *)s->pixels + (y2 - r + i) * swidth + (x2 - r);
-						n = i * i;
-						for(j = 0; j < r; j++, dp++, sp++)
-						{
-							l = n + j * j;
-							if(l < r2)
-								*dp = *sp;
-							else if(l < r2 + 32)
-								blend_edge(dp, sp, l - r2);
-							else
-								*dp = 0;
-						}
-					}
-				}
+				int sstride = s->stride;
+				unsigned char * p = (unsigned char *)pixels;
+				unsigned char * q = (unsigned char *)s->pixels + y1 * sstride + (x1 << 2);
+				for(int i = 0; i < height; i++, p += stride, q += sstride)
+					memcpy(p, q, stride);
 			}
 			else
-			{
 				return NULL;
-			}
 		}
 		else
-		{
 			return NULL;
-		}
 	}
 
 	o->width = width;

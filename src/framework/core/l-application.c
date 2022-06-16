@@ -121,7 +121,7 @@ static int m_application_get_icon(lua_State * L)
 	if(!app->pkg->icon)
 		return 0;
 	struct limage_t * img = lua_newuserdata(L, sizeof(struct limage_t));
-	img->s = surface_clone(package_get_icon(app->pkg), 0, 0, 0, 0, 0);
+	img->s = surface_clone(package_get_icon(app->pkg), 0, 0, 0, 0);
 	luaL_setmetatable(L, MT_IMAGE);
 	return 1;
 }
@@ -132,7 +132,7 @@ static int m_application_get_panel(lua_State * L)
 	if(!app->pkg->panel)
 		return 0;
 	struct limage_t * img = lua_newuserdata(L, sizeof(struct limage_t));
-	img->s = surface_clone(package_get_panel(app->pkg), 0, 0, 0, 0, 0);
+	img->s = surface_clone(package_get_panel(app->pkg), 0, 0, 0, 0);
 	luaL_setmetatable(L, MT_IMAGE);
 	return 1;
 }

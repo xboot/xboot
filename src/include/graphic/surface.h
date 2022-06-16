@@ -226,7 +226,7 @@ struct surface_t * surface_alloc_from_buf(const void * buf, int len);
 struct surface_t * surface_alloc_qrcode(const char * txt, int pixsz);
 void surface_free(struct surface_t * s);
 
-struct surface_t * surface_clone(struct surface_t * s, int x, int y, int w, int h, int r);
+struct surface_t * surface_clone(struct surface_t * s, int x, int y, int w, int h);
 struct surface_t * surface_extend(struct surface_t * s, int width, int height, const char * type);
 void surface_clear(struct surface_t * s, struct color_t * c, int x, int y, int w, int h);
 void surface_set_pixel(struct surface_t * s, int x, int y, struct color_t * c);

@@ -240,185 +240,7 @@ static int m_image_icon(lua_State * L)
 	return 1;
 }
 
-/*
-static int m_image_line(lua_State * L)
-{
-	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
-	struct point_t p0, p1;
-	p0.x = luaL_checknumber(L, 2);
-	p0.y = luaL_checknumber(L, 3);
-	p1.x = luaL_checknumber(L, 4);
-	p1.y = luaL_checknumber(L, 5);
-	int thickness = luaL_checknumber(L, 6);
-	struct color_t * c = luaL_checkudata(L, 7, MT_COLOR);
-	surface_shape_line(img->s, NULL, &p0, &p1, thickness, c);
-	lua_settop(L, 1);
-	return 1;
-}
-
-static int m_image_polyline(lua_State * L)
-{
-	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
-	struct point_t pts[128], * p;
-	int n, i;
-	if(lua_istable(L, 2) && ((n = lua_rawlen(L, 2) >> 1) > 0))
-	{
-		if(n > ARRAY_SIZE(pts))
-			p = malloc(sizeof(struct point_t) * n);
-		else
-			p = pts;
-		for(i = 0; i < n; i++)
-		{
-			lua_rawgeti(L, 2, i * 2 + 1);
-			lua_rawgeti(L, 2, i * 2 + 2);
-			p[i].x = luaL_checknumber(L, -2);
-			p[i].y = luaL_checknumber(L, -1);
-			lua_pop(L, 2);
-		}
-		int thickness = luaL_checknumber(L, 3);
-		struct color_t * c = luaL_checkudata(L, 4, MT_COLOR);
-		surface_shape_polyline(img->s, NULL, p, n, thickness, c);
-		if(p != pts)
-			free(p);
-	}
-	lua_settop(L, 1);
-	return 1;
-}
-
-static int m_image_curve(lua_State * L)
-{
-	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
-	struct point_t pts[128], * p;
-	int n, i;
-	if(lua_istable(L, 2) && ((n = lua_rawlen(L, 2) >> 1) > 0))
-	{
-		if(n > ARRAY_SIZE(pts))
-			p = malloc(sizeof(struct point_t) * n);
-		else
-			p = pts;
-		for(i = 0; i < n; i++)
-		{
-			lua_rawgeti(L, 2, i * 2 + 1);
-			lua_rawgeti(L, 2, i * 2 + 2);
-			p[i].x = luaL_checknumber(L, -2);
-			p[i].y = luaL_checknumber(L, -1);
-			lua_pop(L, 2);
-		}
-		int thickness = luaL_checknumber(L, 3);
-		struct color_t * c = luaL_checkudata(L, 4, MT_COLOR);
-		surface_shape_curve(img->s, NULL, p, n, thickness, c);
-		if(p != pts)
-			free(p);
-	}
-	lua_settop(L, 1);
-	return 1;
-}
-
-static int m_image_triangle(lua_State * L)
-{
-	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
-	struct point_t p0, p1, p2;
-	p0.x = luaL_checknumber(L, 2);
-	p0.y = luaL_checknumber(L, 3);
-	p1.x = luaL_checknumber(L, 4);
-	p1.y = luaL_checknumber(L, 5);
-	p2.x = luaL_checknumber(L, 6);
-	p2.y = luaL_checknumber(L, 7);
-	int thickness = luaL_checknumber(L, 8);
-	struct color_t * c = luaL_checkudata(L, 9, MT_COLOR);
-	surface_shape_triangle(img->s, NULL, &p0, &p1, &p2, thickness, c);
-	lua_settop(L, 1);
-	return 1;
-}
-
-static int m_image_rectangle(lua_State * L)
-{
-	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
-	int x = luaL_checknumber(L, 2);
-	int y = luaL_checknumber(L, 3);
-	int w = luaL_checknumber(L, 4);
-	int h = luaL_checknumber(L, 5);
-	int radius = luaL_checknumber(L, 6);
-	int thickness = luaL_checknumber(L, 7);
-	struct color_t * c = luaL_checkudata(L, 8, MT_COLOR);
-	surface_shape_rectangle(img->s, NULL, x, y, w, h, radius, thickness, c);
-	lua_settop(L, 1);
-	return 1;
-}
-
-static int m_image_polygon(lua_State * L)
-{
-	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
-	struct point_t pts[128], * p;
-	int n, i;
-	if(lua_istable(L, 2) && ((n = lua_rawlen(L, 2) >> 1) > 0))
-	{
-		if(n > ARRAY_SIZE(pts))
-			p = malloc(sizeof(struct point_t) * n);
-		else
-			p = pts;
-		for(i = 0; i < n; i++)
-		{
-			lua_rawgeti(L, 2, i * 2 + 1);
-			lua_rawgeti(L, 2, i * 2 + 2);
-			p[i].x = luaL_checknumber(L, -2);
-			p[i].y = luaL_checknumber(L, -1);
-			lua_pop(L, 2);
-		}
-		int thickness = luaL_checknumber(L, 3);
-		struct color_t * c = luaL_checkudata(L, 4, MT_COLOR);
-		surface_shape_polygon(img->s, NULL, p, n, thickness, c);
-		if(p != pts)
-			free(p);
-	}
-	lua_settop(L, 1);
-	return 1;
-}
-
-static int m_image_circle(lua_State * L)
-{
-	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
-	int x = luaL_checknumber(L, 2);
-	int y = luaL_checknumber(L, 3);
-	int radius = luaL_checknumber(L, 4);
-	int thickness = luaL_checknumber(L, 5);
-	struct color_t * c = luaL_checkudata(L, 6, MT_COLOR);
-	surface_shape_circle(img->s, NULL, x, y, radius, thickness, c);
-	lua_settop(L, 1);
-	return 1;
-}
-
-static int m_image_ellipse(lua_State * L)
-{
-	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
-	int x = luaL_checknumber(L, 2);
-	int y = luaL_checknumber(L, 3);
-	int w = luaL_checknumber(L, 4);
-	int h = luaL_checknumber(L, 5);
-	int thickness = luaL_checknumber(L, 6);
-	struct color_t * c = luaL_checkudata(L, 7, MT_COLOR);
-	surface_shape_ellipse(img->s, NULL, x, y, w, h, thickness, c);
-	lua_settop(L, 1);
-	return 1;
-}
-
-static int m_image_arc(lua_State * L)
-{
-	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
-	int x = luaL_checknumber(L, 2);
-	int y = luaL_checknumber(L, 3);
-	int radius = luaL_checknumber(L, 4);
-	int a1 = luaL_checknumber(L, 5);
-	int a2 = luaL_checknumber(L, 6);
-	int thickness = luaL_checknumber(L, 7);
-	struct color_t * c = luaL_checkudata(L, 8, MT_COLOR);
-	surface_shape_arc(img->s, NULL, x, y, radius, a1, a2, thickness, c);
-	lua_settop(L, 1);
-	return 1;
-}
-*/
-
-static int m_image_glass(lua_State * L)
+static int m_image_effect_glass(lua_State * L)
 {
 	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
 	int x = luaL_optinteger(L, 2, 0);
@@ -431,7 +253,7 @@ static int m_image_glass(lua_State * L)
 	return 1;
 }
 
-static int m_image_shadow(lua_State * L)
+static int m_image_effect_shadow(lua_State * L)
 {
 	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
 	int x = luaL_optinteger(L, 2, 0);
@@ -445,7 +267,7 @@ static int m_image_shadow(lua_State * L)
 	return 1;
 }
 
-static int m_image_gradient(lua_State * L)
+static int m_image_effect_gradient(lua_State * L)
 {
 	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
 	int x = luaL_checknumber(L, 2);
@@ -461,7 +283,7 @@ static int m_image_gradient(lua_State * L)
 	return 1;
 }
 
-static int m_image_checkerboard(lua_State * L)
+static int m_image_effect_checkerboard(lua_State * L)
 {
 	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
 	int x = luaL_optinteger(L, 2, 0);
@@ -473,7 +295,7 @@ static int m_image_checkerboard(lua_State * L)
 	return 1;
 }
 
-static int m_image_gray(lua_State * L)
+static int m_image_filter_gray(lua_State * L)
 {
 	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
 	surface_filter_gray(img->s);
@@ -481,7 +303,7 @@ static int m_image_gray(lua_State * L)
 	return 1;
 }
 
-static int m_image_sepia(lua_State * L)
+static int m_image_filter_sepia(lua_State * L)
 {
 	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
 	surface_filter_sepia(img->s);
@@ -489,7 +311,7 @@ static int m_image_sepia(lua_State * L)
 	return 1;
 }
 
-static int m_image_invert(lua_State * L)
+static int m_image_filter_invert(lua_State * L)
 {
 	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
 	surface_filter_invert(img->s);
@@ -497,7 +319,7 @@ static int m_image_invert(lua_State * L)
 	return 1;
 }
 
-static int m_image_coloring(lua_State * L)
+static int m_image_filter_coloring(lua_State * L)
 {
 	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
 	struct color_t * c = luaL_checkudata(L, 2, MT_COLOR);
@@ -506,7 +328,7 @@ static int m_image_coloring(lua_State * L)
 	return 1;
 }
 
-static int m_image_hue(lua_State * L)
+static int m_image_filter_hue(lua_State * L)
 {
 	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
 	int angle = luaL_optinteger(L, 2, 0);
@@ -515,7 +337,7 @@ static int m_image_hue(lua_State * L)
 	return 1;
 }
 
-static int m_image_saturate(lua_State * L)
+static int m_image_filter_saturate(lua_State * L)
 {
 	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
 	int saturate = luaL_optinteger(L, 2, 0);
@@ -524,7 +346,7 @@ static int m_image_saturate(lua_State * L)
 	return 1;
 }
 
-static int m_image_brightness(lua_State * L)
+static int m_image_filter_brightness(lua_State * L)
 {
 	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
 	int brightness = luaL_optinteger(L, 2, 0);
@@ -533,7 +355,7 @@ static int m_image_brightness(lua_State * L)
 	return 1;
 }
 
-static int m_image_contrast(lua_State * L)
+static int m_image_filter_contrast(lua_State * L)
 {
 	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
 	int contrast = luaL_optinteger(L, 2, 0);
@@ -542,7 +364,7 @@ static int m_image_contrast(lua_State * L)
 	return 1;
 }
 
-static int m_image_opacity(lua_State * L)
+static int m_image_filter_opacity(lua_State * L)
 {
 	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
 	int alpha = luaL_optinteger(L, 2, 100);
@@ -551,7 +373,7 @@ static int m_image_opacity(lua_State * L)
 	return 1;
 }
 
-static int m_image_haldclut(lua_State * L)
+static int m_image_filter_haldclut(lua_State * L)
 {
 	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
 	struct limage_t * clut = luaL_checkudata(L, 2, MT_IMAGE);
@@ -561,7 +383,7 @@ static int m_image_haldclut(lua_State * L)
 	return 1;
 }
 
-static int m_image_blur(lua_State * L)
+static int m_image_filter_blur(lua_State * L)
 {
 	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
 	int radius = luaL_optinteger(L, 2, 0);
@@ -570,51 +392,284 @@ static int m_image_blur(lua_State * L)
 	return 1;
 }
 
+static int m_image_shape_save(lua_State * L)
+{
+	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
+	surface_shape_save(img->s);
+	lua_settop(L, 1);
+	return 1;
+}
+
+static int m_image_shape_restore(lua_State * L)
+{
+	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
+	surface_shape_restore(img->s);
+	lua_settop(L, 1);
+	return 1;
+}
+
+static int m_image_shape_set_source_color(lua_State * L)
+{
+	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
+	struct color_t * c = luaL_checkudata(L, 2, MT_COLOR);
+	surface_shape_set_source_color(img->s, c);
+	lua_settop(L, 1);
+	return 1;
+}
+
+static int m_image_shape_set_source(lua_State * L)
+{
+	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
+	struct limage_t * o = luaL_checkudata(L, 2, MT_IMAGE);
+	double x = luaL_checknumber(L, 3);
+	double y = luaL_checknumber(L, 4);
+	surface_shape_set_source_surface(img->s, o->s, x, y);
+	lua_settop(L, 1);
+	return 1;
+}
+
+static int m_image_shape_set_line_width(lua_State * L)
+{
+	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
+	double w = luaL_checknumber(L, 2);
+	surface_shape_set_line_width(img->s, w);
+	lua_settop(L, 1);
+	return 1;
+}
+
+static int m_image_shape_set_matrix(lua_State * L)
+{
+	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
+	struct matrix_t * m = luaL_checkudata(L, 2, MT_MATRIX);
+	surface_shape_set_matrix(img->s, m);
+	lua_settop(L, 1);
+	return 1;
+}
+
+static int m_image_shape_new_path(lua_State * L)
+{
+	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
+	surface_shape_new_path(img->s);
+	lua_settop(L, 1);
+	return 1;
+}
+
+static int m_image_shape_close_path(lua_State * L)
+{
+	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
+	surface_shape_close_path(img->s);
+	lua_settop(L, 1);
+	return 1;
+}
+
+static int m_image_shape_move_to(lua_State * L)
+{
+	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
+	double x = luaL_checknumber(L, 2);
+	double y = luaL_checknumber(L, 3);
+	surface_shape_move_to(img->s, x, y);
+	lua_settop(L, 1);
+	return 1;
+}
+
+static int m_image_shape_line_to(lua_State * L)
+{
+	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
+	double x = luaL_checknumber(L, 2);
+	double y = luaL_checknumber(L, 3);
+	surface_shape_line_to(img->s, x, y);
+	lua_settop(L, 1);
+	return 1;
+}
+
+static int m_image_shape_curve_to(lua_State * L)
+{
+	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
+	double x1 = luaL_checknumber(L, 2);
+	double y1 = luaL_checknumber(L, 3);
+	double x2 = luaL_checknumber(L, 4);
+	double y2 = luaL_checknumber(L, 5);
+	double x3 = luaL_checknumber(L, 6);
+	double y3 = luaL_checknumber(L, 7);
+	surface_shape_curve_to(img->s, x1, y1, x2, y2, x3, y3);
+	lua_settop(L, 1);
+	return 1;
+}
+
+static int m_image_shape_rectangle(lua_State * L)
+{
+	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
+	double x = luaL_checknumber(L, 2);
+	double y = luaL_checknumber(L, 3);
+	double w = luaL_checknumber(L, 4);
+	double h = luaL_checknumber(L, 5);
+	surface_shape_rectangle(img->s, x, y, w, h);
+	lua_settop(L, 1);
+	return 1;
+}
+
+static int m_image_shape_arc(lua_State * L)
+{
+	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
+	double cx = luaL_checknumber(L, 2);
+	double cy = luaL_checknumber(L, 3);
+	double r = luaL_checknumber(L, 4);
+	double a0 = luaL_checknumber(L, 5);
+	double a1 = luaL_checknumber(L, 6);
+	surface_shape_arc(img->s, cx, cy, r, a0, a1);
+	lua_settop(L, 1);
+	return 1;
+}
+
+static int m_image_shape_arc_negative(lua_State * L)
+{
+	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
+	double cx = luaL_checknumber(L, 2);
+	double cy = luaL_checknumber(L, 3);
+	double r = luaL_checknumber(L, 4);
+	double a0 = luaL_checknumber(L, 5);
+	double a1 = luaL_checknumber(L, 6);
+	surface_shape_arc_negative(img->s, cx, cy, r, a0, a1);
+	lua_settop(L, 1);
+	return 1;
+}
+
+static int m_image_shape_circle(lua_State * L)
+{
+	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
+	double cx = luaL_checknumber(L, 2);
+	double cy = luaL_checknumber(L, 3);
+	double r = luaL_checknumber(L, 4);
+	surface_shape_circle(img->s, cx, cy, r);
+	lua_settop(L, 1);
+	return 1;
+}
+
+static int m_image_shape_ellipse(lua_State * L)
+{
+	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
+	double cx = luaL_checknumber(L, 2);
+	double cy = luaL_checknumber(L, 3);
+	double rx = luaL_checknumber(L, 4);
+	double ry = luaL_checknumber(L, 5);
+	surface_shape_ellipse(img->s, cx, cy, rx, ry);
+	lua_settop(L, 1);
+	return 1;
+}
+
+static int m_image_shape_clip(lua_State * L)
+{
+	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
+	surface_shape_clip(img->s);
+	lua_settop(L, 1);
+	return 1;
+}
+
+static int m_image_shape_clip_preserve(lua_State * L)
+{
+	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
+	surface_shape_clip_preserve(img->s);
+	lua_settop(L, 1);
+	return 1;
+}
+
+static int m_image_shape_fill(lua_State * L)
+{
+	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
+	surface_shape_fill(img->s);
+	lua_settop(L, 1);
+	return 1;
+}
+
+static int m_image_shape_fill_preserve(lua_State * L)
+{
+	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
+	surface_shape_fill_preserve(img->s);
+	lua_settop(L, 1);
+	return 1;
+}
+
+static int m_image_shape_stroke(lua_State * L)
+{
+	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
+	surface_shape_stroke(img->s);
+	lua_settop(L, 1);
+	return 1;
+}
+
+static int m_image_shape_stroke_preserve(lua_State * L)
+{
+	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
+	surface_shape_stroke_preserve(img->s);
+	lua_settop(L, 1);
+	return 1;
+}
+
+static int m_image_shape_paint(lua_State * L)
+{
+	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
+	surface_shape_paint(img->s);
+	lua_settop(L, 1);
+	return 1;
+}
+
 static const luaL_Reg m_image[] = {
-	{"__gc",			m_image_gc},
-	{"__tostring",		m_image_tostring},
-	{"getWidth",		m_image_get_width},
-	{"getHeight",		m_image_get_height},
-	{"getSize",			m_image_get_size},
+	{"__gc",					m_image_gc},
+	{"__tostring",				m_image_tostring},
+	{"getWidth",				m_image_get_width},
+	{"getHeight",				m_image_get_height},
+	{"getSize",					m_image_get_size},
 
-	{"clone",			m_image_clone},
-	{"extend",			m_image_extend},
-	{"apply",			m_image_apply},
-	{"clear",			m_image_clear},
+	{"clone",					m_image_clone},
+	{"extend",					m_image_extend},
+	{"apply",					m_image_apply},
+	{"clear",					m_image_clear},
 
-	{"blit",			m_image_blit},
-	{"fill",			m_image_fill},
-	{"text",			m_image_text},
-	{"icon",			m_image_icon},
+	{"blit",					m_image_blit},
+	{"fill",					m_image_fill},
+	{"text",					m_image_text},
+	{"icon",					m_image_icon},
 
-/*
-	{"line",			m_image_line},
-	{"polyline",		m_image_polyline},
-	{"curve",			m_image_curve},
-	{"triangle",		m_image_triangle},
-	{"rectangle",		m_image_rectangle},
-	{"polygon",			m_image_polygon},
-	{"circle",			m_image_circle},
-	{"ellipse",			m_image_ellipse},
-	{"arc",				m_image_arc},
-*/
+	{"glass",					m_image_effect_glass},
+	{"shadow",					m_image_effect_shadow},
+	{"gradient",				m_image_effect_gradient},
+	{"checkerboard",			m_image_effect_checkerboard},
 
-	{"glass",			m_image_glass},
-	{"shadow",			m_image_shadow},
-	{"gradient",		m_image_gradient},
-	{"checkerboard",	m_image_checkerboard},
+	{"gray",					m_image_filter_gray},
+	{"sepia",					m_image_filter_sepia},
+	{"invert",					m_image_filter_invert},
+	{"coloring",				m_image_filter_coloring},
+	{"hue",						m_image_filter_hue},
+	{"saturate",				m_image_filter_saturate},
+	{"brightness",				m_image_filter_brightness},
+	{"contrast",				m_image_filter_contrast},
+	{"opacity",					m_image_filter_opacity},
+	{"haldclut",				m_image_filter_haldclut},
+	{"blur",					m_image_filter_blur},
 
-	{"gray",			m_image_gray},
-	{"sepia",			m_image_sepia},
-	{"invert",			m_image_invert},
-	{"coloring",		m_image_coloring},
-	{"hue",				m_image_hue},
-	{"saturate",		m_image_saturate},
-	{"brightness",		m_image_brightness},
-	{"contrast",		m_image_contrast},
-	{"opacity",			m_image_opacity},
-	{"haldclut",		m_image_haldclut},
-	{"blur",			m_image_blur},
+	{"shapeSave",				m_image_shape_save},
+	{"shapeRestore",			m_image_shape_restore},
+	{"shapeSetSourceColor",		m_image_shape_set_source_color},
+	{"shapeSetSource",			m_image_shape_set_source},
+	{"shapeSetLineWidth",		m_image_shape_set_line_width},
+	{"shapeSetMatrix",			m_image_shape_set_matrix},
+	{"shapeNewPath",			m_image_shape_new_path},
+	{"shapeClosePath",			m_image_shape_close_path},
+	{"shapeMoveTo",				m_image_shape_move_to},
+	{"shapeLineTo",				m_image_shape_line_to},
+	{"shapeCurveTo",			m_image_shape_curve_to},
+	{"shapeRectangle",			m_image_shape_rectangle},
+	{"shapeArc",				m_image_shape_arc},
+	{"shapeArcNegative",		m_image_shape_arc_negative},
+	{"shapeCircle",				m_image_shape_circle},
+	{"shapeEllipse",			m_image_shape_ellipse},
+	{"shapeClip",				m_image_shape_clip},
+	{"shapeClipPreserve",		m_image_shape_clip_preserve},
+	{"shapeFill",				m_image_shape_fill},
+	{"shapeFillPreserve",		m_image_shape_fill_preserve},
+	{"shapeStroke",				m_image_shape_stroke},
+	{"shapeStrokePreserve",		m_image_shape_stroke_preserve},
+	{"shapePaint",				m_image_shape_paint},
 
 	{NULL, NULL}
 };

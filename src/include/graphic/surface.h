@@ -49,8 +49,8 @@ struct render_t
 
 	void (*shape_save)(struct surface_t * s);
 	void (*shape_restore)(struct surface_t * s);
+	void (*shape_set_source)(struct surface_t * s, struct surface_t * o, double x, double y);
 	void (*shape_set_source_color)(struct surface_t * s, struct color_t * c);
-	void (*shape_set_source_surface)(struct surface_t * s, struct surface_t * o, double x, double y);
 	void (*shape_set_line_width)(struct surface_t * s, double w);
 	void (*shape_set_matrix)(struct surface_t * s, struct matrix_t * m);
 	void (*shape_new_path)(struct surface_t * s);
@@ -112,14 +112,14 @@ static inline void surface_shape_restore(struct surface_t * s)
 	s->r->shape_restore(s);
 }
 
+static inline void surface_shape_set_source(struct surface_t * s, struct surface_t * o, double x, double y)
+{
+	s->r->shape_set_source(s, o, x, y);
+}
+
 static inline void surface_shape_set_source_color(struct surface_t * s, struct color_t * c)
 {
 	s->r->shape_set_source_color(s, c);
-}
-
-static inline void surface_shape_set_source_surface(struct surface_t * s, struct surface_t * o, double x, double y)
-{
-	s->r->shape_set_source_surface(s, o, x, y);
 }
 
 static inline void surface_shape_set_line_width(struct surface_t * s, double w)

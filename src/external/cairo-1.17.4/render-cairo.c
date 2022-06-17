@@ -105,16 +105,16 @@ static void render_cairo_shape_restore(struct surface_t * s)
 	cairo_restore(cr);
 }
 
+static void render_cairo_shape_set_source(struct surface_t * s, struct surface_t * o, double x, double y)
+{
+	cairo_t * cr = ((struct render_cairo_context_t *)s->rctx)->cr;
+	cairo_set_source_surface(cr, ((struct render_cairo_context_t *)o->rctx)->cs, x, y);
+}
+
 static void render_cairo_shape_set_source_color(struct surface_t * s, struct color_t * c)
 {
 	cairo_t * cr = ((struct render_cairo_context_t *)s->rctx)->cr;
 	cairo_set_source_rgba(cr, c->r / 255.0, c->g / 255.0, c->b / 255.0, c->a / 255.0);
-}
-
-static void render_cairo_shape_set_source_surface(struct surface_t * s, struct surface_t * o, double x, double y)
-{
-	cairo_t * cr = ((struct render_cairo_context_t *)s->rctx)->cr;
-	cairo_set_source_surface(cr, ((struct render_cairo_context_t *)o->rctx)->cs, x, y);
 }
 
 static void render_cairo_shape_set_line_width(struct surface_t * s, double w)
@@ -242,37 +242,37 @@ static void render_cairo_shape_paint(struct surface_t * s)
 }
 
 static struct render_t render_cairo = {
-	.name	 					= "cairo",
+	.name	 				= "cairo",
 
-	.create						= render_cairo_create,
-	.destroy					= render_cairo_destroy,
+	.create					= render_cairo_create,
+	.destroy				= render_cairo_destroy,
 
-	.blit						= render_cairo_blit,
-	.fill						= render_cairo_fill,
+	.blit					= render_cairo_blit,
+	.fill					= render_cairo_fill,
 
-	.shape_save					= render_cairo_shape_save,
-	.shape_restore				= render_cairo_shape_restore,
-	.shape_set_source_color		= render_cairo_shape_set_source_color,
-	.shape_set_source_surface	= render_cairo_shape_set_source_surface,
-	.shape_set_line_width		= render_cairo_shape_set_line_width,
-	.shape_set_matrix			= render_cairo_shape_set_matrix,
-	.shape_new_path				= render_cairo_shape_new_path,
-	.shape_close_path			= render_cairo_shape_close_path,
-	.shape_move_to				= render_cairo_shape_move_to,
-	.shape_line_to				= render_cairo_shape_line_to,
-	.shape_curve_to				= render_cairo_shape_curve_to,
-	.shape_rectangle			= render_cairo_shape_rectangle,
-	.shape_arc					= render_cairo_shape_arc,
-	.shape_arc_negative			= render_cairo_shape_arc_negative,
-	.shape_circle				= render_cairo_shape_circle,
-	.shape_ellipse				= render_cairo_shape_ellipse,
-	.shape_clip					= render_cairo_shape_clip,
-	.shape_clip_preserve		= render_cairo_shape_clip_preserve,
-	.shape_fill					= render_cairo_shape_fill,
-	.shape_fill_preserve		= render_cairo_shape_fill_preserve,
-	.shape_stroke				= render_cairo_shape_stroke,
-	.shape_stroke_preserve		= render_cairo_shape_stroke_preserve,
-	.shape_paint				= render_cairo_shape_paint,
+	.shape_save				= render_cairo_shape_save,
+	.shape_restore			= render_cairo_shape_restore,
+	.shape_set_source		= render_cairo_shape_set_source,
+	.shape_set_source_color	= render_cairo_shape_set_source_color,
+	.shape_set_line_width	= render_cairo_shape_set_line_width,
+	.shape_set_matrix		= render_cairo_shape_set_matrix,
+	.shape_new_path			= render_cairo_shape_new_path,
+	.shape_close_path		= render_cairo_shape_close_path,
+	.shape_move_to			= render_cairo_shape_move_to,
+	.shape_line_to			= render_cairo_shape_line_to,
+	.shape_curve_to			= render_cairo_shape_curve_to,
+	.shape_rectangle		= render_cairo_shape_rectangle,
+	.shape_arc				= render_cairo_shape_arc,
+	.shape_arc_negative		= render_cairo_shape_arc_negative,
+	.shape_circle			= render_cairo_shape_circle,
+	.shape_ellipse			= render_cairo_shape_ellipse,
+	.shape_clip				= render_cairo_shape_clip,
+	.shape_clip_preserve	= render_cairo_shape_clip_preserve,
+	.shape_fill				= render_cairo_shape_fill,
+	.shape_fill_preserve	= render_cairo_shape_fill_preserve,
+	.shape_stroke			= render_cairo_shape_stroke,
+	.shape_stroke_preserve	= render_cairo_shape_stroke_preserve,
+	.shape_paint			= render_cairo_shape_paint,
 };
 
 static __init void render_cairo_init(void)

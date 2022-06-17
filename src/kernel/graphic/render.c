@@ -127,18 +127,18 @@ static void render_cg_shape_restore(struct surface_t * s)
 	cg_restore(cg);
 }
 
-static void render_cg_shape_set_source_color(struct surface_t * s, struct color_t * c)
-{
-	struct cg_ctx_t * cg = ((struct render_cg_ctx_t *)s->rctx)->cg;
-	cg_set_source_rgba(cg, c->r / 255.0, c->g / 255.0, c->b / 255.0, c->a / 255.0);
-}
-
-static void render_cg_shape_set_source_surface(struct surface_t * s, struct surface_t * o, double x, double y)
+static void render_cg_shape_set_source(struct surface_t * s, struct surface_t * o, double x, double y)
 {
 	struct cg_ctx_t * cg = ((struct render_cg_ctx_t *)s->rctx)->cg;
 	cg_rectangle(cg, 0, 0, surface_get_width(s), surface_get_height(s));
 	cg_clip(cg);
 	cg_set_source_surface(cg, ((struct render_cg_ctx_t *)o->rctx)->cs, x, y);
+}
+
+static void render_cg_shape_set_source_color(struct surface_t * s, struct color_t * c)
+{
+	struct cg_ctx_t * cg = ((struct render_cg_ctx_t *)s->rctx)->cg;
+	cg_set_source_rgba(cg, c->r / 255.0, c->g / 255.0, c->b / 255.0, c->a / 255.0);
 }
 
 static void render_cg_shape_set_line_width(struct surface_t * s, double w)
@@ -256,35 +256,35 @@ static void render_cg_shape_paint(struct surface_t * s)
 }
 
 struct render_t render_cg = {
-	.name	 					= "cg",
+	.name	 				= "cg",
 
-	.create						= render_cg_create,
-	.destroy					= render_cg_destroy,
+	.create					= render_cg_create,
+	.destroy				= render_cg_destroy,
 
-	.blit						= render_cg_blit,
-	.fill						= render_cg_fill,
+	.blit					= render_cg_blit,
+	.fill					= render_cg_fill,
 
-	.shape_save					= render_cg_shape_save,
-	.shape_restore				= render_cg_shape_restore,
-	.shape_set_source_color		= render_cg_shape_set_source_color,
-	.shape_set_source_surface	= render_cg_shape_set_source_surface,
-	.shape_set_line_width		= render_cg_shape_set_line_width,
-	.shape_set_matrix			= render_cg_shape_set_matrix,
-	.shape_new_path				= render_cg_shape_new_path,
-	.shape_close_path			= render_cg_shape_close_path,
-	.shape_move_to				= render_cg_shape_move_to,
-	.shape_line_to				= render_cg_shape_line_to,
-	.shape_curve_to				= render_cg_shape_curve_to,
-	.shape_rectangle			= render_cg_shape_rectangle,
-	.shape_arc					= render_cg_shape_arc,
-	.shape_arc_negative			= render_cg_shape_arc_negative,
-	.shape_circle				= render_cg_shape_circle,
-	.shape_ellipse				= render_cg_shape_ellipse,
-	.shape_clip					= render_cg_shape_clip,
-	.shape_clip_preserve		= render_cg_shape_clip_preserve,
-	.shape_fill					= render_cg_shape_fill,
-	.shape_fill_preserve		= render_cg_shape_fill_preserve,
-	.shape_stroke				= render_cg_shape_stroke,
-	.shape_stroke_preserve		= render_cg_shape_stroke_preserve,
-	.shape_paint				= render_cg_shape_paint,
+	.shape_save				= render_cg_shape_save,
+	.shape_restore			= render_cg_shape_restore,
+	.shape_set_source		= render_cg_shape_set_source,
+	.shape_set_source_color	= render_cg_shape_set_source_color,
+	.shape_set_line_width	= render_cg_shape_set_line_width,
+	.shape_set_matrix		= render_cg_shape_set_matrix,
+	.shape_new_path			= render_cg_shape_new_path,
+	.shape_close_path		= render_cg_shape_close_path,
+	.shape_move_to			= render_cg_shape_move_to,
+	.shape_line_to			= render_cg_shape_line_to,
+	.shape_curve_to			= render_cg_shape_curve_to,
+	.shape_rectangle		= render_cg_shape_rectangle,
+	.shape_arc				= render_cg_shape_arc,
+	.shape_arc_negative		= render_cg_shape_arc_negative,
+	.shape_circle			= render_cg_shape_circle,
+	.shape_ellipse			= render_cg_shape_ellipse,
+	.shape_clip				= render_cg_shape_clip,
+	.shape_clip_preserve	= render_cg_shape_clip_preserve,
+	.shape_fill				= render_cg_shape_fill,
+	.shape_fill_preserve	= render_cg_shape_fill_preserve,
+	.shape_stroke			= render_cg_shape_stroke,
+	.shape_stroke_preserve	= render_cg_shape_stroke_preserve,
+	.shape_paint			= render_cg_shape_paint,
 };

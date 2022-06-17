@@ -408,22 +408,22 @@ static int m_image_shape_restore(lua_State * L)
 	return 1;
 }
 
-static int m_image_shape_set_source_color(lua_State * L)
-{
-	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
-	struct color_t * c = luaL_checkudata(L, 2, MT_COLOR);
-	surface_shape_set_source_color(img->s, c);
-	lua_settop(L, 1);
-	return 1;
-}
-
 static int m_image_shape_set_source(lua_State * L)
 {
 	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
 	struct limage_t * o = luaL_checkudata(L, 2, MT_IMAGE);
 	double x = luaL_checknumber(L, 3);
 	double y = luaL_checknumber(L, 4);
-	surface_shape_set_source_surface(img->s, o->s, x, y);
+	surface_shape_set_source(img->s, o->s, x, y);
+	lua_settop(L, 1);
+	return 1;
+}
+
+static int m_image_shape_set_source_color(lua_State * L)
+{
+	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
+	struct color_t * c = luaL_checkudata(L, 2, MT_COLOR);
+	surface_shape_set_source_color(img->s, c);
 	lua_settop(L, 1);
 	return 1;
 }
@@ -649,8 +649,8 @@ static const luaL_Reg m_image[] = {
 
 	{"shapeSave",				m_image_shape_save},
 	{"shapeRestore",			m_image_shape_restore},
-	{"shapeSetSourceColor",		m_image_shape_set_source_color},
 	{"shapeSetSource",			m_image_shape_set_source},
+	{"shapeSetSourceColor",		m_image_shape_set_source_color},
 	{"shapeSetLineWidth",		m_image_shape_set_line_width},
 	{"shapeSetMatrix",			m_image_shape_set_matrix},
 	{"shapeNewPath",			m_image_shape_new_path},

@@ -59,8 +59,15 @@ stage:addChild(DisplayImage.new(Image.new("assets/images/bg.png"):extend(sw, sh,
 
 for i = 1, 5 do
 	local image = DisplayImage.new(Image.new(100, 50)
-			:rectangle(0, 0, 100, 50, 0, -1, Color.new("#FF000080"))
-			:rectangle(0, 0, 100, 50, 0, 6, Color.new("#282828FF"))
+			:shapeSave()
+			:shapeSetSourceColor(Color.new("#FF000080"))
+			:shapeRectangle(0, 0, 100, 50)
+			:shapeFill()
+			:shapeSetLineWidth(6)
+			:shapeSetSourceColor(Color.new("#282828FF"))
+			:shapeRectangle(0, 0, 100, 50)
+			:shapeStroke()
+			:shapeRestore()
 		):setPosition(math.random(0, sw - 100), math.random(0, sh - 50))
 
 	image:addEventListener("mouse-down", onMouseDown)

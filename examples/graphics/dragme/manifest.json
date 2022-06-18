@@ -1,6 +1,9 @@
 {
 	"name": "Dragme",
 	"description": "Drag rectangles using multiple fingers.",
+	"developer": "JianJun Jiang",
+	"version": "1.0.0",
+	"url": "http://xboot.org",
 
 	"zh-CN": {
 		"name": "拽我",

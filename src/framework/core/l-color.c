@@ -42,7 +42,7 @@ static int l_color_new(lua_State * L)
 		c = lua_newuserdata(L, sizeof(struct color_t));
 		memcpy(c, &t, sizeof(struct color_t));
 	}
-	else if(lua_isstring(L, 1))
+	else if(lua_type(L, 1) == LUA_TSTRING)
 	{
 		const char * s = luaL_optstring(L, 1, "white");
 		c = lua_newuserdata(L, sizeof(struct color_t));

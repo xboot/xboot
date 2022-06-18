@@ -39,13 +39,13 @@ static int l_image_new(lua_State * L)
 	struct surface_t * s = NULL;
 	if(lua_gettop(L) == 2)
 	{
-		if(lua_isnumber(L, 1) && lua_isnumber(L, 2))
+		if((lua_type(L, 1) == LUA_TNUMBER) && (lua_type(L, 2) == LUA_TNUMBER))
 		{
 			int width = luaL_checkinteger(L, 1);
 			int height = luaL_checkinteger(L, 2);
 			s = surface_alloc(width, height, NULL);
 		}
-		else if(lua_isstring(L, 1) && lua_isnumber(L, 2))
+		else if((lua_type(L, 1) == LUA_TSTRING) && (lua_type(L, 2) == LUA_TNUMBER))
 		{
 			const char * txt = luaL_checkstring(L, 1);
 			int pixsz = luaL_checkinteger(L, 2);
@@ -54,7 +54,7 @@ static int l_image_new(lua_State * L)
 	}
 	else
 	{
-		if(lua_isstring(L, 1))
+		if(lua_type(L, 1) == LUA_TSTRING)
 		{
 			const char * filename = luaL_checkstring(L, 1);
 			s = surface_alloc_from_xfs(((struct vmctx_t *)luahelper_vmctx(L))->xfs, filename);

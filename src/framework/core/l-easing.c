@@ -38,17 +38,16 @@ struct leasing_t {
 
 static int l_new(lua_State * L)
 {
-	double start = luaL_optnumber(L, 1, 0);
-	double stop = luaL_optnumber(L, 2, 1);
-	double duration = luaL_optnumber(L, 3, 1);
-	struct leasing_t * e;
-	if(lua_isstring(L, 4))
+	double start = luaL_checknumber(L, 1);
+	double stop = luaL_checknumber(L, 2);
+	double duration = luaL_checknumber(L, 3);
+	struct leasing_t * e = lua_newuserdata(L, sizeof(struct leasing_t));
+	e->start = start;
+	e->stop = stop;
+	e->duration = duration;
+	if(lua_type(L, 4) == LUA_TSTRING)
 	{
-		const char * type = luaL_optstring(L, 4, "linear");
-		e = lua_newuserdata(L, sizeof(struct leasing_t));
-		e->start = start;
-		e->stop = stop;
-		e->duration = duration;
+		const char * type = luaL_checkstring(L, 4);
 		switch(shash(type))
 		{
 		case 0x0b7641e0: /* "linear" */
@@ -139,18 +138,10 @@ static int l_new(lua_State * L)
 		lua_rawgeti(L, 4, 2); y1 = lua_tonumber(L, -1); lua_pop(L, 1);
 		lua_rawgeti(L, 4, 3); x2 = lua_tonumber(L, -1); lua_pop(L, 1);
 		lua_rawgeti(L, 4, 4); y2 = lua_tonumber(L, -1); lua_pop(L, 1);
-		e = lua_newuserdata(L, sizeof(struct leasing_t));
-		e->start = start;
-		e->stop = stop;
-		e->duration = duration;
 		cubic_bezier_init(&e->bezier, x1, y1, x2, y2);
 	}
 	else
 	{
-		e = lua_newuserdata(L, sizeof(struct leasing_t));
-		e->start = start;
-		e->stop = stop;
-		e->duration = duration;
 		cubic_bezier_init(&e->bezier, 0, 0, 1, 1);
 	}
 	luaL_setmetatable(L, MT_EASING);

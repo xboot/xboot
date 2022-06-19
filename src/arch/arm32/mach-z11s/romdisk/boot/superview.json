@@ -445,7 +445,7 @@
 		}
 	},
 
-	"led-pwm-bl@0": {
+	"led-pwm@0": {
 		"pwm-name": "pwm-v3s.0",
 		"regulator-name": "lcd-bl-power",
 		"pwm-period-ns": 1000000,
@@ -479,7 +479,7 @@
 		"vsync-active": false,
 		"den-active": true,
 		"clk-active": true,
-		"backlight": "led-pwm-bl.0"
+		"backlight": "led-pwm.0"
 	},
 
 	"console-uart@0": {

@@ -430,7 +430,7 @@
 		]
 	},
 
-	"led-pwm-bl@0": {
+	"led-pwm@0": {
 		"pwm-name": "pwm-s3.0",
 		"pwm-period-ns": 1000000,
 		"pwm-polarity": true,
@@ -463,7 +463,7 @@
 		"vsync-active": false,
 		"den-active": true,
 		"clk-active": true,
-		"backlight": "led-pwm-bl.0"
+		"backlight": "led-pwm.0"
 	},
 
 	"console-uart@0": {

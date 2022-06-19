@@ -482,7 +482,7 @@
 		"calibration": [14052, 21, -2411064, -67, 8461, -1219628, 65536]
 	},
 
-	"led-pwm-bl@0": {
+	"led-pwm@0": {
 		"pwm-name": "pwm-f1c100s.1",
 		"pwm-period-ns": 1000000,
 		"pwm-polarity": true,
@@ -512,7 +512,7 @@
 		"vsync-active": false,
 		"den-active": true,
 		"clk-active": true,
-		"backlight": "led-pwm-bl.0"
+		"backlight": "led-pwm.0"
 	},
 
 	"console-uart@0": {

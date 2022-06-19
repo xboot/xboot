@@ -1294,7 +1294,7 @@ machine_exitcall(licheepi_zero_machine_exit);
 		"period-ms": 1260
 	},
 
-	"led-pwm-bl@0": {
+	"led-pwm@0": {
 		"pwm-name": "pwm-v3s.0",
 		"pwm-period-ns": 1000000,
 		"pwm-polarity": true,
@@ -1327,7 +1327,7 @@ machine_exitcall(licheepi_zero_machine_exit);
 		"vsync-active": false,
 		"den-active": true,
 		"clk-active": true,
-		"backlight": "led-pwm-bl.0"
+		"backlight": "led-pwm.0"
 	},
 
 	"console-uart@0": {

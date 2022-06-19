@@ -419,7 +419,7 @@
 		"vsync-active": false,
 		"den-active": false,
 		"clk-active": false,
-		"backlight": "led-pwm-bl.0"
+		"backlight": "led-pwm.0"
 	},
 
 	"console-uart@0": {

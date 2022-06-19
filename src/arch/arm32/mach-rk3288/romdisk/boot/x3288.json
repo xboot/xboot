@@ -234,7 +234,7 @@
 	"clk-rk3288-mux@0xff7600c4": {
 		"parent": [
 			{ "name": "cpll", "value": 0 },
-			{ "name": "gpll", "value": 1 },
+			{ "name": "gpll", "value": 1 }
 		],
 		"name": "mux-spi0", "shift": 7, "width": 1,
 		"default": { "parent": "gpll" }
@@ -246,7 +246,7 @@
 	"clk-rk3288-mux@0xff7600c4": {
 		"parent": [
 			{ "name": "cpll", "value": 0 },
-			{ "name": "gpll", "value": 1 },
+			{ "name": "gpll", "value": 1 }
 		],
 		"name": "mux-spi1", "shift": 15, "width": 1,
 		"default": { "parent": "gpll" }
@@ -258,7 +258,7 @@
 	"clk-rk3288-mux@0xff7600fc": {
 		"parent": [
 			{ "name": "cpll", "value": 0 },
-			{ "name": "gpll", "value": 1 },
+			{ "name": "gpll", "value": 1 }
 		],
 		"name": "mux-spi2", "shift": 7, "width": 1,
 		"default": { "parent": "gpll" }
@@ -609,7 +609,7 @@
 		"period-ms": 1260
 	},
 
-	"led-pwm-bl@0": {
+	"led-pwm@0": {
 		"pwm-name": "pwm-rk3288.1",
 		"regulator-name": "lcd-bl-power",
 		"pwm-period-ns": 1000000,
@@ -647,7 +647,7 @@
 		"vsync-active": false,
 		"den-active": false,
 		"clk-active": false,
-		"backlight": "led-pwm-bl.0"
+		"backlight": "led-pwm.0"
 	},
 
 	"console-uart@0": {

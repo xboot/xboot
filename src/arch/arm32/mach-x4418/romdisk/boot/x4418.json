@@ -804,7 +804,7 @@
 		"vsync-len": 3,
 		"hsync-active": true,
 		"vsync-active": true,
-		"backlight": "led-pwm-bl.0"
+		"backlight": "led-pwm.0"
 	},
 
 	"console-uart@0": {

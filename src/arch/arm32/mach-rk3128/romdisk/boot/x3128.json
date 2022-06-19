@@ -505,7 +505,7 @@
 		"period-ms": 1260
 	},
 
-	"led-pwm-bl@0": {
+	"led-pwm@0": {
 		"pwm-name": "pwm-rk3128.0",
 		"regulator-name": "lcd-power-5v",
 		"pwm-period-ns": 1000000,
@@ -551,7 +551,7 @@
 		"vsync-active": false,
 		"den-active": false,
 		"clk-active": false,
-		"backlight": "led-pwm-bl.0"
+		"backlight": "led-pwm.0"
 	},
 
 	"console-uart@0": {

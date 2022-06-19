@@ -428,11 +428,69 @@ static int m_image_shape_set_source_color(lua_State * L)
 	return 1;
 }
 
+static int m_image_shape_set_fill_rule(lua_State * L)
+{
+	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
+	const char * t = luaL_optstring(L, 2, "nonzero");
+	surface_shape_set_fill_rule(img->s, t);
+	lua_settop(L, 1);
+	return 1;
+}
+
 static int m_image_shape_set_line_width(lua_State * L)
 {
 	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
 	double w = luaL_checknumber(L, 2);
 	surface_shape_set_line_width(img->s, w);
+	lua_settop(L, 1);
+	return 1;
+}
+
+static int m_image_shape_set_line_cap(lua_State * L)
+{
+	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
+	const char * t = luaL_optstring(L, 2, "butt");
+	surface_shape_set_line_cap(img->s, t);
+	lua_settop(L, 1);
+	return 1;
+}
+
+static int m_image_shape_set_line_join(lua_State * L)
+{
+	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
+	const char * t = luaL_optstring(L, 2, "miter");
+	surface_shape_set_line_join(img->s, t);
+	lua_settop(L, 1);
+	return 1;
+}
+
+static int m_image_shape_set_miter_limit(lua_State * L)
+{
+	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
+	double l = luaL_checknumber(L, 2);
+	surface_shape_set_miter_limit(img->s, l);
+	lua_settop(L, 1);
+	return 1;
+}
+
+static int m_image_shape_set_dash(lua_State * L)
+{
+	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
+	double offset = luaL_checknumber(L, 3);
+	luaL_checktype(L, 2, LUA_TTABLE);
+	int ndash = (int)lua_rawlen(L, 2);
+	if(ndash > 0)
+	{
+		double * dashes = malloc(ndash * sizeof(double));
+		for(int i = 0; i < ndash; i++)
+		{
+			lua_rawgeti(L, 2, i + 1);
+			dashes[i] = lua_tonumber(L, -1);
+			lua_pop(L, 1);
+		}
+		surface_shape_set_dash(img->s, dashes, ndash, offset);
+		free(dashes);
+	}
 	lua_settop(L, 1);
 	return 1;
 }
@@ -697,7 +755,12 @@ static const luaL_Reg m_image[] = {
 	{"shapeRestore",			m_image_shape_restore},
 	{"shapeSetSource",			m_image_shape_set_source},
 	{"shapeSetSourceColor",		m_image_shape_set_source_color},
+	{"shapeSetFillRule",		m_image_shape_set_fill_rule},
 	{"shapeSetLineWidth",		m_image_shape_set_line_width},
+	{"shapeSetLineCap",			m_image_shape_set_line_cap},
+	{"shapeSetLineJoin",		m_image_shape_set_line_join},
+	{"shapeSetMiterLimit",		m_image_shape_set_miter_limit},
+	{"shapeSetDash",			m_image_shape_set_dash},
 	{"shapeTranslate",			m_image_shape_translate},
 	{"shapeScale",				m_image_shape_scale},
 	{"shapeRotate",				m_image_shape_rotate},

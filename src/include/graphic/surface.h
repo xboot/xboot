@@ -51,7 +51,12 @@ struct render_t
 	void (*shape_restore)(struct surface_t * s);
 	void (*shape_set_source)(struct surface_t * s, struct surface_t * o, double x, double y);
 	void (*shape_set_source_color)(struct surface_t * s, struct color_t * c);
+	void (*shape_set_fill_rule)(struct surface_t * s, const char * t);
 	void (*shape_set_line_width)(struct surface_t * s, double w);
+	void (*shape_set_line_cap)(struct surface_t * s, const char * t);
+	void (*shape_set_line_join)(struct surface_t * s, const char * t);
+	void (*shape_set_miter_limit)(struct surface_t * s, double l);
+	void (*shape_set_dash)(struct surface_t * s, double * dashes, int ndash, double offset);
 	void (*shape_translate)(struct surface_t * s, double tx, double ty);
 	void (*shape_scale)(struct surface_t * s, double sx, double sy);
 	void (*shape_rotate)(struct surface_t * s, double r);
@@ -127,9 +132,34 @@ static inline void surface_shape_set_source_color(struct surface_t * s, struct c
 	s->r->shape_set_source_color(s, c);
 }
 
+static inline void surface_shape_set_fill_rule(struct surface_t * s, const char * t)
+{
+	s->r->shape_set_fill_rule(s, t);
+}
+
 static inline void surface_shape_set_line_width(struct surface_t * s, double w)
 {
 	s->r->shape_set_line_width(s, w);
+}
+
+static inline void surface_shape_set_line_cap(struct surface_t * s, const char * t)
+{
+	s->r->shape_set_line_cap(s, t);
+}
+
+static inline void surface_shape_set_line_join(struct surface_t * s, const char * t)
+{
+	s->r->shape_set_line_join(s, t);
+}
+
+static inline void surface_shape_set_miter_limit(struct surface_t * s, double l)
+{
+	s->r->shape_set_miter_limit(s, l);
+}
+
+static inline void surface_shape_set_dash(struct surface_t * s, double * dashes, int ndash, double offset)
+{
+	s->r->shape_set_dash(s, dashes, ndash, offset);
 }
 
 static inline void surface_shape_translate(struct surface_t * s, double tx, double ty)

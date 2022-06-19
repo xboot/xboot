@@ -141,10 +141,73 @@ static void render_cg_shape_set_source_color(struct surface_t * s, struct color_
 	cg_set_source_rgba(cg, c->r / 255.0, c->g / 255.0, c->b / 255.0, c->a / 255.0);
 }
 
+static void render_cg_shape_set_fill_rule(struct surface_t * s, const char * t)
+{
+	struct cg_ctx_t * cg = ((struct render_cg_ctx_t *)s->rctx)->cg;
+	switch(shash(t))
+	{
+	case 0x7d1c31ca: /* "evenodd" */
+		cg_set_fill_rule(cg, CG_FILL_RULE_EVEN_ODD);
+		break;
+	case 0x223d8090: /* "nonzero" */
+	default:
+		cg_set_fill_rule(cg, CG_FILL_RULE_NON_ZERO);
+		break;
+	}
+}
+
 static void render_cg_shape_set_line_width(struct surface_t * s, double w)
 {
 	struct cg_ctx_t * cg = ((struct render_cg_ctx_t *)s->rctx)->cg;
 	cg_set_line_width(cg, w);
+}
+
+static void render_cg_shape_set_line_cap(struct surface_t * s, const char * t)
+{
+	struct cg_ctx_t * cg = ((struct render_cg_ctx_t *)s->rctx)->cg;
+	switch(shash(t))
+	{
+	case 0x104cc7ed: /* "round" */
+		cg_set_line_cap(cg, CG_LINE_CAP_ROUND);
+		break;
+	case 0x1c5eea16: /* "square" */
+		cg_set_line_cap(cg, CG_LINE_CAP_SQUARE);
+		break;
+	case 0x7c94cdc4: /* "butt" */
+	default:
+		cg_set_line_cap(cg, CG_LINE_CAP_BUTT);
+		break;
+	}
+}
+
+static void render_cg_shape_set_line_join(struct surface_t * s, const char * t)
+{
+	struct cg_ctx_t * cg = ((struct render_cg_ctx_t *)s->rctx)->cg;
+	switch(shash(t))
+	{
+	case 0x104cc7ed: /* "round" */
+		cg_set_line_join(cg, CG_LINE_JOIN_ROUND);
+		break;
+	case 0x0f25c733: /* "bevel" */
+		cg_set_line_join(cg, CG_LINE_JOIN_BEVEL);
+		break;
+	case 0x0feefdc6: /* "miter" */
+	default:
+		cg_set_line_join(cg, CG_LINE_JOIN_MITER);
+		break;
+	}
+}
+
+static void render_cg_shape_set_miter_limit(struct surface_t * s, double l)
+{
+	struct cg_ctx_t * cg = ((struct render_cg_ctx_t *)s->rctx)->cg;
+	cg_set_miter_limit(cg, l);
+}
+
+static void render_cg_shape_shape_set_dash(struct surface_t * s, double * dashes, int ndash, double offset)
+{
+	struct cg_ctx_t * cg = ((struct render_cg_ctx_t *)s->rctx)->cg;
+	cg_set_dash(cg, dashes, ndash, offset);
 }
 
 static void render_cg_shape_translate(struct surface_t * s, double tx, double ty)
@@ -298,7 +361,12 @@ struct render_t render_cg = {
 	.shape_restore			= render_cg_shape_restore,
 	.shape_set_source		= render_cg_shape_set_source,
 	.shape_set_source_color	= render_cg_shape_set_source_color,
+	.shape_set_fill_rule	= render_cg_shape_set_fill_rule,
 	.shape_set_line_width	= render_cg_shape_set_line_width,
+	.shape_set_line_cap		= render_cg_shape_set_line_cap,
+	.shape_set_line_join	= render_cg_shape_set_line_join,
+	.shape_set_miter_limit	= render_cg_shape_set_miter_limit,
+	.shape_set_dash			= render_cg_shape_shape_set_dash,
 	.shape_translate		= render_cg_shape_translate,
 	.shape_scale			= render_cg_shape_scale,
 	.shape_rotate			= render_cg_shape_rotate,

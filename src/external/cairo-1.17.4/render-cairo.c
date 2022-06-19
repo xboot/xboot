@@ -117,10 +117,73 @@ static void render_cairo_shape_set_source_color(struct surface_t * s, struct col
 	cairo_set_source_rgba(cr, c->r / 255.0, c->g / 255.0, c->b / 255.0, c->a / 255.0);
 }
 
+static void render_cairo_shape_set_fill_rule(struct surface_t * s, const char * t)
+{
+	cairo_t * cr = ((struct render_cairo_context_t *)s->rctx)->cr;
+	switch(shash(t))
+	{
+	case 0x7d1c31ca: /* "evenodd" */
+		cairo_set_fill_rule(cr, CAIRO_FILL_RULE_EVEN_ODD);
+		break;
+	case 0x223d8090: /* "nonzero" */
+	default:
+		cairo_set_fill_rule(cr, CAIRO_FILL_RULE_WINDING);
+		break;
+	}
+}
+
 static void render_cairo_shape_set_line_width(struct surface_t * s, double w)
 {
 	cairo_t * cr = ((struct render_cairo_context_t *)s->rctx)->cr;
 	cairo_set_line_width(cr, w);
+}
+
+static void render_cairo_shape_set_line_cap(struct surface_t * s, const char * t)
+{
+	cairo_t * cr = ((struct render_cairo_context_t *)s->rctx)->cr;
+	switch(shash(t))
+	{
+	case 0x104cc7ed: /* "round" */
+		cairo_set_line_cap(cr, CAIRO_LINE_CAP_ROUND);
+		break;
+	case 0x1c5eea16: /* "square" */
+		cairo_set_line_cap(cr, CAIRO_LINE_CAP_SQUARE);
+		break;
+	case 0x7c94cdc4: /* "butt" */
+	default:
+		cairo_set_line_cap(cr, CAIRO_LINE_CAP_BUTT);
+		break;
+	}
+}
+
+static void render_cairo_shape_set_line_join(struct surface_t * s, const char * t)
+{
+	cairo_t * cr = ((struct render_cairo_context_t *)s->rctx)->cr;
+	switch(shash(t))
+	{
+	case 0x104cc7ed: /* "round" */
+		cairo_set_line_join(cr, CAIRO_LINE_JOIN_ROUND);
+		break;
+	case 0x0f25c733: /* "bevel" */
+		cairo_set_line_join(cr, CAIRO_LINE_JOIN_BEVEL);
+		break;
+	case 0x0feefdc6: /* "miter" */
+	default:
+		cairo_set_line_join(cr, CAIRO_LINE_JOIN_MITER);
+		break;
+	}
+}
+
+static void render_cairo_shape_set_miter_limit(struct surface_t * s, double l)
+{
+	cairo_t * cr = ((struct render_cairo_context_t *)s->rctx)->cr;
+	cairo_set_miter_limit(cr, l);
+}
+
+static void render_cairo_shape_shape_set_dash(struct surface_t * s, double * dashes, int ndash, double offset)
+{
+	cairo_t * cr = ((struct render_cairo_context_t *)s->rctx)->cr;
+	cairo_set_dash(cr, dashes, ndash, offset);
 }
 
 static void render_cairo_shape_translate(struct surface_t * s, double tx, double ty)
@@ -284,7 +347,12 @@ static struct render_t render_cairo = {
 	.shape_restore			= render_cairo_shape_restore,
 	.shape_set_source		= render_cairo_shape_set_source,
 	.shape_set_source_color	= render_cairo_shape_set_source_color,
+	.shape_set_fill_rule	= render_cairo_shape_set_fill_rule,
 	.shape_set_line_width	= render_cairo_shape_set_line_width,
+	.shape_set_line_cap		= render_cairo_shape_set_line_cap,
+	.shape_set_line_join	= render_cairo_shape_set_line_join,
+	.shape_set_miter_limit	= render_cairo_shape_set_miter_limit,
+	.shape_set_dash			= render_cairo_shape_shape_set_dash,
 	.shape_translate		= render_cairo_shape_translate,
 	.shape_scale			= render_cairo_shape_scale,
 	.shape_rotate			= render_cairo_shape_rotate,

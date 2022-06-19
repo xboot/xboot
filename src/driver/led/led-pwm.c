@@ -46,6 +46,7 @@
  *       "pwm-name": "pwm.0",
  *       "pwm-period-ns": 10000000,
  *       "pwm-polarity": false,
+ *       "gamma-correction": 2.2,
  *       "default-brightness": 0
  *   }
  */
@@ -54,14 +55,16 @@ struct led_pwm_pdata_t {
 	struct pwm_t * pwm;
 	int period;
 	int polarity;
+	int gamma_lut[1000];
 	int brightness;
 };
 
 static void led_pwm_set_brightness(struct led_pwm_pdata_t * pdat, int brightness)
 {
-	if(brightness > 0)
+	int value = pdat->gamma_lut[brightness];
+	if(value > 0)
 	{
-		int duty = brightness * pdat->period / 1000;
+		int duty = value * pdat->period / 1000;
 		pwm_config(pdat->pwm, duty, pdat->period, pdat->polarity);
 		pwm_enable(pdat->pwm);
 	}
@@ -112,6 +115,9 @@ static struct device_t * led_pwm_probe(struct driver_t * drv, struct dtnode_t * 
 	pdat->pwm = pwm;
 	pdat->period = dt_read_int(n, "pwm-period-ns", 1000 * 1000);
 	pdat->polarity = dt_read_bool(n, "pwm-polarity", 1);
+	float gamma = dt_read_double(n, "gamma-correction", 2.2);
+	for(int i = 0; i < 1000; i++)
+		pdat->gamma_lut[i] = (int)(roundf(powf(i / 1000.0f, gamma) * 1000.0f));
 	pdat->brightness = -1;
 
 	led->name = alloc_device_name(dt_read_name(n), dt_read_id(n));

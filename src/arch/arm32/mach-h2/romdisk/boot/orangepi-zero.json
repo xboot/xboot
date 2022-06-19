@@ -524,6 +524,7 @@
 		"pwm-name": "pwm-h2.0",
 		"pwm-period-ns": 1000000,
 		"pwm-polarity": true,
+		"gamma-correction": 2.2,
 		"default-brightness": 0
 	},
 

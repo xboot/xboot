@@ -1298,8 +1298,7 @@ machine_exitcall(licheepi_zero_machine_exit);
 		"pwm-name": "pwm-v3s.0",
 		"pwm-period-ns": 1000000,
 		"pwm-polarity": true,
-		"pwm-percent-from": 6,
-		"pwm-percent-to": 100,
+		"gamma-correction": 2.2,
 		"default-brightness": 0
 	},
 

@@ -481,7 +481,7 @@ static int m_image_shape_set_dash(lua_State * L)
 	int ndash = (int)lua_rawlen(L, 2);
 	if(ndash > 0)
 	{
-		double * dashes = malloc(ndash * sizeof(double));
+		double dashes[ndash];
 		for(int i = 0; i < ndash; i++)
 		{
 			lua_rawgeti(L, 2, i + 1);
@@ -489,7 +489,6 @@ static int m_image_shape_set_dash(lua_State * L)
 			lua_pop(L, 1);
 		}
 		surface_shape_set_dash(img->s, dashes, ndash, offset);
-		free(dashes);
 	}
 	lua_settop(L, 1);
 	return 1;

@@ -86,10 +86,17 @@ enum xui_cmd_type_t {
 	XUI_CMD_TYPE_SURFACE			= 12,
 	XUI_CMD_TYPE_ICON				= 13,
 	XUI_CMD_TYPE_TEXT				= 14,
-	XUI_CMD_TYPE_GLASS				= 15,
-	XUI_CMD_TYPE_SHADOW				= 16,
-	XUI_CMD_TYPE_GRADIENT			= 17,
-	XUI_CMD_TYPE_CHECKERBOARD		= 18,
+	XUI_CMD_TYPE_RIPPLE				= 15,
+	XUI_CMD_TYPE_GLASS				= 16,
+	XUI_CMD_TYPE_SHADOW				= 17,
+	XUI_CMD_TYPE_GRADIENT			= 18,
+	XUI_CMD_TYPE_CHECKERBOARD		= 19,
+};
+
+struct mask_t {
+	int x, y;
+	int w, h;
+	int radius;
 };
 
 struct xui_cmd_base_t {
@@ -244,6 +251,18 @@ struct xui_cmd_text_t {
 	char utf8[1];
 };
 
+struct xui_cmd_ripple_t {
+	enum xui_cmd_type_t type;
+	int len;
+	struct region_t r;
+
+	struct mask_t m;
+	int x, y;
+	int radius;
+	int thickness;
+	struct color_t c;
+};
+
 struct xui_cmd_glass_t {
 	enum xui_cmd_type_t type;
 	int len;
@@ -301,6 +320,7 @@ union xui_cmd_t {
 	struct xui_cmd_surface_t surface;
 	struct xui_cmd_icon_t icon;
 	struct xui_cmd_text_t text;
+	struct xui_cmd_ripple_t ripple;
 	struct xui_cmd_glass_t glass;
 	struct xui_cmd_shadow_t shadow;
 	struct xui_cmd_gradient_t gradient;
@@ -695,6 +715,7 @@ void xui_draw_surface(struct xui_context_t * ctx, struct surface_t * s, struct m
 void xui_draw_icon(struct xui_context_t * ctx, const char * family, uint32_t code, int x, int y, int w, int h, struct color_t * c);
 void xui_draw_text(struct xui_context_t * ctx, int x, int y, struct text_t * txt);
 void xui_draw_text_align(struct xui_context_t * ctx, const char * family, int size, const char * utf8, struct region_t * r, int wrap, struct color_t * c, int opt);
+void xui_draw_ripple(struct xui_context_t * ctx, struct mask_t * m, int x, int y, int radius, int thickness, struct color_t * c);
 void xui_draw_glass(struct xui_context_t * ctx, int x, int y, int w, int h, int radius, int refresh);
 void xui_draw_shadow(struct xui_context_t * ctx, int x, int y, int w, int h, int radius, struct color_t * c, int refresh);
 void xui_draw_gradient(struct xui_context_t * ctx, int x, int y, int w, int h, struct color_t * lt, struct color_t * rt, struct color_t * rb, struct color_t * lb);

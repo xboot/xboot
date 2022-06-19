@@ -807,6 +807,29 @@ void xui_draw_text_align(struct xui_context_t * ctx, const char * family, int si
 	xui_pop_clip(ctx);
 }
 
+void xui_draw_ripple(struct xui_context_t * ctx, struct mask_t * m, int x, int y, int radius, int thickness, struct color_t * c)
+{
+	union xui_cmd_t * cmd;
+	struct region_t r;
+	int clip;
+
+	region_init(&r, m->x, m->y, m->w, m->h);
+	if((clip = xui_check_clip(ctx, &r)))
+	{
+		if(clip < 0)
+			xui_cmd_push_clip(ctx, xui_get_clip(ctx));
+		cmd = xui_cmd_push(ctx, XUI_CMD_TYPE_RIPPLE, sizeof(struct xui_cmd_ripple_t), &r);
+		memcpy(&cmd->ripple.m, m, sizeof(struct mask_t));
+		cmd->ripple.x = x;
+		cmd->ripple.y = y;
+		cmd->ripple.radius = radius;
+		cmd->ripple.thickness = thickness;
+		memcpy(&cmd->ripple.c, c, sizeof(struct color_t));
+		if(clip < 0)
+			xui_cmd_push_clip(ctx, &unlimited_region);
+	}
+}
+
 void xui_draw_glass(struct xui_context_t * ctx, int x, int y, int w, int h, int radius, int refresh)
 {
 	union xui_cmd_t * cmd;
@@ -2017,6 +2040,47 @@ static void xui_surface_shape_arc(struct surface_t * s, struct region_t * clip, 
 	}
 }
 
+static void xui_surface_effect_ripple(struct surface_t * s, struct region_t * clip, struct mask_t * m, int x, int y, int radius, int thickness, struct color_t * c)
+{
+	struct region_t r;
+
+	if(radius > 0)
+	{
+		surface_shape_save(s);
+		if(clip)
+		{
+			region_init(&r, 0, 0, surface_get_width(s), surface_get_height(s));
+			if(region_intersect(&r, &r, clip))
+			{
+				surface_shape_rectangle(s, r.x, r.y, r.w, r.h);
+				surface_shape_clip(s);
+			}
+			else
+			{
+				surface_shape_restore(s);
+				return;
+			}
+		}
+		if(m && (m->w > 0) && (m->h > 0))
+		{
+			surface_shape_round_rectangle(s, m->x, m->y, m->w, m->h, m->radius);
+			surface_shape_clip(s);
+		}
+		surface_shape_circle(s, x, y, radius);
+		surface_shape_set_source_color(s, c);
+		if(thickness > 0)
+		{
+			surface_shape_set_line_width(s, thickness);
+			surface_shape_stroke(s);
+		}
+		else
+		{
+			surface_shape_fill(s);
+		}
+		surface_shape_restore(s);
+	}
+}
+
 static void xui_draw(struct window_t * w, void * o)
 {
 	struct xui_context_t * ctx = (struct xui_context_t *)o;
@@ -2082,6 +2146,9 @@ static void xui_draw(struct window_t * w, void * o)
 				case XUI_CMD_TYPE_TEXT:
 					matrix_init_translate(&m, cmd->text.x, cmd->text.y);
 					surface_text(s, clip, &m, &cmd->text.txt);
+					break;
+				case XUI_CMD_TYPE_RIPPLE:
+					xui_surface_effect_ripple(s, clip, &cmd->ripple.m, cmd->ripple.x, cmd->ripple.y, cmd->ripple.radius, cmd->ripple.thickness, &cmd->ripple.c);
 					break;
 				case XUI_CMD_TYPE_GLASS:
 					surface_effect_glass(s, clip, cmd->glass.x, cmd->glass.y, cmd->glass.w, cmd->glass.h, cmd->glass.radius);

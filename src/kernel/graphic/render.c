@@ -54,67 +54,6 @@ static void render_cg_destroy(void * rctx)
 	free(ctx);
 }
 
-static void render_cg_blit(struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct surface_t * src)
-{
-	struct cg_ctx_t * cg = ((struct render_cg_ctx_t *)s->rctx)->cg;
-	struct region_t r;
-
-	cg_save(cg);
-	if(clip)
-	{
-		region_init(&r, 0, 0, surface_get_width(s), surface_get_height(s));
-		if(region_intersect(&r, &r, clip))
-		{
-			cg_rectangle(cg, r.x, r.y, r.w, r.h);
-			cg_clip(cg);
-		}
-		else
-		{
-			cg_restore(cg);
-			return;
-		}
-	}
-	if(m)
-	{
-		cg_set_matrix(cg, (struct cg_matrix_t *)m);
-	}
-	cg_rectangle(cg, 0, 0, src->width, src->height);
-	cg_clip(cg);
-	cg_set_source_surface(cg, ((struct render_cg_ctx_t *)src->rctx)->cs, 0, 0);
-	cg_paint(cg);
-	cg_restore(cg);
-}
-
-static void render_cg_fill(struct surface_t * s, struct region_t * clip, struct matrix_t * m, int w, int h, struct color_t * c)
-{
-	struct cg_ctx_t * cg = ((struct render_cg_ctx_t *)s->rctx)->cg;
-	struct region_t r;
-
-	cg_save(cg);
-	if(clip)
-	{
-		region_init(&r, 0, 0, surface_get_width(s), surface_get_height(s));
-		if(region_intersect(&r, &r, clip))
-		{
-			cg_rectangle(cg, r.x, r.y, r.w, r.h);
-			cg_clip(cg);
-		}
-		else
-		{
-			cg_restore(cg);
-			return;
-		}
-	}
-	if(m)
-	{
-		cg_set_matrix(cg, (struct cg_matrix_t *)m);
-	}
-	cg_rectangle(cg, 0, 0, w, h);
-	cg_set_source_rgba(cg, c->r / 255.0, c->g / 255.0, c->b / 255.0, c->a / 255.0);
-	cg_fill(cg);
-	cg_restore(cg);
-}
-
 static void render_cg_shape_save(struct surface_t * s)
 {
 	struct cg_ctx_t * cg = ((struct render_cg_ctx_t *)s->rctx)->cg;
@@ -353,9 +292,6 @@ struct render_t render_cg = {
 
 	.create					= render_cg_create,
 	.destroy				= render_cg_destroy,
-
-	.blit					= render_cg_blit,
-	.fill					= render_cg_fill,
 
 	.shape_save				= render_cg_shape_save,
 	.shape_restore			= render_cg_shape_restore,

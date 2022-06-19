@@ -914,3 +914,56 @@ void surface_get_pixel(struct surface_t * s, int x, int y, struct color_t * c)
 		}
 	}
 }
+
+void surface_blit(struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct surface_t * o)
+{
+	struct region_t r;
+	surface_shape_save(s);
+	if(clip)
+	{
+		region_init(&r, 0, 0, surface_get_width(s), surface_get_height(s));
+		if(region_intersect(&r, &r, clip))
+		{
+			surface_shape_rectangle(s, r.x, r.y, r.w, r.h);
+			surface_shape_clip(s);
+		}
+		else
+		{
+			surface_shape_restore(s);
+			return;
+		}
+	}
+	if(m)
+		surface_shape_set_matrix(s, m);
+	surface_shape_rectangle(s, 0, 0, o->width, o->height);
+	surface_shape_clip(s);
+	surface_shape_set_source(s, o, 0, 0);
+	surface_shape_paint(s);
+	surface_shape_restore(s);
+}
+
+void surface_fill(struct surface_t * s, struct region_t * clip, struct matrix_t * m, int w, int h, struct color_t * c)
+{
+	struct region_t r;
+	surface_shape_save(s);
+	if(clip)
+	{
+		region_init(&r, 0, 0, surface_get_width(s), surface_get_height(s));
+		if(region_intersect(&r, &r, clip))
+		{
+			surface_shape_rectangle(s, r.x, r.y, r.w, r.h);
+			surface_shape_clip(s);
+		}
+		else
+		{
+			surface_shape_restore(s);
+			return;
+		}
+	}
+	if(m)
+		surface_shape_set_matrix(s, m);
+	surface_shape_rectangle(s, 0, 0, w, h);
+	surface_shape_set_source_color(s, c);
+	surface_shape_fill(s);
+	surface_shape_restore(s);
+}

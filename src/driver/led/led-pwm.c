@@ -28,6 +28,7 @@
 
 #include <xboot.h>
 #include <pwm/pwm.h>
+#include <regulator/regulator.h>
 #include <led/led.h>
 
 /*
@@ -37,13 +38,16 @@
  * - pwm-name: led attached pwm
  *
  * Optional properties:
+ * - regulator-name: supply regulator
  * - pwm-period-ns: pwm period in ns
  * - pwm-polarity: pwm polarity
+ * - gamma-correction: gamma correction
  * - default-brightness: led default brightness
  *
  * Example:
  *   "led-pwm@0": {
  *       "pwm-name": "pwm.0",
+ *       "regulator-name": "led-power",
  *       "pwm-period-ns": 10000000,
  *       "pwm-polarity": false,
  *       "gamma-correction": 2.2,
@@ -53,6 +57,7 @@
 
 struct led_pwm_pdata_t {
 	struct pwm_t * pwm;
+	char * regulator;
 	int period;
 	int polarity;
 	int gamma_lut[1000];
@@ -80,6 +85,13 @@ static void led_pwm_set(struct led_t * led, int brightness)
 
 	if(pdat->brightness != brightness)
 	{
+		if(pdat->regulator)
+		{
+			if(brightness <= 0)
+				regulator_disable(pdat->regulator);
+			else if(pdat->brightness <= 0)
+				regulator_enable(pdat->regulator);
+		}
 		led_pwm_set_brightness(pdat, brightness);
 		pdat->brightness = brightness;
 	}
@@ -113,6 +125,7 @@ static struct device_t * led_pwm_probe(struct driver_t * drv, struct dtnode_t * 
 	}
 
 	pdat->pwm = pwm;
+	pdat->regulator = strdup(dt_read_string(n, "regulator-name", NULL));
 	pdat->period = dt_read_int(n, "pwm-period-ns", 1000 * 1000);
 	pdat->polarity = dt_read_bool(n, "pwm-polarity", 1);
 	float gamma = dt_read_double(n, "gamma-correction", 2.2);
@@ -129,6 +142,8 @@ static struct device_t * led_pwm_probe(struct driver_t * drv, struct dtnode_t * 
 
 	if(!(dev = register_led(led, drv)))
 	{
+		if(pdat->regulator)
+			free(pdat->regulator);
 		free_device_name(led->name);
 		free(led->priv);
 		free(led);
@@ -140,10 +155,13 @@ static struct device_t * led_pwm_probe(struct driver_t * drv, struct dtnode_t * 
 static void led_pwm_remove(struct device_t * dev)
 {
 	struct led_t * led = (struct led_t *)dev->priv;
+	struct led_pwm_pdata_t * pdat = (struct led_pwm_pdata_t *)led->priv;
 
 	if(led)
 	{
 		unregister_led(led);
+		if(pdat->regulator)
+			free(pdat->regulator);
 		free_device_name(led->name);
 		free(led->priv);
 		free(led);
@@ -154,6 +172,11 @@ static void led_pwm_suspend(struct device_t * dev)
 {
 	struct led_t * led = (struct led_t *)dev->priv;
 	struct led_pwm_pdata_t * pdat = (struct led_pwm_pdata_t *)led->priv;
+	if(pdat->regulator)
+	{
+		if(pdat->brightness > 0)
+			regulator_disable(pdat->regulator);
+	}
 	led_pwm_set_brightness(pdat, 0);
 }
 
@@ -161,6 +184,11 @@ static void led_pwm_resume(struct device_t * dev)
 {
 	struct led_t * led = (struct led_t *)dev->priv;
 	struct led_pwm_pdata_t * pdat = (struct led_pwm_pdata_t *)led->priv;
+	if(pdat->regulator)
+	{
+		if(pdat->brightness > 0)
+			regulator_enable(pdat->regulator);
+	}
 	led_pwm_set_brightness(pdat, pdat->brightness);
 }
 

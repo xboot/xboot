@@ -198,6 +198,25 @@ static void render_cairo_shape_rectangle(struct surface_t * s, double x, double 
 	cairo_rectangle(cr, x, y, w, h);
 }
 
+static void render_cairo_shape_round_rectangle(struct surface_t * s, double x, double y, double w, double h, double r)
+{
+	cairo_t * cr = ((struct render_cairo_context_t *)s->rctx)->cr;
+	double right = x + w;
+	double bottom = y + h;
+	double cp = r * 0.55228474983079339840;
+
+	cairo_move_to(cr, x, y + r);
+	cairo_curve_to(cr, x, y + r - cp, x + r - cp, y, x + r, y);
+	cairo_line_to(cr, right - r, y);
+	cairo_curve_to(cr, right - r + cp, y, right, y + r - cp, right, y + r);
+	cairo_line_to(cr, right, bottom - r);
+	cairo_curve_to(cr, right, bottom - r + cp, right - r + cp, bottom, right - r, bottom);
+	cairo_line_to(cr, x + r, bottom);
+	cairo_curve_to(cr, x + r - cp, bottom, x, bottom - r + cp, x, bottom - r);
+	cairo_line_to(cr, x, y + r);
+	cairo_close_path(cr);
+}
+
 static void render_cairo_shape_arc(struct surface_t * s, double cx, double cy, double r, double a0, double a1)
 {
 	cairo_t * cr = ((struct render_cairo_context_t *)s->rctx)->cr;
@@ -302,6 +321,7 @@ static struct render_t render_cairo = {
 	.shape_line_to			= render_cairo_shape_line_to,
 	.shape_curve_to			= render_cairo_shape_curve_to,
 	.shape_rectangle		= render_cairo_shape_rectangle,
+	.shape_round_rectangle	= render_cairo_shape_round_rectangle,
 	.shape_arc				= render_cairo_shape_arc,
 	.shape_arc_negative		= render_cairo_shape_arc_negative,
 	.shape_circle			= render_cairo_shape_circle,

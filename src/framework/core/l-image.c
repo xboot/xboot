@@ -611,6 +611,19 @@ static int m_image_shape_rectangle(lua_State * L)
 	return 1;
 }
 
+static int m_image_shape_round_rectangle(lua_State * L)
+{
+	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
+	double x = luaL_checknumber(L, 2);
+	double y = luaL_checknumber(L, 3);
+	double w = luaL_checknumber(L, 4);
+	double h = luaL_checknumber(L, 5);
+	double r = luaL_optnumber(L, 6, 0);
+	surface_shape_round_rectangle(img->s, x, y, w, h, r);
+	lua_settop(L, 1);
+	return 1;
+}
+
 static int m_image_shape_arc(lua_State * L)
 {
 	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
@@ -772,6 +785,7 @@ static const luaL_Reg m_image[] = {
 	{"shapeLineTo",				m_image_shape_line_to},
 	{"shapeCurveTo",			m_image_shape_curve_to},
 	{"shapeRectangle",			m_image_shape_rectangle},
+	{"shapeRoundRectangle",		m_image_shape_round_rectangle},
 	{"shapeArc",				m_image_shape_arc},
 	{"shapeArcNegative",		m_image_shape_arc_negative},
 	{"shapeCircle",				m_image_shape_circle},

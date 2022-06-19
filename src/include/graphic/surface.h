@@ -66,6 +66,7 @@ struct render_t
 	void (*shape_line_to)(struct surface_t * s, double x, double y);
 	void (*shape_curve_to)(struct surface_t * s, double x1, double y1, double x2, double y2, double x3, double y3);
 	void (*shape_rectangle)(struct surface_t * s, double x, double y, double w, double h);
+	void (*shape_round_rectangle)(struct surface_t * s, double x, double y, double w, double h, double r);
 	void (*shape_arc)(struct surface_t * s, double cx, double cy, double r, double a0, double a1);
 	void (*shape_arc_negative)(struct surface_t * s, double cx, double cy, double r, double a0, double a1);
 	void (*shape_circle)(struct surface_t * s, double cx, double cy, double r);
@@ -207,6 +208,11 @@ static inline void surface_shape_curve_to(struct surface_t * s, double x1, doubl
 static inline void surface_shape_rectangle(struct surface_t * s, double x, double y, double w, double h)
 {
 	s->r->shape_rectangle(s, x, y, w, h);
+}
+
+static inline void surface_shape_round_rectangle(struct surface_t * s, double x, double y, double w, double h, double r)
+{
+	s->r->shape_round_rectangle(s, x, y, w, h, r);
 }
 
 static inline void surface_shape_arc(struct surface_t * s, double cx, double cy, double r, double a0, double a1)

@@ -221,6 +221,25 @@ static void render_cg_shape_rectangle(struct surface_t * s, double x, double y, 
 	cg_rectangle(cg, x, y, w, h);
 }
 
+static void render_cg_shape_round_rectangle(struct surface_t * s, double x, double y, double w, double h, double r)
+{
+	struct cg_ctx_t * cg = ((struct render_cg_ctx_t *)s->rctx)->cg;
+	double right = x + w;
+	double bottom = y + h;
+	double cp = r * 0.55228474983079339840;
+
+	cg_move_to(cg, x, y + r);
+	cg_curve_to(cg, x, y + r - cp, x + r - cp, y, x + r, y);
+	cg_line_to(cg, right - r, y);
+	cg_curve_to(cg, right - r + cp, y, right, y + r - cp, right, y + r);
+	cg_line_to(cg, right, bottom - r);
+	cg_curve_to(cg, right, bottom - r + cp, right - r + cp, bottom, right - r, bottom);
+	cg_line_to(cg, x + r, bottom);
+	cg_curve_to(cg, x + r - cp, bottom, x, bottom - r + cp, x, bottom - r);
+	cg_line_to(cg, x, y + r);
+	cg_close_path(cg);
+}
+
 static void render_cg_shape_arc(struct surface_t * s, double cx, double cy, double r, double a0, double a1)
 {
 	struct cg_ctx_t * cg = ((struct render_cg_ctx_t *)s->rctx)->cg;
@@ -315,6 +334,7 @@ struct render_t render_cg = {
 	.shape_line_to			= render_cg_shape_line_to,
 	.shape_curve_to			= render_cg_shape_curve_to,
 	.shape_rectangle		= render_cg_shape_rectangle,
+	.shape_round_rectangle	= render_cg_shape_round_rectangle,
 	.shape_arc				= render_cg_shape_arc,
 	.shape_arc_negative		= render_cg_shape_arc_negative,
 	.shape_circle			= render_cg_shape_circle,

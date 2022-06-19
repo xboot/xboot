@@ -123,10 +123,40 @@ static void render_cairo_shape_set_line_width(struct surface_t * s, double w)
 	cairo_set_line_width(cr, w);
 }
 
+static void render_cairo_shape_translate(struct surface_t * s, double tx, double ty)
+{
+	cairo_t * cr = ((struct render_cairo_context_t *)s->rctx)->cr;
+	cairo_translate(cr, tx, ty);
+}
+
+static void render_cairo_shape_scale(struct surface_t * s, double sx, double sy)
+{
+	cairo_t * cr = ((struct render_cairo_context_t *)s->rctx)->cr;
+	cairo_scale(cr, sx, sy);
+}
+
+static void render_cairo_shape_rotate(struct surface_t * s, double r)
+{
+	cairo_t * cr = ((struct render_cairo_context_t *)s->rctx)->cr;
+	cairo_rotate(cr, r);
+}
+
+static void render_cairo_shape_transform(struct surface_t * s, struct matrix_t * m)
+{
+	cairo_t * cr = ((struct render_cairo_context_t *)s->rctx)->cr;
+	cairo_transform(cr, (cairo_matrix_t *)m);
+}
+
 static void render_cairo_shape_set_matrix(struct surface_t * s, struct matrix_t * m)
 {
 	cairo_t * cr = ((struct render_cairo_context_t *)s->rctx)->cr;
 	cairo_set_matrix(cr, (cairo_matrix_t *)m);
+}
+
+static void render_cairo_shape_identity_matrix(struct surface_t * s)
+{
+	cairo_t * cr = ((struct render_cairo_context_t *)s->rctx)->cr;
+	cairo_identity_matrix(cr);
 }
 
 static void render_cairo_shape_new_path(struct surface_t * s)
@@ -255,7 +285,12 @@ static struct render_t render_cairo = {
 	.shape_set_source		= render_cairo_shape_set_source,
 	.shape_set_source_color	= render_cairo_shape_set_source_color,
 	.shape_set_line_width	= render_cairo_shape_set_line_width,
+	.shape_translate		= render_cairo_shape_translate,
+	.shape_scale			= render_cairo_shape_scale,
+	.shape_rotate			= render_cairo_shape_rotate,
+	.shape_transform		= render_cairo_shape_transform,
 	.shape_set_matrix		= render_cairo_shape_set_matrix,
+	.shape_identity_matrix	= render_cairo_shape_identity_matrix,
 	.shape_new_path			= render_cairo_shape_new_path,
 	.shape_close_path		= render_cairo_shape_close_path,
 	.shape_move_to			= render_cairo_shape_move_to,

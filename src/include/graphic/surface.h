@@ -52,7 +52,12 @@ struct render_t
 	void (*shape_set_source)(struct surface_t * s, struct surface_t * o, double x, double y);
 	void (*shape_set_source_color)(struct surface_t * s, struct color_t * c);
 	void (*shape_set_line_width)(struct surface_t * s, double w);
+	void (*shape_translate)(struct surface_t * s, double tx, double ty);
+	void (*shape_scale)(struct surface_t * s, double sx, double sy);
+	void (*shape_rotate)(struct surface_t * s, double r);
+	void (*shape_transform)(struct surface_t * s, struct matrix_t * m);
 	void (*shape_set_matrix)(struct surface_t * s, struct matrix_t * m);
+	void (*shape_identity_matrix)(struct surface_t * s);
 	void (*shape_new_path)(struct surface_t * s);
 	void (*shape_close_path)(struct surface_t * s);
 	void (*shape_move_to)(struct surface_t * s, double x, double y);
@@ -127,9 +132,34 @@ static inline void surface_shape_set_line_width(struct surface_t * s, double w)
 	s->r->shape_set_line_width(s, w);
 }
 
+static inline void surface_shape_translate(struct surface_t * s, double tx, double ty)
+{
+	s->r->shape_translate(s, tx, ty);
+}
+
+static inline void surface_shape_scale(struct surface_t * s, double sx, double sy)
+{
+	s->r->shape_scale(s, sx, sy);
+}
+
+static inline void surface_shape_rotate(struct surface_t * s, double r)
+{
+	s->r->shape_rotate(s, r);
+}
+
+static inline void surface_shape_transform(struct surface_t * s, struct matrix_t * m)
+{
+	s->r->shape_transform(s, m);
+}
+
 static inline void surface_shape_set_matrix(struct surface_t * s, struct matrix_t * m)
 {
 	s->r->shape_set_matrix(s, m);
+}
+
+static inline void surface_shape_identity_matrix(struct surface_t * s)
+{
+	s->r->shape_identity_matrix(s);
 }
 
 static inline void surface_shape_new_path(struct surface_t * s)

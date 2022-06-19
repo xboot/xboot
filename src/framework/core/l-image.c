@@ -437,11 +437,57 @@ static int m_image_shape_set_line_width(lua_State * L)
 	return 1;
 }
 
+static int m_image_shape_translate(lua_State * L)
+{
+	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
+	double tx = luaL_checknumber(L, 2);
+	double ty = luaL_checknumber(L, 3);
+	surface_shape_translate(img->s, tx, ty);
+	lua_settop(L, 1);
+	return 1;
+}
+
+static int m_image_shape_scale(lua_State * L)
+{
+	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
+	double sx = luaL_checknumber(L, 2);
+	double sy = luaL_checknumber(L, 3);
+	surface_shape_scale(img->s, sx, sy);
+	lua_settop(L, 1);
+	return 1;
+}
+
+static int m_image_shape_rotate(lua_State * L)
+{
+	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
+	double r = luaL_checknumber(L, 2);
+	surface_shape_rotate(img->s, r);
+	lua_settop(L, 1);
+	return 1;
+}
+
+static int m_image_shape_transform(lua_State * L)
+{
+	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
+	struct matrix_t * m = luaL_checkudata(L, 2, MT_MATRIX);
+	surface_shape_transform(img->s, m);
+	lua_settop(L, 1);
+	return 1;
+}
+
 static int m_image_shape_set_matrix(lua_State * L)
 {
 	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
 	struct matrix_t * m = luaL_checkudata(L, 2, MT_MATRIX);
 	surface_shape_set_matrix(img->s, m);
+	lua_settop(L, 1);
+	return 1;
+}
+
+static int m_image_shape_identity_matrix(lua_State * L)
+{
+	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
+	surface_shape_identity_matrix(img->s);
 	lua_settop(L, 1);
 	return 1;
 }
@@ -652,7 +698,12 @@ static const luaL_Reg m_image[] = {
 	{"shapeSetSource",			m_image_shape_set_source},
 	{"shapeSetSourceColor",		m_image_shape_set_source_color},
 	{"shapeSetLineWidth",		m_image_shape_set_line_width},
+	{"shapeTranslate",			m_image_shape_translate},
+	{"shapeScale",				m_image_shape_scale},
+	{"shapeRotate",				m_image_shape_rotate},
+	{"shapeTransform",			m_image_shape_transform},
 	{"shapeSetMatrix",			m_image_shape_set_matrix},
+	{"shapeIdentityMatrix",		m_image_shape_identity_matrix},
 	{"shapeNewPath",			m_image_shape_new_path},
 	{"shapeClosePath",			m_image_shape_close_path},
 	{"shapeMoveTo",				m_image_shape_move_to},

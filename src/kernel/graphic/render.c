@@ -147,10 +147,40 @@ static void render_cg_shape_set_line_width(struct surface_t * s, double w)
 	cg_set_line_width(cg, w);
 }
 
+static void render_cg_shape_translate(struct surface_t * s, double tx, double ty)
+{
+	struct cg_ctx_t * cg = ((struct render_cg_ctx_t *)s->rctx)->cg;
+	cg_translate(cg, tx, ty);
+}
+
+static void render_cg_shape_scale(struct surface_t * s, double sx, double sy)
+{
+	struct cg_ctx_t * cg = ((struct render_cg_ctx_t *)s->rctx)->cg;
+	cg_scale(cg, sx, sy);
+}
+
+static void render_cg_shape_rotate(struct surface_t * s, double r)
+{
+	struct cg_ctx_t * cg = ((struct render_cg_ctx_t *)s->rctx)->cg;
+	cg_rotate(cg, r);
+}
+
+static void render_cg_shape_transform(struct surface_t * s, struct matrix_t * m)
+{
+	struct cg_ctx_t * cg = ((struct render_cg_ctx_t *)s->rctx)->cg;
+	cg_transform(cg, (struct cg_matrix_t *)m);
+}
+
 static void render_cg_shape_set_matrix(struct surface_t * s, struct matrix_t * m)
 {
 	struct cg_ctx_t * cg = ((struct render_cg_ctx_t *)s->rctx)->cg;
 	cg_set_matrix(cg, (struct cg_matrix_t *)m);
+}
+
+static void render_cg_shape_identity_matrix(struct surface_t * s)
+{
+	struct cg_ctx_t * cg = ((struct render_cg_ctx_t *)s->rctx)->cg;
+	cg_identity_matrix(cg);
 }
 
 static void render_cg_shape_new_path(struct surface_t * s)
@@ -269,7 +299,12 @@ struct render_t render_cg = {
 	.shape_set_source		= render_cg_shape_set_source,
 	.shape_set_source_color	= render_cg_shape_set_source_color,
 	.shape_set_line_width	= render_cg_shape_set_line_width,
+	.shape_translate		= render_cg_shape_translate,
+	.shape_scale			= render_cg_shape_scale,
+	.shape_rotate			= render_cg_shape_rotate,
+	.shape_transform		= render_cg_shape_transform,
 	.shape_set_matrix		= render_cg_shape_set_matrix,
+	.shape_identity_matrix	= render_cg_shape_identity_matrix,
 	.shape_new_path			= render_cg_shape_new_path,
 	.shape_close_path		= render_cg_shape_close_path,
 	.shape_move_to			= render_cg_shape_move_to,

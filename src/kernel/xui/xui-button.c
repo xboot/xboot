@@ -32,9 +32,11 @@
 int xui_button_ex(struct xui_context_t * ctx, int icon, const char * label, int opt)
 {
 	unsigned int id = label ? xui_get_id(ctx, label, strlen(label)) : xui_get_id(ctx, &icon, sizeof(int));
+	int idx = xui_pool_get(ctx, ctx->spring_pool, XUI_COLLAPSE_POOL_SIZE, id);
 	struct region_t r;
 	struct xui_widget_color_t * wc;
 	struct color_t * bg, * fg, * bc;
+	double alpha = 0;
 	int radius, width;
 
 	region_clone(&r, xui_layout_next(ctx));
@@ -68,7 +70,23 @@ int xui_button_ex(struct xui_context_t * ctx, int icon, const char * label, int 
 		wc = &ctx->style.primary;
 		break;
 	}
-
+	if(idx >= 0)
+	{
+		xui_pool_update(ctx, ctx->spring_pool, idx);
+		if(spring_step(&ctx->springs[idx], ktime_to_ns(ctx->delta) / 1000000000.0f))
+			alpha = spring_position(&ctx->springs[idx]);
+		else
+			memset(&ctx->spring_pool[idx], 0, sizeof(struct xui_pool_item_t));
+	}
+	if(ctx->active != ctx->oactive)
+	{
+		if(ctx->active == id)
+		{
+			if(idx < 0)
+				idx = xui_pool_init(ctx, ctx->spring_pool, XUI_COLLAPSE_POOL_SIZE, id);
+			spring_init(&ctx->springs[idx], 0, 1, 0, 618, 60);
+		}
+	}
 	if(ctx->active == id)
 	{
 		bg = &wc->active.background;
@@ -78,6 +96,13 @@ int xui_button_ex(struct xui_context_t * ctx, int icon, const char * label, int 
 			xui_draw_rectangle(ctx, r.x, r.y, r.w, r.h, radius, width, bc);
 		if(bg->a)
 			xui_draw_rectangle(ctx, r.x, r.y, r.w, r.h, radius, 0, bg);
+		if(alpha > 0)
+		{
+			int a = max(ctx->mouse.ox - r.x, r.x + r.w - ctx->mouse.ox);
+			int b = max(ctx->mouse.oy - r.y, r.y + r.h - ctx->mouse.oy);
+			int l  = pow(a * a + b * b, 0.5) * alpha;
+			xui_draw_ripple(ctx, &(struct mask_t){r.x, r.y, r.w, r.h, radius}, ctx->mouse.ox, ctx->mouse.oy, l, 0, &(struct color_t ){255, 255, 255, 51});
+		}
 		if(fg->a)
 		{
 			if((icon > 0) && label)

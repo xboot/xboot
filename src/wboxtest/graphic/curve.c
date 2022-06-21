@@ -41,23 +41,23 @@ static void draw_curve(struct window_t * w, void * o)
 {
 	struct wbt_curve_pdata_t * pdat = (struct wbt_curve_pdata_t *)o;
 	struct surface_t * s = pdat->w->s;
-	struct point_t p[10];
 	struct color_t c;
+	int x[10], y[10];
 	int thickness;
 
 	int n = wboxtest_random_int(4, 10);
 	for(int i = 0; i < n; i++)
 	{
-		p[i].x = wboxtest_random_int(0, surface_get_width(s));
-		p[i].y = wboxtest_random_int(0, surface_get_height(s));
+		x[i] = wboxtest_random_int(0, surface_get_width(s));
+		y[i] = wboxtest_random_int(0, surface_get_height(s));
 	}
 	color_init(&c, rand() & 0xff, rand() & 0xff, rand() & 0xff, 255);
 	thickness = wboxtest_random_int(0, 50);
 
 	surface_shape_save(s);
-	surface_shape_move_to(s, p[0].x, p[0].y);
+	surface_shape_move_to(s, x[0], y[0]);
 	for(int i = 1; i <= n - 3; i += 3)
-		surface_shape_curve_to(s, p[i].x, p[i].y, p[i + 1].x, p[i + 1].y, p[i + 2].x, p[i + 2].y);
+		surface_shape_curve_to(s, x[i], y[i], x[i + 1], y[i + 1], x[i + 2], y[i + 2]);
 	surface_shape_set_source_color(s, &c);
 	if(thickness > 0)
 	{

@@ -52,17 +52,16 @@ static void line_run(struct wboxtest_t * wbt, void * data)
 		pdat->calls = 0;
 		pdat->t2 = pdat->t1 = ktime_get();
 		do {
-			struct point_t p0, p1;
-			p0.x = wboxtest_random_int(0, surface_get_width(s));
-			p0.y = wboxtest_random_int(0, surface_get_height(s));
-			p1.x = wboxtest_random_int(0, surface_get_width(s));
-			p1.y = wboxtest_random_int(0, surface_get_height(s));
+			int x0 = wboxtest_random_int(0, surface_get_width(s));
+			int y0 = wboxtest_random_int(0, surface_get_height(s));
+			int x1 = wboxtest_random_int(0, surface_get_width(s));
+			int y1 = wboxtest_random_int(0, surface_get_height(s));
 			struct color_t c;
 			color_init(&c, rand() & 0xff, rand() & 0xff, rand() & 0xff, 255);
 			int thickness = wboxtest_random_int(0, 50);
 			surface_shape_save(s);
-			surface_shape_move_to(s, p0.x, p0.y);
-			surface_shape_line_to(s, p1.x, p1.y);
+			surface_shape_move_to(s, x0, y0);
+			surface_shape_line_to(s, x1, y1);
 			surface_shape_set_source_color(s, &c);
 			surface_shape_set_line_width(s, thickness > 0 ? thickness : 1);
 			surface_shape_stroke(s);

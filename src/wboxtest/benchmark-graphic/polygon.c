@@ -52,20 +52,20 @@ static void polygon_run(struct wboxtest_t * wbt, void * data)
 		pdat->calls = 0;
 		pdat->t2 = pdat->t1 = ktime_get();
 		do {
-			struct point_t p[10];
+			int x[10], y[10];
 			int n = wboxtest_random_int(2, 10);
 			for(int i = 0; i < n; i++)
 			{
-				p[i].x = wboxtest_random_int(0, surface_get_width(s));
-				p[i].y = wboxtest_random_int(0, surface_get_height(s));
+				x[i] = wboxtest_random_int(0, surface_get_width(s));
+				y[i] = wboxtest_random_int(0, surface_get_height(s));
 			}
 			struct color_t c;
 			color_init(&c, rand() & 0xff, rand() & 0xff, rand() & 0xff, 255);
 			int thickness = wboxtest_random_int(0, 50);
 			surface_shape_save(s);
-			surface_shape_move_to(s, p[0].x, p[0].y);
+			surface_shape_move_to(s, x[0], y[0]);
 			for(int i = 1; i < n; i++)
-				surface_shape_line_to(s, p[i].x, p[i].y);
+				surface_shape_line_to(s, x[i], y[i]);
 			surface_shape_close_path(s);
 			surface_shape_set_source_color(s, &c);
 			if(thickness > 0)

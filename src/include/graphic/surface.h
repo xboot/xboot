@@ -7,7 +7,6 @@ extern "C" {
 
 #include <types.h>
 #include <stdint.h>
-#include <graphic/point.h>
 #include <graphic/region.h>
 #include <graphic/color.h>
 #include <graphic/matrix.h>

@@ -7,7 +7,6 @@ extern "C" {
 
 #include <xboot/window.h>
 #include <input/keyboard.h>
-#include <graphic/point.h>
 #include <graphic/region.h>
 #include <graphic/color.h>
 #include <graphic/font.h>
@@ -91,6 +90,11 @@ enum xui_cmd_type_t {
 	XUI_CMD_TYPE_SHADOW				= 17,
 	XUI_CMD_TYPE_GRADIENT			= 18,
 	XUI_CMD_TYPE_CHECKERBOARD		= 19,
+};
+
+struct point_t {
+	int x;
+	int y;
 };
 
 struct mask_t {

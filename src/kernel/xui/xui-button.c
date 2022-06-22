@@ -37,15 +37,15 @@ int xui_button_ex(struct xui_context_t * ctx, int icon, const char * label, int 
 	struct xui_widget_color_t * wc;
 	struct color_t * bg, * fg, * bc;
 	double alpha = 0;
-	int radius, width;
+	int br, bw;
 
 	region_clone(&r, xui_layout_next(ctx));
 	xui_control_update(ctx, id, &r, opt);
 	if(opt & XUI_BUTTON_ROUNDED)
-		radius = (r.h >> 1);
+		br = (r.h >> 1);
 	else
-		radius = ctx->style.button.border_radius;
-	width = ctx->style.button.border_width;
+		br = ctx->style.button.border_radius;
+	bw = ctx->style.button.border_width;
 	switch(opt & (0x7 << 8))
 	{
 	case XUI_BUTTON_PRIMARY:
@@ -92,16 +92,16 @@ int xui_button_ex(struct xui_context_t * ctx, int icon, const char * label, int 
 		bg = &wc->active.background;
 		fg = &wc->active.foreground;
 		bc = &wc->active.border;
-		if(bc->a && (width > 0))
-			xui_draw_rectangle(ctx, r.x, r.y, r.w, r.h, radius, width, bc);
+		if(bc->a && (bw > 0))
+			xui_draw_rectangle(ctx, r.x, r.y, r.w, r.h, br, bw, bc);
 		if(bg->a)
-			xui_draw_rectangle(ctx, r.x, r.y, r.w, r.h, radius, 0, bg);
+			xui_draw_rectangle(ctx, r.x, r.y, r.w, r.h, br, 0, bg);
 		if(alpha > 0)
 		{
 			int a = max(ctx->mouse.ox - r.x, r.x + r.w - ctx->mouse.ox);
 			int b = max(ctx->mouse.oy - r.y, r.y + r.h - ctx->mouse.oy);
 			int l  = pow(a * a + b * b, 0.5) * alpha;
-			xui_draw_ripple(ctx, &(struct mask_t){r.x, r.y, r.w, r.h, radius}, ctx->mouse.ox, ctx->mouse.oy, l, 0, &(struct color_t ){255, 255, 255, 51});
+			xui_draw_ripple(ctx, &(struct mask_t){r.x, r.y, r.w, r.h, br}, ctx->mouse.ox, ctx->mouse.oy, l, 0, &(struct color_t ){255, 255, 255, 51});
 		}
 		if(fg->a)
 		{
@@ -125,10 +125,10 @@ int xui_button_ex(struct xui_context_t * ctx, int icon, const char * label, int 
 		bg = &wc->hover.background;
 		fg = &wc->hover.foreground;
 		bc = &wc->hover.border;
-		if(bc->a && (width > 0))
-			xui_draw_rectangle(ctx, r.x, r.y, r.w, r.h, radius, width, bc);
+		if(bc->a && (bw > 0))
+			xui_draw_rectangle(ctx, r.x, r.y, r.w, r.h, br, bw, bc);
 		if(bg->a)
-			xui_draw_rectangle(ctx, r.x, r.y, r.w, r.h, radius, 0, bg);
+			xui_draw_rectangle(ctx, r.x, r.y, r.w, r.h, br, 0, bg);
 		if(fg->a)
 		{
 			if((icon > 0) && label)
@@ -153,7 +153,7 @@ int xui_button_ex(struct xui_context_t * ctx, int icon, const char * label, int 
 		{
 			if(bg->a)
 			{
-				xui_draw_rectangle(ctx, r.x, r.y, r.w, r.h, radius, ctx->style.button.outline_width, bg);
+				xui_draw_rectangle(ctx, r.x, r.y, r.w, r.h, br, ctx->style.button.outline_width, bg);
 				if((icon > 0) && label)
 				{
 					xui_draw_icon(ctx, ctx->style.font.icon_family, icon, r.x, r.y, r.h, r.h, bg);
@@ -169,10 +169,10 @@ int xui_button_ex(struct xui_context_t * ctx, int icon, const char * label, int 
 		}
 		else
 		{
-			if(bc->a && (width > 0))
-				xui_draw_rectangle(ctx, r.x, r.y, r.w, r.h, radius, width, bc);
+			if(bc->a && (bw > 0))
+				xui_draw_rectangle(ctx, r.x, r.y, r.w, r.h, br, bw, bc);
 			if(bg->a)
-				xui_draw_rectangle(ctx, r.x, r.y, r.w, r.h, radius, 0, bg);
+				xui_draw_rectangle(ctx, r.x, r.y, r.w, r.h, br, 0, bg);
 			if(fg->a)
 			{
 				if((icon > 0) && label)

@@ -8,7 +8,7 @@
 #include <math.h>
 #include <easing.h>
 
-void cubic_bezier_init(struct cubic_bezier_t * b, double x1, double y1, double x2, double y2)
+void bezier_init(struct bezier_t * b, double x1, double y1, double x2, double y2)
 {
 	b->cx = 3.0 * x1;
 	b->bx = 3.0 * (x2 - x1) - b->cx;
@@ -18,22 +18,22 @@ void cubic_bezier_init(struct cubic_bezier_t * b, double x1, double y1, double x
 	b->ay = 1.0 - b->cy - b->by;
 }
 
-static inline double sample_curve_x(struct cubic_bezier_t * b, double t)
+static inline double sample_curve_x(struct bezier_t * b, double t)
 {
 	return ((b->ax * t + b->bx) * t + b->cx) * t;
 }
 
-static inline double sample_curve_y(struct cubic_bezier_t * b, double t)
+static inline double sample_curve_y(struct bezier_t * b, double t)
 {
 	return ((b->ay * t + b->by) * t + b->cy) * t;
 }
 
-static inline double sample_curve_derivative(struct cubic_bezier_t * b, double t)
+static inline double sample_curve_derivative(struct bezier_t * b, double t)
 {
 	return (3 * b->ax * t + 2 * b->bx) * t + b->cx;
 }
 
-static inline double solve_curve_x(struct cubic_bezier_t * b, double t)
+static inline double solve_curve_x(struct bezier_t * b, double t)
 {
 	double t1 = t;
 	for(int i = 0; i < 8; i++)
@@ -63,7 +63,7 @@ static inline double solve_curve_x(struct cubic_bezier_t * b, double t)
 	return t2;
 }
 
-double cubic_bezier_calc(struct cubic_bezier_t * b, double t)
+double bezier_calc(struct bezier_t * b, double t)
 {
 	if(t <= 0.0)
 		return 0.0;
@@ -75,7 +75,7 @@ double cubic_bezier_calc(struct cubic_bezier_t * b, double t)
 
 void easing_init(struct easing_t * e, double start, double stop, double duration, double x1, double y1, double x2, double y2)
 {
-	cubic_bezier_init(&e->bezier, x1, y1, x2, y2);
+	bezier_init(&e->bezier, x1, y1, x2, y2);
 	e->start = start;
 	e->stop = stop;
 	e->duration = duration;
@@ -84,7 +84,7 @@ void easing_init(struct easing_t * e, double start, double stop, double duration
 
 double easing_calc(struct easing_t * e, double t)
 {
-	return (e->stop - e->start) * cubic_bezier_calc(&e->bezier, t / e->duration) + e->start;
+	return (e->stop - e->start) * bezier_calc(&e->bezier, t / e->duration) + e->start;
 }
 
 double easing_step(struct easing_t * e, double dt)

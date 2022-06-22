@@ -5,16 +5,16 @@
 extern "C" {
 #endif
 
-struct cubic_bezier_t {
+struct bezier_t {
 	double ax, bx, cx;
 	double ay, by, cy;
 };
 
-void cubic_bezier_init(struct cubic_bezier_t * b, double x1, double y1, double x2, double y2);
-double cubic_bezier_calc(struct cubic_bezier_t * b, double t);
+void bezier_init(struct bezier_t * b, double x1, double y1, double x2, double y2);
+double bezier_calc(struct bezier_t * b, double t);
 
 struct easing_t {
-	struct cubic_bezier_t bezier;
+	struct bezier_t bezier;
 	double start;
 	double stop;
 	double duration;

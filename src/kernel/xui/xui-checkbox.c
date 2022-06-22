@@ -35,7 +35,6 @@ int xui_checkbox_ex(struct xui_context_t * ctx, const char * label, int * state,
 	struct region_t region, * r = xui_layout_next(ctx);
 	struct xui_widget_color_t * wc;
 	struct color_t * bg, * fg, * bc;
-	int radius, width;
 	int click = 0;
 
 	xui_control_update(ctx, id, r, opt);
@@ -44,8 +43,6 @@ int xui_checkbox_ex(struct xui_context_t * ctx, const char * label, int * state,
 		*state = !*state;
 		click = 1;
 	}
-	radius = ctx->style.checkbox.border_radius;
-	width = ctx->style.checkbox.border_width;
 	if(*state)
 	{
 		switch(opt & (0x7 << 8))
@@ -95,10 +92,12 @@ int xui_checkbox_ex(struct xui_context_t * ctx, const char * label, int * state,
 		fg = &wc->normal.foreground;
 		bc = &wc->normal.border;
 	}
-	if(bc->a && (width > 0))
-		xui_draw_rectangle(ctx, r->x, r->y, r->h, r->h, radius, width, bc);
+	int br = ctx->style.checkbox.border_radius;
+	int bw = ctx->style.checkbox.border_width;
+	if(bc->a && (bw > 0))
+		xui_draw_rectangle(ctx, r->x, r->y, r->h, r->h, br, bw, bc);
 	if(bg->a)
-		xui_draw_rectangle(ctx, r->x, r->y, r->h, r->h, radius, *state ? 0 : ctx->style.checkbox.outline_width, bg);
+		xui_draw_rectangle(ctx, r->x, r->y, r->h, r->h, br, *state ? 0 : ctx->style.checkbox.outline_width, bg);
 	if(*state)
 	{
 		struct point_t pts[] = {

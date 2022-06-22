@@ -36,14 +36,13 @@ int xui_collapse_ex(struct xui_context_t * ctx, int icon, const char * label, in
 	struct region_t r;
 	struct xui_widget_color_t * wc;
 	struct color_t * bg, * fg, * bc;
-	int radius, width;
 	int active, expanded;
 
 	region_clone(&r, xui_layout_next(ctx));
 	xui_control_update(ctx, id, &r, 0);
 	active = (idx >= 0);
 	expanded = (opt & XUI_COLLAPSE_EXPANDED) ? !active : active;
-	active ^= ((ctx->active == id) && (ctx->mouse.down & XUI_MOUSE_LEFT));
+	active ^= ((ctx->active == id) && (ctx->mouse.up & XUI_MOUSE_LEFT));
 	if(idx >= 0)
 	{
 		if(active)
@@ -55,8 +54,6 @@ int xui_collapse_ex(struct xui_context_t * ctx, int icon, const char * label, in
 	{
 		xui_pool_init(ctx, ctx->collapse_pool, XUI_COLLAPSE_POOL_SIZE, id);
 	}
-	radius = ctx->style.collapse.border_radius;
-	width = ctx->style.collapse.border_width;
 	switch(opt & (0x7 << 8))
 	{
 	case XUI_COLLAPSE_PRIMARY:
@@ -99,10 +96,12 @@ int xui_collapse_ex(struct xui_context_t * ctx, int icon, const char * label, in
 		fg = &wc->normal.foreground;
 		bc = &wc->normal.border;
 	}
-	if(bc->a && (width > 0))
-		xui_draw_rectangle(ctx, r.x, r.y, r.w, r.h, radius, width, bc);
+	int br = ctx->style.collapse.border_radius;
+	int bw = ctx->style.collapse.border_width;
+	if(bc->a && (bw > 0))
+		xui_draw_rectangle(ctx, r.x, r.y, r.w, r.h, br, bw, bc);
 	if(bg->a)
-		xui_draw_rectangle(ctx, r.x, r.y, r.w, r.h, radius, 0, bg);
+		xui_draw_rectangle(ctx, r.x, r.y, r.w, r.h, br, 0, bg);
 	if(fg->a)
 	{
 		if(icon > 0)

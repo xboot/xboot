@@ -298,6 +298,15 @@ static int m_vision_colormap(lua_State * L)
 	return 1;
 }
 
+static int m_vision_gamma(lua_State * L)
+{
+	struct lvision_t * vison = luaL_checkudata(L, 1, MT_VISION);
+	float gamma = luaL_optnumber(L, 2, 1.0);
+	vision_gamma(vison->v, gamma);
+	lua_settop(L, 1);
+	return 1;
+}
+
 static int m_vision_erode(lua_State * L)
 {
 	struct lvision_t * vision = luaL_checkudata(L, 1, MT_VISION);
@@ -338,6 +347,7 @@ static const luaL_Reg m_vision[] = {
 	{"dither",			m_vision_dither},
 	{"threshold",		m_vision_threshold},
 	{"colormap",		m_vision_colormap},
+	{"gamma",			m_vision_gamma},
 	{"erode",			m_vision_erode},
 	{"dilate",			m_vision_dilate},
 

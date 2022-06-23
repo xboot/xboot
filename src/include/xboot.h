@@ -91,6 +91,7 @@ extern "C" {
 #include <vision/dilate.h>
 #include <vision/dither.h>
 #include <vision/erode.h>
+#include <vision/gamma.h>
 #include <vision/gray.h>
 #include <vision/inrange.h>
 #include <vision/invert.h>

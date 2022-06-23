@@ -10,7 +10,7 @@ extern "C" {
 #include <graphic/region.h>
 #include <graphic/color.h>
 #include <graphic/matrix.h>
-#include <graphic/expblur.h>
+#include <graphic/blur.h>
 #include <graphic/text.h>
 #include <graphic/icon.h>
 #include <xfs/xfs.h>

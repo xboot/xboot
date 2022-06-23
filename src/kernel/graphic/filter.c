@@ -565,5 +565,5 @@ void surface_filter_blur(struct surface_t * s, int radius)
 	int height = surface_get_height(s);
 
 	if(radius > 0)
-		expblur(surface_get_pixels(s), width, height, 0, 0, width, height, radius);
+		blur(surface_get_pixels(s), width, height, 0, 0, width, height, radius);
 }

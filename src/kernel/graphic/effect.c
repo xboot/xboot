@@ -76,7 +76,7 @@ void surface_effect_glass(struct surface_t * s, struct region_t * clip, int x, i
 		region_init(&region, x, y, w, h);
 		if(!region_intersect(&r, &r, &region))
 			return;
-		expblur(surface_get_pixels(s), surface_get_width(s), surface_get_height(s), r.x, r.y, r.w, r.h, radius);
+		blur(surface_get_pixels(s), surface_get_width(s), surface_get_height(s), r.x, r.y, r.w, r.h, radius);
 	}
 }
 
@@ -117,7 +117,7 @@ void surface_effect_shadow(struct surface_t * s, struct region_t * clip, int x, 
 				for(i = x1, p = q; i < x2; i++, p++)
 					*p = v;
 			}
-			expblur(pixels, tw, th, 0, 0, tw, th, radius);
+			blur(pixels, tw, th, 0, 0, tw, th, radius);
 			p = (uint32_t *)s->pixels + r.y * s->width + r.x;
 			q = (uint32_t *)pixels + (max(region.y, r.y) - region.y) * tw + (max(region.x, r.x) - region.x);
 			for(j = 0; j < r.h; j++, p += s->width, q += tw)

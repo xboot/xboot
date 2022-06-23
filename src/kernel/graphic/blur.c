@@ -1,5 +1,5 @@
 /*
- * kernel/graphic/expblur.c
+ * kernel/graphic/blur.c
  *
  * Copyright(c) 2007-2022 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -27,7 +27,7 @@
  */
 
 #include <xboot.h>
-#include <graphic/expblur.h>
+#include <graphic/blur.h>
 
 static inline void blurinner(unsigned char * p, int * zr, int * zg, int * zb, int * za, int alpha)
 {
@@ -81,7 +81,7 @@ static inline void blurcol(unsigned char * pixel, int width, int height, int x, 
 		blurinner(p, &zr, &zg, &zb, &za, alpha);
 }
 
-void expblur(unsigned char * pixel, int width, int height, int x, int y, int w, int h, int radius)
+void blur(unsigned char * pixel, int width, int height, int x, int y, int w, int h, int radius)
 {
 	int alpha = (int)((1 << 16) * (1.0 - expf(-2.3 / (radius + 1.0))));
 	int i;

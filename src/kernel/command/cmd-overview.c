@@ -817,7 +817,8 @@ static void overview_window(struct xui_context_t * ctx)
 			xui_number_ex(ctx, &tension, 1, 1000, 1, "tension: %.0f", XUI_NUMBER_SUCCESS | XUI_OPT_TEXT_LEFT);
 			xui_number_ex(ctx, &friction, 1, 1000, 1, "friction: %.0f", XUI_NUMBER_INFO | XUI_OPT_TEXT_LEFT);
 			xui_number_ex(ctx, &velocity, 0, 100, 0.1, "velocity: %.1f", XUI_NUMBER_WARNING | XUI_OPT_TEXT_LEFT);
-			xui_text(ctx, xui_format(ctx, "Elapsed time: %.3f S", time));
+			xui_label(ctx, xui_format(ctx, "Damping ratio: %.3f", friction / (2 * sqrt (1 * tension))));
+			xui_label(ctx, xui_format(ctx, "Elapsed time: %.3f S", time));
 			xui_layout_row(ctx, 1, (int[]){ -1 }, 64);
 			struct region_t * r = xui_layout_next(ctx);
 			xui_draw_rectangle(ctx, r->x + (r->w - r->h) * alpha, r->y, r->h, r->h, 0, 0, (start != 0) ? &(struct color_t){255, 0, 0, 255} : &(struct color_t){128, 128, 128, 255});

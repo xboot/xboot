@@ -84,7 +84,7 @@ int xui_button_ex(struct xui_context_t * ctx, int icon, const char * label, int 
 		{
 			if(idx < 0)
 				idx = xui_pool_init(ctx, ctx->spring_pool, XUI_COLLAPSE_POOL_SIZE, id);
-			spring_init(&ctx->springs[idx], 0, 1, 0, 618, 60);
+			spring_init(&ctx->springs[idx], 0, 1, 0, 812, 57);
 		}
 	}
 	if(ctx->active == id)

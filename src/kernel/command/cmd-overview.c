@@ -803,6 +803,45 @@ static void overview_window(struct xui_context_t * ctx)
 			xui_end_tree(ctx);
 		}
 
+		if(xui_begin_tree(ctx, "Spring"))
+		{
+			static struct spring_t s;
+			static double velocity = 0;
+			static double tension = 170;
+			static double friction = 26;
+			static double start = 0;
+			static double time = 0;
+			static double alpha = 0;
+			static int flag = 0;
+			xui_layout_row(ctx, 1, (int[]){ -1 }, 0);
+			xui_number_ex(ctx, &tension, 1, 1000, 1, "tension: %.0f", XUI_NUMBER_SUCCESS | XUI_OPT_TEXT_LEFT);
+			xui_number_ex(ctx, &friction, 1, 1000, 1, "friction: %.0f", XUI_NUMBER_INFO | XUI_OPT_TEXT_LEFT);
+			xui_number_ex(ctx, &velocity, 0, 100, 0.1, "velocity: %.1f", XUI_NUMBER_WARNING | XUI_OPT_TEXT_LEFT);
+			xui_text(ctx, xui_format(ctx, "Elapsed time: %.3f S", time));
+			xui_layout_row(ctx, 1, (int[]){ -1 }, 64);
+			struct region_t * r = xui_layout_next(ctx);
+			xui_draw_rectangle(ctx, r->x + (r->w - r->h) * alpha, r->y, r->h, r->h, 0, 0, (start != 0) ? &(struct color_t){255, 0, 0, 255} : &(struct color_t){128, 128, 128, 255});
+			xui_layout_row(ctx, 1, (int[]){ -1 }, 40);
+			if(xui_button(ctx, "Start"))
+			{
+				spring_init(&s, alpha, flag ? 0 : 1, flag ? -velocity : velocity, tension, friction);
+				start = ktime_to_ns(ctx->stamp) / 1000000000.0f;
+				time = 0;
+				flag = !flag;
+			}
+			if(spring_step(&s, ktime_to_ns(ctx->delta) / 1000000000.0f))
+				alpha = spring_position(&s);
+			else
+			{
+				if(start != 0)
+				{
+					time = ktime_to_ns(ctx->stamp) / 1000000000.0f - start;
+					start = 0;
+				}
+			}
+			xui_end_tree(ctx);
+		}
+
 		if(xui_begin_tree(ctx, "Split"))
 		{
 			xui_layout_row(ctx, 1, (int[]){ -1 }, 0);

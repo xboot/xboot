@@ -136,6 +136,7 @@ static const char style_default[] = X({
 
 	"window-border-radius": 4,
 	"window-border-width": 4,
+	"window-shadow-radius": 8,
 	"window-title-height": 24,
 	"window-background-color": "#f4f5f8ff",
 	"window-border-color": "#2647e0ff",
@@ -144,6 +145,7 @@ static const char style_default[] = X({
 
 	"panel-border-radius": 8,
 	"panel-border-width": 0,
+	"panel-shadow-radius": 0,
 	"panel-background-color": "#ffffffff",
 	"panel-border-color": "#00000000",
 
@@ -1405,6 +1407,10 @@ void xui_load_style(struct xui_context_t * ctx, const char * json, int len)
 					if(o && (o->type == JSON_INTEGER))
 						ctx->style.window.border_width = o->u.integer;
 					break;
+				case 0xf01cb7e5: /* "window-shadow-radius" */
+					if(o && (o->type == JSON_INTEGER))
+						ctx->style.window.shadow_radius = o->u.integer;
+					break;
 				case 0xcb989ef2: /* "window-title-height" */
 					if(o && (o->type == JSON_INTEGER))
 						ctx->style.window.title_height = o->u.integer;
@@ -1433,6 +1439,10 @@ void xui_load_style(struct xui_context_t * ctx, const char * json, int len)
 				case 0x96686f6d: /* "panel-border-width" */
 					if(o && (o->type == JSON_INTEGER))
 						ctx->style.panel.border_width = o->u.integer;
+					break;
+				case 0x94e13e3d: /* "panel-shadow-radius" */
+					if(o && (o->type == JSON_INTEGER))
+						ctx->style.panel.shadow_radius = o->u.integer;
 					break;
 				case 0xaae0a42e: /* "panel-background-color" */
 					if(o && (o->type == JSON_STRING))

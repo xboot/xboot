@@ -73,6 +73,8 @@ int xui_begin_window_ex(struct xui_context_t * ctx, const char * title, struct r
 		}
 		else
 		{
+			if(ctx->style.window.shadow_radius > 0)
+				xui_draw_shadow(ctx, region.x, region.y, region.w, region.h, max(ctx->style.window.shadow_radius, ctx->style.window.border_radius), &(struct color_t){0, 0, 0, 255}, 0);
 			if(ctx->style.window.border_color.a && (ctx->style.window.border_width > 0))
 				xui_draw_rectangle(ctx, region.x, region.y, region.w, region.h, ctx->style.window.border_radius, ctx->style.window.border_width, &ctx->style.window.border_color);
 			if(~opt & XUI_WINDOW_TRANSPARENT)

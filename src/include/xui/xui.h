@@ -409,6 +409,7 @@ struct xui_style_t {
 	struct {
 		int border_radius;
 		int border_width;
+		int shadow_radius;
 		int title_height;
 		struct color_t background_color;
 		struct color_t border_color;
@@ -419,6 +420,7 @@ struct xui_style_t {
 	struct {
 		int border_radius;
 		int border_width;
+		int shadow_radius;
 		struct color_t background_color;
 		struct color_t border_color;
 	} panel;

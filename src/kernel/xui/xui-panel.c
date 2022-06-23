@@ -45,6 +45,9 @@ void xui_begin_panel_ex(struct xui_context_t * ctx, const char * name, int opt)
 		bc = &ctx->style.panel.border_color;
 		int br = ctx->style.panel.border_radius;
 		int bw = ctx->style.panel.border_width;
+		int sr = ctx->style.panel.shadow_radius;
+		if(sr > 0)
+			xui_draw_shadow(ctx, r->x, r->y, r->w, r->h, max(sr, br), &(struct color_t){0, 0, 0, 255}, 0);
 		if(bc->a && (bw > 0))
 			xui_draw_rectangle(ctx, r->x, r->y, r->w, r->h, br, bw, bc);
 		if(bg->a)

@@ -297,6 +297,7 @@ void surface_filter_gray(struct surface_t * s);
 void surface_filter_sepia(struct surface_t * s);
 void surface_filter_invert(struct surface_t * s);
 void surface_filter_coloring(struct surface_t * s, struct color_t * c);
+void surface_filter_gamma(struct surface_t * s, float gamma);
 void surface_filter_hue(struct surface_t * s, int angle);
 void surface_filter_saturate(struct surface_t * s, int saturate);
 void surface_filter_brightness(struct surface_t * s, int brightness);

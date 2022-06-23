@@ -328,6 +328,15 @@ static int m_image_filter_coloring(lua_State * L)
 	return 1;
 }
 
+static int m_image_filter_gamma(lua_State * L)
+{
+	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
+	float gamma = luaL_optnumber(L, 2, 1.0);
+	surface_filter_gamma(img->s, gamma);
+	lua_settop(L, 1);
+	return 1;
+}
+
 static int m_image_filter_hue(lua_State * L)
 {
 	struct limage_t * img = luaL_checkudata(L, 1, MT_IMAGE);
@@ -755,6 +764,7 @@ static const luaL_Reg m_image[] = {
 	{"filterSepia",				m_image_filter_sepia},
 	{"filterInvert",			m_image_filter_invert},
 	{"filterColoring",			m_image_filter_coloring},
+	{"filterGamma",				m_image_filter_gamma},
 	{"filterHue",				m_image_filter_hue},
 	{"filterSaturate",			m_image_filter_saturate},
 	{"filterBrightness",		m_image_filter_brightness},

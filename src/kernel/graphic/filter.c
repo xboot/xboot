@@ -108,6 +108,29 @@ void surface_filter_coloring(struct surface_t * s, struct color_t * c)
 	}
 }
 
+void surface_filter_gamma(struct surface_t * s, float gamma)
+{
+	int i, len = surface_get_width(s) * surface_get_height(s);
+	unsigned char * p = surface_get_pixels(s);
+	unsigned char lut[256];
+	int t;
+
+	for(i = 0; i < 256; i++)
+	{
+		t = powf((float)(i / 255.0), gamma) * 255.0;
+		lut[i] = clamp(t, 0, 255);
+	}
+	for(i = 0; i < len; i++, p += 4)
+	{
+		if(p[3] != 0)
+		{
+			p[0] = lut[p[0]];
+			p[1] = lut[p[1]];
+			p[2] = lut[p[2]];
+		}
+	}
+}
+
 void surface_filter_hue(struct surface_t * s, int angle)
 {
 	int i, len = surface_get_width(s) * surface_get_height(s);

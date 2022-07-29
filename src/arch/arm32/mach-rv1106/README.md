@@ -6,7 +6,7 @@ make clean
 make CROSS_COMPILE=/path/to/arm-none-linux-gnueabihf- PLATFORM=arm32-rv1106
 ```
 
-## Enter maskrom mode and using xrock for burning image
+## Enter maskrom mode and using xrock for burning image (spi nand flash)
 ```shell
 sudo xrock maskrom rv1106_ddr_924MHz_v1.07.bin rv1106_usbplug_v1.03.bin --rc4-off;
 sleep 3;
@@ -24,4 +24,3 @@ git clone https://github.com/xboot/xrock.git
 make
 sudo make install
 ```
-

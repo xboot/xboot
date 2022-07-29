@@ -15,12 +15,13 @@ INCDIRS		:=
 SRCDIRS		:=
 
 ifeq ($(strip $(HOSTOS)), linux)
-MKIDB		:= arch/$(ARCH)/$(MACH)/tools/linux/mkidb
+BOOT_MERGER	:= arch/$(ARCH)/$(MACH)/tools/linux/boot_merger
 endif
 ifeq ($(strip $(HOSTOS)), windows)
-MKIDB		:= arch/$(ARCH)/$(MACH)/tools/windows/mkidb
+BOOT_MERGER	:= arch/$(ARCH)/$(MACH)/tools/windows/boot_merger
 endif
+INIFILE		:= arch/$(ARCH)/$(MACH)/tools/images/rv1106.ini
 
 xend:
 	@echo Packing rockchip binrary for irom booting
-	@$(MKIDB) arch/$(ARCH)/$(MACH)/tools/images/rv1106_ddr_924MHz_v1.07.bin $(X_NAME).bin $(X_NAME)pak.bin
+	@$(BOOT_MERGER) $(INIFILE)

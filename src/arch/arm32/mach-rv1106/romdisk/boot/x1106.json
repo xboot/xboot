@@ -1,7 +1,11 @@
 {
-	"clk-fixed@0": { "name": "usbphy480m", "rate": 480000000 },
-	"clk-fixed@1": { "name": "xin24m", "rate": 24000000 },
-	"clk-fixed@2": { "name": "xin32k", "rate": 32768 },
+	"clk-fixed@0": { "name": "xin24m", "rate": 24000000 },
+	"clk-fixed@1": { "name": "xin32k", "rate": 32768 },
+
+	"clk-rv1106-pll@0": { "parent": "xin24m", "name": "apll", "channel": 0 },
+	"clk-rv1106-pll@1": { "parent": "xin24m", "name": "cpll", "channel": 1 },
+	"clk-rv1106-pll@2": { "parent": "xin24m", "name": "dpll", "channel": 2 },
+	"clk-rv1106-pll@3": { "parent": "xin24m", "name": "gpll", "channel": 3 },
 
 	"clk-link": { "parent": "xin24m", "name": "link-uart0" },
 	"clk-link": { "parent": "xin24m", "name": "link-uart1" },

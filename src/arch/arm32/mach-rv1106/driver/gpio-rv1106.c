@@ -80,11 +80,136 @@ static inline u32_t gpio_read32(virtual_addr_t reg)
 
 static void gpio_rv1106_set_cfg(struct gpiochip_t * chip, int offset, int cfg)
 {
+	struct gpio_rv1106_pdata_t * pdat = (struct gpio_rv1106_pdata_t *)chip->priv;
+	virtual_addr_t addr = pdat->pmuioc;
+	u32_t val;
+
+	if(offset >= chip->ngpio)
+		return;
+
+	if(pdat->base < 32)
+	{
+		if(offset < 8)
+			addr = pdat->pmuioc + 0x00000000;
+		else
+			return;
+	}
+	else if(pdat->base < 64)
+	{
+		if(offset < 8)
+			addr = pdat->ioc + 0x00000000;
+		else if(offset < 16)
+			addr = pdat->ioc + 0x00000008;
+		else if(offset < 24)
+			addr = pdat->ioc + 0x00000010;
+		else if(offset < 32)
+			addr = pdat->ioc + 0x00000018;
+		else
+			return;
+	}
+	else if(pdat->base < 96)
+	{
+		if(offset < 8)
+			addr = pdat->ioc + 0x00010020;
+		else if(offset < 16)
+			addr = pdat->ioc + 0x00010028;
+		else
+			return;
+	}
+	else if(pdat->base < 128)
+	{
+		if(offset < 8)
+			addr = pdat->ioc + 0x00020040;
+		else if(offset < 16)
+			addr = pdat->ioc + 0x00020048;
+		else if(offset < 24)
+			addr = pdat->ioc + 0x00020050;
+		else if(offset < 32)
+			addr = pdat->ioc + 0x00020058;
+		else
+			return;
+	}
+	else if(pdat->base < 160)
+	{
+		if(offset < 8)
+			addr = pdat->ioc + 0x00030000;
+		else if(offset < 16)
+			addr = pdat->ioc + 0x00030008;
+		else
+			return;
+	}
+	else
+		return;
+	if(offset & 0x4)
+		addr += 0x4;
+	val = (((0xf << 16) | (cfg & 0xf)) << ((offset & 0x3) << 2));
+	write32(addr, val);
 }
 
 static int gpio_rv1106_get_cfg(struct gpiochip_t * chip, int offset)
 {
-	return 0;
+	struct gpio_rv1106_pdata_t * pdat = (struct gpio_rv1106_pdata_t *)chip->priv;
+	virtual_addr_t addr = pdat->pmuioc;
+
+	if(offset >= chip->ngpio)
+		return 0;
+
+	if(pdat->base < 32)
+	{
+		if(offset < 8)
+			addr = pdat->pmuioc + 0x00000000;
+		else
+			return 0;
+	}
+	else if(pdat->base < 64)
+	{
+		if(offset < 8)
+			addr = pdat->ioc + 0x00000000;
+		else if(offset < 16)
+			addr = pdat->ioc + 0x00000008;
+		else if(offset < 24)
+			addr = pdat->ioc + 0x00000010;
+		else if(offset < 32)
+			addr = pdat->ioc + 0x00000018;
+		else
+			return 0;
+	}
+	else if(pdat->base < 96)
+	{
+		if(offset < 8)
+			addr = pdat->ioc + 0x00010020;
+		else if(offset < 16)
+			addr = pdat->ioc + 0x00010028;
+		else
+			return 0;
+	}
+	else if(pdat->base < 128)
+	{
+		if(offset < 8)
+			addr = pdat->ioc + 0x00020040;
+		else if(offset < 16)
+			addr = pdat->ioc + 0x00020048;
+		else if(offset < 24)
+			addr = pdat->ioc + 0x00020050;
+		else if(offset < 32)
+			addr = pdat->ioc + 0x00020058;
+		else
+			return 0;
+	}
+	else if(pdat->base < 160)
+	{
+		if(offset < 8)
+			addr = pdat->ioc + 0x00030000;
+		else if(offset < 16)
+			addr = pdat->ioc + 0x00030008;
+		else
+			return 0;
+	}
+	else
+		return 0;
+	if(offset & 0x4)
+		addr += 0x4;
+	return (read32(addr) >> ((offset & 0x3) << 2)) & 0xf;
 }
 
 static void gpio_rv1106_set_pull(struct gpiochip_t * chip, int offset, enum gpio_pull_t pull)

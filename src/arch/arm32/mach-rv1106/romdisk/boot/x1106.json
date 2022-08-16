@@ -276,6 +276,12 @@
 	"clk-link": { "parent": "xin24m", "name": "link-uart4" },
 	"clk-link": { "parent": "xin24m", "name": "link-uart5" },
 
+	"gpio-rv1106@0xff380000": { "gpio-base":   0, "gpio-count":  7, "interrupt-offset": -1 },
+	"gpio-rv1106@0xff530000": { "gpio-base":  32, "gpio-count": 24, "interrupt-offset": -1 },
+	"gpio-rv1106@0xff540000": { "gpio-base":  64, "gpio-count": 10, "interrupt-offset": -1 },
+	"gpio-rv1106@0xff550000": { "gpio-base":  96, "gpio-count": 24, "interrupt-offset": -1 },
+	"gpio-rv1106@0xff560000": { "gpio-base": 128, "gpio-count": 10, "interrupt-offset": -1 },
+
 /*	"ce-rockchip-timer@0x20044000": {
 		"clock-name": "link-timer0",
 		"interrupt": 60

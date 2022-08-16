@@ -40,6 +40,168 @@ static ssize_t gpiochip_read_ngpio(struct kobj_t * kobj, void * buf, size_t size
 	return sprintf(buf, "%d", chip->ngpio);
 }
 
+static ssize_t gpiochip_read_config(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct gpiochip_t * chip = (struct gpiochip_t *)kobj->priv;
+	char * p = buf;
+	int len = 0;
+	int i;
+
+	for(i = chip->base; i < chip->base + chip->ngpio; i++)
+	{
+		if(gpio_is_valid(i))
+			len += sprintf((char *)(p + len), "[%d] 0x%x\r\n", i, gpio_get_cfg(i));
+	}
+	return len;
+}
+
+static ssize_t gpiochip_read_pull(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct gpiochip_t * chip = (struct gpiochip_t *)kobj->priv;
+	char * s, * p = buf;
+	int len = 0;
+	int i;
+
+	for(i = chip->base; i < chip->base + chip->ngpio; i++)
+	{
+		if(gpio_is_valid(i))
+		{
+			switch(gpio_get_pull(i))
+			{
+			case GPIO_PULL_UP:
+				s = "up";
+				break;
+			case GPIO_PULL_DOWN:
+				s = "down";
+				break;
+			case GPIO_PULL_NONE:
+			default:
+				s = "none";
+				break;
+			}
+			len += sprintf((char *)(p + len), "[%d] %s\r\n", i, s);
+		}
+	}
+	return len;
+}
+
+static ssize_t gpiochip_read_strength(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct gpiochip_t * chip = (struct gpiochip_t *)kobj->priv;
+	char * s, * p = buf;
+	int len = 0;
+	int i;
+
+	for(i = chip->base; i < chip->base + chip->ngpio; i++)
+	{
+		if(gpio_is_valid(i))
+		{
+			switch(gpio_get_drv(i))
+			{
+			case GPIO_DRV_WEAKER:
+				s = "weaker";
+				break;
+			case GPIO_DRV_STRONGER:
+				s = "stronger";
+				break;
+			case GPIO_DRV_STRONG:
+				s = "strong";
+				break;
+			case GPIO_DRV_WEAK:
+			default:
+				s = "weak";
+				break;
+			}
+			len += sprintf((char *)(p + len), "[%d] %s\r\n", i, s);
+		}
+	}
+	return len;
+}
+
+static ssize_t gpiochip_read_rate(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct gpiochip_t * chip = (struct gpiochip_t *)kobj->priv;
+	char * s, * p = buf;
+	int len = 0;
+	int i;
+
+	for(i = chip->base; i < chip->base + chip->ngpio; i++)
+	{
+		if(gpio_is_valid(i))
+		{
+			switch(gpio_get_rate(i))
+			{
+			case GPIO_RATE_FAST:
+				s = "fast";
+				break;
+			case GPIO_RATE_SLOW:
+			default:
+				s = "slow";
+				break;
+			}
+			len += sprintf((char *)(p + len), "[%d] %s\r\n", i, s);
+		}
+	}
+	return len;
+}
+
+static ssize_t gpiochip_read_direction(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct gpiochip_t * chip = (struct gpiochip_t *)kobj->priv;
+	char * s, * p = buf;
+	int len = 0;
+	int i;
+
+	for(i = chip->base; i < chip->base + chip->ngpio; i++)
+	{
+		if(gpio_is_valid(i))
+		{
+			switch(gpio_get_direction(i))
+			{
+			case GPIO_DIRECTION_OUTPUT:
+				s = "output";
+				break;
+			case GPIO_DIRECTION_INPUT:
+			default:
+				s = "input";
+				break;
+			}
+			len += sprintf((char *)(p + len), "[%d] %s\r\n", i, s);
+		}
+	}
+	return len;
+}
+
+static ssize_t gpiochip_read_value(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct gpiochip_t * chip = (struct gpiochip_t *)kobj->priv;
+	char * p = buf;
+	int len = 0;
+	int i;
+
+	for(i = chip->base; i < chip->base + chip->ngpio; i++)
+	{
+		if(gpio_is_valid(i))
+			len += sprintf((char *)(p + len), "[%d] %d\r\n", i, gpio_get_value(i));
+	}
+	return len;
+}
+
+static ssize_t gpiochip_read_interrupt(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct gpiochip_t * chip = (struct gpiochip_t *)kobj->priv;
+	char * p = buf;
+	int len = 0;
+	int i;
+
+	for(i = chip->base; i < chip->base + chip->ngpio; i++)
+	{
+		if(gpio_is_valid(i))
+			len += sprintf((char *)(p + len), "[%d] %d\r\n", i, gpio_to_irq(i));
+	}
+	return len;
+}
+
 struct gpiochip_t * search_gpiochip(int gpio)
 {
 	struct device_t * pos, * n;
@@ -75,6 +237,13 @@ struct device_t * register_gpiochip(struct gpiochip_t * chip, struct driver_t * 
 	dev->kobj = kobj_alloc_directory(dev->name);
 	kobj_add_regular(dev->kobj, "base", gpiochip_read_base, NULL, chip);
 	kobj_add_regular(dev->kobj, "ngpio", gpiochip_read_ngpio, NULL, chip);
+	kobj_add_regular(dev->kobj, "config", gpiochip_read_config, NULL, chip);
+	kobj_add_regular(dev->kobj, "pull", gpiochip_read_pull, NULL, chip);
+	kobj_add_regular(dev->kobj, "strength", gpiochip_read_strength, NULL, chip);
+	kobj_add_regular(dev->kobj, "rate", gpiochip_read_rate, NULL, chip);
+	kobj_add_regular(dev->kobj, "direction", gpiochip_read_direction, NULL, chip);
+	kobj_add_regular(dev->kobj, "value", gpiochip_read_value, NULL, chip);
+	kobj_add_regular(dev->kobj, "interrupt", gpiochip_read_interrupt, NULL, chip);
 
 	if(!register_device(dev))
 	{

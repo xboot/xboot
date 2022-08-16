@@ -138,7 +138,7 @@ static struct device_t * clk_rv1106_pll_probe(struct driver_t * drv, struct dtno
 		return NULL;
 	}
 
-	pdat->cru = phys_to_virt(X1106_CRU_BASE);
+	pdat->cru = phys_to_virt(RV1106_CRU_BASE);
 	pdat->parent = strdup(parent);
 	pdat->channel = channel;
 

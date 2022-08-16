@@ -1,7 +1,7 @@
-#ifndef __X1106_REG_CRU_H__
-#define __X1106_REG_CRU_H__
+#ifndef __RV1106_REG_CRU_H__
+#define __RV1106_REG_CRU_H__
 
-#define X1106_CRU_BASE		(0xff3a0000)
+#define RV1106_CRU_BASE		(0xff3a0000)
 
 struct rv1106_pll_t {
 	unsigned int con0;
@@ -66,4 +66,4 @@ struct rv1106_cru_t {
 	unsigned int vo_softrst_con[4];
 };
 
-#endif /* __X1106_REG_CRU_H__ */
+#endif /* __RV1106_REG_CRU_H__ */

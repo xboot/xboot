@@ -1,7 +1,7 @@
-#ifndef __X1106_REG_GRF_H__
-#define __X1106_REG_GRF_H__
+#ifndef __RV1106_REG_GRF_H__
+#define __RV1106_REG_GRF_H__
 
-#define X1106_GRF_BASE		(0xff000000)
+#define RV1106_GRF_BASE		(0xff000000)
 
 struct rv1106_grf_t {
 	unsigned int reserved0[0x20 / 4];
@@ -27,4 +27,4 @@ struct rv1106_grf_t {
 	unsigned int vop_pipe_bypass;
 };
 
-#endif /* __X1106_REG_GRF_H__ */
+#endif /* __RV1106_REG_GRF_H__ */

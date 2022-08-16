@@ -15,7 +15,7 @@ static void usage(void)
 static int do_maskrom(int argc, char ** argv)
 {
 	write32(phys_to_virt(0xff020200), 0xef08a53c);
-	write32(phys_to_virt(X1106_CRU_BASE) + offsetof(struct rv1106_cru_t, glb_srst_fst), 0xfdb9);
+	write32(phys_to_virt(RV1106_CRU_BASE) + offsetof(struct rv1106_cru_t, glb_srst_fst), 0xfdb9);
 	return 0;
 }
 

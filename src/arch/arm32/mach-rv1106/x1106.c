@@ -49,7 +49,7 @@ static void mach_shutdown(struct machine_t * mach)
 static void mach_reboot(struct machine_t * mach)
 {
 	write32(phys_to_virt(0xff020200), 0);
-	write32(phys_to_virt(X1106_CRU_BASE) + offsetof(struct rv1106_cru_t, glb_srst_fst), 0xfdb9);
+	write32(phys_to_virt(RV1106_CRU_BASE) + offsetof(struct rv1106_cru_t, glb_srst_fst), 0xfdb9);
 }
 
 static void mach_sleep(struct machine_t * mach)

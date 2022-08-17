@@ -276,6 +276,8 @@
 	"clk-link": { "parent": "xin24m", "name": "link-uart4" },
 	"clk-link": { "parent": "xin24m", "name": "link-uart5" },
 
+	"clk-link": { "parent": "xin24m", "name": "link-wdt" },
+
 	"reset-rv1106@0xff3a0a00": { "reset-base":   0, "reset-count": 16 },
 	"reset-rv1106@0xff3a0a04": { "reset-base":  16, "reset-count": 16 },
 	"reset-rv1106@0xff3a0a08": { "reset-base":  32, "reset-count": 16 },
@@ -392,6 +394,10 @@
 		"data-bits": 8,
 		"parity-bits": 0,
 		"stop-bits": 1
+	},
+
+	"wdg-rv1106@0xff5a0000": {
+		"clock-name": "link-wdt"
 	},
 
 	"led-gpio@0": {

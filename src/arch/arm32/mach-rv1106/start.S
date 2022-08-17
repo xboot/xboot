@@ -216,7 +216,8 @@ reset:
 	ldr sp, _stack_srv_end
 	sub sp, sp, r2
 
-	/* Initial system jtag and uart */
+	/* Initial system cpu, jtag and uart */
+	bl sys_cpu_init
 	bl sys_jtag_init
 	bl sys_uart_init
 

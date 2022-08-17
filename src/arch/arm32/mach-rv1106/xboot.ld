@@ -22,6 +22,7 @@ SECTIONS
 		PROVIDE(__image_start = .);
 		PROVIDE(__text_start = .);
 		.obj/arch/arm32/mach-rv1106/start.o (.text*)
+		.obj/arch/arm32/mach-rv1106/sys-cpu.o (.text*)
 		.obj/arch/arm32/mach-rv1106/sys-jtag.o (.text*)
 		.obj/arch/arm32/mach-rv1106/sys-uart.o (.text*)
 		*(.text*)

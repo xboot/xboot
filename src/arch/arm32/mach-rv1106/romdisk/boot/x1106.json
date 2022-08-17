@@ -9,6 +9,7 @@
 
 	"clk-rv1106-gate@0xff3b8800": {"parent": "xin24m", "name": "clk_pvtm_core", "shift": 14, "invert": true },
 	"clk-rv1106-gate@0xff3b8804": {"parent": "xin24m", "name": "clk_core_mcu_rtc", "shift": 6, "invert": true },
+	"clk-rv1106-gate@0xff3b2800": {"parent": "xin24m", "name": "clk_timer_root", "shift": 3, "invert": true },
 
 	"clk-rv1106-comp": {
 		"parent": [
@@ -240,6 +241,33 @@
 		"gate-invert": true,
 		"name": "pclk_top_root"
 	},
+
+	"clk-rv1106-comp": {
+		"parent": [
+			{ "name": "clk_100m_src", "value": 0 },
+			{ "name": "clk_50m_src", "value": 1 },
+			{ "name": "xin24m", "value": 2 }
+		],
+		"mux-offset": "0xff3b2304",
+		"mux-shift": 0,
+		"mux-width": 2,
+		"gate-offset": "0xff3b2800",
+		"gate-shift": 0,
+		"gate-invert": true,
+		"name": "pclk_peri_root"
+	},
+
+	"clk-rv1106-gate@0xff3b2800": {"parent": "pclk_peri_root", "name": "pclk_timer", "shift": 8, "invert": true },
+	"clk-rv1106-gate@0xff3b2800": {"parent": "clk_timer_root", "name": "clk_timer0", "shift": 9, "invert": true },
+	"clk-rv1106-gate@0xff3b2800": {"parent": "clk_timer_root", "name": "clk_timer1", "shift": 10, "invert": true },
+	"clk-rv1106-gate@0xff3b2800": {"parent": "clk_timer_root", "name": "clk_timer2", "shift": 11, "invert": true },
+	"clk-rv1106-gate@0xff3b2800": {"parent": "clk_timer_root", "name": "clk_timer3", "shift": 12, "invert": true },
+	"clk-rv1106-gate@0xff3b2800": {"parent": "clk_timer_root", "name": "clk_timer4", "shift": 13, "invert": true },
+	"clk-rv1106-gate@0xff3b2800": {"parent": "clk_timer_root", "name": "clk_timer5", "shift": 14, "invert": true },
+
+	"clk-rv1106-gate@0xff3b2800": {"parent": "pclk_peri_root", "name": "pclk_stimer", "shift": 15, "invert": true },
+	"clk-rv1106-gate@0xff3b2804": {"parent": "clk_timer_root", "name": "clk_stimer0", "shift": 0, "invert": true },
+	"clk-rv1106-gate@0xff3b2804": {"parent": "clk_timer_root", "name": "clk_stimer1", "shift": 1, "invert": true },
 
 	"clk-rv1106-comp": {
 		"parent": [

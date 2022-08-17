@@ -30,16 +30,18 @@
 
 void sys_jtag_init(void)
 {
-#if 0
 	virtual_addr_t addr;
 	u32_t val;
 
-	/* Config GPIO1_C4 and GPIO1_C5 to swdclk and swdio */
-	addr = 0x20008000 + 0x00b8 + ((20 >> 3) << 2);
-	val = (((0x3 << 16) | (0x2 & 0x3)) << ((20 & 0x7) << 1));
+	/* Config GPIO3_A7 and GPIO3_A6 to swdclk and swdio */
+	addr = 0xff538000 + 0x00020040;
+	if(103 & 0x4)
+		addr += 0x4;
+	val = (((0xf << 16) | (0x3 & 0xf)) << ((103 & 0x3) << 2));
 	write32(addr, val);
-	addr = 0x20008000 + 0x00b8 + ((21 >> 3) << 2);
-	val = (((0x3 << 16) | (0x2 & 0x3)) << ((21 & 0x7) << 1));
+	addr = 0xff538000 + 0x00020040;
+	if(102 & 0x4)
+		addr += 0x4;
+	val = (((0xf << 16) | (0x3 & 0xf)) << ((102 & 0x3) << 2));
 	write32(addr, val);
-#endif
 }

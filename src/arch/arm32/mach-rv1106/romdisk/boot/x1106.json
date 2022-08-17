@@ -304,6 +304,8 @@
 	"reset-rv1106@0xff3bea04": { "reset-base": 400, "reset-count": 16 },
 	"reset-rv1106@0xff3bfa00": { "reset-base": 416, "reset-count": 16 },
 
+	"irq-gic400@0xff1f0000": { "interrupt-base": 32, "interrupt-count": 96 },
+
 	"gpio-rv1106@0xff380000": { "gpio-base":   0, "gpio-count":  7, "interrupt-offset": -1 },
 	"gpio-rv1106@0xff530000": { "gpio-base":  32, "gpio-count": 28, "interrupt-offset": -1 },
 	"gpio-rv1106@0xff540000": { "gpio-base":  64, "gpio-count": 10, "interrupt-offset": -1 },

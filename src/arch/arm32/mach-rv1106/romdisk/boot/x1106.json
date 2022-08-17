@@ -353,7 +353,7 @@
 */
 
 	"cs-armv7-timer": {
-		"clock-frequency": 24000000
+		"clock-frequency": -1
 	},
 
 	"uart-8250@0xff4a0000": {

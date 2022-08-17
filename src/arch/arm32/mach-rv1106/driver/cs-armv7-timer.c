@@ -27,15 +27,27 @@
  */
 
 #include <xboot.h>
-#include <arm32.h>
 #include <clocksource/clocksource.h>
 
-static u64_t cs_armv7_timer_read(struct clocksource_t * cs)
+static inline u64_t armv7_timer_frequecy(void)
+{
+	u32_t v;
+
+	__asm__ __volatile__("mrc p15, 0, %0, c14, c0, 0" : "=r" (v));
+	return (v != 0) ? (u64_t)v : 1000000;
+}
+
+static inline u64_t armv7_timer_read(void)
 {
 	u32_t l, h;
 
 	__asm__ __volatile__("mrrc p15, 0, %0, %1, c14" : "=r" (l), "=r" (h));
 	return ((u64_t)h << 32) | l;
+}
+
+static u64_t cs_armv7_timer_read(struct clocksource_t * cs)
+{
+	return armv7_timer_read();
 }
 
 static struct device_t * cs_armv7_timer_probe(struct driver_t * drv, struct dtnode_t * n)
@@ -44,7 +56,7 @@ static struct device_t * cs_armv7_timer_probe(struct driver_t * drv, struct dtno
 	struct device_t * dev;
 	s64_t rate = (s64_t)dt_read_long(n, "clock-frequency", -1);
 	if(rate <= 0)
-		rate = 24000000;
+		rate = armv7_timer_frequecy();
 
 	cs = malloc(sizeof(struct clocksource_t));
 	if(!cs)

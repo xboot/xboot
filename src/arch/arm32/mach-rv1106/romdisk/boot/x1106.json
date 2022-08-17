@@ -306,7 +306,7 @@
 	"reset-rv1106@0xff3bea04": { "reset-base": 400, "reset-count": 16 },
 	"reset-rv1106@0xff3bfa00": { "reset-base": 416, "reset-count": 16 },
 
-	"irq-gic400@0xff1f0000": { "interrupt-base": 32, "interrupt-count": 96 },
+	"irq-gic400@0xff1f0000": { "interrupt-base": 32, "interrupt-count": 160 },
 
 	"gpio-rv1106@0xff380000": { "gpio-base":   0, "gpio-count":  7, "interrupt-offset": -1 },
 	"gpio-rv1106@0xff530000": { "gpio-base":  32, "gpio-count": 28, "interrupt-offset": -1 },
@@ -323,6 +323,10 @@
 		"clock-name": "link-timer1"
 	},
 */
+
+	"cs-armv7-timer": {
+		"clock-frequency": 24000000
+	},
 
 	"uart-8250@0xff4a0000": {
 		"clock-name": "link-uart0",

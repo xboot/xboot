@@ -30,20 +30,23 @@
 
 void sys_uart_init(void)
 {
-#if 0
 	virtual_addr_t addr;
 	u32_t val, udiv;
 
-	/* Config GPIO1_C2 and GPIO1_C3 to txd2 and rxd2 */
-	addr = 0x20008000 + 0x00b8 + ((18 >> 3) << 2);
-	val = (((0x3 << 16) | (0x2 & 0x3)) << ((18 & 0x7) << 1));
+	/* Config GPIO1_B2 and GPIO1_B3 to txd2 and rxd2 */
+	addr = 0xff538000 + 0x00000008;
+	if(42 & 0x4)
+		addr += 0x4;
+	val = (((0xf << 16) | (0x2 & 0xf)) << ((42 & 0x3) << 2));
 	write32(addr, val);
-	addr = 0x20008000 + 0x00b8 + ((19 >> 3) << 2);
-	val = (((0x3 << 16) | (0x2 & 0x3)) << ((19 & 0x7) << 1));
+	addr = 0xff538000 + 0x00000008;
+	if(43 & 0x4)
+		addr += 0x4;
+	val = (((0xf << 16) | (0x2 & 0xf)) << ((43 & 0x3) << 2));
 	write32(addr, val);
 
 	/* Config uart2 to 115200-8-1-0 */
-	addr = 0x20068000;
+	addr = 0xff4c0000;
 	write32(addr + 0x88, (1 << 0) | (1 << 1) | (1 << 2));
 	write32(addr + 0x04, 0x0);
 	write32(addr + 0x10, 0x0);
@@ -64,7 +67,6 @@ void sys_uart_init(void)
 	val &= ~0x1f;
 	val |= (0x3 << 0) | (0x0 << 2) | (0x0 << 3);
 	write32(addr + 0x0c, val);
-#endif
 }
 
 void sys_uart_putc(char c)

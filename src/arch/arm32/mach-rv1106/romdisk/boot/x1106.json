@@ -334,13 +334,18 @@
 	"reset-rv1106@0xff3bea04": { "reset-base": 400, "reset-count": 16 },
 	"reset-rv1106@0xff3bfa00": { "reset-base": 416, "reset-count": 16 },
 
-	"irq-gic400@0xff1f0000": { "interrupt-base": 0, "interrupt-count": 192 },
+	"irq-gic400@0xff1f0000": { "interrupt-base": 0, "interrupt-count": 160 },
+	"irq-rv1106-gpio@0xff380000": { "interrupt-base": 160, "interrupt-count": 32, "interrupt-parent": 37 },
+	"irq-rv1106-gpio@0xff530000": { "interrupt-base": 192, "interrupt-count": 32, "interrupt-parent": 39 },
+	"irq-rv1106-gpio@0xff540000": { "interrupt-base": 224, "interrupt-count": 32, "interrupt-parent": 41 },
+	"irq-rv1106-gpio@0xff550000": { "interrupt-base": 256, "interrupt-count": 32, "interrupt-parent": 43 },
+	"irq-rv1106-gpio@0xff560000": { "interrupt-base": 288, "interrupt-count": 32, "interrupt-parent": 45 },
 
-	"gpio-rv1106@0xff380000": { "gpio-base":   0, "gpio-count":  7, "interrupt-offset": -1 },
-	"gpio-rv1106@0xff530000": { "gpio-base":  32, "gpio-count": 28, "interrupt-offset": -1 },
-	"gpio-rv1106@0xff540000": { "gpio-base":  64, "gpio-count": 10, "interrupt-offset": -1 },
-	"gpio-rv1106@0xff550000": { "gpio-base":  96, "gpio-count": 28, "interrupt-offset": -1 },
-	"gpio-rv1106@0xff560000": { "gpio-base": 128, "gpio-count": 10, "interrupt-offset": -1 },
+	"gpio-rv1106@0xff380000": { "gpio-base":   0, "gpio-count":  7, "interrupt-offset": 160 },
+	"gpio-rv1106@0xff530000": { "gpio-base":  32, "gpio-count": 28, "interrupt-offset": 192 },
+	"gpio-rv1106@0xff540000": { "gpio-base":  64, "gpio-count": 10, "interrupt-offset": 224 },
+	"gpio-rv1106@0xff550000": { "gpio-base":  96, "gpio-count": 28, "interrupt-offset": 256 },
+	"gpio-rv1106@0xff560000": { "gpio-base": 128, "gpio-count": 10, "interrupt-offset": 288 },
 
 	"ce-armv7-timer": {
 		"clock-frequency": -1,

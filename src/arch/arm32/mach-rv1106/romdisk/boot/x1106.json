@@ -269,6 +269,20 @@
 	"clk-rv1106-gate@0xff3b2804": {"parent": "clk_timer_root", "name": "clk_stimer0", "shift": 0, "invert": true },
 	"clk-rv1106-gate@0xff3b2804": {"parent": "clk_timer_root", "name": "clk_stimer1", "shift": 1, "invert": true },
 
+	"clk-rv1106-gate@0xff3b280c": {"parent": "pclk_peri_root", "name": "pclk_saradc", "shift": 3, "invert": true },
+	"clk-rv1106-comp": {
+		"parent": "xin24m",
+		"divider-offset": "0xff3b2318",
+		"divider-shift": 0,
+		"divider-width": 3,
+		"divider-one-based": true,
+		"gate-offset": "0xff3b280c",
+		"gate-shift": 4,
+		"gate-invert": true,
+		"name": "clk_saradc",
+		"default": { "rate": 3000000 }
+	},
+
 	"clk-rv1106-comp": {
 		"parent": [
 			{ "name": "gpll", "value": 0 },
@@ -346,6 +360,12 @@
 	"gpio-rv1106@0xff540000": { "gpio-base":  64, "gpio-count": 10, "interrupt-offset": 224 },
 	"gpio-rv1106@0xff550000": { "gpio-base":  96, "gpio-count": 28, "interrupt-offset": 256 },
 	"gpio-rv1106@0xff560000": { "gpio-base": 128, "gpio-count": 10, "interrupt-offset": 288 },
+
+	"adc-rv1106@0xff3c0000": {
+		"clock-name": "clk_saradc",
+		"reset": 115,
+		"reference-voltage": 1800000
+	},
 
 	"ce-armv7-timer": {
 		"clock-frequency": -1,

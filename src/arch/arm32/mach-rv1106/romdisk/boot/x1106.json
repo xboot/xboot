@@ -452,6 +452,15 @@
 		"clock-name": "link-wdt"
 	},
 
+	"key-adc@0": {
+		"adc-name": "adc-rv1106.0",
+		"adc-channel": 0,
+		"poll-interval-ms": 100,
+		"keys": [
+			{ "min-voltage": 0, "max-voltage": 100000, "key-code": 11 }
+		]
+	},
+
 	"led-gpio@0": {
 		"gpio": 118,
 		"gpio-config": 0,

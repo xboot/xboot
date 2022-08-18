@@ -1,6 +1,7 @@
 {
 	"clk-fixed@0": { "name": "xin24m", "rate": 24000000 },
 	"clk-fixed@1": { "name": "xin32k", "rate": 32768 },
+	"clk-link": { "parent": "xin32k", "name": "clk_rtc_32k" },
 
 	"clk-rv1106-pll@0": { "parent": "xin24m", "name": "apll", "channel": 0 },
 	"clk-rv1106-pll@1": { "parent": "xin24m", "name": "cpll", "channel": 1 },
@@ -255,6 +256,106 @@
 		"gate-shift": 0,
 		"gate-invert": true,
 		"name": "pclk_peri_root"
+	},
+
+	"clk-rv1106-divider@0xff3a0300": { "parent": "clk_200m_src", "name": "clk_100m_pmu", "shift": 0, "width": 3, "divider-one-based": true },
+	"clk-rv1106-comp": {
+		"parent": [
+			{ "name": "clk_100m_pmu", "value": 0 },
+			{ "name": "xin24m", "value": 1 }
+		],
+		"mux-offset": "0xff3a0300",
+		"mux-shift": 3,
+		"mux-width": 1,
+		"gate-offset": "0xff3a0800",
+		"gate-shift": 1,
+		"gate-invert": true,
+		"name": "pclk_pmu_root"
+	},
+
+	"clk-rv1106-gate@0xff3b2804": {"parent": "pclk_peri_root", "name": "pclk_i2c0", "shift": 6, "invert": true },
+	"clk-rv1106-comp": {
+		"parent": [
+			{ "name": "clk_200m_src", "value": 0 },
+			{ "name": "clk_100m_src", "value": 1 },
+			{ "name": "clk_50m_src", "value": 2 },
+			{ "name": "xin24m", "value": 3 }
+		],
+		"mux-offset": "0xff3b2304",
+		"mux-shift": 8,
+		"mux-width": 2,
+		"gate-offset": "0xff3b2804",
+		"gate-shift": 7,
+		"gate-invert": true,
+		"name": "clk_i2c0"
+	},
+
+	"clk-rv1106-gate@0xff3a0800": {"parent": "pclk_peri_root", "name": "pclk_i2c1", "shift": 3, "invert": true },
+	"clk-rv1106-comp": {
+		"parent": [
+			{ "name": "clk_200m_src", "value": 0 },
+			{ "name": "clk_100m_src", "value": 1 },
+			{ "name": "xin24m", "value": 2 },
+			{ "name": "clk_rtc_32k", "value": 3 }
+		],
+		"mux-offset": "0xff3a0300",
+		"mux-shift": 6,
+		"mux-width": 2,
+		"gate-offset": "0xff3a0800",
+		"gate-shift": 4,
+		"gate-invert": true,
+		"name": "clk_i2c1"
+	},
+
+	"clk-rv1106-gate@0xff3b2804": {"parent": "pclk_peri_root", "name": "pclk_i2c2", "shift": 10, "invert": true },
+	"clk-rv1106-comp": {
+		"parent": [
+			{ "name": "clk_200m_src", "value": 0 },
+			{ "name": "clk_100m_src", "value": 1 },
+			{ "name": "clk_50m_src", "value": 2 },
+			{ "name": "xin24m", "value": 3 }
+		],
+		"mux-offset": "0xff3b2304",
+		"mux-shift": 12,
+		"mux-width": 2,
+		"gate-offset": "0xff3b2804",
+		"gate-shift": 11,
+		"gate-invert": true,
+		"name": "clk_i2c2"
+	},
+	
+	"clk-rv1106-gate@0xff3b2804": {"parent": "pclk_peri_root", "name": "pclk_i2c3", "shift": 12, "invert": true },
+	"clk-rv1106-comp": {
+		"parent": [
+			{ "name": "clk_200m_src", "value": 0 },
+			{ "name": "clk_100m_src", "value": 1 },
+			{ "name": "clk_50m_src", "value": 2 },
+			{ "name": "xin24m", "value": 3 }
+		],
+		"mux-offset": "0xff3b2304",
+		"mux-shift": 14,
+		"mux-width": 2,
+		"gate-offset": "0xff3b2804",
+		"gate-shift": 13,
+		"gate-invert": true,
+		"name": "clk_i2c3"
+	},
+
+	"clk-rv1106-gate@0xff3b2804": {"parent": "pclk_peri_root", "name": "pclk_i2c4", "shift": 14, "invert": true },
+	"clk-rv1106-comp": {
+		"parent": [
+			{ "name": "clk_200m_src", "value": 0 },
+			{ "name": "clk_100m_src", "value": 1 },
+			{ "name": "clk_50m_src", "value": 2 },
+			{ "name": "xin24m", "value": 3 }
+		],
+		"mux-offset": "0xff3b2308",
+		"mux-shift": 0,
+		"mux-width": 2,
+		"gate-offset": "0xff3b2804",
+		"gate-shift": 15,
+		"gate-invert": true,
+		"name": "clk_i2c4"
 	},
 
 	"clk-rv1106-gate@0xff3b2800": {"parent": "pclk_peri_root", "name": "pclk_timer", "shift": 8, "invert": true },

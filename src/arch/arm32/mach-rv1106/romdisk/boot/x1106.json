@@ -549,6 +549,51 @@
 		"stop-bits": 1
 	},
 
+	"i2c-rv1106@0xff310000": {
+		"clock-name": "clk_i2c0",
+		"clock-frequency": 400000,
+		"sda-gpio": -1,
+		"sda-gpio-config": -1,
+		"scl-gpio": -1,
+		"scl-gpio-config": -1
+	},
+
+	"i2c-rv1106@0xff320000": {
+		"clock-name": "clk_i2c1",
+		"clock-frequency": 400000,
+		"sda-gpio": 6,
+		"sda-gpio-config": 1,
+		"scl-gpio": 5,
+		"scl-gpio-config": 1
+	},
+
+	"i2c-rv1106@0xff450000": {
+		"clock-name": "clk_i2c2",
+		"clock-frequency": 400000,
+		"sda-gpio": -1,
+		"sda-gpio-config": -1,
+		"scl-gpio": -1,
+		"scl-gpio-config": -1
+	},
+
+	"i2c-rv1106@0xff460000": {
+		"clock-name": "clk_i2c3",
+		"clock-frequency": 400000,
+		"sda-gpio": -1,
+		"sda-gpio-config": -1,
+		"scl-gpio": -1,
+		"scl-gpio-config": -1
+	},
+
+	"i2c-rv1106@0xff470000": {
+		"clock-name": "clk_i2c4",
+		"clock-frequency": 400000,
+		"sda-gpio": 120,
+		"sda-gpio-config": 3,
+		"scl-gpio": 119,
+		"scl-gpio-config": 3
+	},
+
 	"wdg-rv1106@0xff5a0000": {
 		"clock-name": "link-wdt"
 	},

@@ -342,16 +342,6 @@
 	"gpio-rv1106@0xff550000": { "gpio-base":  96, "gpio-count": 28, "interrupt-offset": -1 },
 	"gpio-rv1106@0xff560000": { "gpio-base": 128, "gpio-count": 10, "interrupt-offset": -1 },
 
-/*	"ce-rockchip-timer@0x20044000": {
-		"clock-name": "link-timer0",
-		"interrupt": 60
-	},
-
-	"cs-rockchip-timer@0x20044020": {
-		"clock-name": "link-timer1"
-	},
-*/
-
 	"ce-armv7-timer": {
 		"clock-frequency": -1,
 		"interrupt": 29

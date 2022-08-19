@@ -594,6 +594,10 @@
 		"scl-gpio-config": 3
 	},
 
+	"rtc-rv1106@0xff1c0000": {
+		"clock-name": "clk_rtc_32k"
+	},
+
 	"wdg-rv1106@0xff5a0000": {
 		"clock-name": "link-wdt"
 	},

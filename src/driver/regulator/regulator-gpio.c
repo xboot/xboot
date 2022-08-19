@@ -48,7 +48,7 @@
  *       "name": "power-bl",
  *       "voltage": 12000000,
  *       "gpio": 74,
- *       "gpiocfg": -1,
+ *       "gpio-config": -1,
  *       "active-low": false,
  *       "default-enable": false
  *   }

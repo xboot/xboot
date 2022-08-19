@@ -273,6 +273,23 @@
 		"name": "pclk_pmu_root"
 	},
 
+	"clk-rv1106-comp": {
+		"parent": [
+			{ "name": "clk_50m_src", "value": 0 },
+			{ "name": "xin24m", "value": 1 }
+		],
+		"mux-offset": "0xff3b4300",
+		"mux-shift": 6,
+		"mux-width": 1,
+		"gate-offset": "0xff3b4800",
+		"gate-shift": 3,
+		"gate-invert": true,
+		"name": "pclk_vi_rtc_root",
+		"default": { "parent" : "xin24m" }
+	},
+	"clk-rv1106-gate@0xff3b4808": {"parent": "pclk_vi_rtc_root", "name": "pclk_vi_rtc_phy", "shift": 6, "invert": true },
+	"clk-rv1106-gate@0xff3b4808": {"parent": "pclk_vi_rtc_root", "name": "pclk_vi_rtc_test", "shift": 5, "invert": true, "default": { "enable" : true } },
+
 	"clk-rv1106-gate@0xff3b2804": {"parent": "pclk_peri_root", "name": "pclk_i2c0", "shift": 6, "invert": true },
 	"clk-rv1106-comp": {
 		"parent": [
@@ -595,7 +612,7 @@
 	},
 
 	"rtc-rv1106@0xff1c0000": {
-		"clock-name": "clk_rtc_32k"
+		"clock-name": "pclk_vi_rtc_phy"
 	},
 
 	"wdg-rv1106@0xff5a0000": {

@@ -796,6 +796,27 @@
 		"period-ms": 1260
 	},
 
+	"regulator-gpio@0": {
+		"parent": null,
+		"name": "lcd-power",
+		"voltage": 3300000,
+		"gpio": 0,
+		"gpio-config": 0,
+		"active-low": false,
+		"default": {
+			"enable": false
+		}
+	},
+
+	"led-pwm@0": {
+		"pwm-name": "pwm-rv1106.1",
+		"regulator-name": "lcd-power",
+		"pwm-period-ns": 1000000,
+		"pwm-polarity": false,
+		"gamma-correction": 2.2,
+		"default-brightness": 0
+	},
+
 	"console-uart@0": {
 		"uart-bus": "uart-8250.2"
 	}

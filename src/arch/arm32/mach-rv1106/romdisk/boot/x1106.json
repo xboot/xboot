@@ -290,6 +290,54 @@
 	"clk-rv1106-gate@0xff3b4808": {"parent": "pclk_vi_rtc_root", "name": "pclk_vi_rtc_phy", "shift": 6, "invert": true },
 	"clk-rv1106-gate@0xff3b4808": {"parent": "pclk_vi_rtc_root", "name": "pclk_vi_rtc_test", "shift": 5, "invert": true, "default": { "enable" : true } },
 
+	"clk-rv1106-gate@0xff3b281c": {"parent": "pclk_peri_root", "name": "pclk_pwm0_peri", "shift": 6, "invert": true },
+	"clk-rv1106-comp": {
+		"parent": [
+			{ "name": "clk_100m_pmu", "value": 0 },
+			{ "name": "clk_50m_pmu", "value": 1 },
+			{ "name": "xin24m", "value": 2 }
+		],
+		"mux-offset": "0xff3b232c",
+		"mux-shift": 0,
+		"mux-width": 2,
+		"gate-offset": "0xff3b281c",
+		"gate-shift": 4,
+		"gate-invert": true,
+		"name": "clk_pwm0_peri"
+	},
+
+	"clk-rv1106-gate@0xff3b280c": {"parent": "pclk_peri_root", "name": "pclk_pwm1_peri", "shift": 15, "invert": true },
+	"clk-rv1106-comp": {
+		"parent": [
+			{ "name": "clk_100m_pmu", "value": 0 },
+			{ "name": "clk_50m_pmu", "value": 1 },
+			{ "name": "xin24m", "value": 2 }
+		],
+		"mux-offset": "0xff3b2318",
+		"mux-shift": 9,
+		"mux-width": 2,
+		"gate-offset": "0xff3b2810",
+		"gate-shift": 0,
+		"gate-invert": true,
+		"name": "clk_pwm1_peri"
+	},
+
+	"clk-rv1106-gate@0xff3b2810": {"parent": "pclk_peri_root", "name": "pclk_pwm2_peri", "shift": 2, "invert": true },
+	"clk-rv1106-comp": {
+		"parent": [
+			{ "name": "clk_100m_pmu", "value": 0 },
+			{ "name": "clk_50m_pmu", "value": 1 },
+			{ "name": "xin24m", "value": 2 }
+		],
+		"mux-offset": "0xff3b2318",
+		"mux-shift": 11,
+		"mux-width": 2,
+		"gate-offset": "0xff3b2810",
+		"gate-shift": 3,
+		"gate-invert": true,
+		"name": "clk_pwm2_peri"
+	},
+
 	"clk-rv1106-gate@0xff3b2804": {"parent": "pclk_peri_root", "name": "pclk_i2c0", "shift": 6, "invert": true },
 	"clk-rv1106-comp": {
 		"parent": [
@@ -478,6 +526,90 @@
 	"gpio-rv1106@0xff540000": { "gpio-base":  64, "gpio-count": 10, "interrupt-offset": 224 },
 	"gpio-rv1106@0xff550000": { "gpio-base":  96, "gpio-count": 28, "interrupt-offset": 256 },
 	"gpio-rv1106@0xff560000": { "gpio-base": 128, "gpio-count": 10, "interrupt-offset": 288 },
+
+	"pwm-rv1106@0xff350000": {
+		"clock-name": "clk_pwm0_peri",
+		"channel": 0,
+		"pwm-gpio": -1,
+		"pwm-gpio-config": -1
+	},
+
+	"pwm-rv1106@0xff350010": {
+		"clock-name": "clk_pwm0_peri",
+		"channel": 1,
+		"pwm-gpio": 4,
+		"pwm-gpio-config": 2
+	},
+
+	"pwm-rv1106@0xff350020": {
+		"clock-name": "clk_pwm0_peri",
+		"channel": 2,
+		"pwm-gpio": -1,
+		"pwm-gpio-config": -1
+	},
+
+	"pwm-rv1106@0xff350030": {
+		"clock-name": "clk_pwm0_peri",
+		"channel": 3,
+		"pwm-gpio": -1,
+		"pwm-gpio-config": -1
+	},
+
+	"pwm-rv1106@0xff360000": {
+		"clock-name": "clk_pwm1_peri",
+		"channel": 0,
+		"pwm-gpio": -1,
+		"pwm-gpio-config": -1
+	},
+
+	"pwm-rv1106@0xff360010": {
+		"clock-name": "clk_pwm1_peri",
+		"channel": 1,
+		"pwm-gpio": -1,
+		"pwm-gpio-config": -1
+	},
+
+	"pwm-rv1106@0xff360020": {
+		"clock-name": "clk_pwm1_peri",
+		"channel": 2,
+		"pwm-gpio": -1,
+		"pwm-gpio-config": -1
+	},
+
+	"pwm-rv1106@0xff360030": {
+		"clock-name": "clk_pwm1_peri",
+		"channel": 3,
+		"pwm-gpio": -1,
+		"pwm-gpio-config": -1
+	},
+
+	"pwm-rv1106@0xff490000": {
+		"clock-name": "clk_pwm2_peri",
+		"channel": 0,
+		"pwm-gpio": -1,
+		"pwm-gpio-config": -1
+	},
+
+	"pwm-rv1106@0xff490010": {
+		"clock-name": "clk_pwm2_peri",
+		"channel": 1,
+		"pwm-gpio": -1,
+		"pwm-gpio-config": -1
+	},
+
+	"pwm-rv1106@0xff490020": {
+		"clock-name": "clk_pwm2_peri",
+		"channel": 2,
+		"pwm-gpio": -1,
+		"pwm-gpio-config": -1
+	},
+
+	"pwm-rv1106@0xff490030": {
+		"clock-name": "clk_pwm2_peri",
+		"channel": 3,
+		"pwm-gpio": -1,
+		"pwm-gpio-config": -1
+	},
 
 	"adc-rv1106@0xff3c0000": {
 		"clock-name": "clk_saradc",

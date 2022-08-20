@@ -32,7 +32,6 @@ extern unsigned char __image_start[];
 extern unsigned char __image_end[];
 extern unsigned char __heap_start[];
 extern void return_to_fel(void);
-extern void sys_mmu_init(void);
 extern void sys_uart_putc(char c);
 extern void sys_decompress(char * src, int slen, char * dst, int dlen);
 extern int sys_hash(char * buf, int len, char * sha256);
@@ -117,7 +116,6 @@ void sys_copyself(void)
 		void * tmp = (void *)z + sizeof(struct zdesc_t);
 		uint32_t size = __image_end - __image_start;
 
-		sys_mmu_init();
 		sys_spinor_init();
 		sys_spinor_read(32768, z, sizeof(struct zdesc_t));
 		sys_spinor_exit();

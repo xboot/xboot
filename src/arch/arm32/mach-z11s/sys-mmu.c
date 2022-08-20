@@ -31,6 +31,8 @@
 
 extern unsigned char __mmu_start[];
 extern unsigned char __mmu_end[];
+extern unsigned char __dma_start[];
+extern unsigned char __dma_end[];
 
 static inline void mmu_ttb_set(uint32_t base)
 {
@@ -71,6 +73,7 @@ void sys_mmu_init(void)
 	map_l1_section(ttb, 0x00000000, 0x00000000, SZ_2G, 0);
 	map_l1_section(ttb, 0x80000000, 0x80000000, SZ_2G, 0);
 	map_l1_section(ttb, 0x40000000, 0x40000000, SZ_64M, 3);
+	map_l1_section(ttb, (virtual_addr_t)__dma_start, (physical_addr_t)__dma_start, (physical_size_t)(__dma_end - __dma_start), 0);
 	mmu_ttb_set((uint32_t)(ttb));
 	mmu_inv_tlb();
 	mmu_domain_set(0x3);

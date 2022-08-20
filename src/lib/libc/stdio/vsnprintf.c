@@ -842,7 +842,7 @@ int vsnprintf(char * buf, size_t n, const char * fmt, va_list ap)
 				case 'e':
 				case 'f':
 				case 'g':
-					sz = format_float(q, (o < n) ? n - o : 0, (double)(va_arg(ap, double)), flags, ch, width, prec);
+					sz = format_float(q, (o < n) ? n - o : 0, (double)(va_arg(ap, double)), flags | FL_SIGNED, ch, width, prec);
 					q += sz;
 					o += sz;
 					break;

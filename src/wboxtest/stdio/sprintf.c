@@ -31,6 +31,21 @@ static void sprintf_run(struct wboxtest_t * wbt, void * data)
 
 	sprintf(buf, "%c%c%c%c%c", 'x', 'b', 'o', 'o', 't');
 	assert_string_equal(buf, "xboot");
+
+	sprintf(buf, "%+d", 2989);
+	assert_string_equal(buf, "+2989");
+
+	sprintf(buf, "%+d", -2989);
+	assert_string_equal(buf, "-2989");
+
+	sprintf(buf, "%e", 323.567);
+	assert_string_equal(buf, "3.235670e+002");
+
+	sprintf(buf, "%+e", 323.567);
+	assert_string_equal(buf, "+3.235670e+002");
+
+	sprintf(buf, "%+e", -323.567);
+	assert_string_equal(buf, "-3.235670e+002");
 }
 
 static struct wboxtest_t wbt_sprintf = {

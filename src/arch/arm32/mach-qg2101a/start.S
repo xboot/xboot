@@ -241,6 +241,9 @@ _avoid:
 _speedup:
 	nop
 
+	/* Initial system mmu */
+	bl sys_mmu_init
+
 	/* Initialize stacks */
 	mrc p15, 0, r4, c0, c0, 5
 	and r4, r4, #0xf
@@ -330,8 +333,6 @@ _speedup:
 	ldr r1, =_main
 	mov pc, r1
 _main:
-	bl mmu_setup
-	bl mmu_enable
 	bl xboot_main
 	b _main
 

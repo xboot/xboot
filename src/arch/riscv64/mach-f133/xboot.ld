@@ -31,6 +31,8 @@ SECTIONS
 		.obj/arch/riscv64/mach-f133/sys-verify.o (.text*)
 		.obj/arch/riscv64/mach-f133/sys-spinor.o (.text*)
 		.obj/arch/riscv64/mach-f133/sys-spinand.o (.text*)
+		.obj/arch/riscv64/mach-f133/sys-sdhci.o (.text*)
+		.obj/arch/riscv64/mach-f133/sys-sdcard.o (.text*)
 		.obj/arch/riscv64/mach-f133/sys-copyself.o (.text*)
 		. = ALIGN(8);
 		PROVIDE(__ddr_bin_start = .);

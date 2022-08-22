@@ -41,6 +41,9 @@ extern void sys_spinor_read(int addr, void * buf, int count);
 extern void sys_spinand_init(void);
 extern void sys_spinand_exit(void);
 extern void sys_spinand_read(int addr, void * buf, int count);
+extern void sys_sdhci_init(void);
+extern void sys_sdhci_reset(void);
+extern void sys_sdcard_read(int addr, void * buf, int count);
 
 struct zdesc_t {			/* Total 256 bytes */
 	uint8_t magic[4];		/* ZBL! */
@@ -144,5 +147,35 @@ void sys_copyself(void)
 	}
 	else if(d == BOOT_DEVICE_SDCARD)
 	{
+		struct zdesc_t * z = (struct zdesc_t *)__heap_start;
+		void * mem = (void *)__image_start;
+		void * tmp = (void *)z + sizeof(struct zdesc_t);
+		uint32_t size = __image_end - __image_start;
+	
+		sys_sdhci_init();
+		sys_sdcard_read(8192 + 65536, z, sizeof(struct zdesc_t));
+		sys_sdhci_reset();
+
+		if((z->magic[0] == 'Z') && (z->magic[1] == 'B') && (z->magic[2] == 'L') && (z->magic[3] == '!'))
+		{
+			//if(sys_verify((char *)z->pubkey, (char *)z->sha256, (char *)z->signature))
+			{
+				uint32_t csize = (z->csize[0] << 24) | (z->csize[1] << 16) | (z->csize[2] << 8) | (z->csize[3] << 0);
+				uint32_t dsize = (z->dsize[0] << 24) | (z->dsize[1] << 16) | (z->dsize[2] << 8) | (z->dsize[3] << 0);
+				sys_sdhci_init();
+				sys_sdcard_read(8192 + 65536 + sizeof(struct zdesc_t), tmp, csize);
+				sys_sdhci_reset();
+				//if(sys_hash((char *)(&z->majoy), (sizeof(struct zdesc_t) - 100) + csize, (char *)z->sha256))
+				{
+					sys_decompress(tmp, csize, mem, dsize);
+				}
+			}
+		}
+		else
+		{
+			sys_sdhci_init();
+			sys_sdcard_read(8192, mem, size);
+			sys_sdhci_reset();
+		}
 	}
 }

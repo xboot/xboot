@@ -23,4 +23,4 @@ endif
 
 xend:
 	@echo Packing rockchip binrary for irom booting
-	@$(MKIDB) arch/$(ARCH)/$(MACH)/tools/images/rk3288_ddr_400MHz_v1.09.bin $(X_NAME).bin $(X_NAME)pak.bin
+	@$(MKIDB) arch/$(ARCH)/$(MACH)/tools/images/rk3288_ddr_400MHz_v1.11.bin $(X_NAME).bin $(X_NAME)pak.bin

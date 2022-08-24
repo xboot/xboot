@@ -9,7 +9,7 @@ extern "C" {
 #include <barrier.h>
 #include <irqflags.h>
 
-#if (__ARM32_ARCH__ >= 6)
+#if (__ARM32_ARCH__ >= 6 && !__RK3288__)
 static inline void atomic_add(atomic_t * a, int v)
 {
 	unsigned int tmp;

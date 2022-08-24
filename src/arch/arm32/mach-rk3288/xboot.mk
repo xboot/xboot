@@ -2,7 +2,7 @@
 # Machine makefile
 #
 
-DEFINES		+= -D__ARM32_ARCH__=7 -D__CORTEX_A17__ -D__ARM32_NEON__
+DEFINES		+= -D__ARM32_ARCH__=7 -D__CORTEX_A17__ -D__ARM32_NEON__ -D__RK3288__
 
 ASFLAGS		:= -g -ggdb -Wall -O3
 CFLAGS		:= -g -ggdb -Wall -O3

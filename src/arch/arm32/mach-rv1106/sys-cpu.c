@@ -34,6 +34,27 @@ static inline void sdelay(int loops)
 		"bne 1b":"=r" (loops):"0"(loops));
 }
 
+void sys_boot_mcu(u32_t addr)
+{
+	/*
+	 * Set the mcu uncache area, usually set the devices address
+	 */
+	write32(0xff040000 + 0x0024, 0xff000);
+	write32(0xff040000 + 0x0028, 0xffc00);
+	/*
+	 * Reset the mcu
+	 */
+	write32(0xff3b8000 + 0xa04, 0x1e001e);
+	/*
+	 * Set the mcu addr
+	 */
+	write32(0xff076000 + 0x0044, addr);
+	/*
+	 * Release the mcu
+	 */
+	write32(0xff3b8000 + 0xa04, 0x1e0000);
+}
+
 void sys_cpu_init(void)
 {
 	/*

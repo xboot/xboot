@@ -62,7 +62,8 @@ void sys_cpu_init(void)
 	/*
 	 * Set fspi clk 6mA
 	 */
-	write32(0xff568000 + 0x0030, 0x0f000700);
+	if((read32(0xff568000 + 0x0008) & 0x70) == 0x20)
+		write32(0xff568000 + 0x0030, 0x3f000700);
 
 	/*
 	 * Set the USB2 PHY in suspend mode and turn off the

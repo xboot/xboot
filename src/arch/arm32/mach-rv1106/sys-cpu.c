@@ -37,6 +37,14 @@ static inline void sdelay(int loops)
 void sys_cpu_init(void)
 {
 	/*
+	 * Save chip version to OS_REG1[2:0]
+	 */
+	if(read32(0xffff4ffc) == 0x30303256)
+		write32(0xff020204, (read32(0xff020204) & ~0x7) | 0x1);
+	else
+		write32(0xff020204, (read32(0xff020204) & ~0x7) | 0x0);
+
+	/*
 	 * Set all devices to Non-secure
 	 */
 	write32(0xff070000 + 0x0020, 0xffff0000);

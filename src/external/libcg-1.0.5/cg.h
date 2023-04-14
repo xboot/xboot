@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-#include <swft.h>
+#include <xft.h>
 
 struct cg_point_t {
 	double x;
@@ -100,7 +100,6 @@ struct cg_surface_t {
 };
 
 struct cg_path_t {
-	int ref;
 	int contours;
 	struct cg_point_t start;
 	struct {
@@ -116,7 +115,6 @@ struct cg_path_t {
 };
 
 struct cg_gradient_t {
-	int ref;
 	enum cg_gradient_type_t type;
 	enum cg_spread_method_t spread;
 	struct cg_matrix_t matrix;
@@ -130,7 +128,6 @@ struct cg_gradient_t {
 };
 
 struct cg_texture_t {
-	int ref;
 	enum cg_texture_type_t type;
 	struct cg_surface_t * surface;
 	struct cg_matrix_t matrix;
@@ -138,19 +135,16 @@ struct cg_texture_t {
 };
 
 struct cg_paint_t {
-	int ref;
 	enum cg_paint_type_t type;
-	union {
-		struct cg_color_t * color;
-		struct cg_gradient_t * gradient;
-		struct cg_texture_t * texture;
-	};
+	struct cg_color_t color;
+	struct cg_gradient_t gradient;
+	struct cg_texture_t texture;
 };
 
 struct cg_span_t {
-	short x;
-	short y;
-	unsigned short len;
+	int x;
+	int len;
+	int y;
 	unsigned char coverage;
 };
 
@@ -182,7 +176,7 @@ struct cg_stroke_data_t {
 
 struct cg_state_t {
 	struct cg_rle_t * clippath;
-	struct cg_paint_t * source;
+	struct cg_paint_t paint;
 	struct cg_matrix_t matrix;
 	enum cg_fill_rule_t winding;
 	struct cg_stroke_data_t stroke;
@@ -198,6 +192,8 @@ struct cg_ctx_t {
 	struct cg_rle_t * rle;
 	struct cg_rle_t * clippath;
 	struct cg_rect_t clip;
+	void * outline_data;
+	size_t outline_size;
 };
 
 #ifndef CG_MIN
@@ -246,57 +242,32 @@ struct cg_surface_t * cg_surface_create_for_data(int width, int height, void * p
 void cg_surface_destroy(struct cg_surface_t * surface);
 struct cg_surface_t * cg_surface_reference(struct cg_surface_t * surface);
 
-struct cg_path_t * cg_path_create(void);
-void cg_path_destroy(struct cg_path_t * path);
-struct cg_path_t * cg_path_reference(struct cg_path_t * path);
-
-struct cg_gradient_t * cg_gradient_create_linear(double x1, double y1, double x2, double y2);
-struct cg_gradient_t * cg_gradient_create_radial(double cx, double cy, double cr, double fx, double fy, double fr);
-void cg_gradient_destroy(struct cg_gradient_t * gradient);
-struct cg_gradient_t * cg_gradient_reference(struct cg_gradient_t * gradient);
+void cg_gradient_set_values_linear(struct cg_gradient_t * gradient, double x1, double y1, double x2, double y2);
+void cg_gradient_set_values_radial(struct cg_gradient_t * gradient, double cx, double cy, double cr, double fx, double fy, double fr);
 void cg_gradient_set_spread(struct cg_gradient_t * gradient, enum cg_spread_method_t spread);
 void cg_gradient_set_matrix(struct cg_gradient_t * gradient, struct cg_matrix_t * m);
+void cg_gradient_set_opacity(struct cg_gradient_t * gradient, double opacity);
 void cg_gradient_add_stop_rgb(struct cg_gradient_t * gradient, double offset, double r, double g, double b);
 void cg_gradient_add_stop_rgba(struct cg_gradient_t * gradient, double offset, double r, double g, double b, double a);
 void cg_gradient_add_stop_color(struct cg_gradient_t * gradient, double offset, struct cg_color_t * color);
 void cg_gradient_add_stop(struct cg_gradient_t * gradient, struct cg_gradient_stop_t * stop);
 void cg_gradient_clear_stops(struct cg_gradient_t * gradient);
-void cg_gradient_set_opacity(struct cg_gradient_t * paint, double opacity);
 
-struct cg_texture_t * cg_texture_create(struct cg_surface_t * surface);
-void cg_texture_destroy(struct cg_texture_t * texture);
-struct cg_texture_t * cg_texture_reference(struct cg_texture_t * texture);
 void cg_texture_set_type(struct cg_texture_t * texture, enum cg_texture_type_t type);
 void cg_texture_set_matrix(struct cg_texture_t * texture, struct cg_matrix_t * m);
 void cg_texture_set_surface(struct cg_texture_t * texture, struct cg_surface_t * surface);
 void cg_texture_set_opacity(struct cg_texture_t * texture, double opacity);
 
-struct cg_paint_t * cg_paint_create_rgb(double r, double g, double b);
-struct cg_paint_t * cg_paint_create_rgba(double r, double g, double b, double a);
-struct cg_paint_t * cg_paint_create_linear(double x1, double y1, double x2, double y2);
-struct cg_paint_t * cg_paint_create_radial(double cx, double cy, double cr, double fx, double fy, double fr);
-struct cg_paint_t * cg_paint_create_for_surface(struct cg_surface_t * surface);
-struct cg_paint_t * cg_paint_create_color(struct cg_color_t * color);
-struct cg_paint_t * cg_paint_create_gradient(struct cg_gradient_t * gradient);
-struct cg_paint_t * cg_paint_create_texture(struct cg_texture_t * texture);
-void cg_paint_destroy(struct cg_paint_t * paint);
-struct cg_paint_t * cg_paint_reference(struct cg_paint_t * paint);
-enum cg_paint_type_t cg_paint_get_type(struct cg_paint_t * paint);
-struct cg_color_t * cg_paint_get_color(struct cg_paint_t * paint);
-struct cg_gradient_t * cg_paint_get_gradient(struct cg_paint_t * paint);
-struct cg_texture_t * cg_paint_get_texture(struct cg_paint_t * paint);
-
 struct cg_ctx_t * cg_create(struct cg_surface_t * surface);
 void cg_destroy(struct cg_ctx_t * ctx);
 void cg_save(struct cg_ctx_t * ctx);
 void cg_restore(struct cg_ctx_t * ctx);
-void cg_set_source_rgb(struct cg_ctx_t * ctx, double r, double g, double b);
-void cg_set_source_rgba(struct cg_ctx_t * ctx, double r, double g, double b, double a);
-void cg_set_source_surface(struct cg_ctx_t * ctx, struct cg_surface_t * surface, double x, double y);
-void cg_set_source_color(struct cg_ctx_t * ctx, struct cg_color_t * color);
-void cg_set_source_gradient(struct cg_ctx_t * ctx, struct cg_gradient_t * gradient);
-void cg_set_source_texture(struct cg_ctx_t * ctx, struct cg_texture_t * texture);
-void cg_set_source(struct cg_ctx_t * ctx, struct cg_paint_t * source);
+struct cg_color_t * cg_set_source_rgb(struct cg_ctx_t * ctx, double r, double g, double b);
+struct cg_color_t * cg_set_source_rgba(struct cg_ctx_t * ctx, double r, double g, double b, double a);
+struct cg_color_t * cg_set_source_color(struct cg_ctx_t * ctx, struct cg_color_t * color);
+struct cg_gradient_t * cg_set_source_linear_gradient(struct cg_ctx_t * ctx, double x1, double y1, double x2, double y2);
+struct cg_gradient_t * cg_set_source_radial_gradient(struct cg_ctx_t * ctx, double cx, double cy, double cr, double fx, double fy, double fr);
+struct cg_texture_t * cg_set_source_surface(struct cg_ctx_t * ctx, struct cg_surface_t * surface, double x, double y);
 void cg_set_operator(struct cg_ctx_t * ctx, enum cg_operator_t op);
 void cg_set_opacity(struct cg_ctx_t * ctx, double opacity);
 void cg_set_fill_rule(struct cg_ctx_t * ctx, enum cg_fill_rule_t winding);

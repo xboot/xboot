@@ -111,6 +111,7 @@ static void luaopen_prelibs(lua_State * L)
 		{ "hardware.adc",			luaopen_hardware_adc },
 		{ "hardware.battery",		luaopen_hardware_battery },
 		{ "hardware.buzzer",		luaopen_hardware_buzzer },
+		{ "hardware.camera",		luaopen_hardware_camera },
 		{ "hardware.compass",		luaopen_hardware_compass },
 		{ "hardware.dac",			luaopen_hardware_dac },
 		{ "hardware.gmeter",		luaopen_hardware_gmeter },

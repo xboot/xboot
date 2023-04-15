@@ -87,6 +87,7 @@ extern "C" {
 #include <block/block.h>
 #include <camera/camera.h>
 #include <vision/vision.h>
+#include <vision/bitwise.h>
 #include <vision/colormap.h>
 #include <vision/dilate.h>
 #include <vision/dither.h>

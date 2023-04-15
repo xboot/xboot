@@ -82,15 +82,15 @@ static const luaL_Reg l_vision[] = {
 
 static int m_vision_gc(lua_State * L)
 {
-	struct lvision_t * vison = luaL_checkudata(L, 1, MT_VISION);
-	vision_free(vison->v);
+	struct lvision_t * vision = luaL_checkudata(L, 1, MT_VISION);
+	vision_free(vision->v);
 	return 0;
 }
 
 static int m_vision_tostring(lua_State * L)
 {
-	struct lvision_t * vison = luaL_checkudata(L, 1, MT_VISION);
-	struct vision_t * v = vison->v;
+	struct lvision_t * vision = luaL_checkudata(L, 1, MT_VISION);
+	struct vision_t * v = vision->v;
 	enum vision_type_t type = vision_get_type(v);
 	int width = vision_get_width(v);
 	int height = vision_get_height(v);
@@ -138,48 +138,48 @@ static int m_vision_get_type(lua_State * L)
 
 static int m_vision_get_type_bytes(lua_State * L)
 {
-	struct lvision_t * vison = luaL_checkudata(L, 1, MT_VISION);
-	lua_pushnumber(L, vision_type_get_bytes(vison->v->type));
+	struct lvision_t * vision = luaL_checkudata(L, 1, MT_VISION);
+	lua_pushnumber(L, vision_type_get_bytes(vision->v->type));
 	return 1;
 }
 
 static int m_vision_get_type_channels(lua_State * L)
 {
-	struct lvision_t * vison = luaL_checkudata(L, 1, MT_VISION);
-	lua_pushnumber(L, vision_type_get_channels(vison->v->type));
+	struct lvision_t * vision = luaL_checkudata(L, 1, MT_VISION);
+	lua_pushnumber(L, vision_type_get_channels(vision->v->type));
 	return 1;
 }
 
 static int m_vision_get_width(lua_State * L)
 {
-	struct lvision_t * vison = luaL_checkudata(L, 1, MT_VISION);
-	lua_pushnumber(L, vision_get_width(vison->v));
+	struct lvision_t * vision = luaL_checkudata(L, 1, MT_VISION);
+	lua_pushnumber(L, vision_get_width(vision->v));
 	return 1;
 }
 
 static int m_vision_get_height(lua_State * L)
 {
-	struct lvision_t * vison = luaL_checkudata(L, 1, MT_VISION);
-	lua_pushnumber(L, vision_get_height(vison->v));
+	struct lvision_t * vision = luaL_checkudata(L, 1, MT_VISION);
+	lua_pushnumber(L, vision_get_height(vision->v));
 	return 1;
 }
 
 static int m_vision_get_size(lua_State * L)
 {
-	struct lvision_t * vison = luaL_checkudata(L, 1, MT_VISION);
-	lua_pushnumber(L, vision_get_width(vison->v));
-	lua_pushnumber(L, vision_get_height(vison->v));
+	struct lvision_t * vision = luaL_checkudata(L, 1, MT_VISION);
+	lua_pushnumber(L, vision_get_width(vision->v));
+	lua_pushnumber(L, vision_get_height(vision->v));
 	return 2;
 }
 
 static int m_vision_clone(lua_State * L)
 {
-	struct lvision_t * vison = luaL_checkudata(L, 1, MT_VISION);
+	struct lvision_t * vision = luaL_checkudata(L, 1, MT_VISION);
 	int x = luaL_optinteger(L, 2, 0);
 	int y = luaL_optinteger(L, 3, 0);
 	int w = luaL_optinteger(L, 4, 0);
 	int h = luaL_optinteger(L, 5, 0);
-	struct vision_t * o = vision_clone(vison->v, x, y, w, h);
+	struct vision_t * o = vision_clone(vision->v, x, y, w, h);
 	if(!o)
 		return 0;
 	struct lvision_t * subvision = lua_newuserdata(L, sizeof(struct lvision_t));
@@ -190,7 +190,7 @@ static int m_vision_clone(lua_State * L)
 
 static int m_vision_inrange(lua_State * L)
 {
-	struct lvision_t * vison = luaL_checkudata(L, 1, MT_VISION);
+	struct lvision_t * vision = luaL_checkudata(L, 1, MT_VISION);
 	float l[3], h[3];
 	if(lua_gettop(L) == 3)
 	{
@@ -202,7 +202,7 @@ static int m_vision_inrange(lua_State * L)
 			lua_rawgeti(L, 3, 1); h[0] = lua_tonumber(L, -1); lua_pop(L, 1);
 			lua_rawgeti(L, 3, 2); h[1] = lua_tonumber(L, -1); lua_pop(L, 1);
 			lua_rawgeti(L, 3, 3); h[2] = lua_tonumber(L, -1); lua_pop(L, 1);
-			struct vision_t * o = vision_inrange(vison->v, l, h);
+			struct vision_t * o = vision_inrange(vision->v, l, h);
 			if(o)
 			{
 				struct lvision_t * mask = lua_newuserdata(L, sizeof(struct lvision_t));
@@ -217,7 +217,7 @@ static int m_vision_inrange(lua_State * L)
 
 static int m_vision_convert(lua_State * L)
 {
-	struct lvision_t * vison = luaL_checkudata(L, 1, MT_VISION);
+	struct lvision_t * vision = luaL_checkudata(L, 1, MT_VISION);
 	enum vision_type_t type = VISION_TYPE_RGB;
 	switch(shash(luaL_optstring(L, 2, NULL)))
 	{
@@ -233,40 +233,62 @@ static int m_vision_convert(lua_State * L)
 	default:
 		break;
 	}
-	vision_convert(vison->v, type);
+	vision_convert(vision->v, type);
 	lua_settop(L, 1);
 	return 1;
 }
 
 static int m_vision_apply(lua_State * L)
 {
-	struct lvision_t * vison = luaL_checkudata(L, 1, MT_VISION);
+	struct lvision_t * vision = luaL_checkudata(L, 1, MT_VISION);
 	struct limage_t * img = luaL_checkudata(L, 2, MT_IMAGE);
-	vision_apply_surface(vison->v, img->s);
+	vision_apply_surface(vision->v, img->s);
+	lua_settop(L, 1);
+	return 1;
+}
+
+static int m_vision_bitwise(lua_State * L)
+{
+	struct lvision_t * vision = luaL_checkudata(L, 1, MT_VISION);
+	struct lvision_t * o = luaL_checkudata(L, 2, MT_VISION);
+	switch(shash(luaL_optstring(L, 3, NULL)))
+	{
+	case 0x0b885e18: /* "and" */
+		vision_bitwise_and(vision->v, o->v);
+		break;
+	case 0x00597906: /* "or" */
+		vision_bitwise_or(vision->v, o->v);
+		break;
+	case 0x0b88c01e: /* "xor" */
+		vision_bitwise_xor(vision->v, o->v);
+		break;
+	default:
+		break;
+	}
 	lua_settop(L, 1);
 	return 1;
 }
 
 static int m_vision_gray(lua_State * L)
 {
-	struct lvision_t * vison = luaL_checkudata(L, 1, MT_VISION);
-	vision_gray(vison->v);
+	struct lvision_t * vision = luaL_checkudata(L, 1, MT_VISION);
+	vision_gray(vision->v);
 	lua_settop(L, 1);
 	return 1;
 }
 
 static int m_vision_sepia(lua_State * L)
 {
-	struct lvision_t * vison = luaL_checkudata(L, 1, MT_VISION);
-	vision_sepia(vison->v);
+	struct lvision_t * vision = luaL_checkudata(L, 1, MT_VISION);
+	vision_sepia(vision->v);
 	lua_settop(L, 1);
 	return 1;
 }
 
 static int m_vision_invert(lua_State * L)
 {
-	struct lvision_t * vison = luaL_checkudata(L, 1, MT_VISION);
-	vision_invert(vison->v);
+	struct lvision_t * vision = luaL_checkudata(L, 1, MT_VISION);
+	vision_invert(vision->v);
 	lua_settop(L, 1);
 	return 1;
 }
@@ -281,28 +303,28 @@ static int m_vision_dither(lua_State * L)
 
 static int m_vision_threshold(lua_State * L)
 {
-	struct lvision_t * vison = luaL_checkudata(L, 1, MT_VISION);
+	struct lvision_t * vision = luaL_checkudata(L, 1, MT_VISION);
 	int threshold = luaL_optinteger(L, 2, -1);
 	const char * type = luaL_optstring(L, 3, "binary");
-	vision_threshold(vison->v, threshold, type);
+	vision_threshold(vision->v, threshold, type);
 	lua_settop(L, 1);
 	return 1;
 }
 
 static int m_vision_colormap(lua_State * L)
 {
-	struct lvision_t * vison = luaL_checkudata(L, 1, MT_VISION);
+	struct lvision_t * vision = luaL_checkudata(L, 1, MT_VISION);
 	const char * type = luaL_optstring(L, 2, "parula");
-	vision_colormap(vison->v, type);
+	vision_colormap(vision->v, type);
 	lua_settop(L, 1);
 	return 1;
 }
 
 static int m_vision_gamma(lua_State * L)
 {
-	struct lvision_t * vison = luaL_checkudata(L, 1, MT_VISION);
+	struct lvision_t * vision = luaL_checkudata(L, 1, MT_VISION);
 	float gamma = luaL_optnumber(L, 2, 1.0);
-	vision_gamma(vison->v, gamma);
+	vision_gamma(vision->v, gamma);
 	lua_settop(L, 1);
 	return 1;
 }
@@ -340,6 +362,7 @@ static const luaL_Reg m_vision[] = {
 
 	{"convert",			m_vision_convert},
 	{"apply",			m_vision_apply},
+	{"bitwise",			m_vision_bitwise},
 
 	{"gray",			m_vision_gray},
 	{"sepia",			m_vision_sepia},

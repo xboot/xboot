@@ -1111,7 +1111,8 @@ static void display_draw(struct window_t * w, struct ldobject_t * o)
 static int m_render(lua_State * L)
 {
 	struct ldobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
-	struct window_t * w = luaL_checkudata(L, 2, MT_WINDOW);
+	struct lwindow_t * lw = luaL_checkudata(L, 2, MT_WINDOW);
+	struct window_t * w = lw->w;
 	if(window_is_active(w))
 	{
 		window_region_list_clear(w);

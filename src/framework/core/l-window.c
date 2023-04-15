@@ -33,7 +33,8 @@
 static int l_window_new(lua_State * L)
 {
 	struct window_t * w = ((struct vmctx_t *)luahelper_vmctx(L))->w;
-	lua_pushlightuserdata(L, w);
+	struct lwindow_t * lw = lua_newuserdata(L, sizeof(struct lwindow_t));
+	lw->w = w;
 	luaL_setmetatable(L, MT_WINDOW);
 	return 1;
 }
@@ -46,7 +47,8 @@ static int l_window_list(lua_State * L)
 	lua_newtable(L);
 	list_for_each_entry_safe(pos, n, &w->wm->window, list)
 	{
-		lua_pushlightuserdata(L, pos);
+		struct lwindow_t * lw = lua_newuserdata(L, sizeof(struct lwindow_t));
+		lw->w = pos;
 		luaL_setmetatable(L, MT_WINDOW);
 		lua_setfield(L, -2, pos->task->name);
 	}
@@ -61,55 +63,55 @@ static const luaL_Reg l_window[] = {
 
 static int m_window_get_size(lua_State * L)
 {
-	struct window_t * w = luaL_checkudata(L, 1, MT_WINDOW);
-	lua_pushnumber(L, window_get_width(w));
-	lua_pushnumber(L, window_get_height(w));
+	struct lwindow_t * lw = luaL_checkudata(L, 1, MT_WINDOW);
+	lua_pushnumber(L, window_get_width(lw->w));
+	lua_pushnumber(L, window_get_height(lw->w));
 	return 2;
 }
 
 static int m_window_get_physical_size(lua_State * L)
 {
-	struct window_t * w = luaL_checkudata(L, 1, MT_WINDOW);
-	lua_pushnumber(L, window_get_pwidth(w));
-	lua_pushnumber(L, window_get_pheight(w));
+	struct lwindow_t * lw = luaL_checkudata(L, 1, MT_WINDOW);
+	lua_pushnumber(L, window_get_pwidth(lw->w));
+	lua_pushnumber(L, window_get_pheight(lw->w));
 	return 2;
 }
 
 static int m_window_set_backlight(lua_State * L)
 {
-	struct window_t * w = luaL_checkudata(L, 1, MT_WINDOW);
+	struct lwindow_t * lw = luaL_checkudata(L, 1, MT_WINDOW);
 	int brightness = luaL_checknumber(L, 2) * (lua_Number)(1000);
-	window_set_backlight(w, brightness);
+	window_set_backlight(lw->w, brightness);
 	return 0;
 }
 
 static int m_window_get_backlight(lua_State * L)
 {
-	struct window_t * w = luaL_checkudata(L, 1, MT_WINDOW);
-	int brightness = window_get_backlight(w);
+	struct lwindow_t * lw = luaL_checkudata(L, 1, MT_WINDOW);
+	int brightness = window_get_backlight(lw->w);
 	lua_pushnumber(L, brightness / (lua_Number)(1000));
 	return 1;
 }
 
 static int m_window_to_front(lua_State * L)
 {
-	struct window_t * w = luaL_checkudata(L, 1, MT_WINDOW);
-	window_to_front(w);
+	struct lwindow_t * lw = luaL_checkudata(L, 1, MT_WINDOW);
+	window_to_front(lw->w);
 	return 0;
 }
 
 static int m_window_to_back(lua_State * L)
 {
-	struct window_t * w = luaL_checkudata(L, 1, MT_WINDOW);
-	window_to_back(w);
+	struct lwindow_t * lw = luaL_checkudata(L, 1, MT_WINDOW);
+	window_to_back(lw->w);
 	return 0;
 }
 
 static int m_window_snapshot(lua_State * L)
 {
-	struct window_t * w = luaL_checkudata(L, 1, MT_WINDOW);
+	struct lwindow_t * lw = luaL_checkudata(L, 1, MT_WINDOW);
 	struct limage_t * img = lua_newuserdata(L, sizeof(struct limage_t));
-	img->s = surface_clone(w->s, 0, 0, 0, 0);
+	img->s = surface_clone(lw->w->s, 0, 0, 0, 0);
 	luaL_setmetatable(L, MT_IMAGE);
 	return 1;
 }

@@ -250,17 +250,28 @@ static int m_vision_apply(lua_State * L)
 static int m_vision_bitwise(lua_State * L)
 {
 	struct lvision_t * vision = luaL_checkudata(L, 1, MT_VISION);
-	struct lvision_t * o = luaL_checkudata(L, 2, MT_VISION);
-	switch(shash(luaL_optstring(L, 3, NULL)))
+	switch(shash(luaL_optstring(L, 2, NULL)))
 	{
 	case 0x0b885e18: /* "and" */
-		vision_bitwise_and(vision->v, o->v);
+		{
+			struct lvision_t * o = luaL_checkudata(L, 3, MT_VISION);
+			vision_bitwise_and(vision->v, o->v);
+		}
 		break;
 	case 0x00597906: /* "or" */
-		vision_bitwise_or(vision->v, o->v);
+		{
+			struct lvision_t * o = luaL_checkudata(L, 3, MT_VISION);
+			vision_bitwise_or(vision->v, o->v);
+		}
 		break;
 	case 0x0b88c01e: /* "xor" */
-		vision_bitwise_xor(vision->v, o->v);
+		{
+			struct lvision_t * o = luaL_checkudata(L, 3, MT_VISION);
+			vision_bitwise_xor(vision->v, o->v);
+		}
+		break;
+	case 0x0b889596: /* "not" */
+		vision_bitwise_not(vision->v);
 		break;
 	default:
 		break;

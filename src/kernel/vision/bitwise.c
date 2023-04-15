@@ -328,3 +328,35 @@ void vision_bitwise_xor(struct vision_t * v, struct vision_t * o)
 		}
 	}
 }
+
+void vision_bitwise_not(struct vision_t * v)
+{
+	if(v)
+	{
+		switch(v->type)
+		{
+		case VISION_TYPE_GRAY:
+			{
+				unsigned char * pgray = (unsigned char *)v->datas;
+				for(int i = 0; i < v->npixel; i++, pgray++)
+					*pgray = ~*pgray;
+			}
+			break;
+		case VISION_TYPE_RGB:
+			{
+				unsigned char * pr = &((unsigned char *)v->datas)[v->npixel * 0];
+				unsigned char * pg = &((unsigned char *)v->datas)[v->npixel * 1];
+				unsigned char * pb = &((unsigned char *)v->datas)[v->npixel * 2];
+				for(int i = 0; i < v->npixel; i++, pr++, pg++, pb++)
+				{
+					*pr = ~*pr;
+					*pg = ~*pg;
+					*pb = ~*pb;
+				}
+			}
+			break;
+		default:
+			break;
+		}
+	}
+}

@@ -10,6 +10,7 @@ extern "C" {
 void vision_bitwise_and(struct vision_t * v, struct vision_t * o);
 void vision_bitwise_or(struct vision_t * v, struct vision_t * o);
 void vision_bitwise_xor(struct vision_t * v, struct vision_t * o);
+void vision_bitwise_not(struct vision_t * v);
 
 #ifdef __cplusplus
 }

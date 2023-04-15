@@ -3,7 +3,7 @@ local sw, sh = stage:getSize()
 local bgimg = Image.new("assets/images/background.png")
 stage:addChild(DisplayImage.new(bgimg))
 
-local mimg = bgimg:extend(sw, sh, "repeat"):blur(120):blit(Matrix.new(), Image.new("assets/images/water.png"))
+local mimg = bgimg:extend(sw, sh, "repeat"):filterBlur(120):blit(Matrix.new(), Image.new("assets/images/water.png"))
 local mask = DisplayImage.new(mimg)
 stage:addChild(mask)
 

@@ -119,6 +119,7 @@ int camera_capture(struct camera_t * cam, struct video_frame_t * frame, int time
 			do {
 				if(cam->capture(cam, frame))
 					return 1;
+				msleep(1);
 			} while(ktime_before(ktime_get(), t));
 		}
 		else

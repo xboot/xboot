@@ -86,7 +86,7 @@
 	.global _start
 _start:
 	/* Boot head information for BROM */
-	.long 0xea000016
+	.long 0xea00000e
 	.byte 'e', 'G', 'O', 'N', '.', 'B', 'T', '0'
 	.long 0x12345678				/* checksum */
 	.long __spl_size				/* spl size */
@@ -97,7 +97,9 @@ _start:
 	.long 0x0						/* eGON version */
 	.byte 0x00, 0x00, 0x00, 0x00	/* platform information - 8byte */
 	.byte 0x34, 0x2e, 0x30, 0x00
+	.long 0, 0, 0, 0				/* reserve */
 
+	.align 5
 _vector:
 	b reset
 	ldr pc, _undefined_instruction

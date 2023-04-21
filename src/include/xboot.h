@@ -55,6 +55,7 @@ extern "C" {
 #include <alloca.h>
 #include <charset.h>
 #include <version.h>
+
 #include <xboot/kobj.h>
 #include <xboot/ktime.h>
 #include <xboot/seqlock.h>
@@ -74,11 +75,13 @@ extern "C" {
 #include <xboot/module.h>
 #include <xboot/setting.h>
 #include <xboot/sync.h>
-#include <time/delay.h>
-#include <time/timer.h>
+
 #include <vfs/vfs.h>
 #include <xfs/xfs.h>
+#include <time/delay.h>
+#include <time/timer.h>
 #include <shell/shell.h>
+
 #include <clockevent/clockevent.h>
 #include <clocksource/clocksource.h>
 #include <framebuffer/framebuffer.h>
@@ -86,6 +89,7 @@ extern "C" {
 #include <audio/audio.h>
 #include <block/block.h>
 #include <camera/camera.h>
+
 #include <vision/vision.h>
 #include <vision/bitwise.h>
 #include <vision/colormap.h>
@@ -98,6 +102,7 @@ extern "C" {
 #include <vision/invert.h>
 #include <vision/sepia.h>
 #include <vision/threshold.h>
+
 #include <xui/xui.h>
 #include <xui/window.h>
 #include <xui/badge.h>

@@ -324,6 +324,12 @@ static int l_xboot_keygen(lua_State * L)
 	return 1;
 }
 
+static int l_xboot_verify(lua_State * L)
+{
+	lua_pushboolean(L, machine_verify());
+	return 1;
+}
+
 static int pmain(lua_State * L)
 {
 	luaL_openlibs(L);
@@ -364,6 +370,8 @@ static int pmain(lua_State * L)
 	lua_setfield(L, -2, "uniqueid");
 	lua_pushcfunction(L, l_xboot_keygen);
 	lua_setfield(L, -2, "keygen");
+	lua_pushcfunction(L, l_xboot_verify);
+	lua_setfield(L, -2, "verify");
 
 	luaopen_boot(L);
 	return 0;

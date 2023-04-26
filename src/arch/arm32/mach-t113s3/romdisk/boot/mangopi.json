@@ -257,7 +257,7 @@
 	"clk-gate@0x02001680": {"parent": "ratio-ce", "name": "gate-ce", "shift": 31, "invert": false },
 	"clk-link": { "parent": "gate-ce", "name": "link-ce" },
 
-	"clk-gate@0x020017ac": { "parent": "apb0", "name": "bus-pwm", "shift": 0, "invert": false },
+	"clk-gate@0x020017ac": { "parent": "apb0", "name": "bus-pwm", "shift": 0, "invert": false, "default": { "enable": true } },
 	"clk-gate@0x020017bc": { "parent": "apb0", "name": "bus-iommu", "shift": 0, "invert": false },
 	"clk-gate@0x020019cc": { "parent": "apb0", "name": "bus-ir-tx", "shift": 0, "invert": false },
 	"clk-gate@0x020019ec": { "parent": "apb0", "name": "bus-gpadc", "shift": 0, "invert": false },
@@ -266,7 +266,7 @@
 	"clk-gate@0x02001a4c": { "parent": "apb0", "name": "bus-dmic", "shift": 0, "invert": false },
 	"clk-gate@0x02001a5c": { "parent": "apb0", "name": "bus-audio-codec", "shift": 0, "invert": false },
 	"clk-gate@0x02001c5c": { "parent": "apb0", "name": "bus-tpadc", "shift": 0, "invert": false, "default": { "enable": true } },
-	"clk-gate@0x02001c6c": { "parent": "apb0", "name": "bus-tzma", "shift": 0, "invert": false },
+	"clk-gate@0x02001c6c": { "parent": "apb0", "name": "bus-tzma", "shift": 0, "invert": false, "default": { "enable": true } },
 
 	"clk-gate@0x0200190c": { "parent": "apb1", "name": "bus-uart0", "shift": 0, "invert": false },
 	"clk-gate@0x0200190c": { "parent": "apb1", "name": "bus-uart1", "shift": 1, "invert": false },

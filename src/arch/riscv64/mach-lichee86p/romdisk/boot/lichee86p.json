@@ -47,6 +47,15 @@
 	"clk-divider@0x02001080": { "parent": "pll-audio1", "name": "pll-audio1-div5", "shift": 20, "width": 3, "divider-one-based": true },
 	"clk-divider@0x02001080": { "parent": "pll-audio1", "name": "pll-audio1-div2", "shift": 16, "width": 3, "divider-one-based": true },
 
+	"clk-fixed-factor": { "parent": "pll-ddr0", "name": "mbus", "mult": 1, "div": 4 },
+	"clk-gate@0x02001804": { "parent": "mbus", "name": "mbus-risc", "shift": 11, "invert": false, "default": { "enable": true } },
+	"clk-gate@0x02001804": { "parent": "mbus", "name": "mbus-g2d", "shift": 10, "invert": false, "default": { "enable": true } },
+	"clk-gate@0x02001804": { "parent": "mbus", "name": "mbus-csi", "shift": 8, "invert": false, "default": { "enable": true } },
+	"clk-gate@0x02001804": { "parent": "mbus", "name": "mbus-tvin", "shift": 7, "invert": false, "default": { "enable": true } },
+	"clk-gate@0x02001804": { "parent": "mbus", "name": "mbus-ce", "shift": 2, "invert": false, "default": { "enable": true } },
+	"clk-gate@0x02001804": { "parent": "mbus", "name": "mbus-ve", "shift": 1, "invert": false, "default": { "enable": true } },
+	"clk-gate@0x02001804": { "parent": "mbus", "name": "mbus-dma", "shift": 0, "invert": false, "default": { "enable": true } },
+
 	"clk-mux@0x02001510": {
 		"parent": [
 			{ "name": "dcxo24m", "value": 0 },

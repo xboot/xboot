@@ -49,21 +49,21 @@ struct g2d_t * search_first_g2d(void)
 	return (struct g2d_t *)dev->priv;
 }
 
-struct device_t * register_g2d(struct g2d_t * g, struct driver_t * drv)
+struct device_t * register_g2d(struct g2d_t * g2d, struct driver_t * drv)
 {
 	struct device_t * dev;
 
-	if(!g || !g->name)
+	if(!g2d || !g2d->name)
 		return NULL;
 
 	dev = malloc(sizeof(struct device_t));
 	if(!dev)
 		return NULL;
 
-	dev->name = strdup(g->name);
+	dev->name = strdup(g2d->name);
 	dev->type = DEVICE_TYPE_G2D;
 	dev->driver = drv;
-	dev->priv = g;
+	dev->priv = g2d;
 	dev->kobj = kobj_alloc_directory(dev->name);
 
 	if(!register_device(dev))
@@ -76,13 +76,13 @@ struct device_t * register_g2d(struct g2d_t * g, struct driver_t * drv)
 	return dev;
 }
 
-void unregister_g2d(struct g2d_t * g)
+void unregister_g2d(struct g2d_t * g2d)
 {
 	struct device_t * dev;
 
-	if(g && g->name)
+	if(g2d && g2d->name)
 	{
-		dev = search_device(g->name, DEVICE_TYPE_G2D);
+		dev = search_device(g2d->name, DEVICE_TYPE_G2D);
 		if(dev && unregister_device(dev))
 		{
 			kobj_remove_self(dev->kobj);

@@ -32,6 +32,7 @@ struct surface_t
 	void * pixels;
 	struct render_t * r;
 	void * rctx;
+	void * g2d;
 	void * priv;
 };
 

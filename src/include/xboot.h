@@ -85,6 +85,7 @@ extern "C" {
 #include <clockevent/clockevent.h>
 #include <clocksource/clocksource.h>
 #include <framebuffer/framebuffer.h>
+#include <g2d/g2d.h>
 #include <sound/sound.h>
 #include <audio/audio.h>
 #include <block/block.h>

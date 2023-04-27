@@ -82,6 +82,7 @@ static struct surface_t * fb_create(struct framebuffer_t * fb)
 	s->pixels = surface->pixels;
 	s->r = search_render();
 	s->rctx = s->r->create(s);
+	s->g2d = search_first_g2d();
 	s->priv = surface;
 
 	return s;

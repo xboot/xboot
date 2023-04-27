@@ -668,6 +668,12 @@
 		"reset-gpio-config": 1
 	},
 
+	"g2d-t113@0x05410000": {
+		"clock-name": "link-g2d",
+		"reset": 80,
+		"status": "disabled"
+	},
+
 	"fb-t113-rgb@0x05000000": {
 		"clock-name-de": "link-de",
 		"clock-name-tconlcd": "link-tconlcd",

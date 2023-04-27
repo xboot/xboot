@@ -44,7 +44,7 @@ static u64_t blk_romdisk_capacity(struct block_t * blk)
 static u64_t blk_romdisk_read(struct block_t * blk, u8_t * buf, u64_t offset, u64_t count)
 {
 	struct blk_romdisk_pdata_t * pdat = (struct blk_romdisk_pdata_t *)(blk->priv);
-	memcpy((void *)buf, (const void *)(pdat->addr + offset), count);
+	memcpy((void *)buf, (const void *)((virtual_addr_t)(pdat->addr + offset)), count);
 	return count;
 }
 

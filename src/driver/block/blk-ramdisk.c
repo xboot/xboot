@@ -44,14 +44,14 @@ static u64_t blk_ramdisk_capacity(struct block_t * blk)
 static u64_t blk_ramdisk_read(struct block_t * blk, u8_t * buf, u64_t offset, u64_t count)
 {
 	struct blk_ramdisk_pdata_t * pdat = (struct blk_ramdisk_pdata_t *)(blk->priv);
-	memcpy((void *)buf, (const void *)(pdat->addr + offset), count);
+	memcpy((void *)buf, (const void *)((virtual_addr_t)(pdat->addr + offset)), count);
 	return count;
 }
 
 static u64_t blk_ramdisk_write(struct block_t * blk, u8_t * buf, u64_t offset, u64_t count)
 {
 	struct blk_ramdisk_pdata_t * pdat = (struct blk_ramdisk_pdata_t *)(blk->priv);
-	memcpy((void *)(pdat->addr + offset), (const void *)buf, count);
+	memcpy((void *)((virtual_addr_t)(pdat->addr + offset)), (const void *)buf, count);
 	return count;
 }
 

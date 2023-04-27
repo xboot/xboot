@@ -253,6 +253,20 @@
 	"clk-gate@0x02001b60": {"parent": "ratio-tconlcd", "name": "gate-tconlcd", "shift": 31, "invert": false },
 	"clk-link": { "parent": "gate-tconlcd", "name": "link-tconlcd" },
 
+	"clk-mux@0x02001630": {
+		"parent": [
+			{ "name": "pll-periph0-2x", "value": 0 },
+			{ "name": "pll-video0-4x", "value": 1 },
+			{ "name": "pll-video1-4x", "value": 2 },
+			{ "name": "pll-audio1-div2", "value": 3 }
+		],
+		"name": "mux-g2d", "shift": 24, "width": 3,
+		"default": { "parent": "pll-video0-4x" }
+	},
+	"clk-divider@0x02001630": { "parent": "mux-g2d", "name": "div-g2d", "shift": 0, "width": 4, "divider-one-based": true, "default": { "rate": 297000000 } },
+	"clk-gate@0x02001630": {"parent": "div-g2d", "name": "gate-g2d", "shift": 31, "invert": false },
+	"clk-link": { "parent": "gate-g2d", "name": "link-g2d" },
+
 	"clk-mux@0x02001680": {
 		"parent": [
 			{ "name": "dcxo24m", "value": 0 },
@@ -267,7 +281,7 @@
 	"clk-link": { "parent": "gate-ce", "name": "link-ce" },
 
 	"clk-gate@0x020017ac": { "parent": "apb0", "name": "bus-pwm", "shift": 0, "invert": false, "default": { "enable": true } },
-	"clk-gate@0x020017bc": { "parent": "apb0", "name": "bus-iommu", "shift": 0, "invert": false },
+	"clk-gate@0x020017bc": { "parent": "apb0", "name": "bus-iommu", "shift": 0, "invert": false, "default": { "enable": true } },
 	"clk-gate@0x020019cc": { "parent": "apb0", "name": "bus-ir-tx", "shift": 0, "invert": false },
 	"clk-gate@0x020019ec": { "parent": "apb0", "name": "bus-gpadc", "shift": 0, "invert": false },
 	"clk-gate@0x020019fc": { "parent": "apb0", "name": "bus-ths", "shift": 0, "invert": false },

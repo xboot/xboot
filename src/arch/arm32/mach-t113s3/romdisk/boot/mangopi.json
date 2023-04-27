@@ -670,8 +670,7 @@
 
 	"g2d-t113@0x05410000": {
 		"clock-name": "link-g2d",
-		"reset": 80,
-		"status": "disabled"
+		"reset": 80
 	},
 
 	"fb-t113-rgb@0x05000000": {

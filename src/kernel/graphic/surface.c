@@ -922,9 +922,7 @@ void surface_blit(struct surface_t * s, struct region_t * clip, struct matrix_t 
 {
 	struct g2d_t * g2d = s->g2d;
 
-	if(g2d && g2d->blit(s->g2d, s, clip, m, o))
-		return;
-	else
+	if(!g2d_blit(g2d, s, clip, m, o))
 	{
 		struct region_t r;
 		surface_shape_save(s);
@@ -956,9 +954,7 @@ void surface_fill(struct surface_t * s, struct region_t * clip, struct matrix_t 
 {
 	struct g2d_t * g2d = s->g2d;
 
-	if(g2d && g2d->fill(s->g2d, s, clip, m, w, h, c))
-		return;
-	else
+	if(!g2d_fill(g2d, s, clip, m, w, h, c))
 	{
 		struct region_t r;
 		surface_shape_save(s);

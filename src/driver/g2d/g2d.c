@@ -91,3 +91,17 @@ void unregister_g2d(struct g2d_t * g2d)
 		}
 	}
 }
+
+bool_t g2d_blit(struct g2d_t * g2d, struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct surface_t * o)
+{
+	if(g2d && g2d->blit)
+		return g2d->blit(s->g2d, s, clip, m, o);
+	return FALSE;
+}
+
+bool_t g2d_fill(struct g2d_t * g2d, struct surface_t * s, struct region_t * clip, struct matrix_t * m, int w, int h, struct color_t * c)
+{
+	if(g2d && g2d->fill)
+		return g2d->fill(s->g2d, s, clip, m, w, h, c);
+	return FALSE;
+}

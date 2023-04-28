@@ -32,6 +32,7 @@
 #include <dma/dma.h>
 #include <g2d/g2d.h>
 
+#if 0
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /*
@@ -479,7 +480,7 @@ typedef struct {
 
 } g2d_blt;
 
-int g2d_blit(g2d_blt *para);
+int g2d_blit_t113(g2d_blt *para);
 
 typedef struct {
 	g2d_blt_flags_h flag_h;
@@ -645,8 +646,8 @@ extern void * fb_address;
 void g2d_main_layers_alpha(void);
 void g2d_main0(void);
 
-int g2d_fill(g2d_fillrect *para);
-int g2d_blit(g2d_blt *para);
+int g2d_fill_t113(g2d_fillrect *para);
+int g2d_blit_t113(g2d_blt *para);
 int g2d_stretchblit(g2d_stretchblt *para);
 
 /*
@@ -3422,7 +3423,7 @@ int g2d_wait_cmd_finish(void)
  goto Loop;
 }
 
-int g2d_fill(g2d_fillrect *para)
+int g2d_fill_t113(g2d_fillrect *para)
 {
 	int32_t err = 0;
 
@@ -3463,7 +3464,7 @@ int g2d_fill(g2d_fillrect *para)
 
 enum g2d_scan_order scan_order=G2D_SM_TDLR;
 
-int g2d_blit(g2d_blt *para)
+int g2d_blit_t113(g2d_blt *para)
 {
 	int32_t err = 0;
 	uint32_t tmp_w, tmp_h;
@@ -3652,7 +3653,7 @@ static void drawrect(void * dst, uint32_t c)
 	G2D_FILLRECT.color = c;
 	G2D_FILLRECT.alpha = 0x0;
 
-	g2d_fill(&G2D_FILLRECT);
+	g2d_fill_t113(&G2D_FILLRECT);
 }
 
 static void drawpng(void * dst, int width, int height, void * data, int x, int y)
@@ -3688,7 +3689,7 @@ static void drawpng(void * dst, int width, int height, void * data, int x, int y
 	G2D_BLT.color = 0x00000000;
 	G2D_BLT.alpha = 0xFF;
 
-	g2d_blit(&G2D_BLT);
+	g2d_blit_t113(&G2D_BLT);
 }
 
 static int random_int(int a, int b)
@@ -4001,3 +4002,5 @@ static __exit void g2d_t113_driver_exit(void)
 
 driver_initcall(g2d_t113_driver_init);
 driver_exitcall(g2d_t113_driver_exit);
+
+#endif

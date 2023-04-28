@@ -44,6 +44,21 @@ static ssize_t irqchip_read_nirq(struct kobj_t * kobj, void * buf, size_t size)
 	return sprintf(buf, "%d", chip->nirq);
 }
 
+static ssize_t irqchip_read_status(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct irqchip_t * chip = (struct irqchip_t *)kobj->priv;
+	char * p = buf;
+	int len = 0;
+	int i;
+
+	for(i = 0; i < chip->nirq; i++)
+	{
+		if(irq_is_valid(i))
+			len += sprintf((char *)(p + len), "[%d] %s\r\n", chip->base + i, (chip->handler[i].func == null_interrupt_function) ? "idle" : "requested");
+	}
+	return len;
+}
+
 static struct irqchip_t * search_irqchip(int irq)
 {
 	struct device_t * pos, * n;
@@ -89,6 +104,7 @@ struct device_t * register_irqchip(struct irqchip_t * chip, struct driver_t * dr
 	dev->kobj = kobj_alloc_directory(dev->name);
 	kobj_add_regular(dev->kobj, "base", irqchip_read_base, NULL, chip);
 	kobj_add_regular(dev->kobj, "nirq", irqchip_read_nirq, NULL, chip);
+	kobj_add_regular(dev->kobj, "status", irqchip_read_status, NULL, chip);
 
 	if(!register_device(dev))
 	{

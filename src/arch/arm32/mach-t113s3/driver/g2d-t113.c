@@ -31,6 +31,7 @@
 #include <reset/reset.h>
 #include <dma/dma.h>
 #include <g2d/g2d.h>
+#include <t113/reg-g2d.h>
 
 #if 0
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -618,8 +619,8 @@ struct mixer_para {
  *
  */
 
-#define DIM_X 800
-#define DIM_Y 480
+#define DIM_X 1024
+#define DIM_Y 600
 
 //#include "src/display/display.h"
 #define LCD_PIXEL_WIDTH		DIM_X
@@ -3402,25 +3403,25 @@ int g2d_ext_hd_finish_flag=0;
 
 int g2d_wait_cmd_finish(void)
 {
- uint32_t mixer_irq_flag,rot_irq_flag;
+	uint32_t mixer_irq_flag, rot_irq_flag;
 
- Loop:
+	Loop:
 
- mixer_irq_flag=mixer_irq_query();
- rot_irq_flag=rot_irq_query();
+	mixer_irq_flag = mixer_irq_query();
+	rot_irq_flag = rot_irq_query();
 
- if(mixer_irq_flag==0)
- {
-  g2d_mixer_reset();
-  return 1;
- }
- else if(rot_irq_flag==0)
- {
-  g2d_rot_reset();
-  return 2;
- }
+	if(mixer_irq_flag == 0)
+	{
+		g2d_mixer_reset();
+		return 1;
+	}
+	else if(rot_irq_flag == 0)
+	{
+		g2d_rot_reset();
+		return 2;
+	}
 
- goto Loop;
+	goto Loop;
 }
 
 int g2d_fill_t113(g2d_fillrect *para)
@@ -3634,24 +3635,24 @@ static g2d_stretchblt G2D_STRETCHBLT;
 
 static void drawrect(void * dst, uint32_t c)
 {
-	G2D_FILLRECT.flag = G2D_FIL_NONE; //G2D_FIL_PIXEL_ALPHA; //G2D_FIL_PLANE_ALPHA;
+	G2D_FILLRECT.flag = G2D_FIL_NONE;//G2D_FIL_NONE; //G2D_FIL_PIXEL_ALPHA; //G2D_FIL_PLANE_ALPHA;
 
 	G2D_FILLRECT.dst_image.addr[0] = (uint32_t)dst;
 	G2D_FILLRECT.dst_image.addr[1] = (uint32_t)dst;
 	G2D_FILLRECT.dst_image.addr[2] = (uint32_t)dst;
 	G2D_FILLRECT.dst_image.w = LCD_PIXEL_WIDTH;
 	G2D_FILLRECT.dst_image.h = LCD_PIXEL_HEIGHT;
-	G2D_FILLRECT.dst_image.format = G2D_FMT_XBGR8888;
+	G2D_FILLRECT.dst_image.format = G2D_FMT_ARGB_AYUV8888; //G2D_FORMAT_ARGB8888;
 	G2D_FILLRECT.dst_image.pixel_seq = G2D_SEQ_NORMAL;
 
-	G2D_FILLRECT.dst_rect.x = 0;
-	G2D_FILLRECT.dst_rect.y = 0;
+	G2D_FILLRECT.dst_rect.x = 100;
+	G2D_FILLRECT.dst_rect.y = 100;
 
-	G2D_FILLRECT.dst_rect.w = DIM_X;
-	G2D_FILLRECT.dst_rect.h = DIM_Y;
+	G2D_FILLRECT.dst_rect.w = 400 -1;
+	G2D_FILLRECT.dst_rect.h = 300 -1;
 
 	G2D_FILLRECT.color = c;
-	G2D_FILLRECT.alpha = 0x0;
+	G2D_FILLRECT.alpha = 0x7f;
 
 	g2d_fill_t113(&G2D_FILLRECT);
 }
@@ -3659,7 +3660,7 @@ static void drawrect(void * dst, uint32_t c)
 static void drawpng(void * dst, int width, int height, void * data, int x, int y)
 {
 
-	G2D_BLT.flag = G2D_BLT_NONE | 0 * G2D_BLT_PLANE_ALPHA;
+	G2D_BLT.flag = G2D_BLT_NONE | 1 * G2D_BLT_PLANE_ALPHA;
 
 	G2D_BLT.src_image.addr[0] = (uintptr_t)data;
 	G2D_BLT.src_image.addr[1] = 0;    //(uintptr_t)png->data;	// was index=0
@@ -3707,11 +3708,13 @@ static void drawfunc1(struct window_t * w, void * o)
 static void drawfunc2(struct window_t * w, void * o)
 {
 	struct surface_t * s = w->s;
-	drawrect(s->pixels, 0x000000ff);
-	dma_cache_sync(s->pixels, s->pixlen, DMA_FROM_DEVICE);
+
 	struct color_t c;
 	color_init(&c, 0x33, 0x99, 0xcc, 0xff);
-	surface_fill(s, NULL, NULL, 400, 240, &c);
+	surface_fill(s, NULL, NULL, 300, 300, &c);
+
+	drawrect(s->pixels, 0x0fff0000);
+	dma_cache_sync(s->pixels, s->pixlen, DMA_FROM_DEVICE);
 }
 
 static void drawfunc3(struct window_t * w, void * o)
@@ -3731,27 +3734,20 @@ void test_g2d_new(void)
 	struct xfs_context_t * ctx = xfs_alloc("/private/framework", 0);
 	struct surface_t * logo = surface_alloc_from_xfs(ctx, "assets/images/logo.png");
 
-	for(int i = 0; i < 10; i++)
+	for(int i = 0; i < 1; i++)
 	{
-		window_present(w, logo, drawfunc1);
-		msleep(500);
+		//window_present(w, logo, drawfunc1);
+		//msleep(500);
 		window_present(w, logo, drawfunc2);
 		msleep(500);
-		window_present(w, logo, drawfunc3);
-		msleep(500);
+		//window_present(w, logo, drawfunc3);
+		//msleep(500);
 	}
 
 	surface_free(logo);
 	xfs_free(ctx);
 	window_free(w);
 }
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-struct g2d_t113_pdata_t {
-	virtual_addr_t virt;
-	char * clk;
-	int reset;
-};
 
 static void g2d_init(struct g2d_t * g2d)
 {
@@ -3896,17 +3892,138 @@ static inline bool_t sw_fill(struct surface_t * s, struct region_t * clip, struc
 	return TRUE;
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+#endif
+
+struct g2d_t113_pdata_t {
+	virtual_addr_t virt;
+	char * clk;
+	int reset;
+	struct mutex_t m;
+};
+
+static inline u32_t lo32(void * addr)
+{
+	return (u32_t)addr;
+}
+
+static inline u32_t hi32(void * addr)
+{
+	if(sizeof(addr) == sizeof(u32_t))
+		return 0;
+	return (uint64_t)((unsigned long)addr) >> 32;
+}
+
+static inline void t113_g2d_init(struct g2d_t113_pdata_t * pdat)
+{
+	struct g2d_top_t * g2d_top = (struct g2d_top_t *)(pdat->virt + T113_G2D_TOP);
+
+	g2d_top->G2D_SCLK_GATE = 0x3;
+	g2d_top->G2D_HCLK_GATE = 0x3;
+	g2d_top->G2D_SCLK_DIV = (0x0 << 4) | (0x0 << 0);
+	g2d_top->G2D_AHB_RESET = 0x0;
+	g2d_top->G2D_AHB_RESET = 0x3;
+}
+
+static inline void t113_g2d_mixer_start(struct g2d_t113_pdata_t * pdat)
+{
+	struct g2d_mixer_t * g2d_mixer = (struct g2d_mixer_t *)(pdat->virt + T113_G2D_MIXER);
+
+	g2d_mixer->G2D_MIXER_INT = 0x10;
+	g2d_mixer->G2D_MIXER_CTL |= (0x1 << 31);
+}
+
+static inline int t113_g2d_wait(struct g2d_t113_pdata_t * pdat, int timeout)
+{
+	struct g2d_mixer_t * g2d_mixer = (struct g2d_mixer_t *)(pdat->virt + T113_G2D_MIXER);
+	struct g2d_rot_t * g2d_rot = (struct g2d_rot_t *)(pdat->virt + T113_G2D_ROT);
+	ktime_t t = ktime_add_ms(ktime_get(), timeout);
+
+	do {
+		if(g2d_mixer->G2D_MIXER_INT & (0x1 << 0))
+		{
+			g2d_mixer->G2D_MIXER_INT = 0x1 << 0;
+			return 1;
+		}
+		else if(g2d_rot->ROT_INT & (0x1 << 0))
+		{
+			g2d_rot->ROT_INT = 0x1 << 0;
+			return 1;
+		}
+	} while(ktime_before(ktime_get(), t));
+
+	return 0;
+}
+
+static inline int t113_g2d_fill(struct g2d_t113_pdata_t * pdat, void * pixels, int stride, int x, int y, int w, int h, u32_t c)
+{
+	struct g2d_vsu_t * g2d_vsu = (struct g2d_vsu_t *)(pdat->virt + T113_G2D_VSU);
+	struct g2d_rot_t * g2d_rot = (struct g2d_rot_t *)(pdat->virt + T113_G2D_ROT);
+	struct g2d_bld_t * g2d_bld = (struct g2d_bld_t *)(pdat->virt + T113_G2D_BLD);
+	struct g2d_wb_t * g2d_wb = (struct g2d_wb_t *)(pdat->virt + T113_G2D_WB);
+	struct g2d_vi_t * g2d_vi = (struct g2d_vi_t *)(pdat->virt + T113_G2D_VI);
+	struct g2d_ui_t * g2d_ui0 = (struct g2d_ui_t *)(pdat->virt + T113_G2D_UI0);
+	struct g2d_ui_t * g2d_ui1 = (struct g2d_ui_t *)(pdat->virt + T113_G2D_UI1);
+	struct g2d_ui_t * g2d_ui2 = (struct g2d_ui_t *)(pdat->virt + T113_G2D_UI2);
+	void * addr = pixels + y * stride + (x << 2);
+	u32_t hw = ((h - 1) << 16) | ((w - 1) << 0);
+	int ret;
+
+	mutex_lock(&pdat->m);
+	g2d_vsu->VS_CTRL = 0x0;
+	g2d_rot->ROT_CTL = 0x0;
+	g2d_vi->V0_ATTR = 0x0;
+	g2d_ui0->UI_ATTR = 0x0;
+	g2d_ui1->UI_ATTR = 0x0;
+	g2d_ui2->UI_ATTR = 0x0;
+
+	g2d_bld->BLD_CH_ISIZE[0] = hw;
+	g2d_bld->BLD_CH_OFFSET[0] = 0x0;
+	g2d_bld->BLD_SIZE = hw;
+	g2d_bld->BLD_FILL_COLOR[0] = c;
+	g2d_bld->BLD_EN_CTL = (0x1 << 8) | (0x1 << 0);
+	g2d_bld->BLD_PREMUL_CTL = (0x1 << 0);
+	g2d_bld->BLD_OUT_COLOR = (0x1 << 0);
+	g2d_bld->ROP_CTL = 0x0;
+	g2d_bld->BLD_CTL = 0x03010301;
+
+	g2d_wb->WB_ATTR = 0x0;
+	g2d_wb->WB_SIZE = hw;
+	g2d_wb->WB_PITCH0 = stride;
+	g2d_wb->WB_LADD0 = lo32(addr);
+	g2d_wb->WB_HADD0 = hi32(addr);
+
+	t113_g2d_mixer_start(pdat);
+	ret = t113_g2d_wait(pdat, 100);
+	mutex_unlock(&pdat->m);
+
+	return ret;
+}
+
 static bool_t g2d_t113_blit(struct g2d_t * g2d, struct surface_t * s, struct region_t * clip, struct matrix_t * m, struct surface_t * o)
 {
-	//struct g2d_t113_pdata_t * pdat = (struct g2d_t113_pdata_t *)g2d->priv;
-	//return sw_blit(s, clip, m, o);
 	return FALSE;
 }
 
 static bool_t g2d_t113_fill(struct g2d_t * g2d, struct surface_t * s, struct region_t * clip, struct matrix_t * m, int w, int h, struct color_t * c)
 {
-	//struct g2d_t113_pdata_t * pdat = (struct g2d_t113_pdata_t *)g2d->priv;
-	//return sw_fill(s, clip, m, w, h, c);
+	struct g2d_t113_pdata_t * pdat = (struct g2d_t113_pdata_t *)g2d->priv;
+	struct region_t r, region;
+
+	region_init(&r, 0, 0, surface_get_width(s), surface_get_height(s));
+	if(clip)
+	{
+		if(!region_intersect(&r, &r, clip))
+			return TRUE;
+	}
+	matrix_transform_region(m, w, h, &region);
+	if(!region_intersect(&r, &r, &region))
+		return TRUE;
+
+	if(m->a == 1.0 && m->b == 0.0 && m->c == 0.0 && m->d == 1.0)
+	{
+		return t113_g2d_fill(pdat, surface_get_pixels(s), surface_get_stride(s), r.x, r.y, r.w, r.h, color_get_premult(c));
+	}
 	return FALSE;
 }
 
@@ -3935,6 +4052,7 @@ static struct device_t * g2d_t113_probe(struct driver_t * drv, struct dtnode_t *
 	pdat->virt = virt;
 	pdat->clk = strdup(clk);
 	pdat->reset = dt_read_int(n, "reset", -1);
+	mutex_init(&pdat->m);
 
 	g2d->name = alloc_device_name(dt_read_name(n), -1);
 	g2d->blit = g2d_t113_blit;
@@ -3944,7 +4062,7 @@ static struct device_t * g2d_t113_probe(struct driver_t * drv, struct dtnode_t *
 	clk_enable(pdat->clk);
 	if(pdat->reset >= 0)
 		reset_deassert(pdat->reset);
-	g2d_init(g2d);
+	t113_g2d_init(pdat);
 
 	if(!(dev = register_g2d(g2d, drv)))
 	{
@@ -4002,5 +4120,3 @@ static __exit void g2d_t113_driver_exit(void)
 
 driver_initcall(g2d_t113_driver_init);
 driver_exitcall(g2d_t113_driver_exit);
-
-#endif

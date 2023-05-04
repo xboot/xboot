@@ -93,7 +93,7 @@ static struct surface_t *fb_gx6605s_create(struct framebuffer_t *fb)
 {
     struct gx6605s_device *gdev = fb->priv;
     struct gx6605s_video_mode *mode = &gx6605s_video_modes[gdev->hdmi];
-    return surface_alloc(mode->xres, mode->yres, NULL);
+    return surface_alloc(mode->xres, mode->yres);
 }
 
 static void fb_gx6605s_destroy(struct framebuffer_t *fb, struct surface_t *s)

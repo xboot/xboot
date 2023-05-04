@@ -78,7 +78,7 @@ bool_t unregister_render(struct render_t * r)
 	return TRUE;
 }
 
-struct surface_t * surface_alloc(int width, int height, void * priv)
+struct surface_t * surface_alloc(int width, int height)
 {
 	struct surface_t * s;
 	void * pixels;
@@ -109,7 +109,7 @@ struct surface_t * surface_alloc(int width, int height, void * priv)
 	s->r = search_render();
 	s->rctx = s->r->create(s);
 	s->g2d = search_first_g2d();
-	s->priv = priv;
+	s->priv = NULL;
 	return s;
 }
 
@@ -278,7 +278,7 @@ static inline struct surface_t * surface_alloc_from_xfs_png(struct xfs_context_t
 		break;
 	}
 
-	s = surface_alloc(png_width, png_height, NULL);
+	s = surface_alloc(png_width, png_height);
 	data = surface_get_pixels(s);
 
 	row_pointers = (png_byte **)malloc(png_height * sizeof(char *));
@@ -397,7 +397,7 @@ static inline struct surface_t * surface_alloc_from_buf_png(const void * buf, in
 		break;
 	}
 
-	s = surface_alloc(png_width, png_height, NULL);
+	s = surface_alloc(png_width, png_height);
 	data = surface_get_pixels(s);
 
 	row_pointers = (png_byte **)malloc(png_height * sizeof(char *));
@@ -537,7 +537,7 @@ static inline struct surface_t * surface_alloc_from_xfs_jpg(struct xfs_context_t
 	jpeg_read_header(&dinfo, 1);
 	jpeg_start_decompress(&dinfo);
 	tmp = (*dinfo.mem->alloc_sarray)((j_common_ptr)&dinfo, JPOOL_IMAGE, dinfo.output_width * dinfo.output_components, 1);
-	s = surface_alloc(dinfo.image_width, dinfo.image_height, NULL);
+	s = surface_alloc(dinfo.image_width, dinfo.image_height);
 	p = surface_get_pixels(s);
 	while(dinfo.output_scanline < dinfo.output_height)
 	{
@@ -581,7 +581,7 @@ static inline struct surface_t * surface_alloc_from_buf_jpg(const void * buf, in
 	jpeg_read_header(&dinfo, 1);
 	jpeg_start_decompress(&dinfo);
 	tmp = (*dinfo.mem->alloc_sarray)((j_common_ptr)&dinfo, JPOOL_IMAGE, dinfo.output_width * dinfo.output_components, 1);
-	s = surface_alloc(dinfo.image_width, dinfo.image_height, NULL);
+	s = surface_alloc(dinfo.image_width, dinfo.image_height);
 	p = surface_get_pixels(s);
 	while(dinfo.output_scanline < dinfo.output_height)
 	{
@@ -642,7 +642,7 @@ struct surface_t * surface_alloc_qrcode(const char * txt, int pixsz)
 		{
 			if(pixsz < 0)
 				pixsz = 1;
-			s = surface_alloc((qrs + 4) * pixsz, (qrs + 4) * pixsz, NULL);
+			s = surface_alloc((qrs + 4) * pixsz, (qrs + 4) * pixsz);
 			if(s)
 			{
 				memset(s->pixels, 0xff, s->pixlen);
@@ -743,9 +743,9 @@ struct surface_t * surface_clone(struct surface_t * s, int x, int y, int w, int 
 	o->stride = stride;
 	o->pixlen = pixlen;
 	o->pixels = pixels;
-	o->r = s->r;
+	o->r = search_render();
 	o->rctx = o->r->create(o);
-	o->g2d = s->g2d;
+	o->g2d = search_first_g2d();
 	o->priv = NULL;
 	return o;
 }
@@ -833,9 +833,9 @@ struct surface_t * surface_extend(struct surface_t * s, int width, int height, c
 	o->stride = stride;
 	o->pixlen = pixlen;
 	o->pixels = pixels;
-	o->r = s->r;
+	o->r = search_render();
 	o->rctx = o->r->create(o);
-	o->g2d = s->g2d;
+	o->g2d = search_first_g2d();
 	o->priv = NULL;
 	return o;
 }

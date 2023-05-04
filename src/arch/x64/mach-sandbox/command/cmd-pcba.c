@@ -575,7 +575,7 @@ static void pcba_window(struct xui_context_t * ctx)
 							{
 								c = search_first_camera();
 								if(c && camera_start(c, VIDEO_FORMAT_MJPG, 320, 240) && camera_capture(c, &frame, 3000))
-									s = surface_alloc(frame.width, frame.height, NULL);
+									s = surface_alloc(frame.width, frame.height);
 							}
 						}
 						else

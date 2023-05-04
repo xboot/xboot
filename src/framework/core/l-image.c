@@ -43,7 +43,7 @@ static int l_image_new(lua_State * L)
 		{
 			int width = luaL_checkinteger(L, 1);
 			int height = luaL_checkinteger(L, 2);
-			s = surface_alloc(width, height, NULL);
+			s = surface_alloc(width, height);
 		}
 		else if((lua_type(L, 1) == LUA_TSTRING) && (lua_type(L, 2) == LUA_TNUMBER))
 		{
@@ -62,7 +62,7 @@ static int l_image_new(lua_State * L)
 		else if(luaL_testudata(L, 1, MT_VISION))
 		{
 			struct lvision_t * vision = lua_touserdata(L, 1);
-			s = surface_alloc(vision_get_width(vision->v), vision_get_height(vision->v), NULL);
+			s = surface_alloc(vision_get_width(vision->v), vision_get_height(vision->v));
 			if(s)
 				surface_apply_vision(s, vision->v);
 		}
@@ -132,7 +132,7 @@ static int m_image_clone(lua_State * L)
 		struct matrix_t * m = lua_touserdata(L, 2);
 		struct region_t r;
 		matrix_transform_region(m, surface_get_width(img->s), surface_get_height(img->s), &r);
-		c = surface_alloc(r.w, r.h, NULL);
+		c = surface_alloc(r.w, r.h);
 		if(!c)
 			return 0;
 		surface_blit(c, NULL, m, img->s);

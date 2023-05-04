@@ -900,7 +900,7 @@ static int fb_getbl(struct framebuffer_t * fb)
 static struct surface_t * fb_create(struct framebuffer_t * fb)
 {
 	struct fb_s5p4418_pdata_t * pdat = (struct fb_s5p4418_pdata_t *)fb->priv;
-	return surface_alloc(pdat->width, pdat->height, NULL);
+	return surface_alloc(pdat->width, pdat->height);
 }
 
 static void fb_destroy(struct framebuffer_t * fb, struct surface_t * s)

@@ -54,7 +54,7 @@ static void * qrcode_setup(struct wboxtest_t * wbt)
 		return NULL;
 	}
 
-	pdat->s = surface_alloc(pdat->frame.width, pdat->frame.height, NULL);
+	pdat->s = surface_alloc(pdat->frame.width, pdat->frame.height);
 	if(!pdat->s)
 	{
 		camera_stop(pdat->c);

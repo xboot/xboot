@@ -100,6 +100,16 @@ static inline void * surface_get_pixels(struct surface_t * s)
 	return s->pixels;
 }
 
+static inline void surface_set_priv(struct surface_t * s, void * priv)
+{
+	s->priv = priv;
+}
+
+static inline void * surface_get_priv(struct surface_t * s)
+{
+	return s->priv;
+}
+
 static inline void surface_shape_save(struct surface_t * s)
 {
 	s->r->shape_save(s);
@@ -273,7 +283,7 @@ static inline void surface_shape_paint(struct surface_t * s)
 struct render_t * search_render(void);
 bool_t register_render(struct render_t * r);
 bool_t unregister_render(struct render_t * r);
-struct surface_t * surface_alloc(int width, int height, void * priv);
+struct surface_t * surface_alloc(int width, int height);
 struct surface_t * surface_alloc_from_xfs(struct xfs_context_t * ctx, const char * filename);
 struct surface_t * surface_alloc_from_buf(const void * buf, int len);
 struct surface_t * surface_alloc_qrcode(const char * txt, int pixsz);

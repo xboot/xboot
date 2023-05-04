@@ -42,7 +42,7 @@ static int fb_dummy_getbl(struct framebuffer_t * fb)
 
 static struct surface_t * fb_dummy_create(struct framebuffer_t * fb)
 {
-	return surface_alloc(fb->width, fb->height, NULL);
+	return surface_alloc(fb->width, fb->height);
 }
 
 static void fb_dummy_destroy(struct framebuffer_t * fb, struct surface_t * s)

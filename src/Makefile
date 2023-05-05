@@ -273,6 +273,7 @@ SRCDIRS		+=	wboxtest \
 				wboxtest/camera \
 				wboxtest/crypto \
 				wboxtest/dma \
+				wboxtest/g2d \
 				wboxtest/graphic \
 				wboxtest/path \
 				wboxtest/stdio \

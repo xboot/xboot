@@ -1823,82 +1823,90 @@ static inline void xui_surface_shape_triangle(struct surface_t * s, struct regio
 
 static inline void xui_surface_shape_rectangle(struct surface_t * s, struct region_t * clip, struct xui_cmd_rectangle_t * cmd)
 {
-	struct region_t r;
-
-	surface_shape_save(s);
-	if(clip)
+	if((cmd->thickness <= 0) && (cmd->radius == 0))
 	{
-		region_init(&r, 0, 0, surface_get_width(s), surface_get_height(s));
-		if(region_intersect(&r, &r, clip))
-		{
-			surface_shape_rectangle(s, r.x, r.y, r.w, r.h);
-			surface_shape_clip(s);
-		}
-		else
-		{
-			surface_shape_restore(s);
-			return;
-		}
-	}
-	int corner = (cmd->radius >> 16) & 0xf;
-	int radius = cmd->radius & 0xffff;
-	if(radius > 0)
-	{
-		surface_shape_move_to(s, cmd->x + radius, cmd->y);
-		surface_shape_line_to(s, cmd->x + cmd->w - radius, cmd->y);
-		if(corner & (1 << 1))
-		{
-			surface_shape_line_to(s, cmd->x + cmd->w, cmd->y);
-			surface_shape_line_to(s, cmd->x + cmd->w, cmd->y + radius);
-		}
-		else
-		{
-			surface_shape_arc(s, cmd->x + cmd->w - radius, cmd->y + radius, radius, - M_PI_2, 0);
-		}
-		surface_shape_line_to(s, cmd->x + cmd->w, cmd->y + cmd->h - radius);
-		if(corner & (1 << 2))
-		{
-			surface_shape_line_to(s, cmd->x + cmd->w, cmd->y + cmd->h);
-			surface_shape_line_to(s, cmd->w - radius, cmd->y + cmd->h);
-		}
-		else
-		{
-			surface_shape_arc(s, cmd->x + cmd->w - radius, cmd->y + cmd->h - radius, radius, 0, M_PI_2);
-		}
-		surface_shape_line_to(s, cmd->x + radius, cmd->y + cmd->h);
-		if(corner & (1 << 3))
-		{
-			surface_shape_line_to(s, cmd->x, cmd->y + cmd->h);
-		}
-		else
-		{
-			surface_shape_arc(s, cmd->x + radius, cmd->y + cmd->h - radius, radius, M_PI_2, M_PI);
-		}
-		if(corner & (1 << 0))
-		{
-			surface_shape_line_to(s, cmd->x, cmd->y);
-			surface_shape_line_to(s, cmd->x + radius, cmd->y);
-		}
-		else
-		{
-			surface_shape_arc(s, cmd->x + radius, cmd->y + radius, radius, M_PI, M_PI + M_PI_2);
-		}
+		struct matrix_t m;
+		matrix_init_translate(&m, cmd->x, cmd->y);
+		surface_fill(s, clip, &m, cmd->w, cmd->h, &cmd->c);
 	}
 	else
 	{
-		surface_shape_rectangle(s, cmd->x, cmd->y, cmd->w, cmd->h);
+		struct region_t r;
+		surface_shape_save(s);
+		if(clip)
+		{
+			region_init(&r, 0, 0, surface_get_width(s), surface_get_height(s));
+			if(region_intersect(&r, &r, clip))
+			{
+				surface_shape_rectangle(s, r.x, r.y, r.w, r.h);
+				surface_shape_clip(s);
+			}
+			else
+			{
+				surface_shape_restore(s);
+				return;
+			}
+		}
+		int corner = (cmd->radius >> 16) & 0xf;
+		int radius = cmd->radius & 0xffff;
+		if(radius > 0)
+		{
+			surface_shape_move_to(s, cmd->x + radius, cmd->y);
+			surface_shape_line_to(s, cmd->x + cmd->w - radius, cmd->y);
+			if(corner & (1 << 1))
+			{
+				surface_shape_line_to(s, cmd->x + cmd->w, cmd->y);
+				surface_shape_line_to(s, cmd->x + cmd->w, cmd->y + radius);
+			}
+			else
+			{
+				surface_shape_arc(s, cmd->x + cmd->w - radius, cmd->y + radius, radius, - M_PI_2, 0);
+			}
+			surface_shape_line_to(s, cmd->x + cmd->w, cmd->y + cmd->h - radius);
+			if(corner & (1 << 2))
+			{
+				surface_shape_line_to(s, cmd->x + cmd->w, cmd->y + cmd->h);
+				surface_shape_line_to(s, cmd->w - radius, cmd->y + cmd->h);
+			}
+			else
+			{
+				surface_shape_arc(s, cmd->x + cmd->w - radius, cmd->y + cmd->h - radius, radius, 0, M_PI_2);
+			}
+			surface_shape_line_to(s, cmd->x + radius, cmd->y + cmd->h);
+			if(corner & (1 << 3))
+			{
+				surface_shape_line_to(s, cmd->x, cmd->y + cmd->h);
+			}
+			else
+			{
+				surface_shape_arc(s, cmd->x + radius, cmd->y + cmd->h - radius, radius, M_PI_2, M_PI);
+			}
+			if(corner & (1 << 0))
+			{
+				surface_shape_line_to(s, cmd->x, cmd->y);
+				surface_shape_line_to(s, cmd->x + radius, cmd->y);
+			}
+			else
+			{
+				surface_shape_arc(s, cmd->x + radius, cmd->y + radius, radius, M_PI, M_PI + M_PI_2);
+			}
+		}
+		else
+		{
+			surface_shape_rectangle(s, cmd->x, cmd->y, cmd->w, cmd->h);
+		}
+		surface_shape_set_source_color(s, &cmd->c);
+		if(cmd->thickness > 0)
+		{
+			surface_shape_set_line_width(s, cmd->thickness);
+			surface_shape_stroke(s);
+		}
+		else
+		{
+			surface_shape_fill(s);
+		}
+		surface_shape_restore(s);
 	}
-	surface_shape_set_source_color(s, &cmd->c);
-	if(cmd->thickness > 0)
-	{
-		surface_shape_set_line_width(s, cmd->thickness);
-		surface_shape_stroke(s);
-	}
-	else
-	{
-		surface_shape_fill(s);
-	}
-	surface_shape_restore(s);
 }
 
 static inline void xui_surface_shape_polygon(struct surface_t * s, struct region_t * clip, struct xui_cmd_polygon_t * cmd)

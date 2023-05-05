@@ -100,6 +100,11 @@ static inline void * surface_get_pixels(struct surface_t * s)
 	return s->pixels;
 }
 
+static inline int surface_get_pixlen(struct surface_t * s)
+{
+	return s->pixlen;
+}
+
 static inline void surface_set_priv(struct surface_t * s, void * priv)
 {
 	s->priv = priv;

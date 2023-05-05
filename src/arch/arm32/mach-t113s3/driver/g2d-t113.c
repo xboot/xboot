@@ -3902,6 +3902,11 @@ struct g2d_t113_pdata_t {
 	struct mutex_t m;
 };
 
+static inline int dcmp(double a, double b)
+{
+	return (fabs(a - b) < 0.000001);
+}
+
 static inline u32_t lo32(void * addr)
 {
 	return (u32_t)addr;
@@ -3955,7 +3960,7 @@ static inline int t113_g2d_wait(struct g2d_t113_pdata_t * pdat, int timeout)
 	return 0;
 }
 
-static inline int t113_g2d_fill(struct g2d_t113_pdata_t * pdat, void * pixels, int stride, int x, int y, int w, int h, u32_t c)
+static int t113_g2d_fill(struct g2d_t113_pdata_t * pdat, void * pixels, int pixlen, int stride, int x, int y, int w, int h, u32_t c)
 {
 	struct g2d_vsu_t * g2d_vsu = (struct g2d_vsu_t *)(pdat->virt + T113_G2D_VSU);
 	struct g2d_rot_t * g2d_rot = (struct g2d_rot_t *)(pdat->virt + T113_G2D_ROT);
@@ -3993,6 +3998,7 @@ static inline int t113_g2d_fill(struct g2d_t113_pdata_t * pdat, void * pixels, i
 	g2d_wb->WB_LADD0 = lo32(addr);
 	g2d_wb->WB_HADD0 = hi32(addr);
 
+	dma_cache_sync(pixels, pixlen, DMA_FROM_DEVICE);
 	t113_g2d_mixer_start(pdat);
 	ret = t113_g2d_wait(pdat, 100);
 	mutex_unlock(&pdat->m);
@@ -4020,9 +4026,61 @@ static bool_t g2d_t113_fill(struct g2d_t * g2d, struct surface_t * s, struct reg
 	if(!region_intersect(&r, &r, &region))
 		return TRUE;
 
-	if(m->a == 1.0 && m->b == 0.0 && m->c == 0.0 && m->d == 1.0)
+	if(c->a == 0)
+		return TRUE;
+	else if(c->a == 255)
 	{
-		return t113_g2d_fill(pdat, surface_get_pixels(s), surface_get_stride(s), r.x, r.y, r.w, r.h, color_get_premult(c));
+		uint32_t v = color_get_premult(c);
+		if(dcmp(m->b, 0) && dcmp(m->c, 0))
+		{
+			if(dcmp(m->a - m->d, 0))
+			{
+				if(dcmp(m->a, 1))		/* rotate 0 */
+				{
+					return t113_g2d_fill(pdat, surface_get_pixels(s), surface_get_pixlen(s), surface_get_stride(s), r.x, r.y, r.w, r.h, v);
+				}
+				else if(dcmp(m->a, -1))	/* rotate 180 */
+				{
+					return t113_g2d_fill(pdat, surface_get_pixels(s), surface_get_pixlen(s), surface_get_stride(s), r.x, r.y, r.w, r.h, v);
+				}
+			}
+			else if(dcmp(m->a + m->d, 0))
+			{
+				if(dcmp(m->a, 1))		/* rotate 0, v-flip | rotate 180, h-flip */
+				{
+					return t113_g2d_fill(pdat, surface_get_pixels(s), surface_get_pixlen(s), surface_get_stride(s), r.x, r.y, r.w, r.h, v);
+				}
+				else if(dcmp(m->a, -1))	/* rotate 0, h-flip | rotate 180, v-flip */
+				{
+					return t113_g2d_fill(pdat, surface_get_pixels(s), surface_get_pixlen(s), surface_get_stride(s), r.x, r.y, r.w, r.h, v);
+				}
+			}
+		}
+		else if(dcmp(m->a, 0) && dcmp(m->d, 0))
+		{
+			if(dcmp(m->b + m->c, 0))
+			{
+				if(dcmp(m->b, 1))		/* rotate 90 */
+				{
+					return t113_g2d_fill(pdat, surface_get_pixels(s), surface_get_pixlen(s), surface_get_stride(s), r.x, r.y, r.w, r.h, v);
+				}
+				else if(dcmp(m->b, -1))	/* rotate 270 */
+				{
+					return t113_g2d_fill(pdat, surface_get_pixels(s), surface_get_pixlen(s), surface_get_stride(s), r.x, r.y, r.w, r.h, v);
+				}
+			}
+			else if(dcmp(m->b - m->c, 0))
+			{
+				if(dcmp(m->b, 1))		/* rotate 90, v-flip | rotate 270, h-flip */
+				{
+					return t113_g2d_fill(pdat, surface_get_pixels(s), surface_get_pixlen(s), surface_get_stride(s), r.x, r.y, r.w, r.h, v);
+				}
+				else if(dcmp(m->b, -1))	/* rotate 90, h-flip | rotate 270, v-flip */
+				{
+					return t113_g2d_fill(pdat, surface_get_pixels(s), surface_get_pixlen(s), surface_get_stride(s), r.x, r.y, r.w, r.h, v);
+				}
+			}
+		}
 	}
 	return FALSE;
 }

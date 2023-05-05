@@ -1,5 +1,5 @@
 /*
- * wboxtest/graphic/fill.c
+ * wboxtest/g2d/fill-0.c
  */
 
 #include <g2d/g2d.h>

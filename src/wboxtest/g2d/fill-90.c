@@ -57,8 +57,8 @@ static void draw_fill(struct window_t * w, void * o)
 
 	tx = wboxtest_random_int(0, surface_get_width(s));
 	ty = wboxtest_random_int(0, surface_get_height(s));
-	tw = wboxtest_random_int(0, surface_get_width(s));
-	th = wboxtest_random_int(0, surface_get_height(s));
+	tw = wboxtest_random_int(2, surface_get_width(s));
+	th = wboxtest_random_int(2, surface_get_height(s));
 	matrix_init_translate(&m, tx, ty);
 	matrix_rotate(&m, M_PI / 2);
 	matrix_scale(&m, 1, 1);

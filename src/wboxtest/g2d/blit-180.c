@@ -1,5 +1,5 @@
 /*
- * wboxtest/g2d/bilt-0.c
+ * wboxtest/g2d/bilt-180.c
  */
 
 #include <wboxtest.h>
@@ -74,7 +74,7 @@ static void draw_blit(struct window_t * w, void * o)
 	tx = wboxtest_random_int(0, surface_get_width(s));
 	ty = wboxtest_random_int(0, surface_get_height(s));
 	matrix_init_translate(&m, tx, ty);
-	matrix_rotate(&m, 0);
+	matrix_rotate(&m, M_PI);
 	matrix_scale(&m, 1, 1);
 
 	assert_true(g2d_blit(pdat->g2d, s, NULL, &m, logo));
@@ -90,7 +90,7 @@ static void blit_run(struct wboxtest_t * wbt, void * data)
 
 static struct wboxtest_t wbt_blit = {
 	.group	= "g2d",
-	.name	= "blit-0",
+	.name	= "blit-180",
 	.setup	= blit_setup,
 	.clean	= blit_clean,
 	.run	= blit_run,

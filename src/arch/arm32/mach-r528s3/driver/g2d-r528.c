@@ -47,7 +47,7 @@ static inline int dcmp(double a, double b)
 
 static inline u32_t lo32(void * addr)
 {
-	return (u32_t)addr;
+	return (u32_t)((unsigned long)addr);
 }
 
 static inline u32_t hi32(void * addr)

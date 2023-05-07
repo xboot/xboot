@@ -8,7 +8,7 @@
 #define T113_G2D_TOP		(0x00000000)
 #define T113_G2D_MIXER		(0x00000100)
 #define T113_G2D_BLD		(0x00000400)
-#define T113_G2D_VI			(0x00000800)
+#define T113_G2D_V0			(0x00000800)
 #define T113_G2D_UI0		(0x00001000)
 #define T113_G2D_UI1		(0x00001800)
 #define T113_G2D_UI2		(0x00002000)
@@ -31,7 +31,7 @@ struct g2d_mixer_t {
 	u32_t G2D_MIXER_CLK;
 };
 
-struct g2d_vi_t {
+struct g2d_v0_t {
 	u32_t V0_ATTR;
 	u32_t V0_MBSIZE;
 	u32_t V0_COOR;

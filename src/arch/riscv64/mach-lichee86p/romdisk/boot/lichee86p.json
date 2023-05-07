@@ -644,7 +644,7 @@
 		"led-name": "led-gpio.0",
 		"period-ms": 1260
 	},
-	
+
 	"ledstrip-d1@0x02008000": {
 		"clock-name": "ledc",
 		"reset": 1072,
@@ -679,6 +679,11 @@
 		"interrupt-gpio-config": 14,
 		"reset-gpio": 207,
 		"reset-gpio-config": 1
+	},
+
+	"g2d-d1@0x05410000": {
+		"clock-name": "link-g2d",
+		"reset": 80
 	},
 
 	"fb-d1-rgb@0x05000000": {

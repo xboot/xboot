@@ -195,7 +195,7 @@ static bool_t sd_send_if_cond(struct sdhci_t * hci, struct sdcard_t * card)
 static bool_t sd_send_op_cond(struct sdhci_t * hci, struct sdcard_t * card)
 {
 	struct sdhci_cmd_t cmd = { 0 };
-	int retries = 100;
+	int retries = 10;
 
 	do {
 		cmd.cmdidx = MMC_APP_CMD;
@@ -253,7 +253,7 @@ static bool_t sd_send_op_cond(struct sdhci_t * hci, struct sdcard_t * card)
 static bool_t mmc_send_op_cond(struct sdhci_t * hci, struct sdcard_t * card)
 {
 	struct sdhci_cmd_t cmd = { 0 };
-	int retries = 100;
+	int retries = 10;
 
 	if(!go_idle_state(hci))
 		return FALSE;
@@ -294,7 +294,7 @@ static bool_t mmc_send_op_cond(struct sdhci_t * hci, struct sdcard_t * card)
 static int mmc_status(struct sdhci_t * hci, struct sdcard_t * card)
 {
 	struct sdhci_cmd_t cmd = { 0 };
-	int retries = 100;
+	int retries = 10;
 
 	cmd.cmdidx = MMC_SEND_STATUS;
 	cmd.resptype = MMC_RSP_R1;

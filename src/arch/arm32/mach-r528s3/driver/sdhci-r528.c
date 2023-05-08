@@ -213,7 +213,7 @@ static bool_t r528_transfer_command(struct sdhci_r528_pdata_t * pdat, struct sdh
 
 	if(cmd->cmdidx == MMC_STOP_TRANSMISSION)
 	{
-		timeout = ktime_add_ms(ktime_get(), 1);
+		timeout = ktime_add_ms(ktime_get(), 10);
 		do {
 			status = read32(pdat->virt + SD_STAR);
 			if(ktime_after(ktime_get(), timeout))
@@ -252,7 +252,7 @@ static bool_t r528_transfer_command(struct sdhci_r528_pdata_t * pdat, struct sdh
 		write32(pdat->virt + SD_GCTL, read32(pdat->virt + SD_GCTL) | 0x80000000);
 	write32(pdat->virt + SD_CMDR, cmdval | cmd->cmdidx);
 
-	timeout = ktime_add_ms(ktime_get(), 1);
+	timeout = ktime_add_ms(ktime_get(), 10);
 	do {
 		status = read32(pdat->virt + SD_RISR);
 		if(ktime_after(ktime_get(), timeout) || (status & SDXC_INTERRUPT_ERROR_BIT))
@@ -265,7 +265,7 @@ static bool_t r528_transfer_command(struct sdhci_r528_pdata_t * pdat, struct sdh
 
 	if(cmd->resptype & MMC_RSP_BUSY)
 	{
-		timeout = ktime_add_ms(ktime_get(), 1);
+		timeout = ktime_add_ms(ktime_get(), 10);
 		do {
 			status = read32(pdat->virt + SD_STAR);
 			if(ktime_after(ktime_get(), timeout))
@@ -439,7 +439,7 @@ static bool_t sdhci_r528_update_clk(struct sdhci_r528_pdata_t * pdat)
 	u32_t cmd = (1U << 31) | (1 << 21) | (1 << 13);
 
 	write32(pdat->virt + SD_CMDR, cmd);
-	ktime_t timeout = ktime_add_ms(ktime_get(), 1);
+	ktime_t timeout = ktime_add_ms(ktime_get(), 10);
 	do {
 		if(ktime_after(ktime_get(), timeout))
 			return FALSE;

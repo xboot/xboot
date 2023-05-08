@@ -192,7 +192,7 @@ static void d1_tconlcd_set_timing(struct fb_d1_rgb_pdata_t * pdat)
 	val = (pdat->timing.v_front_porch + pdat->timing.v_back_porch + pdat->timing.v_sync_len) / 2;
 	write32((virtual_addr_t)&tcon->ctrl, (1 << 31) | (0 << 24) | (0 << 23) | ((val & 0x1f) << 4) | (0 << 0));
 	val = clk_get_rate(pdat->clk_tconlcd) / pdat->timing.pixel_clock_hz;
-	write32((virtual_addr_t)&tcon->dclk, (0xf << 28) | ((val / 2) << 0));
+	write32((virtual_addr_t)&tcon->dclk, (0xf << 28) | (val << 0));
 	write32((virtual_addr_t)&tcon->timing0, ((pdat->width - 1) << 16) | ((pdat->height - 1) << 0));
 	bp = pdat->timing.h_sync_len + pdat->timing.h_back_porch;
 	total = pdat->width + pdat->timing.h_front_porch + bp;

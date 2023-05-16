@@ -1,0 +1,23 @@
+{
+	"clk-fixed@0": { "name": "osc48m", "rate": 48000000 },
+	"clk-fixed@1": { "name": "osc32k", "rate": 32768 },
+
+	"clk-fixed@2": { "name": "bus-uart0", "rate": 24000000 },
+
+	"uart-16550@0x02500000": {
+		"clock-name": "bus-uart0",
+		"reset": -1,
+		"txd-gpio": -1,
+		"txd-gpio-config": -1,
+		"rxd-gpio": -1,
+		"rxd-gpio-config": -1,
+		"baud-rates": 115200,
+		"data-bits": 8,
+		"parity-bits": 0,
+		"stop-bits": 1
+	},
+
+	"console-uart@0": {
+		"uart-bus": "uart-16550.0"
+	}
+}

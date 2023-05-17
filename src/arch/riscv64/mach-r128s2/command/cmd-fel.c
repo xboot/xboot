@@ -13,14 +13,14 @@ static void usage(void)
 
 static int do_fel(int argc, char ** argv)
 {
-/*	virtual_addr_t virt = phys_to_virt(0x07090000);
+	virtual_addr_t virt = phys_to_virt(0x40050000);
 
 	do {
-		write32(virt + 0x100 + 0x8, 0x5aa5a55a);
+		write32(virt + 0x200 + 0x8, 0x5aa5a55a);
 		mb();
 		smp_mb();
-	} while(read32(virt + 0x100 + 0x8) != 0x5aa5a55a);
-	machine_reboot();*/
+	} while(read32(virt + 0x200 + 0x8) != 0x5aa5a55a);
+	machine_reboot();
 
 	return 0;
 }

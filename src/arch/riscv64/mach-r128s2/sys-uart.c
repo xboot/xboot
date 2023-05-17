@@ -30,6 +30,50 @@
 
 void sys_uart_init(void)
 {
+	virtual_addr_t addr;
+	u32_t val;
+
+	/* Config PA16 and PA17 to txd0 and rxd0 */
+	addr = 0x4004a400 + 0x08;
+	val = read32(addr);
+	val &= ~(0xf << ((0 & 0xf) << 2));
+	val |= ((0x5 & 0xf) << ((0 & 0xf) << 2));
+	write32(addr, val);
+
+	val = read32(addr);
+	val &= ~(0xf << ((1 & 0xf) << 2));
+	val |= ((0x5 & 0xf) << ((1 & 0xf) << 2));
+	write32(addr, val);
+
+	/* Open the clock gate for uart0 */
+	addr = 0x4003c004;
+	val = read32(addr);
+	val |= 1 << 6;
+	write32(addr, val);
+
+	/* Deassert uart0 reset */
+	addr = 0x4003c00c;
+	val = read32(addr);
+	val |= 1 << 6;
+	write32(addr, val);
+
+	/* Config uart0 to 115200-8-1-0 */
+	addr = 0x40047000;
+	write32(addr + 0x04, 0x0);
+	write32(addr + 0x08, 0xf7);
+	write32(addr + 0x10, 0x0);
+	val = read32(addr + 0x0c);
+	val |= (1 << 7);
+	write32(addr + 0x0c, val);
+	write32(addr + 0x00, 0xd & 0xff);
+	write32(addr + 0x04, (0xd >> 8) & 0xff);
+	val = read32(addr + 0x0c);
+	val &= ~(1 << 7);
+	write32(addr + 0x0c, val);
+	val = read32(addr + 0x0c);
+	val &= ~0x1f;
+	val |= (0x3 << 0) | (0 << 2) | (0x0 << 3);
+	write32(addr + 0x0c, val);
 }
 
 void sys_uart_putc(char c)

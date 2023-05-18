@@ -1,6 +1,27 @@
 {
-	"clk-fixed@0": { "name": "osc48m", "rate": 48000000 },
-	"clk-fixed@1": { "name": "osc32k", "rate": 32768 },
+	"clk-fixed@0": { "name": "osc26m", "rate": 26000000 },
+	"clk-fixed@1": { "name": "osc40m", "rate": 40000000 },
+	"clk-fixed@2": { "name": "osc24m", "rate": 24000000 },
+	"clk-fixed@3": { "name": "osc32m", "rate": 32000000 },
+	"clk-fixed@4": { "name": "osc24.576m", "rate": 24576000 },
+
+	"clk-mux@0x4004c484": {
+		"parent": [
+			{ "name": "osc26m", "value": 0 },
+			{ "name": "osc40m", "value": 1 },
+			{ "name": "osc24m", "value": 2 },
+			{ "name": "osc32m", "value": 3 },
+			{ "name": "osc24.576m", "value": 4 }
+		],
+		"name": "hosc", "shift": 0, "width": 3
+	},
+
+	"clk-r128-pll@0": { "parent": "hosc", "name": "dpll1", "channel": 0 },
+	"clk-r128-pll@1": { "parent": "hosc", "name": "dpll2", "channel": 1 },
+	"clk-r128-pll@2": { "parent": "hosc", "name": "dpll3", "channel": 2 },
+
+
+
 
 	"clk-fixed": { "name": "bus-uart0", "rate": 24000000 },
 	"clk-fixed": { "name": "wdg", "rate": 32768 },

@@ -3,7 +3,7 @@
 ## Compile source code and generate the target files at the output directory
 ```shell
 make clean
-make CROSS_COMPILE=/path/to/riscv64-unknown-elf- PLATFORM=riscv64-r128
+make CROSS_COMPILE=/path/to/riscv64-unknown-elf- PLATFORM=riscv64-r128s2
 ```
 
 ## Program to RAM and execute
@@ -34,4 +34,3 @@ git clone https://github.com/xboot/xfel.git
 make
 sudo make install
 ```
-

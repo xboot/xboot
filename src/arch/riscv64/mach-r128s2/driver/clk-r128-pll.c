@@ -66,25 +66,32 @@ static u64_t clk_r128_pll_get_rate(struct clk_t * clk, u64_t prate)
 
 	switch(pdat->channel)
 	{
-	case 0:
+	case 1:
 		r = read32(pdat->virt + CCU_DPLL1_CTRL);
 		n = ((r >> 4) & 0xff);
 		m = ((r >> 0) & 0xf);
 		rate = (u64_t)((prate * n) / m);
 		break;
 
-	case 1:
+	case 2:
 		r = read32(pdat->virt + CCU_DPLL2_CTRL);
 		n = ((r >> 4) & 0xff);
 		m = ((r >> 0) & 0xf);
 		rate = (u64_t)((prate * n) / m);
 		break;
 
-	case 2:
+	case 3:
 		r = read32(pdat->virt + CCU_DPLL3_CTRL);
 		n = ((r >> 4) & 0xff);
 		m = ((r >> 0) & 0xf);
 		rate = (u64_t)((prate * n) / m);
+		break;
+
+	case 4:
+		r = read32(pdat->virt + CCU_AUDIO_PLL_CTRL);
+		n = ((r >> 8) & 0x3f);
+		m = ((r >> 0) & 0x1f);
+		rate = (u64_t)((prate * n * 2) / m);
 		break;
 
 	default:
@@ -104,7 +111,7 @@ static struct device_t * clk_r128_pll_probe(struct driver_t * drv, struct dtnode
 	char * name = dt_read_string(n, "name", NULL);
 	int channel = dt_read_int(n, "channel", -1);
 
-	if(channel < 0 || channel > 2)
+	if(channel < 1 || channel > 4)
 		return NULL;
 
 	if(!parent || !name)

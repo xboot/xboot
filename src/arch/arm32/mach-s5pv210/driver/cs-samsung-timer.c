@@ -78,7 +78,7 @@ static struct device_t * cs_samsung_timer_probe(struct driver_t * drv, struct dt
 	clk_enable(pdat->clk);
 	rate = samsung_timer_calc_tin(pdat->virt, pdat->clk, pdat->channel, 13);
 	clocksource_calc_mult_shift(&cs->mult, &cs->shift, rate, 1000000000ULL, 10);
-	cs->name = alloc_device_name(dt_read_name(n), -1);
+	cs->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	cs->mask = CLOCKSOURCE_MASK(32);
 	cs->read = cs_samsung_timer_read;
 	cs->priv = pdat;

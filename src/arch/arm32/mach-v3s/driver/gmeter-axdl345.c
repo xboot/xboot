@@ -176,7 +176,7 @@ static struct device_t * gmeter_axdl345_probe(struct driver_t * drv, struct dtno
 
 	pdat->dev = i2cdev;
 
-	g->name = alloc_device_name(dt_read_name(n), -1);
+	g->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	g->get = gmeter_axdl345_get;
 	g->priv = pdat;
 

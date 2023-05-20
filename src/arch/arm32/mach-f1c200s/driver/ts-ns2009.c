@@ -187,7 +187,7 @@ static struct device_t * ts_ns2009_probe(struct driver_t * drv, struct dtnode_t 
 	pdat->y = 0;
 	pdat->press = 0;
 
-	input->name = alloc_device_name(dt_read_name(n), -1);
+	input->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	input->ioctl = ts_ns2009_ioctl;
 	input->priv = pdat;
 	timer_start(&pdat->timer, ms_to_ktime(pdat->interval));

@@ -566,7 +566,7 @@ static struct device_t * cam_f1c100s_tvd_probe(struct driver_t * drv, struct dtn
 	pdat->channel = clamp(dt_read_int(n, "channel", 0), 0, 1);
 	pdat->ready = 0;
 
-	cam->name = alloc_device_name(dt_read_name(n), -1);
+	cam->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	cam->start = cam_start;
 	cam->stop = cam_stop;
 	cam->capture = cam_capture;

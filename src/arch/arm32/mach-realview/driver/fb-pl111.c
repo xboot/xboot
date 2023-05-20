@@ -156,7 +156,7 @@ static struct device_t * fb_pl111_probe(struct driver_t * drv, struct dtnode_t *
 	memset(pdat->vram[0], 0, pdat->pixlen);
 	memset(pdat->vram[1], 0, pdat->pixlen);
 
-	fb->name = alloc_device_name(dt_read_name(n), -1);
+	fb->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	fb->width = pdat->width;
 	fb->height = pdat->height;
 	fb->pwidth = pdat->pwidth;

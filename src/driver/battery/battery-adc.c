@@ -210,7 +210,7 @@ static struct device_t * battery_adc_probe(struct driver_t * drv, struct dtnode_
 	pdat->dc = dc;
 	pdat->ndc = ndc;
 
-	bat->name = alloc_device_name(dt_read_name(n), -1);
+	bat->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	bat->update = battery_adc_update;
 	bat->priv = pdat;
 

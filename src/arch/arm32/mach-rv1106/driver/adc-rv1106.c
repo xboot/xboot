@@ -98,7 +98,7 @@ static struct device_t * adc_rv1106_probe(struct driver_t * drv, struct dtnode_t
 	pdat->clk = strdup(clk);
 	pdat->reset = dt_read_int(n, "reset", -1);
 
-	adc->name = alloc_device_name(dt_read_name(n), -1);
+	adc->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	adc->vreference = dt_read_int(n, "reference-voltage", 1800000);
 	adc->resolution = 10;
 	adc->nchannel = 2;

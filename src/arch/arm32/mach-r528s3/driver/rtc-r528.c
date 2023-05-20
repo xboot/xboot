@@ -142,7 +142,7 @@ static struct device_t * rtc_r528_probe(struct driver_t * drv, struct dtnode_t *
 	pdat->virt = virt;
 	pdat->clk = strdup(clk);
 
-	rtc->name = alloc_device_name(dt_read_name(n), -1);
+	rtc->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	rtc->settime = rtc_r528_settime;
 	rtc->gettime = rtc_r528_gettime;
 	rtc->priv = pdat;

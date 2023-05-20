@@ -164,7 +164,7 @@ static struct device_t * compass_hmc5883l_probe(struct driver_t * drv, struct dt
 
 	pdat->dev = i2cdev;
 
-	c->name = alloc_device_name(dt_read_name(n), -1);
+	c->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	c->ox = 0;
 	c->oy = 0;
 	c->oz = 0;

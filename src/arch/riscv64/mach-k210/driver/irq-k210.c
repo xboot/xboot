@@ -227,7 +227,7 @@ static struct device_t * irq_k210_probe(struct driver_t * drv, struct dtnode_t *
 	pdat->cpu = smp_processor_id();
 	pdat->ncpu = dt_read_int(n, "cpu-count", 1);
 
-	chip->name = alloc_device_name(dt_read_name(n), -1);
+	chip->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	chip->base = pdat->base;
 	chip->nirq = pdat->nirq;
 	chip->handler = malloc(sizeof(struct irq_handler_t) * pdat->nirq);

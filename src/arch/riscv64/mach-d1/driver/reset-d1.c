@@ -89,7 +89,7 @@ static struct device_t * reset_d1_probe(struct driver_t * drv, struct dtnode_t *
 	pdat->base = base;
 	pdat->nreset = nreset;
 
-	chip->name = alloc_device_name(dt_read_name(n), -1);
+	chip->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	chip->base = pdat->base;
 	chip->nreset = pdat->nreset;
 	chip->assert = reset_d1_assert;

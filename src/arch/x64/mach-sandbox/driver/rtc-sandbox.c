@@ -50,7 +50,7 @@ static struct device_t * rtc_sandbox_probe(struct driver_t * drv, struct dtnode_
 	if(!rtc)
 		return NULL;
 
-	rtc->name = alloc_device_name(dt_read_name(n), -1);
+	rtc->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	rtc->settime = rtc_sandbox_settime;
 	rtc->gettime = rtc_sandbox_gettime;
 	rtc->priv = NULL;

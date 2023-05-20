@@ -212,7 +212,7 @@ static struct device_t * pwm_h3_probe(struct driver_t * drv, struct dtnode_t * n
 	pdat->period = -1;
 	pdat->polarity = -1;
 
-	pwm->name = alloc_device_name(dt_read_name(n), -1);
+	pwm->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	pwm->config = pwm_h3_config;
 	pwm->enable = pwm_h3_enable;
 	pwm->disable = pwm_h3_disable;

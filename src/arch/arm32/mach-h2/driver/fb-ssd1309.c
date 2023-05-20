@@ -238,7 +238,7 @@ static struct device_t * fb_ssd1309_probe(struct driver_t * drv, struct dtnode_t
 	pdat->pheight = dt_read_int(n, "physical-height", 17);
 	pdat->brightness = -1;
 
-	fb->name = alloc_device_name(dt_read_name(n), -1);
+	fb->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	fb->width = pdat->width;
 	fb->height = pdat->height;
 	fb->pwidth = pdat->pwidth;

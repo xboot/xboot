@@ -131,7 +131,7 @@ static struct device_t * light_cm32181_probe(struct driver_t * drv, struct dtnod
 
 	pdat->dev = i2cdev;
 
-	light->name = alloc_device_name(dt_read_name(n), -1);
+	light->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	light->get = light_cm32181_get;
 	light->priv = pdat;
 

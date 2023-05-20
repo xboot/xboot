@@ -107,7 +107,7 @@ static struct device_t * wdg_r128_probe(struct driver_t * drv, struct dtnode_t *
 	pdat->virt = virt;
 	pdat->clk = strdup(clk);
 
-	wdg->name = alloc_device_name(dt_read_name(n), -1);
+	wdg->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	wdg->set = wdg_r128_set;
 	wdg->get = wdg_r128_get;
 	wdg->priv = pdat;

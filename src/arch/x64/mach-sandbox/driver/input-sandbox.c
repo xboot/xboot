@@ -267,7 +267,7 @@ static struct device_t * input_sandbox_probe(struct driver_t * drv, struct dtnod
 	}
 
 	pdat->ctx = ctx;
-	input->name = alloc_device_name(dt_read_name(n), -1);
+	input->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	input->ioctl = input_sandbox_ioctl;
 	input->priv = pdat;
 

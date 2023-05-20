@@ -316,7 +316,7 @@ static struct device_t * gpio_v831_probe(struct driver_t * drv, struct dtnode_t 
 	pdat->ngpio = ngpio;
 	pdat->oirq = dt_read_int(n, "interrupt-offset", -1);
 
-	chip->name = alloc_device_name(dt_read_name(n), -1);
+	chip->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	chip->base = pdat->base;
 	chip->ngpio = pdat->ngpio;
 	chip->set_cfg = gpio_v831_set_cfg;

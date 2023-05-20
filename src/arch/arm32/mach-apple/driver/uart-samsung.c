@@ -273,7 +273,7 @@ static struct device_t * uart_samsung_probe(struct driver_t * drv, struct dtnode
 	pdat->parity = dt_read_int(n, "parity-bits", 0);
 	pdat->stop = dt_read_int(n, "stop-bits", 1);
 
-	uart->name = alloc_device_name(dt_read_name(n), -1);
+	uart->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	uart->set = uart_samsung_set;
 	uart->get = uart_samsung_get;
 	uart->read = uart_samsung_read;

@@ -53,7 +53,7 @@ static struct device_t * cs_sandbox_probe(struct driver_t * drv, struct dtnode_t
 		cs->mult = 1;
 		cs->shift = 0;
 	}
-	cs->name = alloc_device_name(dt_read_name(n), -1);
+	cs->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	cs->mask = CLOCKSOURCE_MASK(63);
 	cs->read = cs_sandbox_read;
 	cs->priv = 0;

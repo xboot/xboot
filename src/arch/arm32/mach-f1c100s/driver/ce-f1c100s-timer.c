@@ -101,7 +101,7 @@ static struct device_t * ce_f1c100s_timer_probe(struct driver_t * drv, struct dt
 
 	clk_enable(pdat->clk);
 	clockevent_calc_mult_shift(ce, clk_get_rate(pdat->clk), 10);
-	ce->name = alloc_device_name(dt_read_name(n), -1);
+	ce->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	ce->min_delta_ns = clockevent_delta2ns(ce, 0x1);
 	ce->max_delta_ns = clockevent_delta2ns(ce, 0xffffffff);
 	ce->next = ce_f1c100s_timer_next;

@@ -293,7 +293,7 @@ static struct device_t * audio_pwm_probe(struct driver_t * drv, struct dtnode_t 
 	pdat->polarity = dt_read_bool(n, "pwm-polarity", 1);
 	pdat->running = 0;
 
-	audio->name = alloc_device_name(dt_read_name(n), -1);
+	audio->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	audio->playback_start = audio_pwm_playback_start;
 	audio->playback_stop = audio_pwm_playback_stop;
 	audio->capture_start = NULL;

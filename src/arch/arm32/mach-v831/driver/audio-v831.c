@@ -206,7 +206,7 @@ static struct device_t * audio_v831_probe(struct driver_t * drv, struct dtnode_t
 	pdat->clk = strdup(clk);
 	pdat->reset = dt_read_int(n, "reset", -1);
 
-	audio->name = alloc_device_name(dt_read_name(n), -1);
+	audio->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	audio->playback_start = audio_v831_playback_start;
 	audio->playback_stop = audio_v831_playback_stop;
 	audio->capture_start = audio_v831_capture_start;

@@ -374,7 +374,7 @@ static struct device_t * audio_f1c500s_probe(struct driver_t * drv, struct dtnod
 	pdat->dma_capture = dma_capture;
 	pdat->playback.running = 0;
 
-	audio->name = alloc_device_name(dt_read_name(n), -1);
+	audio->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	audio->playback_start = audio_f1c500s_playback_start;
 	audio->playback_stop = audio_f1c500s_playback_stop;
 	audio->capture_start = audio_f1c500s_capture_start;

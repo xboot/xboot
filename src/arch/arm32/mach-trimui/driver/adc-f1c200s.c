@@ -103,7 +103,7 @@ static struct device_t * adc_f1c200s_probe(struct driver_t * drv, struct dtnode_
 
 	pdat->virt = virt;
 
-	adc->name = alloc_device_name(dt_read_name(n), -1);
+	adc->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	adc->vreference = dt_read_int(n, "reference-voltage", 2000000);
 	adc->resolution = 6;
 	adc->nchannel = 1;

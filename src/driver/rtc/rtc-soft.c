@@ -68,7 +68,7 @@ static struct device_t * rtc_soft_probe(struct driver_t * drv, struct dtnode_t *
 
 	pdat->adjust = (int64_t)dt_read_long(n, "adjust", 0);
 
-	rtc->name = alloc_device_name(dt_read_name(n), -1);
+	rtc->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	rtc->settime = rtc_soft_settime;
 	rtc->gettime = rtc_soft_gettime;
 	rtc->priv = pdat;

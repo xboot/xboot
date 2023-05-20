@@ -108,7 +108,7 @@ static struct device_t * wdg_bcm2837_probe(struct driver_t * drv, struct dtnode_
 	pdat->virt = virt;
 	pdat->start = 0;
 
-	wdg->name = alloc_device_name(dt_read_name(n), -1);
+	wdg->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	wdg->set = wdg_bcm2837_set;
 	wdg->get = wdg_bcm2837_get;
 	wdg->priv = pdat;

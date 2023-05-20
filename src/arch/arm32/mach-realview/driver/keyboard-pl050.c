@@ -407,7 +407,7 @@ static struct device_t * keyboard_pl050_probe(struct driver_t * drv, struct dtno
 	pdat->ds = DECODE_STATE_MAKE_CODE;
 	pdat->flag = KBD_NUM_LOCK;
 
-	input->name = alloc_device_name(dt_read_name(n), -1);
+	input->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	input->ioctl = keyboard_pl050_ioctl;
 	input->priv = pdat;
 

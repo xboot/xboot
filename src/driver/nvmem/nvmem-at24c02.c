@@ -142,7 +142,7 @@ static struct device_t * nvmem_at24c02_probe(struct driver_t * drv, struct dtnod
 	pdat->dev = i2cdev;
 	pdat->capacity = 256;
 
-	m->name = alloc_device_name(dt_read_name(n), -1);
+	m->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	m->capacity = nvmem_at24c02_capacity;
 	m->read = nvmem_at24c02_read;
 	m->write = nvmem_at24c02_write;

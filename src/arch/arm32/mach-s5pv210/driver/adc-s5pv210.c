@@ -85,7 +85,7 @@ static struct device_t * adc_s5pv210_probe(struct driver_t * drv, struct dtnode_
 	pdat->virt = virt;
 	pdat->clk = strdup(clk);
 
-	adc->name = alloc_device_name(dt_read_name(n), -1);
+	adc->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	adc->vreference = dt_read_int(n, "reference-voltage", 3300000);
 	adc->resolution = 12;
 	adc->nchannel = 2;

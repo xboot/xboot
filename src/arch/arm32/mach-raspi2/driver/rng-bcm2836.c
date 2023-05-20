@@ -93,7 +93,7 @@ static struct device_t * rng_bcm2836_probe(struct driver_t * drv, struct dtnode_
 
 	pdat->virt = virt;
 
-	rng->name = alloc_device_name(dt_read_name(n), -1);
+	rng->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	rng->read = rng_bcm2836_read;
 	rng->priv = pdat;
 

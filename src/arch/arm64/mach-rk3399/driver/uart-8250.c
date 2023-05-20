@@ -267,7 +267,7 @@ static struct device_t * uart_8250_probe(struct driver_t * drv, struct dtnode_t 
 	pdat->parity = dt_read_int(n, "parity-bits", 0);
 	pdat->stop = dt_read_int(n, "stop-bits", 1);
 
-	uart->name = alloc_device_name(dt_read_name(n), -1);
+	uart->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	uart->set = uart_8250_set;
 	uart->get = uart_8250_get;
 	uart->read = uart_8250_read;

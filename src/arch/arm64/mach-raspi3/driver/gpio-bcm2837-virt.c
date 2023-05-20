@@ -150,7 +150,7 @@ static struct device_t * gpio_bcm2837_virt_probe(struct driver_t * drv, struct d
 	pdat->status = malloc(sizeof(uint32_t) * pdat->ngpio);
 	memset(pdat->status, 0, sizeof(uint32_t) * pdat->ngpio);
 
-	chip->name = alloc_device_name(dt_read_name(n), -1);
+	chip->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	chip->base = pdat->base;
 	chip->ngpio = pdat->ngpio;
 	chip->set_cfg = gpio_bcm2837_virt_set_cfg;

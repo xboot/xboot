@@ -141,7 +141,7 @@ static struct device_t * irq_r528_gpio_probe(struct driver_t * drv, struct dtnod
 	pdat->nirq = nirq;
 	pdat->parent = parent;
 
-	chip->name = alloc_device_name(dt_read_name(n), -1);
+	chip->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	chip->base = pdat->base;
 	chip->nirq = pdat->nirq;
 	chip->handler = malloc(sizeof(struct irq_handler_t) * pdat->nirq);

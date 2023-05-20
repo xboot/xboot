@@ -150,7 +150,7 @@ static struct device_t * audio_sandbox_probe(struct driver_t * drv, struct dtnod
 	pdat->pctx = NULL;
 	pdat->cctx = NULL;
 
-	audio->name = alloc_device_name(dt_read_name(n), -1);
+	audio->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	audio->playback_start = audio_sandbox_playback_start;
 	audio->playback_stop = audio_sandbox_playback_stop;
 	audio->capture_start = audio_sandbox_capture_start;

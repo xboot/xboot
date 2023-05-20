@@ -89,7 +89,7 @@ static struct device_t * cs_sp804_probe(struct driver_t * drv, struct dtnode_t *
 	pdat->channel = channel;
 
 	clk_enable(pdat->clk);
-	cs->name = alloc_device_name(dt_read_name(n), -1);
+	cs->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	cs->mask = CLOCKSOURCE_MASK(32);
 	cs->shift = 20;
 	cs->mult = clocksource_hz2mult(clk_get_rate(pdat->clk), cs->shift);

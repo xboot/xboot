@@ -126,7 +126,7 @@ static struct device_t * pwm_gpio_probe(struct driver_t * drv, struct dtnode_t *
 	pdat->period = -1;
 	pdat->polarity = -1;
 
-	pwm->name = alloc_device_name(dt_read_name(n), -1);
+	pwm->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	pwm->config = pwm_gpio_config;
 	pwm->enable = pwm_gpio_enable;
 	pwm->disable = pwm_gpio_disable;

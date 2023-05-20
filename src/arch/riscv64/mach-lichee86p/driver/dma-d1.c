@@ -377,7 +377,7 @@ static struct device_t * dma_d1_probe(struct driver_t * drv, struct dtnode_t * n
 	pdat->ndma = ndma;
 	pdat->desc = dma_alloc_coherent(sizeof(struct dma_d1_desc_t) * ndma);
 
-	chip->name = alloc_device_name(dt_read_name(n), -1);
+	chip->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	chip->base = pdat->base;
 	chip->ndma = pdat->ndma;
 	chip->channel = malloc(sizeof(struct dma_channel_t) * pdat->ndma);

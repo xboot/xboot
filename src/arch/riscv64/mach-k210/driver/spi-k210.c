@@ -342,7 +342,7 @@ static struct device_t * spi_k210_probe(struct driver_t * drv, struct dtnode_t *
 	pdat->cs3cfg = dt_read_int(n, "cs3-gpio-config", -1);
 	pdat->fifo_len = 0;
 
-	spi->name = alloc_device_name(dt_read_name(n), -1);
+	spi->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	spi->type = SPI_TYPE_SINGLE | SPI_TYPE_DUAL | SPI_TYPE_QUAD | SPI_TYPE_OCTAL;
 	spi->transfer = spi_k210_transfer;
 	spi->select = spi_k210_select;

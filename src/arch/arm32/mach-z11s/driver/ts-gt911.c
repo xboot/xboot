@@ -272,7 +272,7 @@ static struct device_t * ts_gt911_probe(struct driver_t * drv, struct dtnode_t *
 	pdat->dev = i2cdev;
 	pdat->irq = irq;
 
-	input->name = alloc_device_name(dt_read_name(n), -1);
+	input->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	input->ioctl = ts_gt911_ioctl;
 	input->priv = pdat;
 

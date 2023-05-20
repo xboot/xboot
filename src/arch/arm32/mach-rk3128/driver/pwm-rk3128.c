@@ -154,7 +154,7 @@ static struct device_t * pwm_rk3128_probe(struct driver_t * drv, struct dtnode_t
 	pdat->period = 1000 * 1000;
 	pdat->polarity = 0;
 
-	pwm->name = alloc_device_name(dt_read_name(n), -1);
+	pwm->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	pwm->config = pwm_rk3128_config;
 	pwm->enable = pwm_rk3128_enable;
 	pwm->disable = pwm_rk3128_disable;

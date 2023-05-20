@@ -212,7 +212,7 @@ static struct device_t * pwm_f1c100s_probe(struct driver_t * drv, struct dtnode_
 	pdat->period = -1;
 	pdat->polarity = -1;
 
-	pwm->name = alloc_device_name(dt_read_name(n), -1);
+	pwm->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	pwm->config = pwm_f1c100s_config;
 	pwm->enable = pwm_f1c100s_enable;
 	pwm->disable = pwm_f1c100s_disable;

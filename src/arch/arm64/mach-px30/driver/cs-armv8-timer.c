@@ -47,7 +47,7 @@ static struct device_t * cs_armv8_timer_probe(struct driver_t * drv, struct dtno
 	if(!cs)
 		return NULL;
 
-	cs->name = alloc_device_name(dt_read_name(n), -1);
+	cs->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	cs->mask = CLOCKSOURCE_MASK(64);
 	cs->read = cs_armv8_timer_read;
 	cs->priv = NULL;

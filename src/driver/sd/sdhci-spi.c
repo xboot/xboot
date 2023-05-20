@@ -405,7 +405,7 @@ static struct device_t * sdhci_spi_probe(struct driver_t * drv, struct dtnode_t 
 	pdat->cd = dt_read_int(n, "cd-gpio", -1);
 	pdat->cdcfg = dt_read_int(n, "cd-gpio-config", -1);
 
-	sdhci->name = alloc_device_name(dt_read_name(n), -1);
+	sdhci->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	sdhci->voltage = MMC_VDD_27_36;
 	sdhci->width = MMC_BUS_WIDTH_1;
 	sdhci->clock = (u32_t)dt_read_long(n, "max-clock-frequency", 25 * 1000 * 1000);

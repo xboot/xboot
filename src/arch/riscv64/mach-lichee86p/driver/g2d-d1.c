@@ -414,7 +414,7 @@ static struct device_t * g2d_d1_probe(struct driver_t * drv, struct dtnode_t * n
 	pdat->reset = dt_read_int(n, "reset", -1);
 	mutex_init(&pdat->m);
 
-	g2d->name = alloc_device_name(dt_read_name(n), -1);
+	g2d->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	g2d->blit = g2d_d1_blit;
 	g2d->fill = g2d_d1_fill;
 	g2d->priv = pdat;

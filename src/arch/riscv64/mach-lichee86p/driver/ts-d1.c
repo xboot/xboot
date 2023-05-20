@@ -242,7 +242,7 @@ static struct device_t * ts_d1_probe(struct driver_t * drv, struct dtnode_t * n)
 	pdat->press = 0;
 	pdat->ignore_fifo_data = 1;
 
-	input->name = alloc_device_name(dt_read_name(n), -1);
+	input->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	input->ioctl = ts_d1_ioctl;
 	input->priv = pdat;
 

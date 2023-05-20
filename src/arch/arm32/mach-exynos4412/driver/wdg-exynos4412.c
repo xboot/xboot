@@ -103,7 +103,7 @@ static struct device_t * wdg_exynos4412_probe(struct driver_t * drv, struct dtno
 	pdat->virt = virt;
 	pdat->clk = strdup(clk);
 
-	wdg->name = alloc_device_name(dt_read_name(n), -1);
+	wdg->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	wdg->set = wdg_exynos4412_set;
 	wdg->get = wdg_exynos4412_get;
 	wdg->priv = pdat;

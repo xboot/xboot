@@ -313,7 +313,7 @@ static struct device_t * sdhci_pl180_probe(struct driver_t * drv, struct dtnode_
 
 	pdat->virt = virt;
 
-	sdhci->name = alloc_device_name(dt_read_name(n), -1);
+	sdhci->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	sdhci->voltage = MMC_VDD_27_36;
 	sdhci->width = MMC_BUS_WIDTH_4;
 	sdhci->clock = (u32_t)dt_read_long(n, "max-clock-frequency", 25 * 1000 * 1000);

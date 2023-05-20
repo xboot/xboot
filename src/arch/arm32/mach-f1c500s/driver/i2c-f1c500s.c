@@ -247,7 +247,7 @@ static struct device_t * i2c_f1c500s_probe(struct driver_t * drv, struct dtnode_
 	pdat->scl = dt_read_int(n, "scl-gpio", -1);
 	pdat->sclcfg = dt_read_int(n, "scl-gpio-config", -1);
 
-	i2c->name = alloc_device_name(dt_read_name(n), -1);
+	i2c->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	i2c->xfer = i2c_f1c500s_xfer;
 	i2c->priv = pdat;
 

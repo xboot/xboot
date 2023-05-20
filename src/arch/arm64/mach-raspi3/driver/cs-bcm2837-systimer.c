@@ -79,7 +79,7 @@ static struct device_t * cs_bcm2837_systimer_probe(struct driver_t * drv, struct
 
 	clk_enable(pdat->clk);
 	clocksource_calc_mult_shift(&cs->mult, &cs->shift, clk_get_rate(pdat->clk), 1000000000ULL, 10);
-	cs->name = alloc_device_name(dt_read_name(n), -1);
+	cs->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	cs->mask = CLOCKSOURCE_MASK(64);
 	cs->read = cs_bcm2837_systimer_read;
 	cs->priv = pdat;

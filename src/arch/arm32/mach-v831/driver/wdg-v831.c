@@ -107,7 +107,7 @@ static struct device_t * wdg_v831_probe(struct driver_t * drv, struct dtnode_t *
 	pdat->virt = virt;
 	pdat->clk = strdup(clk);
 
-	wdg->name = alloc_device_name(dt_read_name(n), -1);
+	wdg->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	wdg->set = wdg_v831_set;
 	wdg->get = wdg_v831_get;
 	wdg->priv = pdat;

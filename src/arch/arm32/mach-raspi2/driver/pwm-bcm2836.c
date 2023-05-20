@@ -155,7 +155,7 @@ static struct device_t * pwm_bcm2836_probe(struct driver_t * drv, struct dtnode_
 	pdat->period = 1000 * 1000;
 	pdat->polarity = 0;
 
-	pwm->name = alloc_device_name(dt_read_name(n), -1);
+	pwm->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	pwm->config = pwm_bcm2836_config;
 	pwm->enable = pwm_bcm2836_enable;
 	pwm->disable = pwm_bcm2836_disable;

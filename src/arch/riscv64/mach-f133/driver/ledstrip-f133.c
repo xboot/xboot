@@ -331,7 +331,7 @@ static struct device_t * ledstrip_f133_probe(struct driver_t * drv, struct dtnod
 	pdat->count = 0;
 	pdat->color = NULL;
 
-	strip->name = alloc_device_name(dt_read_name(n), -1);
+	strip->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	strip->set_count = ledstrip_f133_set_count;
 	strip->get_count = ledstrip_f133_get_count;
 	strip->set_color = ledstrip_f133_set_color;

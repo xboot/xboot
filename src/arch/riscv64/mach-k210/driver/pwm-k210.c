@@ -129,7 +129,7 @@ static struct device_t * pwm_k210_probe(struct driver_t * drv, struct dtnode_t *
 	pdat->period = 1000 * 1000;
 	pdat->polarity = 0;
 
-	pwm->name = alloc_device_name(dt_read_name(n), -1);
+	pwm->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	pwm->config = pwm_k210_config;
 	pwm->enable = pwm_k210_enable;
 	pwm->disable = pwm_k210_disable;

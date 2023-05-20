@@ -113,7 +113,7 @@ static struct device_t * wdg_k210_probe(struct driver_t * drv, struct dtnode_t *
 	pdat->clk = strdup(clk);
 	pdat->reset = dt_read_int(n, "reset", -1);
 
-	wdg->name = alloc_device_name(dt_read_name(n), -1);
+	wdg->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	wdg->set = wdg_k210_set;
 	wdg->get = wdg_k210_get;
 	wdg->priv = pdat;

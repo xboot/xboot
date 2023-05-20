@@ -258,7 +258,7 @@ static struct device_t * ts_tsc2007_probe(struct driver_t * drv, struct dtnode_t
 	pdat->y = 0;
 	pdat->press = 0;
 
-	input->name = alloc_device_name(dt_read_name(n), -1);
+	input->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	input->ioctl = ts_tsc2007_ioctl;
 	input->priv = pdat;
 

@@ -376,7 +376,7 @@ static struct device_t * fb_d1_rgb_probe(struct driver_t * drv, struct dtnode_t 
 	pdat->timing.clk_active = dt_read_bool(n, "clk-active", 0);
 	pdat->backlight = search_led(dt_read_string(n, "backlight", NULL));
 
-	fb->name = alloc_device_name(dt_read_name(n), -1);
+	fb->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	fb->width = pdat->width;
 	fb->height = pdat->height;
 	fb->pwidth = pdat->pwidth;

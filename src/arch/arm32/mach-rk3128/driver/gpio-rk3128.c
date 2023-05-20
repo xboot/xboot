@@ -296,7 +296,7 @@ static struct device_t * gpio_rk3128_probe(struct driver_t * drv, struct dtnode_
 	pdat->ngpio = ngpio;
 	pdat->oirq = dt_read_int(n, "interrupt-offset", -1);
 
-	chip->name = alloc_device_name(dt_read_name(n), -1);
+	chip->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	chip->base = pdat->base;
 	chip->ngpio = pdat->ngpio;
 	chip->set_cfg = gpio_rk3128_set_cfg;

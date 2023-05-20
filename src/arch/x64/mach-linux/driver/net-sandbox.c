@@ -143,7 +143,7 @@ static struct device_t * net_sandbox_probe(struct driver_t * drv, struct dtnode_
 
 	pdat->iface = strdup(dt_read_string(n, "interface", "eth0"));
 
-	net->name = alloc_device_name(dt_read_name(n), -1);
+	net->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	net->listen = net_sandbox_listen;
 	net->accept = net_sandbox_accept;
 	net->connect = net_sandbox_connect;

@@ -95,7 +95,7 @@ static struct device_t * rtc_pl031_probe(struct driver_t * drv, struct dtnode_t 
 
 	pdat->virt = virt;
 
-	rtc->name = alloc_device_name(dt_read_name(n), -1);
+	rtc->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	rtc->settime = rtc_pl031_settime;
 	rtc->gettime = rtc_pl031_gettime;
 	rtc->priv = pdat;

@@ -171,7 +171,7 @@ static struct device_t * irq_rk3399_gpio_probe(struct driver_t * drv, struct dtn
 	pdat->parent = parent;
 	pdat->both = 0;
 
-	chip->name = alloc_device_name(dt_read_name(n), -1);
+	chip->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	chip->base = pdat->base;
 	chip->nirq = pdat->nirq;
 	chip->handler = malloc(sizeof(struct irq_handler_t) * pdat->nirq);

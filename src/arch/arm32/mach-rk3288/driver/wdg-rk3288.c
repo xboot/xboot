@@ -111,7 +111,7 @@ static struct device_t * wdg_rk3288_probe(struct driver_t * drv, struct dtnode_t
 	pdat->virt = virt;
 	pdat->clk = strdup(clk);
 
-	wdg->name = alloc_device_name(dt_read_name(n), -1);
+	wdg->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	wdg->set = wdg_rk3288_set;
 	wdg->get = wdg_rk3288_get;
 	wdg->priv = pdat;

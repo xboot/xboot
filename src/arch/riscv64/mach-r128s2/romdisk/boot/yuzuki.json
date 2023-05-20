@@ -26,22 +26,30 @@
 	"clk-fixed-factor": { "parent": "pll-audio", "name": "pll-audio2x", "mult": 1, "div": 2 },
 	"clk-fixed-factor": { "parent": "pll-audio", "name": "pll-audio1x", "mult": 1, "div": 4 },
 
-	"clk-gate@0x4004c48a4": {"parent": "hosc", "name": "ck1-usb", "shift": 31, "invert": false },
+	"clk-gate@0x4004c4a4": {"parent": "hosc", "name": "ck1-usb", "shift": 31, "invert": false },
 
 	"clk-fixed-factor": { "parent": "dpll1", "name": "dpll1_div85", "mult": 1, "div": 85 },
 	"clk-fixed-factor": { "parent": "dpll1", "name": "dpll1_div39", "mult": 1, "div": 39 },
-	"clk-mux@0x4004c48a4": {
+	"clk-mux@0x4004c4a4": {
 		"parent": [
 			{ "name": "dpll1_div85", "value": 0 },
 			{ "name": "dpll1_div39", "value": 1 }
 		],
 		"name": "mux-ck1-aud", "shift": 24, "width": 1
 	},
-	"clk-gate@0x4004c48a4": {"parent": "mux-ck1-aud", "name": "ck1-aud", "shift": 27, "invert": false },
+	"clk-gate@0x4004c4a4": {"parent": "mux-ck1-aud", "name": "ck1-aud", "shift": 27, "invert": false },
 
 
 	"clk-fixed": { "name": "bus-uart0", "rate": 24000000 },
 	"clk-fixed": { "name": "wdg", "rate": 32768 },
+
+	"reset-r128@0x4003c00c": { "reset-base":   0, "reset-count": 32 },
+	"reset-r128@0x4003c010": { "reset-base":  32, "reset-count": 32 },
+	"reset-r128@0x4003c018": { "reset-base":  64, "reset-count": 32 },
+	"reset-r128@0x4004c4c8": { "reset-base":  96, "reset-count": 32 },
+	"reset-r128@0x4004c4cc": { "reset-base": 128, "reset-count": 32 },
+	"reset-r128@0x400500c4": { "reset-base": 160, "reset-count": 32 },
+	"reset-r128@0x40050144": { "reset-base": 192, "reset-count": 32 },
 
 	"uart-16550@0x40047000": {
 		"clock-name": "bus-uart0",

@@ -28,7 +28,7 @@ void sandbox_free(void * ptr)
 
 void sandbox_meminfo(size_t * mused, size_t * mfree)
 {
-	struct mallinfo mi = mallinfo();
+	struct mallinfo2 mi = mallinfo2();
 
 	if(mused)
 		*mused = mi.uordblks;

@@ -28,7 +28,7 @@ static void * ramdisk_setup(struct wboxtest_t * wbt)
 	}
 
 	length = sprintf(json,
-		"{\"blk-ramdisk@999\":{\"address\":%lld,\"size\":%lld}}",
+		"{\"blk-ramdisk:999\":{\"address\":%lld,\"size\":%lld}}",
 		(unsigned long long)((virtual_addr_t)pdat->rambuf),
 		(unsigned long long)((virtual_size_t)SZ_1M));
 	probe_device(json, length, NULL);

@@ -45,7 +45,7 @@
  * - stop-bits: uart stop bits
  *
  * Example:
- *  "gnss-uart@0": {
+ *  "gnss-uart": {
  *      "regulator-name": "gnss-power-3v3",
  *      "uart-bus": "uart-pl011.0",
  *      "baud-rates": 9600,

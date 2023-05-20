@@ -1,7 +1,7 @@
 {
-	"clk-fixed@0": { "name": "ext-32k", "rate": 32768 },
-	"clk-fixed@1": { "name": "rc-16m", "rate": 16000000 },
-	"clk-fixed@2": { "name": "dcxo24m", "rate": 24000000 },
+	"clk-fixed": { "name": "ext-32k", "rate": 32768 },
+	"clk-fixed": { "name": "rc-16m", "rate": 16000000 },
+	"clk-fixed": { "name": "dcxo24m", "rate": 24000000 },
 
 	"clk-gate@0x07090000": { "parent": "ext-32k", "name": "ext32k-gate", "shift": 4, "invert": false },
 	"clk-gate@0x07090160": { "parent": "rc-16m", "name": "iosc", "shift": 0, "invert": false },
@@ -22,16 +22,16 @@
 		],
 		"name": "rtc32k", "shift": 1, "width": 1
 	},
-	"clk-fixed-factor@2": { "parent": "rtc32k", "name": "rtc-1k", "mult": 1, "div": 32 },
+	"clk-fixed-factor": { "parent": "rtc32k", "name": "rtc-1k", "mult": 1, "div": 32 },
 
-	"clk-d1-pll@0": { "parent": "dcxo24m", "name": "pll-cpux", "channel": 0 },
-	"clk-d1-pll@1": { "parent": "dcxo24m", "name": "pll-ddr0", "channel": 1 },
-	"clk-d1-pll@2": { "parent": "dcxo24m", "name": "pll-periph0-parent", "channel": 2 },
-	"clk-d1-pll@3": { "parent": "dcxo24m", "name": "pll-video0", "channel": 3 },
-	"clk-d1-pll@4": { "parent": "dcxo24m", "name": "pll-video1", "channel": 4 },
-	"clk-d1-pll@5": { "parent": "dcxo24m", "name": "pll-ve", "channel": 5 },
-	"clk-d1-pll@6": { "parent": "dcxo24m", "name": "pll-audio0-4x", "channel": 6 },
-	"clk-d1-pll@7": { "parent": "dcxo24m", "name": "pll-audio1", "channel": 7 },
+	"clk-d1-pll:0": { "parent": "dcxo24m", "name": "pll-cpux", "channel": 0 },
+	"clk-d1-pll:1": { "parent": "dcxo24m", "name": "pll-ddr0", "channel": 1 },
+	"clk-d1-pll:2": { "parent": "dcxo24m", "name": "pll-periph0-parent", "channel": 2 },
+	"clk-d1-pll:3": { "parent": "dcxo24m", "name": "pll-video0", "channel": 3 },
+	"clk-d1-pll:4": { "parent": "dcxo24m", "name": "pll-video1", "channel": 4 },
+	"clk-d1-pll:5": { "parent": "dcxo24m", "name": "pll-ve", "channel": 5 },
+	"clk-d1-pll:6": { "parent": "dcxo24m", "name": "pll-audio0-4x", "channel": 6 },
+	"clk-d1-pll:7": { "parent": "dcxo24m", "name": "pll-audio1", "channel": 7 },
 
 	"clk-ratio@0x02001500": { "parent": "pll-cpux", "name": "pll-cpux-div", "shift": 16, "width": 2 },
 	"clk-divider@0x02001020": { "parent": "pll-periph0-parent", "name": "pll-periph0-2x", "shift": 16, "width": 3, "divider-one-based": true },
@@ -567,7 +567,7 @@
 		"cs-gpio-config": 4
 	},
 
-	"blk-spinand@0": {
+	"blk-spinand": {
 		"spi-bus": "spi-d1.0",
 		"chip-select": 0,
 		"mode": 0,
@@ -626,21 +626,21 @@
 		]
 	},
 
-	"led-gpio@0": {
+	"led-gpio:0": {
 		"gpio": 65,
 		"gpio-config": 1,
 		"active-low": false,
 		"default-brightness": 0
 	},
 
-	"led-gpio@1": {
+	"led-gpio:1": {
 		"gpio": 118,
 		"gpio-config": 1,
 		"active-low": false,
 		"default-brightness": 0
 	},
 
-	"ledtrigger-heartbeat@0": {
+	"ledtrigger-heartbeat": {
 		"led-name": "led-gpio.0",
 		"period-ms": 1260
 	},
@@ -672,7 +672,7 @@
 		"status": "disabled"
 	},
 
-	"ts-ft6336u@0": {
+	"ts-ft6336u:0": {
 		"i2c-bus": "i2c-d1.2",
 		"slave-address": 72,
 		"interrupt-gpio": 206,
@@ -710,7 +710,7 @@
 		"backlight": "led-gpio.1"
 	},
 
-	"console-uart@0": {
+	"console-uart": {
 		"uart-bus": "uart-16550.0"
 	}
 }

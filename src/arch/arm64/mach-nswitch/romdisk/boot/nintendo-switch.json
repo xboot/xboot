@@ -1,12 +1,12 @@
 {
-	"clk-fixed@0": { "name": "osc12", "rate": 12000000 },
-	"clk-fixed@1": { "name": "osc13", "rate": 13000000 },
-	"clk-fixed@2": { "name": "osc16p8", "rate": 16800000 },
-	"clk-fixed@3": { "name": "osc19p2", "rate": 19200000 },
-	"clk-fixed@4": { "name": "osc26", "rate": 26000000 },
-	"clk-fixed@5": { "name": "osc38p4", "rate": 38400000 },
-	"clk-fixed@6": { "name": "osc48", "rate": 48000000 },
-	"clk-fixed@7": { "name": "osc408", "rate": 408000000 },
+	"clk-fixed": { "name": "osc12", "rate": 12000000 },
+	"clk-fixed": { "name": "osc13", "rate": 13000000 },
+	"clk-fixed": { "name": "osc16p8", "rate": 16800000 },
+	"clk-fixed": { "name": "osc19p2", "rate": 19200000 },
+	"clk-fixed": { "name": "osc26", "rate": 26000000 },
+	"clk-fixed": { "name": "osc38p4", "rate": 38400000 },
+	"clk-fixed": { "name": "osc48", "rate": 48000000 },
+	"clk-fixed": { "name": "osc408", "rate": 408000000 },
 	
 	"clk-mux@0x60006050": {
 		"parent": [
@@ -23,22 +23,22 @@
 	"clk-ratio@0x60006050": { "parent": "osc", "name": "oscref", "shift": 26, "width": 2 },
 	"clk-divider@0x6000655c": { "parent": "oscref", "name": "clk-m", "shift": 2, "width": 2, "divider-one-based": true },
 
-	"clk-nswitch-pll@0": { "parent": "oscref", "name": "pllc-out0", "index": 0 },
-	"clk-nswitch-pll@1": { "parent": "pllc-out0", "name": "pllc-out1", "index": 1 },
-	"clk-nswitch-pll@2": { "parent": "oscref", "name": "plla1-out", "index": 2 },
-	"clk-nswitch-pll@3": { "parent": "oscref", "name": "pllc2-out0", "index": 3 },
-	"clk-nswitch-pll@4": { "parent": "oscref", "name": "pllc3-out0", "index": 4 },
-	"clk-nswitch-pll@5": { "parent": "oscref", "name": "plla", "index": 5 },
-	"clk-nswitch-pll@6": { "parent": "plla", "name": "plla-out0", "index": 6 },
-	"clk-nswitch-pll@7": { "parent": "oscref", "name": "pllp-out0", "index": 7 },
-	"clk-nswitch-pll@8": { "parent": "pllp-out0", "name": "pllp-out1", "index": 8 },
-	"clk-nswitch-pll@9": { "parent": "pllp-out0", "name": "pllp-out2", "index": 9 },
-	"clk-nswitch-pll@10": { "parent": "pllp-out0", "name": "pllp-out3", "index": 10 },
-	"clk-nswitch-pll@11": { "parent": "pllp-out0", "name": "pllp-out4", "index": 11 },
-	"clk-nswitch-pll@12": { "parent": "pllp-out0", "name": "pllp-out5", "index": 12 },
-	"clk-nswitch-pll@13": { "parent": "oscref", "name": "plle-vco", "index": 13 },
-	"clk-nswitch-pll@14": { "parent": "plle-vco", "name": "plle-dout", "index": 14 },
-	"clk-nswitch-pll@15": { "parent": "plle-vco", "name": "pllrefe-out1", "index": 15 },
+	"clk-nswitch-pll:0": { "parent": "oscref", "name": "pllc-out0", "index": 0 },
+	"clk-nswitch-pll:1": { "parent": "pllc-out0", "name": "pllc-out1", "index": 1 },
+	"clk-nswitch-pll:2": { "parent": "oscref", "name": "plla1-out", "index": 2 },
+	"clk-nswitch-pll:3": { "parent": "oscref", "name": "pllc2-out0", "index": 3 },
+	"clk-nswitch-pll:4": { "parent": "oscref", "name": "pllc3-out0", "index": 4 },
+	"clk-nswitch-pll:5": { "parent": "oscref", "name": "plla", "index": 5 },
+	"clk-nswitch-pll:6": { "parent": "plla", "name": "plla-out0", "index": 6 },
+	"clk-nswitch-pll:7": { "parent": "oscref", "name": "pllp-out0", "index": 7 },
+	"clk-nswitch-pll:8": { "parent": "pllp-out0", "name": "pllp-out1", "index": 8 },
+	"clk-nswitch-pll:9": { "parent": "pllp-out0", "name": "pllp-out2", "index": 9 },
+	"clk-nswitch-pll:10": { "parent": "pllp-out0", "name": "pllp-out3", "index": 10 },
+	"clk-nswitch-pll:11": { "parent": "pllp-out0", "name": "pllp-out4", "index": 11 },
+	"clk-nswitch-pll:12": { "parent": "pllp-out0", "name": "pllp-out5", "index": 12 },
+	"clk-nswitch-pll:13": { "parent": "oscref", "name": "plle-vco", "index": 13 },
+	"clk-nswitch-pll:14": { "parent": "plle-vco", "name": "plle-dout", "index": 14 },
+	"clk-nswitch-pll:15": { "parent": "plle-vco", "name": "pllrefe-out1", "index": 15 },
 	"clk-mux@0x600065a4": {
 		"parent": [
 			{ "name": "oscref", "value": 0 },
@@ -48,11 +48,11 @@
 		],
 		"name": "pllc4ref", "shift": 25, "width": 2
 	},
-	"clk-nswitch-pll@16": { "parent": "pllc4ref", "name": "pllc4-vco", "index": 16 },
-	"clk-nswitch-pll@17": { "parent": "pllc4-vco", "name": "pllc4-out0", "index": 17 },
-	"clk-nswitch-pll@18": { "parent": "pllc4-vco", "name": "pllc4-out1", "index": 18 },
-	"clk-nswitch-pll@19": { "parent": "pllc4-vco", "name": "pllc4-out2", "index": 19 },
-	"clk-nswitch-pll@20": { "parent": "pllc4-vco", "name": "pllc4-out3", "index": 20 },
+	"clk-nswitch-pll:16": { "parent": "pllc4ref", "name": "pllc4-vco", "index": 16 },
+	"clk-nswitch-pll:17": { "parent": "pllc4-vco", "name": "pllc4-out0", "index": 17 },
+	"clk-nswitch-pll:18": { "parent": "pllc4-vco", "name": "pllc4-out1", "index": 18 },
+	"clk-nswitch-pll:19": { "parent": "pllc4-vco", "name": "pllc4-out2", "index": 19 },
+	"clk-nswitch-pll:20": { "parent": "pllc4-vco", "name": "pllc4-out3", "index": 20 },
 
 	"clk-mux@0x60006178": {
 		"parent": [
@@ -157,7 +157,7 @@
 		"stop-bits": 1
 	},
 
-	"console-uart@0": {
+	"console-uart": {
 		"uart-bus": "uart-nswitch.1"
 	}
 }

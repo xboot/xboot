@@ -1,19 +1,19 @@
 {
-	"clk-fixed@0": { "name": "hosc", "rate": 24000000 },
-	"clk-fixed@1": { "name": "losc", "rate": 32000 },
-	"clk-fixed@2": { "name": "osc32k", "rate": 32768 },
+	"clk-fixed": { "name": "hosc", "rate": 24000000 },
+	"clk-fixed": { "name": "losc", "rate": 32000 },
+	"clk-fixed": { "name": "osc32k", "rate": 32768 },
 
-	"clk-f1c500s-pll@0": { "parent": "hosc", "name": "pll-cpu", "channel": 0 },
-	"clk-f1c500s-pll@1": { "parent": "hosc", "name": "pll-audio", "channel": 1 },
-	"clk-f1c500s-pll@2": { "parent": "hosc", "name": "pll-video", "channel": 2 },
-	"clk-f1c500s-pll@3": { "parent": "hosc", "name": "pll-ve", "channel": 3 },
-	"clk-f1c500s-pll@4": { "parent": "hosc", "name": "pll-ddr", "channel": 4 },
-	"clk-f1c500s-pll@5": { "parent": "hosc", "name": "pll-periph", "channel": 5 },
+	"clk-f1c500s-pll:0": { "parent": "hosc", "name": "pll-cpu", "channel": 0 },
+	"clk-f1c500s-pll:1": { "parent": "hosc", "name": "pll-audio", "channel": 1 },
+	"clk-f1c500s-pll:2": { "parent": "hosc", "name": "pll-video", "channel": 2 },
+	"clk-f1c500s-pll:3": { "parent": "hosc", "name": "pll-ve", "channel": 3 },
+	"clk-f1c500s-pll:4": { "parent": "hosc", "name": "pll-ddr", "channel": 4 },
+	"clk-f1c500s-pll:5": { "parent": "hosc", "name": "pll-periph", "channel": 5 },
 
-	"clk-fixed-factor@0": { "parent": "pll-audio", "name": "pll-audio-8x", "mult": 1, "div": 1 },
-	"clk-fixed-factor@1": { "parent": "pll-audio", "name": "pll-audio-4x", "mult": 1, "div": 2 },
-	"clk-fixed-factor@2": { "parent": "pll-audio", "name": "pll-audio-2x", "mult": 1, "div": 4 },
-	"clk-fixed-factor@3": { "parent": "pll-audio", "name": "pll-audio-1x", "mult": 1, "div": 8 },
+	"clk-fixed-factor": { "parent": "pll-audio", "name": "pll-audio-8x", "mult": 1, "div": 1 },
+	"clk-fixed-factor": { "parent": "pll-audio", "name": "pll-audio-4x", "mult": 1, "div": 2 },
+	"clk-fixed-factor": { "parent": "pll-audio", "name": "pll-audio-2x", "mult": 1, "div": 4 },
+	"clk-fixed-factor": { "parent": "pll-audio", "name": "pll-audio-1x", "mult": 1, "div": 8 },
 
 	"clk-mux@0x01c20050": {
 		"parent": [
@@ -323,7 +323,7 @@
 		"scl-gpio-config": 4
 	},
 
-	"i2c-gpio@0": {
+	"i2c-gpio:0": {
 		"sda-gpio": 105,
 		"sda-gpio-config": 1,
 		"scl-gpio": 96,
@@ -443,12 +443,12 @@
 		"channel": 0
 	},
 
-	"nvmem-at24c02@0": {
+	"nvmem-at24c02:0": {
 		"i2c-bus": "i2c-gpio.0",
 		"slave-address": 80
 	},
 
-	"blk-spinor@0": {
+	"blk-spinor": {
 		"spi-bus": "spi-f1c500s.0",
 		"chip-select": 0,
 		"mode": 0,
@@ -463,7 +463,7 @@
 		"clock-name": "link-wdt"
 	},
 
-	"battery-adc@0": {
+	"battery-adc:0": {
 		"adc-name": "adc-f1c500s.0",
 		"adc-channel": 0,
 		"adc-voltage-multiply": 3,
@@ -503,7 +503,7 @@
 		]
 	},
 
-	"key-gpio-matrix@0": {
+	"key-gpio-matrix:0": {
 		"rows": [
 			{ "gpio": 135, "gpio-config": 0 },
 			{ "gpio": 136, "gpio-config": 0 },
@@ -534,26 +534,26 @@
 		"poll-interval-ms": 100
 	},
 
-	"led-gpio@0": {
+	"led-gpio:0": {
 		"gpio": 1,
 		"gpio-config": 1,
 		"active-low": true,
 		"default-brightness": 0
 	},
 
-	"led-gpio@1": {
+	"led-gpio:1": {
 		"gpio": 0,
 		"gpio-config": 1,
 		"active-low": false,
 		"default-brightness": 1000
 	},
 
-	"ledtrigger-heartbeat@0": {
+	"ledtrigger-heartbeat": {
 		"led-name": "led-gpio.0",
 		"period-ms": 1260
 	},
 
-	"led-pwm@0": {
+	"led-pwm:0": {
 		"pwm-name": "pwm-f1c500s.1",
 		"pwm-period-ns": 1000000,
 		"pwm-polarity": true,
@@ -561,7 +561,7 @@
 		"default-brightness": 0
 	},
 
-	"fb-f1c500s@0": {
+	"fb-f1c500s:0": {
 		"clock-name-defe": "link-defe",
 		"clock-name-debe": "link-debe",
 		"clock-name-tcon": "link-tcon",
@@ -586,7 +586,7 @@
 		"backlight": "led-pwm.0"
 	},
 
-	"console-uart@0": {
+	"console-uart": {
 		"uart-bus": "uart-16550.1"
 	}
 }

@@ -4,7 +4,7 @@
  */
 
 {
-    "clk-fixed@0": {
+    "clk-fixed": {
         "name": "xin27m",
         "rate": 27000000
     },
@@ -194,12 +194,12 @@
         "interlaced": 0
     },
 
-    "nvmem-at24c02@0": {
+    "nvmem-at24c02:0": {
         "i2c-bus": "i2c-gx6605s.0",
         "slave-address": 80
     },
 
-    "blk-spinor@0": {
+    "blk-spinor": {
         "spi-bus": "spi-gx6605s.0",
         "chip-select": 0,
         "mode": 0,
@@ -210,40 +210,40 @@
         ]
     },
 
-    "led-gpio@0": {
+    "led-gpio:0": {
         "gpio": 10,
         "gpio-config": 1,
         "active-low": false,
         "default-brightness": 0
     },
 
-    "led-gpio@1": {
+    "led-gpio:1": {
         "gpio": 11,
         "gpio-config": 1,
         "active-low": false,
         "default-brightness": 0
     },
 
-    "led-gpio@2": {
+    "led-gpio:2": {
         "gpio": 12,
         "gpio-config": 1,
         "active-low": false,
         "default-brightness": 0
     },
 
-    "led-gpio@3": {
+    "led-gpio:3": {
         "gpio": 13,
         "gpio-config": 1,
         "active-low": false,
         "default-brightness": 0
     },
 
-    "ledtrigger-heartbeat@0": {
+    "ledtrigger-heartbeat": {
         "led-name": "led-gpio.3",
         "period-ms": 1260
     },
 
-    "key-gpio-polled@0": {
+    "key-gpio-polled:0": {
         "keys": [
             { "gpio": 8, "gpio-config": 1, "active-low": true, "key-code": 6 },
             { "gpio": 6, "gpio-config": 1, "active-low": true, "key-code": 7 },
@@ -254,7 +254,7 @@
         "poll-interval-ms": 100
     },
 
-    "console-uart@0": {
+    "console-uart": {
         "uart-bus": "uart-gx6605s.0"
     }
 }

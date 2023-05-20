@@ -1,21 +1,21 @@
 {
-	"clk-fixed@0": { "name": "osc24m", "rate": 24000000 },
-	"clk-fixed@1": { "name": "osc32k", "rate": 32768 },
-	"clk-fixed@2": { "name": "iosc", "rate": 16000000 },
+	"clk-fixed": { "name": "osc24m", "rate": 24000000 },
+	"clk-fixed": { "name": "osc32k", "rate": 32768 },
+	"clk-fixed": { "name": "iosc", "rate": 16000000 },
 
-	"clk-h2-pll@0": { "parent": "osc24m", "name": "pll-cpux", "channel": 0 },
-	"clk-h2-pll@1": { "parent": "osc24m", "name": "pll-audio", "channel": 1 },
-	"clk-h2-pll@2": { "parent": "osc24m", "name": "pll-video", "channel": 2 },
-	"clk-h2-pll@3": { "parent": "osc24m", "name": "pll-ve", "channel": 3 },
-	"clk-h2-pll@4": { "parent": "osc24m", "name": "pll-ddr", "channel": 4 },
-	"clk-h2-pll@5": { "parent": "osc24m", "name": "pll-periph0", "channel": 5 },
-	"clk-h2-pll@6": { "parent": "osc24m", "name": "pll-gpu", "channel": 6 },
-	"clk-h2-pll@7": { "parent": "osc24m", "name": "pll-periph1", "channel": 7 },
-	"clk-h2-pll@8": { "parent": "osc24m", "name": "pll-de", "channel": 8 },
+	"clk-h2-pll:0": { "parent": "osc24m", "name": "pll-cpux", "channel": 0 },
+	"clk-h2-pll:1": { "parent": "osc24m", "name": "pll-audio", "channel": 1 },
+	"clk-h2-pll:2": { "parent": "osc24m", "name": "pll-video", "channel": 2 },
+	"clk-h2-pll:3": { "parent": "osc24m", "name": "pll-ve", "channel": 3 },
+	"clk-h2-pll:4": { "parent": "osc24m", "name": "pll-ddr", "channel": 4 },
+	"clk-h2-pll:5": { "parent": "osc24m", "name": "pll-periph0", "channel": 5 },
+	"clk-h2-pll:6": { "parent": "osc24m", "name": "pll-gpu", "channel": 6 },
+	"clk-h2-pll:7": { "parent": "osc24m", "name": "pll-periph1", "channel": 7 },
+	"clk-h2-pll:8": { "parent": "osc24m", "name": "pll-de", "channel": 8 },
 
-	"clk-fixed-factor@0": { "parent": "osc24m", "name": "osc24m-750", "mult": 1, "div": 750 },
-	"clk-fixed-factor@1": { "parent": "pll-periph0", "name": "pll-periph0-2", "mult": 1, "div": 2 },
-	"clk-fixed-factor@2": { "parent": "iosc", "name": "losc", "mult": 1, "div": 512 },
+	"clk-fixed-factor": { "parent": "osc24m", "name": "osc24m-750", "mult": 1, "div": 750 },
+	"clk-fixed-factor": { "parent": "pll-periph0", "name": "pll-periph0-2", "mult": 1, "div": 2 },
+	"clk-fixed-factor": { "parent": "iosc", "name": "losc", "mult": 1, "div": 512 },
 
 	"clk-mux@0x01f01400": {
 		"parent": [
@@ -490,7 +490,7 @@
 		"cd-gpio-config": 0
 	},
 
-	"blk-spinor@0": {
+	"blk-spinor": {
 		"spi-bus": "spi-h2.0",
 		"chip-select": 0,
 		"mode": 0,
@@ -513,14 +513,14 @@
 		]
 	},
 
-	"led-gpio@0": {
+	"led-gpio:0": {
 		"gpio": 10,
 		"gpio-config": 1,
 		"active-low": false,
 		"default-brightness": 0
 	},
 
-	"led-pwm@0": {
+	"led-pwm:0": {
 		"pwm-name": "pwm-h2.0",
 		"pwm-period-ns": 1000000,
 		"pwm-polarity": true,
@@ -528,18 +528,18 @@
 		"default-brightness": 0
 	},
 
-	"ledtrigger-heartbeat@0": {
+	"ledtrigger-heartbeat": {
 		"led-name": "led-gpio.0",
 		"period-ms": 1260
 	},
 
-	"ledtrigger-breathing@0": {
+	"ledtrigger-breathing:0": {
 		"led-name": "led-pwm.0",
 		"interval-ms": 20,
 		"period-ms": 3000
 	},
 
-	"console-uart@0": {
+	"console-uart": {
 		"uart-bus": "uart-16550.0"
 	}
 }

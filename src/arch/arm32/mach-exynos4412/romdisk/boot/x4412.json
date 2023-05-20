@@ -1,12 +1,12 @@
 {
-	"clk-fixed@0": { "name": "xxti", "rate": 24000000 },
-	"clk-fixed@1": { "name": "xusbxti", "rate": 24000000 },
-	"clk-fixed@2": { "name": "usbphy0", "rate": 24000000 },
-	"clk-fixed@3": { "name": "usbphy1", "rate": 24000000 },
-	"clk-fixed@4": { "name": "mipiphy", "rate": 24000000 },
-	"clk-fixed@5": { "name": "hdmiphy", "rate": 24000000 },
-	"clk-fixed@6": { "name": "hdmi27m", "rate": 27000000 },
-	"clk-fixed@7": { "name": "xrtcxti", "rate": 32768 },
+	"clk-fixed": { "name": "xxti", "rate": 24000000 },
+	"clk-fixed": { "name": "xusbxti", "rate": 24000000 },
+	"clk-fixed": { "name": "usbphy0", "rate": 24000000 },
+	"clk-fixed": { "name": "usbphy1", "rate": 24000000 },
+	"clk-fixed": { "name": "mipiphy", "rate": 24000000 },
+	"clk-fixed": { "name": "hdmiphy", "rate": 24000000 },
+	"clk-fixed": { "name": "hdmi27m", "rate": 27000000 },
+	"clk-fixed": { "name": "xrtcxti", "rate": 32768 },
 
 	"clk-mux@0x10020000": {
 		"parent": [
@@ -15,10 +15,10 @@
 		],
 		"name": "fin", "shift": 0, "width": 1
 	},
-	"clk-exynos4412-pll@0": { "parent": "fin", "name": "apll", "channel": 0 },
-	"clk-exynos4412-pll@1": { "parent": "fin", "name": "mpll", "channel": 1 },
-	"clk-exynos4412-pll@2": { "parent": "fin", "name": "epll", "channel": 2 },
-	"clk-exynos4412-pll@3": { "parent": "fin", "name": "vpll", "channel": 3 },
+	"clk-exynos4412-pll:0": { "parent": "fin", "name": "apll", "channel": 0 },
+	"clk-exynos4412-pll:1": { "parent": "fin", "name": "mpll", "channel": 1 },
+	"clk-exynos4412-pll:2": { "parent": "fin", "name": "epll", "channel": 2 },
+	"clk-exynos4412-pll:3": { "parent": "fin", "name": "vpll", "channel": 3 },
 
 	"clk-mux@0x10044200": {
 		"parent": [
@@ -379,21 +379,21 @@
 		"stop-bits": 1
 	},
 
-	"led-gpio@0": {
+	"led-gpio:0": {
 		"gpio": 270,
 		"gpio-config": 1,
 		"active-low": true,
 		"default-brightness": 0
 	},
 
-	"led-gpio@1": {
+	"led-gpio:1": {
 		"gpio": 271,
 		"gpio-config": 1,
 		"active-low": true,
 		"default-brightness": 0
 	},
 
-	"ledtrigger-heartbeat@0": {
+	"ledtrigger-heartbeat": {
 		"led-name": "led-gpio.0",
 		"period-ms": 1260
 	},
@@ -422,7 +422,7 @@
 		"backlight": "led-pwm.0"
 	},
 
-	"console-uart@0": {
+	"console-uart": {
 		"uart-bus": "uart-samsung.3"
 	}
 }

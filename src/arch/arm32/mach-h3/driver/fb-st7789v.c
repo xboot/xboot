@@ -37,7 +37,7 @@
  * LCD - Sitronix ST7789V Lcd Driver
  *
  * Example:
- *	"fb-st7789v@0": {
+ *	"fb-st7789v": {
  *		"spi-bus": "spi-h3.1",
  *		"chip-select": 0,
  *		"type": 0,

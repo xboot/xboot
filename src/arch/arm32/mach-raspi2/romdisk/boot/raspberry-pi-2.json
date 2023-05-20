@@ -1,18 +1,18 @@
 {
-	"clk-fixed@0": { "name": "osc-clk", "rate": 19200000 },
-	"clk-fixed@1": { "name": "sys-timer-clk", "rate": 1000000 },
-	"clk-fixed@2": { "name": "arm-timer-clk", "rate": 250000000 },
+	"clk-fixed": { "name": "osc-clk", "rate": 19200000 },
+	"clk-fixed": { "name": "sys-timer-clk", "rate": 1000000 },
+	"clk-fixed": { "name": "arm-timer-clk", "rate": 250000000 },
 
-	"clk-mbox@0": { "name": "emmc-clk", "mbox-clock-id": 1 },
-	"clk-mbox@1": { "name": "uart-clk", "mbox-clock-id": 2 },
-	"clk-mbox@2": { "name": "arm-clk", "mbox-clock-id": 3 },
-	"clk-mbox@3": { "name": "core-clk", "mbox-clock-id": 4 },
-	"clk-mbox@4": { "name": "v3d-clk", "mbox-clock-id": 5 },
-	"clk-mbox@5": { "name": "h264-clk", "mbox-clock-id": 6 },
-	"clk-mbox@6": { "name": "isp-clk", "mbox-clock-id": 7 },
-	"clk-mbox@7": { "name": "sdram-clk", "mbox-clock-id": 8 },
-	"clk-mbox@8": { "name": "pixel-clk", "mbox-clock-id": 9 },
-	"clk-mbox@9": { "name": "pwm-clk", "mbox-clock-id": 10, "default": { "rate": 9200000, "enable": true } },
+	"clk-mbox:0": { "name": "emmc-clk", "mbox-clock-id": 1 },
+	"clk-mbox:1": { "name": "uart-clk", "mbox-clock-id": 2 },
+	"clk-mbox:2": { "name": "arm-clk", "mbox-clock-id": 3 },
+	"clk-mbox:3": { "name": "core-clk", "mbox-clock-id": 4 },
+	"clk-mbox:4": { "name": "v3d-clk", "mbox-clock-id": 5 },
+	"clk-mbox:5": { "name": "h264-clk", "mbox-clock-id": 6 },
+	"clk-mbox:6": { "name": "isp-clk", "mbox-clock-id": 7 },
+	"clk-mbox:7": { "name": "sdram-clk", "mbox-clock-id": 8 },
+	"clk-mbox:8": { "name": "pixel-clk", "mbox-clock-id": 9 },
+	"clk-mbox:9": { "name": "pwm-clk", "mbox-clock-id": 10, "default": { "rate": 9200000, "enable": true } },
 
 	"irq-bcm2836@0x3f00b200": {
 		"interrupt-base": 0,
@@ -90,23 +90,23 @@
 		"stop-bits": 1
 	},
 
-	"led-gpio@0": {
+	"led-gpio:0": {
 		"gpio": 35,
 		"active-low": false,
 		"default-brightness": 0
 	},
 
-	"ledtrigger-heartbeat@0": {
+	"ledtrigger-heartbeat": {
 		"led-name": "led-gpio.0",
 		"period-ms": 1260
 	},
 
-	"buzzer-pwm@0": {
+	"buzzer-pwm:0": {
 		"pwm-name": "pwm-bcm2836.0",
 		"pwm-polarity": true
 	},
 
-	"buzzer-pwm@1": {
+	"buzzer-pwm:1": {
 		"pwm-name": "pwm-bcm2836.1",
 		"pwm-polarity": true
 	},
@@ -117,14 +117,14 @@
 	"wdg-bcm2836@0x3f100000": {
 	},
 
-	"fb-bcm2836@0": {
+	"fb-bcm2836:0": {
 		"width": 640,
 		"height": 480,
 		"physical-width": 216,
 		"physical-height": 135
 	},
 
-	"console-uart@0": {
+	"console-uart": {
 		"uart-bus": "uart-pl011.0"
 	}
 }

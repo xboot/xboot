@@ -35,7 +35,7 @@
  * SDHCI - SDCard SPI Mode Driver
  *
  * Example:
- *	"sdhci-spi@0": {
+ *	"sdhci-spi": {
  *		"spi-bus": "spi-gpio.0",
  *		"chip-select": 0,
  *		"type": 0,

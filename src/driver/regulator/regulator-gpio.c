@@ -43,7 +43,7 @@
  * - default-enable: regulator default enable or disable
  *
  * Example:
- *   "regulator-gpio@0": {
+ *   "regulator-gpio": {
  *       "parent": null,
  *       "name": "power-bl",
  *       "voltage": 12000000,

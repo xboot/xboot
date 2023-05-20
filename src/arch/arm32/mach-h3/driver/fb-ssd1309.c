@@ -36,7 +36,7 @@
  * OLED - Solomon SSD1309 OLED Driver
  *
  * Example:
- *	"fb-ssd1309@0": {
+ *	"fb-ssd1309": {
  *		"spi-bus": "spi-h3.0",
  *		"chip-select": 0,
  *		"type": 0,

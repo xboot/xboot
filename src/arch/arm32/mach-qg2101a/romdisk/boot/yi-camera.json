@@ -1,28 +1,28 @@
 {
-	"clk-fixed@0": { "name": "losc", "rate": 32768 },
-	"clk-fixed@1": { "name": "iosc", "rate": 16000000 },
-	"clk-fixed@2": { "name": "osc24m", "rate": 24000000 },
-	"clk-fixed@3": { "name": "pll-periph0div25m", "rate": 25000000 },
-	"clk-fixed@4": { "name": "osc48m", "rate": 48000000 },
+	"clk-fixed": { "name": "losc", "rate": 32768 },
+	"clk-fixed": { "name": "iosc", "rate": 16000000 },
+	"clk-fixed": { "name": "osc24m", "rate": 24000000 },
+	"clk-fixed": { "name": "pll-periph0div25m", "rate": 25000000 },
+	"clk-fixed": { "name": "osc48m", "rate": 48000000 },
 
-	"clk-v831-pll@0": { "parent": "osc24m", "name": "pll-cpux", "channel": 0 },
-	"clk-v831-pll@1": { "parent": "osc24m", "name": "pll-ddr0", "channel": 1 },
-	"clk-v831-pll@2": { "parent": "osc24m", "name": "pll-periph0", "channel": 2 },
-	"clk-v831-pll@3": { "parent": "osc24m", "name": "pll-uni", "channel": 3 },
-	"clk-v831-pll@4": { "parent": "osc24m", "name": "pll-video0", "channel": 4 },
-	"clk-v831-pll@5": { "parent": "osc24m", "name": "pll-audio", "channel": 5 },
-	"clk-v831-pll@6": { "parent": "osc24m", "name": "pll-csi", "channel": 6 },
+	"clk-v831-pll:0": { "parent": "osc24m", "name": "pll-cpux", "channel": 0 },
+	"clk-v831-pll:1": { "parent": "osc24m", "name": "pll-ddr0", "channel": 1 },
+	"clk-v831-pll:2": { "parent": "osc24m", "name": "pll-periph0", "channel": 2 },
+	"clk-v831-pll:3": { "parent": "osc24m", "name": "pll-uni", "channel": 3 },
+	"clk-v831-pll:4": { "parent": "osc24m", "name": "pll-video0", "channel": 4 },
+	"clk-v831-pll:5": { "parent": "osc24m", "name": "pll-audio", "channel": 5 },
+	"clk-v831-pll:6": { "parent": "osc24m", "name": "pll-csi", "channel": 6 },
 
-	"clk-fixed-factor@0": { "parent": "pll-periph0", "name": "pll-periph0x2", "mult": 2, "div": 1 },
-	"clk-fixed-factor@1": { "parent": "pll-periph0", "name": "periph32k", "mult": 2, "div": 36621 },
-	"clk-fixed-factor@2": { "parent": "pll-uni", "name": "pll-unix2", "mult": 2, "div": 1 },
-	"clk-fixed-factor@3": { "parent": "pll-audio", "name": "pll-audiox4", "mult": 4, "div": 1 },
-	"clk-fixed-factor@4": { "parent": "pll-audio", "name": "pll-audiox2", "mult": 2, "div": 1 },
-	"clk-fixed-factor@5": { "parent": "pll-video0", "name": "pll-video0x4", "mult": 4, "div": 1 },
-	"clk-fixed-factor@6": { "parent": "pll-ddr0", "name": "mbus", "mult": 1, "div": 4 },
-	"clk-fixed-factor@7": { "parent": "osc24m", "name": "osc24m-2", "mult": 1, "div": 2 },
-	"clk-fixed-factor@8": { "parent": "osc24m", "name": "osc24m-750", "mult": 1, "div": 750 },
-	"clk-fixed-factor@9": { "parent": "osc48m", "name": "osc48m-4", "mult": 1, "div": 4 },
+	"clk-fixed-factor": { "parent": "pll-periph0", "name": "pll-periph0x2", "mult": 2, "div": 1 },
+	"clk-fixed-factor": { "parent": "pll-periph0", "name": "periph32k", "mult": 2, "div": 36621 },
+	"clk-fixed-factor": { "parent": "pll-uni", "name": "pll-unix2", "mult": 2, "div": 1 },
+	"clk-fixed-factor": { "parent": "pll-audio", "name": "pll-audiox4", "mult": 4, "div": 1 },
+	"clk-fixed-factor": { "parent": "pll-audio", "name": "pll-audiox2", "mult": 2, "div": 1 },
+	"clk-fixed-factor": { "parent": "pll-video0", "name": "pll-video0x4", "mult": 4, "div": 1 },
+	"clk-fixed-factor": { "parent": "pll-ddr0", "name": "mbus", "mult": 1, "div": 4 },
+	"clk-fixed-factor": { "parent": "osc24m", "name": "osc24m-2", "mult": 1, "div": 2 },
+	"clk-fixed-factor": { "parent": "osc24m", "name": "osc24m-750", "mult": 1, "div": 750 },
+	"clk-fixed-factor": { "parent": "osc48m", "name": "osc48m-4", "mult": 1, "div": 4 },
 
 	"clk-mux@0x03001500": {
 		"parent": [
@@ -674,7 +674,7 @@
 		"status": "disabled"
 	},
 
-	"regulator-gpio@0": {
+	"regulator-gpio:0": {
 		"parent": null,
 		"name": "ircut-anode",
 		"voltage": 3300000,
@@ -685,7 +685,7 @@
 		}
 	},
 
-	"regulator-gpio@1": {
+	"regulator-gpio:1": {
 		"parent": null,
 		"name": "ircut-cathode",
 		"voltage": 3300000,
@@ -696,7 +696,7 @@
 		}
 	},
 
-	"regulator-gpio@2": {
+	"regulator-gpio:2": {
 		"parent": null,
 		"name": "speaker-enable",
 		"voltage": 3300000,
@@ -735,7 +735,7 @@
 		"cd-gpio-config": 0
 	},
 
-	"blk-spinor@0": {
+	"blk-spinor": {
 		"spi-bus": "spi-v831.0",
 		"chip-select": 0,
 		"mode": 0,
@@ -754,33 +754,33 @@
 		"clock-name": "wdg"
 	},
 
-	"key-gpio-polled@0": {
+	"key-gpio-polled:0": {
 		"keys": [
 			{ "gpio": 144, "gpio-config": 0, "active-low": true, "key-code": 10 }
 		],
 		"poll-interval-ms": 100
 	},
 
-	"led-gpio@0": {
+	"led-gpio:0": {
 		"gpio": 237,
 		"gpio-config": 1,
 		"active-low": true,
 		"default-brightness": 0
 	},
 
-	"led-gpio@1": {
+	"led-gpio:1": {
 		"gpio": 145,
 		"gpio-config": 1,
 		"active-low": true,
 		"default-brightness": 0
 	},
 
-	"ledtrigger-heartbeat@0": {
+	"ledtrigger-heartbeat": {
 		"led-name": "led-gpio.0",
 		"period-ms": 1260
 	},
 
-	"console-uart@0": {
+	"console-uart": {
 		"uart-bus": "uart-16550.0"
 	}
 }

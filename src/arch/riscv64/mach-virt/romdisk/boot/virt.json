@@ -1,7 +1,7 @@
 {
-	"clk-fixed@0": { "name": "xin24m", "rate": 24000000 },
-	"clk-fixed@1": { "name": "xin10m", "rate": 10000000 },
-	"clk-fixed@2": { "name": "xin32k", "rate": 32768 },
+	"clk-fixed": { "name": "xin24m", "rate": 24000000 },
+	"clk-fixed": { "name": "xin10m", "rate": 10000000 },
+	"clk-fixed": { "name": "xin32k", "rate": 32768 },
 
 	"ce-clint-timer@0x02000000": {
 		"clock-name": "xin10m"
@@ -23,7 +23,7 @@
 		"stop-bits": 1
 	},
 
-	"console-uart@0": {
+	"console-uart": {
 		"uart-bus": "uart-riscv.0"
 	}
 }

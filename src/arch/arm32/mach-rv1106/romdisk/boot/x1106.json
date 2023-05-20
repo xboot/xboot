@@ -1,12 +1,12 @@
 {
-	"clk-fixed@0": { "name": "xin24m", "rate": 24000000 },
-	"clk-fixed@1": { "name": "xin32k", "rate": 32768 },
+	"clk-fixed": { "name": "xin24m", "rate": 24000000 },
+	"clk-fixed": { "name": "xin32k", "rate": 32768 },
 	"clk-link": { "parent": "xin32k", "name": "clk_rtc_32k" },
 
-	"clk-rv1106-pll@0": { "parent": "xin24m", "name": "apll", "channel": 0 },
-	"clk-rv1106-pll@1": { "parent": "xin24m", "name": "cpll", "channel": 1 },
-	"clk-rv1106-pll@2": { "parent": "xin24m", "name": "dpll", "channel": 2 },
-	"clk-rv1106-pll@3": { "parent": "xin24m", "name": "gpll", "channel": 3 },
+	"clk-rv1106-pll:0": { "parent": "xin24m", "name": "apll", "channel": 0 },
+	"clk-rv1106-pll:1": { "parent": "xin24m", "name": "cpll", "channel": 1 },
+	"clk-rv1106-pll:2": { "parent": "xin24m", "name": "dpll", "channel": 2 },
+	"clk-rv1106-pll:3": { "parent": "xin24m", "name": "gpll", "channel": 3 },
 
 	"clk-rv1106-gate@0xff3b8800": {"parent": "xin24m", "name": "clk_pvtm_core", "shift": 14, "invert": true },
 	"clk-rv1106-gate@0xff3b8804": {"parent": "xin24m", "name": "clk_core_mcu_rtc", "shift": 6, "invert": true },
@@ -751,7 +751,7 @@
 		"clock-name": "link-wdt"
 	},
 
-	"key-adc@0": {
+	"key-adc:0": {
 		"adc-name": "adc-rv1106.0",
 		"adc-channel": 0,
 		"poll-interval-ms": 100,
@@ -760,43 +760,43 @@
 		]
 	},
 
-	"led-gpio@0": {
+	"led-gpio:0": {
 		"gpio": 118,
 		"gpio-config": 0,
 		"active-low": false,
 		"default-brightness": 0
 	},
 
-	"led-gpio@1": {
+	"led-gpio:1": {
 		"gpio": 123,
 		"gpio-config": 0,
 		"active-low": false,
 		"default-brightness": 0
 	},
 
-	"led-gpio@2": {
+	"led-gpio:2": {
 		"gpio": 122,
 		"gpio-config": 0,
 		"active-low": false,
 		"default-brightness": 0
 	},
 
-	"ledtrigger-heartbeat@0": {
+	"ledtrigger-heartbeat": {
 		"led-name": "led-gpio.0",
 		"period-ms": 1260
 	},
 
-	"ledtrigger-heartbeat@1": {
+	"ledtrigger-heartbeat:1": {
 		"led-name": "led-gpio.1",
 		"period-ms": 1260
 	},
 
-	"ledtrigger-heartbeat@2": {
+	"ledtrigger-heartbeat:2": {
 		"led-name": "led-gpio.2",
 		"period-ms": 1260
 	},
 
-	"regulator-gpio@0": {
+	"regulator-gpio:0": {
 		"parent": null,
 		"name": "lcd-power",
 		"voltage": 3300000,
@@ -808,7 +808,7 @@
 		}
 	},
 
-	"led-pwm@0": {
+	"led-pwm:0": {
 		"pwm-name": "pwm-rv1106.1",
 		"regulator-name": "lcd-power",
 		"pwm-period-ns": 1000000,
@@ -817,7 +817,7 @@
 		"default-brightness": 0
 	},
 
-	"console-uart@0": {
+	"console-uart": {
 		"uart-bus": "uart-8250.2"
 	}
 }

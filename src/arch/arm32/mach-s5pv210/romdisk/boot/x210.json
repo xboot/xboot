@@ -1,12 +1,12 @@
 {
-	"clk-fixed@0": { "name": "xin24m", "rate": 24000000 },
-	"clk-fixed@1": { "name": "xin27m", "rate": 27000000 },
-	"clk-fixed@2": { "name": "xin32k", "rate": 32000 },
+	"clk-fixed": { "name": "xin24m", "rate": 24000000 },
+	"clk-fixed": { "name": "xin27m", "rate": 27000000 },
+	"clk-fixed": { "name": "xin32k", "rate": 32000 },
 	
-	"clk-s5pv210-pll@0": { "parent": "xin24m", "name": "apll", "channel": 0 },
-	"clk-s5pv210-pll@1": { "parent": "xin24m", "name": "mpll", "channel": 1 },
-	"clk-s5pv210-pll@2": { "parent": "xin24m", "name": "epll", "channel": 2 },
-	"clk-s5pv210-pll@3": { "parent": "xin24m", "name": "vpll", "channel": 3 },
+	"clk-s5pv210-pll:0": { "parent": "xin24m", "name": "apll", "channel": 0 },
+	"clk-s5pv210-pll:1": { "parent": "xin24m", "name": "mpll", "channel": 1 },
+	"clk-s5pv210-pll:2": { "parent": "xin24m", "name": "epll", "channel": 2 },
+	"clk-s5pv210-pll:3": { "parent": "xin24m", "name": "vpll", "channel": 3 },
 	
 	"clk-link": { "parent": "xin24m", "name": "usbphy0" },
 	"clk-link": { "parent": "xin24m", "name": "usbphy1" },
@@ -238,7 +238,7 @@
 		"clock-name": "link-wdt"
 	},
 
-	"key-gpio-polled@0": {
+	"key-gpio-polled:0": {
 		"keys": [
 			{ "gpio": 152, "active-low": true, "key-code": 2 },
 			{ "gpio": 139, "active-low": true, "key-code": 3 },
@@ -251,45 +251,45 @@
 		"poll-interval-ms": 100
 	},
 
-	"led-gpio@0": {
+	"led-gpio:0": {
 		"gpio": 179,
 		"gpio-config": 1,
 		"active-low": true,
 		"default-brightness": 0
 	},
 
-	"led-gpio@1": {
+	"led-gpio:1": {
 		"gpio": 180,
 		"gpio-config": 1,
 		"active-low": true,
 		"default-brightness": 0
 	},
 
-	"led-gpio@2": {
+	"led-gpio:2": {
 		"gpio": 181,
 		"gpio-config": 1,
 		"active-low": true,
 		"default-brightness": 0
 	},
 
-	"led-gpio@3": {
+	"led-gpio:3": {
 		"gpio": 41,
 		"gpio-config": 1,
 		"active-low": true,
 		"default-brightness": 0
 	},
 
-	"ledtrigger-heartbeat@0": {
+	"ledtrigger-heartbeat": {
 		"led-name": "led-gpio.0",
 		"period-ms": 1260
 	},
 
-	"buzzer-gpio@0": {
+	"buzzer-gpio:0": {
 		"gpio": 42,
 		"active-low": false
 	},
 
-	"console-uart@0": {
+	"console-uart": {
 		"uart-bus": "uart-samsung.2"
 	}
 }

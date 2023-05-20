@@ -1,15 +1,15 @@
 {
-	"clk-fixed@0": { "name": "xin24m", "rate": 24000000 },
-	"clk-fixed@1": { "name": "xin32k", "rate": 32768 },
+	"clk-fixed": { "name": "xin24m", "rate": 24000000 },
+	"clk-fixed": { "name": "xin32k", "rate": 32768 },
 
-	"clk-rk3399-pll@0": { "parent": "xin24m", "name": "aplll", "channel": 0 },
-	"clk-rk3399-pll@1": { "parent": "xin24m", "name": "apllb", "channel": 1 },
-	"clk-rk3399-pll@2": { "parent": "xin24m", "name": "dpll", "channel": 2 },
-	"clk-rk3399-pll@3": { "parent": "xin24m", "name": "cpll", "channel": 3 },
-	"clk-rk3399-pll@4": { "parent": "xin24m", "name": "gpll", "channel": 4 },
-	"clk-rk3399-pll@5": { "parent": "xin24m", "name": "npll", "channel": 5 },
-	"clk-rk3399-pll@6": { "parent": "xin24m", "name": "vpll", "channel": 6 },
-	"clk-rk3399-pll@7": { "parent": "xin24m", "name": "ppll", "channel": 7 },
+	"clk-rk3399-pll:0": { "parent": "xin24m", "name": "aplll", "channel": 0 },
+	"clk-rk3399-pll:1": { "parent": "xin24m", "name": "apllb", "channel": 1 },
+	"clk-rk3399-pll:2": { "parent": "xin24m", "name": "dpll", "channel": 2 },
+	"clk-rk3399-pll:3": { "parent": "xin24m", "name": "cpll", "channel": 3 },
+	"clk-rk3399-pll:4": { "parent": "xin24m", "name": "gpll", "channel": 4 },
+	"clk-rk3399-pll:5": { "parent": "xin24m", "name": "npll", "channel": 5 },
+	"clk-rk3399-pll:6": { "parent": "xin24m", "name": "vpll", "channel": 6 },
+	"clk-rk3399-pll:7": { "parent": "xin24m", "name": "ppll", "channel": 7 },
 
 	"clk-rk3399-gate@0xff760318": { "parent": "xin24m", "name": "gate-usb2phy0-ref", "shift": 5, "invert": true },
 	"clk-rk3399-gate@0xff760318": { "parent": "xin24m", "name": "gate-usb2phy1-ref", "shift": 6, "invert": true },
@@ -415,110 +415,110 @@
 		"scl-gpio-config": 1
 	},
 
-	"regulator-rk808@0": {
+	"regulator-rk808:0": {
 		"i2c-bus": "i2c-rk3399.0",
 		"slave-address": 27,
 		"name": "dcdc1",
 		"channel": 0
 	},
-	"regulator-rk808@1": {
+	"regulator-rk808:1": {
 		"i2c-bus": "i2c-rk3399.0",
 		"slave-address": 27,
 		"name": "dcdc2",
 		"channel": 1
 	},
-	"regulator-rk808@2": {
+	"regulator-rk808:2": {
 		"i2c-bus": "i2c-rk3399.0",
 		"slave-address": 27,
 		"name": "dcdc3",
 		"channel": 2
 	},
-	"regulator-rk808@3": {
+	"regulator-rk808:3": {
 		"i2c-bus": "i2c-rk3399.0",
 		"slave-address": 27,
 		"name": "dcdc4",
 		"channel": 3
 	},
-	"regulator-rk808@4": {
+	"regulator-rk808:4": {
 		"i2c-bus": "i2c-rk3399.0",
 		"slave-address": 27,
 		"name": "ldo1",
 		"channel": 4
 	},
-	"regulator-rk808@5": {
+	"regulator-rk808:5": {
 		"i2c-bus": "i2c-rk3399.0",
 		"slave-address": 27,
 		"name": "ldo2",
 		"channel": 5
 	},
-	"regulator-rk808@6": {
+	"regulator-rk808:6": {
 		"i2c-bus": "i2c-rk3399.0",
 		"slave-address": 27,
 		"name": "ldo3",
 		"channel": 6
 	},
-	"regulator-rk808@7": {
+	"regulator-rk808:7": {
 		"i2c-bus": "i2c-rk3399.0",
 		"slave-address": 27,
 		"name": "ldo4",
 		"channel": 7
 	},
-	"regulator-rk808@8": {
+	"regulator-rk808:8": {
 		"i2c-bus": "i2c-rk3399.0",
 		"slave-address": 27,
 		"name": "ldo5",
 		"channel": 8
 	},
-	"regulator-rk808@9": {
+	"regulator-rk808:9": {
 		"i2c-bus": "i2c-rk3399.0",
 		"slave-address": 27,
 		"name": "ldo6",
 		"channel": 9
 	},
-	"regulator-rk808@10": {
+	"regulator-rk808:10": {
 		"i2c-bus": "i2c-rk3399.0",
 		"slave-address": 27,
 		"name": "ldo7",
 		"channel": 10
 	},
-	"regulator-rk808@11": {
+	"regulator-rk808:11": {
 		"i2c-bus": "i2c-rk3399.0",
 		"slave-address": 27,
 		"name": "ldo8",
 		"channel": 11
 	},
-	"regulator-rk808@12": {
+	"regulator-rk808:12": {
 		"i2c-bus": "i2c-rk3399.0",
 		"slave-address": 27,
 		"name": "swout1",
 		"channel": 12
 	},
-	"regulator-rk808@13": {
+	"regulator-rk808:13": {
 		"i2c-bus": "i2c-rk3399.0",
 		"slave-address": 27,
 		"name": "swout2",
 		"channel": 13
 	},
 
-	"regulator-syr83x@0": {
+	"regulator-syr83x:0": {
 		"parent": null,
 		"name": "syr837-cpu",
 		"i2c-bus": "i2c-rk3399.0",
 		"slave-address": 64
 	},
-	"regulator-syr83x@1": {
+	"regulator-syr83x:1": {
 		"parent": null,
 		"name": "syr838-gpu",
 		"i2c-bus": "i2c-rk3399.0",
 		"slave-address": 65
 	},
 
-	"rtc-rk808@0": {
+	"rtc-rk808:0": {
 		"i2c-bus": "i2c-rk3399.0",
 		"slave-address": 27
 	},
 	
-	"light-cm32181@0": {
+	"light-cm32181:0": {
 		"i2c-bus": "i2c-rk3399.4",
 		"slave-address": 16
 	},
@@ -527,40 +527,40 @@
 		"clock-name": "pclk-alive"
 	},
 
-	"led-gpio@0": {
+	"led-gpio:0": {
 		"gpio": 55,
 		"gpio-config": 0,
 		"active-low": true,
 		"default-brightness": 0
 	},
 
-	"led-gpio@1": {
+	"led-gpio:1": {
 		"gpio": 12,
 		"gpio-config": 0,
 		"active-low": true,
 		"default-brightness": 0
 	},
 
-	"led-gpio@2": {
+	"led-gpio:2": {
 		"gpio": 33,
 		"gpio-config": 0,
 		"active-low": true,
 		"default-brightness": 0
 	},
 
-	"led-gpio@3": {
+	"led-gpio:3": {
 		"gpio": 8,
 		"gpio-config": 0,
 		"active-low": true,
 		"default-brightness": 0
 	},
 
-	"ledtrigger-heartbeat@0": {
+	"ledtrigger-heartbeat": {
 		"led-name": "led-gpio.0",
 		"period-ms": 1260
 	},
 
-	"console-uart@0": {
+	"console-uart": {
 		"uart-bus": "uart-8250.2"
 	}
 }

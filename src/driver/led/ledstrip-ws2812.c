@@ -34,7 +34,7 @@
  * WS2812 - WS2812 LED Strip Driver
  *
  * Example:
- *   "ledstrip-ws2812@0": {
+ *   "ledstrip-ws2812": {
  *       "spi-bus": "spi-f1c100s.0",
  *       "chip-select": 0,
  *       "mode": 0,

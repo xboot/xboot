@@ -1,7 +1,7 @@
 {
-	"clk-fixed@0": { "name": "xin24m", "rate": 24000000 },
-	"clk-fixed@1": { "name": "xin48m", "rate": 48000000 },
-	"clk-fixed@2": { "name": "xin32k", "rate": 32768 },
+	"clk-fixed": { "name": "xin24m", "rate": 24000000 },
+	"clk-fixed": { "name": "xin48m", "rate": 48000000 },
+	"clk-fixed": { "name": "xin32k", "rate": 32768 },
 	
 	"clk-s5l8930-pll@0xbf100000": { "parent": "xin48m", "name": "apll" },
 	"clk-s5l8930-pll@0xbf100008": { "parent": "xin48m", "name": "mpll" },
@@ -128,7 +128,7 @@
 		"stop-bits": 1
 	},
 
-	"i2c-gpio@0": {
+	"i2c-gpio:0": {
 		"sda-gpio": 75,
 		"scl-gpio": 76,
 		"sda-open-drain": false,
@@ -137,7 +137,7 @@
 		"delay-us": 5
 	},
 
-	"i2c-gpio@1": {
+	"i2c-gpio:1": {
 		"sda-gpio": 78,
 		"scl-gpio": 77,
 		"sda-open-drain": false,
@@ -146,7 +146,7 @@
 		"delay-us": 5
 	},
 
-	"i2c-gpio@2": {
+	"i2c-gpio:2": {
 		"sda-gpio": 79,
 		"scl-gpio": 80,
 		"sda-open-drain": false,
@@ -155,7 +155,7 @@
 		"delay-us": 5
 	},
 
-	"key-gpio-polled@0": {
+	"key-gpio-polled:0": {
 		"keys": [
 			{ "gpio": 0, "active-low": true, "key-code": 11 },
 			{ "gpio": 1, "active-low": true, "key-code": 1 },
@@ -183,12 +183,12 @@
 		"vsync-len": 1
 	},
 
-	"gmeter-lis331dlh@0": {
+	"gmeter-lis331dlh:0": {
 		"i2c-bus": "i2c-gpio.2",
 		"slave-address": 25
 	},
 
-	"console-uart@0": {
+	"console-uart": {
 		"uart-bus": "uart-samsung.0"
 	}
 }

@@ -34,7 +34,7 @@
  * SK9822 - SK9822 LED Strip Driver
  *
  * Example:
- *   "ledstrip-sk9822@0": {
+ *   "ledstrip-sk9822": {
  *       "dat-gpio": 10,
  *       "dat-gpio-config": -1,
  *       "dat-gpio-inverted": 0,

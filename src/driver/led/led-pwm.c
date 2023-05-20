@@ -45,7 +45,7 @@
  * - default-brightness: led default brightness
  *
  * Example:
- *   "led-pwm@0": {
+ *   "led-pwm": {
  *       "pwm-name": "pwm.0",
  *       "regulator-name": "led-power",
  *       "pwm-period-ns": 10000000,

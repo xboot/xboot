@@ -1,15 +1,15 @@
 {
-	"clk-fixed@0": { "name": "usbphy480m", "rate": 480000000 },
-	"clk-fixed@1": { "name": "xin24m", "rate": 24000000 },
-	"clk-fixed@2": { "name": "xin32k", "rate": 32768 },
+	"clk-fixed": { "name": "usbphy480m", "rate": 480000000 },
+	"clk-fixed": { "name": "xin24m", "rate": 24000000 },
+	"clk-fixed": { "name": "xin32k", "rate": 32768 },
 
-	"clk-rk3128-pll@0": { "parent": "xin24m", "name": "apll", "channel": 0, "default": { "rate": 800000000 }},
-	"clk-rk3128-pll@1": { "parent": "xin24m", "name": "dpll", "channel": 1 },
-	"clk-rk3128-pll@2": { "parent": "xin24m", "name": "cpll", "channel": 2 },
-	"clk-rk3128-pll@3": { "parent": "xin24m", "name": "gpll", "channel": 3 },
+	"clk-rk3128-pll:0": { "parent": "xin24m", "name": "apll", "channel": 0, "default": { "rate": 800000000 }},
+	"clk-rk3128-pll:1": { "parent": "xin24m", "name": "dpll", "channel": 1 },
+	"clk-rk3128-pll:2": { "parent": "xin24m", "name": "cpll", "channel": 2 },
+	"clk-rk3128-pll:3": { "parent": "xin24m", "name": "gpll", "channel": 3 },
 
-	"clk-fixed-factor@0": { "parent": "gpll", "name": "gpll-d2", "mult": 1, "div": 2 },
-	"clk-fixed-factor@1": { "parent": "gpll", "name": "gpll-d3", "mult": 1, "div": 3 },
+	"clk-fixed-factor": { "parent": "gpll", "name": "gpll-d2", "mult": 1, "div": 2 },
+	"clk-fixed-factor": { "parent": "gpll", "name": "gpll-d3", "mult": 1, "div": 3 },
 
 	"clk-rk3128-mux@0x20000044": {
 		"parent": [
@@ -362,7 +362,7 @@
 		"status": "disabled"
 	},
 
-	"spi-gpio@0": {
+	"spi-gpio:0": {
 		"sclk-gpio": 9,
 		"sclk-gpio-config": 0,
 		"mosi-gpio": 11,
@@ -373,18 +373,18 @@
 		"cs-gpio-config": 0
 	},
 
-	"regulator-rk816@0": { "i2c-bus": "i2c-rk3128.0", "slave-address": 26, "name": "dcdc1", "channel": 0 },
-	"regulator-rk816@1": { "i2c-bus": "i2c-rk3128.0", "slave-address": 26, "name": "dcdc2", "channel": 1 },
-	"regulator-rk816@2": { "i2c-bus": "i2c-rk3128.0", "slave-address": 26, "name": "dcdc3", "channel": 2 },
-	"regulator-rk816@3": { "i2c-bus": "i2c-rk3128.0", "slave-address": 26, "name": "dcdc4", "channel": 3 },
-	"regulator-rk816@4": { "i2c-bus": "i2c-rk3128.0", "slave-address": 26, "name": "ldo1", "channel": 4 },
-	"regulator-rk816@5": { "i2c-bus": "i2c-rk3128.0", "slave-address": 26, "name": "ldo2", "channel": 5 },
-	"regulator-rk816@6": { "i2c-bus": "i2c-rk3128.0", "slave-address": 26, "name": "ldo3", "channel": 6 },
-	"regulator-rk816@7": { "i2c-bus": "i2c-rk3128.0", "slave-address": 26, "name": "ldo4", "channel": 7, "default": { "voltage": 1100000, "enable": true } },
-	"regulator-rk816@8": { "i2c-bus": "i2c-rk3128.0", "slave-address": 26, "name": "ldo5", "channel": 8 },
-	"regulator-rk816@9": { "i2c-bus": "i2c-rk3128.0", "slave-address": 26, "name": "ldo6", "channel": 9, "default": { "voltage": 3300000, "enable": true } },
+	"regulator-rk816:0": { "i2c-bus": "i2c-rk3128.0", "slave-address": 26, "name": "dcdc1", "channel": 0 },
+	"regulator-rk816:1": { "i2c-bus": "i2c-rk3128.0", "slave-address": 26, "name": "dcdc2", "channel": 1 },
+	"regulator-rk816:2": { "i2c-bus": "i2c-rk3128.0", "slave-address": 26, "name": "dcdc3", "channel": 2 },
+	"regulator-rk816:3": { "i2c-bus": "i2c-rk3128.0", "slave-address": 26, "name": "dcdc4", "channel": 3 },
+	"regulator-rk816:4": { "i2c-bus": "i2c-rk3128.0", "slave-address": 26, "name": "ldo1", "channel": 4 },
+	"regulator-rk816:5": { "i2c-bus": "i2c-rk3128.0", "slave-address": 26, "name": "ldo2", "channel": 5 },
+	"regulator-rk816:6": { "i2c-bus": "i2c-rk3128.0", "slave-address": 26, "name": "ldo3", "channel": 6 },
+	"regulator-rk816:7": { "i2c-bus": "i2c-rk3128.0", "slave-address": 26, "name": "ldo4", "channel": 7, "default": { "voltage": 1100000, "enable": true } },
+	"regulator-rk816:8": { "i2c-bus": "i2c-rk3128.0", "slave-address": 26, "name": "ldo5", "channel": 8 },
+	"regulator-rk816:9": { "i2c-bus": "i2c-rk3128.0", "slave-address": 26, "name": "ldo6", "channel": 9, "default": { "voltage": 3300000, "enable": true } },
 
-	"regulator-gpio@0": {
+	"regulator-gpio:0": {
 		"parent": null,
 		"name": "lcd-power-5v",
 		"voltage": 5000000,
@@ -395,7 +395,7 @@
 		}
 	},
 
-	"sdhci-spi@0": {
+	"sdhci-spi:0": {
 		"spi-bus": "spi-gpio.0",
 		"chip-select": 0,
 		"type": 0,
@@ -406,7 +406,7 @@
 		"max-clock-frequency": 25000000
 	},
 
-	"rtc-rk816@0": {
+	"rtc-rk816:0": {
 		"i2c-bus": "i2c-rk3128.0",
 		"slave-address": 26
 	},
@@ -415,18 +415,18 @@
 		"clock-name": "link-wdt"
 	},
 
-	"gmeter-mma8452@0": {
+	"gmeter-mma8452:0": {
 		"i2c-bus": "i2c-rk3128.1",
 		"slave-address": 29
 	},
 
-	"key-rk816@0": {
+	"key-rk816:0": {
 		"i2c-bus": "i2c-rk3128.0",
 		"slave-address": 26,
 		"interrupt-gpio": 8
 	},
 
-	"key-adc@0": {
+	"key-adc:0": {
 		"adc-name": "adc-rk3128.0",
 		"adc-channel": 1,
 		"poll-interval-ms": 100,
@@ -438,7 +438,7 @@
 		]
 	},
 
-	"rc-gpio@0": {
+	"rc-gpio:0": {
 		"gpio": 122,
 		"gpio-config": 0,
 		"active-low": true,
@@ -472,40 +472,40 @@
 		]
 	},
 
-	"led-gpio@0": {
+	"led-gpio:0": {
 		"gpio": 64,
 		"gpio-config": 0,
 		"active-low": true,
 		"default-brightness": 0
 	},
 
-	"led-gpio@1": {
+	"led-gpio:1": {
 		"gpio": 65,
 		"gpio-config": 0,
 		"active-low": true,
 		"default-brightness": 0
 	},
 
-	"led-gpio@2": {
+	"led-gpio:2": {
 		"gpio": 66,
 		"gpio-config": 0,
 		"active-low": true,
 		"default-brightness": 0
 	},
 
-	"led-gpio@3": {
+	"led-gpio:3": {
 		"gpio": 67,
 		"gpio-config": 0,
 		"active-low": true,
 		"default-brightness": 0
 	},
 
-	"ledtrigger-heartbeat@0": {
+	"ledtrigger-heartbeat": {
 		"led-name": "led-gpio.0",
 		"period-ms": 1260
 	},
 
-	"led-pwm@0": {
+	"led-pwm:0": {
 		"pwm-name": "pwm-rk3128.0",
 		"regulator-name": "lcd-power-5v",
 		"pwm-period-ns": 1000000,
@@ -514,17 +514,17 @@
 		"default-brightness": 0
 	},
 
-	"buzzer-gpio@0": {
+	"buzzer-gpio:0": {
 		"gpio": 55,
 		"active-low": false
 	},
 
-	"buzzer-pwm@0": {
+	"buzzer-pwm:0": {
 		"pwm-name": "pwm-rk3128.1",
 		"pwm-polarity": true
 	},
 
-	"vibrator-pwm@0": {
+	"vibrator-pwm:0": {
 		"pwm-name": "pwm-rk3128.2",
 		"pwm-polarity": true
 	},
@@ -554,7 +554,7 @@
 		"backlight": "led-pwm.0"
 	},
 
-	"console-uart@0": {
+	"console-uart": {
 		"uart-bus": "uart-8250.2"
 	}
 }

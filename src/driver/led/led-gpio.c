@@ -41,7 +41,7 @@
  * - default-brightness: led default brightness
  *
  * Example:
- *   "led-gpio@0": {
+ *   "led-gpio": {
  *       "gpio": 0,
  *       "gpio-config": -1,
  *       "active-low": true,

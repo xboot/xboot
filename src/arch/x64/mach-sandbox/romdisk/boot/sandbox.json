@@ -1,55 +1,55 @@
 {
-	"ce-sandbox@0": {
+	"ce-sandbox:0": {
 	},
 
-	"cs-sandbox@0": {
+	"cs-sandbox:0": {
 	},
 
-	"audio-sandbox@0": {
+	"audio-sandbox:0": {
 	},
 
-	"rtc-sandbox@0": {
+	"rtc-sandbox:0": {
 	},
 
-	"net-sandbox@0": {
+	"net-sandbox:0": {
 		"interface": "eth0"
 	},
 
-	"cam-sandbox@0": {
+	"cam-sandbox:0": {
 		"device": "/dev/video0"
 	},
 
-	"input-sandbox@0": {
+	"input-sandbox:0": {
 		"pointer-range-x": 800,
 		"pointer-range-y": 480,
 		"pointer-sensitivity": 6,
 		"status": "disabled"
 	},
 
-	"input-sandbox-sdl@0": {
+	"input-sandbox-sdl:0": {
 	},
 
-	"fb-sandbox@0": {
+	"fb-sandbox:0": {
 		"device": "/dev/fb0",
 		"physical-width": 216,
 		"physical-height": 135,
 		"status": "disabled"
 	},
 
-	"fb-sandbox-drm@0": {
+	"fb-sandbox-drm:0": {
 		"device": "/dev/dri/card0",
 		"physical-width": 216,
 		"physical-height": 135,
 		"status": "disabled"
 	},
 
-	"fb-sandbox-sdl@0": {
+	"fb-sandbox-sdl:0": {
 		"width": 800,
 		"height": 480,
 		"physical-width": 216,
 		"physical-height": 135
 	},
 
-	"console-sandbox@0": {
+	"console-sandbox:0": {
 	}
 }

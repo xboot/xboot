@@ -1,4 +1,10 @@
 {
+	"clk-fixed": { "name": "fix-losc", "rate": 32768 },
+	"clk-fixed": { "name": "rc-16m", "rate": 16000000 },
+	"clk-fixed": { "name": "rcosc-clk", "rate": 1400000 },
+	"clk-fixed": { "name": "ext-32k", "rate": 32768 },
+	"clk-fixed": { "name": "rc-hf", "rate": 8192000 },
+	"clk-fixed": { "name": "rccal-fake-parent", "rate": 32768 },
 	"clk-fixed": { "name": "osc26m", "rate": 26000000 },
 	"clk-fixed": { "name": "osc40m", "rate": 40000000 },
 	"clk-fixed": { "name": "osc24m", "rate": 24000000 },
@@ -15,6 +21,8 @@
 		],
 		"name": "hosc", "shift": 0, "width": 3
 	},
+	"clk-fixed-factor": { "parent": "hosc", "name": "hosc-div32k", "mult": 1, "div": 1250 },
+	"clk-fixed-factor": { "parent": "rcosc-clk", "name": "rcosc-div32k", "mult": 1, "div": 32 },
 
 	"clk-r128-pll": { "parent": "hosc", "name": "dpll1", "channel": 1 },
 	"clk-r128-pll": { "parent": "hosc", "name": "dpll2", "channel": 2 },
@@ -26,22 +34,216 @@
 	"clk-fixed-factor": { "parent": "pll-audio", "name": "pll-audio2x", "mult": 1, "div": 2 },
 	"clk-fixed-factor": { "parent": "pll-audio", "name": "pll-audio1x", "mult": 1, "div": 4 },
 
-	"clk-gate@0x4004c4a4": {"parent": "hosc", "name": "ck1-usb", "shift": 31, "invert": false },
+	"clk-fixed-factor": { "parent": "dpll1", "name": "dpll1-div4", "mult": 1, "div": 4 },
+	"clk-fixed-factor": { "parent": "dpll1", "name": "dpll1-div5", "mult": 1, "div": 5 },
+	"clk-fixed-factor": { "parent": "dpll1", "name": "dpll1-div6", "mult": 1, "div": 6 },
+	"clk-fixed-factor": { "parent": "dpll1", "name": "dpll1-div7", "mult": 1, "div": 7 },
+	"clk-fixed-factor": { "parent": "dpll1", "name": "dpll1-div8", "mult": 1, "div": 8 },
+	"clk-fixed-factor": { "parent": "dpll1", "name": "dpll1-div39", "mult": 1, "div": 39 },
+	"clk-fixed-factor": { "parent": "dpll1", "name": "dpll1-div85", "mult": 1, "div": 85 },
+	"clk-fixed-factor": { "parent": "dpll3", "name": "dpll3-div4", "mult": 1, "div": 4 },
+	"clk-fixed-factor": { "parent": "dpll3", "name": "dpll3-div5", "mult": 1, "div": 5 },
+	"clk-fixed-factor": { "parent": "dpll3", "name": "dpll3-div6", "mult": 1, "div": 6 },
+	"clk-fixed-factor": { "parent": "dpll3", "name": "dpll3-div7", "mult": 1, "div": 7 },
+	"clk-fixed-factor": { "parent": "dpll3", "name": "dpll3-div8", "mult": 1, "div": 8 },
 
-	"clk-fixed-factor": { "parent": "dpll1", "name": "dpll1_div85", "mult": 1, "div": 85 },
-	"clk-fixed-factor": { "parent": "dpll1", "name": "dpll1_div39", "mult": 1, "div": 39 },
+	"clk-gate@0x4004c4a4": {"parent": "hosc", "name": "ck1-usb", "shift": 31, "invert": false },
 	"clk-mux@0x4004c4a4": {
 		"parent": [
-			{ "name": "dpll1_div85", "value": 0 },
-			{ "name": "dpll1_div39", "value": 1 }
+			{ "name": "dpll1-div85", "value": 0 },
+			{ "name": "dpll1-div39", "value": 1 }
 		],
 		"name": "mux-ck1-aud", "shift": 24, "width": 1
 	},
 	"clk-gate@0x4004c4a4": {"parent": "mux-ck1-aud", "name": "ck1-aud", "shift": 27, "invert": false },
 
+	"clk-mux@0x4004c4a4": {
+		"parent": [
+			{ "name": "dpll1-div7", "value": 0 },
+			{ "name": "dpll1-div6", "value": 1 },
+			{ "name": "dpll1-div5", "value": 2 }
+		],
+		"name": "mux-ck1-dev", "shift": 20, "width": 2
+	},
+	"clk-gate@0x4004c4a4": {"parent": "mux-ck1-dev", "name": "ck1-dev", "shift": 23, "invert": false },
 
-	"clk-fixed": { "name": "timer0", "rate": 24000000 },
-	"clk-fixed": { "name": "timer1", "rate": 24000000 },	
+	"clk-mux@0x4004c4a4": {
+		"parent": [
+			{ "name": "dpll1-div8", "value": 0 },
+			{ "name": "dpll1-div7", "value": 1 },
+			{ "name": "dpll1-div6", "value": 2 },
+			{ "name": "dpll1-div5", "value": 3 },
+			{ "name": "dpll1-div4", "value": 4 }
+		],
+		"name": "mux-ck1-m33", "shift": 0, "width": 3
+	},
+	"clk-gate@0x4004c4a4": {"parent": "mux-ck1-m33", "name": "ck1-m33", "shift": 3, "invert": false },
+
+	"clk-mux@0x4004c4a8": {
+		"parent": [
+			{ "name": "dpll3-div6", "value": 0 },
+			{ "name": "dpll3-div5", "value": 1 },
+			{ "name": "dpll3-div4", "value": 2 }
+		],
+		"name": "mux-ck3-dev", "shift": 20, "width": 2
+	},
+	"clk-gate@0x4004c4a8": {"parent": "mux-ck3-dev", "name": "ck3-dev", "shift": 23, "invert": false },
+
+	"clk-mux@0x4004c4a8": {
+		"parent": [
+			{ "name": "dpll3-div8", "value": 0 },
+			{ "name": "dpll3-div7", "value": 1 },
+			{ "name": "dpll3-div6", "value": 2 },
+			{ "name": "dpll3-div5", "value": 3 },
+			{ "name": "dpll3-div4", "value": 4 }
+		],
+		"name": "mux-ck3-m33", "shift": 0, "width": 3
+	},
+	"clk-gate@0x4004c4a8": {"parent": "mux-ck3-m33", "name": "ck3-m33", "shift": 3, "invert": false },
+
+	"clk-mux@0x4004c4e0": {
+		"parent": [
+			{ "name": "ck1-dev", "value": 0 },
+			{ "name": "ck3-dev", "value": 1 }
+		],
+		"name": "ck-dev", "shift": 16, "width": 1
+	},
+	"clk-divider@0x4004c4e0": { "parent": "ck-dev", "name": "device-clk", "shift": 0, "width": 4, "divider-one-based": true },
+
+	"clk-mux@0x4004c4e0": {
+		"parent": [
+			{ "name": "ck1-m33", "value": 0 },
+			{ "name": "ck3-m33", "value": 1 }
+		],
+		"name": "ck-m33", "shift": 19, "width": 1
+	},
+	"clk-divider@0x4004c4e0": { "parent": "ck-m33", "name": "sys", "shift": 8, "width": 4, "divider-one-based": true },
+
+	"clk-divider@0x4004c4dc": { "parent": "rc-hf", "name": "aud-rco-div", "shift": 0, "width": 3, "divider-one-based": true },
+
+	"clk-mux@0x4004c4e0": {
+		"parent": [
+			{ "name": "hosc", "value": 0 },
+			{ "name": "fix-losc", "value": 1 },
+			{ "name": "sys", "value": 2 },
+			{ "name": "aud-rco-div", "value": 3 }
+		],
+		"name": "ar200a-f", "shift": 12, "width": 2
+	},
+	"clk-ratio@0x4004c4e0": { "parent": "hosc", "name": "hfclk-div", "shift": 4, "width": 2 },
+	"clk-ratio@0x4004c4e0": { "parent": "fix-losc", "name": "lfclk-div", "shift": 4, "width": 2 },
+	"clk-ratio@0x4004c4e0": { "parent": "ar200a-f", "name": "ahb-div", "shift": 4, "width": 2 },
+	"clk-mux@0x4004c4e0": {
+		"parent": [
+			{ "name": "hfclk-div", "value": 0 },
+			{ "name": "lfclk-div", "value": 1 },
+			{ "name": "ahb-div", "value": 2 },
+			{ "name": "aud-rco-div", "value": 3 }
+		],
+		"name": "apb", "shift": 6, "width": 2
+	},
+
+	"clk-gate@0x4004c4cc": {"parent": "hosc", "name": "ble-32m", "shift": 17, "invert": false },
+	"clk-gate@0x4004c4cc": {"parent": "hosc", "name": "ble-48m", "shift": 16, "invert": false },
+	"clk-gate@0x4004c4cc": {"parent": "hosc", "name": "gpio_gate", "shift": 11, "invert": false },
+	"clk-gate@0x4004c4cc": {"parent": "hosc", "name": "bus_codec_dac", "shift": 10, "invert": false },
+	"clk-gate@0x4004c4cc": {"parent": "hosc", "name": "rccal", "shift": 8, "invert": false },
+	"clk-gate@0x4004c4cc": {"parent": "hosc", "name": "bus_codec_adc", "shift": 5, "invert": false },
+	"clk-gate@0x4004c4cc": {"parent": "hosc", "name": "dmic-bus", "shift": 3, "invert": false },
+	"clk-gate@0x4004c4cc": {"parent": "hosc", "name": "gpadc", "shift": 2, "invert": false },
+	"clk-gate@0x4004c4cc": {"parent": "hosc", "name": "lpuart1-wkup", "shift": 1, "invert": false },
+	"clk-gate@0x4004c4cc": {"parent": "hosc", "name": "lpuart0-wkup", "shift": 0, "invert": false },
+
+	"clk-gate@0x40050080": {"parent": "ext-32k", "name": "osc32k-en", "shift": 31, "invert": false },
+	"clk-gate@0x40050080": {"parent": "fix-losc", "name": "rc32k-en", "shift": 30, "invert": false },
+	"clk-gate@0x40050080": {"parent": "rc-hf", "name": "rc-hf-en", "shift": 29, "invert": false },
+	"clk-gate@0x40050144": {"parent": "rccal-fake-parent", "name": "rccal-32k", "shift": 29, "invert": false },
+	"clk-gate@0x40050144": {"parent": "rcosc-div32k", "name": "rco-wup-en", "shift": 16, "invert": false },
+	"clk-mux@0x40050080": {
+		"parent": [
+			{ "name": "rcosc-div32k", "value": 0 },
+			{ "name": "osc32k-en", "value": 1 }
+		],
+		"name": "lf-sel", "shift": 24, "width": 1
+	},
+	"clk-mux@0x40050080": {
+		"parent": [
+			{ "name": "lf-sel", "value": 0 },
+			{ "name": "rccal-32k", "value": 1 }
+		],
+		"name": "sys-32k-sel", "shift": 28, "width": 1
+	},
+	"clk-mux@0x40050080": {
+		"parent": [
+			{ "name": "lf-sel", "value": 0 },
+			{ "name": "rccal-32k", "value": 1 }
+		],
+		"name": "ble-sel", "shift": 27, "width": 1
+	},
+	"clk-mux@0x40050080": {
+		"parent": [
+			{ "name": "lf-sel", "value": 0 },
+			{ "name": "rccal-32k", "value": 1 },
+			{ "name": "hosc-div32k", "value": 2 }
+		],
+		"name": "sysrtc32k", "shift": 25, "width": 2
+	},
+	"clk-mux@0x40050080": {
+		"parent": [
+			{ "name": "rcosc-div32k", "value": 0 },
+			{ "name": "osc32k-en", "value": 1 },
+			{ "name": "rccal-32k", "value": 2 },
+			{ "name": "hosc", "value": 3 }
+		],
+		"name": "pad", "shift": 1, "width": 2
+	},
+	"clk-divider@0x40050080": { "parent": "pad", "name": "div-pad", "shift": 3, "width": 13, "divider-one-based": true },
+	"clk-gate@0x40050080": {"parent": "div-pad", "name": "pad-out", "shift": 0, "invert": false },
+
+	"clk-mux@0x4005014c": {
+		"parent": [
+			{ "name": "rc-hf-en", "value": 0 },
+			{ "name": "ble-32m", "value": 1 }
+		],
+		"name": "div", "shift": 4, "width": 1
+	},
+	"clk-gate@0x4005014c": {"parent": "div", "name": "32k-auto-en-switch", "shift": 0, "invert": false },
+
+	"clk-gate@0x4003c01c": {"parent": "hosc", "name": "mbus-de", "shift": 9, "invert": false, "default": { "enable": true } },
+	"clk-gate@0x4003c01c": {"parent": "hosc", "name": "mbus-g2d", "shift": 8, "invert": false, "default": { "enable": true } },
+	"clk-gate@0x4003c01c": {"parent": "hosc", "name": "mbus-csi", "shift": 7, "invert": false, "default": { "enable": true } },
+	"clk-gate@0x4003c01c": {"parent": "hosc", "name": "mbus-dma1", "shift": 6, "invert": false, "default": { "enable": true } },
+	"clk-gate@0x4003c01c": {"parent": "hosc", "name": "mbus-dma0", "shift": 5, "invert": false, "default": { "enable": true } },
+	"clk-gate@0x4003c01c": {"parent": "hosc", "name": "mbus-usb", "shift": 4, "invert": false, "default": { "enable": true } },
+	"clk-gate@0x4003c01c": {"parent": "hosc", "name": "mbus-ce", "shift": 3, "invert": false, "default": { "enable": true } },
+	"clk-gate@0x4003c01c": {"parent": "hosc", "name": "mbus-dsp", "shift": 2, "invert": false, "default": { "enable": true } },
+	"clk-gate@0x4003c01c": {"parent": "hosc", "name": "mbus-riscv", "shift": 1, "invert": false, "default": { "enable": true } },
+	"clk-gate@0x4003c01c": {"parent": "hosc", "name": "mbus-cpu", "shift": 0, "invert": false, "default": { "enable": true } },
+
+	"clk-mux@0x4003c05c": {
+		"parent": [
+			{ "name": "hosc", "value": 0 },
+			{ "name": "device-clk", "value": 1 },
+			{ "name": "fix-losc", "value": 2 }
+		],
+		"name": "mux-pclk-spc", "shift": 24, "width": 2
+	},
+	"clk-divider@0x4003c05c": { "parent": "mux-pclk-spc", "name": "div-pclk-spc", "shift": 0, "width": 4, "divider-one-based": true },
+	"clk-ratio@0x4003c05c": { "parent": "div-pclk-spc", "name": "pclk-spc", "shift": 16, "width": 2 },
+
+	"clk-mux@0x4003c034": {
+		"parent": [
+			{ "name": "hosc", "value": 0 },
+			{ "name": "device-clk", "value": 1 }
+		],
+		"name": "mux-ledc", "shift": 24, "width": 2
+	},
+	"clk-divider@0x4003c034": { "parent": "mux-ledc", "name": "div-ledc", "shift": 0, "width": 4, "divider-one-based": true },
+	"clk-ratio@0x4003c034": { "parent": "div-ledc", "name": "ratio-ledc", "shift": 16, "width": 2 },
+	"clk-gate@0x4003c034": {"parent": "ratio-ledc", "name": "ledc", "shift": 31, "invert": false },
+
+	"clk-fixed": { "name": "timer0", "rate": 40000000 },
+	"clk-fixed": { "name": "timer1", "rate": 40000000 },	
 	"clk-fixed": { "name": "bus-uart0", "rate": 24000000 },
 	"clk-fixed": { "name": "bus-uart1", "rate": 24000000 },
 	"clk-fixed": { "name": "bus-uart2", "rate": 24000000 },

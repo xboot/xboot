@@ -51,6 +51,9 @@
 	"reset-r128@0x400500c4": { "reset-base": 160, "reset-count": 32 },
 	"reset-r128@0x40050144": { "reset-base": 192, "reset-count": 32 },
 
+	"gpio-r128@0x4004a400": { "gpio-base":  0, "gpio-count": 30, "interrupt-offset": -1 },
+	"gpio-r128@0x4004a424": { "gpio-base": 32, "gpio-count": 16, "interrupt-offset": -1 },
+
 	"uart-16550@0x40047000": {
 		"clock-name": "bus-uart0",
 		"reset": -1,

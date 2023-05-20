@@ -40,6 +40,8 @@
 	"clk-gate@0x4004c4a4": {"parent": "mux-ck1-aud", "name": "ck1-aud", "shift": 27, "invert": false },
 
 
+	"clk-fixed": { "name": "timer0", "rate": 24000000 },
+	"clk-fixed": { "name": "timer1", "rate": 24000000 },	
 	"clk-fixed": { "name": "bus-uart0", "rate": 24000000 },
 	"clk-fixed": { "name": "bus-uart1", "rate": 24000000 },
 	"clk-fixed": { "name": "bus-uart2", "rate": 24000000 },
@@ -57,6 +59,15 @@
 
 	"gpio-r128@0x4004a400": { "gpio-base":  0, "gpio-count": 30, "interrupt-offset": -1 },
 	"gpio-r128@0x4004a424": { "gpio-base": 32, "gpio-count": 16, "interrupt-offset": -1 },
+
+	"ce-r128-timer@0x40043000": {
+		"clock-name": "timer0",
+		"interrupt": 36
+	},
+
+	"cs-r128-timer@0x40043000": {
+		"clock-name": "timer1"
+	},
 
 	"uart-16550:0@0x40047000": {
 		"clock-name": "bus-uart0",

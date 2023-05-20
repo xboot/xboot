@@ -133,7 +133,7 @@ static bool_t legal_val(char * str)
 static uint64_t convert_val(char * str)
 {
 	enum value_type_t type;
-	unsigned long long va;
+	unsigned long long va = 0;
 	unsigned long vb;
 	char * tmp;
 	bool_t reversal = FALSE;

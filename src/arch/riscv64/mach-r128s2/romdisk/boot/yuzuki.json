@@ -317,6 +317,24 @@
 		"clock-name": "wdg"
 	},
 
+	"ledstrip-r128@0x40048000": {
+		"clock-name": "ledc",
+		"reset": 28,
+		"gpio": 13,
+		"gpio-config": 7,
+		"output-mode": 0,
+		"reset-ns": 300000,
+		"t1h-ns": 1000,
+		"t1l-ns": 250,
+		"t0h-ns": 250,
+		"t0l-ns": 1000,
+		"wait-time0-ns": 84,
+		"wait-time1-ns": 84,
+		"wait-data-time-ns": 600000,
+		"count": 1,
+		"status": "disabled"
+	},
+
 	"console-uart": {
 		"uart-bus": "uart-16550.0"
 	}

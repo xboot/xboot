@@ -36,7 +36,7 @@ const char * dt_read_name(struct dtnode_t * n)
 
 int dt_read_id(struct dtnode_t * n)
 {
-	return n ? (int)n->addr : 0;
+	return n ? n->id : 0;
 }
 
 physical_addr_t dt_read_address(struct dtnode_t * n)

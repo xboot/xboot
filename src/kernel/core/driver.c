@@ -48,23 +48,49 @@ static ssize_t driver_write_probe(struct kobj_t * kobj, void * buf, size_t size)
 	struct driver_t * drv = (struct driver_t *)kobj->priv;
 	struct dtnode_t n;
 	struct json_value_t * v;
-	char * p;
-	int i;
 
 	if(buf && (size > 0))
 	{
 		v = json_parse(buf, size, 0);
 		if(v && (v->type == JSON_OBJECT))
 		{
-			for(i = 0; i < v->u.object.length; i++)
+			for(int i = 0; i < v->u.object.length; i++)
 			{
-				p = (char *)(v->u.object.values[i].name);
-				n.name = strsep(&p, "@");
-				n.addr = p ? strtoull(p, NULL, 0) : 0;
-				n.value = (struct json_value_t *)(v->u.object.values[i].value);
+				char * p = (char *)(v->u.object.values[i].name);
+				if(p)
+				{
+					char * name = p;
+					char * id = NULL;
+					char * addr = NULL;
+					while(*p)
+					{
+						if(*p == ':')
+						{
+							*p = '\0';
+							id = p + 1;
+							if((*id == ':') || (*id == '@'))
+								id = NULL;
+						}
+						else if(*p == '@')
+						{
+							*p = '\0';
+							addr = p + 1;
+							if((*addr == ':') || (*addr == '@'))
+								addr = NULL;
+						}
+						p++;
+					}
+					n.name = (name && (*name != '\0')) ? name : "";
+					n.id = (id && (*id != '\0')) ? strtol(id, NULL, 0) : 0;
+					n.addr = (addr && (*addr != '\0')) ? strtoull(addr, NULL, 0) : 0;
+					n.value = (struct json_value_t *)(v->u.object.values[i].value);
 
-				if(strcmp(drv->name, n.name) == 0)
-					drv->probe(drv, &n);
+					if(strcmp(dt_read_string(&n, "status", "okay"), "disabled") != 0)
+					{
+						if(strcmp(drv->name, n.name) == 0)
+							drv->probe(drv, &n);
+					}
+				}
 			}
 		}
 		json_free(v);
@@ -141,28 +167,51 @@ void probe_device(const char * json, int length, const char * tips)
 	struct dtnode_t n;
 	struct json_value_t * v;
 	char errbuf[256];
-	char * p;
-	int i;
 
 	if(json && (length > 0))
 	{
 		v = json_parse(json, length, errbuf);
 		if(v && (v->type == JSON_OBJECT))
 		{
-			for(i = 0; i < v->u.object.length; i++)
+			for(int i = 0; i < v->u.object.length; i++)
 			{
-				p = (char *)(v->u.object.values[i].name);
-				n.name = strsep(&p, "@");
-				n.addr = p ? strtoull(p, NULL, 0) : 0;
-				n.value = (struct json_value_t *)(v->u.object.values[i].value);
-
-				if(strcmp(dt_read_string(&n, "status", "okay"), "disabled") != 0)
+				char *  p = (char *)(v->u.object.values[i].name);
+				if(p)
 				{
-					drv = search_driver(n.name);
-					if(drv && (dev = drv->probe(drv, &n)))
-						LOG("Probe device '%s' with %s\r\n", dev->name, drv->name);
-					else
-						LOG("Fail to probe device with %s\r\n", n.name);
+					char * name = p;
+					char * id = NULL;
+					char * addr = NULL;
+					while(*p)
+					{
+						if(*p == ':')
+						{
+							*p = '\0';
+							id = p + 1;
+							if((*id == ':') || (*id == '@'))
+								id = NULL;
+						}
+						else if(*p == '@')
+						{
+							*p = '\0';
+							addr = p + 1;
+							if((*addr == ':') || (*addr == '@'))
+								addr = NULL;
+						}
+						p++;
+					}
+					n.name = (name && (*name != '\0')) ? name : "";
+					n.id = (id && (*id != '\0')) ? strtol(id, NULL, 0) : 0;
+					n.addr = (addr && (*addr != '\0')) ? strtoull(addr, NULL, 0) : 0;
+					n.value = (struct json_value_t *)(v->u.object.values[i].value);
+
+					if(strcmp(dt_read_string(&n, "status", "okay"), "disabled") != 0)
+					{
+						drv = search_driver(n.name);
+						if(drv && (dev = drv->probe(drv, &n)))
+							LOG("Probe device '%s' with %s\r\n", dev->name, drv->name);
+						else
+							LOG("Fail to probe device with %s\r\n", n.name);
+					}
 				}
 			}
 		}

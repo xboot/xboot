@@ -501,6 +501,26 @@
 		"status": "disabled"
 	},
 
+	"i2c-r128:0@0x40049000": {
+		"clock-name": "bus-twi0",
+		"clock-frequency": 400000,
+		"reset": 10,
+		"sda-gpio": 24,
+		"sda-gpio-config": 6,
+		"scl-gpio": 23,
+		"scl-gpio-config": 6
+	},
+
+	"i2c-r128:1@0x40049400": {
+		"clock-name": "bus-twi1",
+		"clock-frequency": 400000,
+		"reset": 11,
+		"sda-gpio": 33,
+		"sda-gpio-config": 3,
+		"scl-gpio": 32,
+		"scl-gpio-config": 3
+	},
+
 	"spi-r128:0@0x40009000": {
 		"clock-name": "spi0",
 		"reset": 0,
@@ -512,6 +532,20 @@
 		"miso-gpio-config": 3,
 		"cs-gpio": 44,
 		"cs-gpio-config": 3
+	},
+
+	"spi-r128:1@0x4000f000": {
+		"clock-name": "spi1",
+		"reset": 1,
+		"sclk-gpio": 13,
+		"sclk-gpio-config": 6,
+		"mosi-gpio": 18,
+		"mosi-gpio-config": 6,
+		"miso-gpio": 21,
+		"miso-gpio-config": 6,
+		"cs-gpio": 12,
+		"cs-gpio-config": 6,
+		"status": "disabled"
 	},
 
 	"blk-spinor": {

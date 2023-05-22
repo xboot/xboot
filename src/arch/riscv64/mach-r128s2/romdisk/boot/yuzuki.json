@@ -432,10 +432,10 @@
 
 	"clk-link": { "parent": "hosc", "name": "timer0" },
 	"clk-link": { "parent": "hosc", "name": "timer1" },
+	"clk-link": { "parent": "hosc", "name": "uart0" },
+	"clk-link": { "parent": "hosc", "name": "uart1" },
+	"clk-link": { "parent": "hosc", "name": "uart2" },
 	"clk-fixed": { "name": "wdg", "rate": 32768 },
-	"clk-fixed": { "name": "uart0", "rate": 24000000 },
-	"clk-fixed": { "name": "uart1", "rate": 24000000 },
-	"clk-fixed": { "name": "uart2", "rate": 24000000 },
 
 	"reset-r128@0x4003c00c": { "reset-base":   0, "reset-count": 32 },
 	"reset-r128@0x4003c010": { "reset-base":  32, "reset-count": 32 },

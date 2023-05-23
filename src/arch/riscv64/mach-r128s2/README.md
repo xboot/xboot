@@ -9,6 +9,13 @@ make CROSS_COMPILE=/path/to/riscv64-unknown-elf- PLATFORM=riscv64-r128s2
 ## Program to RAM and execute
 ```shell
 xfel ddr r128-s2;
+xfel write 0x08200000 xboot.bin;
+xfel extra exec riscv 0x08200000;
+```
+
+## Program to RAM and execute(Using m33.bin to boot riscv)
+```shell
+xfel ddr r128-s2;
 xfel write 0x08004000 lichee/rtos/build/r128s2_pro_m33/img/rt_system.bin;
 xfel write 0x08200000 xboot.bin;
 xfel exec 0x08004001;

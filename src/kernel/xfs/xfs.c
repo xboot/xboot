@@ -240,9 +240,12 @@ struct xfs_file_t * xfs_open_read(struct xfs_context_t * ctx, const char * name)
 		if(f)
 		{
 			file = malloc(sizeof(struct xfs_file_t));
-			file->ctx = ctx;
-			file->path = pos;
-			file->fhandle = f;
+			if(file)
+			{
+				file->ctx = ctx;
+				file->path = pos;
+				file->fhandle = f;
+			}
 			break;
 		}
 	}
@@ -268,9 +271,12 @@ struct xfs_file_t * xfs_open_write(struct xfs_context_t * ctx, const char * name
 			if(f)
 			{
 				file = malloc(sizeof(struct xfs_file_t));
-				file->ctx = ctx;
-				file->path = pos;
-				file->fhandle = f;
+				if(file)
+				{
+					file->ctx = ctx;
+					file->path = pos;
+					file->fhandle = f;
+				}
 				break;
 			}
 		}
@@ -297,9 +303,12 @@ struct xfs_file_t * xfs_open_append(struct xfs_context_t * ctx, const char * nam
 			if(f)
 			{
 				file = malloc(sizeof(struct xfs_file_t));
-				file->ctx = ctx;
-				file->path = pos;
-				file->fhandle = f;
+				if(file)
+				{
+					file->ctx = ctx;
+					file->path = pos;
+					file->fhandle = f;
+				}
 				break;
 			}
 		}

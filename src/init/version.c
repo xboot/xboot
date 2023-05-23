@@ -66,7 +66,7 @@ const char * xboot_character_logo_string(int i)
 		"/_/\\_\\|_____|_____|_____| |_____________________|",
 	};
 
-	if(i < 0 && i > 4)
+	if(i < 0 || i > 4)
 		return "";
 	return &clogo[i][0];
 }

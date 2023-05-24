@@ -163,7 +163,7 @@ static bool_t uart_16550_set(struct uart_t * uart, int baud, int data, int parit
 	val |= (1 << 7);
 	write32(pdat->virt + UART_LCR, val);
 
-	udiv = clk_get_rate(pdat->clk) / (16 * baud);
+	udiv = iround((float)clk_get_rate(pdat->clk) / (16 * baud));
 	write32(pdat->virt + UART_DLL, udiv & 0xff);
 	write32(pdat->virt + UART_DLH, (udiv >> 8) & 0xff);
 

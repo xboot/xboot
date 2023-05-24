@@ -1,0 +1,26 @@
+#ifndef __R128_REG_PMU_H__
+#define __R128_REG_PMU_H__
+
+#define R128_PMU_BASE				(0x40051400)
+
+#define DCXO_STABLE_REF_TIME		(0x0040)
+#define DPLL_STABLE_REF_TIME		(0x0044)
+#define LDO_STABLE_REF_TIME			(0x0048)
+#define DIGITAL_SWITCH_REF_TIME		(0x004c)
+#define BANDGAP_STABLE_REF_TIME		(0x0050)
+#define DCDC_STABLE_REF_TIME		(0x0054)
+#define SYS_LOW_POWER_CTRL			(0x0100)
+#define SYS_LOW_POWER_STATUS		(0x0104)
+#define RTC_WUP_TIMER_CNT			(0x0108)
+#define RTC_WUP_TIMER_CTRL			(0x010c)
+#define RTC_IO_WAKE_EN				(0x0110)
+#define RTC_IO_WAKE_DEB_CLK			(0x0114)
+#define RTC_IO_WAKE_ST				(0x0118)
+#define RTC_IO_HOLD_CTRL			(0x011c)
+#define RTC_IO_WUP_GEN				(0x0120)
+#define RTC_IO_WUP_DEB_CYCLES0		(0x0124)
+#define RTC_IO_WUP_DEB_CYCLES1		(0x0128)
+#define VDD_APP_PWROFF_GATING		(0x0180)
+#define POWERCTRL_CFG_REG			(0x0184)
+
+#endif /* __R128_REG_PMU_H__ */

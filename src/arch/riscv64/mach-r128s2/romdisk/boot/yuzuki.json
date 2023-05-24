@@ -463,6 +463,13 @@
 		"clock-name": "timer1"
 	},
 
+	"regulator-r128@0x40050000": { "name": "dcdc",   "channel": 0 },
+	"regulator-r128@0x40050000": { "name": "rtcldo", "channel": 1 },
+	"regulator-r128@0x40050000": { "name": "extldo", "channel": 2 },
+	"regulator-r128@0x40050000": { "name": "aonldo", "channel": 3 },
+	"regulator-r128@0x40050000": { "name": "appldo", "channel": 4 },
+	"regulator-r128@0x40050000": { "name": "dspldo", "channel": 5 },
+
 	"uart-16550:0@0x40047000": {
 		"clock-name": "uart0",
 		"reset": 6,

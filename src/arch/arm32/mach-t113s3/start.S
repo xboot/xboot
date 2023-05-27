@@ -188,6 +188,79 @@ _entry:
 	mov r0, #0x40000000
 	vmsr fpexc, r0
 
+	/* Check initialized and using master core */
+	adr r0, _start
+	ldr r1, =_start
+	cmp r0, r1
+	beq _speedup
+	mrc p15, 0, r0, c0, c0, 5
+	ands r0, #0xf
+	bne _speedup
+
+	/* Initial system jtag, uart and clock */
+	bl sys_jtag_init
+	bl sys_uart_init
+	bl sys_clock_init
+
+	/* Avoid using dram binary space, copy self to 0x00037fe0 */
+	ldr r0, =0x00037fe0
+	adr r1, _start
+	cmp r0, r1
+	beq _avoid
+	ldr r2, =__spl_size
+	bl memcpy
+	ldr r0, =_avoid
+	ldr r1, =_start
+	sub r0, r0, r1
+	ldr r1, =0x00037fe0
+	add r0, r0, r1
+	mov pc, r0
+_avoid:
+	nop
+
+	/* Copy ddr bin to 0x00028000 */
+	ldr r0, _ddr_bin_start
+	ldr r2, _ddr_bin_end
+	sub r2, r2, r0
+	ldr r1, _image_start
+	sub r0, r0, r1
+	adr r1, _start
+	add r1, r1, r0
+	ldr r0, =0x00028000
+	bl memcpy
+
+	/* Copy ddr param to 0x00028038 */
+	ldr r0, _ddr_param_start
+	ldr r2, _ddr_param_end
+	sub r2, r2, r0
+	ldr r1, _image_start
+	sub r0, r0, r1
+	adr r1, _start
+	add r1, r1, r0
+	ldr r0, =0x00028038
+	bl memcpy
+
+	/* Initial ddr */
+	bl sys_dram_init
+
+	/* Boot speed up, leave slower sram */
+	adr r0, _start
+	ldr r1, =_start
+	cmp r0, r1
+	beq _speedup
+	ldr r0, =0x43f80000
+	adr r1, _start
+	ldr r2, =__spl_size
+	bl memcpy
+	ldr r0, =_speedup
+	ldr r1, =_start
+	sub r0, r0, r1
+	ldr r1, =0x43f80000
+	add r0, r0, r1
+	mov pc, r0
+_speedup:
+	nop
+
 	/* Initialize stacks */
 	mrc p15, 0, r4, c0, c0, 5
 	and r4, r4, #0xf
@@ -261,91 +334,13 @@ _entry:
 	/* Initail smp by precessor id */
 	mrc p15, 0, r0, c0, c0, 5
 	and r0, #1
-	mov r4, #4
-	mul r4, r4, r0
-	ldr r3, =0x00047fc0		/* New boot flag address */
-	add r3, r3, r4
-	ldr r1, =0xdeadbeef
-	str r1, [r3]
-	ldr r2, =0xcafebabe
 	mov r4, #0
 	cmp r0, r4
 	beq _master
 _slave:
-	ldr r1, [r3]
-	cmp r1, r2
-	wfene
-	bne _slave
-	bl mmu_enable
-	ldr r3, =0x00047fbc		/* New boot function address */
-	ldr pc, [r3]
+	wfe
+	b _slave
 _master:
-	/* Check initialized */
-	adr r0, _start
-	ldr r1, =_start
-	cmp r0, r1
-	beq _speedup
-
-	/* Avoid using dram binary space, copy self to 0x00037fe0 */
-	ldr r0, =0x00037fe0
-	adr r1, _start
-	cmp r0, r1
-	beq _avoid
-	ldr r2, =__spl_size
-	bl memcpy
-	ldr r0, =_avoid
-	ldr r1, =_start
-	sub r0, r0, r1
-	ldr r1, =0x00037fe0
-	add r0, r0, r1
-	mov pc, r0
-_avoid:
-	nop
-
-	/* Copy ddr bin to 0x00028000 */
-	ldr r0, _ddr_bin_start
-	ldr r2, _ddr_bin_end
-	sub r2, r2, r0
-	ldr r1, _image_start
-	sub r0, r0, r1
-	adr r1, _start
-	add r1, r1, r0
-	ldr r0, =0x00028000
-	bl memcpy
-
-	/* Copy ddr param to 0x00028038 */
-	ldr r0, _ddr_param_start
-	ldr r2, _ddr_param_end
-	sub r2, r2, r0
-	ldr r1, _image_start
-	sub r0, r0, r1
-	adr r1, _start
-	add r1, r1, r0
-	ldr r0, =0x00028038
-	bl memcpy
-
-	/* Initial system jtag, uart, clock add ddr */
-	bl sys_jtag_init
-	bl sys_uart_init
-	bl sys_clock_init
-	bl sys_dram_init
-
-	/* Boot speed up, leave slower sram */
-	adr r0, _start
-	ldr r1, =_start
-	cmp r0, r1
-	beq _speedup
-	ldr r0, =0x43f80000
-	adr r1, _start
-	ldr r2, =__spl_size
-	bl memcpy
-	ldr r0, =_speedup
-	ldr r1, =_start
-	sub r0, r0, r1
-	ldr r1, =0x43f80000
-	add r0, r0, r1
-	mov pc, r0
-_speedup:
 	nop
 
 	/* Copyself to link address */
@@ -362,19 +357,6 @@ _speedup:
 	sub r2, r2, r0
 	mov r1, #0
 	bl memset
-
-	/* Set the slave core's boot function */
-	ldr r1, =_entry
-	ldr r2, =0x070005c8
-	str r1, [r2]
-	/* Deassert slave core */
-	ldr r0, =0x09010000
-	ldr r1, [r0]
-	ldr r2, =(1 << 1)
-	orr r1, r1, r2
-	str r1, [r0]
-	dsb
-	isb
 
 	/* Call _main */
 	ldr r1, =_main

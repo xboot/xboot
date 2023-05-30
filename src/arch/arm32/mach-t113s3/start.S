@@ -302,12 +302,24 @@ _speedup:
 	/* Initail smp by precessor id */
 	mrc p15, 0, r0, c0, c0, 5
 	and r0, #1
+	mov r4, #4
+	mul r4, r4, r0
+	ldr r3, =0x00047fc0		/* New boot flag address */
+	add r3, r3, r4
+	ldr r1, =0xdeadbeef
+	str r1, [r3]
+	ldr r2, =0xcafebabe
 	mov r4, #0
 	cmp r0, r4
 	beq _master
 _slave:
-	wfe
-	b _slave
+	ldr r1, [r3]
+	cmp r1, r2
+	wfene
+	bne _slave
+	bl mmu_enable
+	ldr r3, =0x00047fbc		/* New boot function address */
+	ldr pc, [r3]
 _master:
 	nop
 
@@ -333,6 +345,19 @@ _master:
 	mcr p15, 0, r0, c7, c5, 6
 	mcr p15, 0, r0, c7, c10, 4
 	mcr p15, 0, r0, c7, c5, 4
+
+	/* Set the slave core's boot function */
+	ldr r1, =_entry
+	ldr r2, =0x070005c8
+	str r1, [r2]
+	/* Deassert slave core */
+	ldr r0, =0x09010000
+	ldr r1, [r0]
+	ldr r2, =(1 << 1)
+	orr r1, r1, r2
+	str r1, [r0]
+	dsb
+	isb
 
 	/* Call _main */
 	ldr r1, =_main

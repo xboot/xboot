@@ -92,14 +92,14 @@ void sys_copyself(void)
 		sys_spinor_exit();
 		if((z->magic[0] == 'Z') && (z->magic[1] == 'B') && (z->magic[2] == 'L') && (z->magic[3] == '!'))
 		{
-			//if(sys_verify((char *)z->pubkey, (char *)z->sha256, (char *)z->signature))
+			if(sys_verify((char *)z->pubkey, (char *)z->sha256, (char *)z->signature))
 			{
 				uint32_t csize = (z->csize[0] << 24) | (z->csize[1] << 16) | (z->csize[2] << 8) | (z->csize[3] << 0);
 				uint32_t dsize = (z->dsize[0] << 24) | (z->dsize[1] << 16) | (z->dsize[2] << 8) | (z->dsize[3] << 0);
 				sys_spinor_init();
 				sys_spinor_read(65536 + sizeof(struct zdesc_t), tmp, csize);
 				sys_spinor_exit();
-				//if(sys_hash((char *)(&z->majoy), (sizeof(struct zdesc_t) - 100) + csize, (char *)z->sha256))
+				if(sys_hash((char *)(&z->majoy), (sizeof(struct zdesc_t) - 100) + csize, (char *)z->sha256))
 				{
 					sys_decompress(tmp, csize, mem, dsize);
 				}
@@ -125,14 +125,14 @@ void sys_copyself(void)
 		sys_spinand_exit();
 		if((z->magic[0] == 'Z') && (z->magic[1] == 'B') && (z->magic[2] == 'L') && (z->magic[3] == '!'))
 		{
-			//if(sys_verify((char *)z->pubkey, (char *)z->sha256, (char *)z->signature))
+			if(sys_verify((char *)z->pubkey, (char *)z->sha256, (char *)z->signature))
 			{
 				uint32_t csize = (z->csize[0] << 24) | (z->csize[1] << 16) | (z->csize[2] << 8) | (z->csize[3] << 0);
 				uint32_t dsize = (z->dsize[0] << 24) | (z->dsize[1] << 16) | (z->dsize[2] << 8) | (z->dsize[3] << 0);
 				sys_spinand_init();
 				sys_spinand_read(1048576 + 65536 + sizeof(struct zdesc_t), tmp, csize);
 				sys_spinand_exit();
-				//if(sys_hash((char *)(&z->majoy), (sizeof(struct zdesc_t) - 100) + csize, (char *)z->sha256))
+				if(sys_hash((char *)(&z->majoy), (sizeof(struct zdesc_t) - 100) + csize, (char *)z->sha256))
 				{
 					sys_decompress(tmp, csize, mem, dsize);
 				}

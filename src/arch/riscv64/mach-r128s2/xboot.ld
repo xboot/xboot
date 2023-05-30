@@ -26,9 +26,6 @@ SECTIONS
 		.obj/arch/riscv64/mach-r128s2/sys-uart.o (.text*)
 		.obj/arch/riscv64/mach-r128s2/sys-clock.o (.text*)
 		. = ALIGN(8);
-		PROVIDE(__ddr_bin_start = .);
-		KEEP(*(.ddr.bin))
-		PROVIDE(__ddr_bin_end = .);
 		PROVIDE(__spl_end = .);
 		*(.text*)
 		*(.init.text)

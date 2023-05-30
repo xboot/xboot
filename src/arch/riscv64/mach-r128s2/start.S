@@ -224,7 +224,3 @@ _stack_start:
 	RVPTR __stack_start
 _stack_end:
 	RVPTR __stack_end
-_ddr_bin_start:
-	RVPTR __ddr_bin_start
-_ddr_bin_end:
-	RVPTR __ddr_bin_end

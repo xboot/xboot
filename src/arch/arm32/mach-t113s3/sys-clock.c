@@ -86,11 +86,14 @@ static void set_pll_cpux_axi(void)
 	sdelay(1);
 
 	/* Set and change cpu clk src */
+	//TODO please fix me!!
+#if 0
 	val = read32(T113_CCU_BASE + CCU_CPU_AXI_CFG_REG);
 	val &= ~(0x07 << 24 | 0x3 << 16 | 0x3 << 8 | 0xf << 0);
 	val |= (0x03 << 24 | 0x0 << 16 | 0x0 << 8 | 0x0 << 0);
 	write32(T113_CCU_BASE + CCU_CPU_AXI_CFG_REG, val);
 	sdelay(1);
+#endif
 }
 
 static void set_pll_periph0(void)

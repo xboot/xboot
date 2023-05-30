@@ -1,7 +1,7 @@
 /*
  * start.S
  *
- * Copyright(c) 2007-2022 Jianjun Jiang <8192542@qq.com>
+ * Copyright(c) 2007-2023 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
  * Mobile phone: +86-18665388956
  * QQ: 8192542
@@ -188,6 +188,47 @@ _entry:
 	mov r0, #0x40000000
 	vmsr fpexc, r0
 
+	/* Check initialized and using master core */
+	adr r0, _start
+	ldr r1, =_start
+	cmp r0, r1
+	beq _speedup
+	mrc p15, 0, r0, c0, c0, 5
+	ands r0, #0xf
+	bne _speedup
+
+	/* Initial system jtag, uart, clock and ddr */
+	bl sys_jtag_init
+	bl sys_uart_init
+	bl sys_clock_init
+	bl sys_dram_init
+
+	/* Invalidate cache */
+	mov r0, #0
+	mcr p15, 0, r0, c8, c7, 0
+	mcr p15, 0, r0, c7, c5, 0
+	mcr p15, 0, r0, c7, c5, 6
+	mcr p15, 0, r0, c7, c10, 4
+	mcr p15, 0, r0, c7, c5, 4
+
+	/* Boot speed up, leave slower sram */
+	adr r0, _start
+	ldr r1, =_start
+	cmp r0, r1
+	beq _speedup
+	ldr r0, =0x43f80000
+	adr r1, _start
+	ldr r2, =__spl_size
+	bl memcpy
+	ldr r0, =_speedup
+	ldr r1, =_start
+	sub r0, r0, r1
+	ldr r1, =0x43f80000
+	add r0, r0, r1
+	mov pc, r0
+_speedup:
+	nop
+
 	/* Initialize stacks */
 	mrc p15, 0, r4, c0, c0, 5
 	and r4, r4, #0xf
@@ -280,72 +321,6 @@ _slave:
 	ldr r3, =0x00047fbc		/* New boot function address */
 	ldr pc, [r3]
 _master:
-	/* Check initialized */
-	adr r0, _start
-	ldr r1, =_start
-	cmp r0, r1
-	beq _speedup
-
-	/* Avoid using dram binary space, copy self to 0x00037fe0 */
-	ldr r0, =0x00037fe0
-	adr r1, _start
-	cmp r0, r1
-	beq _avoid
-	ldr r2, =__spl_size
-	bl memcpy
-	ldr r0, =_avoid
-	ldr r1, =_start
-	sub r0, r0, r1
-	ldr r1, =0x00037fe0
-	add r0, r0, r1
-	mov pc, r0
-_avoid:
-	nop
-
-	/* Copy ddr bin to 0x00028000 */
-	ldr r0, _ddr_bin_start
-	ldr r2, _ddr_bin_end
-	sub r2, r2, r0
-	ldr r1, _image_start
-	sub r0, r0, r1
-	adr r1, _start
-	add r1, r1, r0
-	ldr r0, =0x00028000
-	bl memcpy
-
-	/* Copy ddr param to 0x00028038 */
-	ldr r0, _ddr_param_start
-	ldr r2, _ddr_param_end
-	sub r2, r2, r0
-	ldr r1, _image_start
-	sub r0, r0, r1
-	adr r1, _start
-	add r1, r1, r0
-	ldr r0, =0x00028038
-	bl memcpy
-
-	/* Initial system jtag, uart, clock add ddr */
-	bl sys_jtag_init
-	bl sys_uart_init
-	bl sys_clock_init
-	bl sys_dram_init
-
-	/* Boot speed up, leave slower sram */
-	adr r0, _start
-	ldr r1, =_start
-	cmp r0, r1
-	beq _speedup
-	ldr r0, =0x43f80000
-	adr r1, _start
-	ldr r2, =__spl_size
-	bl memcpy
-	ldr r0, =_speedup
-	ldr r1, =_start
-	sub r0, r0, r1
-	ldr r1, =0x43f80000
-	add r0, r0, r1
-	mov pc, r0
-_speedup:
 	nop
 
 	/* Copyself to link address */
@@ -362,6 +337,14 @@ _speedup:
 	sub r2, r2, r0
 	mov r1, #0
 	bl memset
+
+	/* Invalidate cache */
+	mov r0, #0
+	mcr p15, 0, r0, c8, c7, 0
+	mcr p15, 0, r0, c7, c5, 0
+	mcr p15, 0, r0, c7, c5, 6
+	mcr p15, 0, r0, c7, c10, 4
+	mcr p15, 0, r0, c7, c5, 4
 
 	/* Set the slave core's boot function */
 	ldr r1, =_entry
@@ -507,11 +490,3 @@ _stack_srv_start:
 	.long __stack_srv_start
 _stack_srv_end:
 	.long __stack_srv_end
-_ddr_param_start:
-	.long __ddr_param_start
-_ddr_param_end:
-	.long __ddr_param_end
-_ddr_bin_start:
-	.long __ddr_bin_start
-_ddr_bin_end:
-	.long __ddr_bin_end

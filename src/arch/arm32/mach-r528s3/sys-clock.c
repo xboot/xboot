@@ -85,12 +85,15 @@ static void set_pll_cpux_axi(void)
 	write32(R528_CCU_BASE + CCU_PLL_CPU_CTRL_REG, val);
 	sdelay(1);
 
+	//TODO please fix me!!
+#if 0
 	/* Set and change cpu clk src */
 	val = read32(R528_CCU_BASE + CCU_CPU_AXI_CFG_REG);
 	val &= ~(0x07 << 24 | 0x3 << 16 | 0x3 << 8 | 0xf << 0);
 	val |= (0x03 << 24 | 0x0 << 16 | 0x0 << 8 | 0x0 << 0);
 	write32(R528_CCU_BASE + CCU_CPU_AXI_CFG_REG, val);
 	sdelay(1);
+#endif
 }
 
 static void set_pll_periph0(void)

@@ -337,7 +337,9 @@ $(X_NAME) : $(X_OBJS)
 	@echo [LD] Linking $@
 	@$(CC) $(X_LDFLAGS) $(X_LIBDIRS) -Wl,--cref,-Map=$@.map $^ -o $@ $(X_LIBS)
 	@echo [OC] Objcopying $@.bin
-	@$(OC) -v -O binary $@ $@.bin
+	@$(OC) -O binary $@ $@.bin
+	@echo [SZ] Listing $@
+	@$(SZ) -G $@
 
 $(X_OBJS) : $(X_OTHERS)
 

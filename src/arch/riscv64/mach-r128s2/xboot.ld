@@ -19,6 +19,7 @@ SECTIONS
 		PROVIDE(__text_start = .);
 		PROVIDE(__spl_start = .);
 		.obj/arch/riscv64/mach-r128s2/start.o (.text*)
+		*libgcc.a:*.o (.text*)
 		.obj/arch/riscv64/lib/memcpy.o (.text*)
 		.obj/arch/riscv64/lib/memset.o (.text*)
 		.obj/arch/riscv64/mach-r128s2/sys-jtag.o (.text*)

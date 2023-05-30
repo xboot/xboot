@@ -23,6 +23,8 @@ SECTIONS
 		PROVIDE(__text_start = .);
 		PROVIDE(__spl_start = .);
 		.obj/arch/arm32/mach-v831/start.o (.text*)
+		*libgcc.a:*.o (.text*)
+		.obj/arch/arm32/lib/eabi.o (.text*)
 		.obj/arch/arm32/lib/memcpy.o (.text*)
 		.obj/arch/arm32/lib/memset.o (.text*)
 		.obj/arch/arm32/mach-v831/sys-jtag.o (.text*)

@@ -22,6 +22,8 @@ SECTIONS
 		PROVIDE(__image_start = .);
 		PROVIDE(__text_start = .);
 		.obj/arch/arm32/mach-hi3518ev100/start.o (.text*)
+		*libgcc.a:*.o (.text*)
+		.obj/arch/arm32/lib/eabi.o (.text*)
 		.obj/arch/arm32/lib/memcpy.o (.text*)
 		.obj/arch/arm32/lib/memset.o (.text*)
 		*(.text*)

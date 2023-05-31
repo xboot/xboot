@@ -39,9 +39,9 @@ static void set_pll_cpux_axi(void)
 {
 	uint32_t val;
 
-	/* Select cpux clock src to osc24m, axi divide ratio is 3, system apb clk ratio is 4 */
-	write32(R528_CCU_BASE + CCU_CPU_AXI_CFG_REG, (0 << 24) | (3 << 8) | (1 << 0));
-	sdelay(1);
+	/* AXI: Select cpu clock src to PLL_PERI(1x) */
+	write32(R528_CCU_BASE + CCU_CPU_AXI_CFG_REG, (4 << 24) | (1 << 0));
+	sdelay(10);
 
 	/* Disable pll gating */
 	val = read32(R528_CCU_BASE + CCU_PLL_CPU_CTRL_REG);
@@ -85,15 +85,12 @@ static void set_pll_cpux_axi(void)
 	write32(R528_CCU_BASE + CCU_PLL_CPU_CTRL_REG, val);
 	sdelay(1);
 
-	//TODO please fix me!!
-#if 0
-	/* Set and change cpu clk src */
+	/* AXI: set and change cpu clk src to PLL_CPUX, PLL_CPUX:AXI0 = 1200MHz:600MHz */
 	val = read32(R528_CCU_BASE + CCU_CPU_AXI_CFG_REG);
 	val &= ~(0x07 << 24 | 0x3 << 16 | 0x3 << 8 | 0xf << 0);
-	val |= (0x03 << 24 | 0x0 << 16 | 0x0 << 8 | 0x0 << 0);
+	val |= (0x03 << 24 | 0x0 << 16 | 0x1 << 8 | 0x1 << 0);
 	write32(R528_CCU_BASE + CCU_CPU_AXI_CFG_REG, val);
 	sdelay(1);
-#endif
 }
 
 static void set_pll_periph0(void)

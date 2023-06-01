@@ -215,9 +215,8 @@ static void fb_present(struct framebuffer_t * fb, struct surface_t * s, struct r
 				for(int x = 0; x < r->w; x++)
 				{
 					u32_t v = *p++;
-					u16_t c = (((v & 0x00ff0000) >> 19) << 11) | (((v & 0x0000ff00) >> 10) << 5) | (((v & 0x000000ff) >> 3) << 0);
-					*q++ = (c >> 8) & 0xff;
-					*q++ = (c >> 0) & 0xff;
+					*q++ = ((v >> 16) & 0xf8) | ((v >> 13) & 0x07);
+					*q++ = ((v >> 5) & 0xe0) | ((v >> 3) & 0x1f);
 				}
 			}
 			st7789v_set_window(pdat, r->x, r->y, r->w, r->h);
@@ -236,9 +235,8 @@ static void fb_present(struct framebuffer_t * fb, struct surface_t * s, struct r
 			for(int x = 0; x < pdat->width; x++)
 			{
 				u32_t v = *p++;
-				u16_t c = (((v & 0x00ff0000) >> 19) << 11) | (((v & 0x0000ff00) >> 10) << 5) | (((v & 0x000000ff) >> 3) << 0);
-				*q++ = (c >> 8) & 0xff;
-				*q++ = (c >> 0) & 0xff;
+				*q++ = ((v >> 16) & 0xf8) | ((v >> 13) & 0x07);
+				*q++ = ((v >> 5) & 0xe0) | ((v >> 3) & 0x1f);
 			}
 		}
 		st7789v_set_window(pdat, 0, 0, pdat->width, pdat->height);

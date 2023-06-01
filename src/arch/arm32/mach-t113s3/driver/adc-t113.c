@@ -112,7 +112,7 @@ static struct device_t * adc_t113_probe(struct driver_t * drv, struct dtnode_t *
 	adc->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	adc->vreference = dt_read_int(n, "reference-voltage", 1800000);
 	adc->resolution = 12;
-	adc->nchannel = 2;
+	adc->nchannel = 1;
 	adc->read = adc_t113_read;
 	adc->priv = pdat;
 

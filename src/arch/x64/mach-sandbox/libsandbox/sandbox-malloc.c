@@ -28,8 +28,11 @@ void sandbox_free(void * ptr)
 
 void sandbox_meminfo(size_t * mused, size_t * mfree)
 {
+#if __GLIBC_PREREQ(2, 33)
 	struct mallinfo2 mi = mallinfo2();
-
+#else
+	struct mallinfo mi = mallinfo();
+#endif
 	if(mused)
 		*mused = mi.uordblks;
 	if(mfree)

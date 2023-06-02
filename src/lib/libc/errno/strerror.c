@@ -75,6 +75,8 @@ char * strerror(int e)
 		return "Device or resource busy";
 	case EOVERFLOW:
 		return "Value too large for defined data type";
+	case ENODEV:
+		return "No such device";
 	default:
 		break;
 	}

@@ -202,6 +202,37 @@ SRCDIRS		+=	external/quirc-1.1.0
 INCDIRS		+=	external/libcg-1.0.5
 SRCDIRS		+=	external/libcg-1.0.5
 
+INCDIRS		+=	external/cherryusb-0.9.0 \
+				external/cherryusb-0.9.0/class/audio \
+				external/cherryusb-0.9.0/class/cdc \
+				external/cherryusb-0.9.0/class/dfu \
+				external/cherryusb-0.9.0/class/hid \
+				external/cherryusb-0.9.0/class/hub \
+				external/cherryusb-0.9.0/class/midi \
+				external/cherryusb-0.9.0/class/msc \
+				external/cherryusb-0.9.0/class/mtp \
+				external/cherryusb-0.9.0/class/printer \
+				external/cherryusb-0.9.0/class/video \
+				external/cherryusb-0.9.0/class/wireless \
+				external/cherryusb-0.9.0/common \
+				external/cherryusb-0.9.0/core \
+				external/cherryusb-0.9.0/osal
+SRCDIRS		+=	external/cherryusb-0.9.0 \
+				external/cherryusb-0.9.0/class/audio \
+				external/cherryusb-0.9.0/class/cdc \
+				external/cherryusb-0.9.0/class/dfu \
+				external/cherryusb-0.9.0/class/hid \
+				external/cherryusb-0.9.0/class/hub \
+				external/cherryusb-0.9.0/class/midi \
+				external/cherryusb-0.9.0/class/msc \
+				external/cherryusb-0.9.0/class/mtp \
+				external/cherryusb-0.9.0/class/printer \
+				external/cherryusb-0.9.0/class/video \
+				external/cherryusb-0.9.0/class/wireless \
+				external/cherryusb-0.9.0/common \
+				external/cherryusb-0.9.0/core \
+				external/cherryusb-0.9.0/osal
+
 INCDIRS		+= 	external/freetype-2.10.4/include \
 				external/freetype-2.10.4/src/autofit \
 				external/freetype-2.10.4/src/base \

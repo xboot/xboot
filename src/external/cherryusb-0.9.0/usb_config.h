@@ -4,7 +4,7 @@
 #define CHERRYUSB_VERSION 0x000900
 
 #define CONFIG_USB_ERROR_USE_SYSTEM
-
+#define CONFIG_USB_MUSB_SUNXI
 
 /* ================ USB common Configuration ================ */
 

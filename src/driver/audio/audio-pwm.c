@@ -39,8 +39,7 @@ struct audio_pwm_pdata_t {
 	enum audio_rate_t rate;
 	enum audio_format_t fmt;
 	int ch;
-	audio_callback_t cb;
-	void * data;
+	int volume;
 	int running;
 };
 
@@ -66,151 +65,11 @@ static int audio_pwm_timer_function(struct timer_t * timer, void * data)
 {
 	struct audio_t * audio = (struct audio_t *)(data);
 	struct audio_pwm_pdata_t * pdat = (struct audio_pwm_pdata_t *)audio->priv;
-	uint32_t inbuf[256];
-	int16_t outbuf[512];
 	int16_t v;
-	int isample, osample;
-	int i;
 
 	if(pdat->running)
 	{
-		if(__fifo_len(pdat->fifo) <= 0)
-		{
-			switch(pdat->fmt)
-			{
-			case AUDIO_FORMAT_S8:
-				if(pdat->ch == 1)
-				{
-					isample = pdat->cb(pdat->data, inbuf, sizeof(inbuf));
-					if(isample > 0)
-					{
-						osample = isample * 8000.0 / pdat->rate;
-						osample -= osample % 2;
-						int8_t * p = &((int8_t *)inbuf)[(isample - 1)];
-						int16_t * q = &((int16_t *)inbuf)[osample - 1];
-						for(i = 0; i < isample; i++)
-							*q-- = (int16_t)((int)(*p--) * 128);
-						audio_pwm_resample(outbuf, 8000, osample, (int16_t *)inbuf, pdat->rate, isample);
-						__fifo_put(pdat->fifo, (unsigned char *)outbuf, osample << 1);
-					}
-				}
-				else if(pdat->ch == 2)
-				{
-					isample = pdat->cb(pdat->data, inbuf, sizeof(inbuf)) >> 1;
-					if(isample > 0)
-					{
-						osample = isample * 8000.0 / pdat->rate;
-						osample -= osample % 2;
-						int8_t * p = &((int8_t *)inbuf)[(isample - 1) << 1];
-						int16_t * q = &((int16_t *)inbuf)[osample - 1];
-						for(i = 0; i < isample; i++, p-=2)
-							*q-- = (int16_t)(((int)p[0] + (int)p[1]) * 128);
-						audio_pwm_resample(outbuf, 8000, osample, (int16_t *)inbuf, pdat->rate, isample);
-						__fifo_put(pdat->fifo, (unsigned char *)outbuf, osample << 1);
-					}
-				}
-				break;
-			case AUDIO_FORMAT_S16:
-				if(pdat->ch == 1)
-				{
-					isample = pdat->cb(pdat->data, inbuf, sizeof(inbuf)) >> 1;
-					if(isample > 0)
-					{
-						osample = isample * 8000.0 / pdat->rate;
-						osample -= osample % 2;
-						audio_pwm_resample(outbuf, 8000, osample, (int16_t *)inbuf, pdat->rate, isample);
-						__fifo_put(pdat->fifo, (unsigned char *)outbuf, osample << 1);
-					}
-				}
-				else if(pdat->ch == 2)
-				{
-					isample = pdat->cb(pdat->data, inbuf, sizeof(inbuf)) >> 2;
-					if(isample > 0)
-					{
-						osample = isample * 8000.0 / pdat->rate;
-						osample -= osample % 2;
-						int16_t * p = (int16_t *)inbuf;
-						int16_t * q = (int16_t *)inbuf;
-						for(i = 0; i < isample; i++, p+=2)
-							*q++ = (int16_t)(((int)p[0] + (int)p[1]) >> 1);
-						audio_pwm_resample(outbuf, 8000, osample, (int16_t *)inbuf, pdat->rate, isample);
-						__fifo_put(pdat->fifo, (unsigned char *)outbuf, osample << 1);
-					}
-				}
-				break;
-			case AUDIO_FORMAT_S24:
-				if(pdat->ch == 1)
-				{
-					isample = pdat->cb(pdat->data, inbuf, sizeof(inbuf)) / 3;
-					if(isample > 0)
-					{
-						osample = isample * 8000.0 / pdat->rate;
-						osample -= osample % 2;
-						int8_t * p = (int8_t *)inbuf;
-						int16_t * q = (int16_t *)inbuf;
-						for(i = 0; i < isample; i++, p+=3)
-							*q++ = (int16_t)((int32_t)((p[2] << 24) | (p[1] << 16) | (p[0] << 8)) >> 16);
-						audio_pwm_resample(outbuf, 8000, osample, (int16_t *)inbuf, pdat->rate, isample);
-						__fifo_put(pdat->fifo, (unsigned char *)outbuf, osample << 1);
-					}
-				}
-				else if(pdat->ch == 2)
-				{
-					isample = pdat->cb(pdat->data, inbuf, sizeof(inbuf)) / 6;
-					if(isample > 0)
-					{
-						osample = isample * 8000.0 / pdat->rate;
-						osample -= osample % 2;
-						int8_t * p = (int8_t *)inbuf;
-						int16_t * q = (int16_t *)inbuf;
-						for(i = 0; i < isample; i++, p+=6)
-						{
-							int32_t l = (int32_t)((p[2] << 24) | (p[1] << 16) | (p[0] << 8));
-							int32_t r = (int32_t)((p[5] << 24) | (p[4] << 16) | (p[3] << 8));
-							*q++ = (int16_t)((l + r) >> 17);
-						}
-						audio_pwm_resample(outbuf, 8000, osample, (int16_t *)inbuf, pdat->rate, isample);
-						__fifo_put(pdat->fifo, (unsigned char *)outbuf, osample << 1);
-					}
-				}
-				break;
-			case AUDIO_FORMAT_S32:
-				if(pdat->ch == 1)
-				{
-					isample = pdat->cb(pdat->data, inbuf, sizeof(inbuf)) >> 2;
-					if(isample > 0)
-					{
-						osample = isample * 8000.0 / pdat->rate;
-						osample -= osample % 2;
-						int32_t * p = (int32_t *)inbuf;
-						int16_t * q = (int16_t *)inbuf;
-						for(i = 0; i < isample; i++)
-							*q++ = (int16_t)(*p++ >> 16);
-						audio_pwm_resample(outbuf, 8000, osample, (int16_t *)inbuf, pdat->rate, isample);
-						__fifo_put(pdat->fifo, (unsigned char *)outbuf, osample << 1);
-					}
-				}
-				else if(pdat->ch == 2)
-				{
-					isample = pdat->cb(pdat->data, inbuf, sizeof(inbuf)) >> 3;
-					if(isample > 0)
-					{
-						osample = isample * 8000.0 / pdat->rate;
-						osample -= osample % 2;
-						int32_t * p = (int32_t *)inbuf;
-						int16_t * q = (int16_t *)inbuf;
-						for(i = 0; i < isample; i++, p+=2)
-							*q++ = (int16_t)((p[0] + p[1]) >> 17);
-						audio_pwm_resample(outbuf, 8000, osample, (int16_t *)inbuf, pdat->rate, isample);
-						__fifo_put(pdat->fifo, (unsigned char *)outbuf, osample << 1);
-					}
-				}
-				break;
-			default:
-				break;
-			}
-		}
-		if(__fifo_get(pdat->fifo, (unsigned char *)&v, 2) == 2)
+		if((__fifo_len(pdat->fifo) >= 2) && (__fifo_get(pdat->fifo, (unsigned char *)&v, 2) == 2))
 		{
 			pwm_config(pdat->pwm, ((((int)v + 32768) * 16000) >> 16), 16000, pdat->polarity);
 			pwm_enable(pdat->pwm);
@@ -218,43 +77,225 @@ static int audio_pwm_timer_function(struct timer_t * timer, void * data)
 			return 1;
 		}
 	}
-	__fifo_reset(pdat->fifo);
 	pwm_disable(pdat->pwm);
 	pdat->running = 0;
 	return 0;
 }
 
-static void audio_pwm_playback_start(struct audio_t * audio, enum audio_rate_t rate, enum audio_format_t fmt, int ch, audio_callback_t cb, void * data)
+static void audio_pwm_playback_start(struct audio_t * audio, enum audio_rate_t rate, enum audio_format_t fmt, int ch)
 {
 	struct audio_pwm_pdata_t * pdat = (struct audio_pwm_pdata_t *)audio->priv;
 
+	pdat->rate = rate;
+	pdat->fmt = fmt;
+	pdat->ch = ch;
+}
+
+static int audio_pwm_playback_write(struct audio_t * audio, void * buf, int len)
+{
+	struct audio_pwm_pdata_t * pdat = (struct audio_pwm_pdata_t *)audio->priv;
+	uint32_t inbuf[256];
+	int16_t outbuf[512];
+	int isample, osample;
+	int cnt = 0;
+	int l, i;
+
+	if(__fifo_len(pdat->fifo) <= 1024)
+	{
+		switch(pdat->fmt)
+		{
+		case AUDIO_FORMAT_S8:
+			if(pdat->ch == 1)
+			{
+				l = min(len, (int)sizeof(inbuf));
+				memcpy(inbuf, buf, l);
+				isample = l;
+				if(isample > 0)
+				{
+					osample = isample * 8000.0 / pdat->rate;
+					osample -= osample % 2;
+					int8_t * p = &((int8_t *)inbuf)[(isample - 1)];
+					int16_t * q = &((int16_t *)inbuf)[osample - 1];
+					for(i = 0; i < isample; i++)
+						*q-- = (int16_t)((int)(*p--) * 128);
+					audio_pwm_resample(outbuf, 8000, osample, (int16_t *)inbuf, pdat->rate, isample);
+					__fifo_put(pdat->fifo, (unsigned char *)outbuf, osample << 1);
+					cnt = isample * pdat->ch * (pdat->fmt >> 3);
+				}
+			}
+			else if(pdat->ch == 2)
+			{
+				l = min(len, (int)sizeof(inbuf));
+				memcpy(inbuf, buf, l);
+				isample = l >> 1;
+				if(isample > 0)
+				{
+					osample = isample * 8000.0 / pdat->rate;
+					osample -= osample % 2;
+					int8_t * p = &((int8_t *)inbuf)[(isample - 1) << 1];
+					int16_t * q = &((int16_t *)inbuf)[osample - 1];
+					for(i = 0; i < isample; i++, p-=2)
+						*q-- = (int16_t)(((int)p[0] + (int)p[1]) * 128);
+					audio_pwm_resample(outbuf, 8000, osample, (int16_t *)inbuf, pdat->rate, isample);
+					__fifo_put(pdat->fifo, (unsigned char *)outbuf, osample << 1);
+					cnt = isample * pdat->ch * (pdat->fmt >> 3);
+				}
+			}
+			break;
+		case AUDIO_FORMAT_S16:
+			if(pdat->ch == 1)
+			{
+				l = min(len, (int)sizeof(inbuf));
+				memcpy(inbuf, buf, l);
+				isample = l >> 1;
+				if(isample > 0)
+				{
+					osample = isample * 8000.0 / pdat->rate;
+					osample -= osample % 2;
+					audio_pwm_resample(outbuf, 8000, osample, (int16_t *)inbuf, pdat->rate, isample);
+					__fifo_put(pdat->fifo, (unsigned char *)outbuf, osample << 1);
+					cnt = isample * pdat->ch * (pdat->fmt >> 3);
+				}
+			}
+			else if(pdat->ch == 2)
+			{
+				l = min(len, (int)sizeof(inbuf));
+				memcpy(inbuf, buf, l);
+				isample = l >> 2;
+				if(isample > 0)
+				{
+					osample = isample * 8000.0 / pdat->rate;
+					osample -= osample % 2;
+					int16_t * p = (int16_t *)inbuf;
+					int16_t * q = (int16_t *)inbuf;
+					for(i = 0; i < isample; i++, p+=2)
+						*q++ = (int16_t)(((int)p[0] + (int)p[1]) >> 1);
+					audio_pwm_resample(outbuf, 8000, osample, (int16_t *)inbuf, pdat->rate, isample);
+					__fifo_put(pdat->fifo, (unsigned char *)outbuf, osample << 1);
+					cnt = isample * pdat->ch * (pdat->fmt >> 3);
+				}
+			}
+			break;
+		case AUDIO_FORMAT_S24:
+			if(pdat->ch == 1)
+			{
+				l = min(len, (int)sizeof(inbuf));
+				memcpy(inbuf, buf, l);
+				isample = l / 3;
+				if(isample > 0)
+				{
+					osample = isample * 8000.0 / pdat->rate;
+					osample -= osample % 2;
+					int8_t * p = (int8_t *)inbuf;
+					int16_t * q = (int16_t *)inbuf;
+					for(i = 0; i < isample; i++, p+=3)
+						*q++ = (int16_t)((int32_t)((p[2] << 24) | (p[1] << 16) | (p[0] << 8)) >> 16);
+					audio_pwm_resample(outbuf, 8000, osample, (int16_t *)inbuf, pdat->rate, isample);
+					__fifo_put(pdat->fifo, (unsigned char *)outbuf, osample << 1);
+					cnt = isample * pdat->ch * (pdat->fmt >> 3);
+				}
+			}
+			else if(pdat->ch == 2)
+			{
+				l = min(len, (int)sizeof(inbuf));
+				memcpy(inbuf, buf, l);
+				isample = l / 6;
+				if(isample > 0)
+				{
+					osample = isample * 8000.0 / pdat->rate;
+					osample -= osample % 2;
+					int8_t * p = (int8_t *)inbuf;
+					int16_t * q = (int16_t *)inbuf;
+					for(i = 0; i < isample; i++, p+=6)
+					{
+						int32_t l = (int32_t)((p[2] << 24) | (p[1] << 16) | (p[0] << 8));
+						int32_t r = (int32_t)((p[5] << 24) | (p[4] << 16) | (p[3] << 8));
+						*q++ = (int16_t)((l + r) >> 17);
+					}
+					audio_pwm_resample(outbuf, 8000, osample, (int16_t *)inbuf, pdat->rate, isample);
+					__fifo_put(pdat->fifo, (unsigned char *)outbuf, osample << 1);
+					cnt = isample * pdat->ch * (pdat->fmt >> 3);
+				}
+			}
+			break;
+		case AUDIO_FORMAT_S32:
+			if(pdat->ch == 1)
+			{
+				l = min(len, (int)sizeof(inbuf));
+				memcpy(inbuf, buf, l);
+				isample = l >> 2;
+				if(isample > 0)
+				{
+					osample = isample * 8000.0 / pdat->rate;
+					osample -= osample % 2;
+					int32_t * p = (int32_t *)inbuf;
+					int16_t * q = (int16_t *)inbuf;
+					for(i = 0; i < isample; i++)
+						*q++ = (int16_t)(*p++ >> 16);
+					audio_pwm_resample(outbuf, 8000, osample, (int16_t *)inbuf, pdat->rate, isample);
+					__fifo_put(pdat->fifo, (unsigned char *)outbuf, osample << 1);
+					cnt = isample * pdat->ch * (pdat->fmt >> 3);
+				}
+			}
+			else if(pdat->ch == 2)
+			{
+				l = min(len, (int)sizeof(inbuf));
+				memcpy(inbuf, buf, l);
+				isample = l >> 3;
+				if(isample > 0)
+				{
+					osample = isample * 8000.0 / pdat->rate;
+					osample -= osample % 2;
+					int32_t * p = (int32_t *)inbuf;
+					int16_t * q = (int16_t *)inbuf;
+					for(i = 0; i < isample; i++, p+=2)
+						*q++ = (int16_t)((p[0] + p[1]) >> 17);
+					audio_pwm_resample(outbuf, 8000, osample, (int16_t *)inbuf, pdat->rate, isample);
+					__fifo_put(pdat->fifo, (unsigned char *)outbuf, osample << 1);
+					cnt = isample * pdat->ch * (pdat->fmt >> 3);
+				}
+			}
+			break;
+		default:
+			break;
+		}
+	}
 	if(!pdat->running)
 	{
-		pdat->rate = rate;
-		pdat->fmt = fmt;
-		pdat->ch = ch;
-		pdat->cb = cb;
-		pdat->data = data;
 		timer_start(&pdat->timer, ms_to_ktime(1));
 		pdat->running = 1;
 	}
+	return cnt;
 }
 
 static void audio_pwm_playback_stop(struct audio_t * audio)
 {
 	struct audio_pwm_pdata_t * pdat = (struct audio_pwm_pdata_t *)audio->priv;
-	pdat->cb = NULL;
-	pdat->data = NULL;
+
 	pdat->running = 0;
+	__fifo_reset(pdat->fifo);
 }
 
 static int audio_pwm_ioctl(struct audio_t * audio, const char * cmd, void * arg)
 {
+	struct audio_pwm_pdata_t * pdat = (struct audio_pwm_pdata_t *)audio->priv;
+	int * p = arg;
+
 	switch(shash(cmd))
 	{
 	case 0x892b3889: /* "audio-set-playback-volume" */
+		if(p)
+		{
+			pdat->volume = clamp(p[0], 0, 1000);
+			return 0;
+		}
 		break;
 	case 0x3eee6d7d: /* "audio-get-playback-volume" */
+		if(p)
+		{
+			p[0] = pdat->volume;
+			return 0;
+		}
 		break;
 	case 0x6dab0056: /* "audio-set-capture-volume" */
 		break;
@@ -288,15 +329,18 @@ static struct device_t * audio_pwm_probe(struct driver_t * drv, struct dtnode_t 
 	}
 
 	timer_init(&pdat->timer, audio_pwm_timer_function, audio);
-	pdat->fifo = fifo_alloc(1024);
+	pdat->fifo = fifo_alloc(2048);
 	pdat->pwm = pwm;
 	pdat->polarity = dt_read_bool(n, "pwm-polarity", 1);
+	pdat->volume = 1000;
 	pdat->running = 0;
 
 	audio->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	audio->playback_start = audio_pwm_playback_start;
+	audio->playback_write = audio_pwm_playback_write;
 	audio->playback_stop = audio_pwm_playback_stop;
 	audio->capture_start = NULL;
+	audio->capture_read = NULL;
 	audio->capture_stop = NULL;
 	audio->ioctl = audio_pwm_ioctl;
 	audio->priv = pdat;

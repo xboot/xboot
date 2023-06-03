@@ -92,13 +92,13 @@ void do_play_audio(void)
 			{
 				if((audio = (struct audio_t *)(pos->priv)))
 				{
-					if(audio->playback_start && audio->playback_stop)
+					if(audio_playback_is_support(audio))
 					{
 						sprintf(key, "playback-volume(%s)", audio->name);
 						volume = strtol(setting_get(key, "-1"), NULL, 0);
 						if(volume <= 0)
 							volume = (1000 * 633) >> 10;
-						audio_ioctl(audio, "audio-set-playback-volume", &volume);
+						audio_set_playback_volume(audio, volume);
 						snd = sound_alloc_from_xfs(ctx, "assets/sounds/boot.ogg");
 						if(snd)
 						{

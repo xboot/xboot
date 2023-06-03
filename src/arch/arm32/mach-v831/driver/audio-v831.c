@@ -157,21 +157,18 @@ struct audio_v831_pdata_t
 	int reset;
 };
 
-static void audio_v831_playback_start(struct audio_t * audio, enum audio_rate_t rate, enum audio_format_t fmt, int ch, audio_callback_t cb, void * data)
+static void audio_v831_playback_start(struct audio_t * audio, enum audio_rate_t rate, enum audio_format_t fmt, int ch)
 {
 	struct audio_v831_pdata_t * pdat = (struct audio_v831_pdata_t *)audio->priv;
 	(void)pdat;
 }
 
+static int audio_v831_playback_write(struct audio_t * audio, void * buf, int len)
+{
+	return len;
+}
+
 static void audio_v831_playback_stop(struct audio_t * audio)
-{
-}
-
-static void audio_v831_capture_start(struct audio_t * audio, enum audio_rate_t rate, enum audio_format_t fmt, int ch, audio_callback_t cb, void * data)
-{
-}
-
-static void audio_v831_capture_stop(struct audio_t * audio)
 {
 }
 
@@ -208,9 +205,11 @@ static struct device_t * audio_v831_probe(struct driver_t * drv, struct dtnode_t
 
 	audio->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	audio->playback_start = audio_v831_playback_start;
+	audio->playback_write = audio_v831_playback_write;
 	audio->playback_stop = audio_v831_playback_stop;
-	audio->capture_start = audio_v831_capture_start;
-	audio->capture_stop = audio_v831_capture_stop;
+	audio->capture_start = NULL;
+	audio->capture_read = NULL;
+	audio->capture_stop = NULL;
 	audio->ioctl = audio_v831_ioctl;
 	audio->priv = pdat;
 

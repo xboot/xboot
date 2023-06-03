@@ -75,12 +75,10 @@ struct audio_f1c200s_pdata_t {
 	int irq;
 	int reset;
 	int dma_playback;
-	int dma_capture;
 
 	struct {
+		struct fifo_t * fifo;
 		int16_t buffer[4096];
-		audio_callback_t cb;
-		void * data;
 		int flag;
 		int running;
 	} playback;
@@ -176,8 +174,6 @@ static inline int f1c200s_audio_get_playback_volume(struct audio_f1c200s_pdata_t
 
 static inline void f1c200s_audio_init(struct audio_f1c200s_pdata_t * pdat)
 {
-	gpio_direction_output(1, 1);
-
 	snd_update_bits(pdat->virt + AUDIO_DAC_FIFOC, 21, 0x3, 0x3);
 	snd_update_bits(pdat->virt + AUDIO_DAC_FIFOC, 28, 0x1, 0x0);
 	snd_update_bits(pdat->virt + AUDIO_ADC_FIFOC, 0, 0x1, 0x1);
@@ -206,11 +202,10 @@ static void audio_f1c200s_playback_finish(void * data)
 {
 	struct audio_t * audio = (struct audio_t *)data;
 	struct audio_f1c200s_pdata_t * pdat = (struct audio_f1c200s_pdata_t *)audio->priv;
-	int len;
 
 	if(pdat->playback.running)
 	{
-		len = pdat->playback.cb(pdat->playback.data, pdat->playback.buffer, sizeof(pdat->playback.buffer));
+		int len = __fifo_get(pdat->playback.fifo, (unsigned char *)pdat->playback.buffer, sizeof(pdat->playback.buffer));
 		if(len > 0)
 			dma_start(pdat->dma_playback, (void *)pdat->playback.buffer, (void *)pdat->virt + AUDIO_DAC_TXDATA, len, pdat->playback.flag, NULL, audio_f1c200s_playback_finish, audio);
 		else
@@ -222,10 +217,9 @@ static void audio_f1c200s_playback_finish(void * data)
 	}
 }
 
-static void audio_f1c200s_playback_start(struct audio_t * audio, enum audio_rate_t rate, enum audio_format_t fmt, int ch, audio_callback_t cb, void * data)
+static void audio_f1c200s_playback_start(struct audio_t * audio, enum audio_rate_t rate, enum audio_format_t fmt, int ch)
 {
 	struct audio_f1c200s_pdata_t * pdat = (struct audio_f1c200s_pdata_t *)audio->priv;
-	int len;
 
 	if(!pdat->playback.running)
 	{
@@ -270,29 +264,36 @@ static void audio_f1c200s_playback_start(struct audio_t * audio, enum audio_rate
 		pdat->playback.flag |= DMA_S_SRC_INC(DMA_INCREASE) | DMA_S_DST_INC(DMA_CONSTANT);
 		pdat->playback.flag |= DMA_S_SRC_WIDTH(DMA_WIDTH_16BIT) | DMA_S_DST_WIDTH(DMA_WIDTH_16BIT);
 		pdat->playback.flag |= DMA_S_SRC_BURST(DMA_BURST_SIZE_1) | DMA_S_DST_BURST(DMA_BURST_SIZE_1);
-		pdat->playback.flag |= DMA_S_SRC_PORT(F1C200S_NDMA_PORT_SDRAM) | DMA_S_DST_PORT(F1C200S_NDMA_PORT_AUDIO);
-		pdat->playback.cb = cb;
-		pdat->playback.data = data;
-		pdat->playback.running = 1;
-		len = pdat->playback.cb(pdat->playback.data, pdat->playback.buffer, ch * fmt / 8);
-		dma_start(pdat->dma_playback, (void *)pdat->playback.buffer, (void *)pdat->virt + AUDIO_DAC_TXDATA, len, pdat->playback.flag, NULL, audio_f1c200s_playback_finish, audio);
+		pdat->playback.flag |= DMA_S_SRC_PORT(F1C500S_NDMA_PORT_SDRAM) | DMA_S_DST_PORT(F1C500S_NDMA_PORT_AUDIO);
 	}
+}
+
+static int audio_f1c200s_playback_write(struct audio_t * audio, void * buf, int len)
+{
+	struct audio_f1c200s_pdata_t * pdat = (struct audio_f1c200s_pdata_t *)audio->priv;
+	int l;
+
+	l = __fifo_put(pdat->playback.fifo, (unsigned char *)buf, len);
+	if(!pdat->playback.running)
+	{
+		int len = __fifo_get(pdat->playback.fifo, (unsigned char *)pdat->playback.buffer, sizeof(pdat->playback.buffer));
+		if(len > 0)
+		{
+			pdat->playback.running = 1;
+			dma_start(pdat->dma_playback, (void *)pdat->playback.buffer, (void *)pdat->virt + AUDIO_DAC_TXDATA, len, pdat->playback.flag, NULL, audio_f1c200s_playback_finish, audio);
+		}
+	}
+	return l;
 }
 
 static void audio_f1c200s_playback_stop(struct audio_t * audio)
 {
 	struct audio_f1c200s_pdata_t * pdat = (struct audio_f1c200s_pdata_t *)audio->priv;
+
 	pdat->playback.running = 0;
+	__fifo_reset(pdat->playback.fifo);
 	snd_update_bits(pdat->virt + AUDIO_DAC_FIFOC, 4, 0x1, 0x0);
 	snd_update_bits(pdat->virt + AUDIO_DAC_DPC, 31, 0x1, 0x0);
-}
-
-static void audio_f1c200s_capture_start(struct audio_t * audio, enum audio_rate_t rate, enum audio_format_t fmt, int ch, audio_callback_t cb, void * data)
-{
-}
-
-static void audio_f1c200s_capture_stop(struct audio_t * audio)
-{
 }
 
 static int audio_f1c200s_ioctl(struct audio_t * audio, const char * cmd, void * arg)
@@ -343,7 +344,6 @@ static struct device_t * audio_f1c200s_probe(struct driver_t * drv, struct dtnod
 	char * clk = dt_read_string(n, "clock-name", NULL);
 	int irq = dt_read_int(n, "interrupt", -1);
 	int dma_playback = dt_read_int(n, "dma-channel-playback", -1);
-	int dma_capture = dt_read_int(n, "dma-channel-capture", -1);
 
 	if(!search_clk(clk))
 		return NULL;
@@ -352,9 +352,6 @@ static struct device_t * audio_f1c200s_probe(struct driver_t * drv, struct dtnod
 		return NULL;
 
 	if(!dma_is_valid(dma_playback))
-		return NULL;
-
-	if(!dma_is_valid(dma_capture))
 		return NULL;
 
 	pdat = malloc(sizeof(struct audio_f1c200s_pdata_t));
@@ -373,14 +370,16 @@ static struct device_t * audio_f1c200s_probe(struct driver_t * drv, struct dtnod
 	pdat->irq = irq;
 	pdat->reset = dt_read_int(n, "reset", -1);
 	pdat->dma_playback = dma_playback;
-	pdat->dma_capture = dma_capture;
+	pdat->playback.fifo = fifo_alloc(8192);
 	pdat->playback.running = 0;
 
 	audio->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	audio->playback_start = audio_f1c200s_playback_start;
+	audio->playback_write = audio_f1c200s_playback_write;
 	audio->playback_stop = audio_f1c200s_playback_stop;
-	audio->capture_start = audio_f1c200s_capture_start;
-	audio->capture_stop = audio_f1c200s_capture_stop;
+	audio->capture_start = NULL;
+	audio->capture_read = NULL;
+	audio->capture_stop = NULL;
 	audio->ioctl = audio_f1c200s_ioctl;
 	audio->priv = pdat;
 
@@ -392,6 +391,7 @@ static struct device_t * audio_f1c200s_probe(struct driver_t * drv, struct dtnod
 
 	if(!(dev = register_audio(audio, drv)))
 	{
+		fifo_free(pdat->playback.fifo);
 		free_irq(pdat->irq);
 		clk_disable(pdat->clk);
 		free(pdat->clk);
@@ -410,6 +410,7 @@ static void audio_f1c200s_remove(struct device_t * dev)
 
 	if(audio)
 	{
+		fifo_free(pdat->playback.fifo);
 		unregister_audio(audio);
 		free_irq(pdat->irq);
 		clk_disable(pdat->clk);

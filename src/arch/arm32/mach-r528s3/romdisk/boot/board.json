@@ -386,12 +386,12 @@
 	"reset-r528@0x02001d0c": { "reset-base": 1184, "reset-count": 32 },
 
 	"irq-gic400@0x03020000": { "interrupt-base": 32, "interrupt-count": 224 },
-	"irq-r528-gpio@0x02000220": { "interrupt-base": 224, "interrupt-count": 13, "interrupt-parent":  101 },
-	"irq-r528-gpio@0x02000240": { "interrupt-base": 256, "interrupt-count":  8, "interrupt-parent":  103 },
-	"irq-r528-gpio@0x02000260": { "interrupt-base": 288, "interrupt-count": 23, "interrupt-parent":  105 },
-	"irq-r528-gpio@0x02000280": { "interrupt-base": 320, "interrupt-count": 18, "interrupt-parent":  107 },
-	"irq-r528-gpio@0x020002a0": { "interrupt-base": 352, "interrupt-count":  7, "interrupt-parent":  109 },
-	"irq-r528-gpio@0x020002c0": { "interrupt-base": 384, "interrupt-count": 19, "interrupt-parent":  111 },
+	"irq-r528-gpio@0x02000220": { "interrupt-base": 256, "interrupt-count": 13, "interrupt-parent":  101 },
+	"irq-r528-gpio@0x02000240": { "interrupt-base": 288, "interrupt-count":  8, "interrupt-parent":  103 },
+	"irq-r528-gpio@0x02000260": { "interrupt-base": 320, "interrupt-count": 23, "interrupt-parent":  105 },
+	"irq-r528-gpio@0x02000280": { "interrupt-base": 352, "interrupt-count": 18, "interrupt-parent":  107 },
+	"irq-r528-gpio@0x020002a0": { "interrupt-base": 384, "interrupt-count":  7, "interrupt-parent":  109 },
+	"irq-r528-gpio@0x020002c0": { "interrupt-base": 416, "interrupt-count": 19, "interrupt-parent":  111 },
 
 	"gpio-r528@0x02000030": { "gpio-base":  32, "gpio-count": 13, "interrupt-offset": 256 },
 	"gpio-r528@0x02000060": { "gpio-base":  64, "gpio-count":  8, "interrupt-offset": 288 },

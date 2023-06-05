@@ -39,7 +39,6 @@ enum {
 	EEXIST			= 30,
 	EBUSY			= 31,
 	EOVERFLOW		= 32,
-
 	ENODEV			= 33,
 };
 

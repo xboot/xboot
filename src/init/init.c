@@ -217,11 +217,6 @@ void do_auto_mount(void)
 	register_device_notifier(&nm);
 }
 
-void do_shell_task(void)
-{
-	shell_system(CONFIG_SHELL_TASK);
-}
-
 void do_auto_boot(void)
 {
 	int delay = CONFIG_AUTO_BOOT_DELAY * 1000;
@@ -242,11 +237,16 @@ void do_auto_boot(void)
 			printf("\r\n");
 			return;
 		}
-		mdelay(10);
+		msleep(10);
 		delay -= 10;
 		if(delay < 0)
 			delay = 0;
 		printf("\rPress any key to stop auto boot:%3d.%03d%s", delay / 1000, delay % 1000, (delay == 0) ? "\r\n" : "");
 	}
 	shell_system(CONFIG_AUTO_BOOT_COMMAND);
+}
+
+void do_shell_task(void)
+{
+	shell_system(CONFIG_SHELL_TASK);
 }

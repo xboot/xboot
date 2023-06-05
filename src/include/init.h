@@ -8,8 +8,8 @@ extern "C" {
 void do_show_logo(void);
 void do_play_audio(void);
 void do_auto_mount(void);
-void do_shell_task(void);
 void do_auto_boot(void);
+void do_shell_task(void);
 
 #ifdef __cplusplus
 }

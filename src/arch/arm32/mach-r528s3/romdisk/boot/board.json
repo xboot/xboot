@@ -280,6 +280,20 @@
 	"clk-gate@0x02001680": {"parent": "ratio-ce", "name": "gate-ce", "shift": 31, "invert": false },
 	"clk-link": { "parent": "gate-ce", "name": "link-ce" },
 
+	"clk-mux@0x02001bc0": {
+		"parent": [
+			{ "name": "dcxo24m", "value": 0 },
+			{ "name": "pll-video0", "value": 1 },
+			{ "name": "pll-video1", "value": 2 },
+			{ "name": "pll-periph0", "value": 3 }
+		],
+		"name": "mux-tvd", "shift": 24, "width": 3,
+		"default": { "parent": "pll-video1" }
+	},
+	"clk-divider@0x02001bc0": { "parent": "mux-tvd", "name": "div-tvd", "shift": 0, "width": 5, "divider-one-based": true, "default": { "rate": 27000000 } },
+	"clk-gate@0x02001bc0": {"parent": "div-tvd", "name": "gate-tvd", "shift": 31, "invert": false },
+	"clk-link": { "parent": "gate-tvd", "name": "link-tvd" },
+
 	"clk-gate@0x020017ac": { "parent": "apb0", "name": "bus-pwm", "shift": 0, "invert": false, "default": { "enable": true } },
 	"clk-gate@0x020017bc": { "parent": "apb0", "name": "bus-iommu", "shift": 0, "invert": false, "default": { "enable": true } },
 	"clk-gate@0x020019cc": { "parent": "apb0", "name": "bus-ir-tx", "shift": 0, "invert": false },

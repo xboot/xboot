@@ -663,6 +663,12 @@
 		"status": "disabled"
 	},
 
+	"cam-t113-tvd@0x05c01000": {
+		"clock-name": "link-tvd",
+		"reset": 1041,
+		"channel": 0
+	},
+
 	"ts-t113@0x02009c00": {
 		"clock-name": "link-tpadc",
 		"interrupt": 78,

@@ -56,7 +56,7 @@ static bool_t is_extended(uint8_t type)
 	return FALSE;
 }
 
-static bool_t mbr_map(struct block_t * pblk)
+static bool_t mbr_parse(struct block_t * pblk)
 {
 	struct mbr_header_t mbr;
 	struct device_t * dev;
@@ -98,20 +98,20 @@ static bool_t mbr_map(struct block_t * pblk)
 	return TRUE;
 }
 
-static struct partition_map_t mbr = {
+static struct partition_parser_t mbr = {
 	.name	= "mbr",
-	.map	= mbr_map,
+	.parse	= mbr_parse,
 };
 
-static __init void partition_map_mbr_init(void)
+static __init void partition_parser_mbr_init(void)
 {
-	register_partition_map(&mbr);
+	register_partition_parser(&mbr);
 }
 
-static __exit void partition_map_mbr_exit(void)
+static __exit void partition_parser_mbr_exit(void)
 {
-	unregister_partition_map(&mbr);
+	unregister_partition_parser(&mbr);
 }
 
-core_initcall(partition_map_mbr_init);
-core_exitcall(partition_map_mbr_exit);
+core_initcall(partition_parser_mbr_init);
+core_exitcall(partition_parser_mbr_exit);

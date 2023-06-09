@@ -833,7 +833,7 @@ static void sdcard_scan(struct sdcard_pdata_t * pdat)
 				pdat->blk.priv = pdat;
 				if(register_block(&pdat->blk, NULL))
 				{
-					partition_map(&pdat->blk);
+					partition_parse(&pdat->blk);
 					pdat->online = TRUE;
 				}
 				else

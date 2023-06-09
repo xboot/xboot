@@ -29,11 +29,11 @@
 #include <xboot.h>
 #include <block/partition.h>
 
-static struct list_head __partition_map_list = {
-	.next = &__partition_map_list,
-	.prev = &__partition_map_list,
+static struct list_head __partition_parser_list = {
+	.next = &__partition_parser_list,
+	.prev = &__partition_parser_list,
 };
-static spinlock_t __partition_map_lock = SPIN_LOCK_INIT();
+static spinlock_t __partition_parser_lock = SPIN_LOCK_INIT();
 
 static struct kobj_t * search_class_partition_kobj(void)
 {
@@ -41,14 +41,14 @@ static struct kobj_t * search_class_partition_kobj(void)
 	return kobj_search_directory_with_create(kclass, "partition");
 }
 
-static struct partition_map_t * search_partition_map(const char * name)
+static struct partition_parser_t * search_partition_parser(const char * name)
 {
-	struct partition_map_t * pos, * n;
+	struct partition_parser_t * pos, * n;
 
 	if(!name)
 		return NULL;
 
-	list_for_each_entry_safe(pos, n, &__partition_map_list, list)
+	list_for_each_entry_safe(pos, n, &__partition_parser_list, list)
 	{
 		if(strcmp(pos->name, name) == 0)
 			return pos;
@@ -56,52 +56,52 @@ static struct partition_map_t * search_partition_map(const char * name)
 	return NULL;
 }
 
-bool_t register_partition_map(struct partition_map_t * map)
+bool_t register_partition_parser(struct partition_parser_t * parser)
 {
 	irq_flags_t flags;
 
-	if(!map || !map->name || !map->map)
+	if(!parser || !parser->name || !parser->parse)
 		return FALSE;
 
-	if(search_partition_map(map->name))
+	if(search_partition_parser(parser->name))
 		return FALSE;
 
-	map->kobj = kobj_alloc_directory(map->name);
-	kobj_add(search_class_partition_kobj(), map->kobj);
+	parser->kobj = kobj_alloc_directory(parser->name);
+	kobj_add(search_class_partition_kobj(), parser->kobj);
 
-	spin_lock_irqsave(&__partition_map_lock, flags);
-	init_list_head(&map->list);
-	list_add_tail(&map->list, &__partition_map_list);
-	spin_unlock_irqrestore(&__partition_map_lock, flags);
+	spin_lock_irqsave(&__partition_parser_lock, flags);
+	init_list_head(&parser->list);
+	list_add_tail(&parser->list, &__partition_parser_list);
+	spin_unlock_irqrestore(&__partition_parser_lock, flags);
 
 	return TRUE;
 }
 
-bool_t unregister_partition_map(struct partition_map_t * map)
+bool_t unregister_partition_parser(struct partition_parser_t * parser)
 {
 	irq_flags_t flags;
 
-	if(!map || !map->name)
+	if(!parser || !parser->name)
 		return FALSE;
 
-	spin_lock_irqsave(&__partition_map_lock, flags);
-	list_del(&map->list);
-	spin_unlock_irqrestore(&__partition_map_lock, flags);
-	kobj_remove(search_class_partition_kobj(), map->kobj);
-	kobj_remove_self(map->kobj);
+	spin_lock_irqsave(&__partition_parser_lock, flags);
+	list_del(&parser->list);
+	spin_unlock_irqrestore(&__partition_parser_lock, flags);
+	kobj_remove(search_class_partition_kobj(), parser->kobj);
+	kobj_remove_self(parser->kobj);
 
 	return TRUE;
 }
 
-void partition_map(struct block_t * pblk)
+void partition_parse(struct block_t * pblk)
 {
-	struct partition_map_t * pos, * n;
+	struct partition_parser_t * pos, * n;
 
 	if(pblk && pblk->name && (block_capacity(pblk) > 0))
 	{
-		list_for_each_entry_safe(pos, n, &__partition_map_list, list)
+		list_for_each_entry_safe(pos, n, &__partition_parser_list, list)
 		{
-			if(pos->map(pblk))
+			if(pos->parse(pblk))
 				break;
 		}
 	}

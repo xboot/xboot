@@ -75,7 +75,7 @@ struct gpt_header_t {
 	uint8_t part_crc[4];
 } __attribute__ ((packed));
 
-static bool_t gpt_map(struct block_t * pblk)
+static bool_t gpt_parse(struct block_t * pblk)
 {
 	struct mbr_header_t mbr;
 
@@ -94,20 +94,20 @@ static bool_t gpt_map(struct block_t * pblk)
 	return FALSE;
 }
 
-static struct partition_map_t gpt = {
+static struct partition_parser_t gpt = {
 	.name	= "gpt",
-	.map	= gpt_map,
+	.parse	= gpt_parse,
 };
 
-static __init void partition_map_gpt_init(void)
+static __init void partition_parser_gpt_init(void)
 {
-	register_partition_map(&gpt);
+	register_partition_parser(&gpt);
 }
 
-static __exit void partition_map_gpt_exit(void)
+static __exit void partition_parser_gpt_exit(void)
 {
-	unregister_partition_map(&gpt);
+	unregister_partition_parser(&gpt);
 }
 
-core_initcall(partition_map_gpt_init);
-core_exitcall(partition_map_gpt_exit);
+core_initcall(partition_parser_gpt_init);
+core_exitcall(partition_parser_gpt_exit);

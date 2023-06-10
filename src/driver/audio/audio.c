@@ -95,8 +95,8 @@ struct device_t * register_audio(struct audio_t * audio, struct driver_t * drv)
 	dev->driver = drv;
 	dev->priv = audio;
 	dev->kobj = kobj_alloc_directory(dev->name);
-	kobj_add_regular(dev->kobj, "playback", audio_read_playback_volume, audio_write_playback_volume, audio);
-	kobj_add_regular(dev->kobj, "capture", audio_read_capture_volume, audio_write_capture_volume, audio);
+	kobj_add_regular(dev->kobj, "playback-volume", audio_read_playback_volume, audio_write_playback_volume, audio);
+	kobj_add_regular(dev->kobj, "capture-volume", audio_read_capture_volume, audio_write_capture_volume, audio);
 
 	if(!register_device(dev))
 	{
@@ -160,13 +160,6 @@ void audio_capture_stop(struct audio_t * audio)
 {
 	if(audio && audio->capture_stop)
 		audio->capture_stop(audio);
-}
-
-int audio_ioctl(struct audio_t * audio, const char * cmd, void * arg)
-{
-	if(audio && audio->ioctl)
-		return audio->ioctl(audio, cmd, arg);
-	return -1;
 }
 
 static int audio_soundpool_mixer(struct audio_t * audio, void * buf, int count)

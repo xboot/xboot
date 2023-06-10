@@ -70,21 +70,6 @@ struct audio_t
 	void * priv;
 };
 
-struct audio_t * search_audio(const char * name);
-struct audio_t * search_first_audio(void);
-struct device_t * register_audio(struct audio_t * audio, struct driver_t * drv);
-void unregister_audio(struct audio_t * audio);
-
-void audio_playback_start(struct audio_t * audio, enum audio_rate_t rate, enum audio_format_t fmt, int ch);
-int audio_playback_write(struct audio_t * audio, void * buf, int len);
-void audio_playback_stop(struct audio_t * audio);
-void audio_capture_start(struct audio_t * audio, enum audio_rate_t rate, enum audio_format_t fmt, int ch);
-int audio_capture_read(struct audio_t * audio, void * buf, int len);
-void audio_capture_stop(struct audio_t * audio);
-int audio_ioctl(struct audio_t * audio, const char * cmd, void * arg);
-
-void audio_playback(struct audio_t * audio, struct sound_t * snd);
-
 static inline int audio_playback_is_support(struct audio_t * audio)
 {
 	if(audio && audio->playback_start && audio->playback_write && audio->playback_stop)
@@ -99,12 +84,20 @@ static inline int audio_capture_is_support(struct audio_t * audio)
 	return 0;
 }
 
+static int audio_ioctl(struct audio_t * audio, const char * cmd, void * arg)
+{
+	if(audio && audio->ioctl)
+		return audio->ioctl(audio, cmd, arg);
+	return -1;
+}
+
 static inline int audio_get_playback_volume(struct audio_t * audio)
 {
-	int vol = 0;
+	int vol;
 
-	audio_ioctl(audio, "audio-get-playback-volume", &vol);
-	return vol;
+	if(audio_ioctl(audio, "audio-get-playback-volume", &vol) >= 0)
+		return vol;
+	return 0;
 }
 
 static inline void audio_set_playback_volume(struct audio_t * audio, int vol)
@@ -114,16 +107,32 @@ static inline void audio_set_playback_volume(struct audio_t * audio, int vol)
 
 static inline int audio_get_capture_volume(struct audio_t * audio)
 {
-	int vol = 0;
+	int vol;
 
-	audio_ioctl(audio, "audio-get-capture-volume", &vol);
-	return vol;
+	if(audio_ioctl(audio, "audio-get-capture-volume", &vol) >= 0)
+		return vol;
+	return 0;
 }
 
 static inline void audio_set_capture_volume(struct audio_t * audio, int vol)
 {
 	audio_ioctl(audio, "audio-set-capture-volume", &vol);
 }
+
+struct audio_t * search_audio(const char * name);
+struct audio_t * search_first_audio(void);
+struct device_t * register_audio(struct audio_t * audio, struct driver_t * drv);
+void unregister_audio(struct audio_t * audio);
+
+void audio_playback_start(struct audio_t * audio, enum audio_rate_t rate, enum audio_format_t fmt, int ch);
+int audio_playback_write(struct audio_t * audio, void * buf, int len);
+void audio_playback_stop(struct audio_t * audio);
+void audio_capture_start(struct audio_t * audio, enum audio_rate_t rate, enum audio_format_t fmt, int ch);
+int audio_capture_read(struct audio_t * audio, void * buf, int len);
+void audio_capture_stop(struct audio_t * audio);
+int audio_ioctl(struct audio_t * audio, const char * cmd, void * arg);
+
+void audio_playback(struct audio_t * audio, struct sound_t * snd);
 
 #ifdef __cplusplus
 }

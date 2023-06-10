@@ -264,7 +264,7 @@ static void audio_f1c100s_playback_start(struct audio_t * audio, enum audio_rate
 		pdat->playback.flag |= DMA_S_SRC_INC(DMA_INCREASE) | DMA_S_DST_INC(DMA_CONSTANT);
 		pdat->playback.flag |= DMA_S_SRC_WIDTH(DMA_WIDTH_16BIT) | DMA_S_DST_WIDTH(DMA_WIDTH_16BIT);
 		pdat->playback.flag |= DMA_S_SRC_BURST(DMA_BURST_SIZE_1) | DMA_S_DST_BURST(DMA_BURST_SIZE_1);
-		pdat->playback.flag |= DMA_S_SRC_PORT(F1C500S_NDMA_PORT_SDRAM) | DMA_S_DST_PORT(F1C500S_NDMA_PORT_AUDIO);
+		pdat->playback.flag |= DMA_S_SRC_PORT(F1C100S_NDMA_PORT_SDRAM) | DMA_S_DST_PORT(F1C100S_NDMA_PORT_AUDIO);
 	}
 }
 

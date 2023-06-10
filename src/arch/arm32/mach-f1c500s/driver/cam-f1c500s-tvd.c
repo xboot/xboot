@@ -61,7 +61,7 @@ struct cam_f1c500s_tvd_pdata_t {
 	int reset;
 	int channel;
 
-	unsigned char yc[720 * 576 * 2];
+	unsigned char * yc;
 	enum video_format_t fmt;
 	int width;
 	int height;
@@ -72,61 +72,73 @@ struct cam_f1c500s_tvd_pdata_t {
 static inline void f1c500s_tvd_set_gain(struct cam_f1c500s_tvd_pdata_t * pdat, int gain)
 {
 	u32_t val;
+	int v;
 
+	v = map(gain, -1000, 1000, 0x0, 0xff);
 	val = read32(pdat->virt + TVD_CHROM);
 	val &= ~(0xff << 16);
-	val |= (gain & 0xff) << 16;
+	val |= (v & 0xff) << 16;
 	write32(pdat->virt + TVD_CHROM, val);
 }
 
 static inline int f1c500s_tvd_get_gain(struct cam_f1c500s_tvd_pdata_t * pdat)
 {
-	return (read32(pdat->virt + TVD_CHROM) >> 16) & 0xff;
+	int v = (read32(pdat->virt + TVD_CHROM) >> 16) & 0xff;
+	return map(v, 0x0, 0xff, -1000, 1000);
 }
 
 static inline void f1c500s_tvd_set_saturation(struct cam_f1c500s_tvd_pdata_t * pdat, int saturation)
 {
 	u32_t val;
+	int v;
 
+	v = map(saturation, -1000, 1000, 0x0, 0xff);
 	val = read32(pdat->virt + TVD_ENHANCE2);
 	val &= ~(0xff << 0);
-	val |= (saturation & 0xff) << 0;
+	val |= (v & 0xff) << 0;
 	write32(pdat->virt + TVD_ENHANCE2, val);
 }
 
 static inline int f1c500s_tvd_get_saturation(struct cam_f1c500s_tvd_pdata_t * pdat)
 {
-	return (read32(pdat->virt + TVD_ENHANCE2) >> 0) & 0xff;
+	int v = (read32(pdat->virt + TVD_ENHANCE2) >> 0) & 0xff;
+	return map(v, 0x0, 0xff, -1000, 1000);
 }
 
 static inline void f1c500s_tvd_set_brightness(struct cam_f1c500s_tvd_pdata_t * pdat, int brightness)
 {
 	u32_t val;
+	int v;
 
+	v = map(brightness, -1000, 1000, 0x0, 0xff);
 	val = read32(pdat->virt + TVD_ENHANCE1);
 	val &= ~(0xff << 8);
-	val |= (brightness & 0xff) << 8;
+	val |= (v & 0xff) << 8;
 	write32(pdat->virt + TVD_ENHANCE1, val);
 }
 
 static inline int f1c500s_tvd_get_brightness(struct cam_f1c500s_tvd_pdata_t * pdat)
 {
-	return (read32(pdat->virt + TVD_ENHANCE1) >> 8) & 0xff;
+	int v = (read32(pdat->virt + TVD_ENHANCE1) >> 8) & 0xff;
+	return map(v, 0x0, 0xff, -1000, 1000);
 }
 
 static inline void f1c500s_tvd_set_contrast(struct cam_f1c500s_tvd_pdata_t * pdat, int contrast)
 {
 	u32_t val;
+	int v;
 
+	v = map(contrast, -1000, 1000, 0x0, 0xff);
 	val = read32(pdat->virt + TVD_ENHANCE1);
 	val &= ~(0xff << 0);
-	val |= (contrast & 0xff) << 0;
+	val |= (v & 0xff) << 0;
 	write32(pdat->virt + TVD_ENHANCE1, val);
 }
 
 static inline int f1c500s_tvd_get_contrast(struct cam_f1c500s_tvd_pdata_t * pdat)
 {
-	return (read32(pdat->virt + TVD_ENHANCE1) >> 0) & 0xff;
+	int v = (read32(pdat->virt + TVD_ENHANCE1) >> 0) & 0xff;
+	return map(v, 0x0, 0xff, -1000, 1000);
 }
 
 static inline int f1c500s_tvd_get_source(struct cam_f1c500s_tvd_pdata_t * pdat)
@@ -564,6 +576,7 @@ static struct device_t * cam_f1c500s_tvd_probe(struct driver_t * drv, struct dtn
 	pdat->irq = irq;
 	pdat->reset = dt_read_int(n, "reset", -1);
 	pdat->channel = clamp(dt_read_int(n, "channel", 0), 0, 1);
+	pdat->yc = memalign(1024, 720 * 576 * 2);
 	pdat->ready = 0;
 
 	cam->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
@@ -583,6 +596,7 @@ static struct device_t * cam_f1c500s_tvd_probe(struct driver_t * drv, struct dtn
 		free_irq(pdat->irq);
 		clk_disable(pdat->clk);
 		free(pdat->clk);
+		free(pdat->yc);
 		free_device_name(cam->name);
 		free(cam->priv);
 		free(cam);
@@ -602,6 +616,7 @@ static void cam_f1c500s_tvd_remove(struct device_t * dev)
 		free_irq(pdat->irq);
 		clk_disable(pdat->clk);
 		free(pdat->clk);
+		free(pdat->yc);
 		free_device_name(cam->name);
 		free(cam->priv);
 		free(cam);

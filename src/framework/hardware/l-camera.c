@@ -208,16 +208,172 @@ static int m_camera_capture(lua_State * L)
 	return 1;
 }
 
-static const luaL_Reg m_camera[] = {
-	{"__tostring",	m_camera_tostring},
-	{"getType",		m_camera_get_type},
-	{"getWidth",	m_camera_get_width},
-	{"getHeight",	m_camera_get_height},
-	{"getSize",		m_camera_get_size},
+static int m_camera_set_gain(lua_State * L)
+{
+	struct lcamera_t * lcam = luaL_checkudata(L, 1, MT_HARDWARE_CAMERA);
+	int gain = luaL_optnumber(L, 2, 0.0) * (lua_Number)(1000);
+	camera_set_gain(lcam->cam, gain);
+	lua_settop(L, 1);
+	return 1;
+}
 
-	{"start",		m_camera_start},
-	{"stop",		m_camera_stop},
-	{"capture",		m_camera_capture},
+static int m_camera_get_gain(lua_State * L)
+{
+	struct lcamera_t * lcam = luaL_checkudata(L, 1, MT_HARDWARE_CAMERA);
+	int gain = camera_get_gain(lcam->cam);
+	lua_pushnumber(L, gain / (lua_Number)(1000));
+	return 1;
+}
+
+static int m_camera_set_exposure(lua_State * L)
+{
+	struct lcamera_t * lcam = luaL_checkudata(L, 1, MT_HARDWARE_CAMERA);
+	int exposure = luaL_optnumber(L, 2, 0.0) * (lua_Number)(1000);
+	camera_set_exposure(lcam->cam, exposure);
+	lua_settop(L, 1);
+	return 1;
+}
+
+static int m_camera_get_exposure(lua_State * L)
+{
+	struct lcamera_t * lcam = luaL_checkudata(L, 1, MT_HARDWARE_CAMERA);
+	int exposure = camera_get_exposure(lcam->cam);
+	lua_pushnumber(L, exposure / (lua_Number)(1000));
+	return 1;
+}
+
+static int m_camera_set_white_balance(lua_State * L)
+{
+	struct lcamera_t * lcam = luaL_checkudata(L, 1, MT_HARDWARE_CAMERA);
+	int wb = luaL_optnumber(L, 2, 0.0) * (lua_Number)(1000);
+	camera_set_white_balance(lcam->cam, wb);
+	lua_settop(L, 1);
+	return 1;
+}
+
+static int m_camera_get_white_balance(lua_State * L)
+{
+	struct lcamera_t * lcam = luaL_checkudata(L, 1, MT_HARDWARE_CAMERA);
+	int wb = camera_get_white_balance(lcam->cam);
+	lua_pushnumber(L, wb / (lua_Number)(1000));
+	return 1;
+}
+
+static int m_camera_set_focus(lua_State * L)
+{
+	struct lcamera_t * lcam = luaL_checkudata(L, 1, MT_HARDWARE_CAMERA);
+	int focus = luaL_optnumber(L, 2, 0.0) * (lua_Number)(1000);
+	camera_set_focus(lcam->cam, focus);
+	lua_settop(L, 1);
+	return 1;
+}
+
+static int m_camera_get_focus(lua_State * L)
+{
+	struct lcamera_t * lcam = luaL_checkudata(L, 1, MT_HARDWARE_CAMERA);
+	int focus = camera_get_focus(lcam->cam);
+	lua_pushnumber(L, focus / (lua_Number)(1000));
+	return 1;
+}
+
+static int m_camera_set_mirror(lua_State * L)
+{
+	struct lcamera_t * lcam = luaL_checkudata(L, 1, MT_HARDWARE_CAMERA);
+	int mirror = 0;
+	mirror |= lua_toboolean(L, 2) ? CAMERA_MIRROR_HFLIP : 0;
+	mirror |= lua_toboolean(L, 3) ? CAMERA_MIRROR_VFLIP : 0;
+	camera_set_mirror(lcam->cam, mirror);
+	lua_settop(L, 1);
+	return 1;
+}
+
+static int m_camera_get_mirror(lua_State * L)
+{
+	struct lcamera_t * lcam = luaL_checkudata(L, 1, MT_HARDWARE_CAMERA);
+	int mirror = camera_get_mirror(lcam->cam);
+	lua_pushinteger(L, mirror);
+	return 1;
+}
+
+static int m_camera_set_saturation(lua_State * L)
+{
+	struct lcamera_t * lcam = luaL_checkudata(L, 1, MT_HARDWARE_CAMERA);
+	int saturation = luaL_optnumber(L, 2, 0.0) * (lua_Number)(1000);
+	camera_set_saturation(lcam->cam, saturation);
+	lua_settop(L, 1);
+	return 1;
+}
+
+static int m_camera_get_saturation(lua_State * L)
+{
+	struct lcamera_t * lcam = luaL_checkudata(L, 1, MT_HARDWARE_CAMERA);
+	int saturation = camera_get_saturation(lcam->cam);
+	lua_pushnumber(L, saturation / (lua_Number)(1000));
+	return 1;
+}
+
+static int m_camera_set_brightness(lua_State * L)
+{
+	struct lcamera_t * lcam = luaL_checkudata(L, 1, MT_HARDWARE_CAMERA);
+	int brightness = luaL_optnumber(L, 2, 0.0) * (lua_Number)(1000);
+	camera_set_brightness(lcam->cam, brightness);
+	lua_settop(L, 1);
+	return 1;
+}
+
+static int m_camera_get_brightness(lua_State * L)
+{
+	struct lcamera_t * lcam = luaL_checkudata(L, 1, MT_HARDWARE_CAMERA);
+	int brightness = camera_get_brightness(lcam->cam);
+	lua_pushnumber(L, brightness / (lua_Number)(1000));
+	return 1;
+}
+
+static int m_camera_set_contrast(lua_State * L)
+{
+	struct lcamera_t * lcam = luaL_checkudata(L, 1, MT_HARDWARE_CAMERA);
+	int contrast = luaL_optnumber(L, 2, 0.0) * (lua_Number)(1000);
+	camera_set_contrast(lcam->cam, contrast);
+	lua_settop(L, 1);
+	return 1;
+}
+
+static int m_camera_get_contrast(lua_State * L)
+{
+	struct lcamera_t * lcam = luaL_checkudata(L, 1, MT_HARDWARE_CAMERA);
+	int contrast = camera_get_contrast(lcam->cam);
+	lua_pushnumber(L, contrast / (lua_Number)(1000));
+	return 1;
+}
+
+static const luaL_Reg m_camera[] = {
+	{"__tostring",			m_camera_tostring},
+	{"getType",				m_camera_get_type},
+	{"getWidth",			m_camera_get_width},
+	{"getHeight",			m_camera_get_height},
+	{"getSize",				m_camera_get_size},
+
+	{"start",				m_camera_start},
+	{"stop",				m_camera_stop},
+	{"capture",				m_camera_capture},
+
+	{"setGain",				m_camera_set_gain},
+	{"getGain",				m_camera_get_gain},
+	{"setExposure",			m_camera_set_exposure},
+	{"getExposure",			m_camera_get_exposure},
+	{"setWhiteBalance",		m_camera_set_white_balance},
+	{"getWhiteBalance",		m_camera_get_white_balance},
+	{"setFocus",			m_camera_set_focus},
+	{"getFocus",			m_camera_get_focus},
+	{"setMirror",			m_camera_set_mirror},
+	{"getMirror",			m_camera_get_mirror},
+	{"setSaturation",		m_camera_set_saturation},
+	{"getSaturation",		m_camera_get_saturation},
+	{"setBrightness",		m_camera_set_brightness},
+	{"getBrightness",		m_camera_get_brightness},
+	{"setContrast",			m_camera_set_contrast},
+	{"getContrast",			m_camera_get_contrast},
+
 	{NULL,	NULL}
 };
 

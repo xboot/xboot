@@ -29,6 +29,110 @@
 #include <xboot.h>
 #include <camera/camera.h>
 
+static ssize_t camera_read_gain(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct camera_t * cam = (struct camera_t *)kobj->priv;
+	return sprintf(buf, "%d", camera_get_gain(cam));
+}
+
+static ssize_t camera_write_gain(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct camera_t * cam = (struct camera_t *)kobj->priv;
+	camera_set_gain(cam, strtol(buf, NULL, 0));
+	return size;
+}
+
+static ssize_t camera_read_exposure(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct camera_t * cam = (struct camera_t *)kobj->priv;
+	return sprintf(buf, "%d", camera_get_exposure(cam));
+}
+
+static ssize_t camera_write_exposure(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct camera_t * cam = (struct camera_t *)kobj->priv;
+	camera_set_exposure(cam, strtol(buf, NULL, 0));
+	return size;
+}
+
+static ssize_t camera_read_white_balance(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct camera_t * cam = (struct camera_t *)kobj->priv;
+	return sprintf(buf, "%d", camera_get_white_balance(cam));
+}
+
+static ssize_t camera_write_white_balance(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct camera_t * cam = (struct camera_t *)kobj->priv;
+	camera_set_white_balance(cam, strtol(buf, NULL, 0));
+	return size;
+}
+
+static ssize_t camera_read_focus(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct camera_t * cam = (struct camera_t *)kobj->priv;
+	return sprintf(buf, "%d", camera_get_focus(cam));
+}
+
+static ssize_t camera_write_focus(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct camera_t * cam = (struct camera_t *)kobj->priv;
+	camera_set_focus(cam, strtol(buf, NULL, 0));
+	return size;
+}
+
+static ssize_t camera_read_mirror(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct camera_t * cam = (struct camera_t *)kobj->priv;
+	return sprintf(buf, "%d", camera_get_mirror(cam));
+}
+
+static ssize_t camera_write_mirror(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct camera_t * cam = (struct camera_t *)kobj->priv;
+	camera_set_mirror(cam, strtol(buf, NULL, 0));
+	return size;
+}
+
+static ssize_t camera_read_saturation(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct camera_t * cam = (struct camera_t *)kobj->priv;
+	return sprintf(buf, "%d", camera_get_saturation(cam));
+}
+
+static ssize_t camera_write_saturation(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct camera_t * cam = (struct camera_t *)kobj->priv;
+	camera_set_saturation(cam, strtol(buf, NULL, 0));
+	return size;
+}
+
+static ssize_t camera_read_brightness(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct camera_t * cam = (struct camera_t *)kobj->priv;
+	return sprintf(buf, "%d", camera_get_brightness(cam));
+}
+
+static ssize_t camera_write_brightness(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct camera_t * cam = (struct camera_t *)kobj->priv;
+	camera_set_brightness(cam, strtol(buf, NULL, 0));
+	return size;
+}
+
+static ssize_t camera_read_contrast(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct camera_t * cam = (struct camera_t *)kobj->priv;
+	return sprintf(buf, "%d", camera_get_contrast(cam));
+}
+
+static ssize_t camera_write_contrast(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct camera_t * cam = (struct camera_t *)kobj->priv;
+	camera_set_contrast(cam, strtol(buf, NULL, 0));
+	return size;
+}
+
 struct camera_t * search_camera(const char * name)
 {
 	struct device_t * dev;
@@ -68,6 +172,14 @@ struct device_t * register_camera(struct camera_t * cam, struct driver_t * drv)
 	dev->driver = drv;
 	dev->priv = cam;
 	dev->kobj = kobj_alloc_directory(dev->name);
+	kobj_add_regular(dev->kobj, "gain", camera_read_gain, camera_write_gain, cam);
+	kobj_add_regular(dev->kobj, "exposure", camera_read_exposure, camera_write_exposure, cam);
+	kobj_add_regular(dev->kobj, "white-balance", camera_read_white_balance, camera_write_white_balance, cam);
+	kobj_add_regular(dev->kobj, "focus", camera_read_focus, camera_write_focus, cam);
+	kobj_add_regular(dev->kobj, "mirror", camera_read_mirror, camera_write_mirror, cam);
+	kobj_add_regular(dev->kobj, "saturation", camera_read_saturation, camera_write_saturation, cam);
+	kobj_add_regular(dev->kobj, "brightness", camera_read_brightness, camera_write_brightness, cam);
+	kobj_add_regular(dev->kobj, "contrast", camera_read_contrast, camera_write_contrast, cam);
 
 	if(!register_device(dev))
 	{
@@ -128,11 +240,4 @@ int camera_capture(struct camera_t * cam, struct video_frame_t * frame, int time
 		}
 	}
 	return 0;
-}
-
-int camera_ioctl(struct camera_t * cam, const char * cmd, void * arg)
-{
-	if(cam && cam->ioctl)
-		return cam->ioctl(cam, cmd, arg);
-	return -1;
 }

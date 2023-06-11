@@ -258,3 +258,58 @@ u64_t clk_get_rate(const char * name)
 
 	return 0;
 }
+
+struct clocks_t * clocks_alloc(struct dtnode_t * n, const char * name)
+{
+	int l;
+
+	if(n)
+	{
+		if(!name)
+			name = "clock-names";
+		if((l = dt_read_array_length(n, name)) > 0)
+		{
+			struct clocks_t * clks = malloc(sizeof(struct clocks_t) + l * sizeof(struct clk_t *));
+			clks->n = l;
+			for(int i = 0; i < l; i++)
+				clks->clk[i] = search_clk(dt_read_array_string(n, name, i, NULL));
+			return clks;
+		}
+	}
+	return NULL;
+}
+
+void clocks_free(struct clocks_t * clks)
+{
+	if(clks)
+		free(clks);
+}
+
+void clocks_enable(struct clocks_t * clks)
+{
+	if(clks)
+	{
+		for(int i = 0; i < clks->n; i++)
+			clk_enable(clks->clk[i]->name);
+	}
+}
+
+void clocks_disable(struct clocks_t * clks)
+{
+	if(clks)
+	{
+		for(int i = 0; i < clks->n; i++)
+			clk_disable(clks->clk[i]->name);
+	}
+}
+
+const char * clocks_get(struct clocks_t * clks, int idx)
+{
+	if(clks && ((idx >= 0) && (idx < clks->n)))
+	{
+		struct clk_t * clk = clks->clk[idx];
+		if(clk)
+			return clk->name;
+	}
+	return NULL;
+}

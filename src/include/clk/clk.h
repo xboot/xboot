@@ -34,6 +34,17 @@ bool_t clk_status(const char * name);
 void clk_set_rate(const char * name, u64_t rate);
 u64_t clk_get_rate(const char * name);
 
+struct clocks_t {
+	int n;
+	struct clk_t * clk[0];
+};
+
+struct clocks_t * clocks_alloc(struct dtnode_t * n, const char * name);
+void clocks_free(struct clocks_t * clks);
+void clocks_enable(struct clocks_t * clks);
+void clocks_disable(struct clocks_t * clks);
+const char * clocks_get(struct clocks_t * clks, int idx);
+
 #ifdef __cplusplus
 }
 #endif

@@ -77,6 +77,7 @@ extern "C" {
 #define R528_IRQ_CSI_DMA1			(128)
 #define R528_IRQ_CSI_PARSER0		(132)
 #define R528_IRQ_CSI_TOP_PKT		(138)
+#define R528_IRQ_TVD				(139)
 #define R528_IRQ_DSP_DFE			(152)
 #define R528_IRQ_DSP_PFE			(153)
 #define R528_IRQ_DSP_WDG			(154)

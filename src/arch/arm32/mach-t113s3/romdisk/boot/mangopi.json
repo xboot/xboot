@@ -664,8 +664,8 @@
 	},
 
 	"cam-t113-tvd@0x05c01000": {
-		"clock-name": "link-tvd",
-		"reset": 1041,
+		"clocks": ["link-tvd", "bus-tvd", "bus-tvd-top"],
+		"resets": [1041, 1040],
 		"channel": 0
 	},
 

@@ -33,7 +33,6 @@
 #include <camera/camera.h>
 
 #define T113_TVD_TOP_BASE		(0x05c00000)
-#define T113_TVD_TOP_RESET		(1040)
 
 #define TVD_TOP_DIG_CTL(x)		(0x24 + 0x20 * (x))
 #define TVD_TOP_ADC_CTL(x)		(0x28 + 0x20 * (x))
@@ -97,11 +96,11 @@ enum tvd_foramt_t {
 struct cam_t113_tvd_pdata_t {
 	virtual_addr_t virt_tvd_top;
 	virtual_addr_t virt_tvd;
-	char * clk;
-	int reset;
+	struct clocks_t * clks;
+	struct resets_t * rsts;
 	int channel;
 
-	unsigned char yc[720 * 576 * 2];
+	unsigned char * yc;
 	enum video_format_t fmt;
 	int width;
 	int height;
@@ -167,46 +166,61 @@ static inline int t113_tvd_get_source(struct cam_t113_tvd_pdata_t * pdat, int ti
 static inline void t113_tvd_set_saturation(struct cam_t113_tvd_pdata_t * pdat, int saturation)
 {
 	u32_t val;
+	int v;
 
+	v = map(saturation, -1000, 1000, 0x0, 0xff);
 	val = read32(pdat->virt_tvd + TVD_ENHANCE2);
 	val &= ~(0xff << 0);
-	val |= (saturation & 0xff) << 0;
+	val |= (v & 0xff) << 0;
 	write32(pdat->virt_tvd + TVD_ENHANCE2, val);
 }
 
 static inline int t113_tvd_get_saturation(struct cam_t113_tvd_pdata_t * pdat)
 {
-	return (read32(pdat->virt_tvd + TVD_ENHANCE2) >> 0) & 0xff;
+	int v = (read32(pdat->virt_tvd + TVD_ENHANCE2) >> 0) & 0xff;
+	return map(v, 0x0, 0xff, -1000, 1000);
 }
 
 static inline void t113_tvd_set_brightness(struct cam_t113_tvd_pdata_t * pdat, int brightness)
 {
 	u32_t val;
+	int v;
 
+	if(brightness < 0)
+		v = map(brightness, -1000, 0, 0x0, 0x20);
+	else
+		v = map(brightness, 0, 1000, 0x20, 0xff);
 	val = read32(pdat->virt_tvd + TVD_ENHANCE1);
 	val &= ~(0xff << 16);
-	val |= (brightness & 0xff) << 16;
+	val |= (v & 0xff) << 16;
 	write32(pdat->virt_tvd + TVD_ENHANCE1, val);
 }
 
 static inline int t113_tvd_get_brightness(struct cam_t113_tvd_pdata_t * pdat)
 {
-	return (read32(pdat->virt_tvd + TVD_ENHANCE1) >> 16) & 0xff;
+	int v = (read32(pdat->virt_tvd + TVD_ENHANCE1) >> 16) & 0xff;
+	if(v < 0x20)
+		return map(v, 0x0, 0x20, -1000, 0);
+	else
+		return map(v, 0x20, 0xff, 0, 1000);
 }
 
 static inline void t113_tvd_set_contrast(struct cam_t113_tvd_pdata_t * pdat, int contrast)
 {
 	u32_t val;
+	int v;
 
+	v = map(contrast, -1000, 1000, 0x0, 0xff);
 	val = read32(pdat->virt_tvd + TVD_ENHANCE1);
 	val &= ~(0xff << 8);
-	val |= (contrast & 0xff) << 8;
+	val |= (v & 0xff) << 8;
 	write32(pdat->virt_tvd + TVD_ENHANCE1, val);
 }
 
 static inline int t113_tvd_get_contrast(struct cam_t113_tvd_pdata_t * pdat)
 {
-	return (read32(pdat->virt_tvd + TVD_ENHANCE1) >> 8) & 0xff;
+	int v = (read32(pdat->virt_tvd + TVD_ENHANCE1) >> 8) & 0xff;
+	return map(v, 0x0, 0xff, -1000, 1000);
 }
 
 static inline void t113_tvd_enable(struct cam_t113_tvd_pdata_t * pdat, int en)
@@ -460,7 +474,7 @@ static inline void t113_tvd_init(struct cam_t113_tvd_pdata_t * pdat)
 		t113_tvd_config(pdat, s, TVD_PL_YUV420);
 		t113_tvd_set_wb_fmt(pdat, TVD_PL_YUV420);
 		t113_tvd_set_wb_uv_swap(pdat, 0);
-		t113_tvd_set_wb_addr(pdat, &pdat->yc[0], &pdat->yc[pdat->width * pdat->height]);
+		t113_tvd_set_wb_addr(pdat, (void *)virt_to_phys((virtual_addr_t)&pdat->yc[0]), (void *)virt_to_phys((virtual_addr_t)&pdat->yc[pdat->width * pdat->height]));
 	}
 	else if(s == TVD_SOURCE_PAL)
 	{
@@ -471,7 +485,7 @@ static inline void t113_tvd_init(struct cam_t113_tvd_pdata_t * pdat)
 		t113_tvd_config(pdat, s, TVD_PL_YUV420);
 		t113_tvd_set_wb_fmt(pdat, TVD_PL_YUV420);
 		t113_tvd_set_wb_uv_swap(pdat, 0);
-		t113_tvd_set_wb_addr(pdat, &pdat->yc[0], &pdat->yc[pdat->width * pdat->height]);
+		t113_tvd_set_wb_addr(pdat, (void *)virt_to_phys((virtual_addr_t)&pdat->yc[0]), (void *)virt_to_phys((virtual_addr_t)&pdat->yc[pdat->width * pdat->height]));
 	}
 	t113_tvd_set_blue(pdat, 2);
 	t113_tvd_capture_off(pdat);
@@ -597,10 +611,6 @@ static struct device_t * cam_t113_tvd_probe(struct driver_t * drv, struct dtnode
 	struct cam_t113_tvd_pdata_t * pdat;
 	struct camera_t * cam;
 	struct device_t * dev;
-	char * clk = dt_read_string(n, "clock-name", NULL);
-
-	if(!search_clk(clk))
-		return NULL;
 
 	pdat = malloc(sizeof(struct cam_t113_tvd_pdata_t));
 	if(!pdat)
@@ -615,9 +625,10 @@ static struct device_t * cam_t113_tvd_probe(struct driver_t * drv, struct dtnode
 
 	pdat->virt_tvd_top = phys_to_virt(T113_TVD_TOP_BASE);
 	pdat->virt_tvd = phys_to_virt(dt_read_address(n));
-	pdat->clk = strdup(clk);
-	pdat->reset = dt_read_int(n, "reset", -1);
+	pdat->clks = clocks_alloc(n, "clocks");
+	pdat->rsts = resets_alloc(n, "resets");
 	pdat->channel = clamp(dt_read_int(n, "channel", 0), 0, 1);
+	pdat->yc = memalign(1024, 720 * 576 * 2);
 
 	cam->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	cam->start = cam_start;
@@ -626,15 +637,15 @@ static struct device_t * cam_t113_tvd_probe(struct driver_t * drv, struct dtnode
 	cam->ioctl = cam_ioctl;
 	cam->priv = pdat;
 
-	clk_enable(pdat->clk);
-	reset_deassert(T113_TVD_TOP_RESET);
-	if(pdat->reset >= 0)
-		reset_deassert(pdat->reset);
+	clocks_enable(pdat->clks);
+	resets_reset(pdat->rsts, 1);
 
 	if(!(dev = register_camera(cam, drv)))
 	{
-		clk_disable(pdat->clk);
-		free(pdat->clk);
+		clocks_disable(pdat->clks);
+		clocks_free(pdat->clks);
+		resets_free(pdat->rsts);
+		free(pdat->yc);
 		free_device_name(cam->name);
 		free(cam->priv);
 		free(cam);
@@ -651,8 +662,10 @@ static void cam_t113_tvd_remove(struct device_t * dev)
 	if(cam)
 	{
 		unregister_camera(cam);
-		clk_disable(pdat->clk);
-		free(pdat->clk);
+		resets_free(pdat->rsts);
+		clocks_disable(pdat->clks);
+		clocks_free(pdat->clks);
+		free(pdat->yc);
 		free_device_name(cam->name);
 		free(cam->priv);
 		free(cam);

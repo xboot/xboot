@@ -123,3 +123,70 @@ void reset_deassert(int rst)
 	if(chip && chip->deassert)
 		chip->deassert(chip, rst - chip->base);
 }
+
+void reset_reset(int rst, int us)
+{
+	struct resetchip_t * chip = search_resetchip(rst);
+
+	if(chip && chip->assert)
+	{
+		int offset = rst - chip->base;
+		chip->assert(chip, offset);
+		udelay(us);
+		chip->deassert(chip, offset);
+		udelay(us);
+	}
+}
+
+struct resets_t * resets_alloc(struct dtnode_t * n, const char * name)
+{
+	int l;
+
+	if(n)
+	{
+		if(!name)
+			name = "resets";
+		if((l = dt_read_array_length(n, name)) > 0)
+		{
+			struct resets_t * rsts = malloc(sizeof(struct resets_t) + l * sizeof(int));
+			rsts->n = l;
+			for(int i = 0; i < l; i++)
+				rsts->rst[i] = dt_read_array_int(n, name, i, -1);
+			return rsts;
+		}
+	}
+	return NULL;
+}
+
+void resets_free(struct resets_t * rsts)
+{
+	if(rsts)
+		free(rsts);
+}
+
+void resets_assert(struct resets_t * rsts)
+{
+	if(rsts)
+	{
+		for(int i = 0; i < rsts->n; i++)
+			reset_assert(rsts->rst[i]);
+	}
+}
+
+void resets_deassert(struct resets_t * rsts)
+{
+	if(rsts)
+	{
+		for(int i = 0; i < rsts->n; i++)
+			reset_deassert(rsts->rst[i]);
+	}
+}
+
+void resets_reset(struct resets_t * rsts, int us)
+{
+	if(rsts)
+	{
+		for(int i = 0; i < rsts->n; i++)
+			reset_reset(rsts->rst[i], us);
+	}
+}

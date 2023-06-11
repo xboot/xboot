@@ -25,6 +25,18 @@ void unregister_resetchip(struct resetchip_t * chip);
 int reset_is_valid(int rst);
 void reset_assert(int rst);
 void reset_deassert(int rst);
+void reset_reset(int rst, int us);
+
+struct resets_t {
+	int n;
+	int rst[0];
+};
+
+struct resets_t * resets_alloc(struct dtnode_t * n, const char * name);
+void resets_free(struct resets_t * rsts);
+void resets_assert(struct resets_t * rsts);
+void resets_deassert(struct resets_t * rsts);
+void resets_reset(struct resets_t * rsts, int us);
 
 #ifdef __cplusplus
 }

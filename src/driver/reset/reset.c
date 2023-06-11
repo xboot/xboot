@@ -177,7 +177,7 @@ void resets_deassert(struct resets_t * rsts)
 {
 	if(rsts)
 	{
-		for(int i = 0; i < rsts->n; i++)
+		for(int i = rsts->n - 1; i >= 0; i--)
 			reset_deassert(rsts->rst[i]);
 	}
 }
@@ -186,7 +186,7 @@ void resets_reset(struct resets_t * rsts, int us)
 {
 	if(rsts)
 	{
-		for(int i = 0; i < rsts->n; i++)
+		for(int i = rsts->n - 1; i >= 0; i--)
 			reset_reset(rsts->rst[i], us);
 	}
 }

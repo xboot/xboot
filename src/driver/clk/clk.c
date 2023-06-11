@@ -266,7 +266,7 @@ struct clocks_t * clocks_alloc(struct dtnode_t * n, const char * name)
 	if(n)
 	{
 		if(!name)
-			name = "clock-names";
+			name = "clocks";
 		if((l = dt_read_array_length(n, name)) > 0)
 		{
 			struct clocks_t * clks = malloc(sizeof(struct clocks_t) + l * sizeof(struct clk_t *));
@@ -289,7 +289,7 @@ void clocks_enable(struct clocks_t * clks)
 {
 	if(clks)
 	{
-		for(int i = 0; i < clks->n; i++)
+		for(int i = clks->n - 1; i >= 0; i--)
 			clk_enable(clks->clk[i]->name);
 	}
 }

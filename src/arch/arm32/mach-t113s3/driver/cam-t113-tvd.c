@@ -98,6 +98,7 @@ struct cam_t113_tvd_pdata_t {
 	virtual_addr_t virt_tvd;
 	struct clocks_t * clks;
 	struct resets_t * rsts;
+	int irq;
 	int channel;
 
 	unsigned char * yc;
@@ -105,6 +106,7 @@ struct cam_t113_tvd_pdata_t {
 	int width;
 	int height;
 	int buflen;
+	int ready;
 };
 
 static inline void t113_tvd_top_adc_config(struct cam_t113_tvd_pdata_t * pdat, int adc, int en)
@@ -282,6 +284,24 @@ static inline void t113_tvd_set_wb_uv_swap(struct cam_t113_tvd_pdata_t * pdat, i
 		val |= (1 << 31);
 	else
 		val &= ~(1 << 31);
+	write32(pdat->virt_tvd + TVD_WB1, val);
+}
+
+static inline void t113_tvd_set_wb_field(struct cam_t113_tvd_pdata_t * pdat, int field)
+{
+	u32_t val;
+
+	val = read32(pdat->virt_tvd + TVD_WB1);
+	if(field)
+	{
+		val &= ~(1 << 5);
+		val |= (1 << 3);
+	}
+	else
+	{
+		val |= (1 << 5);
+		val &= ~(1 << 3);
+	}
 	write32(pdat->virt_tvd + TVD_WB1, val);
 }
 
@@ -474,6 +494,7 @@ static inline void t113_tvd_init(struct cam_t113_tvd_pdata_t * pdat)
 		t113_tvd_config(pdat, s, TVD_PL_YUV420);
 		t113_tvd_set_wb_fmt(pdat, TVD_PL_YUV420);
 		t113_tvd_set_wb_uv_swap(pdat, 0);
+		t113_tvd_set_wb_field(pdat, 0);
 		t113_tvd_set_wb_addr(pdat, (void *)virt_to_phys((virtual_addr_t)&pdat->yc[0]), (void *)virt_to_phys((virtual_addr_t)&pdat->yc[pdat->width * pdat->height]));
 	}
 	else if(s == TVD_SOURCE_PAL)
@@ -485,6 +506,7 @@ static inline void t113_tvd_init(struct cam_t113_tvd_pdata_t * pdat)
 		t113_tvd_config(pdat, s, TVD_PL_YUV420);
 		t113_tvd_set_wb_fmt(pdat, TVD_PL_YUV420);
 		t113_tvd_set_wb_uv_swap(pdat, 0);
+		t113_tvd_set_wb_field(pdat, 0);
 		t113_tvd_set_wb_addr(pdat, (void *)virt_to_phys((virtual_addr_t)&pdat->yc[0]), (void *)virt_to_phys((virtual_addr_t)&pdat->yc[pdat->width * pdat->height]));
 	}
 	t113_tvd_set_blue(pdat, 2);
@@ -518,14 +540,14 @@ static int cam_capture(struct camera_t * cam, struct video_frame_t * frame)
 {
 	struct cam_t113_tvd_pdata_t * pdat = (struct cam_t113_tvd_pdata_t *)cam->priv;
 
-	if(t113_tvd_irq_status(pdat))
+	if(pdat->ready)
 	{
-		t113_tvd_irq_clear(pdat);
 		frame->fmt = pdat->fmt;
 		frame->width = pdat->width;
 		frame->height = pdat->height;
 		frame->buflen = pdat->buflen;
 		frame->buf = pdat->yc;
+		pdat->ready = 0;
 		return 1;
 	}
 	return 0;
@@ -606,11 +628,23 @@ static int cam_ioctl(struct camera_t * cam, const char * cmd, void * arg)
 	return -1;
 }
 
+static void t113_tvd_interrupt(void * data)
+{
+	struct camera_t * cam = (struct camera_t *)data;
+	struct cam_t113_tvd_pdata_t * pdat = (struct cam_t113_tvd_pdata_t *)cam->priv;
+	pdat->ready = 1;
+	t113_tvd_irq_clear(pdat);
+}
+
 static struct device_t * cam_t113_tvd_probe(struct driver_t * drv, struct dtnode_t * n)
 {
 	struct cam_t113_tvd_pdata_t * pdat;
 	struct camera_t * cam;
 	struct device_t * dev;
+	int irq = dt_read_int(n, "interrupt", -1);
+
+	if(!irq_is_valid(irq))
+		return NULL;
 
 	pdat = malloc(sizeof(struct cam_t113_tvd_pdata_t));
 	if(!pdat)
@@ -627,8 +661,10 @@ static struct device_t * cam_t113_tvd_probe(struct driver_t * drv, struct dtnode
 	pdat->virt_tvd = phys_to_virt(dt_read_address(n));
 	pdat->clks = clocks_alloc(n, "clocks");
 	pdat->rsts = resets_alloc(n, "resets");
+	pdat->irq = irq;
 	pdat->channel = clamp(dt_read_int(n, "channel", 0), 0, 1);
 	pdat->yc = memalign(1024, 720 * 576 * 2);
+	pdat->ready = 0;
 
 	cam->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	cam->start = cam_start;
@@ -639,6 +675,7 @@ static struct device_t * cam_t113_tvd_probe(struct driver_t * drv, struct dtnode
 
 	clocks_enable(pdat->clks);
 	resets_reset(pdat->rsts, 1);
+	request_irq(pdat->irq, t113_tvd_interrupt, IRQ_TYPE_NONE, cam);
 
 	if(!(dev = register_camera(cam, drv)))
 	{

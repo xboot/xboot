@@ -666,6 +666,7 @@
 	"cam-t113-tvd@0x05c01000": {
 		"clocks": ["link-tvd", "bus-tvd", "bus-tvd-top"],
 		"resets": [1041, 1040],
+		"interrupt": 139,
 		"channel": 0
 	},
 

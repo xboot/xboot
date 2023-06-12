@@ -532,14 +532,13 @@ static inline void r528_tvd_config(struct cam_r528_tvd_pdata_t * pdat, enum tvd_
 	}
 }
 
-static inline void r528_tvd_init(struct cam_r528_tvd_pdata_t * pdat)
+static inline int r528_tvd_init(struct cam_r528_tvd_pdata_t * pdat)
 {
-	enum tvd_source_t s;
-
 	r528_tvd_top_adc_config(pdat, 0, 1);
 	r528_tvd_top_select_channel(pdat);
 	r528_tvd_enable(pdat, 1);
-	s = r528_tvd_get_source(pdat, 100);
+	enum tvd_source_t s = r528_tvd_get_source(pdat, 100);
+	r528_tvd_enable(pdat, 0);
 	if(s == TVD_SOURCE_NTSC)
 	{
 		pdat->fmt = VIDEO_FORMAT_NV12;
@@ -551,6 +550,11 @@ static inline void r528_tvd_init(struct cam_r528_tvd_pdata_t * pdat)
 		r528_tvd_set_wb_uv_swap(pdat, 0);
 		r528_tvd_set_wb_field(pdat, 0);
 		r528_tvd_set_wb_addr(pdat, (void *)virt_to_phys((virtual_addr_t)&pdat->yc[0]), (void *)virt_to_phys((virtual_addr_t)&pdat->yc[pdat->width * pdat->height]));
+		r528_tvd_set_blue(pdat, 2);
+		r528_tvd_capture_off(pdat);
+		r528_tvd_irq_clear_all(pdat);
+		r528_tvd_irq_disable(pdat);
+		return 1;
 	}
 	else if(s == TVD_SOURCE_PAL)
 	{
@@ -563,22 +567,27 @@ static inline void r528_tvd_init(struct cam_r528_tvd_pdata_t * pdat)
 		r528_tvd_set_wb_uv_swap(pdat, 0);
 		r528_tvd_set_wb_field(pdat, 0);
 		r528_tvd_set_wb_addr(pdat, (void *)virt_to_phys((virtual_addr_t)&pdat->yc[0]), (void *)virt_to_phys((virtual_addr_t)&pdat->yc[pdat->width * pdat->height]));
+		r528_tvd_set_blue(pdat, 2);
+		r528_tvd_capture_off(pdat);
+		r528_tvd_irq_clear_all(pdat);
+		r528_tvd_irq_disable(pdat);
+		return 1;
 	}
-	r528_tvd_set_blue(pdat, 2);
-	r528_tvd_capture_off(pdat);
-	r528_tvd_irq_clear_all(pdat);
-	r528_tvd_irq_disable(pdat);
+	return 0;
 }
 
 static int cam_start(struct camera_t * cam, enum video_format_t fmt, int width, int height)
 {
 	struct cam_r528_tvd_pdata_t * pdat = (struct cam_r528_tvd_pdata_t *)cam->priv;
 
-	r528_tvd_init(pdat);
-	r528_tvd_irq_enable(pdat);
-	r528_tvd_irq_clear_all(pdat);
-	r528_tvd_capture_on(pdat);
-	return 1;
+	if(r528_tvd_init(pdat))
+	{
+		r528_tvd_irq_enable(pdat);
+		r528_tvd_irq_clear_all(pdat);
+		r528_tvd_capture_on(pdat);
+		return 1;
+	}
+	return 0;
 }
 
 static int cam_stop(struct camera_t * cam)

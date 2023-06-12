@@ -632,6 +632,13 @@
 	"regulator-r528-ldo@0x03000150": { "name": "ldoa", "channel": 0 },
 	"regulator-r528-ldo@0x03000150": { "name": "ldob", "channel": 1 },
 
+	"cam-r528-tvd@0x05c01000": {
+		"clocks": ["link-tvd", "bus-tvd", "bus-tvd-top"],
+		"resets": [1041, 1040],
+		"interrupt": 139,
+		"channel": 0
+	},
+
 	"g2d-r528@0x05410000": {
 		"clock-name": "link-g2d",
 		"reset": 80

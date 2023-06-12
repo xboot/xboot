@@ -399,8 +399,8 @@ static inline void t113_tvd_set_wb_addr(struct cam_t113_tvd_pdata_t * pdat, void
 {
 	u32_t val;
 
-	write32(pdat->virt_tvd + TVD_WB3, (u32_t)y);
-	write32(pdat->virt_tvd + TVD_WB4, (u32_t)c);
+	write32(pdat->virt_tvd + TVD_WB3, (u32_t)((unsigned long)y));
+	write32(pdat->virt_tvd + TVD_WB4, (u32_t)((unsigned long)c));
 	val = read32(pdat->virt_tvd + TVD_WB1);
 	val |= 1 << 8;
 	write32(pdat->virt_tvd + TVD_WB1, val);

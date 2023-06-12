@@ -1,5 +1,5 @@
 /*
- * driver/cam-t113-tvd.c
+ * driver/cam-r528-tvd.c
  *
  * Copyright(c) 2007-2023 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -33,7 +33,7 @@
 #include <dma/dma.h>
 #include <camera/camera.h>
 
-#define T113_TVD_TOP_BASE		(0x05c00000)
+#define R528_TVD_TOP_BASE		(0x05c00000)
 
 #define TVD_TOP_DIG_CTL(x)		(0x24 + 0x20 * (x))
 #define TVD_TOP_ADC_CTL(x)		(0x28 + 0x20 * (x))
@@ -108,7 +108,7 @@ enum tvd_foramt_t {
 	TVD_MB_YUV420	= 2,
 };
 
-struct cam_t113_tvd_pdata_t {
+struct cam_r528_tvd_pdata_t {
 	virtual_addr_t virt_tvd_top;
 	virtual_addr_t virt_tvd;
 	struct clocks_t * clks;
@@ -124,7 +124,7 @@ struct cam_t113_tvd_pdata_t {
 	int ready;
 };
 
-static inline void t113_tvd_top_adc_config(struct cam_t113_tvd_pdata_t * pdat, int adc, int en)
+static inline void r528_tvd_top_adc_config(struct cam_r528_tvd_pdata_t * pdat, int adc, int en)
 {
 	u32_t val;
 
@@ -146,7 +146,7 @@ static inline void t113_tvd_top_adc_config(struct cam_t113_tvd_pdata_t * pdat, i
 	write32(pdat->virt_tvd_top + TVD_TOP_ADC_CTL(adc), val);
 }
 
-static inline void t113_tvd_top_select_channel(struct cam_t113_tvd_pdata_t * pdat)
+static inline void r528_tvd_top_select_channel(struct cam_r528_tvd_pdata_t * pdat)
 {
 	u32_t val;
 
@@ -160,7 +160,7 @@ static inline void t113_tvd_top_select_channel(struct cam_t113_tvd_pdata_t * pda
 	write32(pdat->virt_tvd_top + TVD_TOP_MAP, val);
 }
 
-static inline int t113_tvd_get_source(struct cam_t113_tvd_pdata_t * pdat, int timeout)
+static inline int r528_tvd_get_source(struct cam_r528_tvd_pdata_t * pdat, int timeout)
 {
 	u32_t val;
 
@@ -180,7 +180,7 @@ static inline int t113_tvd_get_source(struct cam_t113_tvd_pdata_t * pdat, int ti
 	return TVD_SOURCE_NONE;
 }
 
-static inline void t113_tvd_set_saturation(struct cam_t113_tvd_pdata_t * pdat, int saturation)
+static inline void r528_tvd_set_saturation(struct cam_r528_tvd_pdata_t * pdat, int saturation)
 {
 	u32_t val;
 	int v;
@@ -192,13 +192,13 @@ static inline void t113_tvd_set_saturation(struct cam_t113_tvd_pdata_t * pdat, i
 	write32(pdat->virt_tvd + TVD_ENHANCE2, val);
 }
 
-static inline int t113_tvd_get_saturation(struct cam_t113_tvd_pdata_t * pdat)
+static inline int r528_tvd_get_saturation(struct cam_r528_tvd_pdata_t * pdat)
 {
 	int v = (read32(pdat->virt_tvd + TVD_ENHANCE2) >> 0) & 0xff;
 	return map(v, 0x0, 0xff, -1000, 1000);
 }
 
-static inline void t113_tvd_set_brightness(struct cam_t113_tvd_pdata_t * pdat, int brightness)
+static inline void r528_tvd_set_brightness(struct cam_r528_tvd_pdata_t * pdat, int brightness)
 {
 	u32_t val;
 	int v;
@@ -213,7 +213,7 @@ static inline void t113_tvd_set_brightness(struct cam_t113_tvd_pdata_t * pdat, i
 	write32(pdat->virt_tvd + TVD_ENHANCE1, val);
 }
 
-static inline int t113_tvd_get_brightness(struct cam_t113_tvd_pdata_t * pdat)
+static inline int r528_tvd_get_brightness(struct cam_r528_tvd_pdata_t * pdat)
 {
 	int v = (read32(pdat->virt_tvd + TVD_ENHANCE1) >> 16) & 0xff;
 	if(v < 0x20)
@@ -222,7 +222,7 @@ static inline int t113_tvd_get_brightness(struct cam_t113_tvd_pdata_t * pdat)
 		return map(v, 0x20, 0xff, 0, 1000);
 }
 
-static inline void t113_tvd_set_contrast(struct cam_t113_tvd_pdata_t * pdat, int contrast)
+static inline void r528_tvd_set_contrast(struct cam_r528_tvd_pdata_t * pdat, int contrast)
 {
 	u32_t val;
 	int v;
@@ -234,13 +234,13 @@ static inline void t113_tvd_set_contrast(struct cam_t113_tvd_pdata_t * pdat, int
 	write32(pdat->virt_tvd + TVD_ENHANCE1, val);
 }
 
-static inline int t113_tvd_get_contrast(struct cam_t113_tvd_pdata_t * pdat)
+static inline int r528_tvd_get_contrast(struct cam_r528_tvd_pdata_t * pdat)
 {
 	int v = (read32(pdat->virt_tvd + TVD_ENHANCE1) >> 8) & 0xff;
 	return map(v, 0x0, 0xff, -1000, 1000);
 }
 
-static inline void t113_tvd_set_hue(struct cam_t113_tvd_pdata_t * pdat, int hue)
+static inline void r528_tvd_set_hue(struct cam_r528_tvd_pdata_t * pdat, int hue)
 {
 	u32_t val;
 	int v;
@@ -252,13 +252,13 @@ static inline void t113_tvd_set_hue(struct cam_t113_tvd_pdata_t * pdat, int hue)
 	write32(pdat->virt_tvd + TVD_DEBUG2, val);
 }
 
-static inline int t113_tvd_get_hue(struct cam_t113_tvd_pdata_t * pdat)
+static inline int r528_tvd_get_hue(struct cam_r528_tvd_pdata_t * pdat)
 {
 	int v = (read32(pdat->virt_tvd + TVD_DEBUG2) >> 20) & 0xff;
 	return map((char)(v & 0xff), -128, 127, -1000, 1000);
 }
 
-static inline void t113_tvd_set_sharpness(struct cam_t113_tvd_pdata_t * pdat, int sharpness)
+static inline void r528_tvd_set_sharpness(struct cam_r528_tvd_pdata_t * pdat, int sharpness)
 {
 	u32_t val;
 	int v;
@@ -279,13 +279,13 @@ static inline void t113_tvd_set_sharpness(struct cam_t113_tvd_pdata_t * pdat, in
 	write32(pdat->virt_tvd + TVD_ENHANCE1, val);
 }
 
-static inline int t113_tvd_get_sharpness(struct cam_t113_tvd_pdata_t * pdat)
+static inline int r528_tvd_get_sharpness(struct cam_r528_tvd_pdata_t * pdat)
 {
 	int v = (read32(pdat->virt_tvd + TVD_ENHANCE1) >> 25) & 0x7;
 	return map(v, 0x0, 0x7, 0, 1000);
 }
 
-static inline void t113_tvd_enable(struct cam_t113_tvd_pdata_t * pdat, int en)
+static inline void r528_tvd_enable(struct cam_r528_tvd_pdata_t * pdat, int en)
 {
 	u32_t val;
 
@@ -297,7 +297,7 @@ static inline void t113_tvd_enable(struct cam_t113_tvd_pdata_t * pdat, int en)
 	write32(pdat->virt_tvd + TVD_EN, val);
 }
 
-static inline void t113_tvd_set_blue(struct cam_t113_tvd_pdata_t * pdat, int flag)
+static inline void r528_tvd_set_blue(struct cam_r528_tvd_pdata_t * pdat, int flag)
 {
 	u32_t val;
 
@@ -308,7 +308,7 @@ static inline void t113_tvd_set_blue(struct cam_t113_tvd_pdata_t * pdat, int fla
 	write32(pdat->virt_tvd + TVD_MODE, val);
 }
 
-static inline void t113_tvd_set_wb_fmt(struct cam_t113_tvd_pdata_t * pdat, enum tvd_foramt_t fmt)
+static inline void r528_tvd_set_wb_fmt(struct cam_r528_tvd_pdata_t * pdat, enum tvd_foramt_t fmt)
 {
 	u32_t val = read32(pdat->virt_tvd + TVD_WB1);
 
@@ -335,7 +335,7 @@ static inline void t113_tvd_set_wb_fmt(struct cam_t113_tvd_pdata_t * pdat, enum 
 	write32(pdat->virt_tvd + TVD_WB1, val);
 }
 
-static inline void t113_tvd_set_wb_uv_swap(struct cam_t113_tvd_pdata_t * pdat, int swap)
+static inline void r528_tvd_set_wb_uv_swap(struct cam_r528_tvd_pdata_t * pdat, int swap)
 {
 	u32_t val;
 
@@ -347,7 +347,7 @@ static inline void t113_tvd_set_wb_uv_swap(struct cam_t113_tvd_pdata_t * pdat, i
 	write32(pdat->virt_tvd + TVD_WB1, val);
 }
 
-static inline void t113_tvd_set_wb_field(struct cam_t113_tvd_pdata_t * pdat, int field)
+static inline void r528_tvd_set_wb_field(struct cam_r528_tvd_pdata_t * pdat, int field)
 {
 	u32_t val;
 
@@ -365,7 +365,7 @@ static inline void t113_tvd_set_wb_field(struct cam_t113_tvd_pdata_t * pdat, int
 	write32(pdat->virt_tvd + TVD_WB1, val);
 }
 
-static inline void t113_tvd_set_wb_width_jump(struct cam_t113_tvd_pdata_t * pdat, int jump)
+static inline void r528_tvd_set_wb_width_jump(struct cam_r528_tvd_pdata_t * pdat, int jump)
 {
 	u32_t val;
 
@@ -375,7 +375,7 @@ static inline void t113_tvd_set_wb_width_jump(struct cam_t113_tvd_pdata_t * pdat
 	write32(pdat->virt_tvd + TVD_WB1, val);
 }
 
-static inline void t113_tvd_set_wb_width(struct cam_t113_tvd_pdata_t * pdat, int width)
+static inline void r528_tvd_set_wb_width(struct cam_r528_tvd_pdata_t * pdat, int width)
 {
 	u32_t val;
 
@@ -385,7 +385,7 @@ static inline void t113_tvd_set_wb_width(struct cam_t113_tvd_pdata_t * pdat, int
 	write32(pdat->virt_tvd + TVD_WB2, val);
 }
 
-static inline void t113_tvd_set_wb_height(struct cam_t113_tvd_pdata_t * pdat, int height)
+static inline void r528_tvd_set_wb_height(struct cam_r528_tvd_pdata_t * pdat, int height)
 {
 	u32_t val;
 
@@ -395,7 +395,7 @@ static inline void t113_tvd_set_wb_height(struct cam_t113_tvd_pdata_t * pdat, in
 	write32(pdat->virt_tvd + TVD_WB2, val);
 }
 
-static inline void t113_tvd_set_wb_addr(struct cam_t113_tvd_pdata_t * pdat, void * y, void * c)
+static inline void r528_tvd_set_wb_addr(struct cam_r528_tvd_pdata_t * pdat, void * y, void * c)
 {
 	u32_t val;
 
@@ -406,7 +406,7 @@ static inline void t113_tvd_set_wb_addr(struct cam_t113_tvd_pdata_t * pdat, void
 	write32(pdat->virt_tvd + TVD_WB1, val);
 }
 
-static inline void t113_tvd_irq_enable(struct cam_t113_tvd_pdata_t * pdat)
+static inline void r528_tvd_irq_enable(struct cam_r528_tvd_pdata_t * pdat)
 {
 	u32_t val;
 
@@ -415,7 +415,7 @@ static inline void t113_tvd_irq_enable(struct cam_t113_tvd_pdata_t * pdat)
 	write32(pdat->virt_tvd + TVD_IRQ_CTL, val);
 }
 
-static inline void t113_tvd_irq_disable(struct cam_t113_tvd_pdata_t * pdat)
+static inline void r528_tvd_irq_disable(struct cam_r528_tvd_pdata_t * pdat)
 {
 	u32_t val;
 
@@ -424,17 +424,17 @@ static inline void t113_tvd_irq_disable(struct cam_t113_tvd_pdata_t * pdat)
 	write32(pdat->virt_tvd + TVD_IRQ_CTL, val);
 }
 
-static inline void t113_tvd_irq_clear(struct cam_t113_tvd_pdata_t * pdat)
+static inline void r528_tvd_irq_clear(struct cam_r528_tvd_pdata_t * pdat)
 {
 	write32(pdat->virt_tvd + TVD_IRQ_STATUS, 1 << 24);
 }
 
-static inline void t113_tvd_irq_clear_all(struct cam_t113_tvd_pdata_t * pdat)
+static inline void r528_tvd_irq_clear_all(struct cam_r528_tvd_pdata_t * pdat)
 {
 	write32(pdat->virt_tvd + TVD_IRQ_STATUS, read32(pdat->virt_tvd + TVD_IRQ_STATUS));
 }
 
-static inline void t113_tvd_capture_on(struct cam_t113_tvd_pdata_t * pdat)
+static inline void r528_tvd_capture_on(struct cam_r528_tvd_pdata_t * pdat)
 {
 	u32_t val;
 
@@ -443,7 +443,7 @@ static inline void t113_tvd_capture_on(struct cam_t113_tvd_pdata_t * pdat)
 	write32(pdat->virt_tvd + TVD_WB1, val);
 }
 
-static inline void t113_tvd_capture_off(struct cam_t113_tvd_pdata_t * pdat)
+static inline void r528_tvd_capture_off(struct cam_r528_tvd_pdata_t * pdat)
 {
 	u32_t val;
 
@@ -452,13 +452,13 @@ static inline void t113_tvd_capture_off(struct cam_t113_tvd_pdata_t * pdat)
 	write32(pdat->virt_tvd + TVD_WB1, val);
 }
 
-static inline void t113_tvd_config(struct cam_t113_tvd_pdata_t * pdat, enum tvd_source_t s, enum tvd_foramt_t fmt)
+static inline void r528_tvd_config(struct cam_r528_tvd_pdata_t * pdat, enum tvd_source_t s, enum tvd_foramt_t fmt)
 {
 	u32_t val;
 
 	if(s == TVD_SOURCE_NTSC)
 	{
-		t113_tvd_enable(pdat, 0);
+		r528_tvd_enable(pdat, 0);
 		val = (160 << 24) | (1 << 16) | (221 << 8) | (1 << 1) | (1 << 0);
 		write32(pdat->virt_tvd + TVD_CLAMP_AGC1, val);
 		val = (31 << 1) | (1666 << 16) | (100 << 8) | (64 << 0);
@@ -479,23 +479,23 @@ static inline void t113_tvd_config(struct cam_t113_tvd_pdata_t * pdat, enum tvd_
 		write32(pdat->virt_tvd + TVD_ENHANCE1, 0x14208000);
 		write32(pdat->virt_tvd + TVD_ENHANCE2, 0x00000680);
 		write32(pdat->virt_tvd + TVD_ENHANCE3, 0x00000000);
-		t113_tvd_enable(pdat, 1);
+		r528_tvd_enable(pdat, 1);
 		if(fmt == TVD_MB_YUV420)
 		{
-			t113_tvd_set_wb_width(pdat, 704);
-			t113_tvd_set_wb_width_jump(pdat, 704);
-			t113_tvd_set_wb_height(pdat, 224);
+			r528_tvd_set_wb_width(pdat, 704);
+			r528_tvd_set_wb_width_jump(pdat, 704);
+			r528_tvd_set_wb_height(pdat, 224);
 		}
 		else
 		{
-			t113_tvd_set_wb_width(pdat, 720);
-			t113_tvd_set_wb_width_jump(pdat, 720);
-			t113_tvd_set_wb_height(pdat, 240);
+			r528_tvd_set_wb_width(pdat, 720);
+			r528_tvd_set_wb_width_jump(pdat, 720);
+			r528_tvd_set_wb_height(pdat, 240);
 		}
 	}
 	else if(s == TVD_SOURCE_PAL)
 	{
-		t113_tvd_enable(pdat, 0);
+		r528_tvd_enable(pdat, 0);
 		val = (144 << 24) | (1 << 16) | (220 << 8) | (1 << 1) | (1 << 0);
 		write32(pdat->virt_tvd + TVD_CLAMP_AGC1, val);
 		val = (31 << 1) | (1666 << 16) | (100 << 8) | (64 << 0);
@@ -516,41 +516,41 @@ static inline void t113_tvd_config(struct cam_t113_tvd_pdata_t * pdat, enum tvd_
 		write32(pdat->virt_tvd + TVD_ENHANCE1, 0x14208000);
 		write32(pdat->virt_tvd + TVD_ENHANCE2, 0x00000680);
 		write32(pdat->virt_tvd + TVD_ENHANCE3, 0x00000000);
-		t113_tvd_enable(pdat, 1);
+		r528_tvd_enable(pdat, 1);
 		if(fmt == TVD_MB_YUV420)
 		{
-			t113_tvd_set_wb_width(pdat, 704);
-			t113_tvd_set_wb_width_jump(pdat, 704);
-			t113_tvd_set_wb_height(pdat, 288);
+			r528_tvd_set_wb_width(pdat, 704);
+			r528_tvd_set_wb_width_jump(pdat, 704);
+			r528_tvd_set_wb_height(pdat, 288);
 		}
 		else
 		{
-			t113_tvd_set_wb_width(pdat, 720);
-			t113_tvd_set_wb_width_jump(pdat, 720);
-			t113_tvd_set_wb_height(pdat, 288);
+			r528_tvd_set_wb_width(pdat, 720);
+			r528_tvd_set_wb_width_jump(pdat, 720);
+			r528_tvd_set_wb_height(pdat, 288);
 		}
 	}
 }
 
-static inline void t113_tvd_init(struct cam_t113_tvd_pdata_t * pdat)
+static inline void r528_tvd_init(struct cam_r528_tvd_pdata_t * pdat)
 {
 	enum tvd_source_t s;
 
-	t113_tvd_top_adc_config(pdat, 0, 1);
-	t113_tvd_top_select_channel(pdat);
-	t113_tvd_enable(pdat, 1);
-	s = t113_tvd_get_source(pdat, 100);
+	r528_tvd_top_adc_config(pdat, 0, 1);
+	r528_tvd_top_select_channel(pdat);
+	r528_tvd_enable(pdat, 1);
+	s = r528_tvd_get_source(pdat, 100);
 	if(s == TVD_SOURCE_NTSC)
 	{
 		pdat->fmt = VIDEO_FORMAT_NV12;
 		pdat->width = 720;
 		pdat->height = 480;
 		pdat->buflen = pdat->width * pdat->height * 2;
-		t113_tvd_config(pdat, s, TVD_PL_YUV420);
-		t113_tvd_set_wb_fmt(pdat, TVD_PL_YUV420);
-		t113_tvd_set_wb_uv_swap(pdat, 0);
-		t113_tvd_set_wb_field(pdat, 0);
-		t113_tvd_set_wb_addr(pdat, (void *)virt_to_phys((virtual_addr_t)&pdat->yc[0]), (void *)virt_to_phys((virtual_addr_t)&pdat->yc[pdat->width * pdat->height]));
+		r528_tvd_config(pdat, s, TVD_PL_YUV420);
+		r528_tvd_set_wb_fmt(pdat, TVD_PL_YUV420);
+		r528_tvd_set_wb_uv_swap(pdat, 0);
+		r528_tvd_set_wb_field(pdat, 0);
+		r528_tvd_set_wb_addr(pdat, (void *)virt_to_phys((virtual_addr_t)&pdat->yc[0]), (void *)virt_to_phys((virtual_addr_t)&pdat->yc[pdat->width * pdat->height]));
 	}
 	else if(s == TVD_SOURCE_PAL)
 	{
@@ -558,42 +558,42 @@ static inline void t113_tvd_init(struct cam_t113_tvd_pdata_t * pdat)
 		pdat->width = 720;
 		pdat->height = 576;
 		pdat->buflen = pdat->width * pdat->height * 2;
-		t113_tvd_config(pdat, s, TVD_PL_YUV420);
-		t113_tvd_set_wb_fmt(pdat, TVD_PL_YUV420);
-		t113_tvd_set_wb_uv_swap(pdat, 0);
-		t113_tvd_set_wb_field(pdat, 0);
-		t113_tvd_set_wb_addr(pdat, (void *)virt_to_phys((virtual_addr_t)&pdat->yc[0]), (void *)virt_to_phys((virtual_addr_t)&pdat->yc[pdat->width * pdat->height]));
+		r528_tvd_config(pdat, s, TVD_PL_YUV420);
+		r528_tvd_set_wb_fmt(pdat, TVD_PL_YUV420);
+		r528_tvd_set_wb_uv_swap(pdat, 0);
+		r528_tvd_set_wb_field(pdat, 0);
+		r528_tvd_set_wb_addr(pdat, (void *)virt_to_phys((virtual_addr_t)&pdat->yc[0]), (void *)virt_to_phys((virtual_addr_t)&pdat->yc[pdat->width * pdat->height]));
 	}
-	t113_tvd_set_blue(pdat, 2);
-	t113_tvd_capture_off(pdat);
-	t113_tvd_irq_clear_all(pdat);
-	t113_tvd_irq_disable(pdat);
+	r528_tvd_set_blue(pdat, 2);
+	r528_tvd_capture_off(pdat);
+	r528_tvd_irq_clear_all(pdat);
+	r528_tvd_irq_disable(pdat);
 }
 
 static int cam_start(struct camera_t * cam, enum video_format_t fmt, int width, int height)
 {
-	struct cam_t113_tvd_pdata_t * pdat = (struct cam_t113_tvd_pdata_t *)cam->priv;
+	struct cam_r528_tvd_pdata_t * pdat = (struct cam_r528_tvd_pdata_t *)cam->priv;
 
-	t113_tvd_init(pdat);
-	t113_tvd_irq_enable(pdat);
-	t113_tvd_irq_clear_all(pdat);
-	t113_tvd_capture_on(pdat);
+	r528_tvd_init(pdat);
+	r528_tvd_irq_enable(pdat);
+	r528_tvd_irq_clear_all(pdat);
+	r528_tvd_capture_on(pdat);
 	return 1;
 }
 
 static int cam_stop(struct camera_t * cam)
 {
-	struct cam_t113_tvd_pdata_t * pdat = (struct cam_t113_tvd_pdata_t *)cam->priv;
+	struct cam_r528_tvd_pdata_t * pdat = (struct cam_r528_tvd_pdata_t *)cam->priv;
 
-	t113_tvd_capture_off(pdat);
-	t113_tvd_irq_clear_all(pdat);
-	t113_tvd_irq_disable(pdat);
+	r528_tvd_capture_off(pdat);
+	r528_tvd_irq_clear_all(pdat);
+	r528_tvd_irq_disable(pdat);
 	return 1;
 }
 
 static int cam_capture(struct camera_t * cam, struct video_frame_t * frame)
 {
-	struct cam_t113_tvd_pdata_t * pdat = (struct cam_t113_tvd_pdata_t *)cam->priv;
+	struct cam_r528_tvd_pdata_t * pdat = (struct cam_r528_tvd_pdata_t *)cam->priv;
 
 	if(pdat->ready)
 	{
@@ -610,7 +610,7 @@ static int cam_capture(struct camera_t * cam, struct video_frame_t * frame)
 
 static int cam_ioctl(struct camera_t * cam, const char * cmd, void * arg)
 {
-	struct cam_t113_tvd_pdata_t * pdat = (struct cam_t113_tvd_pdata_t *)cam->priv;
+	struct cam_r528_tvd_pdata_t * pdat = (struct cam_r528_tvd_pdata_t *)cam->priv;
 	int * p = arg;
 
 	switch(shash(cmd))
@@ -638,70 +638,70 @@ static int cam_ioctl(struct camera_t * cam, const char * cmd, void * arg)
 	case 0xd5d73dfe: /* "camera-set-saturation" */
 		if(p)
 		{
-			t113_tvd_set_saturation(pdat, *p);
+			r528_tvd_set_saturation(pdat, *p);
 			return 0;
 		}
 		break;
 	case 0x0ed48a72: /* "camera-get-saturation" */
 		if(p)
 		{
-			*p = t113_tvd_get_saturation(pdat);
+			*p = r528_tvd_get_saturation(pdat);
 			return 0;
 		}
 		break;
 	case 0xdae4842d: /* "camera-set-brightness" */
 		if(p)
 		{
-			t113_tvd_set_brightness(pdat, *p);
+			r528_tvd_set_brightness(pdat, *p);
 			return 0;
 		}
 		break;
 	case 0x13e1d0a1: /* "camera-get-brightness" */
 		if(p)
 		{
-			*p = t113_tvd_get_brightness(pdat);
+			*p = r528_tvd_get_brightness(pdat);
 			return 0;
 		}
 		break;
 	case 0xf3916322: /* "camera-set-contrast" */
 		if(p)
 		{
-			t113_tvd_set_contrast(pdat, *p);
+			r528_tvd_set_contrast(pdat, *p);
 			return 0;
 		}
 		break;
 	case 0xa8290296: /* "camera-get-contrast" */
 		if(p)
 		{
-			*p = t113_tvd_get_contrast(pdat);
+			*p = r528_tvd_get_contrast(pdat);
 			return 0;
 		}
 		break;
 	case 0x7e2ee316: /* "camera-set-hue" */
 		if(p)
 		{
-			t113_tvd_set_hue(pdat, *p);
+			r528_tvd_set_hue(pdat, *p);
 			return 0;
 		}
 		break;
 	case 0xe2740a0a: /* "camera-get-hue" */
 		if(p)
 		{
-			*p = t113_tvd_get_hue(pdat);
+			*p = r528_tvd_get_hue(pdat);
 			return 0;
 		}
 		break;
 	case 0x4a3b52eb: /* "camera-set-sharpness" */
 		if(p)
 		{
-			t113_tvd_set_sharpness(pdat, *p);
+			r528_tvd_set_sharpness(pdat, *p);
 			return 0;
 		}
 		break;
 	case 0x91c6e0df: /* "camera-get-sharpness" */
 		if(p)
 		{
-			*p = t113_tvd_get_sharpness(pdat);
+			*p = r528_tvd_get_sharpness(pdat);
 			return 0;
 		}
 		break;
@@ -711,17 +711,17 @@ static int cam_ioctl(struct camera_t * cam, const char * cmd, void * arg)
 	return -1;
 }
 
-static void t113_tvd_interrupt(void * data)
+static void r528_tvd_interrupt(void * data)
 {
 	struct camera_t * cam = (struct camera_t *)data;
-	struct cam_t113_tvd_pdata_t * pdat = (struct cam_t113_tvd_pdata_t *)cam->priv;
+	struct cam_r528_tvd_pdata_t * pdat = (struct cam_r528_tvd_pdata_t *)cam->priv;
 	pdat->ready = 1;
-	t113_tvd_irq_clear(pdat);
+	r528_tvd_irq_clear(pdat);
 }
 
-static struct device_t * cam_t113_tvd_probe(struct driver_t * drv, struct dtnode_t * n)
+static struct device_t * cam_r528_tvd_probe(struct driver_t * drv, struct dtnode_t * n)
 {
-	struct cam_t113_tvd_pdata_t * pdat;
+	struct cam_r528_tvd_pdata_t * pdat;
 	struct camera_t * cam;
 	struct device_t * dev;
 	int irq = dt_read_int(n, "interrupt", -1);
@@ -729,7 +729,7 @@ static struct device_t * cam_t113_tvd_probe(struct driver_t * drv, struct dtnode
 	if(!irq_is_valid(irq))
 		return NULL;
 
-	pdat = malloc(sizeof(struct cam_t113_tvd_pdata_t));
+	pdat = malloc(sizeof(struct cam_r528_tvd_pdata_t));
 	if(!pdat)
 		return NULL;
 
@@ -740,7 +740,7 @@ static struct device_t * cam_t113_tvd_probe(struct driver_t * drv, struct dtnode
 		return NULL;
 	}
 
-	pdat->virt_tvd_top = phys_to_virt(T113_TVD_TOP_BASE);
+	pdat->virt_tvd_top = phys_to_virt(R528_TVD_TOP_BASE);
 	pdat->virt_tvd = phys_to_virt(dt_read_address(n));
 	pdat->clks = clocks_alloc(n, "clocks");
 	pdat->rsts = resets_alloc(n, "resets");
@@ -758,7 +758,7 @@ static struct device_t * cam_t113_tvd_probe(struct driver_t * drv, struct dtnode
 
 	clocks_enable(pdat->clks);
 	resets_reset(pdat->rsts, 1);
-	request_irq(pdat->irq, t113_tvd_interrupt, IRQ_TYPE_NONE, cam);
+	request_irq(pdat->irq, r528_tvd_interrupt, IRQ_TYPE_NONE, cam);
 
 	if(!(dev = register_camera(cam, drv)))
 	{
@@ -774,10 +774,10 @@ static struct device_t * cam_t113_tvd_probe(struct driver_t * drv, struct dtnode
 	return dev;
 }
 
-static void cam_t113_tvd_remove(struct device_t * dev)
+static void cam_r528_tvd_remove(struct device_t * dev)
 {
 	struct camera_t * cam = (struct camera_t *)dev->priv;
-	struct cam_t113_tvd_pdata_t * pdat = (struct cam_t113_tvd_pdata_t *)cam->priv;
+	struct cam_r528_tvd_pdata_t * pdat = (struct cam_r528_tvd_pdata_t *)cam->priv;
 
 	if(cam)
 	{
@@ -792,31 +792,31 @@ static void cam_t113_tvd_remove(struct device_t * dev)
 	}
 }
 
-static void cam_t113_tvd_suspend(struct device_t * dev)
+static void cam_r528_tvd_suspend(struct device_t * dev)
 {
 }
 
-static void cam_t113_tvd_resume(struct device_t * dev)
+static void cam_r528_tvd_resume(struct device_t * dev)
 {
 }
 
-static struct driver_t cam_t113_tvd = {
-	.name		= "cam-t113-tvd",
-	.probe		= cam_t113_tvd_probe,
-	.remove		= cam_t113_tvd_remove,
-	.suspend	= cam_t113_tvd_suspend,
-	.resume		= cam_t113_tvd_resume,
+static struct driver_t cam_r528_tvd = {
+	.name		= "cam-r528-tvd",
+	.probe		= cam_r528_tvd_probe,
+	.remove		= cam_r528_tvd_remove,
+	.suspend	= cam_r528_tvd_suspend,
+	.resume		= cam_r528_tvd_resume,
 };
 
-static __init void cam_t113_tvd_driver_init(void)
+static __init void cam_r528_tvd_driver_init(void)
 {
-	register_driver(&cam_t113_tvd);
+	register_driver(&cam_r528_tvd);
 }
 
-static __exit void cam_t113_tvd_driver_exit(void)
+static __exit void cam_r528_tvd_driver_exit(void)
 {
-	unregister_driver(&cam_t113_tvd);
+	unregister_driver(&cam_r528_tvd);
 }
 
-driver_initcall(cam_t113_tvd_driver_init);
-driver_exitcall(cam_t113_tvd_driver_exit);
+driver_initcall(cam_r528_tvd_driver_init);
+driver_exitcall(cam_r528_tvd_driver_exit);

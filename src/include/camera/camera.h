@@ -152,6 +152,36 @@ static inline void camera_set_contrast(struct camera_t * cam, int contrast)
 	camera_ioctl(cam, "camera-set-contrast", &contrast);
 }
 
+static inline int camera_get_hue(struct camera_t * cam)
+{
+	int hue;
+
+	if(camera_ioctl(cam, "camera-get-hue", &hue) >= 0)
+		return hue;
+	return 0;
+}
+
+static inline void camera_set_hue(struct camera_t * cam, int hue)
+{
+	hue = clamp(hue, -1000, 1000);
+	camera_ioctl(cam, "camera-set-hue", &hue);
+}
+
+static inline int camera_get_sharpness(struct camera_t * cam)
+{
+	int sharpness;
+
+	if(camera_ioctl(cam, "camera-get-sharpness", &sharpness) >= 0)
+		return sharpness;
+	return 0;
+}
+
+static inline void camera_set_sharpness(struct camera_t * cam, int sharpness)
+{
+	sharpness = clamp(sharpness, -1000, 1000);
+	camera_ioctl(cam, "camera-set-sharpness", &sharpness);
+}
+
 struct camera_t * search_camera(const char * name);
 struct camera_t * search_first_camera(void);
 struct device_t * register_camera(struct camera_t * cam, struct driver_t * drv);

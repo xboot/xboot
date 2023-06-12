@@ -346,6 +346,40 @@ static int m_camera_get_contrast(lua_State * L)
 	return 1;
 }
 
+static int m_camera_set_hue(lua_State * L)
+{
+	struct lcamera_t * lcam = luaL_checkudata(L, 1, MT_HARDWARE_CAMERA);
+	int hue = luaL_optnumber(L, 2, 0.0) * (lua_Number)(1000);
+	camera_set_hue(lcam->cam, hue);
+	lua_settop(L, 1);
+	return 1;
+}
+
+static int m_camera_get_hue(lua_State * L)
+{
+	struct lcamera_t * lcam = luaL_checkudata(L, 1, MT_HARDWARE_CAMERA);
+	int hue = camera_get_hue(lcam->cam);
+	lua_pushnumber(L, hue / (lua_Number)(1000));
+	return 1;
+}
+
+static int m_camera_set_sharpness(lua_State * L)
+{
+	struct lcamera_t * lcam = luaL_checkudata(L, 1, MT_HARDWARE_CAMERA);
+	int sharpness = luaL_optnumber(L, 2, 0.0) * (lua_Number)(1000);
+	camera_set_sharpness(lcam->cam, sharpness);
+	lua_settop(L, 1);
+	return 1;
+}
+
+static int m_camera_get_sharpness(lua_State * L)
+{
+	struct lcamera_t * lcam = luaL_checkudata(L, 1, MT_HARDWARE_CAMERA);
+	int sharpness = camera_get_sharpness(lcam->cam);
+	lua_pushnumber(L, sharpness / (lua_Number)(1000));
+	return 1;
+}
+
 static const luaL_Reg m_camera[] = {
 	{"__tostring",			m_camera_tostring},
 	{"getType",				m_camera_get_type},
@@ -373,6 +407,10 @@ static const luaL_Reg m_camera[] = {
 	{"getBrightness",		m_camera_get_brightness},
 	{"setContrast",			m_camera_set_contrast},
 	{"getContrast",			m_camera_get_contrast},
+	{"setHue",				m_camera_set_hue},
+	{"getHue",				m_camera_get_hue},
+	{"setSharpness",		m_camera_set_sharpness},
+	{"getSharpness",		m_camera_get_sharpness},
 
 	{NULL,	NULL}
 };

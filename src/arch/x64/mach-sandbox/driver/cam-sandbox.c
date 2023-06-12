@@ -112,6 +112,14 @@ static int cam_ioctl(struct camera_t * cam, const char * cmd, void * arg)
 		break;
 	case 0xa8290296: /* "camera-get-contrast" */
 		break;
+	case 0x7e2ee316: /* "camera-set-hue" */
+		break;
+	case 0xe2740a0a: /* "camera-get-hue" */
+		break;
+	case 0x4a3b52eb: /* "camera-set-sharpness" */
+		break;
+	case 0x91c6e0df: /* "camera-get-sharpness" */
+		break;
 	default:
 		break;
 	}

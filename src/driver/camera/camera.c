@@ -133,6 +133,32 @@ static ssize_t camera_write_contrast(struct kobj_t * kobj, void * buf, size_t si
 	return size;
 }
 
+static ssize_t camera_read_hue(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct camera_t * cam = (struct camera_t *)kobj->priv;
+	return sprintf(buf, "%d", camera_get_hue(cam));
+}
+
+static ssize_t camera_write_hue(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct camera_t * cam = (struct camera_t *)kobj->priv;
+	camera_set_hue(cam, strtol(buf, NULL, 0));
+	return size;
+}
+
+static ssize_t camera_read_sharpness(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct camera_t * cam = (struct camera_t *)kobj->priv;
+	return sprintf(buf, "%d", camera_get_sharpness(cam));
+}
+
+static ssize_t camera_write_sharpness(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct camera_t * cam = (struct camera_t *)kobj->priv;
+	camera_set_sharpness(cam, strtol(buf, NULL, 0));
+	return size;
+}
+
 struct camera_t * search_camera(const char * name)
 {
 	struct device_t * dev;
@@ -180,6 +206,8 @@ struct device_t * register_camera(struct camera_t * cam, struct driver_t * drv)
 	kobj_add_regular(dev->kobj, "saturation", camera_read_saturation, camera_write_saturation, cam);
 	kobj_add_regular(dev->kobj, "brightness", camera_read_brightness, camera_write_brightness, cam);
 	kobj_add_regular(dev->kobj, "contrast", camera_read_contrast, camera_write_contrast, cam);
+	kobj_add_regular(dev->kobj, "hue", camera_read_hue, camera_write_hue, cam);
+	kobj_add_regular(dev->kobj, "sharpness", camera_read_sharpness, camera_write_sharpness, cam);
 
 	if(!register_device(dev))
 	{

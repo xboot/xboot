@@ -437,7 +437,7 @@
 		"clock-name": "timer1"
 	},
 
-	"uart-16550@0x02500000": {
+	"uart-16550:0@0x02500000": {
 		"clock-name": "bus-uart0",
 		"reset": 432,
 		"txd-gpio": 130,
@@ -450,7 +450,7 @@
 		"stop-bits": 1
 	},
 
-	"uart-16550@0x02500400": {
+	"uart-16550:1@0x02500400": {
 		"clock-name": "bus-uart1",
 		"reset": 433,
 		"txd-gpio": 198,
@@ -463,7 +463,7 @@
 		"stop-bits": 1
 	},
 
-	"uart-16550@0x02500800": {
+	"uart-16550:2@0x02500800": {
 		"clock-name": "bus-uart2",
 		"reset": 434,
 		"txd-gpio": 32,
@@ -476,7 +476,7 @@
 		"stop-bits": 1
 	},
 
-	"uart-16550@0x02500c00": {
+	"uart-16550:3@0x02500c00": {
 		"clock-name": "bus-uart3",
 		"reset": 435,
 		"txd-gpio": 106,
@@ -489,7 +489,7 @@
 		"stop-bits": 1
 	},
 
-	"uart-16550@0x02501000": {
+	"uart-16550:4@0x02501000": {
 		"clock-name": "bus-uart4",
 		"reset": 436,
 		"txd-gpio": 194,
@@ -502,7 +502,7 @@
 		"stop-bits": 1
 	},
 
-	"uart-16550@0x02501400": {
+	"uart-16550:5@0x02501400": {
 		"clock-name": "bus-uart5",
 		"reset": 437,
 		"txd-gpio": 36,
@@ -515,7 +515,7 @@
 		"stop-bits": 1
 	},
 
-	"i2c-f133@0x02502000": {
+	"i2c-f133:0@0x02502000": {
 		"clock-name": "bus-i2c0",
 		"clock-frequency": 400000,
 		"reset": 464,
@@ -525,7 +525,7 @@
 		"scl-gpio-config": -1
 	},
 
-	"i2c-f133@0x02502400": {
+	"i2c-f133:1@0x02502400": {
 		"clock-name": "bus-i2c1",
 		"clock-frequency": 400000,
 		"reset": 465,
@@ -535,7 +535,7 @@
 		"scl-gpio-config": -1
 	},
 
-	"i2c-f133@0x02502800": {
+	"i2c-f133:2@0x02502800": {
 		"clock-name": "bus-i2c2",
 		"clock-frequency": 400000,
 		"reset": 466,
@@ -545,7 +545,7 @@
 		"scl-gpio-config": 2
 	},
 
-	"i2c-f133@0x02502c00": {
+	"i2c-f133:3@0x02502c00": {
 		"clock-name": "bus-i2c3",
 		"clock-frequency": 400000,
 		"reset": 467,
@@ -555,7 +555,7 @@
 		"scl-gpio-config": -1
 	},
 
-	"spi-f133@0x04025000": {
+	"spi-f133:0@0x04025000": {
 		"clock-name": "spi0",
 		"reset": 496,
 		"sclk-gpio": 66,
@@ -568,7 +568,7 @@
 		"cs-gpio-config": 2
 	},
 
-	"spi-f133@0x04026000": {
+	"spi-f133:1@0x04026000": {
 		"clock-name": "spi1",
 		"reset": 497,
 		"sclk-gpio": 107,

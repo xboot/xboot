@@ -791,9 +791,9 @@ static void cam_t113_tvd_remove(struct device_t * dev)
 	if(cam)
 	{
 		unregister_camera(cam);
-		resets_free(pdat->rsts);
 		clocks_disable(pdat->clks);
 		clocks_free(pdat->clks);
+		resets_free(pdat->rsts);
 		dma_free_noncoherent(pdat->yc);
 		free_device_name(cam->name);
 		free(cam->priv);

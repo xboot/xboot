@@ -633,7 +633,7 @@
 	"regulator-r528-ldo@0x03000150": { "name": "ldob", "channel": 1 },
 
 	"cam-r528-tvd@0x05c01000": {
-		"clocks": ["link-tvd", "bus-tvd", "bus-tvd-top"],
+		"clocks": ["link-tvd", "bus-tvd", "bus-tvd-top", "mbus-tvin"],
 		"resets": [1041, 1040],
 		"interrupt": 139,
 		"channel": 0

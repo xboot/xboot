@@ -30,6 +30,7 @@
 #include <clk/clk.h>
 #include <reset/reset.h>
 #include <interrupt/interrupt.h>
+#include <dma/dma.h>
 #include <camera/camera.h>
 
 #define T113_TVD_TOP_BASE		(0x05c00000)
@@ -73,6 +74,20 @@ enum {
 	TVD_IRQ_CTL		= 0x0080,
 	TVD_IRQ_STATUS	= 0x0090,
 	TVD_DEBUG1		= 0x0100,
+	TVD_DEBUG2		= 0x0104,
+	TVD_DEBUG3		= 0x0108,
+	TVD_DEBUG4		= 0x010c,
+	TVD_DEBUG5		= 0x0110,
+	TVD_DEBUG6		= 0x0114,
+	TVD_DEBUG7		= 0x0118,
+	TVD_DEBUG8		= 0x011c,
+	TVD_DEBUG9		= 0x0120,
+	TVD_DEBUG10		= 0x0124,
+	TVD_DEBUG11		= 0x0128,
+	TVD_DEBUG12		= 0x012c,
+	TVD_DEBUG13		= 0x0130,
+	TVD_DEBUG14		= 0x0134,
+	TVD_DEBUG15		= 0x0138,
 	TVD_STATUS1		= 0x0180,
 	TVD_STATUS2		= 0x0184,
 	TVD_STATUS3		= 0x0188,
@@ -225,6 +240,51 @@ static inline int t113_tvd_get_contrast(struct cam_t113_tvd_pdata_t * pdat)
 	return map(v, 0x0, 0xff, -1000, 1000);
 }
 
+static inline void t113_tvd_set_hue(struct cam_t113_tvd_pdata_t * pdat, int hue)
+{
+	u32_t val;
+	int v;
+
+	v = map(hue, -1000, 1000, -128, 127);
+	val = read32(pdat->virt_tvd + TVD_DEBUG2);
+	val &= ~(0xff << 20);
+	val |= ((char)(v & 0xff)) << 20;
+	write32(pdat->virt_tvd + TVD_DEBUG2, val);
+}
+
+static inline int t113_tvd_get_hue(struct cam_t113_tvd_pdata_t * pdat)
+{
+	int v = (read32(pdat->virt_tvd + TVD_DEBUG2) >> 20) & 0xff;
+	return map((char)(v & 0xff), -128, 127, -1000, 1000);
+}
+
+static inline void t113_tvd_set_sharpness(struct cam_t113_tvd_pdata_t * pdat, int sharpness)
+{
+	u32_t val;
+	int v;
+
+	if(sharpness < 0)
+		v = 0x0;
+	else
+		v = map(sharpness, 0, 1000, 0x0, 0x7);
+	val = read32(pdat->virt_tvd + TVD_ENHANCE1);
+	val &= ~(0x3f << 24);
+	if(v <= 0)
+		val |= (0x0 << 28) | (1 << 24);
+	else
+	{
+		val |= (v & 0x7) << 25;
+		val |= (0x1 << 28) | (1 << 24);
+	}
+	write32(pdat->virt_tvd + TVD_ENHANCE1, val);
+}
+
+static inline int t113_tvd_get_sharpness(struct cam_t113_tvd_pdata_t * pdat)
+{
+	int v = (read32(pdat->virt_tvd + TVD_ENHANCE1) >> 25) & 0x7;
+	return map(v, 0x0, 0x7, 0, 1000);
+}
+
 static inline void t113_tvd_enable(struct cam_t113_tvd_pdata_t * pdat, int en)
 {
 	u32_t val;
@@ -364,11 +424,6 @@ static inline void t113_tvd_irq_disable(struct cam_t113_tvd_pdata_t * pdat)
 	write32(pdat->virt_tvd + TVD_IRQ_CTL, val);
 }
 
-static inline int t113_tvd_irq_status(struct cam_t113_tvd_pdata_t * pdat)
-{
-	return read32(pdat->virt_tvd + TVD_IRQ_STATUS) & (1 << 24) ? 1 : 0;
-}
-
 static inline void t113_tvd_irq_clear(struct cam_t113_tvd_pdata_t * pdat)
 {
 	write32(pdat->virt_tvd + TVD_IRQ_STATUS, 1 << 24);
@@ -413,14 +468,14 @@ static inline void t113_tvd_config(struct cam_t113_tvd_pdata_t * pdat, enum tvd_
 		val = 0x21f07c1f;
 		write32(pdat->virt_tvd + TVD_CLOCK2, val);
 		write32(pdat->virt_tvd + TVD_HLOCK1, 0x20000000);
-		write32(pdat->virt_tvd + TVD_HLOCK2, 0x4ed60000);
+		write32(pdat->virt_tvd + TVD_HLOCK2, 0x78d60000);
 		write32(pdat->virt_tvd + TVD_HLOCK3, 0x0fe9502d);
 		write32(pdat->virt_tvd + TVD_HLOCK4, 0x3e3e8000);
-		write32(pdat->virt_tvd + TVD_HLOCK5, 0x4e225082);
+		write32(pdat->virt_tvd + TVD_HLOCK5, 0x42225082);
 		write32(pdat->virt_tvd + TVD_VLOCK1, 0x00610220);
 		write32(pdat->virt_tvd + TVD_VLOCK2, 0x000e0070);
-		write32(pdat->virt_tvd + TVD_YC_SEP1, 0x00004209);
-		write32(pdat->virt_tvd + TVD_YC_SEP2, 0xff6440af);
+		write32(pdat->virt_tvd + TVD_YC_SEP1, 0x05004209);
+		write32(pdat->virt_tvd + TVD_YC_SEP2, 0x0b1543fa);
 		write32(pdat->virt_tvd + TVD_ENHANCE1, 0x14208000);
 		write32(pdat->virt_tvd + TVD_ENHANCE2, 0x00000680);
 		write32(pdat->virt_tvd + TVD_ENHANCE3, 0x00000000);
@@ -450,14 +505,14 @@ static inline void t113_tvd_config(struct cam_t113_tvd_pdata_t * pdat, enum tvd_
 		val = 0x2a098acb;
 		write32(pdat->virt_tvd + TVD_CLOCK2, val);
 		write32(pdat->virt_tvd + TVD_HLOCK1, 0x20000000);
-		write32(pdat->virt_tvd + TVD_HLOCK2, 0x4ed60000);
+		write32(pdat->virt_tvd + TVD_HLOCK2, 0x78d60001);
 		write32(pdat->virt_tvd + TVD_HLOCK3, 0x0fe9502d);
 		write32(pdat->virt_tvd + TVD_HLOCK4, 0x3e3e8000);
-		write32(pdat->virt_tvd + TVD_HLOCK5, 0x4e225082);
-		write32(pdat->virt_tvd + TVD_VLOCK1, 0x00610220);
+		write32(pdat->virt_tvd + TVD_HLOCK5, 0x42225089);
+		write32(pdat->virt_tvd + TVD_VLOCK1, 0x00c102a1);
 		write32(pdat->virt_tvd + TVD_VLOCK2, 0x000e0070);
-		write32(pdat->virt_tvd + TVD_YC_SEP1, 0x00004209);
-		write32(pdat->virt_tvd + TVD_YC_SEP2, 0xff6440af);
+		write32(pdat->virt_tvd + TVD_YC_SEP1, 0x0100426c);
+		write32(pdat->virt_tvd + TVD_YC_SEP2, 0x0b1441fa);
 		write32(pdat->virt_tvd + TVD_ENHANCE1, 0x14208000);
 		write32(pdat->virt_tvd + TVD_ENHANCE2, 0x00000680);
 		write32(pdat->virt_tvd + TVD_ENHANCE3, 0x00000000);
@@ -623,12 +678,32 @@ static int cam_ioctl(struct camera_t * cam, const char * cmd, void * arg)
 		}
 		break;
 	case 0x7e2ee316: /* "camera-set-hue" */
+		if(p)
+		{
+			t113_tvd_set_hue(pdat, *p);
+			return 0;
+		}
 		break;
 	case 0xe2740a0a: /* "camera-get-hue" */
+		if(p)
+		{
+			*p = t113_tvd_get_hue(pdat);
+			return 0;
+		}
 		break;
 	case 0x4a3b52eb: /* "camera-set-sharpness" */
+		if(p)
+		{
+			t113_tvd_set_sharpness(pdat, *p);
+			return 0;
+		}
 		break;
 	case 0x91c6e0df: /* "camera-get-sharpness" */
+		if(p)
+		{
+			*p = t113_tvd_get_sharpness(pdat);
+			return 0;
+		}
 		break;
 	default:
 		break;
@@ -671,7 +746,7 @@ static struct device_t * cam_t113_tvd_probe(struct driver_t * drv, struct dtnode
 	pdat->rsts = resets_alloc(n, "resets");
 	pdat->irq = irq;
 	pdat->channel = clamp(dt_read_int(n, "channel", 0), 0, 1);
-	pdat->yc = memalign(1024, 720 * 576 * 2);
+	pdat->yc = dma_alloc_noncoherent(720 * 576 * 2);
 	pdat->ready = 0;
 
 	cam->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
@@ -690,7 +765,7 @@ static struct device_t * cam_t113_tvd_probe(struct driver_t * drv, struct dtnode
 		clocks_disable(pdat->clks);
 		clocks_free(pdat->clks);
 		resets_free(pdat->rsts);
-		free(pdat->yc);
+		dma_free_noncoherent(pdat->yc);
 		free_device_name(cam->name);
 		free(cam->priv);
 		free(cam);
@@ -710,7 +785,7 @@ static void cam_t113_tvd_remove(struct device_t * dev)
 		resets_free(pdat->rsts);
 		clocks_disable(pdat->clks);
 		clocks_free(pdat->clks);
-		free(pdat->yc);
+		dma_free_noncoherent(pdat->yc);
 		free_device_name(cam->name);
 		free(cam->priv);
 		free(cam);

@@ -30,6 +30,7 @@
 #include <clk/clk.h>
 #include <reset/reset.h>
 #include <interrupt/interrupt.h>
+#include <dma/dma.h>
 #include <camera/camera.h>
 
 enum {
@@ -44,21 +45,22 @@ enum {
 };
 
 enum tvd_source_t {
-	TVD_SOURCE_NTSC,
-	TVD_SOURCE_PAL,
+	TVD_SOURCE_NONE	= 0,
+	TVD_SOURCE_NTSC	= 1,
+	TVD_SOURCE_PAL	= 2,
 };
 
 enum tvd_foramt_t {
-	TVD_PL_YUV422,
-	TVD_PL_YUV420,
-	TVD_MB_YUV420,
+	TVD_PL_YUV422	= 0,
+	TVD_PL_YUV420	= 1,
+	TVD_MB_YUV420	= 2,
 };
 
 struct cam_f1c500s_tvd_pdata_t {
 	virtual_addr_t virt;
-	char * clk;
+	struct clocks_t * clks;
+	struct resets_t * rsts;
 	int irq;
-	int reset;
 	int channel;
 
 	unsigned char * yc;
@@ -166,16 +168,6 @@ static inline void f1c500s_tvd_select_channel(struct cam_f1c500s_tvd_pdata_t * p
 	write32(pdat->virt + 0x0e04, val);
 }
 
-static inline void f1c500s_tvd_set_hstart(struct cam_f1c500s_tvd_pdata_t * pdat, int hstart)
-{
-	u32_t val;
-
-	val = read32(pdat->virt + 0x001c);
-	val &= ~(0xfff << 16);
-	val |= (hstart & 0xfff) << 16;
-	write32(pdat->virt + 0x001c, val);
-}
-
 static inline void f1c500s_tvd_set_vstart(struct cam_f1c500s_tvd_pdata_t * pdat, int vstart)
 {
 	u32_t val;
@@ -211,7 +203,7 @@ static inline void f1c500s_tvd_set_height(struct cam_f1c500s_tvd_pdata_t * pdat,
 	write32(pdat->virt + 0x008c, val);
 }
 
-static inline void f1c500s_tvd_set_fmt(struct cam_f1c500s_tvd_pdata_t *pdat, enum tvd_foramt_t fmt)
+static inline void f1c500s_tvd_set_wb_fmt(struct cam_f1c500s_tvd_pdata_t *pdat, enum tvd_foramt_t fmt)
 {
 	u32_t val = read32(pdat->virt + 0x0088);
 
@@ -245,7 +237,7 @@ static inline void f1c500s_tvd_set_blue(struct cam_f1c500s_tvd_pdata_t * pdat, i
 	write32(pdat->virt + TVD_MODE, val);
 }
 
-static inline void f1c500s_tvd_set_addr(struct cam_f1c500s_tvd_pdata_t * pdat, void * y, void * c)
+static inline void f1c500s_tvd_set_wb_addr(struct cam_f1c500s_tvd_pdata_t * pdat, void * y, void * c)
 {
 	u32_t val;
 
@@ -277,6 +269,11 @@ static inline void f1c500s_tvd_irq_disable(struct cam_f1c500s_tvd_pdata_t * pdat
 static inline void f1c500s_tvd_irq_clear(struct cam_f1c500s_tvd_pdata_t * pdat)
 {
 	write32(pdat->virt + TVD_IRQ_STATUS, 1 << 24);
+}
+
+static inline void f1c500s_tvd_irq_clear_all(struct cam_f1c500s_tvd_pdata_t * pdat)
+{
+	write32(pdat->virt + TVD_IRQ_STATUS, read32(pdat->virt + TVD_IRQ_STATUS));
 }
 
 static inline void f1c500s_tvd_capture_on(struct cam_f1c500s_tvd_pdata_t * pdat)
@@ -364,10 +361,8 @@ static inline void f1c500s_tvd_config(struct cam_f1c500s_tvd_pdata_t * pdat, enu
 	}
 }
 
-static inline void f1c500s_tvd_init(struct cam_f1c500s_tvd_pdata_t * pdat)
+static inline int f1c500s_tvd_init(struct cam_f1c500s_tvd_pdata_t * pdat)
 {
-	enum tvd_source_t s;
-
 	write32(pdat->virt + 0x0088, 0x04000000);
 	write32(pdat->virt + 0x0070, 0x00000100);
 	write32(pdat->virt + 0x0e04, 0x8002aaa8);
@@ -388,7 +383,7 @@ static inline void f1c500s_tvd_init(struct cam_f1c500s_tvd_pdata_t * pdat)
 	f1c500s_tvd_select_channel(pdat);
 	mdelay(50);
 
-	s = f1c500s_tvd_get_source(pdat);
+	enum tvd_source_t s = f1c500s_tvd_get_source(pdat);
 	if(s == TVD_SOURCE_NTSC)
 	{
 		pdat->fmt = VIDEO_FORMAT_NV12;
@@ -397,8 +392,13 @@ static inline void f1c500s_tvd_init(struct cam_f1c500s_tvd_pdata_t * pdat)
 		pdat->buflen = pdat->width * pdat->height * 2;
 		pdat->ready = 0;
 		f1c500s_tvd_config(pdat, s, TVD_PL_YUV420);
-		f1c500s_tvd_set_fmt(pdat, TVD_PL_YUV420);
-		f1c500s_tvd_set_addr(pdat, &pdat->yc[0], &pdat->yc[pdat->width * pdat->height]);
+		f1c500s_tvd_set_wb_fmt(pdat, TVD_PL_YUV420);
+		f1c500s_tvd_set_wb_addr(pdat, (void *)virt_to_phys((virtual_addr_t)&pdat->yc[0]), (void *)virt_to_phys((virtual_addr_t)&pdat->yc[pdat->width * pdat->height]));
+		f1c500s_tvd_set_blue(pdat, 2);
+		f1c500s_tvd_capture_off(pdat);
+		f1c500s_tvd_irq_clear_all(pdat);
+		f1c500s_tvd_irq_disable(pdat);
+		return 1;
 	}
 	else if(s == TVD_SOURCE_PAL)
 	{
@@ -408,30 +408,37 @@ static inline void f1c500s_tvd_init(struct cam_f1c500s_tvd_pdata_t * pdat)
 		pdat->buflen = pdat->width * pdat->height * 2;
 		pdat->ready = 0;
 		f1c500s_tvd_config(pdat, s, TVD_PL_YUV420);
-		f1c500s_tvd_set_fmt(pdat, TVD_PL_YUV420);
-		f1c500s_tvd_set_addr(pdat, &pdat->yc[0], &pdat->yc[pdat->width * pdat->height]);
+		f1c500s_tvd_set_wb_fmt(pdat, TVD_PL_YUV420);
+		f1c500s_tvd_set_wb_addr(pdat, (void *)virt_to_phys((virtual_addr_t)&pdat->yc[0]), (void *)virt_to_phys((virtual_addr_t)&pdat->yc[pdat->width * pdat->height]));
+		f1c500s_tvd_set_blue(pdat, 2);
+		f1c500s_tvd_capture_off(pdat);
+		f1c500s_tvd_irq_clear_all(pdat);
+		f1c500s_tvd_irq_disable(pdat);
+		return 1;
 	}
-	f1c500s_tvd_set_blue(pdat, 2);
-	f1c500s_tvd_capture_off(pdat);
-	f1c500s_tvd_irq_clear(pdat);
-	f1c500s_tvd_irq_disable(pdat);
+	return 0;
 }
 
 static int cam_start(struct camera_t * cam, enum video_format_t fmt, int width, int height)
 {
 	struct cam_f1c500s_tvd_pdata_t * pdat = (struct cam_f1c500s_tvd_pdata_t *)cam->priv;
-	f1c500s_tvd_init(pdat);
-	f1c500s_tvd_irq_enable(pdat);
-	f1c500s_tvd_irq_clear(pdat);
-	f1c500s_tvd_capture_on(pdat);
-	return 1;
+
+	if(f1c500s_tvd_init(pdat))
+	{
+		f1c500s_tvd_irq_enable(pdat);
+		f1c500s_tvd_irq_clear_all(pdat);
+		f1c500s_tvd_capture_on(pdat);
+		return 1;
+	}
+	return 0;
 }
 
 static int cam_stop(struct camera_t * cam)
 {
 	struct cam_f1c500s_tvd_pdata_t * pdat = (struct cam_f1c500s_tvd_pdata_t *)cam->priv;
+
 	f1c500s_tvd_capture_off(pdat);
-	f1c500s_tvd_irq_clear(pdat);
+	f1c500s_tvd_irq_clear_all(pdat);
 	f1c500s_tvd_irq_disable(pdat);
 	return 1;
 }
@@ -439,6 +446,7 @@ static int cam_stop(struct camera_t * cam)
 static int cam_capture(struct camera_t * cam, struct video_frame_t * frame)
 {
 	struct cam_f1c500s_tvd_pdata_t * pdat = (struct cam_f1c500s_tvd_pdata_t *)cam->priv;
+
 	if(pdat->ready)
 	{
 		frame->fmt = pdat->fmt;
@@ -558,12 +566,7 @@ static struct device_t * cam_f1c500s_tvd_probe(struct driver_t * drv, struct dtn
 	struct cam_f1c500s_tvd_pdata_t * pdat;
 	struct camera_t * cam;
 	struct device_t * dev;
-	virtual_addr_t virt = phys_to_virt(dt_read_address(n));
-	char * clk = dt_read_string(n, "clock-name", NULL);
 	int irq = dt_read_int(n, "interrupt", -1);
-
-	if(!search_clk(clk))
-		return NULL;
 
 	if(!irq_is_valid(irq))
 		return NULL;
@@ -579,12 +582,12 @@ static struct device_t * cam_f1c500s_tvd_probe(struct driver_t * drv, struct dtn
 		return NULL;
 	}
 
-	pdat->virt = virt;
-	pdat->clk = strdup(clk);
+	pdat->virt = phys_to_virt(dt_read_address(n));
+	pdat->clks = clocks_alloc(n, "clocks");
+	pdat->rsts = resets_alloc(n, "resets");
 	pdat->irq = irq;
-	pdat->reset = dt_read_int(n, "reset", -1);
 	pdat->channel = clamp(dt_read_int(n, "channel", 0), 0, 1);
-	pdat->yc = memalign(1024, 720 * 576 * 2);
+	pdat->yc = dma_alloc_noncoherent(720 * 576 * 2);
 	pdat->ready = 0;
 
 	cam->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
@@ -594,17 +597,17 @@ static struct device_t * cam_f1c500s_tvd_probe(struct driver_t * drv, struct dtn
 	cam->ioctl = cam_ioctl;
 	cam->priv = pdat;
 
-	clk_enable(pdat->clk);
-	if(pdat->reset >= 0)
-		reset_deassert(pdat->reset);
+	clocks_enable(pdat->clks);
+	resets_reset(pdat->rsts, 1);
 	request_irq(pdat->irq, f1c500s_tvd_interrupt, IRQ_TYPE_NONE, cam);
 
 	if(!(dev = register_camera(cam, drv)))
 	{
 		free_irq(pdat->irq);
-		clk_disable(pdat->clk);
-		free(pdat->clk);
-		free(pdat->yc);
+		clocks_disable(pdat->clks);
+		clocks_free(pdat->clks);
+		resets_free(pdat->rsts);
+		dma_free_noncoherent(pdat->yc);
 		free_device_name(cam->name);
 		free(cam->priv);
 		free(cam);
@@ -622,9 +625,10 @@ static void cam_f1c500s_tvd_remove(struct device_t * dev)
 	{
 		unregister_camera(cam);
 		free_irq(pdat->irq);
-		clk_disable(pdat->clk);
-		free(pdat->clk);
-		free(pdat->yc);
+		clocks_disable(pdat->clks);
+		clocks_free(pdat->clks);
+		resets_free(pdat->rsts);
+		dma_free_noncoherent(pdat->yc);
 		free_device_name(cam->name);
 		free(cam->priv);
 		free(cam);

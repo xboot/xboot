@@ -421,9 +421,9 @@
 	},
 
 	"cam-f1c200s-tvd@0x01c0b000": {
-		"clock-name": "link-tvd",
+		"clocks": ["link-tvd"],
+		"resets": [41],
 		"interrupt": 27,
-		"reset": 41,
 		"channel": 0
 	},
 

@@ -39,11 +39,11 @@ struct audio_pwm_pdata_t {
 	enum audio_rate_t rate;
 	enum audio_format_t fmt;
 	int ch;
-	int volume;
 	int running;
+	float factor;
 };
 
-static void audio_pwm_resample(int16_t * out, int osr, int osample, int16_t * in, int isr, int isample)
+static void audio_pwm_resample(int16_t * out, int osr, int osample, int16_t * in, int isr, int isample, float factor)
 {
 	if(out && in)
 	{
@@ -53,7 +53,7 @@ static void audio_pwm_resample(int16_t * out, int osr, int osample, int16_t * in
 		uint64_t offset = 0;
 		for(int i = 0; i < osample; i += 1)
 		{
-			*out++ = (int16_t)(in[0] + (in[1] - in[0]) * ((float)(offset >> 32) + ((offset & (frac - 1)) * fixed)));
+			*out++ = (int16_t)((in[0] + (in[1] - in[0]) * ((float)(offset >> 32) + ((offset & (frac - 1)) * fixed))) * factor);
 			offset += step;
 			in += (offset >> 32);
 			offset &= (frac - 1);
@@ -118,7 +118,7 @@ static int audio_pwm_playback_write(struct audio_t * audio, void * buf, int len)
 					int16_t * q = &((int16_t *)inbuf)[osample - 1];
 					for(i = 0; i < isample; i++)
 						*q-- = (int16_t)((int)(*p--) * 128);
-					audio_pwm_resample(outbuf, 8000, osample, (int16_t *)inbuf, pdat->rate, isample);
+					audio_pwm_resample(outbuf, 8000, osample, (int16_t *)inbuf, pdat->rate, isample, pdat->factor);
 					__fifo_put(pdat->fifo, (unsigned char *)outbuf, osample << 1);
 					cnt = isample * pdat->ch * (pdat->fmt >> 3);
 				}
@@ -136,7 +136,7 @@ static int audio_pwm_playback_write(struct audio_t * audio, void * buf, int len)
 					int16_t * q = &((int16_t *)inbuf)[osample - 1];
 					for(i = 0; i < isample; i++, p-=2)
 						*q-- = (int16_t)(((int)p[0] + (int)p[1]) * 128);
-					audio_pwm_resample(outbuf, 8000, osample, (int16_t *)inbuf, pdat->rate, isample);
+					audio_pwm_resample(outbuf, 8000, osample, (int16_t *)inbuf, pdat->rate, isample, pdat->factor);
 					__fifo_put(pdat->fifo, (unsigned char *)outbuf, osample << 1);
 					cnt = isample * pdat->ch * (pdat->fmt >> 3);
 				}
@@ -152,7 +152,7 @@ static int audio_pwm_playback_write(struct audio_t * audio, void * buf, int len)
 				{
 					osample = isample * 8000.0 / pdat->rate;
 					osample -= osample % 2;
-					audio_pwm_resample(outbuf, 8000, osample, (int16_t *)inbuf, pdat->rate, isample);
+					audio_pwm_resample(outbuf, 8000, osample, (int16_t *)inbuf, pdat->rate, isample, pdat->factor);
 					__fifo_put(pdat->fifo, (unsigned char *)outbuf, osample << 1);
 					cnt = isample * pdat->ch * (pdat->fmt >> 3);
 				}
@@ -170,7 +170,7 @@ static int audio_pwm_playback_write(struct audio_t * audio, void * buf, int len)
 					int16_t * q = (int16_t *)inbuf;
 					for(i = 0; i < isample; i++, p+=2)
 						*q++ = (int16_t)(((int)p[0] + (int)p[1]) >> 1);
-					audio_pwm_resample(outbuf, 8000, osample, (int16_t *)inbuf, pdat->rate, isample);
+					audio_pwm_resample(outbuf, 8000, osample, (int16_t *)inbuf, pdat->rate, isample, pdat->factor);
 					__fifo_put(pdat->fifo, (unsigned char *)outbuf, osample << 1);
 					cnt = isample * pdat->ch * (pdat->fmt >> 3);
 				}
@@ -190,7 +190,7 @@ static int audio_pwm_playback_write(struct audio_t * audio, void * buf, int len)
 					int16_t * q = (int16_t *)inbuf;
 					for(i = 0; i < isample; i++, p+=3)
 						*q++ = (int16_t)((int32_t)((p[2] << 24) | (p[1] << 16) | (p[0] << 8)) >> 16);
-					audio_pwm_resample(outbuf, 8000, osample, (int16_t *)inbuf, pdat->rate, isample);
+					audio_pwm_resample(outbuf, 8000, osample, (int16_t *)inbuf, pdat->rate, isample, pdat->factor);
 					__fifo_put(pdat->fifo, (unsigned char *)outbuf, osample << 1);
 					cnt = isample * pdat->ch * (pdat->fmt >> 3);
 				}
@@ -212,7 +212,7 @@ static int audio_pwm_playback_write(struct audio_t * audio, void * buf, int len)
 						int32_t r = (int32_t)((p[5] << 24) | (p[4] << 16) | (p[3] << 8));
 						*q++ = (int16_t)((l + r) >> 17);
 					}
-					audio_pwm_resample(outbuf, 8000, osample, (int16_t *)inbuf, pdat->rate, isample);
+					audio_pwm_resample(outbuf, 8000, osample, (int16_t *)inbuf, pdat->rate, isample, pdat->factor);
 					__fifo_put(pdat->fifo, (unsigned char *)outbuf, osample << 1);
 					cnt = isample * pdat->ch * (pdat->fmt >> 3);
 				}
@@ -232,7 +232,7 @@ static int audio_pwm_playback_write(struct audio_t * audio, void * buf, int len)
 					int16_t * q = (int16_t *)inbuf;
 					for(i = 0; i < isample; i++)
 						*q++ = (int16_t)(*p++ >> 16);
-					audio_pwm_resample(outbuf, 8000, osample, (int16_t *)inbuf, pdat->rate, isample);
+					audio_pwm_resample(outbuf, 8000, osample, (int16_t *)inbuf, pdat->rate, isample, pdat->factor);
 					__fifo_put(pdat->fifo, (unsigned char *)outbuf, osample << 1);
 					cnt = isample * pdat->ch * (pdat->fmt >> 3);
 				}
@@ -250,7 +250,7 @@ static int audio_pwm_playback_write(struct audio_t * audio, void * buf, int len)
 					int16_t * q = (int16_t *)inbuf;
 					for(i = 0; i < isample; i++, p+=2)
 						*q++ = (int16_t)((p[0] + p[1]) >> 17);
-					audio_pwm_resample(outbuf, 8000, osample, (int16_t *)inbuf, pdat->rate, isample);
+					audio_pwm_resample(outbuf, 8000, osample, (int16_t *)inbuf, pdat->rate, isample, pdat->factor);
 					__fifo_put(pdat->fifo, (unsigned char *)outbuf, osample << 1);
 					cnt = isample * pdat->ch * (pdat->fmt >> 3);
 				}
@@ -276,6 +276,19 @@ static void audio_pwm_playback_stop(struct audio_t * audio)
 	__fifo_reset(pdat->fifo);
 }
 
+/*
+ * [0, 1000] ~ [-50db, 0db]
+ */
+static inline float volume_to_factor(int volume)
+{
+	return (volume > 0) ? expf((1000.0 - min(volume, 1000)) * (-0.005756463)) : 0;
+}
+
+static inline int factor_to_volume(float factor)
+{
+	return (factor > 0) ? 1000 - clamp((int )((-173.717792761) * logf(factor) + 0.5), 0, 1000) : 0;
+}
+
 static int audio_pwm_ioctl(struct audio_t * audio, const char * cmd, void * arg)
 {
 	struct audio_pwm_pdata_t * pdat = (struct audio_pwm_pdata_t *)audio->priv;
@@ -286,14 +299,14 @@ static int audio_pwm_ioctl(struct audio_t * audio, const char * cmd, void * arg)
 	case 0x892b3889: /* "audio-set-playback-volume" */
 		if(p)
 		{
-			pdat->volume = clamp(p[0], 0, 1000);
+			pdat->factor = volume_to_factor(p[0]);
 			return 0;
 		}
 		break;
 	case 0x3eee6d7d: /* "audio-get-playback-volume" */
 		if(p)
 		{
-			p[0] = pdat->volume;
+			p[0] = factor_to_volume(pdat->factor);
 			return 0;
 		}
 		break;
@@ -332,8 +345,8 @@ static struct device_t * audio_pwm_probe(struct driver_t * drv, struct dtnode_t 
 	pdat->fifo = fifo_alloc(2048);
 	pdat->pwm = pwm;
 	pdat->polarity = dt_read_bool(n, "pwm-polarity", 1);
-	pdat->volume = 1000;
 	pdat->running = 0;
+	pdat->factor = 1.0;
 
 	audio->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
 	audio->playback_start = audio_pwm_playback_start;

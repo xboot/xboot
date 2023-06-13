@@ -663,6 +663,13 @@
 		"status": "disabled"
 	},
 
+	"cam-f133-tvd@0x05c01000": {
+		"clocks": ["link-tvd", "bus-tvd", "bus-tvd-top", "mbus-tvin"],
+		"resets": [1041, 1040],
+		"interrupt": 123,
+		"channel": 0
+	},
+
 	"ts-f133@0x02009c00": {
 		"clock-name": "link-tpadc",
 		"interrupt": 78,

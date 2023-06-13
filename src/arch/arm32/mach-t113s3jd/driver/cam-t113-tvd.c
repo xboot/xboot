@@ -545,6 +545,7 @@ static inline int t113_tvd_init(struct cam_t113_tvd_pdata_t * pdat)
 		pdat->width = 720;
 		pdat->height = 480;
 		pdat->buflen = pdat->width * pdat->height * 2;
+		pdat->ready = 0;
 		t113_tvd_config(pdat, s, TVD_PL_YUV420);
 		t113_tvd_set_wb_fmt(pdat, TVD_PL_YUV420);
 		t113_tvd_set_wb_uv_swap(pdat, 0);
@@ -562,6 +563,7 @@ static inline int t113_tvd_init(struct cam_t113_tvd_pdata_t * pdat)
 		pdat->width = 720;
 		pdat->height = 576;
 		pdat->buflen = pdat->width * pdat->height * 2;
+		pdat->ready = 0;
 		t113_tvd_config(pdat, s, TVD_PL_YUV420);
 		t113_tvd_set_wb_fmt(pdat, TVD_PL_YUV420);
 		t113_tvd_set_wb_uv_swap(pdat, 0);
@@ -771,6 +773,7 @@ static struct device_t * cam_t113_tvd_probe(struct driver_t * drv, struct dtnode
 
 	if(!(dev = register_camera(cam, drv)))
 	{
+		free_irq(pdat->irq);
 		clocks_disable(pdat->clks);
 		clocks_free(pdat->clks);
 		resets_free(pdat->rsts);
@@ -791,6 +794,7 @@ static void cam_t113_tvd_remove(struct device_t * dev)
 	if(cam)
 	{
 		unregister_camera(cam);
+		free_irq(pdat->irq);
 		clocks_disable(pdat->clks);
 		clocks_free(pdat->clks);
 		resets_free(pdat->rsts);

@@ -35,26 +35,26 @@
 
 struct g2d_d1_pdata_t {
 	virtual_addr_t virt;
-	char * clk;
-	int reset;
+	struct clocks_t * clks;
+	struct resets_t * rsts;
 	struct mutex_t m;
 };
 
-static inline int dcmp(double a, double b)
+static inline int deq(double a, double b)
 {
 	return (fabs(a - b) < 0.000001);
 }
 
 static inline u32_t lo32(void * addr)
 {
-	return (u32_t)((unsigned long)addr);
+	return (u32_t)((unsigned long)virt_to_phys((virtual_addr_t)addr));
 }
 
 static inline u32_t hi32(void * addr)
 {
 	if(sizeof(addr) == sizeof(u32_t))
 		return 0;
-	return (u32_t)(((u64_t)(unsigned long)addr) >> 32);
+	return (u32_t)(((u64_t)(unsigned long)virt_to_phys((virtual_addr_t)addr)) >> 32);
 }
 
 static inline void d1_g2d_init(struct g2d_d1_pdata_t * pdat)
@@ -181,8 +181,8 @@ static int d1_g2d_blit(struct g2d_d1_pdata_t * pdat, struct surface_t * s, struc
 		g2d_wb->WB_LADD2 = 0;
 		g2d_wb->WB_HADD2 = 0;
 
-		dma_cache_sync(s->pixels, s->pixlen, DMA_TO_DEVICE);
-		dma_cache_sync(o->pixels, o->pixlen, DMA_FROM_DEVICE);
+		dma_cache_sync((void *)virt_to_phys((virtual_addr_t)s->pixels), s->pixlen, DMA_TO_DEVICE);
+		dma_cache_sync((void *)virt_to_phys((virtual_addr_t)o->pixels), o->pixlen, DMA_FROM_DEVICE);
 		d1_g2d_mixer_start(pdat);
 		ret = d1_g2d_wait(pdat, 100);
 	}
@@ -236,7 +236,7 @@ static int d1_g2d_fill(struct g2d_d1_pdata_t * pdat, struct surface_t * s, int x
 		g2d_wb->WB_LADD2 = 0;
 		g2d_wb->WB_HADD2 = 0;
 
-		dma_cache_sync(s->pixels, s->pixlen, DMA_FROM_DEVICE);
+		dma_cache_sync((void *)virt_to_phys((virtual_addr_t)s->pixels), s->pixlen, DMA_FROM_DEVICE);
 		d1_g2d_mixer_start(pdat);
 		ret = d1_g2d_wait(pdat, 100);
 	}
@@ -262,51 +262,51 @@ static bool_t g2d_d1_blit(struct g2d_t * g2d, struct surface_t * s, struct regio
 
 	if((r.w >= 2) && (r.h >= 2))
 	{
-		if(dcmp(m->b, 0) && dcmp(m->c, 0))
+		if(deq(m->b, 0) && deq(m->c, 0))
 		{
-			if(dcmp(m->a - m->d, 0))
+			if(deq(m->a - m->d, 0))
 			{
-				if(dcmp(m->a, 1))		/* rotate 0 */
+				if(deq(m->a, 1))		/* rotate 0 */
 				{
 					return d1_g2d_blit(pdat, s, o, r.x, r.y, r.w, r.h);
 				}
-				else if(dcmp(m->a, -1))	/* rotate 180 */
+				else if(deq(m->a, -1))	/* rotate 180 */
 				{
 					return FALSE;
 				}
 			}
-			else if(dcmp(m->a + m->d, 0))
+			else if(deq(m->a + m->d, 0))
 			{
-				if(dcmp(m->a, 1))		/* rotate 0, v-flip | rotate 180, h-flip */
+				if(deq(m->a, 1))		/* rotate 0, v-flip | rotate 180, h-flip */
 				{
 					return FALSE;
 				}
-				else if(dcmp(m->a, -1))	/* rotate 0, h-flip | rotate 180, v-flip */
+				else if(deq(m->a, -1))	/* rotate 0, h-flip | rotate 180, v-flip */
 				{
 					return FALSE;
 				}
 			}
 		}
-		else if(dcmp(m->a, 0) && dcmp(m->d, 0))
+		else if(deq(m->a, 0) && deq(m->d, 0))
 		{
-			if(dcmp(m->b + m->c, 0))
+			if(deq(m->b + m->c, 0))
 			{
-				if(dcmp(m->b, 1))		/* rotate 90 */
+				if(deq(m->b, 1))		/* rotate 90 */
 				{
 					return FALSE;
 				}
-				else if(dcmp(m->b, -1))	/* rotate 270 */
+				else if(deq(m->b, -1))	/* rotate 270 */
 				{
 					return FALSE;
 				}
 			}
-			else if(dcmp(m->b - m->c, 0))
+			else if(deq(m->b - m->c, 0))
 			{
-				if(dcmp(m->b, 1))		/* rotate 90, v-flip | rotate 270, h-flip */
+				if(deq(m->b, 1))		/* rotate 90, v-flip | rotate 270, h-flip */
 				{
 					return FALSE;
 				}
-				else if(dcmp(m->b, -1))	/* rotate 90, h-flip | rotate 270, v-flip */
+				else if(deq(m->b, -1))	/* rotate 90, h-flip | rotate 270, v-flip */
 				{
 					return FALSE;
 				}
@@ -333,51 +333,51 @@ static bool_t g2d_d1_fill(struct g2d_t * g2d, struct surface_t * s, struct regio
 
 	if((r.w >= 2) && (r.h >= 2) && (c->a == 255))
 	{
-		if(dcmp(m->b, 0) && dcmp(m->c, 0))
+		if(deq(m->b, 0) && deq(m->c, 0))
 		{
-			if(dcmp(m->a - m->d, 0))
+			if(deq(m->a - m->d, 0))
 			{
-				if(dcmp(m->a, 1))		/* rotate 0 */
+				if(deq(m->a, 1))		/* rotate 0 */
 				{
 					return d1_g2d_fill(pdat, s, r.x, r.y, r.w, r.h, c);
 				}
-				else if(dcmp(m->a, -1))	/* rotate 180 */
+				else if(deq(m->a, -1))	/* rotate 180 */
 				{
 					return d1_g2d_fill(pdat, s, r.x, r.y, r.w, r.h, c);
 				}
 			}
-			else if(dcmp(m->a + m->d, 0))
+			else if(deq(m->a + m->d, 0))
 			{
-				if(dcmp(m->a, 1))		/* rotate 0, v-flip | rotate 180, h-flip */
+				if(deq(m->a, 1))		/* rotate 0, v-flip | rotate 180, h-flip */
 				{
 					return d1_g2d_fill(pdat, s, r.x, r.y, r.w, r.h, c);
 				}
-				else if(dcmp(m->a, -1))	/* rotate 0, h-flip | rotate 180, v-flip */
+				else if(deq(m->a, -1))	/* rotate 0, h-flip | rotate 180, v-flip */
 				{
 					return d1_g2d_fill(pdat, s, r.x, r.y, r.w, r.h, c);
 				}
 			}
 		}
-		else if(dcmp(m->a, 0) && dcmp(m->d, 0))
+		else if(deq(m->a, 0) && deq(m->d, 0))
 		{
-			if(dcmp(m->b + m->c, 0))
+			if(deq(m->b + m->c, 0))
 			{
-				if(dcmp(m->b, 1))		/* rotate 90 */
+				if(deq(m->b, 1))		/* rotate 90 */
 				{
 					return d1_g2d_fill(pdat, s, r.x, r.y, r.w, r.h, c);
 				}
-				else if(dcmp(m->b, -1))	/* rotate 270 */
+				else if(deq(m->b, -1))	/* rotate 270 */
 				{
 					return d1_g2d_fill(pdat, s, r.x, r.y, r.w, r.h, c);
 				}
 			}
-			else if(dcmp(m->b - m->c, 0))
+			else if(deq(m->b - m->c, 0))
 			{
-				if(dcmp(m->b, 1))		/* rotate 90, v-flip | rotate 270, h-flip */
+				if(deq(m->b, 1))		/* rotate 90, v-flip | rotate 270, h-flip */
 				{
 					return d1_g2d_fill(pdat, s, r.x, r.y, r.w, r.h, c);
 				}
-				else if(dcmp(m->b, -1))	/* rotate 90, h-flip | rotate 270, v-flip */
+				else if(deq(m->b, -1))	/* rotate 90, h-flip | rotate 270, v-flip */
 				{
 					return d1_g2d_fill(pdat, s, r.x, r.y, r.w, r.h, c);
 				}
@@ -393,10 +393,6 @@ static struct device_t * g2d_d1_probe(struct driver_t * drv, struct dtnode_t * n
 	struct g2d_t * g2d;
 	struct device_t * dev;
 	virtual_addr_t virt = phys_to_virt(dt_read_address(n));
-	char * clk = dt_read_string(n, "clock-name", NULL);
-
-	if(!search_clk(clk))
-		return NULL;
 
 	pdat = malloc(sizeof(struct g2d_d1_pdata_t));
 	if(!pdat)
@@ -410,8 +406,8 @@ static struct device_t * g2d_d1_probe(struct driver_t * drv, struct dtnode_t * n
 	}
 
 	pdat->virt = virt;
-	pdat->clk = strdup(clk);
-	pdat->reset = dt_read_int(n, "reset", -1);
+	pdat->clks = clocks_alloc(n, "clocks");
+	pdat->rsts = resets_alloc(n, "resets");
 	mutex_init(&pdat->m);
 
 	g2d->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
@@ -419,15 +415,15 @@ static struct device_t * g2d_d1_probe(struct driver_t * drv, struct dtnode_t * n
 	g2d->fill = g2d_d1_fill;
 	g2d->priv = pdat;
 
-	clk_enable(pdat->clk);
-	if(pdat->reset >= 0)
-		reset_deassert(pdat->reset);
+	clocks_enable(pdat->clks);
+	resets_reset(pdat->rsts, 1);
 	d1_g2d_init(pdat);
 
 	if(!(dev = register_g2d(g2d, drv)))
 	{
-		clk_disable(pdat->clk);
-		free(pdat->clk);
+		clocks_disable(pdat->clks);
+		clocks_free(pdat->clks);
+		resets_free(pdat->rsts);
 		free_device_name(g2d->name);
 		free(g2d->priv);
 		free(g2d);
@@ -444,8 +440,9 @@ static void g2d_d1_remove(struct device_t * dev)
 	if(g2d)
 	{
 		unregister_g2d(g2d);
-		clk_disable(pdat->clk);
-		free(pdat->clk);
+		clocks_disable(pdat->clks);
+		clocks_free(pdat->clks);
+		resets_free(pdat->rsts);
 		free_device_name(g2d->name);
 		free(g2d->priv);
 		free(g2d);

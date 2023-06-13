@@ -690,8 +690,8 @@
 	},
 
 	"g2d-t113@0x05410000": {
-		"clock-name": "link-g2d",
-		"reset": 80
+		"clocks": ["link-g2d", "bus-g2d", "mbus-g2d"],
+		"resets": [80]
 	},
 
 	"fb-t113-rgb@0x05000000": {

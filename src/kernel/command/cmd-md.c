@@ -96,13 +96,13 @@ static int do_md(int argc, char ** argv)
 	while(n > 0)
 	{
 		len = (n > 16) ? 16 : n;
-		printf("%08lx: ", addr);
+		printf("%08x: ", addr);
 		if(size == 1)
 		{
 			for(i = 0; i < len; i += size)
 			{
 				write8((virtual_addr_t)(&buf[i]), (b = read8(addr + i)));
-				printf(" %02lx", b);
+				printf(" %02x", b);
 			}
 		}
 		else if(size == 2)
@@ -110,7 +110,7 @@ static int do_md(int argc, char ** argv)
 			for(i = 0; i < len; i += size)
 			{
 				write16((virtual_addr_t)(&buf[i]), (w = read16(addr + i)));
-				printf(" %04lx", w);
+				printf(" %04x", w);
 			}
 		}
 		else if(size == 4)
@@ -118,7 +118,7 @@ static int do_md(int argc, char ** argv)
 			for(i = 0; i < len; i += size)
 			{
 				write32((virtual_addr_t)(&buf[i]), (l = read32(addr + i)));
-				printf(" %08lx", l);
+				printf(" %08x", l);
 			}
 		}
 		else if(size == 8)
@@ -126,7 +126,7 @@ static int do_md(int argc, char ** argv)
 			for(i = 0; i < len; i += size)
 			{
 				write64((virtual_addr_t)(&buf[i]), (q = read64(addr + i)));
-				printf(" %016llx", q);
+				printf(" %016x", q);
 			}
 		}
 		printf("%*s", (16 - len) * 2 + (16 - len) / size + 4, "");

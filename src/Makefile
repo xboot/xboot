@@ -129,6 +129,7 @@ SRCDIRS		+=	arch/$(ARCH)/lib/cpu \
 				kernel/vision \
 				kernel/xfs \
 				kernel/xui \
+				launcher \
 				driver/adc \
 				driver/audio \
 				driver/battery \

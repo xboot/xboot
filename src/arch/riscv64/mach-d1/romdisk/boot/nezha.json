@@ -682,6 +682,11 @@
 		"status": "disabled"
 	},
 
+	"g2d-d1@0x05410000": {
+		"clocks": ["link-g2d", "bus-g2d", "mbus-g2d"],
+		"resets": [80]
+	},
+
 	"fb-d1-rgb@0x05000000": {
 		"clock-name-de": "link-de",
 		"clock-name-tconlcd": "link-tconlcd",

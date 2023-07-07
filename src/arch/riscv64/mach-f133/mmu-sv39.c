@@ -28,12 +28,22 @@
 
 #include <cache.h>
 
+static void cache_init(void)
+{
+	csr_write(mcor, 0x70013);
+	csr_write(mhcr, 0x11fc);
+	csr_set(mxstatus, 0x638000);
+	csr_write(mhint, 0x16e30c);
+}
+
 static void dcache_enable(void)
 {
-	csr_write(0x7c2, 0x70013);		/* csr_write(mcor, 0x70013); */
-	csr_write(0x7c1, 0x11ff);		/* csr_write(mhcr, 0x11ff); */
-	csr_set(0x7c0, 0x638000);		/* csr_set(mxstatus, 0x638000); */
-	csr_write(0x7c5, 0x16e30c);		/* csr_write(mhint, 0x16e30c); */
+    csr_write(mhcr, 0x2);
+}
+
+static void icache_enable(void)
+{
+    csr_set(mhcr, 0x1);
 }
 
 void mmu_setup(void)
@@ -42,5 +52,7 @@ void mmu_setup(void)
 
 void mmu_enable(void)
 {
+	cache_init();
 	dcache_enable();
+	icache_enable();
 }

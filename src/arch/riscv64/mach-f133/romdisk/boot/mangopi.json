@@ -689,6 +689,11 @@
 		"reset-gpio-config": 1
 	},
 
+	"g2d-f133@0x05410000": {
+		"clocks": ["link-g2d", "bus-g2d", "mbus-g2d"],
+		"resets": [80]
+	},
+
 	"fb-f133-rgb@0x05000000": {
 		"clock-name-de": "link-de",
 		"clock-name-tconlcd": "link-tconlcd",

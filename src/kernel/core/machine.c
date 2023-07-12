@@ -47,6 +47,13 @@ static const char * __machine_uniqueid(struct machine_t * mach)
 	return id ? id : "0123456789";
 }
 
+static int __machine_verify(struct machine_t * mach)
+{
+	if(mach && mach->verify)
+		return mach->verify(mach);
+	return 0;
+}
+
 static struct kobj_t * search_class_machine_kobj(void)
 {
 	struct kobj_t * kclass = kobj_search_directory_with_create(kobj_get_root(), "class");
@@ -79,6 +86,12 @@ static ssize_t machine_read_uniqueid(struct kobj_t * kobj, void * buf, size_t si
 	return sprintf(buf, "%s", __machine_uniqueid(mach));
 }
 
+static ssize_t machine_read_verify(struct kobj_t * kobj, void * buf, size_t size)
+{
+	struct machine_t * mach = (struct machine_t *)kobj->priv;
+	return sprintf(buf, "%s", __machine_verify(mach) ? "okay" : "fail");
+}
+
 static struct machine_t * search_machine(const char * name)
 {
 	struct machine_t * pos, * n;
@@ -108,6 +121,7 @@ bool_t register_machine(struct machine_t * mach)
 	kobj_add_regular(mach->kobj, "description", machine_read_description, NULL, mach);
 	kobj_add_regular(mach->kobj, "mmap", machine_read_mmap, NULL, mach);
 	kobj_add_regular(mach->kobj, "uniqueid", machine_read_uniqueid, NULL, mach);
+	kobj_add_regular(mach->kobj, "verify", machine_read_verify, NULL, mach);
 	kobj_add(search_class_machine_kobj(), mach->kobj);
 
 	spin_lock_irqsave(&__machine_lock, flags);
@@ -308,10 +322,7 @@ int machine_keygen(const char * msg, void * key)
 int machine_verify(void)
 {
 	struct machine_t * mach = get_machine();
-
-	if(mach && mach->verify)
-		return mach->verify(mach);
-	return 0;
+	return __machine_verify(mach);
 }
 
 static virtual_addr_t __phys_to_virt(physical_addr_t phys)

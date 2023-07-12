@@ -94,7 +94,6 @@ static int mach_keygen(struct machine_t * mach, const char * msg, void * key)
 
 static int mach_verify(struct machine_t * mach)
 {
-	struct block_t * blk = search_block("blk-spinor.0.reserve");
 	const uint8_t pubkey[33] = {
 		0x03, 0xcf, 0xd1, 0x8e, 0x4a, 0x4b, 0x40, 0xd6,
 		0x52, 0x94, 0x48, 0xaa, 0x2d, 0xf8, 0xbb, 0xb6,
@@ -102,20 +101,18 @@ static int mach_verify(struct machine_t * mach)
 		0x9e, 0x49, 0x2f, 0xbb, 0xba, 0x4e, 0x84, 0x83,
 		0x2f,
 	};
+	virtual_addr_t virt = phys_to_virt(0x03006200);
 	uint8_t signature[64];
+	uint32_t * p = (uint32_t *)&signature[0];
 
-	if(blk)
+	for(int i = 0; i < sizeof(signature) / 4; i++)
+		p[i] = read32(virt + 0x00c0 + i * 4);
+	const char * uniqueid = machine_uniqueid();
+	if(uniqueid)
 	{
-		if(block_read(blk, signature, 0, sizeof(signature)) == sizeof(signature))
-		{
-			const char * uniqueid = machine_uniqueid();
-			if(uniqueid)
-			{
-				uint8_t sha256[32];
-				sha256_hash(uniqueid, strlen(uniqueid), sha256);
-				return ecdsa256_verify(pubkey, sha256, signature);
-			}
-		}
+		uint8_t sha256[32];
+		sha256_hash(uniqueid, strlen(uniqueid), sha256);
+		return ecdsa256_verify(pubkey, sha256, signature);
 	}
 	return 0;
 }

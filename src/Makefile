@@ -339,7 +339,7 @@ $(X_NAME) : $(X_OBJS)
 	@echo [OC] Objcopying $@.bin
 	@$(OC) -O binary $@ $@.bin
 	@echo [SZ] Listing $@
-	@$(SZ) -G $@
+	@$(SZ) $@
 
 $(X_OBJS) : $(X_OTHERS)
 

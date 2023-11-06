@@ -128,7 +128,7 @@ int xui_textedit_ex(struct xui_context_t * ctx, char * buf, int size, int opt)
 		bg = &wc->normal.background;
 		fg = &wc->normal.foreground;
 		bc = &wc->normal.border;
-		if(opt & XUI_BUTTON_OUTLINE)
+		if(opt & XUI_TEXTEDIT_OUTLINE)
 		{
 			if(bg->a)
 			{

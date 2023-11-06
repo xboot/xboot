@@ -82,22 +82,22 @@ int xui_begin_tree_ex(struct xui_context_t * ctx, const char * label, int opt)
 	width = ctx->style.tree.border_width;
 	switch(opt & (0x7 << 8))
 	{
-	case XUI_BUTTON_PRIMARY:
+	case XUI_TREE_PRIMARY:
 		wc = &ctx->style.primary;
 		break;
-	case XUI_BUTTON_SECONDARY:
+	case XUI_TREE_SECONDARY:
 		wc = &ctx->style.secondary;
 		break;
-	case XUI_BUTTON_SUCCESS:
+	case XUI_TREE_SUCCESS:
 		wc = &ctx->style.success;
 		break;
-	case XUI_BUTTON_INFO:
+	case XUI_TREE_INFO:
 		wc = &ctx->style.info;
 		break;
-	case XUI_BUTTON_WARNING:
+	case XUI_TREE_WARNING:
 		wc = &ctx->style.warning;
 		break;
-	case XUI_BUTTON_DANGER:
+	case XUI_TREE_DANGER:
 		wc = &ctx->style.danger;
 		break;
 	default:

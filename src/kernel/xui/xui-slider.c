@@ -50,7 +50,7 @@ int xui_slider_ex(struct xui_context_t * ctx, double * value, double low, double
 			v = low + (ctx->mouse.x - (r->x + radius)) * (high - low) / (r->w - radius * 2);
 	}
 	if(step > 0)
-		v = ((int)((v + step / 2) / step)) * step;
+		v = ((int64_t)((v - low + step / 2) / step)) * step + low;
 	v = clamp(v, low, high);
 	switch(opt & (0x7 << 8))
 	{

@@ -122,7 +122,7 @@ int xui_slider_ex(struct xui_context_t * ctx, double * value, double low, double
 		if(bg->a)
 			xui_draw_circle(ctx, x, y, radius, 0, bg);
 	}
-	if(*value != v)
+	if(fabs(*value - v) > 0.000001)
 	{
 		*value = v;
 		return 1;

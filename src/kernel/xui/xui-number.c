@@ -118,7 +118,7 @@ int xui_number_ex(struct xui_context_t * ctx, double * value, double low, double
 				xui_draw_text_align(ctx, ctx->style.font.font_family, ctx->style.font.size, xui_format(ctx, fmt, v), r, 0, fg, opt);
 		}
 	}
-	if(*value != v)
+	if(fabs(*value - v) > 0.000001)
 	{
 		*value = v;
 		return 1;

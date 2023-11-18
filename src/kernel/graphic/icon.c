@@ -286,7 +286,7 @@ void surface_icon(struct surface_t * s, struct region_t * clip, struct matrix_t 
 		{
 			pen.x = (FT_Pos)(m->tx + ((ico->size - ico->metrics.width) >> 1));
 			pen.y = (FT_Pos)(m->ty + ((ico->size - ico->metrics.height) >> 1));
-			draw_font_bitmap(s, clip, ico->c, pen.x, pen.y, sbit);
+			draw_font_bitmap(s, clip, ico->c, pen.x + sbit->left, pen.y, sbit);
 		}
 	}
 	else

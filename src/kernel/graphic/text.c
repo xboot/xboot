@@ -485,7 +485,7 @@ void surface_text(struct surface_t * s, struct region_t * clip, struct matrix_t 
 					}
 					tw += sbit->xadvance;
 					{
-						draw_font_bitmap(s, clip, txt->c, pen.x, pen.y - sbit->top, sbit);
+						draw_font_bitmap(s, clip, txt->c, pen.x + sbit->left, pen.y - sbit->top, sbit);
 						pen.x += sbit->xadvance;
 						pen.y += sbit->yadvance;
 					}

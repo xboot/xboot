@@ -70,20 +70,20 @@ static ssize_t clocksource_read_period(struct kobj_t * kobj, void * buf, size_t 
 {
 	struct clocksource_t * cs = (struct clocksource_t *)kobj->priv;
 	u64_t period = ((u64_t)cs->mult) >> cs->shift;
-	return sprintf(buf, "%llu.%09llu", period / 1000000000ULL, period % 1000000000ULL);
+	return sprintf(buf, "%Lu.%09Lu", period / 1000000000ULL, period % 1000000000ULL);
 }
 
 static ssize_t clocksource_read_deferment(struct kobj_t * kobj, void * buf, size_t size)
 {
 	struct clocksource_t * cs = (struct clocksource_t *)kobj->priv;
 	u64_t max = clocksource_deferment(cs);
-	return sprintf(buf, "%llu.%09llu", max / 1000000000ULL, max % 1000000000ULL);
+	return sprintf(buf, "%Lu.%09Lu", max / 1000000000ULL, max % 1000000000ULL);
 }
 
 static ssize_t clocksource_read_cycle(struct kobj_t * kobj, void * buf, size_t size)
 {
 	struct clocksource_t * cs = (struct clocksource_t *)kobj->priv;
-	return sprintf(buf, "%llu", clocksource_cycle(cs));
+	return sprintf(buf, "%Lu", clocksource_cycle(cs));
 }
 
 static ssize_t clocksource_read_time(struct kobj_t * kobj, void * buf, size_t size)
@@ -91,7 +91,7 @@ static ssize_t clocksource_read_time(struct kobj_t * kobj, void * buf, size_t si
 	struct clocksource_t * cs = (struct clocksource_t *)kobj->priv;
 	u64_t cycle = clocksource_cycle(cs);
 	u64_t time = clocksource_delta2ns(cs, cycle);
-	return sprintf(buf, "%llu.%09llu", time / 1000000000ULL, time % 1000000000ULL);
+	return sprintf(buf, "%Lu.%09Lu", time / 1000000000ULL, time % 1000000000ULL);
 }
 
 static int clocksource_keeper_timer_function(struct timer_t * timer, void * data)

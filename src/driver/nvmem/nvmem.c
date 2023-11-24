@@ -38,7 +38,7 @@ static ssize_t nvmem_read_summary(struct kobj_t * kobj, void * buf, size_t size)
 	hmap_sort(m->kvdb.map);
 	hmap_for_each_entry(e, m->kvdb.map)
 	{
-		len += sprintf((char *)(buf + len), "%s = %s\r\n", e->key, e->value);
+		len += sprintf((char *)(buf + len), "%s = %s\r\n", e->key, (char *)e->value);
 	}
 	return len;
 }

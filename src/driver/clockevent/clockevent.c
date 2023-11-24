@@ -70,7 +70,7 @@ static ssize_t clockevent_read_frequency(struct kobj_t * kobj, void * buf, size_
 {
 	struct clockevent_t * ce = (struct clockevent_t *)kobj->priv;
 	u64_t freq = ((u64_t)1000000000ULL * ce->mult) >> ce->shift;
-	return sprintf(buf, "%llu", freq);
+	return sprintf(buf, "%Lu", freq);
 }
 
 static ssize_t clockevent_read_min_delta(struct kobj_t * kobj, void * buf, size_t size)

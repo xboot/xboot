@@ -38,7 +38,7 @@ struct sub_block_pdata_t
 static ssize_t block_read_capacity(struct kobj_t * kobj, void * buf, size_t size)
 {
 	struct block_t * blk = (struct block_t *)kobj->priv;
-	return sprintf(buf, "%lld", block_capacity(blk));
+	return sprintf(buf, "%Ld", block_capacity(blk));
 }
 
 static u64_t sub_block_capacity(struct block_t * blk)

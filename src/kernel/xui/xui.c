@@ -782,6 +782,18 @@ void xui_draw_text_align(struct xui_context_t * ctx, const char * family, int si
 	case XUI_OPT_TEXT_CENTER:
 		x = r->x + (r->w - w) / 2;
 		y = r->y + (r->h - h) / 2;
+		if(opt & XUI_OPT_TEXT_SCROLL)
+		{
+			int u = (w - r->w) / 2 + ctx->style.layout.padding;
+			if(u > 0)
+			{
+				int v = (ktime_to_ns(ctx->stamp) / (u * 2 * 93261 / size));
+				if(v & 0x1000)
+					x = x - u + ((u * 2 * (v & 0xfff)) >> 12);
+				else
+					x = x + u - ((u * 2 * (v & 0xfff)) >> 12);
+			}
+		}
 		break;
 	default:
 		x = r->x + ctx->style.layout.padding;

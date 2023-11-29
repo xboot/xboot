@@ -758,18 +758,26 @@ void xui_draw_text_align(struct xui_context_t * ctx, const char * family, int si
 	case XUI_OPT_TEXT_LEFT:
 		x = r->x + ctx->style.layout.padding;
 		y = r->y + (r->h - h) / 2;
+		if(opt & XUI_OPT_TEXT_SCROLL)
+			x -= (w * ((ktime_to_ns(ctx->stamp) / (w * 93261 / size)) & 0xfff)) >> 12;
 		break;
 	case XUI_OPT_TEXT_RIGHT:
 		x = r->x + r->w - w - ctx->style.layout.padding;
 		y = r->y + (r->h - h) / 2;
+		if(opt & XUI_OPT_TEXT_SCROLL)
+			x += (w * ((ktime_to_ns(ctx->stamp) / (w * 93261 / size)) & 0xfff)) >> 12;
 		break;
 	case XUI_OPT_TEXT_TOP:
 		x = r->x + (r->w - w) / 2;
 		y = r->y + ctx->style.layout.padding;
+		if(opt & XUI_OPT_TEXT_SCROLL)
+			y -= (h * ((ktime_to_ns(ctx->stamp) / (h * 93261 / size)) & 0xfff)) >> 12;
 		break;
 	case XUI_OPT_TEXT_BOTTOM:
 		x = r->x + (r->w - w) / 2;
 		y = r->y + r->h - h - ctx->style.layout.padding;
+		if(opt & XUI_OPT_TEXT_SCROLL)
+			y += (h * ((ktime_to_ns(ctx->stamp) / (h * 93261 / size)) & 0xfff)) >> 12;
 		break;
 	case XUI_OPT_TEXT_CENTER:
 		x = r->x + (r->w - w) / 2;
@@ -778,6 +786,8 @@ void xui_draw_text_align(struct xui_context_t * ctx, const char * family, int si
 	default:
 		x = r->x + ctx->style.layout.padding;
 		y = r->y + (r->h - h) / 2;
+		if(opt & XUI_OPT_TEXT_SCROLL)
+			x -= w * ((ktime_to_ns(ctx->stamp) / (w * 38200 / size)) % 10000) / 10000.0;
 		break;
 	}
 	region_init(&region, x, y, w, h);

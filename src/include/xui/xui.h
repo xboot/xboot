@@ -40,6 +40,7 @@ enum {
 	XUI_OPT_TEXT_TOP				= (0x2 << 4),
 	XUI_OPT_TEXT_BOTTOM				= (0x3 << 4),
 	XUI_OPT_TEXT_CENTER				= (0x4 << 4),
+	XUI_OPT_TEXT_SCROLL				= (0x1 << 7),
 };
 
 enum {

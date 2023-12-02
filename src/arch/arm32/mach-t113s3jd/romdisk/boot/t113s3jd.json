@@ -660,7 +660,7 @@
 
 	"ts-t113@0x02009c00": {
 		"clock-name": "link-tpadc",
-		"interrupt": 78,
+		"interrupt": 94,
 		"reset": 1136,
 		"median-filter-length": 5,
 		"mean-filter-length": 5,

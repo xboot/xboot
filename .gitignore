@@ -19,3 +19,5 @@
 /src/.obj/
 /output/
 
+
+!output/xboot.bin

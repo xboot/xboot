@@ -7,6 +7,11 @@ TOOLCHAIN_DIR="/opt/csky-elf-tools"
 TOOLCHAIN_URL="https://occ-oss-prod.oss-cn-hangzhou.aliyuncs.com/resource/1356021/1619529266702/csky-elf-tools-x86_64-minilibc-20210423.tar.gz"
 
 echo "This script requires sudo to create directories in /opt."
+
+echo "Installing required OS dependencies..."
+sudo apt-get update
+sudo apt-get install -y cpio u-boot-tools
+
 echo "Creating toolchain directory at $TOOLCHAIN_DIR..."
 sudo mkdir -p "$TOOLCHAIN_DIR"
 

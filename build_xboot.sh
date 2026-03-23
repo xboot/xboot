@@ -13,6 +13,7 @@ export PLATFORM=csky-gx6605s
 echo "Building xboot for platform: $PLATFORM with toolchain prefix: $CROSS_COMPILE"
 
 cd src
-make
+make clean
+make CFG_FRAMEWORK=n CFG_CAIRO=n CFG_BOOTLOADER_ONLY=y
 
 echo "Build complete. The xboot binary can be found in the output/ directory."

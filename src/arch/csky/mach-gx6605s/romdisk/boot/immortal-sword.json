@@ -256,5 +256,10 @@
 
     "console-uart": {
         "uart-bus": "uart-gx6605s.0"
+    },
+
+    "led-fd650:0": {
+        "i2c-bus": "i2c-gx6605s.0",
+        "slave-address": 36
     }
 }

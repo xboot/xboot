@@ -249,5 +249,5 @@ void do_auto_boot(void)
 void do_shell_task(void)
 {
 	shell_system(CONFIG_SHELL_TASK);
-	shell_system("nes /boot/test.nes"); /* Run NES emulator after boot */
+	shell_system("menu /boot/menu.json"); /* Show graphical games menu instead of running straight into NES */
 }

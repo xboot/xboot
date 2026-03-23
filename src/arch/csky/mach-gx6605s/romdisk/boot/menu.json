@@ -1,0 +1,17 @@
+[
+	{
+		"icon": 61250,
+		"title": "Play NESTest ROM",
+		"command": "nes /boot/test.nes"
+	},
+	{
+		"icon": 61523,
+		"title": "Reboot System",
+		"command": "reboot"
+	},
+	{
+		"icon": 59513,
+		"title": "Exit to Shell",
+		"command": "kill menu"
+	}
+]

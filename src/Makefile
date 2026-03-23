@@ -176,6 +176,12 @@ SRCDIRS		+=	arch/$(ARCH)/lib/cpu \
 				driver/watchdog
 
 #
+INCDIRS		+= 	external/nes/inc \
+				external/nes/port
+SRCDIRS		+=	external/nes/src \
+				external/nes/port \
+				external/nes/src/nes_mapper
+
 # Add necessary external library
 #
 INCDIRS		+= 	external/libfdt-1.4.2

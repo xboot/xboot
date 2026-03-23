@@ -195,7 +195,7 @@
     },
 
     "nvmem-at24c02:0": {
-        "i2c-bus": "i2c-gx6605s.0",
+        "i2c-bus": "i2c-gpio.0",
         "slave-address": 80
     },
 
@@ -214,8 +214,18 @@
         "uart-bus": "uart-gx6605s.0"
     },
 
+    "i2c-gpio@0": {
+        "sda-gpio": 9,
+        "sda-gpio-config": 1,
+        "scl-gpio": 5,
+        "scl-gpio-config": 1,
+        "clock-frequency": 100000,
+        "clock-delay": 10,
+        "timeout": 100
+    },
+
     "led-fd650:0": {
-        "i2c-bus": "i2c-gx6605s.0",
+        "i2c-bus": "i2c-gpio.0",
         "slave-address": 36
     }
 }

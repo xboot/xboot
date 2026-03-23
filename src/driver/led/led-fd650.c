@@ -9,14 +9,14 @@ struct led_fd650_pdata_t {
 static void fd650_write(struct led_fd650_pdata_t * pdat, u8_t addr, u8_t data)
 {
 	struct i2c_msg_t msg;
-	u8_t buf[2];
+	u8_t buf[1];
 
-	buf[0] = addr;
-	buf[1] = data;
+	buf[0] = data;
 
-	msg.addr = pdat->dev->addr;
+	/* The FD650 uses I2C slave addresses directly as commands */
+	msg.addr = addr >> 1;
 	msg.flags = 0;
-	msg.len = 2;
+	msg.len = 1;
 	msg.buf = buf;
 
 	i2c_transfer(pdat->dev->i2c, &msg, 1);
@@ -71,11 +71,13 @@ static struct device_t * led_fd650_probe(struct driver_t * drv, struct dtnode_t 
 	/*
 	 * Initialization sequence for FD650 to display "boot"
 	 */
-	fd650_write(pdat, 0x48, 0x01); /* System Enable */
-	fd650_write(pdat, 0x60, 0x7c); /* 'b' */
-	fd650_write(pdat, 0x62, 0x5c); /* 'o' */
-	fd650_write(pdat, 0x64, 0x5c); /* 'o' */
-	fd650_write(pdat, 0x66, 0x78); /* 't' */
+	fd650_write(pdat, 0x48, 0x01 | 0x70); /* System Enable, Full Brightness */
+
+	/* The actual digits depend on FD650 vs FD655 and wiring. Let's use 0x66 based addresses (FD655) */
+	fd650_write(pdat, 0x66, 0x7c); /* 'b' */
+	fd650_write(pdat, 0x68, 0x5c); /* 'o' */
+	fd650_write(pdat, 0x6a, 0x5c); /* 'o' */
+	fd650_write(pdat, 0x6c, 0x78); /* 't' */
 
 	if(!(dev = register_led(led, drv)))
 	{

@@ -210,50 +210,6 @@
         ]
     },
 
-    "led-gpio:0": {
-        "gpio": 10,
-        "gpio-config": 1,
-        "active-low": false,
-        "default-brightness": 0
-    },
-
-    "led-gpio:1": {
-        "gpio": 11,
-        "gpio-config": 1,
-        "active-low": false,
-        "default-brightness": 0
-    },
-
-    "led-gpio:2": {
-        "gpio": 12,
-        "gpio-config": 1,
-        "active-low": false,
-        "default-brightness": 0
-    },
-
-    "led-gpio:3": {
-        "gpio": 13,
-        "gpio-config": 1,
-        "active-low": false,
-        "default-brightness": 0
-    },
-
-    "ledtrigger-heartbeat": {
-        "led-name": "led-gpio.3",
-        "period-ms": 1260
-    },
-
-    "key-gpio-polled:0": {
-        "keys": [
-            { "gpio": 8, "gpio-config": 1, "active-low": true, "key-code": 6 },
-            { "gpio": 6, "gpio-config": 1, "active-low": true, "key-code": 7 },
-            { "gpio": 5, "gpio-config": 1, "active-low": true, "key-code": 8 },
-            { "gpio": 9, "gpio-config": 1, "active-low": true, "key-code": 11 },
-            { "gpio": 7, "gpio-config": 1, "active-low": true, "key-code": 1 }
-        ],
-        "poll-interval-ms": 100
-    },
-
     "console-uart": {
         "uart-bus": "uart-gx6605s.0"
     },

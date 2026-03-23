@@ -1,0 +1,81 @@
+FROM ubuntu:18.04 as builder
+
+MAINTAINER Osprey
+
+#docker build -f nes-dockerfile -t nes.osprey.io/nes-build-run .
+
+# docker start nes-build
+# docker attach nes-build
+# docker exec -it  nes-build  /bin/bash
+
+
+# 创建用户 cmd:id
+ARG USERNAME=osprey
+ARG USER_UID=1000
+ARG USER_GID=$USER_UID
+
+RUN groupadd --gid $USER_GID $USERNAME \
+    && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME \
+    && apt-get update \
+    && apt-get install -y sudo \
+    && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
+    && chmod 0440 /etc/sudoers.d/$USERNAME
+
+RUN apt-get update
+# for cmd: add-apt-repository
+RUN apt -y install software-properties-common dirmngr apt-transport-https lsb-release ca-certificates
+RUN add-apt-repository ppa:xmake-io/xmake -y && apt-get update && apt-get install -y xmake
+RUN apt-get install -y p7zip-full libsdl2-dev
+
+RUN apt-get install -y git make gcc
+# option
+RUN  apt-get install -y nano iputils-ping
+# setting the password of root to 123456
+RUN echo 'root:123456' | chpasswd
+
+USER $USERNAME
+ENV HOME=/home/$USERNAME
+
+RUN mkdir /home/$USERNAME/work
+
+WORKDIR /home/$USERNAME/work
+
+RUN git clone https://gitee.com/PeakRacing/nes && cd nes && xmake
+
+
+###########################################
+FROM ubuntu:18.04 as prod
+
+#
+ENV TZ=Asia/Shanghai
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+# 创建用户 cmd:id
+ARG USERNAME=osprey
+ARG USER_UID=1000
+ARG USER_GID=$USER_UID
+
+RUN groupadd --gid $USER_GID $USERNAME \
+    && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME \
+    && apt-get update \
+    && apt-get install -y sudo \
+    && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
+    && chmod 0440 /etc/sudoers.d/$USERNAME
+
+RUN apt-get update
+RUN apt-get install -y p7zip-full libsdl2-dev
+
+USER $USERNAME
+ENV HOME=/home/$USERNAME
+
+RUN mkdir /home/$USERNAME/work
+WORKDIR /home/$USERNAME/work
+RUN echo "PS1='\[\e[0;33m\]\u@\h\[\e[0m\]:\[\e[0;34m\]\w\[\e[0m\]\$ '" >> /home/$USERNAME/.bashrc
+
+COPY --from=0 /home/$USERNAME/work/nes/build/linux/x86_64/release/nes .
+COPY contra.nes .
+COPY SuperMarioBrosWorld.nes .
+#CMD ["~/work/nes contra.nes"]
+
+# run cmd:
+# docker run --name=nes-test --rm -it -v /tmp/.X11-unix:/tmp/.X11-unix -v /dev/snd:/dev/snd --privileged -e DISPLAY=unix$DISPLAY nes.osprey.io/nes-build-run /bin/bash -c "./nes contra.nes"

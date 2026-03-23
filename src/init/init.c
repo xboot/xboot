@@ -249,5 +249,5 @@ void do_auto_boot(void)
 void do_shell_task(void)
 {
 	shell_system(CONFIG_SHELL_TASK);
-	shell_system("nes 0x80000000"); /* Run NES emulator after boot assuming ROM is at 0x80000000 */
+	shell_system("nes /boot/test.nes"); /* Run NES emulator after boot */
 }

@@ -1,0 +1,142 @@
+name: Create Release
+
+on:
+  push:
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]+"
+
+jobs:
+  release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Create Release
+        id: create_release
+        uses: softprops/action-gh-release@v2
+        env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+            tag_name: ${{ github.ref }}
+            name: Release ${{ github.ref }}
+            body: |
+              [CHANGELOG](https://github.com/PeakRacing/nes/blob/master/docs/CHANGELOG.md#Changelog)
+              [更新日志](https://github.com/PeakRacing/nes/blob/master/docs/CHANGELOG.md#更新日志)
+            draft: false
+            prerelease: false
+
+  macos:
+    needs: release
+    strategy:
+        matrix:
+          os: [macos-latest]
+          arch: [arm64]
+    runs-on: ${{ matrix.os }}
+    concurrency:
+        group: ${{ matrix.os }}-${{ matrix.arch }}
+        cancel-in-progress: true
+    steps:
+      - uses: actions/checkout@v4
+      - name: prepare software
+        run: |
+            ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+            brew update
+            brew install make sdl2 xmake
+            xmake update
+      - name: build
+        run: |
+            xrepo update-repo
+            cd ./sdl/sdl2
+            xmake -v -y
+            cp build/macosx/${{ matrix.arch }}/release/nes ../../nes-macos-${{ matrix.arch }}.AppImage
+            cd ../../
+
+      - name: Publish file to release
+        uses: svenstaro/upload-release-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file_glob: true
+          file: nes-macos-${{ matrix.arch }}.AppImage
+          tag: ${{ github.ref }}
+          overwrite: true
+
+  linux:
+    needs: release
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        arch: [x86_64]
+    runs-on: ${{ matrix.os }}
+    concurrency:
+        group: ${{ matrix.os }}-${{ matrix.arch }}
+        cancel-in-progress: true
+    steps:
+      - uses: actions/checkout@v4
+      - name: prepare software
+        run: |
+          sudo add-apt-repository ppa:xmake-io/xmake -y
+          # sudo dpkg --add-architecture i386
+          sudo apt-get update -y
+          # sudo apt-get install -y lib32z1 libc6:i386 libgcc1:i386 libstdc++5:i386 libstdc++6:i386
+          sudo apt-get install -y git make gcc p7zip-full libsdl2-dev xmake
+          sudo apt-get upgrade -y
+          xmake update
+      - name: build
+        run: |
+          xrepo update-repo
+          cd ./sdl/sdl2
+          xmake -v -y
+          cp build/linux/${{ matrix.arch }}/release/nes ../../nes-linux-${{ matrix.arch }}.bin
+          cd ../../
+
+      - name: Publish file to release
+        uses: svenstaro/upload-release-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file_glob: true
+          file: nes-linux-${{ matrix.arch }}.bin
+          tag: ${{ github.ref }}
+          overwrite: true
+
+  windows:
+    needs: release
+    strategy:
+      matrix:
+          os: [windows-latest]
+          arch: [x64]
+    runs-on: ${{ matrix.os }}
+    concurrency:
+        group: ${{ matrix.os }}-${{ matrix.arch }}
+        cancel-in-progress: true
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up MSVC
+        uses: ilammy/msvc-dev-cmd@v1
+      - name: prepare software
+        uses: xmake-io/github-action-setup-xmake@v1
+        with:
+          xmake-version: latest
+      - name: build
+        run: |
+          xrepo update-repo
+          cd ./sdl/sdl2
+          xmake -v -y
+          cp build/windows/${{ matrix.arch }}/release/nes.exe ../../nes-windows-${{ matrix.arch }}.exe
+          cd ../../
+
+      - name: Publish file to release
+        uses: svenstaro/upload-release-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file_glob: true
+          file: nes-windows-${{ matrix.arch }}.exe
+          tag: ${{ github.ref }}
+          overwrite: true

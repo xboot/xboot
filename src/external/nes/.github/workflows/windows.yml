@@ -1,0 +1,51 @@
+
+name: Windows
+run-name: Windows Build
+
+on:
+  push:
+    branches: [ "master" ]
+    paths-ignore:
+        - '.github/workflows/release.yml'
+        - 'docs/**'
+        - 'README.md'
+        - 'README_zh.md'
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+    strategy:
+        matrix:
+          os: [windows-latest]
+          arch: [x64]
+    runs-on: ${{ matrix.os }}
+    concurrency:
+        group: ${{ matrix.os }}-${{ matrix.arch }}
+        cancel-in-progress: true
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up MSVC
+        uses: ilammy/msvc-dev-cmd@v1
+      - name: prepare software
+        uses: xmake-io/github-action-setup-xmake@v1
+        with:
+          xmake-version: latest
+      - name: build sdl2-nes
+        run: |
+          xrepo update-repo
+          cd ./sdl/sdl2
+          xmake -v -y
+          cp build/windows/${{ matrix.arch }}/release/nes.exe ../../nes-windows-${{ matrix.arch }}.exe
+          cd ../../
+      - name: build sdl3-nes
+        run: |
+          xrepo update-repo
+          cd ./sdl/sdl3
+          xmake -v -y
+          # cp build/windows/${{ matrix.arch }}/release/nes.exe ../../nes-windows-${{ matrix.arch }}.exe
+          cd ../../
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nes-windows-${{ matrix.arch }}.exe
+          path: nes-windows-${{ matrix.arch }}.exe

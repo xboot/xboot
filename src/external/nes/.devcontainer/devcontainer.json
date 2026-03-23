@@ -1,0 +1,48 @@
+{
+    "name": "osprey nes",
+
+    // Default path to open when attaching to a new container.
+    "workspaceFolder": "/home/osprey/work",
+    "image":"nes.osprey.io/nes-build-run",
+
+    // Set *default* container specific settings.json values on container create.
+    "customizations": {
+      "vscode": {
+        "settings": {
+          "terminal.integrated.defaultProfile.linux": "bash",
+          "cmake.automaticReconfigure": false,
+          "cmake.configureOnEdit": false
+        },
+        "extensions": [
+            // Put your favourite extensions here
+            // "mhutchie.git-graph",
+            // "eamodio.gitlens",
+            // "ms-vscode.cmake-tools",
+            // "ms-vscode.cpptools",
+            // "ms-vscode.cpptools-extension-pack",
+		    ]
+      }
+    },
+
+    // An array port numbers to forward
+    "forwardPorts": [],
+    // "postCreateCommand": "echo 'hello container'",
+    // Container user VS Code should use when connecting
+    "remoteUser": "osprey",
+    // Set environment variables for VS Code and sub-processes
+    "containerEnv": {
+        "MY_VARIABLE": "some-value",
+        // "DISPLAY": ":0"
+    },
+
+    "runArgs": [
+      "--network=host"
+    ],
+    "privileged": true,
+    "mounts": [
+      // for audio device
+      "source=/dev/snd,target=/dev/snd,type=bind,consistency=cached",
+      // for video
+      "source=/tmp/.X11-unix,target=/tmp/.X11-unix,type=bind,consistency=cached"
+   ]
+  }

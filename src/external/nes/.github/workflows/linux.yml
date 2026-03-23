@@ -1,0 +1,55 @@
+
+name: linux
+run-name: Linux Build
+
+on:
+  push:
+    branches: [ "master" ]
+    paths-ignore:
+        - '.github/workflows/release.yml'
+        - 'docs/**'
+        - 'README.md'
+        - 'README_zh.md'
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+    strategy:
+        matrix:
+          os: [ubuntu-latest]
+          arch: [x86_64]
+    runs-on: ${{ matrix.os }}
+    concurrency:
+        group: ${{ matrix.os }}-${{ matrix.arch }}
+        cancel-in-progress: true
+    steps:
+      - uses: actions/checkout@v4
+      - name: prepare software
+        run: |
+          sudo add-apt-repository ppa:xmake-io/xmake -y
+          # sudo dpkg --add-architecture i386
+          sudo apt-get update -y
+          # sudo apt-get install -y lib32z1 libc6:i386 libgcc1:i386 libstdc++5:i386 libstdc++6:i386
+          sudo apt-get install -y git make gcc p7zip-full libsdl2-dev xmake
+          sudo apt-get upgrade -y
+          xmake update
+      - name: build sdl2-nes
+        run: |
+          xrepo update-repo
+          cd ./sdl/sdl2
+          xmake -v -y
+          cp build/linux/${{ matrix.arch }}/release/nes ../../nes-linux-${{ matrix.arch }}.bin
+          cd ../../
+      - name: build sdl3-nes
+        run: |
+          xrepo update-repo
+          cd ./sdl/sdl3
+          xmake -v -y
+          # cp build/linux/${{ matrix.arch }}/release/nes ../../nes-linux-${{ matrix.arch }}.bin
+          cd ../../
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nes-linux-${{ matrix.arch }}.bin
+          path: nes-linux-${{ matrix.arch }}.bin

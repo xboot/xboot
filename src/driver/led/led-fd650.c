@@ -87,6 +87,8 @@ static struct device_t * led_fd650_probe(struct driver_t * drv, struct dtnode_t 
 		i2c_device_free(i2cdev);
 		return NULL;
 	}
+
+	printf("FD650 LED driver initialized and configured successfully.\r\n");
 	return dev;
 }
 

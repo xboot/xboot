@@ -19,7 +19,18 @@ static int cir_gx6605s_poll(struct timer_t * timer, void * data)
 		int i;
 		for (i = 0; i < num; i++) {
 			u32_t code = read32(pdat->virt + GX6605S_CIR_FIFO);
-			printf("CIR RX: 0x%08x\r\n", code);
+
+			/* Decode the 32-bit hardware code assuming NEC format */
+			u8_t addr  = (code >>  0) & 0xff;
+			u8_t cmd   = (code >> 16) & 0xff;
+			u8_t rcmd  = (code >> 24) & 0xff;
+
+			/* Usually cmd and rcmd are inverses in standard NEC */
+			if ((cmd ^ rcmd) == 0xff) {
+				printf("CIR NEC Decoded - Addr: 0x%02x, Cmd: 0x%02x (Raw: 0x%08x)\r\n", addr, cmd, code);
+			} else {
+				printf("CIR RX Raw: 0x%08x\r\n", code);
+			}
 		}
 		write32(pdat->virt + GX6605S_CIR_INT, val); /* clear interrupt */
 	}
@@ -62,7 +73,7 @@ static struct device_t * cir_gx6605s_probe(struct driver_t * drv, struct dtnode_
 	}
 
 	dev->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
-	dev->type = DEVICE_TYPE_INPUT; // generic, or maybe we just don't register it properly if we only poll
+	dev->type = DEVICE_TYPE_INPUT;
 	dev->driver = drv;
 	dev->priv = pdat;
 	dev->kobj = kobj_alloc_directory(dev->name);

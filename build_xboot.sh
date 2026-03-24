@@ -6,7 +6,10 @@ set -e
 # The toolchain must be installed in /opt/csky-elf-tools before running this script.
 # You can use the setup_csky_toolchain.sh script to do this.
 
-export PATH=$PATH:/opt/csky-elf-tools/bin
+#export PATH=$PATH:/opt/csky-elf-tools/bin
+
+#localy
+export PATH=$PATH:/home/ahmed/csky-elf-tools/bin
 export CROSS_COMPILE=csky-elf-
 export PLATFORM=csky-gx6605s
 

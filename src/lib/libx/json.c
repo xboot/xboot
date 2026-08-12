@@ -7,6 +7,7 @@
 #include <math.h>
 #include <stdio.h>
 #include <malloc.h>
+#include <limits.h>
 #include <json.h>
 
 enum {
@@ -94,6 +95,8 @@ static int new_value(struct json_state_t * state, struct json_value_t ** top, st
 		case JSON_ARRAY:
 			if(value->u.array.length == 0)
 				break;
+			if((unsigned long)value->u.array.length > state->ulong_max / sizeof(struct json_value_t *))
+				return 0;
 			if(!(value->u.array.values = (struct json_value_t **)json_alloc(state, value->u.array.length * sizeof(struct json_value_t *), 0)))
 				return 0;
 			value->u.array.length = 0;
@@ -102,6 +105,8 @@ static int new_value(struct json_state_t * state, struct json_value_t ** top, st
 		case JSON_OBJECT:
 			if(value->u.object.length == 0)
 				break;
+			if(value->u.object.length > (int)(INT_MAX / sizeof(*value->u.object.values)))
+				return 0;
 			values_size = sizeof(*value->u.object.values) * value->u.object.length;
 
 			if(!(value->u.object.values = (struct json_object_entry_t *)json_alloc(state, values_size + ((unsigned long)value->u.object.values), 0)))
